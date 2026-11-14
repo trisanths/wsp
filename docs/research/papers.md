@@ -355,7 +355,7 @@ Sources: Snoek, Larochelle, Adams (2012) https://arxiv.org/abs/1206.2944 rank ca
 
 ### 8.4 Random-part control
 
-Bansal et al.'s random-network stitch is the template: same stitcher, same training, untrained or irrelevant source. Our control: replace each graft id with a random part of the same type and size from a random donor, keep `at`, glue, and heal steps identical, at the same budget, 3 seeds. Report selected minus random on held-out with paired SE. If the gap is within noise, the heal is doing the work.
+Precedents: Panigrahi et al. (2023) https://arxiv.org/abs/2302.06600 show learned graft regions (0.01% of params, over 95% of FT accuracy) far beat random regions. Lu et al. (2021) https://arxiv.org/abs/2103.05247: a frozen random transformer with trained interface reached 61.7% vs 68.2% pretrained on CIFAR-10, so glue alone gets far. Aghajanyan et al. (2020) https://arxiv.org/abs/2012.13255: 200 trained parameters reach 90% of FT on MRPC. Adewuyi et al. (2026) https://arxiv.org/abs/2602.01599: random 1% subsets match full RLVR. Together: a 6M-parameter glue can learn the task by itself. Bansal et al.'s random-network stitch is the template: same stitcher, same training, untrained or irrelevant source. Our control: replace each graft id with a random part of the same type and size from a random donor, keep `at`, glue, and heal steps identical, at the same budget, 3 seeds. Report selected minus random on held-out with paired SE. If the gap is within noise, the heal is doing the work.
 
 ### 8.5 Updated recommendations for the graft space
 
@@ -363,7 +363,8 @@ Bansal et al.'s random-network stitch is the template: same stitcher, same train
 - Judge, fidelity 0 = fit score (free): reject grafts whose fit is worse than the median fit of random parts at the same `at`. Then sanity check, then low-fidelity eval, then full eval, as in 7.3. Track the Spearman correlation of fit vs post-heal score online; if it stays under about 0.3 after 20 programs, stop using fit to prune (my threshold).
 - Heal as fidelity: short heal (for example 50 steps) at low fidelity, full heal only for promoted programs, same as successive halving over heal steps.
 - Evolutionary baseline over grafts (regularized evolution fits this space better than CMA-ES): population 12, tournament 3; mutation operators sampled uniformly: swap part (same type), move `at` by plus or minus 1 to 3 layers, add a graft, drop a graft, change heal steps (x0.5 or x2 within bounds), and for the host, flip one mask-block bit. Free fit-score rejection applies to the baseline too, so the comparison stays fair.
-- Controls: random-part arm (8.4), heal-only arm (host + heal, no grafts), heal steps = 0 arm.
+- Controls: random-part arm (8.4), heal-only arm (host + heal, no grafts), heal steps = 0 arm. Make the random-part arm a full random-search arm with the same budget and judge, so "best of N searched" is compared with "best of N random".
+- Env: two counters (evals, GPU-seconds); `truncated` when either is spent; `info` carries fit R^2 per graft, parameter counts, heal loss curve, and seconds per phase.
 
 ## Top recommendations (summary)
 
