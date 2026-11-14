@@ -2,7 +2,7 @@
 
 Write a model as a program over components, then compile it into one model.
 
-This repo holds the language and compiler (part 2). The team split and each
+This repo holds the language and compiler (part 2) and the eval harness and extraction tools (part 1b, [wsp_eval/README.md](wsp_eval/README.md)). The team split and each
 person's agent brief are in [briefs/](briefs/). Checked facts about Deletion
 Tuning are in [VERIFY.md](VERIFY.md).
 
