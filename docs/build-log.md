@@ -24,3 +24,21 @@ Working rule from Rex: no branches, push straight to `main`. The orchestrator do
 
 - Opened and pinned [issue #1](https://github.com/trisanths/wsp/issues/1) as the part 3 status board for teammates and their agents. The body gives a comment template (Part, Done, Files, Interface change, Needs, Next), part 3's current status, the files part 3 touches and avoids, what part 3 needs from parts 1a, 1b and 2, and Arjun's open questions.
 - Rule from here: part 3 posts a comment on #1 at every milestone and reads new comments before each build wave.
+
+## 2026-11-14, step 3: research notes in (Modal, Exa, past.dev)
+
+- `docs/research/modal.md`: the keys belong to workspace `rexheng`, not Trisanth's, so part 3 deploys its own apps and volume. Auth goes through env vars only. The budget design is a Queue pre-filled with N tokens, one popped per eval. It was tested from 8 threads and from 4 containers with no duplicates and no losses. A Dict read-modify-write counter lost updates (6 of 40 survived), so it's ruled out. GPU per hour: L4 $0.80, A10 $1.10, L40S $1.95, A100-80GB $2.50, H100 $3.95.
+- `docs/research/pastdev.md`: raw text is recallable about 4 s after a send, and derived memory after 10 to 13 s. Isolation is per run, with audiences such as `<run>-lessons`; a recall from outside the audience returned nothing. There's no completion route that could serve as a planner model. The cost estimate is about 1,300 credits per 200-eval run, against a balance of about 549,994.
+- `docs/research/exa.md`: the `research paper` category is now `publication`, and the search types are `auto`, `lite`, `deep-lite` and `deep`. The design freezes a priors pack before eval 1 and runs graded runs in replay mode. A cold run costs about $0.9. There's no Exa key yet.
+
+## 2026-11-14, step 4: part 2 changed the action space; spec version 2
+
+- Trisanth's update (saved as `briefs/brief-R-update-1.md`) changes programs to a host plus grafts from any donor family, plus an optional heal. Each graft gets a fit score at compile time. Compile and heal count against the budget. A new control: a random cluster through the same glue.
+- `docs/part3-design.md` version 2:
+  - a two-axis budget (eval tokens and compute seconds);
+  - a fit probe and gate open to every arm;
+  - one `schema.py` module, so the schema lock touches one file;
+  - a stub with graft parts, fit scores, heal and a cost model;
+  - both controls on every final program;
+  - the file split for six build agents after the core.
+- The papers agent got an addendum covering graft and stitching search (Sakana data-flow-space merging, model stitching, cheap pre-heal fit signals, budget methodology on two axes).

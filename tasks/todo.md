@@ -6,9 +6,9 @@ Status board: https://github.com/trisanths/wsp/issues/1 (pinned). Post a comment
 
 ## Wave 1: research
 - [ ] papers and prior work (`docs/research/papers.md`)
-- [ ] Modal docs (`docs/research/modal.md`)
-- [ ] Exa docs (`docs/research/exa.md`)
-- [ ] past.dev docs (`docs/research/pastdev.md`)
+- [x] Modal docs (`docs/research/modal.md`)
+- [x] Exa docs (`docs/research/exa.md`)
+- [x] past.dev docs (`docs/research/pastdev.md`)
 
 ## Wave 2: design
 - [ ] spec at `docs/part3-design.md` with module split and interfaces
