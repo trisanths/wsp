@@ -1,0 +1,27 @@
+[project]
+name = "wsp"
+version = "0.1.0"
+description = "Weight-space programming: compose model components into one model"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "numpy",
+    "safetensors",
+    "torch",
+    "zstandard",
+]
+
+[project.optional-dependencies]
+compile = ["transformers>=4.45", "accelerate", "huggingface_hub"]
+dev = ["pytest"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
