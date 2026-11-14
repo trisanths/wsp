@@ -147,23 +147,82 @@ class TaskVector:
         return {"id": self.component_id, "weight": self.weight, "layers": self.layers, "modules": self.modules}
 
 
-class Program:
-    """A model described as a base plus components.
+class GraftSpec:
+    """Graft a catalog part into the host.
 
-    Compile order: task vectors are added first, then the mask is applied.
+    at: host layer index, or None for the default depth
+        round(donor_layer / donor_layers * host_layers).
+    control: None, or "random" to replace the part's units with random
+        units of the same count from the same donor layer (the control).
     """
 
-    def __init__(self, base, masks=None, task_vectors=None, seed=0):
-        self.base = base
+    def __init__(self, component_id, at=None, control=None, control_seed=0):
+        if control not in (None, "random"):
+            raise ValueError(f"unknown control: {control!r}")
+        self.component_id = component_id
+        self.at = at
+        self.control = control
+        self.control_seed = control_seed
+
+    def to_dict(self):
+        return {"id": self.component_id, "at": self.at, "control": self.control, "control_seed": self.control_seed}
+
+
+class HealSpec:
+    """Train only the graft glue on task data after assembly."""
+
+    def __init__(self, steps=300, data="gsm8k_train", lr=3e-4, batch_size=8, seq_len=384):
+        self.steps = steps
+        self.data = data
+        self.lr = lr
+        self.batch_size = batch_size
+        self.seq_len = seq_len
+
+    def to_dict(self):
+        return {"steps": self.steps, "data": self.data, "lr": self.lr,
+                "batch_size": self.batch_size, "seq_len": self.seq_len}
+
+
+class Program:
+    """A model described as a host plus components.
+
+    Compile order: task vectors, then the mask, then grafts, then heal.
+    `base` is an older name for `host` and still works.
+    """
+
+    def __init__(self, host=None, masks=None, task_vectors=None, seed=0, base=None, grafts=None, heal=None):
+        if host is None:
+            host = base
+        if host is None:
+            raise ValueError("a program needs a host model")
+        self.host = host
         self.masks = masks
         self.task_vectors = []
         if task_vectors is not None:
             self.task_vectors = list(task_vectors)
+        self.grafts = []
+        if grafts is not None:
+            self.grafts = list(grafts)
+        self.heal_spec = heal
         self.seed = seed
+
+    @property
+    def base(self):
+        return self.host
 
     def tv(self, component_id, weight=1.0, layers=None, modules=None):
         """Add a task vector. Returns self so calls can chain."""
         self.task_vectors.append(TaskVector(component_id, weight, layers, modules))
+        return self
+
+    def graft(self, component_id, at=None, control=None, control_seed=0):
+        """Add a graft. Returns self so calls can chain."""
+        self.grafts.append(GraftSpec(component_id, at, control, control_seed))
+        return self
+
+    def heal(self, steps=300, data="gsm8k_train", lr=3e-4, batch_size=8, seq_len=384):
+        """Set the heal pass. Returns self so calls can chain."""
+        self.heal_spec = HealSpec(steps, data, lr, batch_size, seq_len)
         return self
 
     def component_ids(self):
@@ -173,14 +232,29 @@ class Program:
             collect_ids(self.masks, ids)
         for tv in self.task_vectors:
             ids.append(tv.component_id)
+        for graft in self.grafts:
+            ids.append(graft.component_id)
+        return ids
+
+    def host_component_ids(self):
+        """Return the ids that must be built on the host (masks and task vectors)."""
+        ids = []
+        if self.masks is not None:
+            collect_ids(self.masks, ids)
+        for tv in self.task_vectors:
+            ids.append(tv.component_id)
         return ids
 
     def to_dict(self):
-        data = {"base": self.base, "seed": self.seed, "masks": None, "task_vectors": []}
+        data = {"host": self.host, "seed": self.seed, "masks": None, "task_vectors": [], "grafts": [], "heal": None}
         if self.masks is not None:
             data["masks"] = self.masks.to_dict()
         for tv in self.task_vectors:
             data["task_vectors"].append(tv.to_dict())
+        for graft in self.grafts:
+            data["grafts"].append(graft.to_dict())
+        if self.heal_spec is not None:
+            data["heal"] = self.heal_spec.to_dict()
         return data
 
     @classmethod
@@ -191,16 +265,31 @@ class Program:
         task_vectors = []
         for tv in data.get("task_vectors", []):
             task_vectors.append(TaskVector(tv["id"], tv["weight"], tv["layers"], tv["modules"]))
-        return cls(base=data["base"], masks=masks, task_vectors=task_vectors, seed=data.get("seed", 0))
+        grafts = []
+        for graft in data.get("grafts", []):
+            grafts.append(GraftSpec(graft["id"], graft.get("at"), graft.get("control"), graft.get("control_seed", 0)))
+        heal = None
+        if data.get("heal") is not None:
+            heal = HealSpec(**data["heal"])
+        host = data.get("host")
+        if host is None:
+            host = data["base"]
+        return cls(host=host, masks=masks, task_vectors=task_vectors, seed=data.get("seed", 0),
+                   grafts=grafts, heal=heal)
 
-    def compile(self, output_dir, catalog):
-        """Build the model and save it to output_dir. Return output_dir."""
+    def compile(self, output_dir, catalog, **options):
+        """Build the model and save it to output_dir. Return output_dir.
+
+        options pass through to wsp.compiler.compile_program
+        (align_texts, heal_texts, device, cache_dir).
+        """
         from wsp.compiler import compile_program
 
-        return compile_program(self, catalog, output_dir)
+        return compile_program(self, catalog, output_dir, **options)
 
     def __repr__(self):
-        return f"Program(base={self.base!r}, masks={self.masks!r}, task_vectors={len(self.task_vectors)})"
+        return (f"Program(host={self.host!r}, masks={self.masks!r}, "
+                f"task_vectors={len(self.task_vectors)}, grafts={len(self.grafts)})")
 
 
 def collect_ids(expr, ids):

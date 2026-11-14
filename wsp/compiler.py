@@ -23,12 +23,16 @@ class CompileError(Exception):
 
 
 def check_same_base(program, catalog):
-    for component_id in program.component_ids():
+    """Masks and task vectors edit the host's own weights, so they must be built on the host.
+
+    Grafts can come from any model and are not checked here.
+    """
+    for component_id in program.host_component_ids():
         record = catalog.get(component_id)
-        if record["base"] != program.base:
+        if record["base"] != program.host:
             raise CompileError(
-                f"{component_id} is built on {record['base']}, but the program base is {program.base}. "
-                "Cross-family components need a stitch layer, which is not built yet."
+                f"{component_id} is built on {record['base']}, but the program host is {program.host}. "
+                "Use a graft to bring in a part from another model."
             )
 
 
@@ -90,15 +94,25 @@ def apply_mask(params, mask):
     return deleted
 
 
-def compile_program(program, catalog, output_dir):
+def compile_program(program, catalog, output_dir, align_texts=None, heal_texts=None, device=None, cache_dir=None):
+    """Build the program's model and save it to output_dir. Return output_dir.
+
+    align_texts: texts for the W_in ridge fit. None skips the fit, so W_in
+        starts random and the heal pass trains it.
+    heal_texts: training texts for the heal pass. None loads them from the
+        program's heal data name.
+    """
     import transformers
 
     check_same_base(program, catalog)
     torch.manual_seed(program.seed)
+    if device is None:
+        device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    model = transformers.AutoModelForCausalLM.from_pretrained(program.base, torch_dtype=torch.bfloat16)
+    model = transformers.AutoModelForCausalLM.from_pretrained(program.host, dtype=torch.bfloat16)
+    tokenizer = transformers.AutoTokenizer.from_pretrained(program.host)
     params = dict(model.named_parameters())
-    report = {"base": program.base, "task_vectors": [], "mask": None}
+    report = {"host": program.host, "task_vectors": [], "mask": None, "grafts": [], "heal": None}
 
     if len(program.task_vectors) > 0:
         base_params = {}
@@ -130,10 +144,61 @@ def compile_program(program, catalog, output_dir):
         }
 
     os.makedirs(output_dir, exist_ok=True)
-    model.save_pretrained(output_dir)
-    transformers.AutoTokenizer.from_pretrained(program.base).save_pretrained(output_dir)
+    tokenizer.save_pretrained(output_dir)
+    host_changed = program.masks is not None or len(program.task_vectors) > 0
+    if len(program.grafts) == 0:
+        model.save_pretrained(output_dir)
+    elif host_changed:
+        model.save_pretrained(os.path.join(output_dir, "host"))
+
+    if len(program.grafts) > 0:
+        compile_grafts(program, catalog, model, tokenizer, output_dir, report,
+                       align_texts, heal_texts, device, cache_dir)
+
     with open(os.path.join(output_dir, "program.json"), "w") as f:
         json.dump(program.to_dict(), f, indent=2)
     with open(os.path.join(output_dir, "compile_report.json"), "w") as f:
         json.dump(report, f, indent=2)
     return output_dir
+
+
+def compile_grafts(program, catalog, model, tokenizer, output_dir, report, align_texts, heal_texts, device, cache_dir):
+    """Build, fit, attach, and heal the grafts. Save their weights."""
+    import time
+
+    from safetensors.torch import save_file
+
+    from wsp.assemble import build_graft
+    from wsp.graft import attach_grafts, freeze_all_but_glue, glue_parameters
+    from wsp.heal import heal
+
+    model.to(device)
+    model.eval()
+    placements = []
+    metas = []
+    for spec in program.grafts:
+        host_layer, graft, meta = build_graft(spec, catalog, model, tokenizer, align_texts, device, cache_dir)
+        placements.append((host_layer, graft))
+        metas.append(meta)
+    attach_grafts(model, placements)
+    model.wsp_grafts.to(device)
+    report["grafts"] = metas
+
+    if program.heal_spec is not None:
+        spec = program.heal_spec
+        if heal_texts is None:
+            from wsp.data import task_texts
+
+            heal_texts = task_texts(spec.data, seed=0)
+        freeze_all_but_glue(model)
+        start = time.time()
+        losses = heal(model, tokenizer, heal_texts, glue_parameters(model), steps=spec.steps, lr=spec.lr,
+                      batch_size=spec.batch_size, seq_len=spec.seq_len, seed=program.seed)
+        report["heal"] = {"spec": spec.to_dict(), "losses": losses, "seconds": round(time.time() - start, 1)}
+
+    state = {}
+    for key, value in model.wsp_grafts.state_dict().items():
+        state[key] = value.detach().cpu().contiguous()
+    save_file(state, os.path.join(output_dir, "graft_weights.safetensors"))
+    with open(os.path.join(output_dir, "grafts.json"), "w") as f:
+        json.dump(metas, f, indent=2)
