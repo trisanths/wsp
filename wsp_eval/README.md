@@ -67,7 +67,7 @@ MODAL_PROFILE=trisanth modal run modal_eval.py::extract --model Qwen/Qwen3-30B-A
 ```
 
 For each layer, units are scored by how much more they respond to GSM8K training text (heal split, never
-search or held-out) than to WikiText:
+search or held-out) than to WikiText-2:
 
 - `mlp_cluster`: Cohen's d of |neuron activation| (the input to `down_proj`)
 - `attn_heads`: Cohen's d of each query head's output norm (its slice of the `o_proj` input)
