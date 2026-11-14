@@ -47,7 +47,7 @@ class Catalog:
             return download_hf_dir(path)
         if os.path.isabs(path):
             return path
-        return os.path.join(self.root, path)
+        return os.path.join(self.root, *path.split("/"))
 
 
 def download_hf_dir(path):
