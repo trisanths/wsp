@@ -326,16 +326,28 @@ The action space is now `{"host", "grafts": [{"id", "at"}], "heal": {"steps", "d
 **Lenc, Vedaldi (2015). Understanding image representations by measuring their equivariance and equivalence.** https://arxiv.org/abs/1411.5908 (unverified: not reopened). Origin of stitching two networks with a learned linear layer.
 
 **Bansal, Nakkiran, Barak (2021). Revisiting Model Stitching to Compare Neural Representations.** https://arxiv.org/abs/2106.07682
-- Stitcher is a low-capacity layer (1x1 conv with BatchNorm; linear 768 x 768 for ViT). Stitching penalty = drop in accuracy. Stitching an untrained random network gives a high penalty, especially in later layers, so a linear stitcher does not "learn the task". Full fine-tuning of the top layers, by contrast, could not distinguish a trained bottom network from a random one. CKA and stitching sometimes disagree (CKA as low as 0 between compatible networks).
+- Stitcher is a low-capacity layer (1x1 conv with BatchNorm; linear 768 x 768 for ViT). Stitching penalty = drop in accuracy. Stitching an untrained random bottom network gives a low penalty at early layers and a high one later, so early-layer stitches prove little. Fine-tuning the top layers overestimates similarity compared with stitching. CKA and stitching sometimes disagree (CKA as low as 0 between compatible networks).
 - Takeaways: (1) a heavy heal can hide bad part selection, which is exactly why the random-part control is required; (2) linear stitching loss is a better pre-heal compatibility signal than CKA; (3) keep the glue low-capacity and fixed across arms.
 
 **Kornblith et al. (2019). Similarity of Neural Network Representations Revisited (CKA).** https://arxiv.org/abs/1905.00414 (unverified: not reopened). Takeaway: cheap to compute, but Bansal et al. show it can mislead about functional compatibility. Log it; do not rank on it alone.
 
-Cross-family LLM stitching and "LLM surgery": I did not find and verify a paper that reports how well pre-heal stitching loss predicts post-heal benchmark score for LLMs. Treat that correlation as unknown and measure it ourselves (see 8.5).
+**Armstrong, Ayoobi, Mukherjee (2026). Thinking in Different Spaces.** https://arxiv.org/abs/2603.20406 (abstract). Ridge maps between 20 heterogeneous LLM pairs reach R^2 0.50 (verbal) and 0.40 (math); permutation control gives -0.22. Correlation between map R^2 and behavioral effect is near zero (r = -0.07). Takeaway: our ridge R^2 fit score is a veto for broken placements, not a ranking signal.
+
+**Syed (2026). Actionable Activation Directions across families.** https://arxiv.org/abs/2606.20225 (abstract). Ridge transfer across Qwen, Gemma, Llama-3.2-1B, Ministral gave large effects, but random and orthogonal directions did as well. Takeaway: cross-family effects can be non-specific; the random-part control is mandatory.
+
+**Chen, Merullo, Stolfo, Pavlick (2025).** https://arxiv.org/abs/2506.06609 (abstract): affine maps between residual streams of different-size models transfer SAEs, probes, steering. **Sudakov et al. (2026), MATCHA** https://arxiv.org/abs/2610.09058 (abstract): cross-model layer maps are monotone in depth but many-to-many. Takeaway: the default relative-depth `at` is a sound start; search plus or minus a few layers.
+
+**Gromov et al. (2024). The Unreasonable Ineffectiveness of the Deeper Layers.** https://arxiv.org/abs/2403.17887. Angular distance between layer l and l+n picks blocks to prune; QLoRA "healing" restores QA accuracy until about half of Llama-2-70B's layers are gone; never drop the final layer. **Sun et al. (2024). Transformer Layers as Painters.** https://arxiv.org/abs/2407.09298: middle layers share a representation space, first and last differ. Takeaway: graft into middle host layers first; avoid the first two and last two.
+
+**Bandarkar et al. (2024). Layer Swapping.** https://arxiv.org/abs/2410.01335 (abstract): swapping top and bottom layers of a math expert with a language expert's (same base) gave +10% MGSM. Same-family precedent for transplant without heal.
+
+**mergekit passthrough** (README, verified): copies tensors from one input model per slice; the tool for frankenmerging, layer stacking, and model surgery. Sakana used frankenmerging as an unoptimized baseline.
+
+No paper I found reports how well pre-heal fit predicts post-heal benchmark score for cross-family grafts. Measure it (8.5).
 
 ### 8.3 Two-axis budget
 
-No paper above reports a standard for an eval-count plus compute-seconds budget. Conventions I recommend, building on NAS-Bench-101 (plot against wall-clock and evaluations) and Hyperband (resource = cost unit):
+Sources: Snoek, Larochelle, Adams (2012) https://arxiv.org/abs/1206.2944 rank candidates by expected improvement per second. Dodge et al. (2019) https://arxiv.org/abs/1909.03004 report expected best validation score as a function of trials or training time. Sivaprasad et al. (2020) https://arxiv.org/abs/1910.11758: fair method comparison must charge hyperparameter tuning cost. Dehghani et al. (2022) https://arxiv.org/abs/2110.12894: no single cost indicator suffices; report several. Conventions I recommend, building on NAS-Bench-101 (plot against wall-clock and evaluations) and Hyperband (resource = cost unit):
 - Charge every action in GPU-seconds on one fixed GPU type: compile, heal, eval, and stitch fitting. Log eval count separately.
 - Make GPU-seconds the primary x-axis; show eval count as a second chart. Claims must hold on both.
 - LoRA and FFT get the same GPU-seconds as one search run, spent on training plus their own hyperparameter selection evals on the search split. Report their curve as score vs training seconds on the same axis.
