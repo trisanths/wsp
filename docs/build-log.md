@@ -42,3 +42,16 @@ Working rule from Rex: no branches, push straight to `main`. The orchestrator do
   - both controls on every final program;
   - the file split for six build agents after the core.
 - The papers agent got an addendum covering graft and stitching search (Sakana data-flow-space merging, model stitching, cheap pre-heal fit signals, budget methodology on two axes).
+
+## 2026-11-14, step 5: papers research in; schema locked by part 2; a parallel writer stopped
+
+- `docs/research/papers.md` (422 lines) gives the key recommendations:
+  - fit R squared only chooses `at` and vetoes, since it is identical for any part from one donor layer;
+  - the random-part control becomes a full search arm;
+  - a two-axis budget, with GPU-seconds as the main axis;
+  - a judge ladder of fit veto, then short heal, then full heal plus eval, with eta 3;
+  - the graft evolutionary baseline is regularized evolution with population 12 and tournament 3;
+  - GSM8K's 200-item search split has about 3.5 points of noise, so escalate if an arm gets under about 40 full evals per seed.
+- Trisanth locked the schema (`control: "random"`, heal with lr, batch size and sequence length) and rewrote the part 3 brief. Hour 1 now means the real compile and eval on the first pair: Llama-3.2-1B host, Qwen2.5-Math-1.5B donor, GSM8K.
+- A forked session ran its own core agent in the same tree. It was stopped, and this session owns all part 3 code. Its spec section ("Update 1", commit 8a490ae) is adopted.
+- Posted the blockers on issue #1: real catalog part records, the eval function, and the shared Modal workspace name.
