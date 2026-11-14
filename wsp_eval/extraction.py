@@ -7,7 +7,7 @@ model we find, per layer:
   expert       MoE experts the router picks much more often on skill text
 
 Method: activation contrast. Run the donor on skill text (GSM8K train, heal
-portion, never the search or held-out items) and on control text (WikiText).
+portion, never the search or held-out items) and on control text (WikiText-2).
 Score each unit by an effect size:
   neurons, heads   Cohen's d of |activation| (neurons) or per-head output norm
   experts          log2 ratio of how often the router picks the expert
@@ -56,8 +56,8 @@ def skill_texts(task_name="gsm8k", count=256):
 
 
 def control_texts(count=256, min_chars=300):
-    """Generic English prose (WikiText-103 train)."""
-    data = tasks_module._load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1", split="train[:20000]")
+    """Generic English prose (WikiText-2 train; small download)."""
+    data = tasks_module._load_dataset("Salesforce/wikitext", "wikitext-2-raw-v1", split="train")
     texts = []
     for row in data:
         text = row["text"].strip()
@@ -310,7 +310,7 @@ def extract(model_id, task_name="gsm8k", kinds=None, layers=None, n_units=None, 
                            "activation contrast: Cohen's d of head output norm" if kind == "attn_heads" else
                            "router contrast: log2 ratio of expert pick rates"),
                 "skill_data": task_name + " heal split (train), " + str(len(skill)) + " texts",
-                "control_data": "WikiText-103 train, " + str(len(control)) + " texts",
+                "control_data": "WikiText-2 train, " + str(len(control)) + " texts",
                 "n_units": len(entry["indices"]),
                 "n_units_in_layer": entry["n_units_in_layer"],
                 "unit_effects": entry["unit_effects"],
