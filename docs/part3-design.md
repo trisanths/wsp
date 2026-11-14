@@ -295,3 +295,23 @@ Loop (`swarm.py`):
 2. How a program names the random-cluster control (same shape, same donor layer, seeded) and the no-graft control.
 3. Per-phase timing in `compile_report.json` (compile, fit, heal seconds), so the compute ledger can use real numbers.
 4. The locked schema, posted on #1.
+
+## 14. Update 1 (2026-11-14): graft action space and research findings
+
+This section overrides earlier sections where they differ. Sources: part 2's message to part 3, `docs/superpowers/specs/2026-11-14-mixed-family-compiler-design.md`, and `docs/research/papers.md` section 8 and Recommendations.
+
+- **Action space.** A program is a host plus grafts plus an optional heal, with host masks still allowed: `{"host": ..., "grafts": [{"id": ..., "at": 9}], "heal": {"steps": 300, "data": "gsm8k_train"}}`. Part 2 will lock the schema in `wsp/program.py` and post it on issue #1. Until then, `space.py` goes through a small adapter, `program_schema.py`, that accepts both the old mask-only dict and the draft graft dict. When the schema locks, only the adapter changes. The output is one model per task type, with no routing.
+- **Two-axis budget.** Eval tokens (as in section 5) plus GPU-seconds. Compile, heal, stitching fit and eval all charge GPU-seconds, including compiles that fail. Arms get equal caps on both. Chart 1's primary x-axis is GPU-seconds, with an eval-count version beside it. LoRA and full fine-tuning get the same GPU-seconds.
+- **Cascade judge.** Level 0 is the per-graft fit score from compile (R squared, before heal), which costs no eval token. Then a 32-prompt collapse check, then a fixed one-third subset, then the full search split for the top third. Low fidelity uses a short heal, and only promoted programs get the full heal. Each level spends a fraction of a token, set in config, and every level is logged.
+- **Judge settings.** Top-8 frontier. Ties within one paired standard error break toward fewer parameters. Retire a parent after 3 failed children. Dedupe before spending.
+- **Planner prompt** (papers.md recommendation 7): language spec, catalog cards (with fit score and donor depth gap), top-12 history sorted worst to best with per-task scores, 2 sampled parents, and single-edit proposals each with a one-line hypothesis.
+- **Baselines.**
+  - Regularized evolution over grafts. Mutations: swap part, move `at`, add or drop a graft, change heal steps.
+  - CMA-ES over the mask-by-layer-block genome, for mask-only programs.
+  - Greedy union and random search.
+  - The **random-part control**: the same glue and heal around a random part of the same shape from the same donor layer.
+  - Heal-only and heal-steps-0 arms.
+  - mergekit-evolve is not used: it can't express our operations and is deprecated.
+- **Tasks.** BBEH is too weak at 1B to separate curves. The search objective is a pooled group of 4 to 6 MMLU-Pro subjects, or GSM8K once grafts land (part 2's first real run). Compare programs with paired standard errors on fixed question sets.
+- **Env API.** Gymnasium-style with `step_batch`: `truncated` turns true when the budget is spent and `terminated` stays false. Held-out is scored once, on the single selected program per run.
+- **Stub.** It must model grafts too: fit score from the donor-host depth gap and the family pair, a heal gain that rises with steps and is capped, and a random-part control that gains from heal but not from part content.
