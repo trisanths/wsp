@@ -359,7 +359,8 @@ def validate(index_path, control_path, tasks=None, split="search", namespace="in
         tasks = ["gsm8k"]
     model_id = data["model"]
 
-    intact = harness.evaluate(model_id, split, tasks, namespace=namespace, note="donor intact")
+    # All three runs use the hf backend, so the drops compare like with like.
+    intact = harness.evaluate(model_id, split, tasks, namespace=namespace, note="donor intact", backend="hf")
     ablated = harness.evaluate(model_id, split, tasks, namespace=namespace,
                                ablation=units.ablation_from_file(index_path), note="ablate " + index_path)
     random_ablated = harness.evaluate(model_id, split, tasks, namespace=namespace,

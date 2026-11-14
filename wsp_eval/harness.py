@@ -228,7 +228,7 @@ def _generate_with_cache(backend, model_dir, model_hash_value, prompts, max_new_
 
 
 def evaluate(model_path, split, tasks, namespace=None, allow_heldout_rerun=False, note="",
-             return_outputs=False, ablation=None):
+             return_outputs=False, ablation=None, backend=None):
     if split == "heal":
         raise ValueError("the heal split is training data; never evaluate on it")
     if split not in ("search", "heldout"):
@@ -248,7 +248,7 @@ def evaluate(model_path, split, tasks, namespace=None, allow_heldout_rerun=False
         _check_heldout(model_hash_value, tasks)
     budget.check(namespace, split)
 
-    backend = backends.get_backend(model_dir, needs_hooks=ablation is not None)
+    backend = backends.get_backend(model_dir, needs_hooks=ablation is not None, name=backend)
 
     # Render every prompt, then generate once per max_new_tokens group so the
     # backend sees large batches.

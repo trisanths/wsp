@@ -268,8 +268,10 @@ def _vllm_available():
         return False
 
 
-def get_backend(model_path, needs_hooks=False):
-    if str(model_path).startswith("fake:"):
+def get_backend(model_path, needs_hooks=False, name=None):
+    if name is not None and os.environ.get("WSP_BACKEND") != "fake" and not str(model_path).startswith("fake:"):
+        pass  # explicit choice by the caller
+    elif str(model_path).startswith("fake:"):
         name = "fake"
     elif os.environ.get("WSP_BACKEND") == "fake":
         name = "fake"
