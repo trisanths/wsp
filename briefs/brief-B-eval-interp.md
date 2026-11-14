@@ -77,3 +77,31 @@ You own the measuring stick. If the eval harness is late or wrong, nothing else 
 
 - Which benchmarks the hackathon tracks score.
 - GPU type and hours available.
+
+## Update (2026-11-14): mixed family. Overrides the brief above where they differ.
+
+The project is mixed family now. The compiler grafts parts from any donor model into a host, using learned projections on a skip connection, then trains only that glue in a short heal pass. The output is one fixed model per task type. Routing at inference time is out of scope. Design: `docs/superpowers/specs/2026-11-14-mixed-family-compiler-design.md`.
+
+Eval:
+- Grafted models load with `wsp.load(path)` and generate with Hugging Face generate, because vLLM can't load them. Keep vLLM for plain models.
+- Search splits stay small, because Hugging Face generation is slower.
+
+Splits:
+- Search: 200 items carved from GSM8K train.
+- Heal training: the rest of GSM8K train.
+- Held-out: the GSM8K test set, run once at the end.
+- No overlap between the three.
+
+Controls (required):
+- Main control: the same glue around a random cluster of the same size, from the same donor layer, with identical heal training. A gain only counts if it beats this control.
+- Second control: a LoRA on the host with the same number of trainable parameters.
+- Claims use 3 seeds.
+
+Interp is now the extraction step:
+- Find clusters, head sets, and MoE experts with a known function in donor models. Write them as .pt index files (kind, model, layer, indices) with signatures, and coordinate with Person A, who stores them.
+- Start with Qwen2.5-Math-1.5B. Then move to the 4B to 40B tier (for example, Qwen3.6 35B-A3B, Qwen3.8 27B, Gemma 4 31B). Each fits on one GPU.
+- For MoE donors, the router's choices tell you which experts fire on which inputs.
+
+Fit score: each compile report includes an R squared per graft, measuring how well the host's hidden state at that depth maps onto the donor's. Log it next to the scores, because it may predict which grafts work.
+
+Budget: $250 of Modal per person. Join the shared Modal workspace.
