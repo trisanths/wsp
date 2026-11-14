@@ -138,3 +138,31 @@ def mlp_input_capture(layer_module_norm):
         return store[0][0]
 
     return capture
+
+
+def layer_input_capture(layer_module):
+    """Return a donor_capture function that records the input of a decoder layer.
+
+    The input is the residual stream before the layer's input norm. The hook
+    reads the hidden state from the positional args or from the
+    hidden_states keyword.
+    """
+
+    def capture(donor_model, input_ids):
+        store = []
+
+        def hook(module, args, kwargs):
+            if len(args) > 0:
+                store.append(args[0].detach())
+            else:
+                store.append(kwargs["hidden_states"].detach())
+
+        handle = layer_module.register_forward_pre_hook(hook, with_kwargs=True)
+        try:
+            with torch.no_grad():
+                donor_model(input_ids)
+        finally:
+            handle.remove()
+        return store[0][0]
+
+    return capture

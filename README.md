@@ -8,33 +8,49 @@ Tuning are in [VERIFY.md](VERIFY.md).
 
 ## What works now
 
-- Mask algebra over Deletion Tuning masks on one shared base: union (`|`),
-  intersection (`&`), difference (`-`), and `restrict(layers=..., modules=...)`.
-- Task vectors: `weight * (fine-tuned - base)` on selected layers and modules.
-  Native code, not mergekit.
-- `compile()`: loads the base in bf16, adds task vectors, zeroes masked
-  weights, and saves a standard Hugging Face model with `program.json` and
-  `compile_report.json` beside it.
-- A seed `catalog.jsonl` with the 37 public SFT masks for Llama-3.2-1B-Instruct
-  (14 MMLU-Pro subjects, 23 BBEH tasks).
+- Grafts across model families. A part from any donor model runs inside a
+  host at a chosen layer: `h = h + W_out(part(W_in(h)))`. `W_out` starts at
+  zero, so a fresh graft leaves the host unchanged. Part types:
+  - `mlp_cluster`: a set of MLP neurons from one donor layer.
+  - `attn_heads`: a set of query heads from one donor layer. Generate with
+    `use_cache=False`.
+  - `expert`: one or more MoE experts from one donor layer.
+- Parts run the donor's own Transformers classes, and only the part's
+  tensors are fetched from safetensors by HTTP range request.
+- `W_in` can start from a ridge fit on host and donor hidden states matched
+  by token end offsets. The compile report gives the fit's R squared.
+- A heal pass trains only the glue. `control="random"` swaps in a random part
+  of the same size from the same donor layer.
+- Mask algebra and task vectors on the host, as before.
+- `wsp.load(path)` returns `(model, tokenizer)` for any compiled directory.
+- Stub extractors: `top_activation_neurons` and `top_routed_experts`.
 
-Not built yet: the heal pass, cross-family stitching, the text syntax, and a
-deletion budget rule.
+Not built yet: `block` parts, the text syntax, and a deletion budget rule.
 
 ## Example
 
 ```python
-from wsp import Catalog, Program, use
+from wsp import Catalog, Program, load
 
 catalog = Catalog.load("catalog.jsonl")
-bio = use("mask_mmlupro_biology_llama1b")
-chem = use("mask_mmlupro_chemistry_llama1b")
+program = (
+    Program(host="unsloth/Llama-3.2-1B-Instruct")
+    .graft("qmath_l18_top512")
+    .heal(steps=300, data="gsm8k_train")
+)
+program.compile("outputs/math_graft", catalog, align_texts=texts)
+model, tokenizer = load("outputs/math_graft")
+```
+
+Mask algebra on the host still works:
+
+```python
+from wsp import use
 
 program = Program(
-    base="unsloth/Llama-3.2-1B-Instruct",
-    masks=(bio | chem).restrict(layers=range(4, 16)),
+    host="unsloth/Llama-3.2-1B-Instruct",
+    masks=(use("mask_mmlupro_biology_llama1b") | use("mask_mmlupro_chemistry_llama1b")),
 )
-program.compile("outputs/bio_chem", catalog)
 ```
 
 Agents can send the same program as JSON: `program.to_dict()` and

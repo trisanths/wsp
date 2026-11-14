@@ -18,7 +18,16 @@ import torch
 from wsp.extract import random_neurons
 from wsp.fetch import fetch_config, fetch_tensors
 from wsp.graft import Graft
-from wsp.parts import build_mlp_cluster, find_layer_modules, mlp_tensor_names
+from wsp.parts import (
+    attn_tensor_names,
+    build_attn_heads,
+    build_expert_part,
+    build_mlp_cluster,
+    expert_tensor_names,
+    find_layer_modules,
+    find_moe_block,
+    mlp_tensor_names,
+)
 
 
 def read_units(catalog, component_id):
@@ -42,7 +51,8 @@ def default_host_layer(donor_layer, donor_layers, host_layers):
     return k
 
 
-def fit_w_in(host_model, host_tokenizer, host_layer, donor_id, donor_layer, align_texts, device):
+def fit_w_in(host_model, host_tokenizer, host_layer, donor_id, donor_layer, align_texts, device, norm_prefix=None,
+             layer_input=False):
     """Fit W_in on offset-matched hidden states. Return (w, r2, pairs)."""
     import transformers
 
@@ -52,9 +62,16 @@ def fit_w_in(host_model, host_tokenizer, host_layer, donor_id, donor_layer, alig
     donor_model.to(device)
     donor_model.eval()
     donor_tokenizer = transformers.AutoTokenizer.from_pretrained(donor_id)
-    modules = find_layer_modules(donor_model.config, donor_layer)
-    norm = donor_model.get_submodule(modules["pre_norm_prefix"])
+    if norm_prefix is None:
+        modules = find_layer_modules(donor_model.config, donor_layer)
+        norm_prefix = modules["pre_norm_prefix"]
+    norm = donor_model.get_submodule(norm_prefix)
     capture = mlp_input_capture(norm)
+    if layer_input:
+        from wsp.align import layer_input_capture
+
+        modules = find_layer_modules(donor_model.config, donor_layer)
+        capture = layer_input_capture(donor_model.get_submodule(modules["layer_prefix"]))
     x, y = collect_pairs(host_model, host_tokenizer, host_layer, donor_model, donor_tokenizer, capture, align_texts)
     w, r2 = ridge_fit(x, y)
     del donor_model
@@ -66,8 +83,12 @@ def fit_w_in(host_model, host_tokenizer, host_layer, donor_id, donor_layer, alig
 def build_graft(spec, catalog, host_model, host_tokenizer, align_texts=None, device="cpu", cache_dir=None):
     """Return (host_layer, graft, meta) for one GraftSpec."""
     record = catalog.get(spec.component_id)
+    if record["type"] == "attn_heads":
+        return build_attn_graft(spec, record, catalog, host_model, host_tokenizer, align_texts, device, cache_dir)
+    if record["type"] == "expert":
+        return build_expert_graft(spec, record, catalog, host_model, host_tokenizer, align_texts, device, cache_dir)
     if record["type"] != "mlp_cluster":
-        raise ValueError(f"{spec.component_id}: graft type {record['type']} is not built yet (only mlp_cluster)")
+        raise ValueError(f"{spec.component_id}: graft type {record['type']} is not built yet")
 
     donor_id = record["model"]
     donor_layer = record["layer"]
@@ -91,6 +112,7 @@ def build_graft(spec, catalog, host_model, host_tokenizer, align_texts=None, dev
 
     meta = {
         "id": spec.component_id,
+        "kind": "mlp_cluster",
         "control": spec.control,
         "donor": donor_id,
         "donor_layer": donor_layer,
@@ -124,6 +146,10 @@ def rebuild_graft(meta, graft_state, index):
     """
     import copy
 
+    if meta.get("kind") == "attn_heads":
+        return rebuild_attn_graft(meta, graft_state, index)
+    if meta.get("kind") == "expert":
+        return rebuild_expert_graft(meta, graft_state, index)
     config = copy.deepcopy(fetch_config(meta["donor"]))
     n = len(meta["indices"])
     text_config = config
@@ -152,3 +178,187 @@ def count_params(module):
     for param in module.parameters():
         total += param.numel()
     return total
+
+
+def build_expert_graft(spec, record, catalog, host_model, host_tokenizer, align_texts, device, cache_dir):
+    """Build a graft for an expert record. Returns (host_layer, graft, meta).
+
+    Units "indices" are expert ids in the donor layer. Only those experts and
+    the layer norm are fetched. The random control picks the same number of
+    random expert ids.
+    """
+    donor_id = record["model"]
+    donor_layer = record["layer"]
+    config = fetch_config(donor_id)
+    units = read_units(catalog, spec.component_id)
+    experts = torch.as_tensor(units["indices"], dtype=torch.long)
+    found = find_moe_block(config, donor_layer)
+    if spec.control == "random":
+        experts = random_neurons(found["num_experts"], len(experts), spec.control_seed)
+
+    names = expert_tensor_names(config, donor_layer, experts.tolist())
+    tensors = fetch_tensors(donor_id, names, cache_dir=cache_dir)
+    part = build_expert_part(config, donor_layer, experts, tensors)
+
+    text_config = config
+    if hasattr(config, "get_text_config"):
+        text_config = config.get_text_config()
+    host_layers = host_layer_count(host_model)
+    host_layer = spec.at
+    if host_layer is None:
+        host_layer = default_host_layer(donor_layer, text_config.num_hidden_layers, host_layers)
+
+    d_host = host_model.config.hidden_size
+    d_donor = text_config.hidden_size
+    graft = Graft(d_host, d_donor, part)
+
+    meta = {
+        "id": spec.component_id,
+        "kind": "expert",
+        "control": spec.control,
+        "donor": donor_id,
+        "donor_layer": donor_layer,
+        "indices": experts.tolist(),
+        "host_layer": host_layer,
+        "d_host": d_host,
+        "d_donor": d_donor,
+        "part_params": count_params(part),
+        "glue_params": count_params(graft.w_in) + count_params(graft.w_out),
+        "fit_r2": None,
+        "fit_pairs": 0,
+        "fit": "skipped",
+    }
+
+    if align_texts is not None:
+        w, r2, pairs = fit_w_in(host_model, host_tokenizer, host_layer, donor_id, donor_layer,
+                                align_texts, device, norm_prefix=found["pre_norm_prefix"])
+        with torch.no_grad():
+            graft.w_in.weight.copy_(w.to(graft.w_in.weight.dtype))
+        meta["fit_r2"] = r2
+        meta["fit_pairs"] = pairs
+        meta["fit"] = "ridge"
+    return host_layer, graft, meta
+
+
+def rebuild_expert_graft(meta, graft_state, index):
+    """Rebuild one saved expert graft without fetching donor weights.
+
+    Only the config is fetched. The saved part keys experts as 0..n-1, so we
+    rebuild with expert ids 0..n-1 and map each saved key to the donor name.
+    """
+    config = fetch_config(meta["donor"])
+    n = len(meta["indices"])
+    found = find_moe_block(config, meta["donor_layer"])
+    tensors = {}
+    prefix = f"{index}.part."
+    for key in graft_state:
+        if not key.startswith(prefix):
+            continue
+        rest = key[len(prefix):]
+        if rest.startswith("experts."):
+            tensors[found["moe_prefix"] + "." + rest] = graft_state[key]
+        elif rest.startswith("pre_norm."):
+            tensors[found["pre_norm_prefix"] + rest[len("pre_norm"):]] = graft_state[key]
+        elif rest.startswith("post_norm."):
+            tensors[found["post_norm_prefix"] + rest[len("post_norm"):]] = graft_state[key]
+    part = build_expert_part(config, meta["donor_layer"], torch.arange(n), tensors)
+    return Graft(meta["d_host"], meta["d_donor"], part)
+
+
+def random_heads(num_heads, n, seed):
+    """Return n distinct random query head ids, sorted, from a seeded generator."""
+    generator = torch.Generator()
+    generator.manual_seed(seed)
+    picks = torch.randperm(num_heads, generator=generator)[:n]
+    return torch.sort(picks).values
+
+
+def build_attn_graft(spec, record, catalog, host_model, host_tokenizer, align_texts, device, cache_dir):
+    """Return (host_layer, graft, meta) for an attn_heads record.
+
+    The units file holds query head ids. W_in is fit against the input of
+    the donor layer. Grafts of this kind need use_cache=False when the host
+    generates, because the part recomputes attention over the full sequence.
+    """
+    from wsp.parts import _text_config
+
+    donor_id = record["model"]
+    donor_layer = record["layer"]
+    config = fetch_config(donor_id)
+    text_config = _text_config(config)
+    heads = torch.as_tensor(read_units(catalog, spec.component_id)["indices"], dtype=torch.long)
+    if spec.control == "random":
+        heads = random_heads(text_config.num_attention_heads, len(heads), spec.control_seed)
+
+    tensors = fetch_tensors(donor_id, attn_tensor_names(config, donor_layer), cache_dir=cache_dir)
+    part = build_attn_heads(config, donor_layer, heads, tensors)
+
+    host_layer = spec.at
+    if host_layer is None:
+        host_layer = default_host_layer(donor_layer, text_config.num_hidden_layers, host_layer_count(host_model))
+
+    d_host = host_model.config.hidden_size
+    d_donor = text_config.hidden_size
+    graft = Graft(d_host, d_donor, part)
+
+    meta = {
+        "id": spec.component_id,
+        "kind": "attn_heads",
+        "control": spec.control,
+        "donor": donor_id,
+        "donor_layer": donor_layer,
+        "indices": heads.tolist(),
+        "host_layer": host_layer,
+        "d_host": d_host,
+        "d_donor": d_donor,
+        "part_params": count_params(part),
+        "glue_params": count_params(graft.w_in) + count_params(graft.w_out),
+        "fit_r2": None,
+        "fit_pairs": 0,
+        "fit": "skipped",
+    }
+    if align_texts is not None:
+        w, r2, pairs = fit_w_in(host_model, host_tokenizer, host_layer, donor_id, donor_layer,
+                                align_texts, device, layer_input=True)
+        with torch.no_grad():
+            graft.w_in.weight.copy_(w.to(graft.w_in.weight.dtype))
+        meta["fit_r2"] = r2
+        meta["fit_pairs"] = pairs
+        meta["fit"] = "ridge"
+    return host_layer, graft, meta
+
+
+def rebuild_attn_graft(meta, graft_state, index):
+    """Rebuild a saved attn_heads graft without fetching donor weights.
+
+    The saved part holds one KV head per query head, so we build with both
+    head counts equal to n, head_dim fixed to the donor's, and heads 0..n-1.
+    That makes the slicing a no-op.
+    """
+    import copy
+
+    from wsp.parts import _head_dim, _text_config
+
+    config = copy.deepcopy(fetch_config(meta["donor"]))
+    n = len(meta["indices"])
+    text_config = _text_config(config)
+    text_config.head_dim = _head_dim(text_config)
+    text_config.num_attention_heads = n
+    text_config.num_key_value_heads = n
+    modules = find_layer_modules(config, meta["donor_layer"])
+    names = {
+        "attn": modules["attn_prefix"],
+        "input_norm": modules["input_norm_prefix"],
+        "post_norm": modules["post_attn_norm_prefix"],
+    }
+    tensors = {}
+    prefix = f"{index}.part."
+    for key in graft_state:
+        if not key.startswith(prefix):
+            continue
+        rest = key[len(prefix):]
+        owner = rest.split(".")[0]
+        if owner in names:
+            tensors[names[owner] + rest[len(owner):]] = graft_state[key]
+    part = build_attn_heads(config, meta["donor_layer"], torch.arange(n), tensors)
+    return Graft(meta["d_host"], meta["d_donor"], part)
