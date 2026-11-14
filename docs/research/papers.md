@@ -1,13 +1,15 @@
 # Research notes for part 3: RL environment, swarm, and baselines
 
-Checked 2026-11-14. I opened each source below and confirmed the claim I report. Items I read only at abstract level say "(abstract)". Items I could not confirm say "unverified".
+Checked 2026-11-14. I opened each source below and confirmed the claim I report. Items I read only at abstract level say "(abstract)". Items I could not confirm say "unverified". Sections 1 to 7 cover host-mask programs; Section 8 covers the mixed-family graft space, which is now the main action space.
 
 ## Read this first
 
-1. BBEH on Llama-3.2-1B sits at the floor. The paper reports base 2.17% and Deletion Tuning 5.65% averaged over 23 tasks, with only 50 test questions per task. Per-task BBEH scores cannot separate two search curves. Use a group of MMLU-Pro subjects as the search objective, and keep BBEH as a secondary aggregate (or move to the 3B masks).
-2. The public masks were trained on the paper's 75% split of each task. Search and held-out splits must both come from the remaining 25%. Whether the repo exposes the exact split seed is unverified. Confirm it before carving splits, or the search split leaks training data.
-3. mergekit-evolve cannot express mask union, intersection, or difference. It only tunes linear, ties, dare_ties, task_arithmetic, and slerp merges, and its script now prints a deprecation warning. Build the Sakana-style baseline natively over our program genome.
-4. Eval noise is large. A 90-question MMLU-Pro subject split has a standard error near 4 points at 18% accuracy. The whole mask effect (base to Deletion Tuning) is about 8 points. The judge must compare programs with paired standard errors, or it will chase noise.
+1. **The fit score ranks depths, not parts.** The ridge fit maps host layer k to donor layer l, so every cluster from one donor layer, random or chosen, gets the same R squared at the same `at`. Use it to place grafts and veto bad pairings (8.2).
+2. **Fit quality may not predict behavior.** Across 20 heterogeneous LLM pairs, ridge-map quality had near-zero correlation (r = -0.07) with behavioral effect (abstract). Calibrate every pre-heal signal against our own full heals (8.2).
+3. **Random parts through trained glue can work well.** Random 1% subnetworks match full RLVR, and a frozen random transformer with trained interfaces gets most of a pretrained one's accuracy. Run the random-part control as a full search arm (8.4).
+4. **Two budgets bind.** Compile plus heal takes minutes, so GPU-seconds will bind before eval count. Plot both axes, and give LoRA and FFT the same GPU-seconds, tuning included (8.3).
+5. **Eval noise is large.** A 200-item GSM8K search split has about 3.5 points of standard error; a 90-question MMLU-Pro subject split has about 4. Compare programs with paired standard errors on fixed items.
+6. **For host masks:** BBEH at 1B sits at the floor (base 2.17%); the public masks were trained on the paper's 75% split, so carve search and held-out from the other 25% (split seed unverified); mergekit-evolve cannot express mask algebra and is deprecated.
 
 ---
 
@@ -198,8 +200,6 @@ Other merge-search work (abstract only): Mergenetic library (https://arxiv.org/a
 - Use interval estimates, stratified bootstrap CIs, IQM, and performance profiles. Percentile bootstrap CIs cover well from about 10 runs; with 3 runs they underestimate the true interval.
 - Takeaway: with 3 seeds, show every seed's curve and the min-to-max band. Use bootstrap bands only with 5 or more seeds.
 
-**NAS-Bench-101 guidelines** (Section 2 above) and **MOBO-Merge protocol** (Section 2 above) give the anytime-curve and search/held-out conventions.
-
 **Nathani et al. (2025). MLGym: A New Framework and Benchmark for Advancing AI Research Agents.** https://arxiv.org/abs/2502.14499
 - Gym-style environment for research agents. Reports "Best Attempt" (best intermediate result) and "Best Submission" (the final pick the agent commits to) over 4 seeds, plus area under performance profiles.
 - Takeaway: report both. Best search score is "best attempt"; the held-out score of the selected program is "best submission".
@@ -208,6 +208,7 @@ Other merge-search work (abstract only): Mergenetic library (https://arxiv.org/a
 
 | Split | Questions | p | SE (points) |
 |---|---|---|---|
+| GSM8K search split (design doc, graft space) | 200 | 0.3 to 0.5 | 3.2 to 3.5 |
 | One MMLU-Pro subject, half of its test split | 48 to 169 | 0.18 | 5.4 to 3.0 |
 | All 14 MMLU-Pro subjects, half each | about 1,500 | 0.18 | 1.0 |
 | One BBEH task, half of its test split | 25 | 0.05 | 4.4 |
@@ -227,11 +228,9 @@ The 1B mask effect on MMLU-Pro is about 8 points, so a pooled objective over 4 o
 - An environment is a dataset plus a rubric (weighted reward functions) plus an optional parser, exposed by `load_environment()`. `SingleTurnEnv` scores one reply; `MultiTurnEnv` implements `env_response` (what the environment says back) and a completion check; `ToolEnv` adds tools. The newer v1 API splits a `Taskset` from an `Env` that runs agents and collects `Trace`s into an `Episode`.
 - Takeaway: if we later RL-train a planner, our env maps onto `MultiTurnEnv`: the program is the assistant turn, the eval feedback is `env_response`, and the rubric returns the best search score. Not needed for the hackathon.
 
-**RMM** (Section 2) is the merge-specific env precedent.
-
 ---
 
-## 7. Recommendations
+## 7. Recommendations for the host-mask space (Section 8.5 extends these to grafts)
 
 ### 7.1 Objective and budget unit
 
@@ -304,77 +303,120 @@ First round: the analysts plus planners propose 9 programs before any score exis
 
 ---
 
-## 8. Addendum: mixed-family graft space
+## 8. Mixed-family graft space
 
-The action space is now `{"host", "grafts": [{"id", "at"}], "heal": {"steps", "data"}}`, with host mask expressions still allowed. Compile reports a free per-graft fit score before heal. Compile plus heal costs minutes and counts against the budget.
+A program is now `{"host", "grafts": [{"id", "at"}], "heal": {"steps", "data"}}`, with host mask expressions still allowed. Compile reports a per-graft ridge fit (R squared from host layer k to donor layer l) before any heal. Compile plus heal takes minutes and counts against the budget. Design: `docs/superpowers/specs/2026-11-14-mixed-family-compiler-design.md`.
 
 ### 8.1 Layer and placement search
 
-**Akiba et al. (2024), data-flow-space (DFS) merging.** https://arxiv.org/abs/2403.13187
-- Searches the inference path through layers of two models. The path has T = M x r slots (M = 64 layers across both models, r = 3 repeats, T = 192). An indicator array I picks which slots are used; a matrix W (M x M) scales the input passed between consecutive layers. Model A's embeddings, first and last layers are fixed. I is initialized so A's layers are likely included.
-- Optimizer: CMA-ES in EvoJAX, 100 generations x population 128, about 12,800 evaluations. Fitness on 200-question batches; best snapshot chosen on a 200-example validation set.
-- Takeaway: DFS needs two orders of magnitude more evals than we have. Our baseline must use a much smaller genome (a few grafts, a few `at` choices), not Sakana's full path.
+**Akiba et al. (2024), data-flow-space (DFS) merging.** https://arxiv.org/abs/2403.13187 (Sections 2.2, 3.1, 3.2)
+- Searches a serial inference path through the layers of two models. Raw space is (M + 1)^T. They lay all M layers out in order, repeat them r times, and evolve an indicator array of T = M x r genes (a layer is used if its gene is above 0). With M = 64 and r = 3, T = 192.
+- A matrix W (M x M) scales the input when the path jumps from layer i to layer j. Removing the scaling cut performance by more than 20%. W is fixed at 1 between consecutive same-model layers, so gains come from stacking alone.
+- Model A's embeddings, first and last layers are fixed. Genes for model A's first repetition start at 2 sigma, so search starts as model A and avoids nonsense stacks.
+- CMA-ES in EvoJAX, 100 generations x population 128 (about 12,800 candidates), fitness on 200-item batches, best snapshot by a 200-item validation set. The evolved path skipped one MetaMath layer; deleting that layer alone raised accuracy. Scaling stops working when a source model was fine-tuned much longer.
+- Takeaway: our graft genome is a small DFS: (part, depth) inclusion plus a per-graft scale. Copy "start as the host". Budget is two orders of magnitude below Sakana's, so the genome must stay small.
 
-**Kim et al. (2023). SOLAR 10.7B: Depth Up-Scaling.** https://arxiv.org/abs/2312.15166
-- Duplicate a 32-layer model, drop the last 8 layers of one copy and the first 8 of the other, concatenate to 48 layers. Performance first drops below the base, then recovers quickly under continued pretraining. Repeating all layers is worse because the seam joins layers far apart in depth.
-- Takeaway: placement prior. Grafts whose donor depth fraction is close to the host depth `at` should need less heal. Give planners the depth gap per graft.
+**mergekit passthrough (frankenmerge).** README: https://github.com/arcee-ai/mergekit . `passthrough` copies tensors from one input model per slice, with `slices` listing layer ranges; the README lists frankenmerging, layer stacking, and model surgery as its uses. Akiba et al. use frankenmerging as an unoptimized baseline. Takeaway: an untrained stack is our graft with no heal, so run a "heal steps = 0" arm.
 
-**mergekit passthrough / frankenmerges.** https://github.com/arcee-ai/mergekit (passthrough method stacks layer slices; details unverified beyond the method name). Takeaway: community frankenmerges are the untrained version of our graft without heal, so they are a natural "heal steps = 0" arm.
+**Kim et al. (2023). SOLAR 10.7B: Depth Up-Scaling.** https://arxiv.org/abs/2312.15166 . Duplicate a 32-layer model, drop the last 8 layers of one copy and the first 8 of the other, stack to 48. The stack first scores below the base, then recovers fast under continued pretraining. They chose this cut over plain repetition to shrink the layer distance at the seam. Takeaway: give planners the depth gap per graft (donor depth fraction minus host depth fraction); small gaps should heal faster.
 
-### 8.2 Stitching and transplant
+**Gromov, Tirumala, Shapourian, Glorioso, Roberts (2024). The Unreasonable Ineffectiveness of the Deeper Layers.** https://arxiv.org/abs/2403.17887 . Prune the block with minimum angular distance between its input and output, then heal with a small QLoRA finetune. Llama-2-70B keeps QA accuracy until about half its layers are gone. Never drop the final layer. QA accuracy shows sharp transitions while C4 loss degrades smoothly. Takeaway: cheap representation distances can pick where surgery hurts least, and heal loss alone can mislead about accuracy.
 
-**Lenc, Vedaldi (2015). Understanding image representations by measuring their equivariance and equivalence.** https://arxiv.org/abs/1411.5908 (unverified: not reopened). Origin of stitching two networks with a learned linear layer.
+**Sun, Pickett, Nain, Jones (2024). Transformer Layers as Painters.** https://arxiv.org/abs/2407.09298 . In frozen models the first and last layers differ from a fairly uniform middle. Skipping or reordering middle layers degrades gracefully; repeating the center layer is catastrophic. Takeaway: graft into middle host layers first; avoid the first two and last two.
+
+**Bandarkar et al. (2024). Layer Swapping.** https://arxiv.org/abs/2410.01335 (abstract). Swapping a math expert's top and bottom layers for a language expert's (same base) gained 10% on MGSM. Takeaway: coarse `block` grafts are a real option when skills sit at different depths.
+
+### 8.2 Stitching and cross-model transplant
+
+**Lenc, Vedaldi (2015).** https://arxiv.org/abs/1411.5908 (abstract). Introduces trainable stitching layers to test whether two CNNs' representations are equivalent. The origin of model stitching.
 
 **Bansal, Nakkiran, Barak (2021). Revisiting Model Stitching to Compare Neural Representations.** https://arxiv.org/abs/2106.07682
-- Stitcher is a low-capacity layer (1x1 conv with BatchNorm; linear 768 x 768 for ViT). Stitching penalty = drop in accuracy. Stitching an untrained random bottom network gives a low penalty at early layers and a high one later, so early-layer stitches prove little. Fine-tuning the top layers overestimates similarity compared with stitching. CKA and stitching sometimes disagree (CKA as low as 0 between compatible networks).
-- Takeaways: (1) a heavy heal can hide bad part selection, which is exactly why the random-part control is required; (2) linear stitching loss is a better pre-heal compatibility signal than CKA; (3) keep the glue low-capacity and fixed across arms.
+- Stitcher: a low-capacity layer (1x1 conv with BatchNorm; linear 768 x 768 for ViT) trained between two frozen models. Stitching penalty = accuracy drop. Same-architecture SGD minima stitch at all layers ("stitching connectivity"); representations from more data, width, or training improve weaker models when stitched in.
+- CKA can be near 0 where stitching says two representations are close. Fine-tuning the top overestimates similarity relative to stitching.
+- Control: stitching an untrained random bottom network gives a low penalty at early layers, so early-layer stitches prove little.
+- Takeaways: a trained stitch's loss beats CKA as a closeness signal; a heavy heal can hide bad part selection; keep the glue low-capacity and identical across arms.
 
-**Kornblith et al. (2019). Similarity of Neural Network Representations Revisited (CKA).** https://arxiv.org/abs/1905.00414 (unverified: not reopened). Takeaway: cheap to compute, but Bansal et al. show it can mislead about functional compatibility. Log it; do not rank on it alone.
+**Kornblith et al. (2019). Similarity of Neural Network Representations Revisited (CKA).** https://arxiv.org/abs/1905.00414 (unverified: not opened). Cheap, but Bansal et al. show it can mislead about functional compatibility. Log it; do not rank on it.
 
-**Armstrong, Ayoobi, Mukherjee (2026). Thinking in Different Spaces.** https://arxiv.org/abs/2603.20406 (abstract). Ridge maps between 20 heterogeneous LLM pairs reach R^2 0.50 (verbal) and 0.40 (math); permutation control gives -0.22. Correlation between map R^2 and behavioral effect is near zero (r = -0.07). Takeaway: our ridge R^2 fit score is a veto for broken placements, not a ranking signal.
+**Chen, Merullo, Stolfo, Pavlick (2025). Transferring Linear Features Across Language Models With Model Stitching.** https://arxiv.org/abs/2506.06609 (abstract). Affine maps between residual streams of different-size models transfer SAEs, probes, and steering vectors. Takeaway: affine glue across sizes works as a bridge.
 
-**Syed (2026). Actionable Activation Directions across families.** https://arxiv.org/abs/2606.20225 (abstract). Ridge transfer across Qwen, Gemma, Llama-3.2-1B, Ministral gave large effects, but random and orthogonal directions did as well. Takeaway: cross-family effects can be non-specific; the random-part control is mandatory.
+**Armstrong, Ayoobi, Mukherjee (2026). Thinking in Different Spaces.** https://arxiv.org/abs/2603.20406 (abstract). Ridge maps across 20 heterogeneous LLM pairs reach R squared 0.50 (verbal) and 0.40 (math); a permutation control gives -0.22. Correlation between map quality and behavioral effect: r = -0.07. Maps fit on one domain collapse on another. Takeaway: R squared is a veto for broken pairings, not a ranking signal. Fit the ridge on task text, as the design does.
 
-**Chen, Merullo, Stolfo, Pavlick (2025).** https://arxiv.org/abs/2506.06609 (abstract): affine maps between residual streams of different-size models transfer SAEs, probes, steering. **Sudakov et al. (2026), MATCHA** https://arxiv.org/abs/2610.09058 (abstract): cross-model layer maps are monotone in depth but many-to-many. Takeaway: the default relative-depth `at` is a sound start; search plus or minus a few layers.
+**Armstrong et al. (2026). Interpretability Is Not Model-Specific.** https://arxiv.org/abs/2611.12675 (abstract). 110 pairs, five families, 1B to 72B. Recovery depends on what the map was fit on; prompts from the region where a tool operates raised recovery sharply. A label-free coverage score tracked recovery across more than 16,000 runs. Takeaway: a coverage-style score on heal prompts is a candidate pre-heal predictor to test.
 
-**Gromov et al. (2024). The Unreasonable Ineffectiveness of the Deeper Layers.** https://arxiv.org/abs/2403.17887. Angular distance between layer l and l+n picks blocks to prune; QLoRA "healing" restores QA accuracy until about half of Llama-2-70B's layers are gone; never drop the final layer. **Sun et al. (2024). Transformer Layers as Painters.** https://arxiv.org/abs/2407.09298: middle layers share a representation space, first and last differ. Takeaway: graft into middle host layers first; avoid the first two and last two.
+**Gorbett, Jana (2026). Ventriloquist LLMs.** https://arxiv.org/abs/2603.18908 (abstract). Late-layer affine alignment between independent models; tokenizer overlap predicts generation quality; strong-to-weak beats weak-to-strong. Takeaway: tokenizer overlap and donor strength are priors for which donors graft well.
 
-**Bandarkar et al. (2024). Layer Swapping.** https://arxiv.org/abs/2410.01335 (abstract): swapping top and bottom layers of a math expert with a language expert's (same base) gave +10% MGSM. Same-family precedent for transplant without heal.
+**Sudakov et al. (2026). MATCHA.** https://arxiv.org/abs/2610.09058 (abstract). Learned cross-model layer maps across 42 pairs are broadly monotone in depth but many-to-many. Takeaway: the default `at = round(l / L_donor * L_host)` is a fair start; also try plus or minus 2.
 
-**mergekit passthrough** (README, verified): copies tensors from one input model per slice; the tool for frankenmerging, layer stacking, and model surgery. Sakana used frankenmerging as an unoptimized baseline.
+**Syed (2026). Actionable Activation Directions across families.** https://arxiv.org/abs/2606.20225 (abstract). Ridge transfer across Qwen, Gemma, Llama-3.2-1B, and Ministral produced large effects, but random and orthogonal directions did about as well. Takeaway: cross-family effects can come from the map itself; the random-part control is mandatory.
 
-No paper I found reports how well pre-heal fit predicts post-heal benchmark score for cross-family grafts. Measure it (8.5).
+**Which pre-heal signals should predict post-heal score (synthesis).** No paper I found measures this for cross-family grafts, so we must.
+- **Ridge R squared (built in)** depends only on the host layer k and donor layer l, not on which neurons form the part. Every cluster from the same donor layer, random or chosen, gets the same R squared at the same k. It ranks placements, never parts.
+- **Permutation-control R squared:** refit with shuffled position pairs; a real pairing must clear it clearly.
+- **Short-heal stitch loss:** loss after 33 to 100 glue-only steps is a trained stitch penalty (Bansal). It does depend on the part. Costs seconds, no eval.
+- **CKA and angular distance (Gromov):** cheap; log them, do not gate on them.
+- Calibrate after about 10 full heals, recheck at 20: Spearman correlation of each signal with the final search score. Stop using a signal to prune if it stays under about 0.3.
 
 ### 8.3 Two-axis budget
 
-Sources: Snoek, Larochelle, Adams (2012) https://arxiv.org/abs/1206.2944 rank candidates by expected improvement per second. Dodge et al. (2019) https://arxiv.org/abs/1909.03004 report expected best validation score as a function of trials or training time. Sivaprasad et al. (2020) https://arxiv.org/abs/1910.11758: fair method comparison must charge hyperparameter tuning cost. Dehghani et al. (2022) https://arxiv.org/abs/2110.12894: no single cost indicator suffices; report several. Conventions I recommend, building on NAS-Bench-101 (plot against wall-clock and evaluations) and Hyperband (resource = cost unit):
-- Charge every action in GPU-seconds on one fixed GPU type: compile, heal, eval, and stitch fitting. Log eval count separately.
-- Make GPU-seconds the primary x-axis; show eval count as a second chart. Claims must hold on both.
-- LoRA and FFT get the same GPU-seconds as one search run, spent on training plus their own hyperparameter selection evals on the search split. Report their curve as score vs training seconds on the same axis.
-- Report the swarm's LLM token cost separately (it is not GPU time); do not hide it.
+**Snoek, Larochelle, Adams (2012).** https://arxiv.org/abs/1206.2944 . Model evaluation duration and maximize expected improvement per second. **Dodge, Gururangan, Card, Schwartz, Smith (2019). Show Your Work.** https://arxiv.org/abs/1909.03004 . Report expected best validation score as a function of trials or training time; report runtime and trial counts. **Sivaprasad, Mai, Vogels, Jaggi, Fleuret (2020).** https://arxiv.org/abs/1910.11758 (abstract). Fair comparisons charge each method its tuning cost. **Dehghani, Arnab, Beyer, Vaswani, Tay (2022). The Efficiency Misnomer.** https://arxiv.org/abs/2110.12894 . FLOPs, parameters, and throughput can disagree; no single cost indicator suffices. **Hyperband** (Section 5): its original resource is training iterations, so heal steps are a natural resource.
 
-### 8.4 Random-part control
+Conventions (mine, building on these and on NAS-Bench-101):
+- Two counters for every arm: B_eval (generation evals on the full search split) and B_sec (GPU-seconds on one fixed GPU type for compile, ridge fit, heal, and eval). A run stops when either is spent; log which one bound.
+- Set B_sec from a pilot: time 3 programs through each phase, then size B_eval to bind at about the same point.
+- GPU-seconds is the primary x-axis; eval count is the second chart. Claims must hold on both.
+- LoRA and FFT get the same B_sec, spent on training plus their own learning-rate and rank selection on the search split. Draw them as expected-best curves against GPU-seconds (Dodge), plus one LoRA matched to glue plus part parameter count.
+- Report the swarm's LLM token cost separately; it is not GPU time, and it should not be hidden. Report inference seconds per token for each final model, since grafts add inference cost that a merged LoRA does not.
 
-Precedents: Panigrahi et al. (2023) https://arxiv.org/abs/2302.06600 show learned graft regions (0.01% of params, over 95% of FT accuracy) far beat random regions. Lu et al. (2021) https://arxiv.org/abs/2103.05247: a frozen random transformer with trained interface reached 61.7% vs 68.2% pretrained on CIFAR-10, so glue alone gets far. Aghajanyan et al. (2020) https://arxiv.org/abs/2012.13255: 200 trained parameters reach 90% of FT on MRPC. Adewuyi et al. (2026) https://arxiv.org/abs/2602.01599: random 1% subsets match full RLVR. Together: a 6M-parameter glue can learn the task by itself. Bansal et al.'s random-network stitch is the template: same stitcher, same training, untrained or irrelevant source. Our control: replace each graft id with a random part of the same type and size from a random donor, keep `at`, glue, and heal steps identical, at the same budget, 3 seeds. Report selected minus random on held-out with paired SE. If the gap is within noise, the heal is doing the work.
+### 8.4 Controls: random-part ablations
 
-### 8.5 Updated recommendations for the graft space
+**Panigrahi, Saunshi, Zhao, Arora (2023). Task-Specific Skill Localization in Fine-tuned Language Models.** https://arxiv.org/abs/2302.06600 . "Model grafting" of about 0.01% of fine-tuned parameters recovers over 95% of fine-tuned accuracy; learned regions far beat random regions of the same size at low sparsity.
 
-- Planner prompt fields: per graft, donor family and size, donor depth fraction, host `at` and depth gap, pre-heal fit score (stitching loss), CKA, linear-probe fit if available, and the heal steps used. In history, show fit score next to final score so planners learn how well fit predicts outcome.
-- Judge, fidelity 0 = fit score (free): reject grafts whose fit is worse than the median fit of random parts at the same `at`. Then sanity check, then low-fidelity eval, then full eval, as in 7.3. Track the Spearman correlation of fit vs post-heal score online; if it stays under about 0.3 after 20 programs, stop using fit to prune (my threshold).
-- Heal as fidelity: short heal (for example 50 steps) at low fidelity, full heal only for promoted programs, same as successive halving over heal steps.
-- Evolutionary baseline over grafts (regularized evolution fits this space better than CMA-ES): population 12, tournament 3; mutation operators sampled uniformly: swap part (same type), move `at` by plus or minus 1 to 3 layers, add a graft, drop a graft, change heal steps (x0.5 or x2 within bounds), and for the host, flip one mask-block bit. Free fit-score rejection applies to the baseline too, so the comparison stays fair.
-- Controls: random-part arm (8.4), heal-only arm (host + heal, no grafts), heal steps = 0 arm. Make the random-part arm a full random-search arm with the same budget and judge, so "best of N searched" is compared with "best of N random".
-- Env: two counters (evals, GPU-seconds); `truncated` when either is spent; `info` carries fit R^2 per graft, parameter counts, heal loss curve, and seconds per phase.
+**Lu, Grover, Abbeel, Mordatch (2021). Pretrained Transformers as Universal Computation Engines.** https://arxiv.org/abs/2103.05247 . Freeze GPT-2's blocks, train only input, output, and norm layers. CIFAR-10: pretrained 68.2%, random frozen 61.7%, random with pretrained weight statistics 56.5%. Glue around random weights gets most of the way.
+
+**Aghajanyan, Zettlemoyer, Gupta (2020).** https://arxiv.org/abs/2012.13255 . About 200 trained parameters in a random subspace reach 90% of full fine-tuning on MRPC (RoBERTa-Large). **Adewuyi, Okibe, Ivanov (2026). The Multiple Ticket Hypothesis.** https://arxiv.org/abs/2602.01599 (abstract). A random 1% of parameters matches full RLVR, and random masks barely overlap (Jaccard at most 0.005). Together: our glue (about 6M parameters per graft per the design doc) can learn the task by itself.
+
+Also: Bansal's random-network stitch, Syed's random and orthogonal directions, Armstrong's permutation control, and Deletion Tuning's random sparse baseline (Sections 1, 8.2).
+
+Control design (mine):
+- **Matched random part (primary):** same donor, layer, kind, and unit count, random unit indices; same `at`, glue init, heal steps, heal data, and seed. Its R squared equals the real part's, so the comparison isolates unit choice. Draw at least 3 per real part and report the real part's rank.
+- **Random-donor part (secondary):** same kind and size from a random donor at its default depth. Isolates donor choice, but changes the pairing too.
+- **Random-part search arm:** the planner's part choice replaced by uniform random ids, with the same judge, glue, heal, and budgets. Compares "best of N searched" with "best of N random".
+- **Glue-free arms:** host plus the same heal with no grafts (or a matched-parameter LoRA), and grafts with heal steps = 0.
+- If selected minus random on held-out sits within one paired SE, the heal is doing the work. Say so in the report.
+
+### 8.5 Recommendations for the graft space
+
+**Planner prompt fields.** Add to 7.2: host card (layers, hidden size, fragile first and last 2 layers); part cards (donor model, family, size, kind, donor layer, units, parameter count, extraction signature, default `at`, depth gap, tokenizer-overlap note); per evaluated graft: R squared at its `at` and at plus or minus 2, permutation R squared, short-heal loss, full heal loss start and end, search score with paired SE against the no-graft and random-part controls, and seconds spent. Show fit next to final score in history so planners learn how well fit predicts outcome. Edit menu with fixed odds: swap part 25%, move `at` 20%, add graft 15%, drop graft 10%, change heal steps 10%, add or edit host mask 10%, fresh draft 10%.
+
+**Judge fidelity ladder.**
+- Dedup (cost 0): hash parts, depths, heal, and host mask.
+- **F0, compile and fit** (no eval; seconds only): R squared at the proposed `at` and plus or minus 2, plus the permutation control. Veto a graft whose R squared does not clear the permutation control clearly, or that sits in the bottom quartile of R squared over host depths for its donor layer. Suggest the best neighbor depth. Donors too large to run skip F0 (fit marked skipped).
+- **F1, short heal** (no eval; seconds only): 33 to 100 glue steps; held-back heal loss and the answer-format parse rate on 32 fixed prompts. Mark collapsed below 50% parse rate.
+- **F2, full heal and eval** (one eval): default 300 steps, then generation on the full search split.
+- Per round of 9 proposals: F0 vetoes, survivors to F1, top third by F1 loss to F2 (eta = 3, successive halving over heal steps). Rank by expected gain per second when heal lengths differ (Snoek). Frontier k = 8; within one paired SE keep the cheaper program (fewer glue parameters, fewer seconds).
+- Baselines use the same ladder, so the main comparison isolates the proposer.
+
+**Evolutionary baselines over grafts.**
+- **Primary, regularized evolution** (fits a variable-length, categorical genome better than CMA-ES): genome = up to 3 grafts (part id, `at`) plus heal steps in {100, 300}. Population 12, tournament 3, oldest dies. Initial population: 12 single-graft programs at default depth. Mutations with fixed odds: swap part 30% (same kind; half the time same donor at another layer), move `at` 25% (plus or minus 1 to 3, clamped to host layers 2 to 13), add graft 15%, drop graft 15% (when 2 or more), change heal steps 15%; plus flip one host-mask block bit when masks are in play. Optional crossover 20%: union of parents' grafts, capped at 3.
+- **Reference, Sakana DFS-style CMA-ES:** binary genes over (candidate part, depth band), for example 8 parts x 4 bands = 32 genes, one scale per graft. Optuna `CmaEsSampler(with_margin=True)`, population 4 + floor(3 ln 32) = 14, x0 near 0 so search starts as the host. Full-fidelity fitness, as in Sakana.
+- **Cheap baselines:** greedy add-if-better over single grafts at default depth (model soups recipe); the random-part search arm.
+
+**Curves.** Chart 1a: best F2 search score against cumulative GPU-seconds; Chart 1b: against eval count. One thin line per seed, median per arm, min-to-max band at 3 seeds. Arms: swarm, graft GA, random-part arm, CMA-ES reference, LoRA, FFT, host, no-graft heal, heal-0. "N times fewer": seconds and evals for the swarm to reach the graft GA's median final best. Final table: held-out score of each arm's selected program, paired differences against the GA and the random-part arm, with paired SE and 95% CI.
+
+**Env API deltas.** `obs` and `info` carry both budgets (total and used), fidelity reached, per-graft R squared and permutation R squared, chosen and suggested `at`, heal loss summary, parse rate, seconds per phase, and eval charged. `truncated` turns True when either budget is spent. Each `experiments.jsonl` line logs both cumulative budgets.
+
+**Open items.** Spearman calibration of R squared, F1 loss, and CKA against F2 score. Escalate to Arjun if pilot timings give fewer than about 40 F2 evals per arm per seed; at a 3.5-point SE on 200 GSM8K items, curves may not separate.
 
 ## Top recommendations (summary)
 
-1. Search on pooled MMLU-Pro subjects; BBEH at 1B is at the floor.
-2. Carve search and held-out from the paper's 25% test split; confirm the split seed.
-3. Budget in GPU-seconds (primary) and eval count, charged for compile, heal and eval.
-4. Score all programs on fixed question sets and compare with paired SE.
-5. Judge cascade: free fit score, sanity check, one-third subset, full split, eta = 3.
-6. Frontier k = 8, Occam tie-break, retire parents after 3 failed children.
-7. Planner prompt: spec, catalog cards with overlap and fit, ascending top-12 history, 2 parents, atomic edits.
-8. Baselines: native CMA-ES with margin (masks), regularized evolution (grafts), greedy union, random search.
-9. Required random-part control with identical glue and heal.
-10. Gymnasium-style env with truncated on budget, one shared counter, every step in experiments.jsonl.
+1. Use ridge R squared to choose `at` and veto pairings only; it is identical for any part from the same donor layer.
+2. Treat the random-part control as a full search arm with matched donor, layer, size, glue, and heal; report rank among 3 or more random draws.
+3. Budget on two axes, GPU-seconds (primary) and evals; stop when either runs out; give LoRA and FFT the same GPU-seconds including tuning.
+4. Judge ladder: F0 fit veto (free in evals), F1 short heal loss, F2 full heal plus eval, eta = 3, same ladder for every arm.
+5. Graft GA baseline: regularized evolution, population 12, tournament 3, with swap-part, move-at, add, drop, and heal-step mutations.
+6. Sakana DFS-style CMA-ES with margin over (part, depth band) bits, starting as the host, as the literature reference.
+7. Planner prompt: part cards with depth gap and fit, ascending top-12 history with fit next to final score, 2 parents, one atomic edit each.
+8. Score every program on fixed items and compare with paired SE; GSM8K's 200-item search split has about 3.5 points of noise.
+9. For host masks: pooled MMLU-Pro objective, splits from the paper's 25% test portion, CMA-ES with margin over 6 masks x 4 blocks.
+10. Gymnasium-style env: `truncated` on either budget, every step in `experiments.jsonl`, baselines through the same env.
