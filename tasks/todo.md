@@ -2,6 +2,7 @@
 
 Owner: Arjun's part, built by Rex's agents. Brief: `briefs/brief-R-rl-env-swarm.md`.
 Rules: push to `main`, never edit teammates' files (`wsp/program.py`, `compiler.py`, `masks.py`, `catalog.py`, `modal_app.py`). Append milestones to `docs/build-log.md` with a heredoc; never read it.
+Status board: https://github.com/trisanths/wsp/issues/1 (pinned). Post a comment there at every milestone, using the template in the issue body. Read new comments from teammates before each wave.
 
 ## Wave 1: research
 - [ ] papers and prior work (`docs/research/papers.md`)

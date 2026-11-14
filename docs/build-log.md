@@ -19,3 +19,8 @@ Four research agents run in parallel, each writing one file under `docs/research
 - `pastdev.md`: every route, ingest-to-recall latency, per-run scoping for a fair comparison, what each role writes and recalls.
 
 Working rule from Rex: no branches, push straight to `main`. The orchestrator does not write code; subagents build, the orchestrator reviews.
+
+## 2026-11-14, step 2: team status board
+
+- Opened and pinned [issue #1](https://github.com/trisanths/wsp/issues/1) as the part 3 status board for teammates and their agents. The body gives a comment template (Part, Done, Files, Interface change, Needs, Next), part 3's current status, the files part 3 touches and avoids, what part 3 needs from parts 1a, 1b and 2, and Arjun's open questions.
+- Rule from here: part 3 posts a comment on #1 at every milestone and reads new comments before each build wave.
