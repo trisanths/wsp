@@ -121,6 +121,20 @@ def test_fast_grafted_final_matches_pgraft(dtype, tol):
     assert ((want.float() - got.float()) * real).abs().max() < tol
 
 
+@pytest.mark.parametrize("dtype", [torch.float32, torch.bfloat16])
+def test_scramble_part_keeps_norms_and_changes_weights(dtype):
+    donor = model_with_fast(tiny_model(dtype))
+    part = moe_fast.block_part(donor, 1, 2)
+    before = {n: p.detach().clone() for n, p in part.named_parameters()}
+    rep = moe_fast.scramble_part(part, seed=5)
+    assert rep["rel_fro_error"] < 0.02
+    for n, p in part.named_parameters():
+        if p.dim() >= 2:
+            assert not torch.equal(p, before[n])
+    x = torch.randn(2, 5, 48).to(dtype)
+    assert torch.isfinite(part(x).float()).all()
+
+
 def test_checkpoint_matches_plain_gradient():
     model = tiny_model(torch.float32)
     fast = moe_fast.stack_native(model.model.layers[0].mlp)

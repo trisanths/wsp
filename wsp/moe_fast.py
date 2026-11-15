@@ -342,3 +342,33 @@ def install_fast_alignment():
     from wsp import pgraft
 
     pgraft._grafted_final = fast_grafted_final
+
+
+def scramble_part(part, seed, mode="spectrum"):
+    """Scramble every weight of a donor slice in place (wsp.scramble semantics), expert by expert for the stacked tensors.
+
+    Each routed expert matrix keeps its shape, norm and spectrum and loses its learned structure. Returns a report.
+    """
+    from wsp.scramble import scramble_tensor, tensor_seed
+
+    t0 = time.time()
+    changed, worst = 0, 0.0
+    seen = set()
+    for name, param in part.named_parameters():
+        if id(param) in seen:
+            continue
+        seen.add(id(param))
+        with torch.no_grad():
+            if param.dim() == 3:
+                slices = [param[e] for e in range(param.shape[0])]
+                keys = [f"{name}.{e}" for e in range(param.shape[0])]
+            else:
+                slices, keys = [param], [name]
+            for sl, key in zip(slices, keys):
+                old = sl.detach().clone()
+                new, _ = scramble_tensor(old, tensor_seed(seed, key), mode, None, "permute")
+                gap = (new.float().norm() - old.float().norm()).abs() / (old.float().norm() + 1e-12)
+                worst = max(worst, float(gap))
+                sl.copy_(new)
+                changed += 1
+    return {"mode": mode, "tensors_changed": changed, "rel_fro_error": worst, "seconds": round(time.time() - t0, 1)}
