@@ -76,6 +76,7 @@ image = (
     .add_local_dir(os.path.join(REPO_ROOT, "wsp"), "/root/wsp", ignore=["**/__pycache__", "**/*.pyc"])
     .add_local_dir(os.path.join(REPO_ROOT, "wsp_eval"), "/root/wsp_eval", ignore=["**/__pycache__", "**/*.pyc"])
     .add_local_dir(os.path.join(REPO_ROOT, "parts_extracted"), "/root/parts_extracted")
+    .add_local_dir(os.path.join(REPO_ROOT, "library"), "/root/library", ignore=["**/__pycache__", "**/*.pyc"])
 )
 
 FIDELITY_FRACTIONS = {"check": 0.16, "low": 0.34, "full": 1.0}
