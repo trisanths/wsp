@@ -1,0 +1,1220 @@
+{
+ "name": "antonym",
+ "description": "Give the antonym of an adjective, few-shot 'X -> opposite'. Control: same format copying the word.",
+ "hash": "5d2735eb8622f92c",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nP=[('hot','cold'),('big','small'),('fast','slow'),('happy','sad'),('light','dark'),('high','low'),('long','short'),('old','young'),('rich','poor'),('hard','soft'),('wet','dry'),('strong','weak'),('early','late'),('full','empty'),('open','closed'),('clean','dirty'),('heavy','light'),('thick','thin'),('loud','quiet'),('wide','narrow'),('deep','shallow'),('good','bad'),('true','false'),('black','white'),('up','down'),('inside','outside'),('cheap','expensive'),('safe','dangerous'),('easy','difficult'),('top','bottom'),('first','last'),('win','lose'),('alive','dead'),('love','hate'),('push','pull'),('north','south'),('east','west'),('day','night'),('begin','end'),('right','wrong')]\nP=P+[(b,a) for a,b in P if b not in ('light',)]\nitems=[];control=[]\nfor t in range(120):\n    s=random.sample(P,4)\n    items.append({\"prompt\":\"Opposites:\\n\"+\"\\n\".join(f\"{a} -> {b}\" for a,b in s[:3])+f\"\\n{s[3][0]} ->\",\"answer\":\" \"+s[3][1]})\n    s=random.sample(P,4)\n    control.append({\"prompt\":\"Copies:\\n\"+\"\\n\".join(f\"{a} -> {a}\" for a,b in s[:3])+f\"\\n{s[3][0]} ->\",\"answer\":\" \"+s[3][0]})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Opposites:\npoor -> rich\ndifficult -> easy\noutside -> inside\nlight ->",
+    "continuation": " dark",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nthin -> thick\ndark -> light\nsoft -> hard\nclosed ->",
+    "continuation": " open",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nbig -> small\ndifficult -> easy\nrich -> poor\nwet ->",
+    "continuation": " dry",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nbad -> good\ndead -> alive\nearly -> late\nlow ->",
+    "continuation": " high",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nbottom -> top\nnarrow -> wide\nsmall -> big\nalive ->",
+    "continuation": " dead",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nsoft -> hard\nend -> begin\nwest -> east\ntop ->",
+    "continuation": " bottom",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nhard -> soft\nclean -> dirty\nlow -> high\nhappy ->",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nbad -> good\nhate -> love\ngood -> bad\ncheap ->",
+    "continuation": " expensive",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\ndeep -> shallow\nquiet -> loud\ndifficult -> easy\nwhite ->",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nbig -> small\nnarrow -> wide\nwet -> dry\nslow ->",
+    "continuation": " fast",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nwhite -> black\nsouth -> north\nsafe -> dangerous\nclosed ->",
+    "continuation": " open",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\ndangerous -> safe\nhate -> love\npull -> push\nsafe ->",
+    "continuation": " dangerous",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nalive -> dead\nclean -> dirty\nnight -> day\nthin ->",
+    "continuation": " thick",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nday -> night\nclean -> dirty\ndangerous -> safe\nup ->",
+    "continuation": " down",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nyoung -> old\nhappy -> sad\nend -> begin\ntop ->",
+    "continuation": " bottom",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nloud -> quiet\neasy -> difficult\nhigh -> low\npull ->",
+    "continuation": " push",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nquiet -> loud\nweak -> strong\nblack -> white\nempty ->",
+    "continuation": " full",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nweak -> strong\nhate -> love\nempty -> full\nhigh ->",
+    "continuation": " low",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nalive -> dead\nbottom -> top\nend -> begin\nloud ->",
+    "continuation": " quiet",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nfalse -> true\ndark -> light\nlove -> hate\nheavy ->",
+    "continuation": " light",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nday -> night\nclean -> dirty\nlose -> win\nslow ->",
+    "continuation": " fast",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\ndirty -> clean\nsouth -> north\nnarrow -> wide\nwhite ->",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nfull -> empty\nearly -> late\ndead -> alive\nfalse ->",
+    "continuation": " true",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nstrong -> weak\nblack -> white\nfull -> empty\nnorth ->",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nloud -> quiet\ndown -> up\nlong -> short\nsafe ->",
+    "continuation": " dangerous",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nopen -> closed\ndown -> up\nclosed -> open\nlight ->",
+    "continuation": " dark",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nsoft -> hard\nbig -> small\nearly -> late\ndry ->",
+    "continuation": " wet",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nlong -> short\nlate -> early\ndown -> up\nnarrow ->",
+    "continuation": " wide",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nhigh -> low\nheavy -> light\nnight -> day\nfast ->",
+    "continuation": " slow",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\ncold -> hot\nshort -> long\nhate -> love\nhigh ->",
+    "continuation": " low",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nfirst -> last\nday -> night\nblack -> white\nup ->",
+    "continuation": " down",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nhate -> love\nexpensive -> cheap\nright -> wrong\nlow ->",
+    "continuation": " high",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nsouth -> north\ngood -> bad\ndirty -> clean\nup ->",
+    "continuation": " down",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nhigh -> low\nsafe -> dangerous\nloud -> quiet\nfull ->",
+    "continuation": " empty",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nthin -> thick\ncheap -> expensive\nwest -> east\nlong ->",
+    "continuation": " short",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nrich -> poor\nempty -> full\nday -> night\neast ->",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nsouth -> north\nnorth -> south\nquiet -> loud\ndown ->",
+    "continuation": " up",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nclosed -> open\ndangerous -> safe\ndown -> up\nsmall ->",
+    "continuation": " big",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nshallow -> deep\nhigh -> low\nnight -> day\nearly ->",
+    "continuation": " late",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nyoung -> old\nwet -> dry\ncheap -> expensive\ndifficult ->",
+    "continuation": " easy",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\ndirty -> clean\nempty -> full\nhappy -> sad\ndown ->",
+    "continuation": " up",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nalive -> dead\nlow -> high\neast -> west\ninside ->",
+    "continuation": " outside",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nfast -> slow\nnorth -> south\nquiet -> loud\nopen ->",
+    "continuation": " closed",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\ncheap -> expensive\nold -> young\nfast -> slow\nlast ->",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nrich -> poor\nup -> down\nhate -> love\neasy ->",
+    "continuation": " difficult",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\ndirty -> clean\nloud -> quiet\nquiet -> loud\ndifficult ->",
+    "continuation": " easy",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nyoung -> old\nhate -> love\nthick -> thin\ndeep ->",
+    "continuation": " shallow",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\neasy -> difficult\nhard -> soft\nbegin -> end\ndark ->",
+    "continuation": " light",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nnorth -> south\nlow -> high\ncold -> hot\ndirty ->",
+    "continuation": " clean",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nhigh -> low\nright -> wrong\nlose -> win\nhard ->",
+    "continuation": " soft",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\ndeep -> shallow\nfirst -> last\neasy -> difficult\nquiet ->",
+    "continuation": " loud",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\ninside -> outside\nbegin -> end\nnorth -> south\nblack ->",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nalive -> dead\nend -> begin\nwide -> narrow\npoor ->",
+    "continuation": " rich",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nbegin -> end\nlast -> first\nend -> begin\nwide ->",
+    "continuation": " narrow",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nbottom -> top\nfull -> empty\nlate -> early\nlast ->",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nopen -> closed\neasy -> difficult\nyoung -> old\ngood ->",
+    "continuation": " bad",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nopen -> closed\nwhite -> black\nwest -> east\nslow ->",
+    "continuation": " fast",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nrich -> poor\nclosed -> open\neasy -> difficult\nend ->",
+    "continuation": " begin",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nhard -> soft\nclosed -> open\ncheap -> expensive\nday ->",
+    "continuation": " night",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nbig -> small\nempty -> full\nsmall -> big\nthin ->",
+    "continuation": " thick",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Opposites:\nlose -> win\nfalse -> true\nthin -> thick\ndangerous ->",
+    "continuation": " safe",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nbegin -> end\nlose -> win\nempty -> full\nloud ->",
+    "continuation": " quiet",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nwet -> dry\nwin -> lose\nthin -> thick\nyoung ->",
+    "continuation": " old",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nlose -> win\nheavy -> light\nday -> night\nopen ->",
+    "continuation": " closed",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\ndown -> up\nsmall -> big\nright -> wrong\nshallow ->",
+    "continuation": " deep",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nsad -> happy\ndangerous -> safe\nloud -> quiet\nlow ->",
+    "continuation": " high",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nwide -> narrow\nlow -> high\nlate -> early\nlight ->",
+    "continuation": " dark",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nsoft -> hard\nempty -> full\nhigh -> low\nlove ->",
+    "continuation": " hate",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nup -> down\nsad -> happy\nend -> begin\nfull ->",
+    "continuation": " empty",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nbad -> good\nrich -> poor\nstrong -> weak\nheavy ->",
+    "continuation": " light",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nfalse -> true\nlow -> high\nsouth -> north\nsafe ->",
+    "continuation": " dangerous",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nlove -> hate\nright -> wrong\nbottom -> top\nsad ->",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nstrong -> weak\nwet -> dry\ncold -> hot\nexpensive ->",
+    "continuation": " cheap",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nearly -> late\nwide -> narrow\nlate -> early\nsafe ->",
+    "continuation": " dangerous",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nold -> young\nwrong -> right\nshallow -> deep\nsad ->",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nbig -> small\nquiet -> loud\nslow -> fast\ndeep ->",
+    "continuation": " shallow",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nlast -> first\ninside -> outside\nday -> night\nthin ->",
+    "continuation": " thick",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nempty -> full\noutside -> inside\nright -> wrong\nopen ->",
+    "continuation": " closed",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nfirst -> last\nfalse -> true\nlow -> high\nwrong ->",
+    "continuation": " right",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nbottom -> top\nsouth -> north\nright -> wrong\ndeep ->",
+    "continuation": " shallow",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nhigh -> low\npush -> pull\ndeep -> shallow\nwide ->",
+    "continuation": " narrow",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nwet -> dry\ndangerous -> safe\nhigh -> low\nrich ->",
+    "continuation": " poor",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nblack -> white\nshort -> long\nold -> young\ntrue ->",
+    "continuation": " false",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\ntop -> bottom\nlast -> first\nweak -> strong\nnorth ->",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nfull -> empty\nempty -> full\nrich -> poor\nearly ->",
+    "continuation": " late",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\noutside -> inside\nhate -> love\nalive -> dead\nslow ->",
+    "continuation": " fast",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\ntrue -> false\ndangerous -> safe\nhard -> soft\nbegin ->",
+    "continuation": " end",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nday -> night\nhot -> cold\nquiet -> loud\nshallow ->",
+    "continuation": " deep",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nwest -> east\neast -> west\nthin -> thick\nstrong ->",
+    "continuation": " weak",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\ndead -> alive\ndry -> wet\nhigh -> low\nblack ->",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nthick -> thin\nwide -> narrow\npush -> pull\nslow ->",
+    "continuation": " fast",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nopen -> closed\nlight -> dark\nend -> begin\nfast ->",
+    "continuation": " slow",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nbad -> good\nday -> night\nlose -> win\nsmall ->",
+    "continuation": " big",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nhot -> cold\nalive -> dead\ndry -> wet\ndifficult ->",
+    "continuation": " easy",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nup -> down\nnarrow -> wide\nlow -> high\nhard ->",
+    "continuation": " soft",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nwet -> dry\nheavy -> light\nbig -> small\nweak ->",
+    "continuation": " strong",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\ncold -> hot\nexpensive -> cheap\nwin -> lose\nfirst ->",
+    "continuation": " last",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\ndry -> wet\ndifficult -> easy\nnorth -> south\ndangerous ->",
+    "continuation": " safe",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nshallow -> deep\nthick -> thin\ndead -> alive\nbegin ->",
+    "continuation": " end",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nup -> down\nfull -> empty\ndirty -> clean\nnarrow ->",
+    "continuation": " wide",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nopen -> closed\nwide -> narrow\nnorth -> south\nfast ->",
+    "continuation": " slow",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nclean -> dirty\nup -> down\nend -> begin\npull ->",
+    "continuation": " push",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nlong -> short\nearly -> late\nbad -> good\nwide ->",
+    "continuation": " narrow",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nright -> wrong\nsoft -> hard\nempty -> full\nwet ->",
+    "continuation": " dry",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nshort -> long\nhard -> soft\nnight -> day\nloud ->",
+    "continuation": " quiet",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nhate -> love\npoor -> rich\nstrong -> weak\nrich ->",
+    "continuation": " poor",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nlate -> early\nsoft -> hard\nold -> young\ndeep ->",
+    "continuation": " shallow",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nyoung -> old\nbottom -> top\ntrue -> false\ncheap ->",
+    "continuation": " expensive",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nexpensive -> cheap\neast -> west\nlow -> high\nlate ->",
+    "continuation": " early",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nopen -> closed\nhot -> cold\npush -> pull\nday ->",
+    "continuation": " night",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nlast -> first\nwide -> narrow\nfull -> empty\nnight ->",
+    "continuation": " day",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nold -> young\nlight -> dark\nfalse -> true\nempty ->",
+    "continuation": " full",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nsmall -> big\nfull -> empty\nlose -> win\ndark ->",
+    "continuation": " light",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nbig -> small\nhot -> cold\ndifficult -> easy\nwrong ->",
+    "continuation": " right",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nstrong -> weak\nweak -> strong\nhot -> cold\nwrong ->",
+    "continuation": " right",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\neasy -> difficult\nbig -> small\nsad -> happy\ncold ->",
+    "continuation": " hot",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nbegin -> end\nright -> wrong\ndangerous -> safe\nsoft ->",
+    "continuation": " hard",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\nfalse -> true\nwhite -> black\noutside -> inside\ncold ->",
+    "continuation": " hot",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\ndifficult -> easy\nquiet -> loud\ninside -> outside\nclean ->",
+    "continuation": " dirty",
+    "digits_only": false
+   },
+   {
+    "context": "Opposites:\npush -> pull\nhigh -> low\nlong -> short\ndeep ->",
+    "continuation": " shallow",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Copies:\nexpensive -> expensive\nend -> end\nshallow -> shallow\nbottom ->",
+    "continuation": " bottom",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nwest -> west\nclosed -> closed\nbegin -> begin\nlow ->",
+    "continuation": " low",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ndirty -> dirty\nblack -> black\nold -> old\noutside ->",
+    "continuation": " outside",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nsouth -> south\ndry -> dry\nthin -> thin\nfull ->",
+    "continuation": " full",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nhigh -> high\nwhite -> white\nalive -> alive\nhappy ->",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nfalse -> false\nfirst -> first\nlong -> long\nright ->",
+    "continuation": " right",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nlove -> love\nold -> old\nlose -> lose\nbig ->",
+    "continuation": " big",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nblack -> black\nday -> day\nyoung -> young\nempty ->",
+    "continuation": " empty",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\npoor -> poor\nwest -> west\nday -> day\nbig ->",
+    "continuation": " big",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nblack -> black\nlight -> light\nwrong -> wrong\nlove ->",
+    "continuation": " love",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nup -> up\nwin -> win\nfast -> fast\npush ->",
+    "continuation": " push",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nclean -> clean\npoor -> poor\nweak -> weak\nwest ->",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nold -> old\ndeep -> deep\nsad -> sad\ndifficult ->",
+    "continuation": " difficult",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\npoor -> poor\nloud -> loud\nheavy -> heavy\neasy ->",
+    "continuation": " easy",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nbig -> big\nnarrow -> narrow\ndown -> down\nthin ->",
+    "continuation": " thin",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nempty -> empty\nwide -> wide\nhappy -> happy\nquiet ->",
+    "continuation": " quiet",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ndark -> dark\ntrue -> true\nbig -> big\ntop ->",
+    "continuation": " top",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ndown -> down\ninside -> inside\nlast -> last\nwrong ->",
+    "continuation": " wrong",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nweak -> weak\nnorth -> north\nday -> day\nthin ->",
+    "continuation": " thin",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nnight -> night\nsoft -> soft\ncold -> cold\npull ->",
+    "continuation": " pull",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ndifficult -> difficult\nold -> old\npoor -> poor\nlate ->",
+    "continuation": " late",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nthin -> thin\nwrong -> wrong\nhard -> hard\nclosed ->",
+    "continuation": " closed",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nlow -> low\nbad -> bad\nempty -> empty\nsafe ->",
+    "continuation": " safe",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ndangerous -> dangerous\nthick -> thick\npull -> pull\ncheap ->",
+    "continuation": " cheap",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nsad -> sad\nyoung -> young\nstrong -> strong\nlight ->",
+    "continuation": " light",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nhigh -> high\ncheap -> cheap\nlove -> love\ndead ->",
+    "continuation": " dead",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ntop -> top\nwrong -> wrong\nbegin -> begin\nstrong ->",
+    "continuation": " strong",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ninside -> inside\nnarrow -> narrow\npoor -> poor\nshort ->",
+    "continuation": " short",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nbottom -> bottom\nend -> end\nhard -> hard\nhappy ->",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nearly -> early\nup -> up\nclean -> clean\nend ->",
+    "continuation": " end",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nsoft -> soft\nalive -> alive\nwide -> wide\ndead ->",
+    "continuation": " dead",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nfirst -> first\nloud -> loud\nlast -> last\nquiet ->",
+    "continuation": " quiet",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nopen -> open\ndead -> dead\nend -> end\nwide ->",
+    "continuation": " wide",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ndown -> down\nslow -> slow\nwin -> win\nsmall ->",
+    "continuation": " small",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nalive -> alive\nthick -> thick\ndangerous -> dangerous\ndark ->",
+    "continuation": " dark",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ncheap -> cheap\nhot -> hot\nclean -> clean\nday ->",
+    "continuation": " day",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nwide -> wide\nlight -> light\nwet -> wet\nlast ->",
+    "continuation": " last",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nsoft -> soft\nlight -> light\ntop -> top\nwet ->",
+    "continuation": " wet",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nbad -> bad\nsad -> sad\nclean -> clean\nfalse ->",
+    "continuation": " false",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ndark -> dark\nup -> up\ninside -> inside\nalive ->",
+    "continuation": " alive",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ndead -> dead\nend -> end\nhot -> hot\nlight ->",
+    "continuation": " light",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nclean -> clean\nday -> day\nheavy -> heavy\nsoft ->",
+    "continuation": " soft",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nwin -> win\nwhite -> white\neasy -> easy\nheavy ->",
+    "continuation": " heavy",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nhigh -> high\nlast -> last\nnorth -> north\nthick ->",
+    "continuation": " thick",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nwhite -> white\nloud -> loud\nhate -> hate\nweak ->",
+    "continuation": " weak",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nlong -> long\nempty -> empty\nup -> up\nlose ->",
+    "continuation": " lose",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nhappy -> happy\nlow -> low\nbad -> bad\ndry ->",
+    "continuation": " dry",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nfast -> fast\nhot -> hot\nblack -> black\nbegin ->",
+    "continuation": " begin",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nclosed -> closed\nearly -> early\nlove -> love\nrich ->",
+    "continuation": " rich",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nfast -> fast\nlight -> light\nnight -> night\nheavy ->",
+    "continuation": " heavy",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nweak -> weak\nslow -> slow\nbegin -> begin\nempty ->",
+    "continuation": " empty",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nup -> up\nsoft -> soft\nwhite -> white\nopen ->",
+    "continuation": " open",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ndry -> dry\nhard -> hard\nheavy -> heavy\nempty ->",
+    "continuation": " empty",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nalive -> alive\nfalse -> false\ndark -> dark\nfirst ->",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nwet -> wet\ninside -> inside\neasy -> easy\nold ->",
+    "continuation": " old",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nheavy -> heavy\nfirst -> first\neast -> east\nslow ->",
+    "continuation": " slow",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ndry -> dry\ninside -> inside\nlove -> love\nlow ->",
+    "continuation": " low",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nwet -> wet\nyoung -> young\neasy -> easy\nlove ->",
+    "continuation": " love",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nwhite -> white\nfull -> full\nbegin -> begin\nlose ->",
+    "continuation": " lose",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nup -> up\nblack -> black\nclean -> clean\nfalse ->",
+    "continuation": " false",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Copies:\ndry -> dry\nhot -> hot\nshort -> short\nhigh ->",
+    "continuation": " high",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ndead -> dead\ndangerous -> dangerous\nday -> day\nquiet ->",
+    "continuation": " quiet",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nclosed -> closed\nbad -> bad\nstrong -> strong\ndown ->",
+    "continuation": " down",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ntrue -> true\nbig -> big\nbad -> bad\nlate ->",
+    "continuation": " late",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nwhite -> white\nsoft -> soft\neasy -> easy\ninside ->",
+    "continuation": " inside",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nsmall -> small\nlight -> light\ndifficult -> difficult\nloud ->",
+    "continuation": " loud",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nshallow -> shallow\nstrong -> strong\nfalse -> false\ncheap ->",
+    "continuation": " cheap",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nend -> end\ndown -> down\nnarrow -> narrow\ndirty ->",
+    "continuation": " dirty",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nbottom -> bottom\nnight -> night\nempty -> empty\nfalse ->",
+    "continuation": " false",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nhappy -> happy\ncheap -> cheap\nshort -> short\nslow ->",
+    "continuation": " slow",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nfull -> full\ndead -> dead\neast -> east\nwrong ->",
+    "continuation": " wrong",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nbegin -> begin\nslow -> slow\nwide -> wide\ngood ->",
+    "continuation": " good",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nnight -> night\nwet -> wet\nlight -> light\nhard ->",
+    "continuation": " hard",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nloud -> loud\nclosed -> closed\nhate -> hate\nwet ->",
+    "continuation": " wet",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nhappy -> happy\ndangerous -> dangerous\nhigh -> high\nup ->",
+    "continuation": " up",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nwide -> wide\nnarrow -> narrow\nyoung -> young\noutside ->",
+    "continuation": " outside",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\npoor -> poor\nhate -> hate\nempty -> empty\nlight ->",
+    "continuation": " light",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nlight -> light\ndry -> dry\nthin -> thin\nyoung ->",
+    "continuation": " young",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ndirty -> dirty\ntrue -> true\nwin -> win\nnarrow ->",
+    "continuation": " narrow",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nsouth -> south\nday -> day\nbad -> bad\nrich ->",
+    "continuation": " rich",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nhot -> hot\nnight -> night\nup -> up\nslow ->",
+    "continuation": " slow",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nnarrow -> narrow\nlong -> long\ndangerous -> dangerous\nlose ->",
+    "continuation": " lose",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\noutside -> outside\nthick -> thick\neast -> east\nearly ->",
+    "continuation": " early",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ntop -> top\nstrong -> strong\noutside -> outside\ndifficult ->",
+    "continuation": " difficult",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nalive -> alive\nbad -> bad\nsafe -> safe\nsad ->",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nhot -> hot\nsafe -> safe\nbegin -> begin\nopen ->",
+    "continuation": " open",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nright -> right\nearly -> early\nhard -> hard\nslow ->",
+    "continuation": " slow",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nslow -> slow\nsoft -> soft\ngood -> good\nempty ->",
+    "continuation": " empty",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nsouth -> south\nday -> day\nshort -> short\ndry ->",
+    "continuation": " dry",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nlow -> low\nwet -> wet\nsmall -> small\nwrong ->",
+    "continuation": " wrong",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nloud -> loud\nblack -> black\nnarrow -> narrow\nopen ->",
+    "continuation": " open",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ngood -> good\nquiet -> quiet\nrich -> rich\nlove ->",
+    "continuation": " love",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nclean -> clean\ndifficult -> difficult\nwin -> win\ndeep ->",
+    "continuation": " deep",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nearly -> early\nbad -> bad\ndry -> dry\nwet ->",
+    "continuation": " wet",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ndry -> dry\ndead -> dead\neasy -> easy\nnarrow ->",
+    "continuation": " narrow",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nfast -> fast\nclean -> clean\npush -> push\nhigh ->",
+    "continuation": " high",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nexpensive -> expensive\nwhite -> white\nweak -> weak\nbegin ->",
+    "continuation": " begin",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nend -> end\nwet -> wet\ncold -> cold\nsmall ->",
+    "continuation": " small",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nblack -> black\nwest -> west\nwet -> wet\nfull ->",
+    "continuation": " full",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\neasy -> easy\nheavy -> heavy\nhigh -> high\nbegin ->",
+    "continuation": " begin",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ndown -> down\ndry -> dry\nalive -> alive\ncheap ->",
+    "continuation": " cheap",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ndirty -> dirty\ncold -> cold\nwrong -> wrong\ncheap ->",
+    "continuation": " cheap",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nloud -> loud\nwhite -> white\nend -> end\nwet ->",
+    "continuation": " wet",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nfirst -> first\nsafe -> safe\nwest -> west\nempty ->",
+    "continuation": " empty",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\neast -> east\nlow -> low\nwest -> west\nheavy ->",
+    "continuation": " heavy",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ntop -> top\nloud -> loud\npull -> pull\neast ->",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nlow -> low\nopen -> open\nrich -> rich\nhappy ->",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ncheap -> cheap\nyoung -> young\nday -> day\nbad ->",
+    "continuation": " bad",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nrich -> rich\ndown -> down\nlove -> love\nbegin ->",
+    "continuation": " begin",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\npull -> pull\nstrong -> strong\ndangerous -> dangerous\nnight ->",
+    "continuation": " night",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nthin -> thin\nclean -> clean\nwet -> wet\nfirst ->",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nwrong -> wrong\nshallow -> shallow\nsoft -> soft\nnarrow ->",
+    "continuation": " narrow",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nslow -> slow\nclosed -> closed\nold -> old\nearly ->",
+    "continuation": " early",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nempty -> empty\ncold -> cold\nhot -> hot\nsafe ->",
+    "continuation": " safe",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nlast -> last\ncheap -> cheap\nend -> end\nlose ->",
+    "continuation": " lose",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ndown -> down\nold -> old\nthin -> thin\nbegin ->",
+    "continuation": " begin",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ncold -> cold\nheavy -> heavy\ncheap -> cheap\nblack ->",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\ndark -> dark\nhot -> hot\nday -> day\nthick ->",
+    "continuation": " thick",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nsmall -> small\nalive -> alive\nwet -> wet\nlow ->",
+    "continuation": " low",
+    "digits_only": false
+   },
+   {
+    "context": "Copies:\nclean -> clean\ndry -> dry\nstrong -> strong\nyoung ->",
+    "continuation": " young",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 15.6775
+}

@@ -1,0 +1,1220 @@
+{
+ "name": "roman_numerals",
+ "description": "Convert an integer 1-39 to Roman numerals, few-shot. Control: same 'n =' format copying the arabic number.",
+ "hash": "c50b8badd33f4783",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\ndef rom(n):\n    vals=[(10,'X'),(9,'IX'),(5,'V'),(4,'IV'),(1,'I')]\n    s=''\n    for v,r in vals:\n        while n>=v: s+=r; n-=v\n    return s\nitems=[];control=[]\nfor t in range(120):\n    xs=random.sample(range(1,40),4)\n    items.append({\"prompt\":\"Roman numerals:\\n\"+\"\\n\".join(f\"{x} = {rom(x)}\" for x in xs[:3])+f\"\\n{xs[3]} =\",\"answer\":\" \"+rom(xs[3])})\n    xs=random.sample(range(1,40),4)\n    control.append({\"prompt\":\"Arabic numerals:\\n\"+\"\\n\".join(f\"{x} = {x}\" for x in xs[:3])+f\"\\n{xs[3]} =\",\"answer\":\" \"+str(xs[3])})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Roman numerals:\n38 = XXXVIII\n15 = XV\n2 = II\n1 =",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n23 = XXIII\n27 = XXVII\n30 = XXX\n4 =",
+    "continuation": " IV",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n28 = XXVIII\n10 = X\n29 = XXIX\n34 =",
+    "continuation": " XXXIV",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n31 = XXXI\n36 = XXXVI\n7 = VII\n23 =",
+    "continuation": " XXIII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n30 = XXX\n32 = XXXII\n29 = XXIX\n4 =",
+    "continuation": " IV",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n25 = XXV\n4 = IV\n11 = XI\n9 =",
+    "continuation": " IX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n30 = XXX\n8 = VIII\n31 = XXXI\n23 =",
+    "continuation": " XXIII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n17 = XVII\n8 = VIII\n39 = XXXIX\n29 =",
+    "continuation": " XXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n21 = XXI\n20 = XX\n30 = XXX\n4 =",
+    "continuation": " IV",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n16 = XVI\n31 = XXXI\n23 = XXIII\n19 =",
+    "continuation": " XIX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n2 = II\n34 = XXXIV\n29 = XXIX\n13 =",
+    "continuation": " XIII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n2 = II\n29 = XXIX\n28 = XXVIII\n27 =",
+    "continuation": " XXVII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n37 = XXXVII\n33 = XXXIII\n20 = XX\n23 =",
+    "continuation": " XXIII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n15 = XV\n6 = VI\n33 = XXXIII\n34 =",
+    "continuation": " XXXIV",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n38 = XXXVIII\n6 = VI\n7 = VII\n35 =",
+    "continuation": " XXXV",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n8 = VIII\n13 = XIII\n39 = XXXIX\n37 =",
+    "continuation": " XXXVII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n20 = XX\n8 = VIII\n35 = XXXV\n39 =",
+    "continuation": " XXXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n29 = XXIX\n34 = XXXIV\n32 = XXXII\n36 =",
+    "continuation": " XXXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n17 = XVII\n35 = XXXV\n39 = XXXIX\n10 =",
+    "continuation": " X",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n10 = X\n9 = IX\n15 = XV\n21 =",
+    "continuation": " XXI",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n35 = XXXV\n14 = XIV\n39 = XXXIX\n36 =",
+    "continuation": " XXXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n22 = XXII\n39 = XXXIX\n7 = VII\n6 =",
+    "continuation": " VI",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n10 = X\n11 = XI\n37 = XXXVII\n25 =",
+    "continuation": " XXV",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n6 = VI\n31 = XXXI\n14 = XIV\n19 =",
+    "continuation": " XIX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n13 = XIII\n7 = VII\n28 = XXVIII\n30 =",
+    "continuation": " XXX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n4 = IV\n25 = XXV\n1 = I\n7 =",
+    "continuation": " VII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n17 = XVII\n38 = XXXVIII\n11 = XI\n28 =",
+    "continuation": " XXVIII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n19 = XIX\n35 = XXXV\n13 = XIII\n29 =",
+    "continuation": " XXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n4 = IV\n25 = XXV\n27 = XXVII\n1 =",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n25 = XXV\n38 = XXXVIII\n19 = XIX\n1 =",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n12 = XII\n3 = III\n17 = XVII\n31 =",
+    "continuation": " XXXI",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n1 = I\n30 = XXX\n6 = VI\n22 =",
+    "continuation": " XXII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n14 = XIV\n3 = III\n10 = X\n7 =",
+    "continuation": " VII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n28 = XXVIII\n34 = XXXIV\n32 = XXXII\n21 =",
+    "continuation": " XXI",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n30 = XXX\n32 = XXXII\n17 = XVII\n31 =",
+    "continuation": " XXXI",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n30 = XXX\n9 = IX\n36 = XXXVI\n20 =",
+    "continuation": " XX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n8 = VIII\n32 = XXXII\n38 = XXXVIII\n22 =",
+    "continuation": " XXII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n10 = X\n25 = XXV\n38 = XXXVIII\n19 =",
+    "continuation": " XIX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n31 = XXXI\n37 = XXXVII\n11 = XI\n14 =",
+    "continuation": " XIV",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n8 = VIII\n6 = VI\n16 = XVI\n7 =",
+    "continuation": " VII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n1 = I\n19 = XIX\n24 = XXIV\n2 =",
+    "continuation": " II",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n35 = XXXV\n7 = VII\n27 = XXVII\n26 =",
+    "continuation": " XXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n3 = III\n14 = XIV\n17 = XVII\n36 =",
+    "continuation": " XXXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n15 = XV\n5 = V\n20 = XX\n23 =",
+    "continuation": " XXIII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n37 = XXXVII\n15 = XV\n16 = XVI\n10 =",
+    "continuation": " X",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n12 = XII\n24 = XXIV\n4 = IV\n15 =",
+    "continuation": " XV",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n10 = X\n32 = XXXII\n4 = IV\n14 =",
+    "continuation": " XIV",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n30 = XXX\n3 = III\n39 = XXXIX\n7 =",
+    "continuation": " VII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n8 = VIII\n25 = XXV\n18 = XVIII\n37 =",
+    "continuation": " XXXVII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n15 = XV\n9 = IX\n18 = XVIII\n23 =",
+    "continuation": " XXIII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n37 = XXXVII\n27 = XXVII\n3 = III\n11 =",
+    "continuation": " XI",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n17 = XVII\n9 = IX\n34 = XXXIV\n23 =",
+    "continuation": " XXIII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n22 = XXII\n11 = XI\n10 = X\n30 =",
+    "continuation": " XXX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n17 = XVII\n23 = XXIII\n19 = XIX\n13 =",
+    "continuation": " XIII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n31 = XXXI\n32 = XXXII\n33 = XXXIII\n21 =",
+    "continuation": " XXI",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n10 = X\n15 = XV\n3 = III\n37 =",
+    "continuation": " XXXVII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n8 = VIII\n15 = XV\n24 = XXIV\n11 =",
+    "continuation": " XI",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n23 = XXIII\n13 = XIII\n17 = XVII\n20 =",
+    "continuation": " XX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n17 = XVII\n22 = XXII\n5 = V\n32 =",
+    "continuation": " XXXII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n12 = XII\n16 = XVI\n30 = XXX\n22 =",
+    "continuation": " XXII",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Roman numerals:\n31 = XXXI\n29 = XXIX\n34 = XXXIV\n17 =",
+    "continuation": " XVII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n24 = XXIV\n19 = XIX\n31 = XXXI\n6 =",
+    "continuation": " VI",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n36 = XXXVI\n39 = XXXIX\n10 = X\n29 =",
+    "continuation": " XXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n26 = XXVI\n22 = XXII\n20 = XX\n27 =",
+    "continuation": " XXVII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n9 = IX\n1 = I\n26 = XXVI\n27 =",
+    "continuation": " XXVII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n32 = XXXII\n15 = XV\n35 = XXXV\n26 =",
+    "continuation": " XXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n36 = XXXVI\n23 = XXIII\n13 = XIII\n25 =",
+    "continuation": " XXV",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n25 = XXV\n27 = XXVII\n3 = III\n17 =",
+    "continuation": " XVII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n31 = XXXI\n23 = XXIII\n16 = XVI\n3 =",
+    "continuation": " III",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n3 = III\n6 = VI\n35 = XXXV\n26 =",
+    "continuation": " XXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n31 = XXXI\n23 = XXIII\n38 = XXXVIII\n14 =",
+    "continuation": " XIV",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n37 = XXXVII\n9 = IX\n11 = XI\n8 =",
+    "continuation": " VIII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n33 = XXXIII\n32 = XXXII\n7 = VII\n20 =",
+    "continuation": " XX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n17 = XVII\n18 = XVIII\n15 = XV\n2 =",
+    "continuation": " II",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n5 = V\n3 = III\n32 = XXXII\n17 =",
+    "continuation": " XVII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n14 = XIV\n19 = XIX\n35 = XXXV\n39 =",
+    "continuation": " XXXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n15 = XV\n16 = XVI\n5 = V\n34 =",
+    "continuation": " XXXIV",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n6 = VI\n23 = XXIII\n5 = V\n8 =",
+    "continuation": " VIII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n25 = XXV\n27 = XXVII\n6 = VI\n1 =",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n5 = V\n9 = IX\n27 = XXVII\n20 =",
+    "continuation": " XX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n31 = XXXI\n16 = XVI\n4 = IV\n20 =",
+    "continuation": " XX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n33 = XXXIII\n3 = III\n37 = XXXVII\n6 =",
+    "continuation": " VI",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n3 = III\n4 = IV\n11 = XI\n23 =",
+    "continuation": " XXIII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n17 = XVII\n20 = XX\n35 = XXXV\n22 =",
+    "continuation": " XXII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n15 = XV\n24 = XXIV\n5 = V\n39 =",
+    "continuation": " XXXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n3 = III\n31 = XXXI\n27 = XXVII\n10 =",
+    "continuation": " X",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n22 = XXII\n8 = VIII\n31 = XXXI\n32 =",
+    "continuation": " XXXII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n1 = I\n17 = XVII\n26 = XXVI\n34 =",
+    "continuation": " XXXIV",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n39 = XXXIX\n25 = XXV\n21 = XXI\n37 =",
+    "continuation": " XXXVII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n16 = XVI\n14 = XIV\n19 = XIX\n1 =",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n38 = XXXVIII\n19 = XIX\n24 = XXIV\n26 =",
+    "continuation": " XXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n14 = XIV\n4 = IV\n2 = II\n35 =",
+    "continuation": " XXXV",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n24 = XXIV\n27 = XXVII\n3 = III\n9 =",
+    "continuation": " IX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n5 = V\n27 = XXVII\n19 = XIX\n34 =",
+    "continuation": " XXXIV",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n10 = X\n28 = XXVIII\n37 = XXXVII\n6 =",
+    "continuation": " VI",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n7 = VII\n13 = XIII\n8 = VIII\n39 =",
+    "continuation": " XXXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n28 = XXVIII\n20 = XX\n23 = XXIII\n6 =",
+    "continuation": " VI",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n38 = XXXVIII\n27 = XXVII\n18 = XVIII\n29 =",
+    "continuation": " XXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n1 = I\n34 = XXXIV\n5 = V\n6 =",
+    "continuation": " VI",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n29 = XXIX\n14 = XIV\n38 = XXXVIII\n4 =",
+    "continuation": " IV",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n39 = XXXIX\n32 = XXXII\n30 = XXX\n28 =",
+    "continuation": " XXVIII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n8 = VIII\n3 = III\n39 = XXXIX\n2 =",
+    "continuation": " II",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n22 = XXII\n8 = VIII\n19 = XIX\n9 =",
+    "continuation": " IX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n16 = XVI\n15 = XV\n29 = XXIX\n25 =",
+    "continuation": " XXV",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n24 = XXIV\n22 = XXII\n31 = XXXI\n19 =",
+    "continuation": " XIX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n29 = XXIX\n32 = XXXII\n38 = XXXVIII\n14 =",
+    "continuation": " XIV",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n23 = XXIII\n27 = XXVII\n3 = III\n30 =",
+    "continuation": " XXX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n22 = XXII\n24 = XXIV\n6 = VI\n3 =",
+    "continuation": " III",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n28 = XXVIII\n15 = XV\n39 = XXXIX\n26 =",
+    "continuation": " XXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n29 = XXIX\n23 = XXIII\n25 = XXV\n28 =",
+    "continuation": " XXVIII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n1 = I\n22 = XXII\n21 = XXI\n3 =",
+    "continuation": " III",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n31 = XXXI\n10 = X\n2 = II\n3 =",
+    "continuation": " III",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n13 = XIII\n3 = III\n26 = XXVI\n29 =",
+    "continuation": " XXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n7 = VII\n31 = XXXI\n26 = XXVI\n6 =",
+    "continuation": " VI",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n26 = XXVI\n1 = I\n32 = XXXII\n22 =",
+    "continuation": " XXII",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n3 = III\n5 = V\n15 = XV\n9 =",
+    "continuation": " IX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n5 = V\n28 = XXVIII\n36 = XXXVI\n26 =",
+    "continuation": " XXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n8 = VIII\n1 = I\n18 = XVIII\n19 =",
+    "continuation": " XIX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n35 = XXXV\n10 = X\n7 = VII\n39 =",
+    "continuation": " XXXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Roman numerals:\n2 = II\n34 = XXXIV\n3 = III\n13 =",
+    "continuation": " XIII",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Arabic numerals:\n20 = 20\n21 = 21\n15 = 15\n24 =",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n12 = 12\n7 = 7\n18 = 18\n8 =",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n26 = 26\n13 = 13\n17 = 17\n23 =",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n9 = 9\n37 = 37\n34 = 34\n14 =",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n7 = 7\n27 = 27\n5 = 5\n10 =",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n7 = 7\n36 = 36\n31 = 31\n22 =",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n4 = 4\n36 = 36\n1 = 1\n6 =",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n16 = 16\n29 = 29\n24 = 24\n34 =",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n3 = 3\n18 = 18\n11 = 11\n10 =",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n5 = 5\n6 = 6\n9 = 9\n10 =",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n22 = 22\n28 = 28\n4 = 4\n7 =",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n2 = 2\n23 = 23\n31 = 31\n26 =",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n12 = 12\n1 = 1\n31 = 31\n27 =",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n36 = 36\n27 = 27\n10 = 10\n38 =",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n21 = 21\n28 = 28\n7 = 7\n36 =",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n10 = 10\n14 = 14\n1 = 1\n8 =",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n17 = 17\n9 = 9\n2 = 2\n14 =",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n31 = 31\n5 = 5\n6 = 6\n34 =",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n32 = 32\n4 = 4\n29 = 29\n20 =",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n16 = 16\n19 = 19\n12 = 12\n13 =",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n26 = 26\n12 = 12\n27 = 27\n28 =",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n8 = 8\n7 = 7\n12 = 12\n27 =",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n26 = 26\n1 = 1\n24 = 24\n3 =",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n23 = 23\n31 = 31\n27 = 27\n14 =",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n36 = 36\n9 = 9\n19 = 19\n8 =",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n24 = 24\n35 = 35\n12 = 12\n14 =",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n1 = 1\n19 = 19\n9 = 9\n5 =",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n32 = 32\n13 = 13\n35 = 35\n15 =",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n8 = 8\n26 = 26\n6 = 6\n24 =",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n2 = 2\n18 = 18\n29 = 29\n8 =",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n3 = 3\n35 = 35\n18 = 18\n9 =",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n35 = 35\n29 = 29\n6 = 6\n21 =",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n1 = 1\n29 = 29\n30 = 30\n14 =",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n16 = 16\n21 = 21\n5 = 5\n13 =",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n21 = 21\n24 = 24\n37 = 37\n3 =",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n19 = 19\n36 = 36\n21 = 21\n12 =",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n34 = 34\n18 = 18\n16 = 16\n14 =",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n14 = 14\n22 = 22\n18 = 18\n3 =",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n6 = 6\n5 = 5\n13 = 13\n15 =",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n10 = 10\n27 = 27\n14 = 14\n29 =",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n27 = 27\n13 = 13\n36 = 36\n6 =",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n2 = 2\n34 = 34\n37 = 37\n14 =",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n35 = 35\n33 = 33\n28 = 28\n4 =",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n23 = 23\n38 = 38\n9 = 9\n20 =",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n34 = 34\n10 = 10\n17 = 17\n39 =",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n21 = 21\n1 = 1\n14 = 14\n34 =",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n22 = 22\n25 = 25\n11 = 11\n27 =",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n16 = 16\n19 = 19\n22 = 22\n4 =",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n28 = 28\n12 = 12\n4 = 4\n33 =",
+    "continuation": " 33",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n25 = 25\n19 = 19\n8 = 8\n34 =",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n28 = 28\n3 = 3\n20 = 20\n22 =",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n24 = 24\n13 = 13\n30 = 30\n23 =",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n27 = 27\n21 = 21\n29 = 29\n14 =",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n3 = 3\n12 = 12\n16 = 16\n32 =",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n28 = 28\n6 = 6\n24 = 24\n15 =",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n25 = 25\n30 = 30\n4 = 4\n7 =",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n4 = 4\n11 = 11\n22 = 22\n34 =",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n8 = 8\n32 = 32\n26 = 26\n17 =",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n36 = 36\n19 = 19\n8 = 8\n22 =",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n28 = 28\n7 = 7\n17 = 17\n5 =",
+    "continuation": " 5",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Arabic numerals:\n21 = 21\n9 = 9\n14 = 14\n12 =",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n13 = 13\n23 = 23\n8 = 8\n5 =",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n39 = 39\n6 = 6\n3 = 3\n5 =",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n25 = 25\n17 = 17\n10 = 10\n36 =",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n34 = 34\n36 = 36\n28 = 28\n38 =",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n3 = 3\n20 = 20\n1 = 1\n29 =",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n18 = 18\n2 = 2\n8 = 8\n3 =",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n9 = 9\n10 = 10\n18 = 18\n22 =",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n17 = 17\n20 = 20\n27 = 27\n25 =",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n33 = 33\n16 = 16\n12 = 12\n19 =",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n23 = 23\n15 = 15\n35 = 35\n19 =",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n26 = 26\n36 = 36\n34 = 34\n19 =",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n18 = 18\n19 = 19\n29 = 29\n24 =",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n23 = 23\n2 = 2\n12 = 12\n1 =",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n27 = 27\n32 = 32\n30 = 30\n29 =",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n27 = 27\n31 = 31\n25 = 25\n39 =",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n29 = 29\n5 = 5\n17 = 17\n11 =",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n27 = 27\n33 = 33\n20 = 20\n8 =",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n10 = 10\n28 = 28\n31 = 31\n6 =",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n24 = 24\n33 = 33\n25 = 25\n34 =",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n37 = 37\n27 = 27\n3 = 3\n26 =",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n36 = 36\n15 = 15\n30 = 30\n13 =",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n33 = 33\n9 = 9\n19 = 19\n7 =",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n2 = 2\n32 = 32\n21 = 21\n17 =",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n21 = 21\n35 = 35\n30 = 30\n17 =",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n38 = 38\n26 = 26\n29 = 29\n7 =",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n20 = 20\n7 = 7\n5 = 5\n22 =",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n25 = 25\n3 = 3\n15 = 15\n6 =",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n12 = 12\n34 = 34\n5 = 5\n20 =",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n13 = 13\n16 = 16\n2 = 2\n18 =",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n38 = 38\n20 = 20\n11 = 11\n25 =",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n39 = 39\n1 = 1\n3 = 3\n32 =",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n8 = 8\n25 = 25\n26 = 26\n38 =",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n8 = 8\n10 = 10\n18 = 18\n2 =",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n20 = 20\n34 = 34\n25 = 25\n17 =",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n8 = 8\n34 = 34\n16 = 16\n11 =",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n33 = 33\n32 = 32\n26 = 26\n20 =",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n20 = 20\n36 = 36\n5 = 5\n1 =",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n39 = 39\n2 = 2\n26 = 26\n5 =",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n34 = 34\n39 = 39\n5 = 5\n28 =",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n32 = 32\n10 = 10\n37 = 37\n26 =",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n28 = 28\n21 = 21\n14 = 14\n36 =",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n39 = 39\n9 = 9\n21 = 21\n7 =",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n32 = 32\n23 = 23\n6 = 6\n21 =",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n39 = 39\n13 = 13\n22 = 22\n11 =",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n32 = 32\n25 = 25\n15 = 15\n13 =",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n13 = 13\n30 = 30\n25 = 25\n24 =",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n34 = 34\n10 = 10\n23 = 23\n30 =",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n32 = 32\n39 = 39\n6 = 6\n10 =",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n12 = 12\n20 = 20\n33 = 33\n37 =",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n33 = 33\n39 = 39\n30 = 30\n35 =",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n32 = 32\n8 = 8\n4 = 4\n30 =",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n35 = 35\n39 = 39\n5 = 5\n2 =",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n13 = 13\n20 = 20\n18 = 18\n12 =",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n38 = 38\n19 = 19\n29 = 29\n6 =",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n15 = 15\n10 = 10\n37 = 37\n19 =",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n20 = 20\n6 = 6\n33 = 33\n19 =",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n24 = 24\n6 = 6\n14 = 14\n34 =",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n39 = 39\n15 = 15\n10 = 10\n12 =",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Arabic numerals:\n13 = 13\n12 = 12\n8 = 8\n31 =",
+    "continuation": " 31",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 7.5231
+}

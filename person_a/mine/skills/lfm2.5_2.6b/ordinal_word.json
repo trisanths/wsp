@@ -1,0 +1,1220 @@
+{
+ "name": "ordinal_word",
+ "description": "Convert an integer 1-20 to its English ordinal word (7 -> seventh), few-shot. Control: same format, integer to itself.",
+ "hash": "07b2026adcd792e8",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nO='first second third fourth fifth sixth seventh eighth ninth tenth eleventh twelfth thirteenth fourteenth fifteenth sixteenth seventeenth eighteenth nineteenth twentieth'.split()\nitems=[];control=[]\nfor t in range(120):\n    xs=random.sample(range(1,21),4)\n    items.append({\"prompt\":\"\\n\".join(f\"{x} -> {O[x-1]}\" for x in xs[:3])+f\"\\n{xs[3]} ->\",\"answer\":\" \"+O[xs[3]-1]})\n    xs=random.sample(range(1,21),4)\n    control.append({\"prompt\":\"\\n\".join(f\"{x} -> {x}\" for x in xs[:3])+f\"\\n{xs[3]} ->\",\"answer\":\" \"+str(xs[3])})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "16 -> sixteenth\n9 -> ninth\n10 -> tenth\n14 ->",
+    "continuation": " fourteenth",
+    "digits_only": false
+   },
+   {
+    "context": "19 -> nineteenth\n15 -> fifteenth\n16 -> sixteenth\n9 ->",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "6 -> sixth\n15 -> fifteenth\n12 -> twelfth\n13 ->",
+    "continuation": " thirteenth",
+    "digits_only": false
+   },
+   {
+    "context": "16 -> sixteenth\n18 -> eighteenth\n4 -> fourth\n12 ->",
+    "continuation": " twelfth",
+    "digits_only": false
+   },
+   {
+    "context": "2 -> second\n14 -> fourteenth\n16 -> sixteenth\n15 ->",
+    "continuation": " fifteenth",
+    "digits_only": false
+   },
+   {
+    "context": "5 -> fifth\n16 -> sixteenth\n3 -> third\n20 ->",
+    "continuation": " twentieth",
+    "digits_only": false
+   },
+   {
+    "context": "9 -> ninth\n5 -> fifth\n1 -> first\n7 ->",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "12 -> twelfth\n13 -> thirteenth\n9 -> ninth\n5 ->",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "7 -> seventh\n1 -> first\n19 -> nineteenth\n17 ->",
+    "continuation": " seventeenth",
+    "digits_only": false
+   },
+   {
+    "context": "1 -> first\n7 -> seventh\n11 -> eleventh\n6 ->",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "2 -> second\n7 -> seventh\n5 -> fifth\n4 ->",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "11 -> eleventh\n9 -> ninth\n3 -> third\n12 ->",
+    "continuation": " twelfth",
+    "digits_only": false
+   },
+   {
+    "context": "11 -> eleventh\n2 -> second\n18 -> eighteenth\n9 ->",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "14 -> fourteenth\n19 -> nineteenth\n20 -> twentieth\n3 ->",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "6 -> sixth\n13 -> thirteenth\n5 -> fifth\n18 ->",
+    "continuation": " eighteenth",
+    "digits_only": false
+   },
+   {
+    "context": "2 -> second\n1 -> first\n7 -> seventh\n6 ->",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "16 -> sixteenth\n3 -> third\n20 -> twentieth\n8 ->",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "18 -> eighteenth\n3 -> third\n5 -> fifth\n1 ->",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "20 -> twentieth\n9 -> ninth\n18 -> eighteenth\n5 ->",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "8 -> eighth\n6 -> sixth\n10 -> tenth\n12 ->",
+    "continuation": " twelfth",
+    "digits_only": false
+   },
+   {
+    "context": "20 -> twentieth\n18 -> eighteenth\n10 -> tenth\n15 ->",
+    "continuation": " fifteenth",
+    "digits_only": false
+   },
+   {
+    "context": "18 -> eighteenth\n15 -> fifteenth\n11 -> eleventh\n9 ->",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "2 -> second\n13 -> thirteenth\n1 -> first\n4 ->",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "1 -> first\n7 -> seventh\n10 -> tenth\n4 ->",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "14 -> fourteenth\n5 -> fifth\n15 -> fifteenth\n19 ->",
+    "continuation": " nineteenth",
+    "digits_only": false
+   },
+   {
+    "context": "15 -> fifteenth\n16 -> sixteenth\n7 -> seventh\n14 ->",
+    "continuation": " fourteenth",
+    "digits_only": false
+   },
+   {
+    "context": "17 -> seventeenth\n15 -> fifteenth\n7 -> seventh\n4 ->",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "10 -> tenth\n15 -> fifteenth\n17 -> seventeenth\n19 ->",
+    "continuation": " nineteenth",
+    "digits_only": false
+   },
+   {
+    "context": "15 -> fifteenth\n7 -> seventh\n12 -> twelfth\n10 ->",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "20 -> twentieth\n2 -> second\n19 -> nineteenth\n9 ->",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "3 -> third\n5 -> fifth\n19 -> nineteenth\n2 ->",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "20 -> twentieth\n10 -> tenth\n12 -> twelfth\n5 ->",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "18 -> eighteenth\n5 -> fifth\n4 -> fourth\n16 ->",
+    "continuation": " sixteenth",
+    "digits_only": false
+   },
+   {
+    "context": "1 -> first\n11 -> eleventh\n19 -> nineteenth\n18 ->",
+    "continuation": " eighteenth",
+    "digits_only": false
+   },
+   {
+    "context": "2 -> second\n20 -> twentieth\n19 -> nineteenth\n6 ->",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "16 -> sixteenth\n17 -> seventeenth\n11 -> eleventh\n20 ->",
+    "continuation": " twentieth",
+    "digits_only": false
+   },
+   {
+    "context": "7 -> seventh\n8 -> eighth\n1 -> first\n9 ->",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "2 -> second\n3 -> third\n8 -> eighth\n5 ->",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "20 -> twentieth\n15 -> fifteenth\n6 -> sixth\n1 ->",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "8 -> eighth\n4 -> fourth\n5 -> fifth\n14 ->",
+    "continuation": " fourteenth",
+    "digits_only": false
+   },
+   {
+    "context": "20 -> twentieth\n8 -> eighth\n5 -> fifth\n6 ->",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "19 -> nineteenth\n5 -> fifth\n6 -> sixth\n4 ->",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "14 -> fourteenth\n12 -> twelfth\n18 -> eighteenth\n6 ->",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "20 -> twentieth\n4 -> fourth\n13 -> thirteenth\n7 ->",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "8 -> eighth\n5 -> fifth\n18 -> eighteenth\n15 ->",
+    "continuation": " fifteenth",
+    "digits_only": false
+   },
+   {
+    "context": "10 -> tenth\n12 -> twelfth\n14 -> fourteenth\n15 ->",
+    "continuation": " fifteenth",
+    "digits_only": false
+   },
+   {
+    "context": "17 -> seventeenth\n3 -> third\n19 -> nineteenth\n13 ->",
+    "continuation": " thirteenth",
+    "digits_only": false
+   },
+   {
+    "context": "7 -> seventh\n2 -> second\n6 -> sixth\n18 ->",
+    "continuation": " eighteenth",
+    "digits_only": false
+   },
+   {
+    "context": "4 -> fourth\n19 -> nineteenth\n12 -> twelfth\n8 ->",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "9 -> ninth\n12 -> twelfth\n11 -> eleventh\n14 ->",
+    "continuation": " fourteenth",
+    "digits_only": false
+   },
+   {
+    "context": "2 -> second\n16 -> sixteenth\n11 -> eleventh\n10 ->",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "9 -> ninth\n18 -> eighteenth\n11 -> eleventh\n12 ->",
+    "continuation": " twelfth",
+    "digits_only": false
+   },
+   {
+    "context": "17 -> seventeenth\n2 -> second\n3 -> third\n20 ->",
+    "continuation": " twentieth",
+    "digits_only": false
+   },
+   {
+    "context": "3 -> third\n9 -> ninth\n10 -> tenth\n11 ->",
+    "continuation": " eleventh",
+    "digits_only": false
+   },
+   {
+    "context": "16 -> sixteenth\n2 -> second\n7 -> seventh\n1 ->",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "1 -> first\n4 -> fourth\n7 -> seventh\n19 ->",
+    "continuation": " nineteenth",
+    "digits_only": false
+   },
+   {
+    "context": "11 -> eleventh\n14 -> fourteenth\n2 -> second\n4 ->",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "10 -> tenth\n20 -> twentieth\n17 -> seventeenth\n13 ->",
+    "continuation": " thirteenth",
+    "digits_only": false
+   },
+   {
+    "context": "5 -> fifth\n8 -> eighth\n10 -> tenth\n11 ->",
+    "continuation": " eleventh",
+    "digits_only": false
+   },
+   {
+    "context": "15 -> fifteenth\n3 -> third\n16 -> sixteenth\n7 ->",
+    "continuation": " seventh",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "15 -> fifteenth\n17 -> seventeenth\n9 -> ninth\n2 ->",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "9 -> ninth\n4 -> fourth\n18 -> eighteenth\n5 ->",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "14 -> fourteenth\n6 -> sixth\n8 -> eighth\n15 ->",
+    "continuation": " fifteenth",
+    "digits_only": false
+   },
+   {
+    "context": "16 -> sixteenth\n4 -> fourth\n20 -> twentieth\n14 ->",
+    "continuation": " fourteenth",
+    "digits_only": false
+   },
+   {
+    "context": "20 -> twentieth\n7 -> seventh\n10 -> tenth\n9 ->",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "4 -> fourth\n9 -> ninth\n2 -> second\n1 ->",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "5 -> fifth\n13 -> thirteenth\n10 -> tenth\n4 ->",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "13 -> thirteenth\n14 -> fourteenth\n2 -> second\n9 ->",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "2 -> second\n10 -> tenth\n18 -> eighteenth\n3 ->",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "9 -> ninth\n17 -> seventeenth\n8 -> eighth\n7 ->",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "16 -> sixteenth\n12 -> twelfth\n7 -> seventh\n17 ->",
+    "continuation": " seventeenth",
+    "digits_only": false
+   },
+   {
+    "context": "5 -> fifth\n18 -> eighteenth\n10 -> tenth\n12 ->",
+    "continuation": " twelfth",
+    "digits_only": false
+   },
+   {
+    "context": "16 -> sixteenth\n4 -> fourth\n10 -> tenth\n18 ->",
+    "continuation": " eighteenth",
+    "digits_only": false
+   },
+   {
+    "context": "1 -> first\n4 -> fourth\n19 -> nineteenth\n6 ->",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "3 -> third\n17 -> seventeenth\n19 -> nineteenth\n14 ->",
+    "continuation": " fourteenth",
+    "digits_only": false
+   },
+   {
+    "context": "1 -> first\n6 -> sixth\n10 -> tenth\n17 ->",
+    "continuation": " seventeenth",
+    "digits_only": false
+   },
+   {
+    "context": "3 -> third\n17 -> seventeenth\n10 -> tenth\n11 ->",
+    "continuation": " eleventh",
+    "digits_only": false
+   },
+   {
+    "context": "12 -> twelfth\n20 -> twentieth\n6 -> sixth\n1 ->",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "19 -> nineteenth\n14 -> fourteenth\n2 -> second\n13 ->",
+    "continuation": " thirteenth",
+    "digits_only": false
+   },
+   {
+    "context": "5 -> fifth\n19 -> nineteenth\n14 -> fourteenth\n10 ->",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "14 -> fourteenth\n4 -> fourth\n19 -> nineteenth\n16 ->",
+    "continuation": " sixteenth",
+    "digits_only": false
+   },
+   {
+    "context": "10 -> tenth\n18 -> eighteenth\n14 -> fourteenth\n16 ->",
+    "continuation": " sixteenth",
+    "digits_only": false
+   },
+   {
+    "context": "5 -> fifth\n3 -> third\n14 -> fourteenth\n8 ->",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "3 -> third\n14 -> fourteenth\n10 -> tenth\n18 ->",
+    "continuation": " eighteenth",
+    "digits_only": false
+   },
+   {
+    "context": "7 -> seventh\n1 -> first\n20 -> twentieth\n4 ->",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "13 -> thirteenth\n15 -> fifteenth\n2 -> second\n4 ->",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "6 -> sixth\n19 -> nineteenth\n13 -> thirteenth\n3 ->",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "15 -> fifteenth\n4 -> fourth\n9 -> ninth\n12 ->",
+    "continuation": " twelfth",
+    "digits_only": false
+   },
+   {
+    "context": "10 -> tenth\n6 -> sixth\n7 -> seventh\n19 ->",
+    "continuation": " nineteenth",
+    "digits_only": false
+   },
+   {
+    "context": "1 -> first\n18 -> eighteenth\n17 -> seventeenth\n14 ->",
+    "continuation": " fourteenth",
+    "digits_only": false
+   },
+   {
+    "context": "10 -> tenth\n6 -> sixth\n17 -> seventeenth\n3 ->",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "10 -> tenth\n12 -> twelfth\n14 -> fourteenth\n6 ->",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "13 -> thirteenth\n3 -> third\n19 -> nineteenth\n5 ->",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "18 -> eighteenth\n4 -> fourth\n14 -> fourteenth\n13 ->",
+    "continuation": " thirteenth",
+    "digits_only": false
+   },
+   {
+    "context": "14 -> fourteenth\n5 -> fifth\n1 -> first\n15 ->",
+    "continuation": " fifteenth",
+    "digits_only": false
+   },
+   {
+    "context": "3 -> third\n1 -> first\n9 -> ninth\n15 ->",
+    "continuation": " fifteenth",
+    "digits_only": false
+   },
+   {
+    "context": "12 -> twelfth\n17 -> seventeenth\n2 -> second\n13 ->",
+    "continuation": " thirteenth",
+    "digits_only": false
+   },
+   {
+    "context": "16 -> sixteenth\n12 -> twelfth\n3 -> third\n11 ->",
+    "continuation": " eleventh",
+    "digits_only": false
+   },
+   {
+    "context": "20 -> twentieth\n1 -> first\n9 -> ninth\n10 ->",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "6 -> sixth\n12 -> twelfth\n2 -> second\n20 ->",
+    "continuation": " twentieth",
+    "digits_only": false
+   },
+   {
+    "context": "5 -> fifth\n20 -> twentieth\n9 -> ninth\n11 ->",
+    "continuation": " eleventh",
+    "digits_only": false
+   },
+   {
+    "context": "1 -> first\n18 -> eighteenth\n14 -> fourteenth\n4 ->",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "15 -> fifteenth\n12 -> twelfth\n7 -> seventh\n20 ->",
+    "continuation": " twentieth",
+    "digits_only": false
+   },
+   {
+    "context": "15 -> fifteenth\n3 -> third\n9 -> ninth\n6 ->",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "10 -> tenth\n18 -> eighteenth\n11 -> eleventh\n6 ->",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "19 -> nineteenth\n6 -> sixth\n14 -> fourteenth\n7 ->",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "20 -> twentieth\n5 -> fifth\n11 -> eleventh\n4 ->",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "13 -> thirteenth\n18 -> eighteenth\n5 -> fifth\n10 ->",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "15 -> fifteenth\n7 -> seventh\n11 -> eleventh\n4 ->",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "7 -> seventh\n15 -> fifteenth\n20 -> twentieth\n2 ->",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "20 -> twentieth\n5 -> fifth\n13 -> thirteenth\n10 ->",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "16 -> sixteenth\n4 -> fourth\n2 -> second\n15 ->",
+    "continuation": " fifteenth",
+    "digits_only": false
+   },
+   {
+    "context": "16 -> sixteenth\n9 -> ninth\n1 -> first\n17 ->",
+    "continuation": " seventeenth",
+    "digits_only": false
+   },
+   {
+    "context": "12 -> twelfth\n4 -> fourth\n5 -> fifth\n9 ->",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "1 -> first\n16 -> sixteenth\n11 -> eleventh\n8 ->",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "11 -> eleventh\n6 -> sixth\n5 -> fifth\n15 ->",
+    "continuation": " fifteenth",
+    "digits_only": false
+   },
+   {
+    "context": "18 -> eighteenth\n13 -> thirteenth\n2 -> second\n6 ->",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "4 -> fourth\n14 -> fourteenth\n15 -> fifteenth\n11 ->",
+    "continuation": " eleventh",
+    "digits_only": false
+   },
+   {
+    "context": "17 -> seventeenth\n16 -> sixteenth\n11 -> eleventh\n19 ->",
+    "continuation": " nineteenth",
+    "digits_only": false
+   },
+   {
+    "context": "12 -> twelfth\n3 -> third\n7 -> seventh\n17 ->",
+    "continuation": " seventeenth",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "8 -> 8\n12 -> 12\n16 -> 16\n10 ->",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "15 -> 15\n13 -> 13\n6 -> 6\n14 ->",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "11 -> 11\n17 -> 17\n9 -> 9\n4 ->",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "9 -> 9\n10 -> 10\n15 -> 15\n12 ->",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "14 -> 14\n20 -> 20\n1 -> 1\n16 ->",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "2 -> 2\n10 -> 10\n11 -> 11\n5 ->",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "18 -> 18\n1 -> 1\n3 -> 3\n13 ->",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "14 -> 14\n1 -> 1\n20 -> 20\n11 ->",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "4 -> 4\n16 -> 16\n8 -> 8\n2 ->",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "3 -> 3\n18 -> 18\n13 -> 13\n17 ->",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "5 -> 5\n8 -> 8\n2 -> 2\n3 ->",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "1 -> 1\n12 -> 12\n2 -> 2\n4 ->",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "18 -> 18\n1 -> 1\n15 -> 15\n3 ->",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "12 -> 12\n3 -> 3\n8 -> 8\n15 ->",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "4 -> 4\n18 -> 18\n10 -> 10\n7 ->",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "1 -> 1\n10 -> 10\n12 -> 12\n20 ->",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "12 -> 12\n11 -> 11\n16 -> 16\n10 ->",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "2 -> 2\n10 -> 10\n1 -> 1\n15 ->",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "12 -> 12\n16 -> 16\n13 -> 13\n1 ->",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "2 -> 2\n9 -> 9\n16 -> 16\n3 ->",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "11 -> 11\n17 -> 17\n5 -> 5\n12 ->",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "14 -> 14\n8 -> 8\n7 -> 7\n10 ->",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "8 -> 8\n5 -> 5\n10 -> 10\n7 ->",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "2 -> 2\n15 -> 15\n10 -> 10\n5 ->",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "10 -> 10\n13 -> 13\n11 -> 11\n20 ->",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "11 -> 11\n12 -> 12\n3 -> 3\n20 ->",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "20 -> 20\n13 -> 13\n18 -> 18\n8 ->",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "2 -> 2\n17 -> 17\n5 -> 5\n9 ->",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "4 -> 4\n16 -> 16\n7 -> 7\n2 ->",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "1 -> 1\n2 -> 2\n19 -> 19\n7 ->",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "10 -> 10\n13 -> 13\n14 -> 14\n3 ->",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "3 -> 3\n20 -> 20\n11 -> 11\n17 ->",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "10 -> 10\n18 -> 18\n5 -> 5\n14 ->",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "11 -> 11\n3 -> 3\n7 -> 7\n8 ->",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "7 -> 7\n13 -> 13\n10 -> 10\n1 ->",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "19 -> 19\n3 -> 3\n4 -> 4\n10 ->",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "19 -> 19\n14 -> 14\n9 -> 9\n15 ->",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "12 -> 12\n1 -> 1\n10 -> 10\n19 ->",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "13 -> 13\n18 -> 18\n17 -> 17\n10 ->",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "7 -> 7\n15 -> 15\n3 -> 3\n14 ->",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "20 -> 20\n4 -> 4\n7 -> 7\n19 ->",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "17 -> 17\n10 -> 10\n4 -> 4\n5 ->",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "2 -> 2\n4 -> 4\n13 -> 13\n9 ->",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "8 -> 8\n20 -> 20\n15 -> 15\n13 ->",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "16 -> 16\n3 -> 3\n19 -> 19\n17 ->",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "6 -> 6\n4 -> 4\n16 -> 16\n13 ->",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "17 -> 17\n11 -> 11\n5 -> 5\n7 ->",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "12 -> 12\n14 -> 14\n2 -> 2\n15 ->",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "9 -> 9\n12 -> 12\n16 -> 16\n6 ->",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "12 -> 12\n3 -> 3\n2 -> 2\n18 ->",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "3 -> 3\n20 -> 20\n7 -> 7\n8 ->",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "19 -> 19\n20 -> 20\n7 -> 7\n8 ->",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "16 -> 16\n3 -> 3\n6 -> 6\n4 ->",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "8 -> 8\n16 -> 16\n20 -> 20\n5 ->",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "12 -> 12\n4 -> 4\n3 -> 3\n1 ->",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "18 -> 18\n12 -> 12\n7 -> 7\n13 ->",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "16 -> 16\n14 -> 14\n17 -> 17\n10 ->",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "7 -> 7\n15 -> 15\n13 -> 13\n12 ->",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "4 -> 4\n18 -> 18\n11 -> 11\n7 ->",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "2 -> 2\n17 -> 17\n15 -> 15\n20 ->",
+    "continuation": " 20",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "14 -> 14\n16 -> 16\n13 -> 13\n8 ->",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "16 -> 16\n13 -> 13\n9 -> 9\n7 ->",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "4 -> 4\n17 -> 17\n8 -> 8\n6 ->",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "5 -> 5\n8 -> 8\n16 -> 16\n12 ->",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "16 -> 16\n7 -> 7\n11 -> 11\n9 ->",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "12 -> 12\n17 -> 17\n13 -> 13\n19 ->",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "9 -> 9\n13 -> 13\n17 -> 17\n19 ->",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "6 -> 6\n5 -> 5\n10 -> 10\n12 ->",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "2 -> 2\n20 -> 20\n16 -> 16\n14 ->",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "14 -> 14\n2 -> 2\n5 -> 5\n1 ->",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "18 -> 18\n10 -> 10\n8 -> 8\n20 ->",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "3 -> 3\n12 -> 12\n8 -> 8\n9 ->",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "4 -> 4\n13 -> 13\n19 -> 19\n15 ->",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "8 -> 8\n12 -> 12\n3 -> 3\n5 ->",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "15 -> 15\n4 -> 4\n3 -> 3\n18 ->",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "19 -> 19\n9 -> 9\n11 -> 11\n3 ->",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "15 -> 15\n2 -> 2\n14 -> 14\n7 ->",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "4 -> 4\n14 -> 14\n3 -> 3\n20 ->",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "18 -> 18\n13 -> 13\n9 -> 9\n1 ->",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "20 -> 20\n3 -> 3\n14 -> 14\n7 ->",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "15 -> 15\n17 -> 17\n16 -> 16\n1 ->",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "20 -> 20\n3 -> 3\n11 -> 11\n18 ->",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "5 -> 5\n10 -> 10\n20 -> 20\n4 ->",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "3 -> 3\n4 -> 4\n12 -> 12\n1 ->",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "1 -> 1\n17 -> 17\n2 -> 2\n7 ->",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "10 -> 10\n7 -> 7\n3 -> 3\n2 ->",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "10 -> 10\n4 -> 4\n3 -> 3\n11 ->",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "8 -> 8\n10 -> 10\n3 -> 3\n17 ->",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "16 -> 16\n11 -> 11\n19 -> 19\n4 ->",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "4 -> 4\n8 -> 8\n12 -> 12\n6 ->",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "8 -> 8\n11 -> 11\n17 -> 17\n20 ->",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "13 -> 13\n14 -> 14\n11 -> 11\n1 ->",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "16 -> 16\n14 -> 14\n7 -> 7\n20 ->",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "19 -> 19\n2 -> 2\n16 -> 16\n15 ->",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "9 -> 9\n16 -> 16\n12 -> 12\n8 ->",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "17 -> 17\n5 -> 5\n20 -> 20\n7 ->",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "17 -> 17\n16 -> 16\n13 -> 13\n10 ->",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "1 -> 1\n15 -> 15\n16 -> 16\n19 ->",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "14 -> 14\n10 -> 10\n18 -> 18\n20 ->",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "13 -> 13\n19 -> 19\n8 -> 8\n1 ->",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "16 -> 16\n7 -> 7\n18 -> 18\n8 ->",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "14 -> 14\n11 -> 11\n7 -> 7\n16 ->",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "20 -> 20\n11 -> 11\n4 -> 4\n10 ->",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "20 -> 20\n4 -> 4\n16 -> 16\n11 ->",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "19 -> 19\n14 -> 14\n2 -> 2\n6 ->",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "13 -> 13\n2 -> 2\n8 -> 8\n3 ->",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "5 -> 5\n19 -> 19\n13 -> 13\n14 ->",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "10 -> 10\n1 -> 1\n15 -> 15\n18 ->",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "16 -> 16\n5 -> 5\n1 -> 1\n2 ->",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "13 -> 13\n20 -> 20\n2 -> 2\n6 ->",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "18 -> 18\n9 -> 9\n19 -> 19\n8 ->",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "17 -> 17\n7 -> 7\n2 -> 2\n13 ->",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "13 -> 13\n3 -> 3\n12 -> 12\n4 ->",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "4 -> 4\n9 -> 9\n5 -> 5\n17 ->",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "3 -> 3\n13 -> 13\n11 -> 11\n8 ->",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "13 -> 13\n6 -> 6\n11 -> 11\n14 ->",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "2 -> 2\n17 -> 17\n18 -> 18\n14 ->",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "12 -> 12\n7 -> 7\n19 -> 19\n9 ->",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "15 -> 15\n4 -> 4\n16 -> 16\n12 ->",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "9 -> 9\n3 -> 3\n8 -> 8\n19 ->",
+    "continuation": " 19",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 8.535
+}
