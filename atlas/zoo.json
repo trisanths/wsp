@@ -3462,7 +3462,15 @@
     "checked": "2026-11-14",
     "config_transformers": "4.57.1"
    },
-   "notes": "About 1.6T parameters (HF safetensors count). Does not fit H200:8 in bf16; expert maps need FP8 weights or offload."
+   "notes": "About 1.6T parameters, 384 routed experts, 6 per token, 61 layers. Same storage as Flash. Streams on one H200 with wsp/giant.py; the repo is 865 GB.",
+   "stream": {
+    "layout": "deepseek_v4",
+    "stored": "fp8 dense (128x128 e8m0 blocks), fp4 experts",
+    "api_total_gb": 864.7,
+    "supported": true,
+    "note": "",
+    "checked": "2026-11-14"
+   }
   },
   {
    "id": "deepseek-ai/DeepSeek-V4-Flash",
@@ -3495,7 +3503,15 @@
     "checked": "2026-11-14",
     "config_transformers": "4.57.1"
    },
-   "notes": "About 291B parameters."
+   "notes": "About 291B parameters, 256 routed experts plus 1 shared, 6 per token, FP4 experts (I8 pairs, e8m0 scale per 32) and FP8 dense weights. Layers 0 to 2 route by a token-id hash table. Streams on one H200 with wsp/giant.py.",
+   "stream": {
+    "layout": "deepseek_v4",
+    "stored": "fp8 dense (128x128 e8m0 blocks), fp4 experts",
+    "api_total_gb": 159.6,
+    "supported": true,
+    "note": "",
+    "checked": "2026-11-14"
+   }
   },
   {
    "id": "zai-org/GLM-5.3-Flash",
@@ -3528,7 +3544,15 @@
     "checked": "2026-11-14",
     "config_transformers": "5.16.0"
    },
-   "notes": "About 321B parameters, 288 experts."
+   "notes": "About 321B parameters, 288 routed experts plus 1 shared, 8 per token, 45 layers (3 dense), gated delta (KDA) and sparse attention, FP8 weights with F32 128x128 block scales. Streams on one H200 with wsp/giant.py.",
+   "stream": {
+    "layout": "glm5_next",
+    "stored": "fp8 experts and dense mlp (128x128 f32 blocks), bf16 attention",
+    "api_total_gb": 328.3,
+    "supported": true,
+    "note": "",
+    "checked": "2026-11-14"
+   }
   },
   {
    "id": "moonshotai/Kimi-K3",
@@ -3549,7 +3573,7 @@
    ],
    "license": "kimi-k3",
    "needs": {
-    "transformers": "5.x",
+    "transformers": "4.57.1",
     "trust_remote_code": true,
     "multi_gpu": true,
     "gpu": "H200:8"
@@ -3561,7 +3585,138 @@
     "checked": "2026-11-14",
     "config_transformers": null
    },
-   "notes": "About 2.8T parameters, 896 experts. Custom code. Does not fit H200:8 in bf16."
+   "notes": "About 2.8T parameters, 896 routed experts, 16 per token, 93 layers, latent MoE (experts run at width 3584), block attention residuals. Experts are compressed-tensors mxfp4. The remote code imports names that transformers 5.23.0 does not have, so it needs 4.57.x. Streams with wsp/giant.py on the 4.57.1 image; not run.",
+   "stream": {
+    "layout": "kimi",
+    "stored": "mxfp4 experts (uint8 pairs, uint8 e8m0 scale per 32), bf16 rest",
+    "api_total_gb": 1560.9,
+    "supported": true,
+    "note": "Remote code forces flash_attention_2; the profile run uses sdpa. fla-core and einops needed.",
+    "checked": "2026-11-14"
+   }
+  },
+  {
+   "id": "moonshotai/Kimi-K3.1-Pro",
+   "key": "moonshotai__Kimi-K3.1-Pro",
+   "maker": "Moonshot AI",
+   "family": "kimi_k31",
+   "architecture": "KimiK31ForConditionalGeneration",
+   "params_b": 2780.11,
+   "layers": 93,
+   "hidden": 7168,
+   "experts": 896,
+   "kind": "reasoning",
+   "moe": true,
+   "skills": [
+    "general",
+    "code",
+    "reasoning"
+   ],
+   "license": "kimi-k3.1-pro",
+   "needs": {
+    "transformers": "5.x",
+    "trust_remote_code": true,
+    "multi_gpu": true,
+    "gpu": "H200:8"
+   },
+   "expert_level_only": true,
+   "verified": {
+    "status": "ok",
+    "gated": false,
+    "checked": "2026-11-14",
+    "config_transformers": "4.57.6"
+   },
+   "notes": "Released 2026-11-02. Same shapes as Kimi-K3 plus a DSA indexer in the 24 full-attention layers. The repo has no modeling code and no auto_map, and transformers 5.23.0 has no kimi_k31 class, so a layer cannot be built yet. Expert tensors use the K3 names.",
+   "stream": {
+    "layout": "kimi",
+    "stored": "mxfp4 experts, bf16 rest",
+    "api_total_gb": 1561.3,
+    "supported": false,
+    "note": "No modeling code for the indexer layers.",
+    "checked": "2026-11-14"
+   }
+  },
+  {
+   "id": "Qwen/Qwen3.8-2.4T-A95B",
+   "key": "Qwen__Qwen3.8-2.4T-A95B",
+   "maker": "Alibaba Qwen",
+   "family": "qwen3_5_moe_text",
+   "architecture": "Qwen3_5MoeForCausalLM",
+   "params_b": 2446.18,
+   "layers": 92,
+   "hidden": 8192,
+   "experts": 512,
+   "kind": "reasoning",
+   "moe": true,
+   "skills": [
+    "general",
+    "code",
+    "reasoning"
+   ],
+   "license": "qwen3.8-max",
+   "needs": {
+    "transformers": "5.x",
+    "trust_remote_code": false,
+    "multi_gpu": true,
+    "gpu": "H200:8"
+   },
+   "expert_level_only": true,
+   "verified": {
+    "status": "ok",
+    "gated": false,
+    "checked": "2026-11-14",
+    "config_transformers": "4.57.3"
+   },
+   "notes": "The open Qwen3.8-Max base: 2.4T parameters, 95B active, 512 routed experts plus 1 shared, 10 per token, gated delta and gated attention layers. BF16 with the experts fused per layer (gate_up_proj and down_proj as one tensor each), 4.9 TB in 213 files. No open Qwen Max of about 278B exists.",
+   "stream": {
+    "layout": "hf",
+    "stored": "bf16, experts fused per layer",
+    "api_total_gb": 4892.4,
+    "supported": true,
+    "note": "",
+    "checked": "2026-11-14"
+   }
+  },
+  {
+   "id": "Qwen/Qwen3.5-397B-A17B",
+   "key": "Qwen__Qwen3.5-397B-A17B",
+   "maker": "Alibaba Qwen",
+   "family": "qwen3_5_moe",
+   "architecture": "Qwen3_5MoeForConditionalGeneration",
+   "params_b": 403.4,
+   "layers": 60,
+   "hidden": 4096,
+   "experts": 512,
+   "kind": "reasoning",
+   "moe": true,
+   "skills": [
+    "general",
+    "code",
+    "reasoning"
+   ],
+   "license": "apache-2.0",
+   "needs": {
+    "transformers": "5.x",
+    "trust_remote_code": false,
+    "multi_gpu": true,
+    "gpu": "H200:8"
+   },
+   "expert_level_only": true,
+   "verified": {
+    "status": "ok",
+    "gated": false,
+    "checked": "2026-11-14",
+    "config_transformers": "4.57.0.dev0"
+   },
+   "notes": "512 routed experts plus 1 shared, 10 per token, BF16, experts fused per layer, 807 GB in 94 files, with a vision tower.",
+   "stream": {
+    "layout": "hf",
+    "stored": "bf16, experts fused per layer",
+    "api_total_gb": 806.8,
+    "supported": true,
+    "note": "",
+    "checked": "2026-11-14"
+   }
   }
  ]
 }

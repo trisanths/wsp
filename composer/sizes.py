@@ -23,6 +23,8 @@ VOCAB = {
     "lfm2": 65536,
 }
 
+# An MLP is about two thirds of a decoder layer (the rest is attention and norms).
+MLP_SHARE = 2.0 / 3.0
 BLOCK_PREFIX = "block/"
 # GraftSpec trains a stitch for 500 steps when the stitch names no steps.
 DEFAULT_STITCH_STEPS = 500
@@ -138,6 +140,78 @@ def part_size(record, models, estimate):
     # Masks and task vectors do not change the size.
 
 
+def host_info_of(program, models):
+    info = find_info(models, program.host)
+    if info is None or not info.get("params_b"):
+        return None
+    return info
+
+
+def experts_size(program, host_info, models, estimate, info_for):
+    """Add the donors' MLPs, the routers, and the stitches of an experts statement."""
+    spec = program.experts_spec
+    if host_info is None or not host_info.get("layers") or not host_info.get("hidden"):
+        if host_info is not None:
+            estimate.unknown.append(f"{program.host} (layers or hidden size missing, needed for experts)")
+        return
+    layers = host_info["layers"]
+    d_host = host_info["hidden"]
+    host_mlp = layer_params(host_info) * MLP_SHARE
+    pool = [host_mlp]
+    count = len(spec.donors) + 1
+    for donor in spec.donors:
+        info = info_for(donor)
+        if info is None:
+            continue
+        per_layer = layer_params(info)
+        if per_layer is None:
+            continue
+        mlp = per_layer * MLP_SHARE
+        stitch = 0.0
+        d_donor = info.get("hidden")
+        if d_donor is not None and (d_donor != d_host or info.get("layers") != layers or spec.stitch is not None):
+            stitch = 2.0 * d_host * d_donor / 1e9
+        used = min(layers, info.get("layers") or layers)
+        total = mlp * used + stitch * layers
+        estimate.add(total, 0.0, f"experts donor {donor} ({used} MLPs)")
+        pool.append(mlp + stitch)
+    router = layers * (d_host * count + count) / 1e9
+    ranked = sorted(pool, reverse=True)
+    run = layers * (sum(ranked[:spec.top_k]) - host_mlp) + router
+    estimate.add(router, max(0.0, run), f"experts routers and top_{spec.top_k}")
+
+
+def insert_stitch_params(spec, d_host, d_donor):
+    """Parameters of the stitches around inserted layers, in billions (rough, high)."""
+    kind = spec.stitch
+    if kind is None:
+        kind = "identity" if d_host == d_donor else "linear"
+    if kind == "identity":
+        return 0.0
+    if kind == "linear":
+        return 2.0 * d_host * d_donor / 1e9
+    if kind == "lowrank":
+        return 2.0 * (spec.stitch_rank or 1) * (d_host + d_donor) / 1e9
+    hidden = spec.stitch_hidden or 2 * d_donor
+    return (2.0 * hidden * (d_host + d_donor)) / 1e9
+
+
+def insert_size(spec, host_info, estimate, info_for):
+    """Add the donor layers and the stitches of one insert statement."""
+    info = info_for(spec.donor)
+    if info is None or host_info is None:
+        return
+    per_layer = layer_params(info)
+    if per_layer is None:
+        return
+    count = spec.layers[1] - spec.layers[0] + 1
+    stitch = 0.0
+    if info.get("hidden") and host_info.get("hidden"):
+        stitch = insert_stitch_params(spec, host_info["hidden"], info["hidden"])
+    size = per_layer * count * 1.0 + stitch
+    estimate.add(size, size * active_ratio(info), f"insert {spec.donor} layers {spec.layers[0]}..{spec.layers[1]}")
+
+
 def estimate_program(program, models, records):
     """Return an Estimate of the compiled program's size.
 
@@ -229,6 +303,11 @@ def estimate_program(program, models, records):
         else:
             part_size(record, models, estimate)
 
+    if program.experts_spec is not None:
+        experts_size(program, host_info_of(program, models), models, estimate, info_for)
+    for spec in program.inserts:
+        insert_size(spec, host_info_of(program, models), estimate, info_for)
+
     tap_donors = {}
     for tap in program.taps:
         deepest = tap_donors.get(tap.donor, -1)
@@ -284,6 +363,16 @@ def layer_range_violations(program, models, records):
             info = find_info(models, spec.sources[key])
             if info is not None and info.get("layers") and layer >= info["layers"]:
                 violations.append(f"splice {key}:{layer}: {spec.sources[key]} has layers 0 to {info['layers'] - 1}")
+    host_info = find_info(models, program.host)
+    for spec in program.inserts:
+        first, last = spec.layers
+        info = find_info(models, spec.donor)
+        if info is not None and info.get("layers") and last >= info["layers"]:
+            violations.append(f"insert {spec.donor} layers {first}..{last}: the donor has layers 0 to "
+                              f"{info['layers'] - 1}")
+        if host_info is not None and host_info.get("layers") and spec.at > host_info["layers"]:
+            violations.append(f"insert at {spec.at}: the host {program.host} has {host_info['layers']} layers, "
+                              f"so at is 1 to {host_info['layers']}")
     for tap in program.taps:
         info = find_info(models, tap.donor)
         if info is not None and info.get("layers") and tap.donor_layer >= info["layers"]:
@@ -296,6 +385,8 @@ def composes_something(program):
     """True when the program uses at least one mined or source component beyond its host."""
     if len(program.grafts) > 0 or len(program.taps) > 0:
         return True
+    if program.experts_spec is not None or len(program.inserts) > 0:
+        return True
     if program.splice_spec is not None or program.carve_spec is not None:
         return True
     if program.masks is not None or len(program.task_vectors) > 0:
@@ -303,36 +394,137 @@ def composes_something(program):
     return False
 
 
+TAP_MESSAGE = ("the composer cannot write taps: a tap runs a source model beside the host at inference, so the "
+               "result is not one network that runs alone, which Sapien requires. Bring the donor's computation "
+               "into the host with a graft, experts, or an insert instead.")
+
+
+def added_kinds(program):
+    """The kinds of added components the program holds: graft, experts, insert, tap."""
+    kinds = []
+    if len(program.grafts) > 0:
+        kinds.append("graft")
+    if program.experts_spec is not None:
+        kinds.append("experts")
+    if len(program.inserts) > 0:
+        kinds.append("insert")
+    if len(program.taps) > 0:
+        kinds.append("tap")
+    return kinds
+
+
+def tokenizer_family(models, name):
+    info = find_info(models, name)
+    if info is None:
+        return None
+    return info.get("tokenizer_family")
+
+
+def same_tokenizer(models, first, second):
+    """True or False when both tokenizer families are known, else None."""
+    a = tokenizer_family(models, first)
+    b = tokenizer_family(models, second)
+    if a is None or b is None:
+        return None
+    return a == b
+
+
+def structure_violations(program, models):
+    """Violations of the language rules that the compile would raise after it has started."""
+    violations = []
+    if len(program.taps) > 0 or program.tap_train_spec is not None:
+        violations.append(TAP_MESSAGE)
+    kinds = added_kinds(program)
+    if len(kinds) > 1:
+        violations.append("a program holds one kind of added component, and this one mixes " + ", ".join(kinds) +
+                          ". Use grafts (gated grafts fuse several donors), or experts, or inserts.")
+    gated = []
+    for graft in program.grafts:
+        if graft.gate:
+            gated.append(graft)
+    for graft in gated[1:]:
+        if graft.gate_bias != gated[0].gate_bias or graft.gate_lr != gated[0].gate_lr:
+            violations.append("grafts with gate on must share gate_bias and gate_lr")
+            break
+    if program.heal_spec is not None and program.heal_spec.distill is not None:
+        teacher = program.heal_spec.distill
+        match = same_tokenizer(models, program.host, teacher)
+        if match is None:
+            violations.append(f"cannot confirm that the distillation teacher {teacher} has the tokenizer of "
+                              f"{program.host}: one of them is not in the atlas. Use models listed by atlas().")
+        elif not match:
+            violations.append(f"the distillation teacher {teacher} has another tokenizer than {program.host}, "
+                              f"and a distillation heal needs the same tokenizer")
+    return violations
+
+
+def budget_dict(constraints, program_budget=None):
+    """The Sapien budget for a compile: the request limits, tightened by the program's own budget.
+
+    Return a dict for BudgetSpec.from_dict, or None when nothing is limited.
+    """
+    limits = {"max_total_params_b": constraints.get("max_total_params_b"),
+              "max_active_params_b": constraints.get("max_run_params_b"),
+              "max_heal_minutes": constraints.get("max_heal_minutes")}
+    if program_budget is not None:
+        own = program_budget.to_dict()
+        for name in limits:
+            value = own.get(name)
+            if value is None:
+                continue
+            if limits[name] is None or value < limits[name]:
+                limits[name] = value
+    if limits["max_total_params_b"] is None and limits["max_active_params_b"] is None and \
+            limits["max_heal_minutes"] is None:
+        return None
+    return limits
+
+
+def with_request_budget(program, constraints):
+    """Set the request limits as the program's budget, so the compile enforces them too."""
+    from wsp.program import BudgetSpec
+
+    limits = budget_dict(constraints, program.budget_spec)
+    if limits is None:
+        return program
+    program.budget_spec = BudgetSpec.from_dict(limits)
+    return program
+
+
 def check_program(program, constraints, models, records):
     """Check a parsed program against a request's constraints.
 
     Return {"ok": bool, "violations": [text], "estimate": {...}}.
     """
-    violations = layer_range_violations(program, models, records)
+    violations = structure_violations(program, models)
+    violations += layer_range_violations(program, models, records)
     estimate = estimate_program(program, models, records)
     if len(estimate.unknown) > 0:
         violations.append("unknown size for: " + ", ".join(estimate.unknown) +
                           ". Use models and parts listed by atlas() and catalog(), or a block id "
                           "block/<org>/<model>/<first>-<last> for a model in the atlas.")
-    max_total = constraints.get("max_total_params_b")
-    if max_total is not None and estimate.total > max_total:
-        violations.append(f"estimated total params {estimate.total:.3f}b is over the cap {max_total}b")
-    max_run = constraints.get("max_run_params_b")
-    if max_run is not None and estimate.run > max_run:
-        violations.append(f"estimated params run per token {estimate.run:.3f}b is over the cap {max_run}b")
+    if len(program.taps) == 0:
+        # A tap program is rejected above; its donor sizes would only repeat the message.
+        max_total = constraints.get("max_total_params_b")
+        if max_total is not None and estimate.total > max_total:
+            violations.append(f"estimated total params {estimate.total:.3f}b is over the cap {max_total}b")
+        max_run = constraints.get("max_run_params_b")
+        if max_run is not None and estimate.run > max_run:
+            violations.append(f"estimated params run per token {estimate.run:.3f}b is over the cap {max_run}b")
     cap = constraints.get("heal_steps_cap")
     if cap is not None:
         for what, steps in training_steps(program):
             if steps is not None and steps > cap:
                 violations.append(f"{what} has {steps} steps, over the cap of {cap}")
     if not composes_something(program):
-        violations.append("the program composes nothing: a host with only a LoRA and heal is the fine-tuning "
-                          "baseline. Add grafts, taps, a splice, a carve, masks, or task vectors.")
+        violations.append("the program composes nothing: a host with only a LoRA and heal (or a distillation "
+                          "heal) is a fine-tuning baseline. Add grafts, experts, inserts, a splice, a carve, "
+                          "masks, or task vectors.")
     return {"ok": len(violations) == 0, "violations": violations, "estimate": estimate.to_dict()}
 
 
 def check_measured(measured, constraints):
-    """Check measured sizes from a compile. Return a list of violations."""
+    """Check measured numbers from a compile. Return a list of violations."""
     violations = []
     max_total = constraints.get("max_total_params_b")
     total = measured.get("params_total_b")
@@ -342,4 +534,9 @@ def check_measured(measured, constraints):
     run = measured.get("params_run_b")
     if max_run is not None and run is not None and run > max_run:
         violations.append(f"measured params run per token {run:.3f}b is over the cap {max_run}b")
+    max_minutes = constraints.get("max_heal_minutes")
+    seconds = measured.get("heal_seconds")
+    if max_minutes is not None and seconds is not None and seconds > max_minutes * 60.0 and \
+            not measured.get("heal_stopped_at_limit"):
+        violations.append(f"the heal took {seconds / 60.0:.2f} minutes, over the cap {max_minutes}")
     return violations
