@@ -316,6 +316,19 @@ def _text_of(value):
 
 
 def row_pair(row, kind, features=None):
+    """Render one dataset row as (user, assistant), or None to skip it.
+
+    Real datasets hold odd rows (a LogiQA row without options, a missing
+    field, an empty answer). A row the renderer cannot read is skipped,
+    never an error, so one bad row cannot stop a compile.
+    """
+    try:
+        return _row_pair_strict(row, kind, features)
+    except (KeyError, IndexError, TypeError, ValueError, AttributeError):
+        return None
+
+
+def _row_pair_strict(row, kind, features=None):
     """Return (user, assistant) for one dataset row, or None to skip it. assistant is None for plain text.
 
     features is the dataset's features mapping, needed only by kind "classify" (label names).

@@ -316,3 +316,10 @@ def test_network_three_rows_from_every_source():
         except Exception as error:
             failed.append((dataset_id, config, split, str(error)[:120]))
     assert failed == []
+
+
+def test_a_malformed_row_is_skipped_not_an_error():
+    # LogiQA2.0 holds rows without "options"; the first real run died on one.
+    assert healdata.row_pair({"text": '{"text": "t", "question": "q", "answer": 0}'}, "logiqa") is None
+    assert healdata.row_pair({"question": "q"}, "mc") is None
+    assert healdata.row_pair({}, "qa") is None
