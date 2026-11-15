@@ -1,0 +1,116 @@
+{
+  "id": "heads_negative-sign_transport_for_product_sign_qwenmath1.5b_L11_k1_001",
+  "kind": "attn_heads",
+  "title": "Qwen2.5-Math-1.5B layer 11, negative-sign transport for product sign",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwenmath1.5b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "product_sign"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Math-1.5B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'product_sign' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2808,
+      "control_value": 0.0856,
+      "split": "person_a held-out skill items (product_sign)",
+      "seeds": null,
+      "source": "person_a/catalog/qwenmath1.5b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0033"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Math-1.5B",
+  "layer": 11,
+  "layers": [
+    11
+  ],
+  "units_file": "components/Qwen__Qwen2.5-Math-1.5B/heads_negative-sign_transport_for_product_sign_qwenmath1.5b_L11_k1_001.pt",
+  "units_remote": "person_a/parts/qwenmath1.5b/heads_negative-sign_transport_for_product_sign_qwenmath1.5b_L11_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'product_sign'",
+    "label": "negative-sign transport for product sign",
+    "num_units": 1,
+    "d_model": 1536,
+    "effect": {
+      "math|search": 0.0005,
+      "math|heldout": -0.001,
+      "code|search": 0.0126,
+      "code|heldout": 0.0142,
+      "facts|search": -0.0062,
+      "facts|heldout": 0.0127,
+      "multilingual|search": -0.0009,
+      "multilingual|heldout": -0.0011,
+      "general_text|search": -0.0045,
+      "general_text|heldout": 0.0,
+      "month_offset|search": 0.0182,
+      "month_offset__control|search": -0.1608,
+      "month_offset|heldout": 0.0135,
+      "month_offset__control|heldout": -0.1303,
+      "integer_parity|search": 0.0032,
+      "integer_parity__control|search": 0.0002,
+      "integer_parity|heldout": 0.0014,
+      "integer_parity__control|heldout": 0.0003,
+      "weekday_offset|search": 0.0389,
+      "weekday_offset__control|search": -0.0016,
+      "weekday_offset|heldout": 0.0364,
+      "weekday_offset__control|heldout": -0.0005,
+      "primality_label|search": 0.0022,
+      "primality_label__control|search": -0.0003,
+      "primality_label|heldout": 0.0022,
+      "primality_label__control|heldout": -0.0003,
+      "product_sign|search": 0.2833,
+      "product_sign__control|search": 0.0147,
+      "product_sign|heldout": 0.2808,
+      "product_sign__control|heldout": -0.0033,
+      "fraction_role|search": -0.0148,
+      "fraction_role__control|search": 0.0725,
+      "fraction_role|heldout": -0.0436,
+      "fraction_role__control|heldout": 0.0694,
+      "latex_superscript|search": -0.0141,
+      "latex_superscript__control|search": -0.0243,
+      "latex_superscript|heldout": -0.0163,
+      "latex_superscript__control|heldout": -0.02,
+      "boolean_negation|search": 0.0008,
+      "boolean_negation__control|search": -0.0026,
+      "boolean_negation|heldout": 0.0007,
+      "boolean_negation__control|heldout": -0.0016
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0944,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0879,
+      0.1936,
+      0.0941,
+      0.0262,
+      0.0262
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Full-vocabulary static OV projection of negative gives Negative/negative variants as top outputs, 9.36-11.89, unlike positive. Independent attribution .167 and ablation product_sign .283 versus matched control .015 support a negative-sign transport hypothesis."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwenmath1.5b/product_sign.json",
+    "hash": "c2ec963c7e1284f5",
+    "description": "Complete a sentence naming the sign of a two-integer product; controls name the sign of the first explicitly signed factor, using the same answer vocabulary.",
+    "name": "product_sign"
+  },
+  "catalog_id": "heads_negative-sign_transport_for_product_sign_qwenmath1.5b_L11_k1_001",
+  "exported_copy": "library/qwenmath1.5b/heads_negative-sign_transport_for_product_sign_qwenmath1.5b_L11_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

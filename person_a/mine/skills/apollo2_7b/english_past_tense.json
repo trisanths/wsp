@@ -1,0 +1,1220 @@
+{
+ "name": "english_past_tense",
+ "description": "Inflect English verbs into simple past tense, with lemma-copy controls on identical vocabulary.",
+ "hash": "8a449ae629d7cda3",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nirregular=dict(zip('go come see eat drink write take give run speak sing begin break choose drive fall feel find fly forget get grow hear hold keep know leave lose make meet read ride ring rise say sell send sit sleep stand swim teach tell think understand wear win'.split(),'went came saw ate drank wrote took gave ran spoke sang began broke chose drove fell felt found flew forgot got grew heard held kept knew left lost made met read rode rang rose said sold sent sat slept stood swam taught told thought understood wore won'.split()))\nregular='walk talk play work help jump look wash clean open close smile dance love move live hope stop plan try cry study carry enjoy visit watch finish call ask need want'.split()\ndef past(w):\n if w in irregular:return irregular[w]\n if w in ['stop','plan']:return w+w[-1]+'ed'\n if w.endswith('e'):return w+'d'\n if w.endswith('y') and w[-2] not in 'aeiou':return w[:-1]+'ied'\n return w+'ed'\nwords=list(irregular)+regular\nitems=[];control=[]\nfor i in range(120):\n w=words[i%len(words)]\n p=random.choice(['Verb: {w}\\nIts simple past tense is:','Give the simple past form of \"{w}\".\\nAnswer:','English verb transformation: {w} -> simple past\\nResult:']).format(w=w)\n items.append({'prompt':p,'answer':' '+past(w)})\n control.append({'prompt':p.replace('simple past tense','unchanged base form').replace('simple past form','unchanged base form').replace('simple past','unchanged base form'),'answer':' '+w})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "English verb transformation: close -> simple past\nResult:",
+    "continuation": " closed",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: know\nIts simple past tense is:",
+    "continuation": " knew",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: grow -> simple past\nResult:",
+    "continuation": " grew",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"eat\".\nAnswer:",
+    "continuation": " ate",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: rise -> simple past\nResult:",
+    "continuation": " rose",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: dance -> simple past\nResult:",
+    "continuation": " danced",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: finish\nIts simple past tense is:",
+    "continuation": " finished",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: hear\nIts simple past tense is:",
+    "continuation": " heard",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: read -> simple past\nResult:",
+    "continuation": " read",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: know -> simple past\nResult:",
+    "continuation": " knew",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: walk -> simple past\nResult:",
+    "continuation": " walked",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: carry\nIts simple past tense is:",
+    "continuation": " carried",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"hold\".\nAnswer:",
+    "continuation": " held",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"cry\".\nAnswer:",
+    "continuation": " cried",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: ask -> simple past\nResult:",
+    "continuation": " asked",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: feel\nIts simple past tense is:",
+    "continuation": " felt",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: give -> simple past\nResult:",
+    "continuation": " gave",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"meet\".\nAnswer:",
+    "continuation": " met",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: see\nIts simple past tense is:",
+    "continuation": " saw",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"need\".\nAnswer:",
+    "continuation": " needed",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"run\".\nAnswer:",
+    "continuation": " ran",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: meet\nIts simple past tense is:",
+    "continuation": " met",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: think\nIts simple past tense is:",
+    "continuation": " thought",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: take -> simple past\nResult:",
+    "continuation": " took",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: get\nIts simple past tense is:",
+    "continuation": " got",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: understand -> simple past\nResult:",
+    "continuation": " understood",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: win\nIts simple past tense is:",
+    "continuation": " won",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: sit -> simple past\nResult:",
+    "continuation": " sat",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"see\".\nAnswer:",
+    "continuation": " saw",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: sit\nIts simple past tense is:",
+    "continuation": " sat",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: sing -> simple past\nResult:",
+    "continuation": " sang",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: keep\nIts simple past tense is:",
+    "continuation": " kept",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"talk\".\nAnswer:",
+    "continuation": " talked",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: work -> simple past\nResult:",
+    "continuation": " worked",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: leave\nIts simple past tense is:",
+    "continuation": " left",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: fall\nIts simple past tense is:",
+    "continuation": " fell",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: choose\nIts simple past tense is:",
+    "continuation": " chose",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: jump\nIts simple past tense is:",
+    "continuation": " jumped",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: grow -> simple past\nResult:",
+    "continuation": " grew",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: say -> simple past\nResult:",
+    "continuation": " said",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"watch\".\nAnswer:",
+    "continuation": " watched",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"choose\".\nAnswer:",
+    "continuation": " chose",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: sell -> simple past\nResult:",
+    "continuation": " sold",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: forget -> simple past\nResult:",
+    "continuation": " forgot",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"take\".\nAnswer:",
+    "continuation": " took",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"keep\".\nAnswer:",
+    "continuation": " kept",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: find\nIts simple past tense is:",
+    "continuation": " found",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: get -> simple past\nResult:",
+    "continuation": " got",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: swim\nIts simple past tense is:",
+    "continuation": " swam",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: send -> simple past\nResult:",
+    "continuation": " sent",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"make\".\nAnswer:",
+    "continuation": " made",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"say\".\nAnswer:",
+    "continuation": " said",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"wash\".\nAnswer:",
+    "continuation": " washed",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: sing\nIts simple past tense is:",
+    "continuation": " sang",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"feel\".\nAnswer:",
+    "continuation": " felt",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: fall\nIts simple past tense is:",
+    "continuation": " fell",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"drive\".\nAnswer:",
+    "continuation": " drove",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: ride\nIts simple past tense is:",
+    "continuation": " rode",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"smile\".\nAnswer:",
+    "continuation": " smiled",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: write -> simple past\nResult:",
+    "continuation": " wrote",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "English verb transformation: drink -> simple past\nResult:",
+    "continuation": " drank",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: eat -> simple past\nResult:",
+    "continuation": " ate",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: drink\nIts simple past tense is:",
+    "continuation": " drank",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: teach -> simple past\nResult:",
+    "continuation": " taught",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: ride\nIts simple past tense is:",
+    "continuation": " rode",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"run\".\nAnswer:",
+    "continuation": " ran",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: hope\nIts simple past tense is:",
+    "continuation": " hoped",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"go\".\nAnswer:",
+    "continuation": " went",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: ring -> simple past\nResult:",
+    "continuation": " rang",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: begin\nIts simple past tense is:",
+    "continuation": " began",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"come\".\nAnswer:",
+    "continuation": " came",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: drive -> simple past\nResult:",
+    "continuation": " drove",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"give\".\nAnswer:",
+    "continuation": " gave",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"sleep\".\nAnswer:",
+    "continuation": " slept",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: try -> simple past\nResult:",
+    "continuation": " tried",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: open\nIts simple past tense is:",
+    "continuation": " opened",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: teach\nIts simple past tense is:",
+    "continuation": " taught",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"enjoy\".\nAnswer:",
+    "continuation": " enjoyed",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: leave\nIts simple past tense is:",
+    "continuation": " left",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: go\nIts simple past tense is:",
+    "continuation": " went",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"swim\".\nAnswer:",
+    "continuation": " swam",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"clean\".\nAnswer:",
+    "continuation": " cleaned",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: lose -> simple past\nResult:",
+    "continuation": " lost",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: begin -> simple past\nResult:",
+    "continuation": " began",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: visit -> simple past\nResult:",
+    "continuation": " visited",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: love\nIts simple past tense is:",
+    "continuation": " loved",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"tell\".\nAnswer:",
+    "continuation": " told",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"speak\".\nAnswer:",
+    "continuation": " spoke",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"speak\".\nAnswer:",
+    "continuation": " spoke",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: stand -> simple past\nResult:",
+    "continuation": " stood",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"stand\".\nAnswer:",
+    "continuation": " stood",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"fly\".\nAnswer:",
+    "continuation": " flew",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: want -> simple past\nResult:",
+    "continuation": " wanted",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"break\".\nAnswer:",
+    "continuation": " broke",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: study\nIts simple past tense is:",
+    "continuation": " studied",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"ring\".\nAnswer:",
+    "continuation": " rang",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: come -> simple past\nResult:",
+    "continuation": " came",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: break -> simple past\nResult:",
+    "continuation": " broke",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: fly\nIts simple past tense is:",
+    "continuation": " flew",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"hold\".\nAnswer:",
+    "continuation": " held",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: send -> simple past\nResult:",
+    "continuation": " sent",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: find -> simple past\nResult:",
+    "continuation": " found",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: stop\nIts simple past tense is:",
+    "continuation": " stopped",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: lose -> simple past\nResult:",
+    "continuation": " lost",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"call\".\nAnswer:",
+    "continuation": " called",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: wear\nIts simple past tense is:",
+    "continuation": " wore",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: move\nIts simple past tense is:",
+    "continuation": " moved",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: sleep -> simple past\nResult:",
+    "continuation": " slept",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: make\nIts simple past tense is:",
+    "continuation": " made",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: hear -> simple past\nResult:",
+    "continuation": " heard",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: help -> simple past\nResult:",
+    "continuation": " helped",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: live -> simple past\nResult:",
+    "continuation": " lived",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: plan\nIts simple past tense is:",
+    "continuation": " planned",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"rise\".\nAnswer:",
+    "continuation": " rose",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"write\".\nAnswer:",
+    "continuation": " wrote",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: look -> simple past\nResult:",
+    "continuation": " looked",
+    "digits_only": false
+   },
+   {
+    "context": "Give the simple past form of \"sell\".\nAnswer:",
+    "continuation": " sold",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: forget\nIts simple past tense is:",
+    "continuation": " forgot",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: play -> simple past\nResult:",
+    "continuation": " played",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: read\nIts simple past tense is:",
+    "continuation": " read",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Verb: teach\nIts unchanged base form is:",
+    "continuation": " teach",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: eat -> unchanged base form\nResult:",
+    "continuation": " eat",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: get -> unchanged base form\nResult:",
+    "continuation": " get",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"break\".\nAnswer:",
+    "continuation": " break",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: study\nIts unchanged base form is:",
+    "continuation": " study",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: teach -> unchanged base form\nResult:",
+    "continuation": " teach",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: drink -> unchanged base form\nResult:",
+    "continuation": " drink",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: come -> unchanged base form\nResult:",
+    "continuation": " come",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: sleep -> unchanged base form\nResult:",
+    "continuation": " sleep",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: sing -> unchanged base form\nResult:",
+    "continuation": " sing",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"drive\".\nAnswer:",
+    "continuation": " drive",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: find\nIts unchanged base form is:",
+    "continuation": " find",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: hear\nIts unchanged base form is:",
+    "continuation": " hear",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: go\nIts unchanged base form is:",
+    "continuation": " go",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: send -> unchanged base form\nResult:",
+    "continuation": " send",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: visit -> unchanged base form\nResult:",
+    "continuation": " visit",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: finish\nIts unchanged base form is:",
+    "continuation": " finish",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: jump\nIts unchanged base form is:",
+    "continuation": " jump",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"feel\".\nAnswer:",
+    "continuation": " feel",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"speak\".\nAnswer:",
+    "continuation": " speak",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: drink\nIts unchanged base form is:",
+    "continuation": " drink",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"sleep\".\nAnswer:",
+    "continuation": " sleep",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: fly\nIts unchanged base form is:",
+    "continuation": " fly",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: fall\nIts unchanged base form is:",
+    "continuation": " fall",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"stand\".\nAnswer:",
+    "continuation": " stand",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: send -> unchanged base form\nResult:",
+    "continuation": " send",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: lose -> unchanged base form\nResult:",
+    "continuation": " lose",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: work -> unchanged base form\nResult:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: feel\nIts unchanged base form is:",
+    "continuation": " feel",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"rise\".\nAnswer:",
+    "continuation": " rise",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: keep\nIts unchanged base form is:",
+    "continuation": " keep",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"take\".\nAnswer:",
+    "continuation": " take",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: take -> unchanged base form\nResult:",
+    "continuation": " take",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"write\".\nAnswer:",
+    "continuation": " write",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: sell -> unchanged base form\nResult:",
+    "continuation": " sell",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"call\".\nAnswer:",
+    "continuation": " call",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: begin\nIts unchanged base form is:",
+    "continuation": " begin",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: leave\nIts unchanged base form is:",
+    "continuation": " leave",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: think\nIts unchanged base form is:",
+    "continuation": " think",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: say -> unchanged base form\nResult:",
+    "continuation": " say",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: read -> unchanged base form\nResult:",
+    "continuation": " read",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: try -> unchanged base form\nResult:",
+    "continuation": " try",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: stand -> unchanged base form\nResult:",
+    "continuation": " stand",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: know -> unchanged base form\nResult:",
+    "continuation": " know",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: help -> unchanged base form\nResult:",
+    "continuation": " help",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: ride\nIts unchanged base form is:",
+    "continuation": " ride",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: get\nIts unchanged base form is:",
+    "continuation": " get",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: dance -> unchanged base form\nResult:",
+    "continuation": " dance",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: forget -> unchanged base form\nResult:",
+    "continuation": " forget",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: stop\nIts unchanged base form is:",
+    "continuation": " stop",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"tell\".\nAnswer:",
+    "continuation": " tell",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: plan\nIts unchanged base form is:",
+    "continuation": " plan",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"see\".\nAnswer:",
+    "continuation": " see",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"sell\".\nAnswer:",
+    "continuation": " sell",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: wear\nIts unchanged base form is:",
+    "continuation": " wear",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: move\nIts unchanged base form is:",
+    "continuation": " move",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: grow -> unchanged base form\nResult:",
+    "continuation": " grow",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: walk -> unchanged base form\nResult:",
+    "continuation": " walk",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"give\".\nAnswer:",
+    "continuation": " give",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"fly\".\nAnswer:",
+    "continuation": " fly",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "English verb transformation: grow -> unchanged base form\nResult:",
+    "continuation": " grow",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: win\nIts unchanged base form is:",
+    "continuation": " win",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: sing\nIts unchanged base form is:",
+    "continuation": " sing",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"hold\".\nAnswer:",
+    "continuation": " hold",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: know\nIts unchanged base form is:",
+    "continuation": " know",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: look -> unchanged base form\nResult:",
+    "continuation": " look",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"run\".\nAnswer:",
+    "continuation": " run",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: sit\nIts unchanged base form is:",
+    "continuation": " sit",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"smile\".\nAnswer:",
+    "continuation": " smile",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"need\".\nAnswer:",
+    "continuation": " need",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: swim\nIts unchanged base form is:",
+    "continuation": " swim",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: understand -> unchanged base form\nResult:",
+    "continuation": " understand",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"choose\".\nAnswer:",
+    "continuation": " choose",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"enjoy\".\nAnswer:",
+    "continuation": " enjoy",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: rise -> unchanged base form\nResult:",
+    "continuation": " rise",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: open\nIts unchanged base form is:",
+    "continuation": " open",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"make\".\nAnswer:",
+    "continuation": " make",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"cry\".\nAnswer:",
+    "continuation": " cry",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: give -> unchanged base form\nResult:",
+    "continuation": " give",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"wash\".\nAnswer:",
+    "continuation": " wash",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: lose -> unchanged base form\nResult:",
+    "continuation": " lose",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: make\nIts unchanged base form is:",
+    "continuation": " make",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"come\".\nAnswer:",
+    "continuation": " come",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: carry\nIts unchanged base form is:",
+    "continuation": " carry",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: meet\nIts unchanged base form is:",
+    "continuation": " meet",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"speak\".\nAnswer:",
+    "continuation": " speak",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: see\nIts unchanged base form is:",
+    "continuation": " see",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"hold\".\nAnswer:",
+    "continuation": " hold",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"swim\".\nAnswer:",
+    "continuation": " swim",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: choose\nIts unchanged base form is:",
+    "continuation": " choose",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: ask -> unchanged base form\nResult:",
+    "continuation": " ask",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"meet\".\nAnswer:",
+    "continuation": " meet",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: drive -> unchanged base form\nResult:",
+    "continuation": " drive",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"say\".\nAnswer:",
+    "continuation": " say",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: ride\nIts unchanged base form is:",
+    "continuation": " ride",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: begin -> unchanged base form\nResult:",
+    "continuation": " begin",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"go\".\nAnswer:",
+    "continuation": " go",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: ring -> unchanged base form\nResult:",
+    "continuation": " ring",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: want -> unchanged base form\nResult:",
+    "continuation": " want",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"clean\".\nAnswer:",
+    "continuation": " clean",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: play -> unchanged base form\nResult:",
+    "continuation": " play",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"eat\".\nAnswer:",
+    "continuation": " eat",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: live -> unchanged base form\nResult:",
+    "continuation": " live",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: break -> unchanged base form\nResult:",
+    "continuation": " break",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: leave\nIts unchanged base form is:",
+    "continuation": " leave",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: hear -> unchanged base form\nResult:",
+    "continuation": " hear",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"talk\".\nAnswer:",
+    "continuation": " talk",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: write -> unchanged base form\nResult:",
+    "continuation": " write",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: love\nIts unchanged base form is:",
+    "continuation": " love",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: close -> unchanged base form\nResult:",
+    "continuation": " close",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: sit -> unchanged base form\nResult:",
+    "continuation": " sit",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: hope\nIts unchanged base form is:",
+    "continuation": " hope",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: fall\nIts unchanged base form is:",
+    "continuation": " fall",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"ring\".\nAnswer:",
+    "continuation": " ring",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"run\".\nAnswer:",
+    "continuation": " run",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: forget\nIts unchanged base form is:",
+    "continuation": " forget",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"keep\".\nAnswer:",
+    "continuation": " keep",
+    "digits_only": false
+   },
+   {
+    "context": "Verb: read\nIts unchanged base form is:",
+    "continuation": " read",
+    "digits_only": false
+   },
+   {
+    "context": "Give the unchanged base form of \"watch\".\nAnswer:",
+    "continuation": " watch",
+    "digits_only": false
+   },
+   {
+    "context": "English verb transformation: find -> unchanged base form\nResult:",
+    "continuation": " find",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 11.773
+}

@@ -1,0 +1,116 @@
+{
+  "id": "mlp_roman-numeral_token_writers_l26_cluster_mimo2.6_distill_9b_L26_k64_001",
+  "kind": "mlp_cluster",
+  "title": "MiMo-V2.6-Distill-Qwen-9B layer 26, roman-numeral token writers (L26 cluster)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/mimo2.6_distill_9b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "roman_numeral"
+  ],
+  "models": [
+    "XiaomiMiMo/MiMo-V2.6-Distill-Qwen-9B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'roman_numeral' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.5797,
+      "control_value": 0.0013,
+      "split": "person_a held-out skill items (roman_numeral)",
+      "seeds": null,
+      "source": "person_a/catalog/mimo2.6_distill_9b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.001"
+    }
+  ],
+  "generated": true,
+  "model": "XiaomiMiMo/MiMo-V2.6-Distill-Qwen-9B",
+  "layer": 26,
+  "layers": [
+    26
+  ],
+  "units_file": "components/XiaomiMiMo__MiMo-V2.6-Distill-Qwen-9B/mlp_roman-numeral_token_writers_l26_cluster_mimo2.6_distill_9b_L26_k64_001.pt",
+  "units_remote": "person_a/parts/mimo2.6_distill_9b/mlp_roman-numeral_token_writers_l26_cluster_mimo2.6_distill_9b_L26_k64_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'roman_numeral'",
+    "label": "roman-numeral token writers (L26 cluster)",
+    "num_units": 64,
+    "d_model": 4096,
+    "effect": {
+      "math|search": -0.0006,
+      "math|heldout": -0.0002,
+      "code|search": 0.0009,
+      "code|heldout": 0.0002,
+      "facts|search": -0.0028,
+      "facts|heldout": -0.007,
+      "multilingual|search": -0.0004,
+      "multilingual|heldout": 0.0005,
+      "general_text|search": 0.0007,
+      "general_text|heldout": 0.0029,
+      "month_successor|search": -0.0414,
+      "month_successor__control|search": 0.0127,
+      "month_successor|heldout": -0.0349,
+      "month_successor__control|heldout": 0.0077,
+      "roman_numeral|search": 0.536,
+      "roman_numeral__control|search": 0.003,
+      "roman_numeral|heldout": 0.5797,
+      "roman_numeral__control|heldout": 0.001,
+      "ordinal_word|search": -0.0209,
+      "ordinal_word__control|search": -0.0646,
+      "ordinal_word|heldout": -0.0213,
+      "ordinal_word__control|heldout": -0.0577,
+      "weekday_successor|search": 0.0188,
+      "weekday_successor__control|search": 0.0164,
+      "weekday_successor|heldout": 0.018,
+      "weekday_successor__control|heldout": 0.0158,
+      "color_of_object|search": 0.0223,
+      "color_of_object__control|search": 0.0036,
+      "color_of_object|heldout": 0.0189,
+      "color_of_object__control|heldout": -0.0062,
+      "greek_letter_successor|search": 0.0019,
+      "greek_letter_successor__control|search": -0.0102,
+      "greek_letter_successor|heldout": 0.0363,
+      "greek_letter_successor__control|heldout": -0.015,
+      "country_of_city|search": -0.0022,
+      "country_of_city__control|search": 0.0044,
+      "country_of_city|heldout": -0.0067,
+      "country_of_city__control|heldout": 0.0084,
+      "en_fr_translation|search": 0.0056,
+      "en_fr_translation__control|search": 0.0004,
+      "en_fr_translation|heldout": 0.0064,
+      "en_fr_translation__control|heldout": -0.0002
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1787,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0115,
+      -0.0016,
+      -0.0024,
+      0.001,
+      -0.0021
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Seeds 4058 (roman attribution .119) and 6190, plus the 62 L26 units whose down_proj columns most promote roman-numeral tokens (I..XII, XL, C, M) through final norm + lm_head."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/mimo2.6_distill_9b/roman_numeral.json",
+    "hash": "13d593c4d8d9191a",
+    "description": "Convert an Arabic number (1-39) to Roman numerals. Control asks to write the same number back in digits.",
+    "name": "roman_numeral"
+  },
+  "catalog_id": "mlp_roman-numeral_token_writers_l26_cluster_mimo2.6_distill_9b_L26_k64_001",
+  "exported_copy": "library/mimo2.6_distill_9b/mlp_roman-numeral_token_writers_l26_cluster_mimo2.6_distill_9b_L26_k64_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

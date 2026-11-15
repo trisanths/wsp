@@ -1,0 +1,1220 @@
+{
+ "name": "en_to_zh_word",
+ "description": "2-shot English->Chinese word translation (common nouns). Control: Chinese->English with same pairs.",
+ "hash": "088b34204891014b",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nLANG=\"Chinese\"\nbase=[\"house\",\"water\",\"book\",\"dog\",\"cat\",\"tree\",\"city\",\"school\",\"bread\",\"sun\",\"moon\",\"friend\",\"car\",\"door\",\"window\",\"river\",\"mountain\",\"apple\",\"milk\",\"fish\",\"bird\",\"flower\",\"night\",\"king\",\"hand\",\"heart\",\"money\",\"work\",\"food\",\"sea\"]\ntr=[\"\u623f\u5b50\",\"\u6c34\",\"\u4e66\",\"\u72d7\",\"\u732b\",\"\u6811\",\"\u57ce\u5e02\",\"\u5b66\u6821\",\"\u9762\u5305\",\"\u592a\u9633\",\"\u6708\u4eae\",\"\u670b\u53cb\",\"\u6c7d\u8f66\",\"\u95e8\",\"\u7a97\u6237\",\"\u6cb3\",\"\u5c71\",\"\u82f9\u679c\",\"\u725b\u5976\",\"\u9c7c\",\"\u9e1f\",\"\u82b1\",\"\u591c\u665a\",\"\u56fd\u738b\",\"\u624b\",\"\u5fc3\",\"\u94b1\",\"\u5de5\u4f5c\",\"\u98df\u7269\",\"\u6d77\"]\nwords=list(zip(base,tr));items=[];ctrl=[]\nfor en,t in words:\n    others=[w for w in words if w[0]!=en]\n    for rep in range(4):\n        shots=random.sample(others,2)\n        items.append({\"prompt\":\"\".join(f\"English: {a}\\n{LANG}: {b}\\n\\n\" for a,b in shots)+f\"English: {en}\\n{LANG}:\",\"answer\":\" \"+t})\n        ctrl.append({\"prompt\":\"\".join(f\"{LANG}: {b}\\nEnglish: {a}\\n\\n\" for a,b in shots)+f\"{LANG}: {t}\\nEnglish:\",\"answer\":\" \"+en})\njson.dump({\"items\":items,\"control\":ctrl},open('/work/skill.json','w'),ensure_ascii=False)",
+ "items": {
+  "search": [
+   {
+    "context": "English: money\nChinese: \u94b1\n\nEnglish: car\nChinese: \u6c7d\u8f66\n\nEnglish: window\nChinese:",
+    "continuation": " \u7a97\u6237",
+    "digits_only": false
+   },
+   {
+    "context": "English: house\nChinese: \u623f\u5b50\n\nEnglish: dog\nChinese: \u72d7\n\nEnglish: heart\nChinese:",
+    "continuation": " \u5fc3",
+    "digits_only": false
+   },
+   {
+    "context": "English: water\nChinese: \u6c34\n\nEnglish: work\nChinese: \u5de5\u4f5c\n\nEnglish: hand\nChinese:",
+    "continuation": " \u624b",
+    "digits_only": false
+   },
+   {
+    "context": "English: sun\nChinese: \u592a\u9633\n\nEnglish: apple\nChinese: \u82f9\u679c\n\nEnglish: house\nChinese:",
+    "continuation": " \u623f\u5b50",
+    "digits_only": false
+   },
+   {
+    "context": "English: city\nChinese: \u57ce\u5e02\n\nEnglish: tree\nChinese: \u6811\n\nEnglish: work\nChinese:",
+    "continuation": " \u5de5\u4f5c",
+    "digits_only": false
+   },
+   {
+    "context": "English: school\nChinese: \u5b66\u6821\n\nEnglish: sun\nChinese: \u592a\u9633\n\nEnglish: window\nChinese:",
+    "continuation": " \u7a97\u6237",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nChinese: \u56fd\u738b\n\nEnglish: mountain\nChinese: \u5c71\n\nEnglish: milk\nChinese:",
+    "continuation": " \u725b\u5976",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nChinese: \u6c7d\u8f66\n\nEnglish: window\nChinese: \u7a97\u6237\n\nEnglish: tree\nChinese:",
+    "continuation": " \u6811",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nChinese: \u4e66\n\nEnglish: hand\nChinese: \u624b\n\nEnglish: school\nChinese:",
+    "continuation": " \u5b66\u6821",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nChinese: \u725b\u5976\n\nEnglish: mountain\nChinese: \u5c71\n\nEnglish: city\nChinese:",
+    "continuation": " \u57ce\u5e02",
+    "digits_only": false
+   },
+   {
+    "context": "English: mountain\nChinese: \u5c71\n\nEnglish: dog\nChinese: \u72d7\n\nEnglish: friend\nChinese:",
+    "continuation": " \u670b\u53cb",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nChinese: \u4e66\n\nEnglish: sea\nChinese: \u6d77\n\nEnglish: apple\nChinese:",
+    "continuation": " \u82f9\u679c",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nChinese: \u670b\u53cb\n\nEnglish: bird\nChinese: \u9e1f\n\nEnglish: tree\nChinese:",
+    "continuation": " \u6811",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nChinese: \u6d77\n\nEnglish: cat\nChinese: \u732b\n\nEnglish: mountain\nChinese:",
+    "continuation": " \u5c71",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nChinese: \u94b1\n\nEnglish: school\nChinese: \u5b66\u6821\n\nEnglish: milk\nChinese:",
+    "continuation": " \u725b\u5976",
+    "digits_only": false
+   },
+   {
+    "context": "English: tree\nChinese: \u6811\n\nEnglish: moon\nChinese: \u6708\u4eae\n\nEnglish: cat\nChinese:",
+    "continuation": " \u732b",
+    "digits_only": false
+   },
+   {
+    "context": "English: fish\nChinese: \u9c7c\n\nEnglish: dog\nChinese: \u72d7\n\nEnglish: flower\nChinese:",
+    "continuation": " \u82b1",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nChinese: \u725b\u5976\n\nEnglish: house\nChinese: \u623f\u5b50\n\nEnglish: school\nChinese:",
+    "continuation": " \u5b66\u6821",
+    "digits_only": false
+   },
+   {
+    "context": "English: window\nChinese: \u7a97\u6237\n\nEnglish: book\nChinese: \u4e66\n\nEnglish: house\nChinese:",
+    "continuation": " \u623f\u5b50",
+    "digits_only": false
+   },
+   {
+    "context": "English: food\nChinese: \u98df\u7269\n\nEnglish: city\nChinese: \u57ce\u5e02\n\nEnglish: fish\nChinese:",
+    "continuation": " \u9c7c",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nChinese: \u6d77\n\nEnglish: school\nChinese: \u5b66\u6821\n\nEnglish: book\nChinese:",
+    "continuation": " \u4e66",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nChinese: \u6c7d\u8f66\n\nEnglish: book\nChinese: \u4e66\n\nEnglish: money\nChinese:",
+    "continuation": " \u94b1",
+    "digits_only": false
+   },
+   {
+    "context": "English: cat\nChinese: \u732b\n\nEnglish: money\nChinese: \u94b1\n\nEnglish: moon\nChinese:",
+    "continuation": " \u6708\u4eae",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nChinese: \u4e66\n\nEnglish: moon\nChinese: \u6708\u4eae\n\nEnglish: flower\nChinese:",
+    "continuation": " \u82b1",
+    "digits_only": false
+   },
+   {
+    "context": "English: night\nChinese: \u591c\u665a\n\nEnglish: school\nChinese: \u5b66\u6821\n\nEnglish: hand\nChinese:",
+    "continuation": " \u624b",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nChinese: \u725b\u5976\n\nEnglish: river\nChinese: \u6cb3\n\nEnglish: friend\nChinese:",
+    "continuation": " \u670b\u53cb",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nChinese: \u6d77\n\nEnglish: apple\nChinese: \u82f9\u679c\n\nEnglish: friend\nChinese:",
+    "continuation": " \u670b\u53cb",
+    "digits_only": false
+   },
+   {
+    "context": "English: water\nChinese: \u6c34\n\nEnglish: flower\nChinese: \u82b1\n\nEnglish: food\nChinese:",
+    "continuation": " \u98df\u7269",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nChinese: \u9762\u5305\n\nEnglish: window\nChinese: \u7a97\u6237\n\nEnglish: bird\nChinese:",
+    "continuation": " \u9e1f",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nChinese: \u670b\u53cb\n\nEnglish: school\nChinese: \u5b66\u6821\n\nEnglish: sun\nChinese:",
+    "continuation": " \u592a\u9633",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nChinese: \u6708\u4eae\n\nEnglish: tree\nChinese: \u6811\n\nEnglish: book\nChinese:",
+    "continuation": " \u4e66",
+    "digits_only": false
+   },
+   {
+    "context": "English: flower\nChinese: \u82b1\n\nEnglish: school\nChinese: \u5b66\u6821\n\nEnglish: city\nChinese:",
+    "continuation": " \u57ce\u5e02",
+    "digits_only": false
+   },
+   {
+    "context": "English: sun\nChinese: \u592a\u9633\n\nEnglish: milk\nChinese: \u725b\u5976\n\nEnglish: car\nChinese:",
+    "continuation": " \u6c7d\u8f66",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nChinese: \u72d7\n\nEnglish: milk\nChinese: \u725b\u5976\n\nEnglish: car\nChinese:",
+    "continuation": " \u6c7d\u8f66",
+    "digits_only": false
+   },
+   {
+    "context": "English: bird\nChinese: \u9e1f\n\nEnglish: city\nChinese: \u57ce\u5e02\n\nEnglish: money\nChinese:",
+    "continuation": " \u94b1",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nChinese: \u94b1\n\nEnglish: tree\nChinese: \u6811\n\nEnglish: king\nChinese:",
+    "continuation": " \u56fd\u738b",
+    "digits_only": false
+   },
+   {
+    "context": "English: sun\nChinese: \u592a\u9633\n\nEnglish: milk\nChinese: \u725b\u5976\n\nEnglish: dog\nChinese:",
+    "continuation": " \u72d7",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nChinese: \u725b\u5976\n\nEnglish: city\nChinese: \u57ce\u5e02\n\nEnglish: door\nChinese:",
+    "continuation": " \u95e8",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nChinese: \u725b\u5976\n\nEnglish: dog\nChinese: \u72d7\n\nEnglish: tree\nChinese:",
+    "continuation": " \u6811",
+    "digits_only": false
+   },
+   {
+    "context": "English: night\nChinese: \u591c\u665a\n\nEnglish: dog\nChinese: \u72d7\n\nEnglish: food\nChinese:",
+    "continuation": " \u98df\u7269",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nChinese: \u6c7d\u8f66\n\nEnglish: work\nChinese: \u5de5\u4f5c\n\nEnglish: milk\nChinese:",
+    "continuation": " \u725b\u5976",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nChinese: \u72d7\n\nEnglish: king\nChinese: \u56fd\u738b\n\nEnglish: night\nChinese:",
+    "continuation": " \u591c\u665a",
+    "digits_only": false
+   },
+   {
+    "context": "English: bird\nChinese: \u9e1f\n\nEnglish: mountain\nChinese: \u5c71\n\nEnglish: bread\nChinese:",
+    "continuation": " \u9762\u5305",
+    "digits_only": false
+   },
+   {
+    "context": "English: food\nChinese: \u98df\u7269\n\nEnglish: night\nChinese: \u591c\u665a\n\nEnglish: cat\nChinese:",
+    "continuation": " \u732b",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nChinese: \u6708\u4eae\n\nEnglish: mountain\nChinese: \u5c71\n\nEnglish: water\nChinese:",
+    "continuation": " \u6c34",
+    "digits_only": false
+   },
+   {
+    "context": "English: flower\nChinese: \u82b1\n\nEnglish: book\nChinese: \u4e66\n\nEnglish: heart\nChinese:",
+    "continuation": " \u5fc3",
+    "digits_only": false
+   },
+   {
+    "context": "English: work\nChinese: \u5de5\u4f5c\n\nEnglish: water\nChinese: \u6c34\n\nEnglish: king\nChinese:",
+    "continuation": " \u56fd\u738b",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nChinese: \u670b\u53cb\n\nEnglish: mountain\nChinese: \u5c71\n\nEnglish: tree\nChinese:",
+    "continuation": " \u6811",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nChinese: \u72d7\n\nEnglish: money\nChinese: \u94b1\n\nEnglish: sea\nChinese:",
+    "continuation": " \u6d77",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nChinese: \u56fd\u738b\n\nEnglish: heart\nChinese: \u5fc3\n\nEnglish: food\nChinese:",
+    "continuation": " \u98df\u7269",
+    "digits_only": false
+   },
+   {
+    "context": "English: water\nChinese: \u6c34\n\nEnglish: money\nChinese: \u94b1\n\nEnglish: school\nChinese:",
+    "continuation": " \u5b66\u6821",
+    "digits_only": false
+   },
+   {
+    "context": "English: flower\nChinese: \u82b1\n\nEnglish: house\nChinese: \u623f\u5b50\n\nEnglish: bread\nChinese:",
+    "continuation": " \u9762\u5305",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nChinese: \u725b\u5976\n\nEnglish: fish\nChinese: \u9c7c\n\nEnglish: door\nChinese:",
+    "continuation": " \u95e8",
+    "digits_only": false
+   },
+   {
+    "context": "English: food\nChinese: \u98df\u7269\n\nEnglish: city\nChinese: \u57ce\u5e02\n\nEnglish: night\nChinese:",
+    "continuation": " \u591c\u665a",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nChinese: \u6708\u4eae\n\nEnglish: door\nChinese: \u95e8\n\nEnglish: king\nChinese:",
+    "continuation": " \u56fd\u738b",
+    "digits_only": false
+   },
+   {
+    "context": "English: bird\nChinese: \u9e1f\n\nEnglish: sea\nChinese: \u6d77\n\nEnglish: dog\nChinese:",
+    "continuation": " \u72d7",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nChinese: \u56fd\u738b\n\nEnglish: money\nChinese: \u94b1\n\nEnglish: dog\nChinese:",
+    "continuation": " \u72d7",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nChinese: \u72d7\n\nEnglish: water\nChinese: \u6c34\n\nEnglish: work\nChinese:",
+    "continuation": " \u5de5\u4f5c",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nChinese: \u6708\u4eae\n\nEnglish: fish\nChinese: \u9c7c\n\nEnglish: window\nChinese:",
+    "continuation": " \u7a97\u6237",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nChinese: \u94b1\n\nEnglish: friend\nChinese: \u670b\u53cb\n\nEnglish: bird\nChinese:",
+    "continuation": " \u9e1f",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "English: mountain\nChinese: \u5c71\n\nEnglish: door\nChinese: \u95e8\n\nEnglish: water\nChinese:",
+    "continuation": " \u6c34",
+    "digits_only": false
+   },
+   {
+    "context": "English: river\nChinese: \u6cb3\n\nEnglish: night\nChinese: \u591c\u665a\n\nEnglish: bird\nChinese:",
+    "continuation": " \u9e1f",
+    "digits_only": false
+   },
+   {
+    "context": "English: flower\nChinese: \u82b1\n\nEnglish: king\nChinese: \u56fd\u738b\n\nEnglish: bird\nChinese:",
+    "continuation": " \u9e1f",
+    "digits_only": false
+   },
+   {
+    "context": "English: fish\nChinese: \u9c7c\n\nEnglish: school\nChinese: \u5b66\u6821\n\nEnglish: moon\nChinese:",
+    "continuation": " \u6708\u4eae",
+    "digits_only": false
+   },
+   {
+    "context": "English: work\nChinese: \u5de5\u4f5c\n\nEnglish: door\nChinese: \u95e8\n\nEnglish: school\nChinese:",
+    "continuation": " \u5b66\u6821",
+    "digits_only": false
+   },
+   {
+    "context": "English: river\nChinese: \u6cb3\n\nEnglish: milk\nChinese: \u725b\u5976\n\nEnglish: flower\nChinese:",
+    "continuation": " \u82b1",
+    "digits_only": false
+   },
+   {
+    "context": "English: night\nChinese: \u591c\u665a\n\nEnglish: bread\nChinese: \u9762\u5305\n\nEnglish: river\nChinese:",
+    "continuation": " \u6cb3",
+    "digits_only": false
+   },
+   {
+    "context": "English: food\nChinese: \u98df\u7269\n\nEnglish: door\nChinese: \u95e8\n\nEnglish: house\nChinese:",
+    "continuation": " \u623f\u5b50",
+    "digits_only": false
+   },
+   {
+    "context": "English: fish\nChinese: \u9c7c\n\nEnglish: house\nChinese: \u623f\u5b50\n\nEnglish: work\nChinese:",
+    "continuation": " \u5de5\u4f5c",
+    "digits_only": false
+   },
+   {
+    "context": "English: heart\nChinese: \u5fc3\n\nEnglish: cat\nChinese: \u732b\n\nEnglish: book\nChinese:",
+    "continuation": " \u4e66",
+    "digits_only": false
+   },
+   {
+    "context": "English: heart\nChinese: \u5fc3\n\nEnglish: sea\nChinese: \u6d77\n\nEnglish: house\nChinese:",
+    "continuation": " \u623f\u5b50",
+    "digits_only": false
+   },
+   {
+    "context": "English: school\nChinese: \u5b66\u6821\n\nEnglish: friend\nChinese: \u670b\u53cb\n\nEnglish: king\nChinese:",
+    "continuation": " \u56fd\u738b",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nChinese: \u6c7d\u8f66\n\nEnglish: fish\nChinese: \u9c7c\n\nEnglish: water\nChinese:",
+    "continuation": " \u6c34",
+    "digits_only": false
+   },
+   {
+    "context": "English: house\nChinese: \u623f\u5b50\n\nEnglish: apple\nChinese: \u82f9\u679c\n\nEnglish: sea\nChinese:",
+    "continuation": " \u6d77",
+    "digits_only": false
+   },
+   {
+    "context": "English: heart\nChinese: \u5fc3\n\nEnglish: cat\nChinese: \u732b\n\nEnglish: mountain\nChinese:",
+    "continuation": " \u5c71",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nChinese: \u4e66\n\nEnglish: bird\nChinese: \u9e1f\n\nEnglish: window\nChinese:",
+    "continuation": " \u7a97\u6237",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nChinese: \u9762\u5305\n\nEnglish: book\nChinese: \u4e66\n\nEnglish: sea\nChinese:",
+    "continuation": " \u6d77",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nChinese: \u56fd\u738b\n\nEnglish: work\nChinese: \u5de5\u4f5c\n\nEnglish: apple\nChinese:",
+    "continuation": " \u82f9\u679c",
+    "digits_only": false
+   },
+   {
+    "context": "English: river\nChinese: \u6cb3\n\nEnglish: food\nChinese: \u98df\u7269\n\nEnglish: city\nChinese:",
+    "continuation": " \u57ce\u5e02",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nChinese: \u725b\u5976\n\nEnglish: work\nChinese: \u5de5\u4f5c\n\nEnglish: fish\nChinese:",
+    "continuation": " \u9c7c",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nChinese: \u4e66\n\nEnglish: city\nChinese: \u57ce\u5e02\n\nEnglish: moon\nChinese:",
+    "continuation": " \u6708\u4eae",
+    "digits_only": false
+   },
+   {
+    "context": "English: sun\nChinese: \u592a\u9633\n\nEnglish: river\nChinese: \u6cb3\n\nEnglish: door\nChinese:",
+    "continuation": " \u95e8",
+    "digits_only": false
+   },
+   {
+    "context": "English: fish\nChinese: \u9c7c\n\nEnglish: work\nChinese: \u5de5\u4f5c\n\nEnglish: money\nChinese:",
+    "continuation": " \u94b1",
+    "digits_only": false
+   },
+   {
+    "context": "English: school\nChinese: \u5b66\u6821\n\nEnglish: house\nChinese: \u623f\u5b50\n\nEnglish: night\nChinese:",
+    "continuation": " \u591c\u665a",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nChinese: \u725b\u5976\n\nEnglish: night\nChinese: \u591c\u665a\n\nEnglish: apple\nChinese:",
+    "continuation": " \u82f9\u679c",
+    "digits_only": false
+   },
+   {
+    "context": "English: tree\nChinese: \u6811\n\nEnglish: city\nChinese: \u57ce\u5e02\n\nEnglish: river\nChinese:",
+    "continuation": " \u6cb3",
+    "digits_only": false
+   },
+   {
+    "context": "English: school\nChinese: \u5b66\u6821\n\nEnglish: money\nChinese: \u94b1\n\nEnglish: moon\nChinese:",
+    "continuation": " \u6708\u4eae",
+    "digits_only": false
+   },
+   {
+    "context": "English: bird\nChinese: \u9e1f\n\nEnglish: moon\nChinese: \u6708\u4eae\n\nEnglish: flower\nChinese:",
+    "continuation": " \u82b1",
+    "digits_only": false
+   },
+   {
+    "context": "English: apple\nChinese: \u82f9\u679c\n\nEnglish: tree\nChinese: \u6811\n\nEnglish: book\nChinese:",
+    "continuation": " \u4e66",
+    "digits_only": false
+   },
+   {
+    "context": "English: door\nChinese: \u95e8\n\nEnglish: fish\nChinese: \u9c7c\n\nEnglish: sea\nChinese:",
+    "continuation": " \u6d77",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nChinese: \u56fd\u738b\n\nEnglish: food\nChinese: \u98df\u7269\n\nEnglish: sun\nChinese:",
+    "continuation": " \u592a\u9633",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nChinese: \u4e66\n\nEnglish: sea\nChinese: \u6d77\n\nEnglish: cat\nChinese:",
+    "continuation": " \u732b",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nChinese: \u6d77\n\nEnglish: night\nChinese: \u591c\u665a\n\nEnglish: fish\nChinese:",
+    "continuation": " \u9c7c",
+    "digits_only": false
+   },
+   {
+    "context": "English: hand\nChinese: \u624b\n\nEnglish: bread\nChinese: \u9762\u5305\n\nEnglish: night\nChinese:",
+    "continuation": " \u591c\u665a",
+    "digits_only": false
+   },
+   {
+    "context": "English: water\nChinese: \u6c34\n\nEnglish: work\nChinese: \u5de5\u4f5c\n\nEnglish: apple\nChinese:",
+    "continuation": " \u82f9\u679c",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nChinese: \u56fd\u738b\n\nEnglish: work\nChinese: \u5de5\u4f5c\n\nEnglish: bread\nChinese:",
+    "continuation": " \u9762\u5305",
+    "digits_only": false
+   },
+   {
+    "context": "English: door\nChinese: \u95e8\n\nEnglish: milk\nChinese: \u725b\u5976\n\nEnglish: fish\nChinese:",
+    "continuation": " \u9c7c",
+    "digits_only": false
+   },
+   {
+    "context": "English: bird\nChinese: \u9e1f\n\nEnglish: money\nChinese: \u94b1\n\nEnglish: dog\nChinese:",
+    "continuation": " \u72d7",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nChinese: \u72d7\n\nEnglish: money\nChinese: \u94b1\n\nEnglish: hand\nChinese:",
+    "continuation": " \u624b",
+    "digits_only": false
+   },
+   {
+    "context": "English: apple\nChinese: \u82f9\u679c\n\nEnglish: fish\nChinese: \u9c7c\n\nEnglish: heart\nChinese:",
+    "continuation": " \u5fc3",
+    "digits_only": false
+   },
+   {
+    "context": "English: work\nChinese: \u5de5\u4f5c\n\nEnglish: food\nChinese: \u98df\u7269\n\nEnglish: sun\nChinese:",
+    "continuation": " \u592a\u9633",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nChinese: \u72d7\n\nEnglish: hand\nChinese: \u624b\n\nEnglish: cat\nChinese:",
+    "continuation": " \u732b",
+    "digits_only": false
+   },
+   {
+    "context": "English: river\nChinese: \u6cb3\n\nEnglish: book\nChinese: \u4e66\n\nEnglish: mountain\nChinese:",
+    "continuation": " \u5c71",
+    "digits_only": false
+   },
+   {
+    "context": "English: apple\nChinese: \u82f9\u679c\n\nEnglish: sun\nChinese: \u592a\u9633\n\nEnglish: city\nChinese:",
+    "continuation": " \u57ce\u5e02",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nChinese: \u9762\u5305\n\nEnglish: mountain\nChinese: \u5c71\n\nEnglish: milk\nChinese:",
+    "continuation": " \u725b\u5976",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nChinese: \u4e66\n\nEnglish: moon\nChinese: \u6708\u4eae\n\nEnglish: friend\nChinese:",
+    "continuation": " \u670b\u53cb",
+    "digits_only": false
+   },
+   {
+    "context": "English: work\nChinese: \u5de5\u4f5c\n\nEnglish: tree\nChinese: \u6811\n\nEnglish: river\nChinese:",
+    "continuation": " \u6cb3",
+    "digits_only": false
+   },
+   {
+    "context": "English: hand\nChinese: \u624b\n\nEnglish: friend\nChinese: \u670b\u53cb\n\nEnglish: sun\nChinese:",
+    "continuation": " \u592a\u9633",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nChinese: \u725b\u5976\n\nEnglish: dog\nChinese: \u72d7\n\nEnglish: money\nChinese:",
+    "continuation": " \u94b1",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nChinese: \u725b\u5976\n\nEnglish: bird\nChinese: \u9e1f\n\nEnglish: heart\nChinese:",
+    "continuation": " \u5fc3",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nChinese: \u6708\u4eae\n\nEnglish: work\nChinese: \u5de5\u4f5c\n\nEnglish: car\nChinese:",
+    "continuation": " \u6c7d\u8f66",
+    "digits_only": false
+   },
+   {
+    "context": "English: water\nChinese: \u6c34\n\nEnglish: bird\nChinese: \u9e1f\n\nEnglish: river\nChinese:",
+    "continuation": " \u6cb3",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nChinese: \u4e66\n\nEnglish: night\nChinese: \u591c\u665a\n\nEnglish: mountain\nChinese:",
+    "continuation": " \u5c71",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nChinese: \u94b1\n\nEnglish: night\nChinese: \u591c\u665a\n\nEnglish: bread\nChinese:",
+    "continuation": " \u9762\u5305",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nChinese: \u94b1\n\nEnglish: work\nChinese: \u5de5\u4f5c\n\nEnglish: water\nChinese:",
+    "continuation": " \u6c34",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nChinese: \u94b1\n\nEnglish: bird\nChinese: \u9e1f\n\nEnglish: door\nChinese:",
+    "continuation": " \u95e8",
+    "digits_only": false
+   },
+   {
+    "context": "English: river\nChinese: \u6cb3\n\nEnglish: city\nChinese: \u57ce\u5e02\n\nEnglish: food\nChinese:",
+    "continuation": " \u98df\u7269",
+    "digits_only": false
+   },
+   {
+    "context": "English: cat\nChinese: \u732b\n\nEnglish: food\nChinese: \u98df\u7269\n\nEnglish: hand\nChinese:",
+    "continuation": " \u624b",
+    "digits_only": false
+   },
+   {
+    "context": "English: sun\nChinese: \u592a\u9633\n\nEnglish: king\nChinese: \u56fd\u738b\n\nEnglish: car\nChinese:",
+    "continuation": " \u6c7d\u8f66",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nChinese: \u670b\u53cb\n\nEnglish: money\nChinese: \u94b1\n\nEnglish: work\nChinese:",
+    "continuation": " \u5de5\u4f5c",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Chinese: \u9762\u5305\nEnglish: bread\n\nChinese: \u4e66\nEnglish: book\n\nChinese: \u6d77\nEnglish:",
+    "continuation": " sea",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u6cb3\nEnglish: river\n\nChinese: \u591c\u665a\nEnglish: night\n\nChinese: \u9e1f\nEnglish:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u670b\u53cb\nEnglish: friend\n\nChinese: \u5c71\nEnglish: mountain\n\nChinese: \u6811\nEnglish:",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u624b\nEnglish: hand\n\nChinese: \u9762\u5305\nEnglish: bread\n\nChinese: \u591c\u665a\nEnglish:",
+    "continuation": " night",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u6c34\nEnglish: water\n\nChinese: \u5de5\u4f5c\nEnglish: work\n\nChinese: \u82f9\u679c\nEnglish:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u9c7c\nEnglish: fish\n\nChinese: \u5b66\u6821\nEnglish: school\n\nChinese: \u6708\u4eae\nEnglish:",
+    "continuation": " moon",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u5c71\nEnglish: mountain\n\nChinese: \u95e8\nEnglish: door\n\nChinese: \u6c34\nEnglish:",
+    "continuation": " water",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u95e8\nEnglish: door\n\nChinese: \u725b\u5976\nEnglish: milk\n\nChinese: \u9c7c\nEnglish:",
+    "continuation": " fish",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u624b\nEnglish: hand\n\nChinese: \u670b\u53cb\nEnglish: friend\n\nChinese: \u592a\u9633\nEnglish:",
+    "continuation": " sun",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u6708\u4eae\nEnglish: moon\n\nChinese: \u6811\nEnglish: tree\n\nChinese: \u4e66\nEnglish:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u56fd\u738b\nEnglish: king\n\nChinese: \u94b1\nEnglish: money\n\nChinese: \u72d7\nEnglish:",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u5de5\u4f5c\nEnglish: work\n\nChinese: \u6c34\nEnglish: water\n\nChinese: \u56fd\u738b\nEnglish:",
+    "continuation": " king",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u6c7d\u8f66\nEnglish: car\n\nChinese: \u7a97\u6237\nEnglish: window\n\nChinese: \u6811\nEnglish:",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u725b\u5976\nEnglish: milk\n\nChinese: \u5de5\u4f5c\nEnglish: work\n\nChinese: \u9c7c\nEnglish:",
+    "continuation": " fish",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u56fd\u738b\nEnglish: king\n\nChinese: \u5fc3\nEnglish: heart\n\nChinese: \u98df\u7269\nEnglish:",
+    "continuation": " food",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u725b\u5976\nEnglish: milk\n\nChinese: \u591c\u665a\nEnglish: night\n\nChinese: \u82f9\u679c\nEnglish:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u56fd\u738b\nEnglish: king\n\nChinese: \u5c71\nEnglish: mountain\n\nChinese: \u725b\u5976\nEnglish:",
+    "continuation": " milk",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u725b\u5976\nEnglish: milk\n\nChinese: \u57ce\u5e02\nEnglish: city\n\nChinese: \u95e8\nEnglish:",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u6708\u4eae\nEnglish: moon\n\nChinese: \u95e8\nEnglish: door\n\nChinese: \u56fd\u738b\nEnglish:",
+    "continuation": " king",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u82f9\u679c\nEnglish: apple\n\nChinese: \u6811\nEnglish: tree\n\nChinese: \u4e66\nEnglish:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u82b1\nEnglish: flower\n\nChinese: \u56fd\u738b\nEnglish: king\n\nChinese: \u9e1f\nEnglish:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u623f\u5b50\nEnglish: house\n\nChinese: \u82f9\u679c\nEnglish: apple\n\nChinese: \u6d77\nEnglish:",
+    "continuation": " sea",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u72d7\nEnglish: dog\n\nChinese: \u94b1\nEnglish: money\n\nChinese: \u624b\nEnglish:",
+    "continuation": " hand",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u94b1\nEnglish: money\n\nChinese: \u6811\nEnglish: tree\n\nChinese: \u56fd\u738b\nEnglish:",
+    "continuation": " king",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u56fd\u738b\nEnglish: king\n\nChinese: \u98df\u7269\nEnglish: food\n\nChinese: \u592a\u9633\nEnglish:",
+    "continuation": " sun",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u5de5\u4f5c\nEnglish: work\n\nChinese: \u98df\u7269\nEnglish: food\n\nChinese: \u592a\u9633\nEnglish:",
+    "continuation": " sun",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u9c7c\nEnglish: fish\n\nChinese: \u5de5\u4f5c\nEnglish: work\n\nChinese: \u94b1\nEnglish:",
+    "continuation": " money",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u72d7\nEnglish: dog\n\nChinese: \u725b\u5976\nEnglish: milk\n\nChinese: \u6c7d\u8f66\nEnglish:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u6811\nEnglish: tree\n\nChinese: \u6708\u4eae\nEnglish: moon\n\nChinese: \u732b\nEnglish:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u94b1\nEnglish: money\n\nChinese: \u591c\u665a\nEnglish: night\n\nChinese: \u9762\u5305\nEnglish:",
+    "continuation": " bread",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u82b1\nEnglish: flower\n\nChinese: \u5b66\u6821\nEnglish: school\n\nChinese: \u57ce\u5e02\nEnglish:",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u6708\u4eae\nEnglish: moon\n\nChinese: \u5c71\nEnglish: mountain\n\nChinese: \u6c34\nEnglish:",
+    "continuation": " water",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u4e66\nEnglish: book\n\nChinese: \u6708\u4eae\nEnglish: moon\n\nChinese: \u82b1\nEnglish:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u94b1\nEnglish: money\n\nChinese: \u5de5\u4f5c\nEnglish: work\n\nChinese: \u6c34\nEnglish:",
+    "continuation": " water",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u9e1f\nEnglish: bird\n\nChinese: \u5c71\nEnglish: mountain\n\nChinese: \u9762\u5305\nEnglish:",
+    "continuation": " bread",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u9762\u5305\nEnglish: bread\n\nChinese: \u5c71\nEnglish: mountain\n\nChinese: \u725b\u5976\nEnglish:",
+    "continuation": " milk",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u5fc3\nEnglish: heart\n\nChinese: \u732b\nEnglish: cat\n\nChinese: \u4e66\nEnglish:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u9e1f\nEnglish: bird\n\nChinese: \u57ce\u5e02\nEnglish: city\n\nChinese: \u94b1\nEnglish:",
+    "continuation": " money",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u732b\nEnglish: cat\n\nChinese: \u94b1\nEnglish: money\n\nChinese: \u6708\u4eae\nEnglish:",
+    "continuation": " moon",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u591c\u665a\nEnglish: night\n\nChinese: \u72d7\nEnglish: dog\n\nChinese: \u98df\u7269\nEnglish:",
+    "continuation": " food",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u4e66\nEnglish: book\n\nChinese: \u624b\nEnglish: hand\n\nChinese: \u5b66\u6821\nEnglish:",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u5fc3\nEnglish: heart\n\nChinese: \u732b\nEnglish: cat\n\nChinese: \u5c71\nEnglish:",
+    "continuation": " mountain",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u95e8\nEnglish: door\n\nChinese: \u9c7c\nEnglish: fish\n\nChinese: \u6d77\nEnglish:",
+    "continuation": " sea",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u725b\u5976\nEnglish: milk\n\nChinese: \u5c71\nEnglish: mountain\n\nChinese: \u57ce\u5e02\nEnglish:",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u6708\u4eae\nEnglish: moon\n\nChinese: \u5de5\u4f5c\nEnglish: work\n\nChinese: \u6c7d\u8f66\nEnglish:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u5de5\u4f5c\nEnglish: work\n\nChinese: \u95e8\nEnglish: door\n\nChinese: \u5b66\u6821\nEnglish:",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u591c\u665a\nEnglish: night\n\nChinese: \u5b66\u6821\nEnglish: school\n\nChinese: \u624b\nEnglish:",
+    "continuation": " hand",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u5b66\u6821\nEnglish: school\n\nChinese: \u592a\u9633\nEnglish: sun\n\nChinese: \u7a97\u6237\nEnglish:",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u98df\u7269\nEnglish: food\n\nChinese: \u591c\u665a\nEnglish: night\n\nChinese: \u732b\nEnglish:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u6cb3\nEnglish: river\n\nChinese: \u4e66\nEnglish: book\n\nChinese: \u5c71\nEnglish:",
+    "continuation": " mountain",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u5b66\u6821\nEnglish: school\n\nChinese: \u94b1\nEnglish: money\n\nChinese: \u6708\u4eae\nEnglish:",
+    "continuation": " moon",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u4e66\nEnglish: book\n\nChinese: \u591c\u665a\nEnglish: night\n\nChinese: \u5c71\nEnglish:",
+    "continuation": " mountain",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u9762\u5305\nEnglish: bread\n\nChinese: \u7a97\u6237\nEnglish: window\n\nChinese: \u9e1f\nEnglish:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u6cb3\nEnglish: river\n\nChinese: \u57ce\u5e02\nEnglish: city\n\nChinese: \u98df\u7269\nEnglish:",
+    "continuation": " food",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u4e66\nEnglish: book\n\nChinese: \u6708\u4eae\nEnglish: moon\n\nChinese: \u670b\u53cb\nEnglish:",
+    "continuation": " friend",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u5de5\u4f5c\nEnglish: work\n\nChinese: \u6811\nEnglish: tree\n\nChinese: \u6cb3\nEnglish:",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u725b\u5976\nEnglish: milk\n\nChinese: \u72d7\nEnglish: dog\n\nChinese: \u6811\nEnglish:",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u5c71\nEnglish: mountain\n\nChinese: \u72d7\nEnglish: dog\n\nChinese: \u670b\u53cb\nEnglish:",
+    "continuation": " friend",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u6c7d\u8f66\nEnglish: car\n\nChinese: \u9c7c\nEnglish: fish\n\nChinese: \u6c34\nEnglish:",
+    "continuation": " water",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u4e66\nEnglish: book\n\nChinese: \u6d77\nEnglish: sea\n\nChinese: \u732b\nEnglish:",
+    "continuation": " cat",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Chinese: \u6c34\nEnglish: water\n\nChinese: \u5de5\u4f5c\nEnglish: work\n\nChinese: \u624b\nEnglish:",
+    "continuation": " hand",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u6d77\nEnglish: sea\n\nChinese: \u82f9\u679c\nEnglish: apple\n\nChinese: \u670b\u53cb\nEnglish:",
+    "continuation": " friend",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u98df\u7269\nEnglish: food\n\nChinese: \u57ce\u5e02\nEnglish: city\n\nChinese: \u591c\u665a\nEnglish:",
+    "continuation": " night",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u670b\u53cb\nEnglish: friend\n\nChinese: \u9e1f\nEnglish: bird\n\nChinese: \u6811\nEnglish:",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u623f\u5b50\nEnglish: house\n\nChinese: \u72d7\nEnglish: dog\n\nChinese: \u5fc3\nEnglish:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u94b1\nEnglish: money\n\nChinese: \u9e1f\nEnglish: bird\n\nChinese: \u95e8\nEnglish:",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u6cb3\nEnglish: river\n\nChinese: \u725b\u5976\nEnglish: milk\n\nChinese: \u82b1\nEnglish:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u670b\u53cb\nEnglish: friend\n\nChinese: \u5b66\u6821\nEnglish: school\n\nChinese: \u592a\u9633\nEnglish:",
+    "continuation": " sun",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u6708\u4eae\nEnglish: moon\n\nChinese: \u9c7c\nEnglish: fish\n\nChinese: \u7a97\u6237\nEnglish:",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u98df\u7269\nEnglish: food\n\nChinese: \u57ce\u5e02\nEnglish: city\n\nChinese: \u9c7c\nEnglish:",
+    "continuation": " fish",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u72d7\nEnglish: dog\n\nChinese: \u94b1\nEnglish: money\n\nChinese: \u6d77\nEnglish:",
+    "continuation": " sea",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u725b\u5976\nEnglish: milk\n\nChinese: \u6cb3\nEnglish: river\n\nChinese: \u670b\u53cb\nEnglish:",
+    "continuation": " friend",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u72d7\nEnglish: dog\n\nChinese: \u56fd\u738b\nEnglish: king\n\nChinese: \u591c\u665a\nEnglish:",
+    "continuation": " night",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u56fd\u738b\nEnglish: king\n\nChinese: \u5de5\u4f5c\nEnglish: work\n\nChinese: \u82f9\u679c\nEnglish:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u57ce\u5e02\nEnglish: city\n\nChinese: \u6811\nEnglish: tree\n\nChinese: \u5de5\u4f5c\nEnglish:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u4e66\nEnglish: book\n\nChinese: \u9e1f\nEnglish: bird\n\nChinese: \u7a97\u6237\nEnglish:",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u6c34\nEnglish: water\n\nChinese: \u94b1\nEnglish: money\n\nChinese: \u5b66\u6821\nEnglish:",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u6d77\nEnglish: sea\n\nChinese: \u732b\nEnglish: cat\n\nChinese: \u5c71\nEnglish:",
+    "continuation": " mountain",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u9c7c\nEnglish: fish\n\nChinese: \u72d7\nEnglish: dog\n\nChinese: \u82b1\nEnglish:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u725b\u5976\nEnglish: milk\n\nChinese: \u9c7c\nEnglish: fish\n\nChinese: \u95e8\nEnglish:",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u82f9\u679c\nEnglish: apple\n\nChinese: \u592a\u9633\nEnglish: sun\n\nChinese: \u57ce\u5e02\nEnglish:",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u725b\u5976\nEnglish: milk\n\nChinese: \u72d7\nEnglish: dog\n\nChinese: \u94b1\nEnglish:",
+    "continuation": " money",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u5fc3\nEnglish: heart\n\nChinese: \u6d77\nEnglish: sea\n\nChinese: \u623f\u5b50\nEnglish:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u4e66\nEnglish: book\n\nChinese: \u6d77\nEnglish: sea\n\nChinese: \u82f9\u679c\nEnglish:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u6c7d\u8f66\nEnglish: car\n\nChinese: \u4e66\nEnglish: book\n\nChinese: \u94b1\nEnglish:",
+    "continuation": " money",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u9e1f\nEnglish: bird\n\nChinese: \u6708\u4eae\nEnglish: moon\n\nChinese: \u82b1\nEnglish:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u7a97\u6237\nEnglish: window\n\nChinese: \u4e66\nEnglish: book\n\nChinese: \u623f\u5b50\nEnglish:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u82f9\u679c\nEnglish: apple\n\nChinese: \u9c7c\nEnglish: fish\n\nChinese: \u5fc3\nEnglish:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u4e66\nEnglish: book\n\nChinese: \u57ce\u5e02\nEnglish: city\n\nChinese: \u6708\u4eae\nEnglish:",
+    "continuation": " moon",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u592a\u9633\nEnglish: sun\n\nChinese: \u725b\u5976\nEnglish: milk\n\nChinese: \u72d7\nEnglish:",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u94b1\nEnglish: money\n\nChinese: \u5b66\u6821\nEnglish: school\n\nChinese: \u725b\u5976\nEnglish:",
+    "continuation": " milk",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u725b\u5976\nEnglish: milk\n\nChinese: \u623f\u5b50\nEnglish: house\n\nChinese: \u5b66\u6821\nEnglish:",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u5b66\u6821\nEnglish: school\n\nChinese: \u670b\u53cb\nEnglish: friend\n\nChinese: \u56fd\u738b\nEnglish:",
+    "continuation": " king",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u82b1\nEnglish: flower\n\nChinese: \u623f\u5b50\nEnglish: house\n\nChinese: \u9762\u5305\nEnglish:",
+    "continuation": " bread",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u72d7\nEnglish: dog\n\nChinese: \u6c34\nEnglish: water\n\nChinese: \u5de5\u4f5c\nEnglish:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u5b66\u6821\nEnglish: school\n\nChinese: \u623f\u5b50\nEnglish: house\n\nChinese: \u591c\u665a\nEnglish:",
+    "continuation": " night",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u98df\u7269\nEnglish: food\n\nChinese: \u95e8\nEnglish: door\n\nChinese: \u623f\u5b50\nEnglish:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u9c7c\nEnglish: fish\n\nChinese: \u623f\u5b50\nEnglish: house\n\nChinese: \u5de5\u4f5c\nEnglish:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u6d77\nEnglish: sea\n\nChinese: \u591c\u665a\nEnglish: night\n\nChinese: \u9c7c\nEnglish:",
+    "continuation": " fish",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u592a\u9633\nEnglish: sun\n\nChinese: \u6cb3\nEnglish: river\n\nChinese: \u95e8\nEnglish:",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u592a\u9633\nEnglish: sun\n\nChinese: \u56fd\u738b\nEnglish: king\n\nChinese: \u6c7d\u8f66\nEnglish:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u592a\u9633\nEnglish: sun\n\nChinese: \u82f9\u679c\nEnglish: apple\n\nChinese: \u623f\u5b50\nEnglish:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u6c34\nEnglish: water\n\nChinese: \u9e1f\nEnglish: bird\n\nChinese: \u6cb3\nEnglish:",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u9e1f\nEnglish: bird\n\nChinese: \u94b1\nEnglish: money\n\nChinese: \u72d7\nEnglish:",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u6cb3\nEnglish: river\n\nChinese: \u98df\u7269\nEnglish: food\n\nChinese: \u57ce\u5e02\nEnglish:",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u725b\u5976\nEnglish: milk\n\nChinese: \u9e1f\nEnglish: bird\n\nChinese: \u5fc3\nEnglish:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u592a\u9633\nEnglish: sun\n\nChinese: \u725b\u5976\nEnglish: milk\n\nChinese: \u6c7d\u8f66\nEnglish:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u94b1\nEnglish: money\n\nChinese: \u670b\u53cb\nEnglish: friend\n\nChinese: \u9e1f\nEnglish:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u6811\nEnglish: tree\n\nChinese: \u57ce\u5e02\nEnglish: city\n\nChinese: \u6cb3\nEnglish:",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u94b1\nEnglish: money\n\nChinese: \u6c7d\u8f66\nEnglish: car\n\nChinese: \u7a97\u6237\nEnglish:",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u6c34\nEnglish: water\n\nChinese: \u82b1\nEnglish: flower\n\nChinese: \u98df\u7269\nEnglish:",
+    "continuation": " food",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u591c\u665a\nEnglish: night\n\nChinese: \u9762\u5305\nEnglish: bread\n\nChinese: \u6cb3\nEnglish:",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u9e1f\nEnglish: bird\n\nChinese: \u6d77\nEnglish: sea\n\nChinese: \u72d7\nEnglish:",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u56fd\u738b\nEnglish: king\n\nChinese: \u5de5\u4f5c\nEnglish: work\n\nChinese: \u9762\u5305\nEnglish:",
+    "continuation": " bread",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u6d77\nEnglish: sea\n\nChinese: \u5b66\u6821\nEnglish: school\n\nChinese: \u4e66\nEnglish:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u732b\nEnglish: cat\n\nChinese: \u98df\u7269\nEnglish: food\n\nChinese: \u624b\nEnglish:",
+    "continuation": " hand",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u82b1\nEnglish: flower\n\nChinese: \u4e66\nEnglish: book\n\nChinese: \u5fc3\nEnglish:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u670b\u53cb\nEnglish: friend\n\nChinese: \u94b1\nEnglish: money\n\nChinese: \u5de5\u4f5c\nEnglish:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u6c7d\u8f66\nEnglish: car\n\nChinese: \u5de5\u4f5c\nEnglish: work\n\nChinese: \u725b\u5976\nEnglish:",
+    "continuation": " milk",
+    "digits_only": false
+   },
+   {
+    "context": "Chinese: \u72d7\nEnglish: dog\n\nChinese: \u624b\nEnglish: hand\n\nChinese: \u732b\nEnglish:",
+    "continuation": " cat",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 3.0629
+}

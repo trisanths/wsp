@@ -1,0 +1,96 @@
+{
+  "id": "mlp_roman_numeral_rendering_qwen3.8_27b_L60_k16_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen3.8-27B layer 60, Roman numeral rendering",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwen3.8_27b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "roman_numeral"
+  ],
+  "models": [
+    "Qwen/Qwen3.8-27B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'roman_numeral' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2281,
+      "control_value": 0.0022,
+      "split": "person_a held-out skill items (roman_numeral)",
+      "seeds": null,
+      "source": "person_a/catalog/qwen3.8_27b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0067"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen3.8-27B",
+  "layer": 60,
+  "layers": [
+    60
+  ],
+  "units_file": "components/Qwen__Qwen3.8-27B/mlp_roman_numeral_rendering_qwen3.8_27b_L60_k16_001.pt",
+  "units_remote": "person_a/parts\\qwen3.8_27b\\mlp_roman_numeral_rendering_qwen3.8_27b_L60_k16_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'roman_numeral'",
+    "label": "Roman numeral rendering",
+    "num_units": 16,
+    "d_model": 5120,
+    "effect": {
+      "math|search": 0.0001,
+      "math|heldout": 0.0001,
+      "code|search": 0.0004,
+      "code|heldout": 0.0005,
+      "facts|search": -0.0014,
+      "facts|heldout": 0.0087,
+      "multilingual|search": -0.0002,
+      "multilingual|heldout": -0.0018,
+      "general_text|search": 0.0006,
+      "general_text|heldout": 0.0012,
+      "roman_numeral|search": 0.2747,
+      "roman_numeral__control|search": 0.0062,
+      "roman_numeral|heldout": 0.2281,
+      "roman_numeral__control|heldout": 0.0067,
+      "fraction_role|search": -0.0015,
+      "fraction_role__control|search": -0.0008,
+      "fraction_role|heldout": -0.0002,
+      "fraction_role__control|heldout": 0.0011,
+      "product_sign|search": -0.0071,
+      "product_sign__control|search": 0.0015,
+      "product_sign|heldout": -0.001,
+      "product_sign__control|heldout": 0.0007
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0916,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.011,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Top16 L60 MLP down columns aligned with norm-weighted Roman numeral centroid, led by unit480 (.451 cosine),12768(.196),3825(.159),16113(.138). Independent ablation drops Roman-numeral score .275 with control .006 and all other task effects tiny."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine\\skills\\qwen3.8_27b\\roman_numeral.json",
+    "hash": "a4d3fba31f956ee7",
+    "description": "Convert small positive integers to Roman numerals; matched control copies Arabic integer in the same context.",
+    "name": "roman_numeral"
+  },
+  "catalog_id": "mlp_roman_numeral_rendering_qwen3.8_27b_L60_k16_001",
+  "exported_copy": null,
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

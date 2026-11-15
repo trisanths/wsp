@@ -1,0 +1,282 @@
+Sapien plan: code_half_memory
+base Qwen/Qwen3-30B-A3B-Instruct-2507  30.532B total, 3.042B per token, MoE
+limits  total 16.1  active 3.5  heal minutes 30.0
+
+Stage rule: stages whose output is a plain Hugging Face model (weave, then slim) run first and each takes the previous output as its base. At most one seam stage (synth, feedback, transplant, or delta) runs last on top. Two seam kinds are refused because each replaces the other's branches.
+
+remove *
+keep code
+
+Stages
+  1. slim (plain)  total 16.037B  per token 3.042B
+     settings: {"steps": 10038, "teacher": "the model before slim", "rule": "saliency"}
+
+Heal text (reported benchmarks excluded)
+  code: pool code  [ise-uiuc/Magicoder-OSS-Instruct-75K, sahil2801/CodeAlpaca-20k, iamtarun/python_code_instructions_18k_alpaca, bigcode/self-oss-instruct-sc2-exec-filter-50k, mxzoo/apps-introductory-cleaned, deepmind/code_contests]
+  _general: pool general  [HuggingFaceH4/ultrachat_200k, yahma/alpaca-cleaned]
+  _align: pool prose  [Salesforce/wikitext]
+Probe text: rows 2000 and later of each pool, three splits of 96
+Practice sets
+  code: mxzoo/apps-introductory-cleaned
+Controls
+  slim: random: same counts, random experts or units
+Comparison arms
+  base: the base model alone
+  base_lora: the base plus a rank-16 LoRA healed on the same texts and steps
+  base_distill: not built: no source shares the base's tokenizer
+
+Warnings
+  - wsp/slim.py has one studio run (Qwen2.5-1.5B dense) with no trusted quality number
+
+feasible: True
+
+{
+  "name": "code_half_memory",
+  "base": {
+    "id": "Qwen/Qwen3-30B-A3B-Instruct-2507",
+    "params": 30532122624,
+    "params_run": 3041867776,
+    "params_b": 30.5321,
+    "active_params_b": 3.0419,
+    "model_type": "qwen3_moe",
+    "moe": true
+  },
+  "limits": {
+    "max_total_params_b": 16.1,
+    "max_active_params_b": 3.5,
+    "max_heal_minutes": 30.0
+  },
+  "reported": [
+    "google-research-datasets/mbpp",
+    "openai/openai_humaneval"
+  ],
+  "seed": 0,
+  "keep": [
+    "code"
+  ],
+  "remove": [
+    {
+      "skill": "*"
+    }
+  ],
+  "rule": "stages whose output is a plain Hugging Face model (weave, then slim) run first and each takes the previous output as its base. At most one seam stage (synth, feedback, transplant, or delta) runs last on top. Two seam kinds are refused because each replaces the other's branches.",
+  "sources": [],
+  "stages": [
+    {
+      "order": 1,
+      "method": "slim",
+      "kind": "plain",
+      "module": "wsp/slim.py",
+      "heal_minutes": 30.0,
+      "target": {
+        "kind": "moe",
+        "keep": 64,
+        "experts": 128,
+        "total_after": 16036608000,
+        "run_after": 3041867776,
+        "note": "keep 64 of 128 experts per layer; the tokens still use 8 experts per layer"
+      },
+      "settings": {
+        "steps": 10038,
+        "teacher": "the model before slim",
+        "rule": "saliency"
+      },
+      "params_total_after": 16036608000,
+      "params_run_after": 3041867776,
+      "params_total_after_b": 16.0366,
+      "params_run_after_b": 3.0419,
+      "limit_problems": []
+    }
+  ],
+  "sizes": {
+    "base_b": 30.5321,
+    "after": [
+      {
+        "after": "slim",
+        "total_b": 16.0366,
+        "run_b": 3.0419
+      }
+    ],
+    "final_total_b": 16.0366,
+    "final_run_b": 3.0419
+  },
+  "heal_data": {
+    "code": {
+      "pool": "code",
+      "fallback": null,
+      "count": 400,
+      "seed": 0,
+      "skip": 0,
+      "sources": [
+        {
+          "id": "ise-uiuc/Magicoder-OSS-Instruct-75K",
+          "config": null,
+          "split": "train"
+        },
+        {
+          "id": "sahil2801/CodeAlpaca-20k",
+          "config": null,
+          "split": "train"
+        },
+        {
+          "id": "iamtarun/python_code_instructions_18k_alpaca",
+          "config": null,
+          "split": "train"
+        },
+        {
+          "id": "bigcode/self-oss-instruct-sc2-exec-filter-50k",
+          "config": null,
+          "split": "train"
+        },
+        {
+          "id": "mxzoo/apps-introductory-cleaned",
+          "config": null,
+          "split": "train"
+        },
+        {
+          "id": "deepmind/code_contests",
+          "config": null,
+          "split": "train"
+        }
+      ],
+      "excluded": []
+    },
+    "_general": {
+      "pool": "general",
+      "fallback": null,
+      "count": 200,
+      "seed": 0,
+      "skip": 0,
+      "sources": [
+        {
+          "id": "HuggingFaceH4/ultrachat_200k",
+          "config": null,
+          "split": "train_sft"
+        },
+        {
+          "id": "yahma/alpaca-cleaned",
+          "config": null,
+          "split": "train"
+        }
+      ],
+      "excluded": []
+    },
+    "_align": {
+      "pool": "prose",
+      "fallback": null,
+      "count": 150,
+      "seed": 3,
+      "skip": 0,
+      "sources": [
+        {
+          "id": "Salesforce/wikitext",
+          "config": "wikitext-103-raw-v1",
+          "split": "train"
+        }
+      ],
+      "excluded": []
+    }
+  },
+  "probe_texts": {
+    "code": {
+      "pool": "code",
+      "count": 96,
+      "seed": 0,
+      "skip": 2000,
+      "splits": [
+        "a",
+        "b",
+        "c"
+      ],
+      "max_length": 384
+    },
+    "_general": {
+      "pool": "general",
+      "count": 96,
+      "seed": 0,
+      "skip": 2000,
+      "splits": [
+        "a",
+        "b",
+        "c"
+      ],
+      "max_length": 384
+    }
+  },
+  "practice": {
+    "code": {
+      "available": true,
+      "skill": "code",
+      "sources": [
+        {
+          "id": "mxzoo/apps-introductory-cleaned",
+          "config": null,
+          "split": "test"
+        }
+      ],
+      "excluded": [],
+      "reason": null
+    }
+  },
+  "controls": [
+    {
+      "stage": "slim",
+      "controls": [
+        "random: same counts, random experts or units"
+      ]
+    }
+  ],
+  "arms": [
+    {
+      "arm": "base",
+      "what": "the base model alone"
+    },
+    {
+      "arm": "base_lora",
+      "what": "the base plus a rank-16 LoRA healed on the same texts and steps"
+    },
+    {
+      "arm": "base_distill",
+      "what": "not built: no source shares the base's tokenizer",
+      "skipped": true
+    }
+  ],
+  "settings": {
+    "probe_texts": 96,
+    "probe_length": 384,
+    "probe_top_k": 64,
+    "probe_skip": 2000,
+    "heal_texts": 400,
+    "general_texts": 200,
+    "practice_items": 60,
+    "n_controls": 4,
+    "drift_tolerance": 0.05,
+    "min_transfer": 0.3,
+    "weave_buckets": 8,
+    "weave_population": 12,
+    "weave_generations": 8,
+    "block_layers": 4,
+    "lora_rank": 16,
+    "stage1_steps": 200,
+    "stage2_steps": 200,
+    "slim_steps": 100,
+    "transplant_k": 4,
+    "transplant_rank": 256,
+    "delta_rank": 64,
+    "batch_size": 4,
+    "seq_len": 256,
+    "synth_controls": [
+      "random",
+      "scrambled"
+    ],
+    "gpu_flops": 200000000000000.0,
+    "seam_threshold": 3,
+    "slim_keep": 0.5,
+    "tops_cut": 0.5
+  },
+  "warnings": [
+    "wsp/slim.py has one studio run (Qwen2.5-1.5B dense) with no trusted quality number"
+  ],
+  "refusals": [],
+  "feasible": true
+}

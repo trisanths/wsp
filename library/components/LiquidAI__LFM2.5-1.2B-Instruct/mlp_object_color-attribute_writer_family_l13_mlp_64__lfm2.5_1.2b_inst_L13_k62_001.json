@@ -1,0 +1,116 @@
+{
+  "id": "mlp_object_color-attribute_writer_family_l13_mlp_64__lfm2.5_1.2b_inst_L13_k62_001",
+  "kind": "mlp_cluster",
+  "title": "LFM2.5-1.2B-Instruct layer 13, object color-attribute writer family (L13 MLP, 64 units)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_1.2b_inst.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "object_color"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-1.2B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'object_color' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.6811,
+      "control_value": 0.0328,
+      "split": "person_a held-out skill items (object_color)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_1.2b_inst.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0002"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-1.2B-Instruct",
+  "layer": 13,
+  "layers": [
+    13
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-1.2B-Instruct/mlp_object_color-attribute_writer_family_l13_mlp_64__lfm2.5_1.2b_inst_L13_k62_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_1.2b_inst/mlp_object_color-attribute_writer_family_l13_mlp_64__lfm2.5_1.2b_inst_L13_k62_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'object_color'",
+    "label": "object color-attribute writer family (L13 MLP, 64 units)",
+    "num_units": 62,
+    "d_model": 2048,
+    "effect": {
+      "math|search": -0.0002,
+      "math|heldout": 0.0002,
+      "code|search": 0.0023,
+      "code|heldout": 0.0019,
+      "facts|search": 0.0182,
+      "facts|heldout": 0.0092,
+      "multilingual|search": 0.0018,
+      "multilingual|heldout": 0.0051,
+      "general_text|search": 0.0007,
+      "general_text|heldout": 0.0013,
+      "month_successor|search": 0.0236,
+      "month_successor__control|search": -0.0003,
+      "month_successor|heldout": 0.0043,
+      "month_successor__control|heldout": -0.0053,
+      "weekday_successor|search": 0.0065,
+      "weekday_successor__control|search": -0.0109,
+      "weekday_successor|heldout": 0.0022,
+      "weekday_successor__control|heldout": -0.0019,
+      "object_color|search": 0.7979,
+      "object_color__control|search": 0.0126,
+      "object_color|heldout": 0.6811,
+      "object_color__control|heldout": 0.0002,
+      "feminine_pronoun|search": -0.0149,
+      "feminine_pronoun__control|search": -0.0109,
+      "feminine_pronoun|heldout": -0.0098,
+      "feminine_pronoun__control|heldout": 0.0011,
+      "month_list_next|search": 0.0001,
+      "month_list_next__control|search": -0.0006,
+      "month_list_next|heldout": -0.0004,
+      "month_list_next__control|heldout": 0.0003,
+      "weekday_list_next|search": 0.0009,
+      "weekday_list_next__control|search": 0.0005,
+      "weekday_list_next|heldout": 0.0001,
+      "weekday_list_next__control|heldout": -0.0022,
+      "roman_numeral|search": 0.0086,
+      "roman_numeral__control|search": 0.013,
+      "roman_numeral|heldout": 0.0181,
+      "roman_numeral__control|heldout": 0.0132,
+      "masculine_pronoun|search": -0.0042,
+      "masculine_pronoun__control|search": 0.0006,
+      "masculine_pronoun|heldout": 0.0041,
+      "masculine_pronoun__control|heldout": 0.0077
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.266,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.001,
+      -0.0074,
+      0.0047,
+      0.0036,
+      0.1642
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "64 L13 MLP units whose w2 columns and w1 rows are cosine-closest to the color writer seeds 179/4149 (179 passed alone earlier), with similarity to weekday/month/roman/pronoun/facts seeds subtracted. Ablation: object_color .798, all others <.03."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_1.2b_inst/object_color.json",
+    "hash": "e651aaddb20dc04e",
+    "description": "Name the typical colour of a common object. Control: same template asking the object's typical number/shape-free attribute (count of legs/wheels).",
+    "name": "object_color"
+  },
+  "catalog_id": "mlp_object_color-attribute_writer_family_l13_mlp_64__lfm2.5_1.2b_inst_L13_k62_001",
+  "exported_copy": "library/lfm2.5_1.2b_inst/mlp_object_color-attribute_writer_family_l13_mlp_64__lfm2.5_1.2b_inst_L13_k62_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

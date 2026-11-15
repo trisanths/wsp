@@ -1,0 +1,116 @@
+{
+  "id": "heads_verb-lemma_past-form_writer_heads_6-head_set_l27_lfm2.5_2.6b_L27_k6_001",
+  "kind": "attn_heads",
+  "title": "LFM2.5-2.6B layer 27, verb-lemma / past-form writer heads, 6-head set (L27)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_2.6b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "past_tense"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-2.6B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'past_tense' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2419,
+      "control_value": -0.1177,
+      "split": "person_a held-out skill items (past_tense)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_2.6b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0574"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-2.6B",
+  "layer": 27,
+  "layers": [
+    27
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-2.6B/heads_verb-lemma_past-form_writer_heads_6-head_set_l27_lfm2.5_2.6b_L27_k6_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_2.6b/heads_verb-lemma_past-form_writer_heads_6-head_set_l27_lfm2.5_2.6b_L27_k6_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'past_tense'",
+    "label": "verb-lemma / past-form writer heads, 6-head set (L27)",
+    "num_units": 6,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0014,
+      "math|heldout": 0.0008,
+      "code|search": -0.0117,
+      "code|heldout": 0.0099,
+      "facts|search": -0.0015,
+      "facts|heldout": 0.032,
+      "multilingual|search": -0.0285,
+      "multilingual|heldout": -0.0353,
+      "general_text|search": -0.021,
+      "general_text|heldout": -0.0166,
+      "month_successor|search": 0.0295,
+      "month_successor__control|search": -0.0005,
+      "month_successor|heldout": 0.0656,
+      "month_successor__control|heldout": -0.0003,
+      "weekday_successor|search": 0.0239,
+      "weekday_successor__control|search": -0.0044,
+      "weekday_successor|heldout": 0.0619,
+      "weekday_successor__control|heldout": 0.0002,
+      "roman_numerals|search": 0.0471,
+      "roman_numerals__control|search": 0.0042,
+      "roman_numerals|heldout": 0.0513,
+      "roman_numerals__control|heldout": 0.0031,
+      "object_color|search": 0.0772,
+      "object_color__control|search": 0.0079,
+      "object_color|heldout": 0.0265,
+      "object_color__control|heldout": 0.0093,
+      "antonym|search": 0.0467,
+      "antonym__control|search": 0.0238,
+      "antonym|heldout": 0.0743,
+      "antonym__control|heldout": 0.046,
+      "ordinal_word|search": 0.0097,
+      "ordinal_word__control|search": 0.0262,
+      "ordinal_word|heldout": 0.0094,
+      "ordinal_word__control|heldout": 0.0279,
+      "capital_city|search": 0.0041,
+      "capital_city__control|search": 0.001,
+      "capital_city|heldout": 0.0025,
+      "capital_city__control|heldout": 0.0011,
+      "past_tense|search": 0.2638,
+      "past_tense__control|search": 0.0532,
+      "past_tense|heldout": 0.2419,
+      "past_tense__control|heldout": 0.0574
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0879,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.1475,
+      -0.113,
+      -0.1874,
+      -0.1266,
+      -0.0142
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "This extends the screened 4-head L27 group with head 14, whose static OV also writes the irregular past form of a base verb (z +2.1 over 19 pairs), and head 15 (past/roman attribution). The core heads 28, 31 and 17 map a base verb to its past form with z +13.3, +6.1 and +4.7."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_2.6b/past_tense.json",
+    "hash": "5928ff924c467359",
+    "description": "Give the past tense of an irregular English verb, few-shot. Control: same format copying the verb.",
+    "name": "past_tense"
+  },
+  "catalog_id": "heads_verb-lemma_past-form_writer_heads_6-head_set_l27_lfm2.5_2.6b_L27_k6_001",
+  "exported_copy": "library/lfm2.5_2.6b/heads_verb-lemma_past-form_writer_heads_6-head_set_l27_lfm2.5_2.6b_L27_k6_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

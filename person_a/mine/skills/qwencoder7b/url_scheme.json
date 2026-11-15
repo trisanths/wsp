@@ -1,0 +1,980 @@
+{
+ "name": "url_scheme",
+ "description": "Complete URL protocol schemes from HTTP versus HTTPS descriptions; matched control copies a domain from the same URL-construction request.",
+ "hash": "d59231e6b2476317",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nitems=[]; control=[]\nfor i in range(96):\n domain=random.choice(['example.com','example.org','test.net','docs.org','demo.com','site.net']); secure=i%2==0\n protocol='HTTPS' if secure else 'HTTP'; scheme=protocol.lower(); path=random.choice(['/index','/about','/help','/docs','/api','/home'])\n desc=random.choice(['Construct a URL using {p} for host {d} and path {s}.','Give the URL for host {d}, path {s}, protocol {p}.'])\n base=desc.format(p=protocol,d=domain,s=path)+' Output only the URL.\\nURL: '\n items.append({'prompt':base,'answer':scheme+'://'+domain+path})\n control.append({'prompt':base+scheme+'://','answer':domain+path})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Give the URL for host site.net, path /index, protocol HTTP. Output only the URL.\nURL: ",
+    "continuation": "http://site.net/index",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host site.net, path /help, protocol HTTPS. Output only the URL.\nURL: ",
+    "continuation": "https://site.net/help",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host demo.com, path /docs, protocol HTTP. Output only the URL.\nURL: ",
+    "continuation": "http://demo.com/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host test.net and path /index. Output only the URL.\nURL: ",
+    "continuation": "http://test.net/index",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host docs.org, path /index, protocol HTTPS. Output only the URL.\nURL: ",
+    "continuation": "https://docs.org/index",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host demo.com and path /index. Output only the URL.\nURL: ",
+    "continuation": "http://demo.com/index",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host test.net, path /api, protocol HTTP. Output only the URL.\nURL: ",
+    "continuation": "http://test.net/api",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host demo.com and path /api. Output only the URL.\nURL: ",
+    "continuation": "https://demo.com/api",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host docs.org and path /about. Output only the URL.\nURL: ",
+    "continuation": "http://docs.org/about",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host example.com and path /about. Output only the URL.\nURL: ",
+    "continuation": "https://example.com/about",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.org, path /home, protocol HTTPS. Output only the URL.\nURL: ",
+    "continuation": "https://example.org/home",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.org, path /help, protocol HTTP. Output only the URL.\nURL: ",
+    "continuation": "http://example.org/help",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host site.net, path /index, protocol HTTPS. Output only the URL.\nURL: ",
+    "continuation": "https://site.net/index",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host site.net, path /about, protocol HTTP. Output only the URL.\nURL: ",
+    "continuation": "http://site.net/about",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host site.net and path /docs. Output only the URL.\nURL: ",
+    "continuation": "https://site.net/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host docs.org, path /help, protocol HTTPS. Output only the URL.\nURL: ",
+    "continuation": "https://docs.org/help",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host demo.com and path /api. Output only the URL.\nURL: ",
+    "continuation": "http://demo.com/api",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host site.net and path /home. Output only the URL.\nURL: ",
+    "continuation": "https://site.net/home",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host demo.com and path /home. Output only the URL.\nURL: ",
+    "continuation": "https://demo.com/home",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host docs.org, path /home, protocol HTTPS. Output only the URL.\nURL: ",
+    "continuation": "https://docs.org/home",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.org, path /api, protocol HTTP. Output only the URL.\nURL: ",
+    "continuation": "http://example.org/api",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host demo.com and path /home. Output only the URL.\nURL: ",
+    "continuation": "https://demo.com/home",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host demo.com, path /about, protocol HTTPS. Output only the URL.\nURL: ",
+    "continuation": "https://demo.com/about",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host docs.org and path /help. Output only the URL.\nURL: ",
+    "continuation": "https://docs.org/help",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.org, path /help, protocol HTTP. Output only the URL.\nURL: ",
+    "continuation": "http://example.org/help",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host site.net and path /about. Output only the URL.\nURL: ",
+    "continuation": "https://site.net/about",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host test.net, path /api, protocol HTTPS. Output only the URL.\nURL: ",
+    "continuation": "https://test.net/api",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host docs.org and path /index. Output only the URL.\nURL: ",
+    "continuation": "http://docs.org/index",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host site.net and path /help. Output only the URL.\nURL: ",
+    "continuation": "https://site.net/help",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host example.com and path /help. Output only the URL.\nURL: ",
+    "continuation": "http://example.com/help",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host test.net and path /docs. Output only the URL.\nURL: ",
+    "continuation": "https://test.net/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host site.net, path /help, protocol HTTP. Output only the URL.\nURL: ",
+    "continuation": "http://site.net/help",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host example.com and path /index. Output only the URL.\nURL: ",
+    "continuation": "http://example.com/index",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host example.com and path /home. Output only the URL.\nURL: ",
+    "continuation": "http://example.com/home",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.com, path /docs, protocol HTTP. Output only the URL.\nURL: ",
+    "continuation": "http://example.com/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.org, path /index, protocol HTTPS. Output only the URL.\nURL: ",
+    "continuation": "https://example.org/index",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host site.net, path /api, protocol HTTPS. Output only the URL.\nURL: ",
+    "continuation": "https://site.net/api",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host demo.com and path /help. Output only the URL.\nURL: ",
+    "continuation": "http://demo.com/help",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host site.net and path /about. Output only the URL.\nURL: ",
+    "continuation": "https://site.net/about",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host site.net and path /docs. Output only the URL.\nURL: ",
+    "continuation": "https://site.net/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.org, path /about, protocol HTTP. Output only the URL.\nURL: ",
+    "continuation": "http://example.org/about",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host demo.com and path /home. Output only the URL.\nURL: ",
+    "continuation": "https://demo.com/home",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host demo.com, path /about, protocol HTTPS. Output only the URL.\nURL: ",
+    "continuation": "https://demo.com/about",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.com, path /index, protocol HTTPS. Output only the URL.\nURL: ",
+    "continuation": "https://example.com/index",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host demo.com, path /docs, protocol HTTP. Output only the URL.\nURL: ",
+    "continuation": "http://demo.com/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host demo.com and path /docs. Output only the URL.\nURL: ",
+    "continuation": "http://demo.com/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.com, path /index, protocol HTTP. Output only the URL.\nURL: ",
+    "continuation": "http://example.com/index",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host demo.com, path /help, protocol HTTP. Output only the URL.\nURL: ",
+    "continuation": "http://demo.com/help",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Construct a URL using HTTP for host demo.com and path /docs. Output only the URL.\nURL: ",
+    "continuation": "http://demo.com/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host demo.com, path /api, protocol HTTP. Output only the URL.\nURL: ",
+    "continuation": "http://demo.com/api",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host test.net and path /home. Output only the URL.\nURL: ",
+    "continuation": "https://test.net/home",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host example.org and path /about. Output only the URL.\nURL: ",
+    "continuation": "https://example.org/about",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host site.net and path /help. Output only the URL.\nURL: ",
+    "continuation": "http://site.net/help",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host docs.org, path /index, protocol HTTP. Output only the URL.\nURL: ",
+    "continuation": "http://docs.org/index",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host test.net and path /index. Output only the URL.\nURL: ",
+    "continuation": "https://test.net/index",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host example.com and path /index. Output only the URL.\nURL: ",
+    "continuation": "https://example.com/index",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host docs.org, path /home, protocol HTTP. Output only the URL.\nURL: ",
+    "continuation": "http://docs.org/home",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host docs.org and path /docs. Output only the URL.\nURL: ",
+    "continuation": "https://docs.org/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host docs.org and path /home. Output only the URL.\nURL: ",
+    "continuation": "http://docs.org/home",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host demo.com, path /help, protocol HTTP. Output only the URL.\nURL: ",
+    "continuation": "http://demo.com/help",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host demo.com, path /index, protocol HTTPS. Output only the URL.\nURL: ",
+    "continuation": "https://demo.com/index",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.com, path /docs, protocol HTTP. Output only the URL.\nURL: ",
+    "continuation": "http://example.com/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host test.net and path /api. Output only the URL.\nURL: ",
+    "continuation": "http://test.net/api",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host site.net and path /about. Output only the URL.\nURL: ",
+    "continuation": "https://site.net/about",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host docs.org and path /about. Output only the URL.\nURL: ",
+    "continuation": "https://docs.org/about",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host docs.org, path /api, protocol HTTP. Output only the URL.\nURL: ",
+    "continuation": "http://docs.org/api",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host test.net and path /api. Output only the URL.\nURL: ",
+    "continuation": "https://test.net/api",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host site.net and path /help. Output only the URL.\nURL: ",
+    "continuation": "https://site.net/help",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host site.net, path /help, protocol HTTP. Output only the URL.\nURL: ",
+    "continuation": "http://site.net/help",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host test.net and path /home. Output only the URL.\nURL: ",
+    "continuation": "https://test.net/home",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host example.org and path /docs. Output only the URL.\nURL: ",
+    "continuation": "http://example.org/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host site.net and path /docs. Output only the URL.\nURL: ",
+    "continuation": "https://site.net/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.org, path /help, protocol HTTPS. Output only the URL.\nURL: ",
+    "continuation": "https://example.org/help",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host demo.com, path /index, protocol HTTP. Output only the URL.\nURL: ",
+    "continuation": "http://demo.com/index",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host example.com and path /api. Output only the URL.\nURL: ",
+    "continuation": "http://example.com/api",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host example.org and path /about. Output only the URL.\nURL: ",
+    "continuation": "http://example.org/about",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host demo.com and path /about. Output only the URL.\nURL: ",
+    "continuation": "https://demo.com/about",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host site.net, path /help, protocol HTTPS. Output only the URL.\nURL: ",
+    "continuation": "https://site.net/help",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host site.net, path /api, protocol HTTPS. Output only the URL.\nURL: ",
+    "continuation": "https://site.net/api",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host demo.com and path /help. Output only the URL.\nURL: ",
+    "continuation": "https://demo.com/help",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host docs.org, path /home, protocol HTTPS. Output only the URL.\nURL: ",
+    "continuation": "https://docs.org/home",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host docs.org, path /home, protocol HTTPS. Output only the URL.\nURL: ",
+    "continuation": "https://docs.org/home",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host site.net and path /index. Output only the URL.\nURL: ",
+    "continuation": "http://site.net/index",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.com, path /api, protocol HTTPS. Output only the URL.\nURL: ",
+    "continuation": "https://example.com/api",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host test.net and path /about. Output only the URL.\nURL: ",
+    "continuation": "http://test.net/about",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.org, path /docs, protocol HTTPS. Output only the URL.\nURL: ",
+    "continuation": "https://example.org/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host demo.com and path /home. Output only the URL.\nURL: ",
+    "continuation": "http://demo.com/home",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host site.net and path /home. Output only the URL.\nURL: ",
+    "continuation": "http://site.net/home",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host docs.org, path /api, protocol HTTPS. Output only the URL.\nURL: ",
+    "continuation": "https://docs.org/api",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host docs.org and path /about. Output only the URL.\nURL: ",
+    "continuation": "http://docs.org/about",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host example.com and path /home. Output only the URL.\nURL: ",
+    "continuation": "https://example.com/home",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host site.net and path /about. Output only the URL.\nURL: ",
+    "continuation": "http://site.net/about",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host demo.com and path /about. Output only the URL.\nURL: ",
+    "continuation": "http://demo.com/about",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.org, path /index, protocol HTTP. Output only the URL.\nURL: ",
+    "continuation": "http://example.org/index",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host demo.com, path /index, protocol HTTP. Output only the URL.\nURL: ",
+    "continuation": "http://demo.com/index",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host example.com and path /index. Output only the URL.\nURL: ",
+    "continuation": "http://example.com/index",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Construct a URL using HTTP for host site.net and path /home. Output only the URL.\nURL: http://",
+    "continuation": "site.net/home",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host site.net and path /about. Output only the URL.\nURL: https://",
+    "continuation": "site.net/about",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host docs.org and path /help. Output only the URL.\nURL: https://",
+    "continuation": "docs.org/help",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host docs.org and path /about. Output only the URL.\nURL: http://",
+    "continuation": "docs.org/about",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host demo.com, path /about, protocol HTTPS. Output only the URL.\nURL: https://",
+    "continuation": "demo.com/about",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host demo.com and path /about. Output only the URL.\nURL: http://",
+    "continuation": "demo.com/about",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.org, path /home, protocol HTTPS. Output only the URL.\nURL: https://",
+    "continuation": "example.org/home",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host demo.com, path /index, protocol HTTP. Output only the URL.\nURL: http://",
+    "continuation": "demo.com/index",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host site.net and path /docs. Output only the URL.\nURL: https://",
+    "continuation": "site.net/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host site.net, path /index, protocol HTTPS. Output only the URL.\nURL: https://",
+    "continuation": "site.net/index",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host docs.org and path /about. Output only the URL.\nURL: https://",
+    "continuation": "docs.org/about",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host demo.com and path /home. Output only the URL.\nURL: http://",
+    "continuation": "demo.com/home",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host docs.org, path /home, protocol HTTP. Output only the URL.\nURL: http://",
+    "continuation": "docs.org/home",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host demo.com and path /api. Output only the URL.\nURL: http://",
+    "continuation": "demo.com/api",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host demo.com, path /about, protocol HTTPS. Output only the URL.\nURL: https://",
+    "continuation": "demo.com/about",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.com, path /api, protocol HTTPS. Output only the URL.\nURL: https://",
+    "continuation": "example.com/api",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host demo.com, path /index, protocol HTTP. Output only the URL.\nURL: http://",
+    "continuation": "demo.com/index",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host docs.org and path /home. Output only the URL.\nURL: http://",
+    "continuation": "docs.org/home",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.com, path /index, protocol HTTPS. Output only the URL.\nURL: https://",
+    "continuation": "example.com/index",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host example.com and path /home. Output only the URL.\nURL: http://",
+    "continuation": "example.com/home",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host site.net and path /about. Output only the URL.\nURL: https://",
+    "continuation": "site.net/about",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.org, path /index, protocol HTTP. Output only the URL.\nURL: http://",
+    "continuation": "example.org/index",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host site.net and path /about. Output only the URL.\nURL: http://",
+    "continuation": "site.net/about",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.org, path /docs, protocol HTTPS. Output only the URL.\nURL: https://",
+    "continuation": "example.org/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host docs.org, path /home, protocol HTTPS. Output only the URL.\nURL: https://",
+    "continuation": "docs.org/home",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host site.net, path /index, protocol HTTP. Output only the URL.\nURL: http://",
+    "continuation": "site.net/index",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host example.com and path /index. Output only the URL.\nURL: https://",
+    "continuation": "example.com/index",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host docs.org and path /about. Output only the URL.\nURL: http://",
+    "continuation": "docs.org/about",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.org, path /about, protocol HTTP. Output only the URL.\nURL: http://",
+    "continuation": "example.org/about",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host docs.org, path /api, protocol HTTPS. Output only the URL.\nURL: https://",
+    "continuation": "docs.org/api",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host demo.com and path /home. Output only the URL.\nURL: https://",
+    "continuation": "demo.com/home",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host docs.org, path /index, protocol HTTP. Output only the URL.\nURL: http://",
+    "continuation": "docs.org/index",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host example.com and path /help. Output only the URL.\nURL: http://",
+    "continuation": "example.com/help",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.org, path /help, protocol HTTP. Output only the URL.\nURL: http://",
+    "continuation": "example.org/help",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.org, path /help, protocol HTTPS. Output only the URL.\nURL: https://",
+    "continuation": "example.org/help",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.org, path /api, protocol HTTP. Output only the URL.\nURL: http://",
+    "continuation": "example.org/api",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host site.net and path /home. Output only the URL.\nURL: https://",
+    "continuation": "site.net/home",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host example.org and path /about. Output only the URL.\nURL: http://",
+    "continuation": "example.org/about",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host docs.org, path /home, protocol HTTPS. Output only the URL.\nURL: https://",
+    "continuation": "docs.org/home",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host site.net and path /about. Output only the URL.\nURL: https://",
+    "continuation": "site.net/about",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host demo.com and path /docs. Output only the URL.\nURL: http://",
+    "continuation": "demo.com/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host test.net and path /index. Output only the URL.\nURL: http://",
+    "continuation": "test.net/index",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host example.org and path /about. Output only the URL.\nURL: https://",
+    "continuation": "example.org/about",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host demo.com and path /help. Output only the URL.\nURL: http://",
+    "continuation": "demo.com/help",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host demo.com, path /docs, protocol HTTP. Output only the URL.\nURL: http://",
+    "continuation": "demo.com/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host demo.com and path /home. Output only the URL.\nURL: https://",
+    "continuation": "demo.com/home",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host site.net, path /about, protocol HTTP. Output only the URL.\nURL: http://",
+    "continuation": "site.net/about",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host demo.com, path /index, protocol HTTPS. Output only the URL.\nURL: https://",
+    "continuation": "demo.com/index",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Construct a URL using HTTP for host example.org and path /docs. Output only the URL.\nURL: http://",
+    "continuation": "example.org/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host site.net, path /help, protocol HTTPS. Output only the URL.\nURL: https://",
+    "continuation": "site.net/help",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host demo.com and path /about. Output only the URL.\nURL: https://",
+    "continuation": "demo.com/about",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host demo.com, path /help, protocol HTTP. Output only the URL.\nURL: http://",
+    "continuation": "demo.com/help",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host docs.org, path /api, protocol HTTP. Output only the URL.\nURL: http://",
+    "continuation": "docs.org/api",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host site.net and path /help. Output only the URL.\nURL: https://",
+    "continuation": "site.net/help",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host example.com and path /index. Output only the URL.\nURL: http://",
+    "continuation": "example.com/index",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host example.com and path /api. Output only the URL.\nURL: http://",
+    "continuation": "example.com/api",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host test.net, path /api, protocol HTTPS. Output only the URL.\nURL: https://",
+    "continuation": "test.net/api",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host site.net and path /docs. Output only the URL.\nURL: https://",
+    "continuation": "site.net/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host demo.com, path /help, protocol HTTP. Output only the URL.\nURL: http://",
+    "continuation": "demo.com/help",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.com, path /index, protocol HTTP. Output only the URL.\nURL: http://",
+    "continuation": "example.com/index",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host demo.com and path /api. Output only the URL.\nURL: https://",
+    "continuation": "demo.com/api",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host test.net and path /docs. Output only the URL.\nURL: https://",
+    "continuation": "test.net/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host demo.com, path /api, protocol HTTP. Output only the URL.\nURL: http://",
+    "continuation": "demo.com/api",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.org, path /index, protocol HTTPS. Output only the URL.\nURL: https://",
+    "continuation": "example.org/index",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host demo.com and path /home. Output only the URL.\nURL: https://",
+    "continuation": "demo.com/home",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host example.com and path /about. Output only the URL.\nURL: https://",
+    "continuation": "example.com/about",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host test.net and path /about. Output only the URL.\nURL: http://",
+    "continuation": "test.net/about",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host test.net and path /home. Output only the URL.\nURL: https://",
+    "continuation": "test.net/home",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host test.net, path /api, protocol HTTP. Output only the URL.\nURL: http://",
+    "continuation": "test.net/api",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host site.net and path /help. Output only the URL.\nURL: http://",
+    "continuation": "site.net/help",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host test.net and path /index. Output only the URL.\nURL: https://",
+    "continuation": "test.net/index",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host docs.org, path /help, protocol HTTPS. Output only the URL.\nURL: https://",
+    "continuation": "docs.org/help",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host docs.org, path /home, protocol HTTPS. Output only the URL.\nURL: https://",
+    "continuation": "docs.org/home",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host site.net and path /help. Output only the URL.\nURL: https://",
+    "continuation": "site.net/help",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host demo.com and path /index. Output only the URL.\nURL: http://",
+    "continuation": "demo.com/index",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host docs.org and path /index. Output only the URL.\nURL: http://",
+    "continuation": "docs.org/index",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host site.net, path /api, protocol HTTPS. Output only the URL.\nURL: https://",
+    "continuation": "site.net/api",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.com, path /docs, protocol HTTP. Output only the URL.\nURL: http://",
+    "continuation": "example.com/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host docs.org and path /docs. Output only the URL.\nURL: https://",
+    "continuation": "docs.org/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host site.net, path /help, protocol HTTP. Output only the URL.\nURL: http://",
+    "continuation": "site.net/help",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host site.net, path /help, protocol HTTP. Output only the URL.\nURL: http://",
+    "continuation": "site.net/help",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host example.com and path /index. Output only the URL.\nURL: http://",
+    "continuation": "example.com/index",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host test.net and path /api. Output only the URL.\nURL: http://",
+    "continuation": "test.net/api",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host example.com and path /home. Output only the URL.\nURL: https://",
+    "continuation": "example.com/home",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host demo.com and path /help. Output only the URL.\nURL: https://",
+    "continuation": "demo.com/help",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host test.net and path /api. Output only the URL.\nURL: https://",
+    "continuation": "test.net/api",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host docs.org, path /index, protocol HTTPS. Output only the URL.\nURL: https://",
+    "continuation": "docs.org/index",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.com, path /docs, protocol HTTP. Output only the URL.\nURL: http://",
+    "continuation": "example.com/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host site.net and path /docs. Output only the URL.\nURL: https://",
+    "continuation": "site.net/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host demo.com and path /docs. Output only the URL.\nURL: http://",
+    "continuation": "demo.com/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host example.org, path /help, protocol HTTP. Output only the URL.\nURL: http://",
+    "continuation": "example.org/help",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host demo.com, path /docs, protocol HTTP. Output only the URL.\nURL: http://",
+    "continuation": "demo.com/docs",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host site.net, path /api, protocol HTTPS. Output only the URL.\nURL: https://",
+    "continuation": "site.net/api",
+    "digits_only": false
+   },
+   {
+    "context": "Give the URL for host site.net, path /help, protocol HTTPS. Output only the URL.\nURL: https://",
+    "continuation": "site.net/help",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTPS for host test.net and path /home. Output only the URL.\nURL: https://",
+    "continuation": "test.net/home",
+    "digits_only": false
+   },
+   {
+    "context": "Construct a URL using HTTP for host site.net and path /index. Output only the URL.\nURL: http://",
+    "continuation": "site.net/index",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 5.2794
+}

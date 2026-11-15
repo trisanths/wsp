@@ -1,0 +1,116 @@
+{
+  "id": "mlp_roman-numeral_contrastive_output_support_phi4_14b_L30_k1_001",
+  "kind": "mlp_cluster",
+  "title": "phi-4 layer 30, Roman-numeral contrastive output support",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/phi4_14b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "roman_numeral"
+  ],
+  "models": [
+    "microsoft/phi-4"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'roman_numeral' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1585,
+      "control_value": -0.0003,
+      "split": "person_a held-out skill items (roman_numeral)",
+      "seeds": null,
+      "source": "person_a/catalog/phi4_14b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0084"
+    }
+  ],
+  "generated": true,
+  "model": "microsoft/phi-4",
+  "layer": 30,
+  "layers": [
+    30
+  ],
+  "units_file": "components/microsoft__phi-4/mlp_roman-numeral_contrastive_output_support_phi4_14b_L30_k1_001.pt",
+  "units_remote": "person_a/parts\\phi4_14b\\mlp_roman-numeral_contrastive_output_support_phi4_14b_L30_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'roman_numeral'",
+    "label": "Roman-numeral contrastive output support",
+    "num_units": 1,
+    "d_model": 5120,
+    "effect": {
+      "math|search": 0.0003,
+      "math|heldout": -0.0009,
+      "code|search": 0.0,
+      "code|heldout": 0.0003,
+      "facts|search": -0.0022,
+      "facts|heldout": 0.0048,
+      "multilingual|search": -0.0009,
+      "multilingual|heldout": -0.0011,
+      "general_text|search": 0.0001,
+      "general_text|heldout": 0.0003,
+      "ordinal_word|search": 0.0132,
+      "ordinal_word__control|search": 0.0372,
+      "ordinal_word|heldout": 0.0159,
+      "ordinal_word__control|heldout": 0.0402,
+      "product_sign|search": 0.0062,
+      "product_sign__control|search": -0.0048,
+      "product_sign|heldout": 0.0041,
+      "product_sign__control|heldout": 0.0017,
+      "weekday_offset|search": 0.0117,
+      "weekday_offset__control|search": 0.0125,
+      "weekday_offset|heldout": 0.0008,
+      "weekday_offset__control|heldout": 0.0103,
+      "fraction_role|search": -0.0027,
+      "fraction_role__control|search": -0.0074,
+      "fraction_role|heldout": -0.0046,
+      "fraction_role__control|heldout": -0.0083,
+      "month_number|search": -0.0026,
+      "month_number__control|search": -0.0392,
+      "month_number|heldout": 0.0009,
+      "month_number__control|heldout": -0.0367,
+      "comparative_adjective|search": -0.0005,
+      "comparative_adjective__control|search": -0.0,
+      "comparative_adjective|heldout": 0.0005,
+      "comparative_adjective__control|heldout": 0.0001,
+      "compass_opposite|search": -0.001,
+      "compass_opposite__control|search": -0.0062,
+      "compass_opposite|heldout": -0.0017,
+      "compass_opposite__control|heldout": -0.0085,
+      "roman_numeral|search": 0.2298,
+      "roman_numeral__control|search": -0.0113,
+      "roman_numeral|heldout": 0.1585,
+      "roman_numeral__control|heldout": -0.0084
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0766,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0004,
+      -0.0014,
+      -0.0,
+      0.0002,
+      0.0003
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Independent attribution identifies unit4229 for Roman numerals; weight inspection shows its five most suppressed tokens are IV,III,VI,VII,III (space variants). This is a signed Roman-specific output direction, potentially active negatively."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine\\skills\\phi4_14b\\roman_numeral.json",
+    "hash": "cf138456145f32b1",
+    "description": "Convert small Arabic integers to Roman numerals; matched control copies Arabic number.",
+    "name": "roman_numeral"
+  },
+  "catalog_id": "mlp_roman-numeral_contrastive_output_support_phi4_14b_L30_k1_001",
+  "exported_copy": null,
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

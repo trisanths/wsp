@@ -1,0 +1,124 @@
+{
+  "id": "map_expert_liquidai__lfm2-8b-a1b_prose_hi_l18",
+  "kind": "expert",
+  "title": "LFM2-8B-A1B layer 18, 6 experts for prose_hi (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "prose_hi"
+  ],
+  "models": [
+    "LiquidAI/LFM2-8B-A1B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 6 experts at layer 18 of LFM2-8B-A1B on 'prose_hi' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.49641,
+      "control_value": 0.14302,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 6 experts at layer 18 of LFM2-8B-A1B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 1.9513,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 1.94678,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-8B-A1B",
+  "layer": 18,
+  "layers": [
+    18
+  ],
+  "units_file": "components/LiquidAI__LFM2-8B-A1B/map_expert_liquidai__lfm2-8b-a1b_prose_hi_l18.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "prose_hi",
+    "data": "wikimedia/wikipedia 20231101.hi train: Hindi encyclopedia text continuation",
+    "n_units": 6,
+    "experts": [
+      17,
+      27,
+      13,
+      18,
+      23,
+      10
+    ],
+    "details": [
+      {
+        "expert": 17,
+        "skill_freq": 0.184684,
+        "general_freq": 0.000616,
+        "log_ratio": 5.5533,
+        "heldout_log_ratio": 5.4378
+      },
+      {
+        "expert": 27,
+        "skill_freq": 0.825418,
+        "general_freq": 0.106934,
+        "log_ratio": 2.0429,
+        "heldout_log_ratio": 2.1302
+      },
+      {
+        "expert": 13,
+        "skill_freq": 0.546277,
+        "general_freq": 0.126502,
+        "log_ratio": 1.4623,
+        "heldout_log_ratio": 1.4494
+      },
+      {
+        "expert": 18,
+        "skill_freq": 0.602329,
+        "general_freq": 0.1547,
+        "log_ratio": 1.3588,
+        "heldout_log_ratio": 1.4914
+      },
+      {
+        "expert": 23,
+        "skill_freq": 0.053329,
+        "general_freq": 0.02527,
+        "log_ratio": 0.7448,
+        "heldout_log_ratio": 0.6184
+      },
+      {
+        "expert": 10,
+        "skill_freq": 0.766448,
+        "general_freq": 0.444068,
+        "log_ratio": 0.5457,
+        "heldout_log_ratio": 0.5535
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "wikimedia/wikipedia 20231101.hi train: Hindi encyclopedia text continuation",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 8.34,
+  "n_layers": 24,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "7ed1404fdf502a5446c1b67d4fe1533158d6f2ad"
+}

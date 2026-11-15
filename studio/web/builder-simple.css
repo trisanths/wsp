@@ -1,0 +1,83 @@
+/* Simple builder: one column of plain steps. Uses the studio tokens only. */
+.bmode { flex: none; }
+.bmode button { height: 26px; }
+.bs-screen { background: var(--bg); }
+.bs-page { width: min(720px, 100%); margin: 0 auto; padding: 8px 24px 96px; display: flex; flex-direction: column; gap: 28px; }
+.bs-hero .lede { margin: 6px 0 14px; }
+.bs-h1 { margin: 0; }
+.bs-brain { overflow: hidden; background: var(--bg-sunk); min-height: 120px; }
+.bs-step { display: flex; flex-direction: column; gap: 10px; }
+.bs-head { display: flex; align-items: center; gap: 10px; }
+.bs-n { flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--fill-2); color: var(--text-2); font-size: 13px; line-height: 24px; text-align: center; font-weight: 500; }
+.bs-title { margin: 0; font-size: 18px; line-height: 26px; font-weight: 500; }
+.bs-lead { margin: 0; color: var(--text-2); font-size: 15px; line-height: 22px; }
+.bs-note { margin: 0; font-size: 12px; line-height: 16px; }
+.bs-list, .bs-browse { display: flex; flex-direction: column; gap: 10px; }
+.bs-card { padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; transition: box-shadow .15s; }
+.bs-card.on { box-shadow: 0 0 0 1.5px var(--blue); }
+.bs-card.tight { padding: 10px 12px; }
+.bs-card-top { display: flex; gap: 12px; align-items: flex-start; min-width: 0; }
+.bs-card-text { min-width: 0; flex: 1; }
+.bs-name { font-size: 16px; line-height: 22px; font-weight: 500; overflow-wrap: anywhere; }
+.bs-sent { color: var(--text-2); font-size: 14px; line-height: 20px; margin-top: 2px; }
+.bs-meta { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; line-height: 16px; color: var(--text-3); margin-top: 6px; }
+.bs-trust.g { color: var(--green-t); }
+.bs-card-act { display: flex; justify-content: flex-end; gap: 8px; }
+.bs-add { min-width: 88px; }
+.bs-add.on { border-color: var(--blue); color: var(--blue-t); }
+.bs-more { display: flex; flex-wrap: wrap; gap: 8px; }
+.bs-search { margin-bottom: 4px; }
+.bs-none { padding: 12px 0; }
+.bs-toggles { display: flex; flex-direction: column; gap: 8px; }
+.bs-toggle { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; padding: 8px 14px; border-radius: 12px; border: 1px solid var(--line-2); background: var(--bg-card); color: var(--text-1); font-size: 15px; line-height: 22px; text-align: left; cursor: pointer; transition: border-color .12s, background .12s; }
+.bs-toggle:hover { border-color: var(--line-3); }
+.bs-toggle.on { border-color: var(--blue); }
+.bs-sw { position: relative; flex: none; width: 36px; height: 20px; border-radius: 9999px; background: var(--fill-3); transition: background .15s; }
+.bs-sw span { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--bg); box-shadow: 0 0 0 1px var(--line-3); transition: transform .15s; }
+.bs-toggle.on .bs-sw { background: var(--blue); }
+.bs-toggle.on .bs-sw span { transform: translateX(16px); }
+.bs-polish { font-weight: 500; }
+.bs-help { font-size: 13px; line-height: 18px; color: var(--text-3); }
+.bs-help summary { cursor: pointer; width: fit-content; padding: 2px 0; }
+.bs-help summary:hover { color: var(--text-1); }
+.bs-help p { margin: 6px 0 0; color: var(--text-2); }
+.bs-warn { display: flex; gap: 8px; align-items: flex-start; margin: 0; padding: 10px 12px; border-radius: 10px; color: var(--red-t); background: color-mix(in srgb, var(--red) 10%, transparent); font-size: 14px; line-height: 20px; }
+.bs-warn .ic-svg { flex: none; margin-top: 2px; }
+.bs-test { height: 52px; width: 100%; font-size: 16px; border-radius: 12px; }
+.bs-progress { display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: var(--text-2); }
+.bs-result { padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+.bs-result p { margin: 0; font-size: 15px; line-height: 22px; }
+.bs-result.good { box-shadow: 0 0 0 1.5px var(--green); }
+.bs-result.bad { box-shadow: 0 0 0 1.5px var(--red); }
+.bs-big { font: 400 32px/40px var(--serif); }
+.bs-unit { font: 400 14px/20px var(--sans, system-ui); color: var(--text-3); }
+.bs-hand { align-self: flex-start; }
+.bs-toggle:focus-visible, .bs-add:focus-visible, .bs-help summary:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+/* the picture keeps its shape and loses the expert labels */
+.bs-brain .b3d-tick, .bs-brain .b3d-tag, .bs-brain .b3d-counters, .bs-brain .b3d-count, .bs-brain .b3d-legend, .bs-brain .b3d-readout, .bs-brain .b3d-caption, .bs-brain .b3d-card-t i { display: none; }
+.bs-cap { margin: 8px 0 0; font-size: 14px; line-height: 20px; color: var(--text-2); }
+.bs-chips { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.bs-chip { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; min-height: 32px; padding: 4px 10px; border-radius: 9999px; border: 1px solid var(--line-2); background: var(--bg-card); color: var(--text-1); font: inherit; font-size: 13px; line-height: 18px; cursor: pointer; text-align: left; }
+.bs-chip:hover { border-color: var(--line-3); }
+.bs-chip:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.bs-head .tag { margin-left: 2px; }
+.bs-rtags { display: flex; flex-wrap: wrap; gap: 6px; }
+.bs-rtags:empty { display: none; }
+.bs-verdict { font-size: 16px; line-height: 22px; font-weight: 500; }
+.bs-result.good .bs-verdict { color: var(--green-t); }
+.bs-gone { padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; box-shadow: 0 0 0 1.5px var(--red); }
+.bs-gone p { margin: 0; font-size: 15px; line-height: 22px; }
+@media (max-width: 520px) {
+  .bs-brain .b3d-card { display: none; }
+  .bs-page { padding-bottom: 120px; }
+  body:has(.bs-page) .demo-start { display: none; }
+}
+@media (max-width: 640px) {
+  .topbar:has(.bmode) { padding: 0 8px; gap: 4px; }
+  .topbar:has(.bmode) .picker-wrap, .topbar:has(.bmode) .bt-title { display: none; }
+  .topbar:has(.bmode) .grow { flex: 1; }
+  .bs-page { padding: 8px 16px 80px; gap: 24px; }
+  .bs-card-act .btn { flex: 1; }
+  .bs-hand { align-self: stretch; }
+}
+@media (prefers-reduced-motion: reduce) { .bs-sw, .bs-sw span, .bs-card { transition: none; } }

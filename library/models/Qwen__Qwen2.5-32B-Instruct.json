@@ -1,0 +1,94 @@
+{
+  "id": "Qwen__Qwen2.5-32B-Instruct",
+  "kind": "model",
+  "title": "Qwen2.5-32B-Instruct (32.76B)",
+  "status": "validated",
+  "added_by": "Trisanth",
+  "source": "profiles.json, atlas/zoo.json",
+  "updated": "2026-11-14",
+  "skills": [
+    "knowledge",
+    "general"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-32B-Instruct"
+  ],
+  "evidence": [],
+  "generated": true,
+  "hf_id": "Qwen/Qwen2.5-32B-Instruct",
+  "family": "qwen2",
+  "params_b": 32.764,
+  "active_params_b": 32.764,
+  "layers": 64,
+  "hidden": 5120,
+  "vocab": 151936,
+  "vocab_source": "composer/sizes.py VOCAB by tokenizer family",
+  "tokenizer_family": "qwen2",
+  "license": "apache-2.0",
+  "experts": null,
+  "experts_per_token": null,
+  "needs": {
+    "transformers": "4.57.1",
+    "trust_remote_code": false,
+    "multi_gpu": false,
+    "gpu": "H200"
+  },
+  "scores": {
+    "mmlu_dev": {
+      "value": 0.829,
+      "split": "MMLU test, 1000 seeded items (round 6 dev)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round10_rows.json",
+      "n": 1000
+    },
+    "mmlu_heldout": {
+      "value": 0.793,
+      "split": "MMLU test, 2000 seeded items disjoint from dev (round 7 held-out)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round10_rows.json",
+      "n": 2000
+    },
+    "medmcqa": {
+      "value": 0.672,
+      "split": "MedMCQA validation, 1000 seeded items (round 10)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round10_rows.json",
+      "n": 1000
+    },
+    "mmlu_dev_round15": {
+      "value": 0.829,
+      "split": "MMLU test, 1000 seeded items (round 6 dev)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round15_rows.json"
+    },
+    "mmlu_heldout_round15": {
+      "value": 0.795,
+      "split": "MMLU test, 2000 seeded items disjoint from dev (round 7 held-out)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round15_rows.json"
+    },
+    "medmcqa_round15": {
+      "value": 0.668,
+      "split": "MedMCQA validation, 1000 seeded items (round 10)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round15_rows.json"
+    },
+    "gsm8k_search_raw": {
+      "value": 0.8,
+      "split": "GSM8K search split (200 items from GSM8K train)",
+      "prompt": "raw 'Question: ... Answer:' prompt, greedy generation",
+      "source": "results/round15_rows.json"
+    }
+  },
+  "structure_notes": [
+    {
+      "note": "carved to 27 of 64 layers it falls to 40.3 and 41.2 MMLU dev after a LoRA heal (run 15)",
+      "source": "results/round15_rows.json"
+    }
+  ],
+  "components": [],
+  "arch_sources": [
+    "profiles.json",
+    "atlas/zoo.json"
+  ]
+}

@@ -1,0 +1,980 @@
+{
+ "name": "python_keywords",
+ "description": "Fill missing Python syntax keywords in small code fragments; matched control extracts the identifier from the same fragment.",
+ "hash": "9f6bf79a8897ba7d",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nforms=[('___ {n}(x):\\n    return x','def'),('def {n}(x):\\n    ___ x','return'),('class {n}:\\n    ___','pass'),('{n} = ___ x: x + 1','lambda'),('___ {n}:\\n    pass','class'),('___ {n} as module','import'),('try:\\n    {n}()\\n___ ValueError:\\n    pass','except'),('def {n}(xs):\\n    for x in xs:\\n        ___ x','yield')]\nitems=[];control=[]\nfor i in range(96):\n n=random.choice(['alpha','beta','delta','gamma','sample','result','helper','worker']);form,answer=forms[i%len(forms)];code=form.format(n=n)\n p='Python snippet:\\n'+code+'\\n'\n items.append({'prompt':p+'Replace ___ with the correct Python keyword. Answer:','answer':' '+answer})\n control.append({'prompt':p+'Which identifier is used, excluding x, xs, module, and ValueError? Answer:','answer':' '+n})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Python snippet:\ndef helper(xs):\n    for x in xs:\n        ___ x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " yield",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ result(x):\n    return x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " def",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nsample = ___ x: x + 1\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " lambda",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef worker(xs):\n    for x in xs:\n        ___ x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " yield",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ beta(x):\n    return x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " def",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ beta as module\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " import",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef helper(x):\n    ___ x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " return",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ gamma(x):\n    return x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " def",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nbeta = ___ x: x + 1\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " lambda",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ntry:\n    sample()\n___ ValueError:\n    pass\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " except",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ sample(x):\n    return x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " def",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef delta(xs):\n    for x in xs:\n        ___ x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " yield",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ result:\n    pass\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " class",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef gamma(x):\n    ___ x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " return",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ntry:\n    sample()\n___ ValueError:\n    pass\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " except",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nclass alpha:\n    ___\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " pass",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef worker(xs):\n    for x in xs:\n        ___ x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " yield",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ beta:\n    pass\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " class",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ gamma:\n    pass\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " class",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nclass worker:\n    ___\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " pass",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nresult = ___ x: x + 1\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " lambda",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ntry:\n    sample()\n___ ValueError:\n    pass\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " except",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ result(x):\n    return x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " def",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nclass delta:\n    ___\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " pass",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ngamma = ___ x: x + 1\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " lambda",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ntry:\n    alpha()\n___ ValueError:\n    pass\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " except",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ntry:\n    result()\n___ ValueError:\n    pass\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " except",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ alpha as module\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " import",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ worker(x):\n    return x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " def",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ result as module\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " import",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nclass sample:\n    ___\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " pass",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ helper as module\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " import",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nworker = ___ x: x + 1\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " lambda",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef result(xs):\n    for x in xs:\n        ___ x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " yield",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nresult = ___ x: x + 1\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " lambda",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ sample:\n    pass\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " class",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nclass worker:\n    ___\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " pass",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef helper(x):\n    ___ x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " return",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ beta:\n    pass\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " class",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ntry:\n    sample()\n___ ValueError:\n    pass\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " except",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef result(x):\n    ___ x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " return",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ntry:\n    delta()\n___ ValueError:\n    pass\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " except",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ worker:\n    pass\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " class",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ worker:\n    pass\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " class",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef delta(xs):\n    for x in xs:\n        ___ x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " yield",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ beta as module\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " import",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef beta(xs):\n    for x in xs:\n        ___ x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " yield",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ngamma = ___ x: x + 1\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " lambda",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Python snippet:\ndef helper(x):\n    ___ x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " return",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nbeta = ___ x: x + 1\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " lambda",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ beta(x):\n    return x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " def",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nclass sample:\n    ___\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " pass",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ delta as module\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " import",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef gamma(x):\n    ___ x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " return",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ntry:\n    delta()\n___ ValueError:\n    pass\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " except",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ntry:\n    result()\n___ ValueError:\n    pass\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " except",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ result as module\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " import",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ helper(x):\n    return x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " def",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef alpha(xs):\n    for x in xs:\n        ___ x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " yield",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nresult = ___ x: x + 1\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " lambda",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nclass result:\n    ___\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " pass",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef alpha(x):\n    ___ x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " return",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nsample = ___ x: x + 1\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " lambda",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ gamma:\n    pass\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " class",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ beta(x):\n    return x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " def",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef gamma(xs):\n    for x in xs:\n        ___ x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " yield",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nclass worker:\n    ___\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " pass",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ gamma(x):\n    return x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " def",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef worker(xs):\n    for x in xs:\n        ___ x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " yield",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ntry:\n    result()\n___ ValueError:\n    pass\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " except",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ worker as module\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " import",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ sample:\n    pass\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " class",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nclass delta:\n    ___\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " pass",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef gamma(x):\n    ___ x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " return",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef worker(xs):\n    for x in xs:\n        ___ x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " yield",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef gamma(xs):\n    for x in xs:\n        ___ x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " yield",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nclass beta:\n    ___\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " pass",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ beta:\n    pass\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " class",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ helper(x):\n    return x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " def",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ delta:\n    pass\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " class",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nclass beta:\n    ___\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " pass",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ gamma:\n    pass\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " class",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef beta(x):\n    ___ x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " return",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ alpha(x):\n    return x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " def",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nworker = ___ x: x + 1\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " lambda",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nclass sample:\n    ___\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " pass",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ beta as module\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " import",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ delta as module\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " import",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ntry:\n    beta()\n___ ValueError:\n    pass\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " except",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nbeta = ___ x: x + 1\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " lambda",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ntry:\n    gamma()\n___ ValueError:\n    pass\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " except",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef sample(x):\n    ___ x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " return",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef alpha(x):\n    ___ x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " return",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ helper as module\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " import",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ gamma as module\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " import",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef sample(x):\n    ___ x\nReplace ___ with the correct Python keyword. Answer:",
+    "continuation": " return",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Python snippet:\n___ delta as module\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ntry:\n    alpha()\n___ ValueError:\n    pass\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nclass delta:\n    ___\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nbeta = ___ x: x + 1\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ worker:\n    pass\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " worker",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef alpha(x):\n    ___ x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ sample(x):\n    return x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef gamma(x):\n    ___ x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ntry:\n    sample()\n___ ValueError:\n    pass\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ result:\n    pass\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " result",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ beta(x):\n    return x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ beta as module\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ result as module\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " result",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef worker(xs):\n    for x in xs:\n        ___ x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " worker",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ result(x):\n    return x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " result",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ alpha(x):\n    return x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ gamma as module\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef alpha(xs):\n    for x in xs:\n        ___ x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ worker:\n    pass\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " worker",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef result(xs):\n    for x in xs:\n        ___ x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " result",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ beta:\n    pass\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ helper as module\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " helper",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef sample(x):\n    ___ x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nclass sample:\n    ___\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ gamma:\n    pass\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef helper(xs):\n    for x in xs:\n        ___ x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " helper",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ntry:\n    result()\n___ ValueError:\n    pass\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " result",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nbeta = ___ x: x + 1\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef result(x):\n    ___ x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " result",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ntry:\n    beta()\n___ ValueError:\n    pass\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ gamma:\n    pass\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef gamma(x):\n    ___ x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ result as module\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " result",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ngamma = ___ x: x + 1\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nclass delta:\n    ___\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nresult = ___ x: x + 1\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " result",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ beta:\n    pass\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef gamma(xs):\n    for x in xs:\n        ___ x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nclass worker:\n    ___\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " worker",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ gamma:\n    pass\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ beta as module\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef worker(xs):\n    for x in xs:\n        ___ x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " worker",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nclass sample:\n    ___\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef helper(x):\n    ___ x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " helper",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nsample = ___ x: x + 1\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ntry:\n    sample()\n___ ValueError:\n    pass\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef gamma(x):\n    ___ x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nclass result:\n    ___\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " result",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Python snippet:\n___ worker as module\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " worker",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ beta:\n    pass\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nclass beta:\n    ___\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ngamma = ___ x: x + 1\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef gamma(xs):\n    for x in xs:\n        ___ x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ worker(x):\n    return x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " worker",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nworker = ___ x: x + 1\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " worker",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef worker(xs):\n    for x in xs:\n        ___ x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " worker",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ntry:\n    result()\n___ ValueError:\n    pass\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " result",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ntry:\n    sample()\n___ ValueError:\n    pass\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nresult = ___ x: x + 1\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " result",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef beta(xs):\n    for x in xs:\n        ___ x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ gamma(x):\n    return x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nclass sample:\n    ___\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nbeta = ___ x: x + 1\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ sample:\n    pass\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ntry:\n    delta()\n___ ValueError:\n    pass\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ntry:\n    sample()\n___ ValueError:\n    pass\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nworker = ___ x: x + 1\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " worker",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ntry:\n    result()\n___ ValueError:\n    pass\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " result",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef helper(x):\n    ___ x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " helper",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ delta as module\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ntry:\n    delta()\n___ ValueError:\n    pass\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nclass alpha:\n    ___\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nclass beta:\n    ___\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ gamma(x):\n    return x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ beta as module\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ alpha as module\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nclass worker:\n    ___\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " worker",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef alpha(x):\n    ___ x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ helper(x):\n    return x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " helper",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ helper as module\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " helper",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef worker(xs):\n    for x in xs:\n        ___ x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " worker",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef sample(x):\n    ___ x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nsample = ___ x: x + 1\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ntry:\n    gamma()\n___ ValueError:\n    pass\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ delta:\n    pass\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nclass worker:\n    ___\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " worker",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ beta(x):\n    return x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\nresult = ___ x: x + 1\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " result",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ sample:\n    pass\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef helper(x):\n    ___ x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " helper",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef delta(xs):\n    for x in xs:\n        ___ x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef delta(xs):\n    for x in xs:\n        ___ x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ helper(x):\n    return x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " helper",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ result(x):\n    return x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " result",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\n___ beta(x):\n    return x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Python snippet:\ndef beta(x):\n    ___ x\nWhich identifier is used, excluding x, xs, module, and ValueError? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 4.9336
+}

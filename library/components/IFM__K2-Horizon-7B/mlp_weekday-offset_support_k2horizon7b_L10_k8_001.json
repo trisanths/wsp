@@ -1,0 +1,112 @@
+{
+  "id": "mlp_weekday-offset_support_k2horizon7b_L10_k8_001",
+  "kind": "mlp_cluster",
+  "title": "K2-Horizon-7B layer 10, weekday-offset support",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/k2horizon7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "weekday_offset"
+  ],
+  "models": [
+    "IFM/K2-Horizon-7B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'weekday_offset' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1918,
+      "control_value": -0.0047,
+      "split": "person_a held-out skill items (weekday_offset)",
+      "seeds": null,
+      "source": "person_a/catalog/k2horizon7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0193"
+    }
+  ],
+  "generated": true,
+  "model": "IFM/K2-Horizon-7B",
+  "layer": 10,
+  "layers": [
+    10
+  ],
+  "units_file": "components/IFM__K2-Horizon-7B/mlp_weekday-offset_support_k2horizon7b_L10_k8_001.pt",
+  "units_remote": "person_a/parts/k2horizon7b/mlp_weekday-offset_support_k2horizon7b_L10_k8_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'weekday_offset'",
+    "label": "weekday-offset support",
+    "num_units": 8,
+    "d_model": 4096,
+    "effect": {
+      "math|search": 0.0007,
+      "math|heldout": 0.001,
+      "code|search": -0.0008,
+      "code|heldout": -0.0006,
+      "facts|search": 0.0002,
+      "facts|heldout": 0.0069,
+      "multilingual|search": 0.001,
+      "multilingual|heldout": -0.0013,
+      "general_text|search": 0.0,
+      "general_text|heldout": -0.0004,
+      "weekday_offset|search": 0.2007,
+      "weekday_offset__control|search": 0.0208,
+      "weekday_offset|heldout": 0.1918,
+      "weekday_offset__control|heldout": 0.0193,
+      "boolean_negation|search": 0.0007,
+      "boolean_negation__control|search": -0.0123,
+      "boolean_negation|heldout": 0.0131,
+      "boolean_negation__control|heldout": 0.002,
+      "month_offset|search": 0.017,
+      "month_offset__control|search": 0.0221,
+      "month_offset|heldout": 0.0204,
+      "month_offset__control|heldout": 0.0092,
+      "product_sign|search": 0.017,
+      "product_sign__control|search": 0.0095,
+      "product_sign|heldout": 0.0102,
+      "product_sign__control|heldout": 0.0104,
+      "fraction_role|search": 0.0077,
+      "fraction_role__control|search": 0.003,
+      "fraction_role|heldout": 0.0071,
+      "fraction_role__control|heldout": 0.0034,
+      "python_return|search": -0.001,
+      "python_return__control|search": -0.0005,
+      "python_return|heldout": -0.0021,
+      "python_return__control|heldout": -0.0002,
+      "french_plural_conjugation|search": 0.0044,
+      "french_plural_conjugation__control|search": 0.0124,
+      "french_plural_conjugation|heldout": 0.0025,
+      "french_plural_conjugation__control|heldout": 0.0069
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0669,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0069,
+      -0.0023,
+      0.0014,
+      -0.0063,
+      -0.0096
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Weight anchor L10 unit2898 promotes weekday/week/weekend vocabulary (cos .075-.094), and single-unit ablation drops weekday_offset .094. Eight same-layer attribution-supported units test a distributed calendar component; lexical gate/up interpretation remains uncertain."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/k2horizon7b/weekday_offset.json",
+    "hash": "410aee47cb743387",
+    "description": "Compute a weekday after an integer day offset; matched controls copy an unrelated event tag in the same calendar format.",
+    "name": "weekday_offset"
+  },
+  "catalog_id": "mlp_weekday-offset_support_k2horizon7b_L10_k8_001",
+  "exported_copy": "library/k2horizon7b/mlp_weekday-offset_support_k2horizon7b_L10_k8_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

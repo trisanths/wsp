@@ -1,0 +1,1220 @@
+{
+ "name": "month_successor",
+ "description": "Name the month k (1-3) months after a given month. Control: same format with integer + k.",
+ "hash": "9870002fb3dae8fa",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nM=['January','February','March','April','May','June','July','August','September','October','November','December']\nitems=[];control=[]\nfor t in range(120):\n    k=random.choice([1,2,3])\n    shots=random.sample(range(12),2); q=random.randrange(12)\n    p=''.join(f\"{k} month(s) after {M[a]} is {M[(a+k)%12]}.\\n\" for a in shots)+f\"{k} month(s) after {M[q]} is\"\n    items.append({\"prompt\":p,\"answer\":\" \"+M[(q+k)%12]})\n    s2=random.sample(range(1,60),2); q2=random.randrange(1,60)\n    p2=''.join(f\"{k} number(s) after {a} is {a+k}.\\n\" for a in s2)+f\"{k} number(s) after {q2} is\"\n    control.append({\"prompt\":p2,\"answer\":f\" {q2+k}\"})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "2 month(s) after June is August.\n2 month(s) after October is December.\n2 month(s) after January is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after February is May.\n3 month(s) after September is December.\n3 month(s) after April is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after June is September.\n3 month(s) after April is July.\n3 month(s) after July is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after September is November.\n2 month(s) after October is December.\n2 month(s) after March is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after August is September.\n1 month(s) after June is July.\n1 month(s) after December is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after July is October.\n3 month(s) after June is September.\n3 month(s) after September is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after May is June.\n1 month(s) after October is November.\n1 month(s) after March is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after December is January.\n1 month(s) after May is June.\n1 month(s) after February is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after April is May.\n1 month(s) after February is March.\n1 month(s) after November is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after November is February.\n3 month(s) after February is May.\n3 month(s) after January is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after October is January.\n3 month(s) after January is April.\n3 month(s) after January is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after November is December.\n1 month(s) after October is November.\n1 month(s) after July is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after June is July.\n1 month(s) after July is August.\n1 month(s) after January is",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after February is April.\n2 month(s) after August is October.\n2 month(s) after February is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after February is March.\n1 month(s) after August is September.\n1 month(s) after July is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after February is March.\n1 month(s) after November is December.\n1 month(s) after March is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after June is August.\n2 month(s) after March is May.\n2 month(s) after March is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after September is October.\n1 month(s) after July is August.\n1 month(s) after October is",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after March is June.\n3 month(s) after May is August.\n3 month(s) after March is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after April is May.\n1 month(s) after October is November.\n1 month(s) after March is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after November is February.\n3 month(s) after January is April.\n3 month(s) after October is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after November is December.\n1 month(s) after September is October.\n1 month(s) after December is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after April is May.\n1 month(s) after November is December.\n1 month(s) after August is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after February is March.\n1 month(s) after April is May.\n1 month(s) after March is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after March is June.\n3 month(s) after November is February.\n3 month(s) after June is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after October is January.\n3 month(s) after July is October.\n3 month(s) after January is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after May is June.\n1 month(s) after March is April.\n1 month(s) after August is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after December is January.\n1 month(s) after January is February.\n1 month(s) after May is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after November is February.\n3 month(s) after April is July.\n3 month(s) after September is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after July is September.\n2 month(s) after November is January.\n2 month(s) after May is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after April is July.\n3 month(s) after December is March.\n3 month(s) after March is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after April is July.\n3 month(s) after January is April.\n3 month(s) after October is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after January is March.\n2 month(s) after July is September.\n2 month(s) after April is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after April is May.\n1 month(s) after January is February.\n1 month(s) after December is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after June is August.\n2 month(s) after April is June.\n2 month(s) after August is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after April is May.\n1 month(s) after May is June.\n1 month(s) after December is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after October is November.\n1 month(s) after September is October.\n1 month(s) after October is",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after April is July.\n3 month(s) after May is August.\n3 month(s) after May is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after October is December.\n2 month(s) after November is January.\n2 month(s) after June is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after February is March.\n1 month(s) after June is July.\n1 month(s) after December is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after October is December.\n2 month(s) after November is January.\n2 month(s) after April is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after May is August.\n3 month(s) after June is September.\n3 month(s) after February is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after October is November.\n1 month(s) after August is September.\n1 month(s) after November is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after October is January.\n3 month(s) after July is October.\n3 month(s) after October is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after August is October.\n2 month(s) after September is November.\n2 month(s) after May is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after March is May.\n2 month(s) after July is September.\n2 month(s) after May is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after December is March.\n3 month(s) after February is May.\n3 month(s) after November is",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after November is February.\n3 month(s) after June is September.\n3 month(s) after February is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after August is October.\n2 month(s) after May is July.\n2 month(s) after May is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after April is May.\n1 month(s) after January is February.\n1 month(s) after April is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after August is September.\n1 month(s) after April is May.\n1 month(s) after December is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after November is December.\n1 month(s) after March is April.\n1 month(s) after March is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after February is April.\n2 month(s) after May is July.\n2 month(s) after March is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after May is June.\n1 month(s) after September is October.\n1 month(s) after October is",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after August is September.\n1 month(s) after July is August.\n1 month(s) after March is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after March is April.\n1 month(s) after January is February.\n1 month(s) after October is",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after July is October.\n3 month(s) after June is September.\n3 month(s) after October is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after February is March.\n1 month(s) after July is August.\n1 month(s) after February is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after November is February.\n3 month(s) after August is November.\n3 month(s) after December is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after August is November.\n3 month(s) after February is May.\n3 month(s) after February is",
+    "continuation": " May",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "1 month(s) after November is December.\n1 month(s) after June is July.\n1 month(s) after August is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after December is February.\n2 month(s) after June is August.\n2 month(s) after June is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after October is December.\n2 month(s) after March is May.\n2 month(s) after July is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after May is August.\n3 month(s) after July is October.\n3 month(s) after December is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after January is February.\n1 month(s) after September is October.\n1 month(s) after August is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after September is November.\n2 month(s) after July is September.\n2 month(s) after September is",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after September is November.\n2 month(s) after March is May.\n2 month(s) after May is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after July is September.\n2 month(s) after January is March.\n2 month(s) after May is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after December is January.\n1 month(s) after January is February.\n1 month(s) after August is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after February is March.\n1 month(s) after June is July.\n1 month(s) after September is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after August is October.\n2 month(s) after June is August.\n2 month(s) after October is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after July is September.\n2 month(s) after December is February.\n2 month(s) after July is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after January is April.\n3 month(s) after February is May.\n3 month(s) after December is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after April is July.\n3 month(s) after March is June.\n3 month(s) after March is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after September is October.\n1 month(s) after August is September.\n1 month(s) after August is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after January is February.\n1 month(s) after December is January.\n1 month(s) after April is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after March is May.\n2 month(s) after October is December.\n2 month(s) after February is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after February is March.\n1 month(s) after April is May.\n1 month(s) after December is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after October is January.\n3 month(s) after February is May.\n3 month(s) after July is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after October is November.\n1 month(s) after July is August.\n1 month(s) after November is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after June is September.\n3 month(s) after October is January.\n3 month(s) after November is",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after November is February.\n3 month(s) after June is September.\n3 month(s) after February is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after January is February.\n1 month(s) after December is January.\n1 month(s) after August is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after October is December.\n2 month(s) after December is February.\n2 month(s) after April is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after February is March.\n1 month(s) after July is August.\n1 month(s) after September is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after May is August.\n3 month(s) after January is April.\n3 month(s) after March is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after January is February.\n1 month(s) after October is November.\n1 month(s) after April is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after November is December.\n1 month(s) after September is October.\n1 month(s) after October is",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after April is June.\n2 month(s) after June is August.\n2 month(s) after December is",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after December is February.\n2 month(s) after May is July.\n2 month(s) after March is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after March is May.\n2 month(s) after April is June.\n2 month(s) after August is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after May is August.\n3 month(s) after September is December.\n3 month(s) after April is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after June is August.\n2 month(s) after September is November.\n2 month(s) after March is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after November is December.\n1 month(s) after January is February.\n1 month(s) after December is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after May is June.\n1 month(s) after June is July.\n1 month(s) after December is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after July is October.\n3 month(s) after April is July.\n3 month(s) after May is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after August is November.\n3 month(s) after November is February.\n3 month(s) after June is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after May is August.\n3 month(s) after February is May.\n3 month(s) after September is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after July is September.\n2 month(s) after January is March.\n2 month(s) after October is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after June is September.\n3 month(s) after November is February.\n3 month(s) after February is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after July is October.\n3 month(s) after October is January.\n3 month(s) after September is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after December is January.\n1 month(s) after September is October.\n1 month(s) after November is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after January is February.\n1 month(s) after May is June.\n1 month(s) after March is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after January is February.\n1 month(s) after October is November.\n1 month(s) after January is",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after February is March.\n1 month(s) after January is February.\n1 month(s) after September is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after July is October.\n3 month(s) after November is February.\n3 month(s) after December is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after June is August.\n2 month(s) after February is April.\n2 month(s) after June is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after August is September.\n1 month(s) after February is March.\n1 month(s) after June is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after November is February.\n3 month(s) after October is January.\n3 month(s) after October is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after February is April.\n2 month(s) after January is March.\n2 month(s) after October is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after September is December.\n3 month(s) after October is January.\n3 month(s) after February is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after May is June.\n1 month(s) after March is April.\n1 month(s) after March is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after May is June.\n1 month(s) after July is August.\n1 month(s) after June is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after October is December.\n2 month(s) after March is May.\n2 month(s) after December is",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after June is August.\n2 month(s) after October is December.\n2 month(s) after November is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after July is September.\n2 month(s) after November is January.\n2 month(s) after February is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after January is February.\n1 month(s) after April is May.\n1 month(s) after June is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "1 month(s) after February is March.\n1 month(s) after August is September.\n1 month(s) after March is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "3 month(s) after March is June.\n3 month(s) after January is April.\n3 month(s) after July is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "2 month(s) after February is April.\n2 month(s) after March is May.\n2 month(s) after July is",
+    "continuation": " September",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "2 number(s) after 7 is 9.\n2 number(s) after 35 is 37.\n2 number(s) after 38 is",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 3 is 5.\n2 number(s) after 34 is 36.\n2 number(s) after 10 is",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 21 is 24.\n3 number(s) after 40 is 43.\n3 number(s) after 8 is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 12 is 13.\n1 number(s) after 20 is 21.\n1 number(s) after 33 is",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 44 is 45.\n1 number(s) after 58 is 59.\n1 number(s) after 10 is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 27 is 30.\n3 number(s) after 54 is 57.\n3 number(s) after 42 is",
+    "continuation": " 45",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 36 is 37.\n1 number(s) after 7 is 8.\n1 number(s) after 23 is",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 54 is 57.\n3 number(s) after 32 is 35.\n3 number(s) after 32 is",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 48 is 49.\n1 number(s) after 3 is 4.\n1 number(s) after 35 is",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 52 is 55.\n3 number(s) after 35 is 38.\n3 number(s) after 29 is",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 16 is 19.\n3 number(s) after 19 is 22.\n3 number(s) after 12 is",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 45 is 48.\n3 number(s) after 10 is 13.\n3 number(s) after 52 is",
+    "continuation": " 55",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 46 is 47.\n1 number(s) after 15 is 16.\n1 number(s) after 24 is",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 44 is 45.\n1 number(s) after 28 is 29.\n1 number(s) after 57 is",
+    "continuation": " 58",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 43 is 44.\n1 number(s) after 44 is 45.\n1 number(s) after 47 is",
+    "continuation": " 48",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 34 is 35.\n1 number(s) after 19 is 20.\n1 number(s) after 29 is",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 28 is 29.\n1 number(s) after 13 is 14.\n1 number(s) after 23 is",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 45 is 48.\n3 number(s) after 12 is 15.\n3 number(s) after 7 is",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 32 is 33.\n1 number(s) after 57 is 58.\n1 number(s) after 56 is",
+    "continuation": " 57",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 56 is 58.\n2 number(s) after 5 is 7.\n2 number(s) after 13 is",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 38 is 40.\n2 number(s) after 19 is 21.\n2 number(s) after 46 is",
+    "continuation": " 48",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 30 is 33.\n3 number(s) after 8 is 11.\n3 number(s) after 31 is",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 30 is 32.\n2 number(s) after 25 is 27.\n2 number(s) after 30 is",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 54 is 55.\n1 number(s) after 22 is 23.\n1 number(s) after 4 is",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 23 is 25.\n2 number(s) after 40 is 42.\n2 number(s) after 19 is",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 59 is 62.\n3 number(s) after 20 is 23.\n3 number(s) after 42 is",
+    "continuation": " 45",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 17 is 18.\n1 number(s) after 58 is 59.\n1 number(s) after 2 is",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 49 is 50.\n1 number(s) after 1 is 2.\n1 number(s) after 53 is",
+    "continuation": " 54",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 57 is 58.\n1 number(s) after 10 is 11.\n1 number(s) after 3 is",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 44 is 46.\n2 number(s) after 14 is 16.\n2 number(s) after 50 is",
+    "continuation": " 52",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 41 is 44.\n3 number(s) after 59 is 62.\n3 number(s) after 35 is",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 4 is 6.\n2 number(s) after 52 is 54.\n2 number(s) after 59 is",
+    "continuation": " 61",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 3 is 4.\n1 number(s) after 20 is 21.\n1 number(s) after 1 is",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 59 is 61.\n2 number(s) after 14 is 16.\n2 number(s) after 36 is",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 12 is 13.\n1 number(s) after 1 is 2.\n1 number(s) after 31 is",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 29 is 30.\n1 number(s) after 49 is 50.\n1 number(s) after 44 is",
+    "continuation": " 45",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 32 is 33.\n1 number(s) after 7 is 8.\n1 number(s) after 20 is",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 23 is 25.\n2 number(s) after 51 is 53.\n2 number(s) after 41 is",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 25 is 26.\n1 number(s) after 46 is 47.\n1 number(s) after 57 is",
+    "continuation": " 58",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 2 is 3.\n1 number(s) after 23 is 24.\n1 number(s) after 23 is",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 20 is 21.\n1 number(s) after 23 is 24.\n1 number(s) after 28 is",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 22 is 23.\n1 number(s) after 54 is 55.\n1 number(s) after 52 is",
+    "continuation": " 53",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 2 is 4.\n2 number(s) after 14 is 16.\n2 number(s) after 24 is",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 8 is 11.\n3 number(s) after 41 is 44.\n3 number(s) after 13 is",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 13 is 16.\n3 number(s) after 8 is 11.\n3 number(s) after 39 is",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 3 is 4.\n1 number(s) after 39 is 40.\n1 number(s) after 7 is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 7 is 10.\n3 number(s) after 45 is 48.\n3 number(s) after 36 is",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 12 is 15.\n3 number(s) after 14 is 17.\n3 number(s) after 25 is",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 18 is 21.\n3 number(s) after 29 is 32.\n3 number(s) after 32 is",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 55 is 56.\n1 number(s) after 34 is 35.\n1 number(s) after 47 is",
+    "continuation": " 48",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 45 is 46.\n1 number(s) after 22 is 23.\n1 number(s) after 11 is",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 20 is 21.\n1 number(s) after 27 is 28.\n1 number(s) after 7 is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 40 is 43.\n3 number(s) after 15 is 18.\n3 number(s) after 1 is",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 5 is 6.\n1 number(s) after 39 is 40.\n1 number(s) after 58 is",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 3 is 6.\n3 number(s) after 11 is 14.\n3 number(s) after 29 is",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 50 is 52.\n2 number(s) after 40 is 42.\n2 number(s) after 3 is",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 55 is 57.\n2 number(s) after 13 is 15.\n2 number(s) after 16 is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 32 is 35.\n3 number(s) after 21 is 24.\n3 number(s) after 20 is",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 54 is 57.\n3 number(s) after 26 is 29.\n3 number(s) after 46 is",
+    "continuation": " 49",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 55 is 58.\n3 number(s) after 14 is 17.\n3 number(s) after 58 is",
+    "continuation": " 61",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "3 number(s) after 51 is 54.\n3 number(s) after 50 is 53.\n3 number(s) after 50 is",
+    "continuation": " 53",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 34 is 35.\n1 number(s) after 57 is 58.\n1 number(s) after 32 is",
+    "continuation": " 33",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 27 is 28.\n1 number(s) after 53 is 54.\n1 number(s) after 31 is",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 7 is 8.\n1 number(s) after 51 is 52.\n1 number(s) after 10 is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 3 is 6.\n3 number(s) after 51 is 54.\n3 number(s) after 26 is",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 2 is 4.\n2 number(s) after 18 is 20.\n2 number(s) after 59 is",
+    "continuation": " 61",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 33 is 35.\n2 number(s) after 3 is 5.\n2 number(s) after 37 is",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 10 is 12.\n2 number(s) after 36 is 38.\n2 number(s) after 45 is",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 42 is 45.\n3 number(s) after 58 is 61.\n3 number(s) after 30 is",
+    "continuation": " 33",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 7 is 8.\n1 number(s) after 13 is 14.\n1 number(s) after 30 is",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 57 is 59.\n2 number(s) after 36 is 38.\n2 number(s) after 41 is",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 26 is 29.\n3 number(s) after 56 is 59.\n3 number(s) after 45 is",
+    "continuation": " 48",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 32 is 35.\n3 number(s) after 56 is 59.\n3 number(s) after 17 is",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 15 is 16.\n1 number(s) after 4 is 5.\n1 number(s) after 25 is",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 17 is 18.\n1 number(s) after 6 is 7.\n1 number(s) after 23 is",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 44 is 45.\n1 number(s) after 17 is 18.\n1 number(s) after 36 is",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 52 is 53.\n1 number(s) after 4 is 5.\n1 number(s) after 44 is",
+    "continuation": " 45",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 45 is 47.\n2 number(s) after 32 is 34.\n2 number(s) after 28 is",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 56 is 58.\n2 number(s) after 42 is 44.\n2 number(s) after 30 is",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 42 is 44.\n2 number(s) after 34 is 36.\n2 number(s) after 53 is",
+    "continuation": " 55",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 13 is 14.\n1 number(s) after 12 is 13.\n1 number(s) after 46 is",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 57 is 60.\n3 number(s) after 14 is 17.\n3 number(s) after 15 is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 58 is 60.\n2 number(s) after 59 is 61.\n2 number(s) after 14 is",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 52 is 53.\n1 number(s) after 41 is 42.\n1 number(s) after 6 is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 34 is 35.\n1 number(s) after 27 is 28.\n1 number(s) after 33 is",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 5 is 6.\n1 number(s) after 48 is 49.\n1 number(s) after 28 is",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 49 is 52.\n3 number(s) after 7 is 10.\n3 number(s) after 40 is",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 44 is 47.\n3 number(s) after 46 is 49.\n3 number(s) after 40 is",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 55 is 58.\n3 number(s) after 40 is 43.\n3 number(s) after 9 is",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 19 is 20.\n1 number(s) after 29 is 30.\n1 number(s) after 6 is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 17 is 18.\n1 number(s) after 14 is 15.\n1 number(s) after 42 is",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 7 is 8.\n1 number(s) after 54 is 55.\n1 number(s) after 17 is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 4 is 6.\n2 number(s) after 11 is 13.\n2 number(s) after 42 is",
+    "continuation": " 44",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 22 is 23.\n1 number(s) after 34 is 35.\n1 number(s) after 17 is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 7 is 8.\n1 number(s) after 27 is 28.\n1 number(s) after 50 is",
+    "continuation": " 51",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 55 is 57.\n2 number(s) after 56 is 58.\n2 number(s) after 52 is",
+    "continuation": " 54",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 33 is 35.\n2 number(s) after 32 is 34.\n2 number(s) after 26 is",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 28 is 29.\n1 number(s) after 44 is 45.\n1 number(s) after 27 is",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 7 is 9.\n2 number(s) after 39 is 41.\n2 number(s) after 32 is",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 56 is 59.\n3 number(s) after 10 is 13.\n3 number(s) after 18 is",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 44 is 47.\n3 number(s) after 27 is 30.\n3 number(s) after 21 is",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 20 is 22.\n2 number(s) after 7 is 9.\n2 number(s) after 47 is",
+    "continuation": " 49",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 38 is 39.\n1 number(s) after 19 is 20.\n1 number(s) after 24 is",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 22 is 25.\n3 number(s) after 53 is 56.\n3 number(s) after 35 is",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 6 is 9.\n3 number(s) after 24 is 27.\n3 number(s) after 54 is",
+    "continuation": " 57",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 45 is 47.\n2 number(s) after 30 is 32.\n2 number(s) after 40 is",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 36 is 38.\n2 number(s) after 41 is 43.\n2 number(s) after 6 is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 34 is 37.\n3 number(s) after 56 is 59.\n3 number(s) after 59 is",
+    "continuation": " 62",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 10 is 13.\n3 number(s) after 18 is 21.\n3 number(s) after 22 is",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 55 is 57.\n2 number(s) after 48 is 50.\n2 number(s) after 45 is",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 24 is 25.\n1 number(s) after 45 is 46.\n1 number(s) after 2 is",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 8 is 10.\n2 number(s) after 31 is 33.\n2 number(s) after 47 is",
+    "continuation": " 49",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 43 is 44.\n1 number(s) after 17 is 18.\n1 number(s) after 31 is",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 23 is 26.\n3 number(s) after 58 is 61.\n3 number(s) after 47 is",
+    "continuation": " 50",
+    "digits_only": false
+   },
+   {
+    "context": "3 number(s) after 32 is 35.\n3 number(s) after 53 is 56.\n3 number(s) after 56 is",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 2 is 3.\n1 number(s) after 3 is 4.\n1 number(s) after 39 is",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 59 is 61.\n2 number(s) after 48 is 50.\n2 number(s) after 56 is",
+    "continuation": " 58",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 58 is 60.\n2 number(s) after 37 is 39.\n2 number(s) after 28 is",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "2 number(s) after 28 is 30.\n2 number(s) after 6 is 8.\n2 number(s) after 24 is",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "1 number(s) after 26 is 27.\n1 number(s) after 54 is 55.\n1 number(s) after 46 is",
+    "continuation": " 47",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 6.5302
+}

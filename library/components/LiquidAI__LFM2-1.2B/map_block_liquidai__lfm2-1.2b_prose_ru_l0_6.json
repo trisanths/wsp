@@ -1,0 +1,113 @@
+{
+  "id": "map_block_liquidai__lfm2-1.2b_prose_ru_l0_6",
+  "kind": "block",
+  "title": "LFM2-1.2B layers 0 to 6, prose_ru block (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-1.2B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "prose_ru"
+  ],
+  "models": [
+    "LiquidAI/LFM2-1.2B"
+  ],
+  "evidence": [
+    {
+      "claim": "skipping layers 0 to 6 of LFM2-1.2B raises the loss on 'prose_ru' text more than on general text; measured inside the donor only, not a gain on a host",
+      "metric": "summed layer score over the block, nats (skill loss increase minus general loss increase)",
+      "value": 4.83737,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-1.2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "general_text loss increase, subtracted layer by layer"
+    },
+    {
+      "claim": "share of the positive layer score that falls inside the block (layers 0 to 6)",
+      "metric": "block_mass, fraction of the model's positive layer score",
+      "value": 0.3563,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-1.2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same share, recomputed on the other half of the skill text for the same layers",
+      "metric": "check_mass, fraction of the positive layer score",
+      "value": 0.3481,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-1.2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the per-layer score map from one half of the text agrees with the map from the other half",
+      "metric": "split_half_r, Pearson r over layers (whole map, same value for every block of the skill)",
+      "value": 0.9895,
+      "control_value": null,
+      "split": "search half against held-out half",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-1.2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-1.2B",
+  "layer": null,
+  "layers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "units_file": null,
+  "units_remote": null,
+  "signature": {
+    "method": "skip-layer map: loss increase on skill text when a decoder layer is skipped, minus the same on general_text (nats); the block is the shortest window that holds 60% of the positive score on the search half",
+    "skill": "prose_ru",
+    "data": "wikimedia/wikipedia 20231101.ru train: Russian encyclopedia text continuation",
+    "first_layer": 0,
+    "last_layer": 6,
+    "n_layers_in_block": 7,
+    "block_rank_in_skill": 2,
+    "block_mass": 0.3563,
+    "check_mass": 0.3481,
+    "split_half_r": 0.9895,
+    "summed_layer_score": 4.83737,
+    "layer_scores": [
+      2.31266,
+      0.89319,
+      0.99894,
+      0.17745,
+      0.07611,
+      0.20918,
+      0.16984
+    ],
+    "layer_influence": [
+      6.2616,
+      1.31325,
+      2.1192,
+      0.33657,
+      0.31679,
+      0.89581,
+      0.26922
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "wikimedia/wikipedia 20231101.ru train: Russian encyclopedia text continuation",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 1.17,
+  "n_layers": 16,
+  "hidden": 2048,
+  "family": "lfm2",
+  "architecture": "Lfm2ForCausalLM",
+  "license": "lfm1.0",
+  "revision": "40f3da0d0164913923aee9462c23077868b816a3"
+}

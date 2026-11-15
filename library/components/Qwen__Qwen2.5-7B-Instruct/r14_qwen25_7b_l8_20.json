@@ -1,0 +1,87 @@
+{
+  "id": "r14_qwen25_7b_l8_20",
+  "kind": "block",
+  "title": "Qwen2.5-7B-Instruct layers 8 to 20 written into Qwen2.5-0.5B-Instruct (run 14)",
+  "status": "rejected",
+  "added_by": "Trisanth",
+  "source": "results/round14_rows.json (run 14)",
+  "updated": "2026-11-14",
+  "skills": [
+    "knowledge",
+    "mmlu"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-7B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "block written into the base vs a random same-length block from the same donor",
+      "metric": "MMLU held-out accuracy, mean over seeds",
+      "value": 0.4645,
+      "control_value": 0.4748,
+      "split": "MMLU test, 2000 seeded items disjoint from dev (round 7 held-out)",
+      "seeds": [
+        0,
+        1
+      ],
+      "source": "results/round14_rows.json",
+      "generated": true,
+      "control": "random same-length block, same stitch and heal",
+      "note": "host Qwen/Qwen2.5-0.5B-Instruct at layer 7, MLP stitch trained 800 steps on the donor LM loss with the sink, glue rank 64, heal 500 steps on MMLU aux; stitch penalty after training by seed [0.0077, 0.0244]; host alone 0.458"
+    },
+    {
+      "claim": "block written into the base vs a rank-16 LoRA on the base",
+      "metric": "MMLU held-out accuracy, mean over seeds",
+      "value": 0.4645,
+      "control_value": 0.4545,
+      "split": "MMLU test, 2000 seeded items disjoint from dev (round 7 held-out)",
+      "seeds": [
+        0,
+        1
+      ],
+      "source": "results/round14_rows.json",
+      "generated": true,
+      "control": "base LoRA rank 16, same heal data and steps",
+      "note": "host Qwen/Qwen2.5-0.5B-Instruct at layer 7, MLP stitch trained 800 steps on the donor LM loss with the sink, glue rank 64, heal 500 steps on MMLU aux; stitch penalty after training by seed [0.0077, 0.0244]; host alone 0.458"
+    },
+    {
+      "claim": "the same block plus a rank-8 LoRA on the grafted layers vs a rank-16 LoRA on the base",
+      "metric": "MMLU held-out accuracy, mean over seeds",
+      "value": 0.4688,
+      "control_value": 0.4545,
+      "split": "MMLU test, 2000 seeded items disjoint from dev (round 7 held-out)",
+      "seeds": [
+        0,
+        1
+      ],
+      "source": "results/round14_rows.json",
+      "generated": true,
+      "control": "base LoRA rank 16"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "layer": null,
+  "layers": [
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "units_file": null,
+  "units_remote": null,
+  "signature": {
+    "method": "donor 'knowledge' layers grafted inside the host as a residual branch h + W_out(block(W_in h) - x), with a trained MLP stitch and the donor sink (modal_round14.py)"
+  },
+  "catalog_id": "block/Qwen/Qwen2.5-7B-Instruct/8-20",
+  "status_reason": "loses to a random same-length Qwen-7B block on held-out MMLU (2 seeds)"
+}

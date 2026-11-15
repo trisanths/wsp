@@ -1,0 +1,113 @@
+{
+  "id": "mlp_early_entity-token_enrichment_for_factual_recall_qwen3.5_9b_L2_k128_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen3.5-9B layer 2, early entity-token enrichment for factual recall (128-unit L2 MLP cluster)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwen3.5_9b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "facts"
+  ],
+  "models": [
+    "Qwen/Qwen3.5-9B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'facts' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1729,
+      "control_value": -0.0062,
+      "split": "person_a held-out skill items (facts)",
+      "seeds": null,
+      "source": "person_a/catalog/qwen3.5_9b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen3.5-9B",
+  "layer": 2,
+  "layers": [
+    2
+  ],
+  "units_file": "components/Qwen__Qwen3.5-9B/mlp_early_entity-token_enrichment_for_factual_recall_qwen3.5_9b_L2_k128_001.pt",
+  "units_remote": "person_a/parts/qwen3.5_9b/mlp_early_entity-token_enrichment_for_factual_recall_qwen3.5_9b_L2_k128_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'facts'",
+    "label": "early entity-token enrichment for factual recall (128-unit L2 MLP cluster)",
+    "num_units": 128,
+    "d_model": 4096,
+    "effect": {
+      "math|search": -0.0004,
+      "math|heldout": -0.0002,
+      "code|search": -0.0004,
+      "code|heldout": -0.0008,
+      "facts|search": 0.1902,
+      "facts|heldout": 0.1729,
+      "multilingual|search": -0.0003,
+      "multilingual|heldout": 0.0012,
+      "general_text|search": -0.0096,
+      "general_text|heldout": -0.0074,
+      "roman_numeral|search": -0.0086,
+      "roman_numeral__control|search": -0.0041,
+      "roman_numeral|heldout": -0.0068,
+      "roman_numeral__control|heldout": -0.0013,
+      "weekday_successor|search": 0.0565,
+      "weekday_successor__control|search": 0.004,
+      "weekday_successor|heldout": 0.0523,
+      "weekday_successor__control|heldout": 0.0047,
+      "month_successor|search": 0.0295,
+      "month_successor__control|search": 0.0003,
+      "month_successor|heldout": 0.0333,
+      "month_successor__control|heldout": 0.004,
+      "ordinal_words|search": 0.0317,
+      "ordinal_words__control|search": 0.0231,
+      "ordinal_words|heldout": 0.0335,
+      "ordinal_words__control|heldout": 0.026,
+      "color_naming|search": -0.0203,
+      "color_naming__control|search": 0.049,
+      "color_naming|heldout": -0.0263,
+      "color_naming__control|heldout": 0.0414,
+      "past_tense|search": 0.0234,
+      "past_tense__control|search": 0.036,
+      "past_tense|heldout": 0.0184,
+      "past_tense__control|heldout": 0.0285,
+      "plural_nouns|search": 0.0071,
+      "plural_nouns__control|search": 0.0209,
+      "plural_nouns|heldout": 0.0082,
+      "plural_nouns__control|heldout": -0.0004,
+      "capital_city|search": 0.0044,
+      "capital_city__control|search": 0.0002,
+      "capital_city|heldout": 0.0015,
+      "capital_city__control|heldout": 0.0004
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0634,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0066,
+      -0.0388,
+      0.014,
+      -0.0203,
+      0.0077
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L2 facts attribution seeds (10169, 3542, 7390, 2686, 10715) grown to 128 units by down/gate/up subspace projection, minus the multilingual/past/capital/code seed subspaces. Early-layer MLP units of this kind typically assemble multi-token entity representations that later layers retrieve from."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "builtin",
+    "name": "facts"
+  },
+  "catalog_id": "mlp_early_entity-token_enrichment_for_factual_recall_qwen3.5_9b_L2_k128_001",
+  "exported_copy": "library/qwen3.5_9b/mlp_early_entity-token_enrichment_for_factual_recall_qwen3.5_9b_L2_k128_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

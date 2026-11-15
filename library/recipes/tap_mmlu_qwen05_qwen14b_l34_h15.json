@@ -1,0 +1,67 @@
+{
+  "id": "tap_mmlu_qwen05_qwen14b_l34_h15",
+  "kind": "recipe",
+  "title": "Qwen2.5-0.5B-Instruct reads Qwen2.5-14B-Instruct layer 34 at layer 15 (MMLU)",
+  "status": "candidate",
+  "added_by": "Trisanth",
+  "source": "results/round8_rows.json (run 8)",
+  "updated": "2026-11-14",
+  "skills": [
+    "knowledge",
+    "mmlu",
+    "tap"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-0.5B-Instruct",
+    "Qwen/Qwen2.5-14B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "Qwen2.5-0.5B-Instruct + Qwen2.5-14B-Instruct tap vs the host alone",
+      "metric": "MMLU dev accuracy, mean over seeds",
+      "value": 0.7485,
+      "control_value": 0.48,
+      "split": "MMLU test, 1000 seeded items (round 6 dev)",
+      "seeds": [
+        0,
+        1
+      ],
+      "source": "results/round8_rows.json",
+      "generated": true,
+      "control": "host alone"
+    }
+  ],
+  "generated": true,
+  "host": "Qwen/Qwen2.5-0.5B-Instruct",
+  "program": {
+    "host": "Qwen/Qwen2.5-0.5B-Instruct",
+    "seed": 0,
+    "masks": null,
+    "task_vectors": [],
+    "grafts": [],
+    "heal": null,
+    "taps": [
+      {
+        "donor": "Qwen/Qwen2.5-14B-Instruct",
+        "donor_layer": 34,
+        "at": 15,
+        "attn_dim": 256,
+        "heads": 8,
+        "tap_id": null
+      }
+    ],
+    "tap_train": {
+      "data": "mmlu_aux",
+      "steps": 500,
+      "batch_size": 8,
+      "seq_len": 256,
+      "branch_lr": 0.0003,
+      "gate_lr": 0.03
+    }
+  },
+  "text": "host Qwen/Qwen2.5-0.5B-Instruct\nseed 0\ntap Qwen/Qwen2.5-14B-Instruct layer 34 at 15\ntap_train data mmlu_aux steps 500 batch_size 8 seq_len 256 branch_lr 0.0003 gate_lr 0.03\n",
+  "program_file": "recipes/tap_mmlu_qwen05_qwen14b_l34_h15.wsp",
+  "syntax_gap": null,
+  "components": [],
+  "status_reason": "dev items only; not scored on held-out items"
+}

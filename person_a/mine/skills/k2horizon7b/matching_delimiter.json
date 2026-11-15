@@ -1,0 +1,1220 @@
+{
+ "name": "matching_delimiter",
+ "description": "Identify the single closing delimiter matching the last unmatched opener, contrasting transformation with a matched explicit-close copy task. Separates delimiter type mapping from full nested suffix generation.",
+ "hash": "84807588e90bad2d",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nitems=[];control=[]\npairs=dict(zip('([{',')]}'))\nfor i in range(120):\n opens=''.join(random.choice('([{') for _ in range(random.randint(1,4))); content=random.choice(['x','value','a + b','item','n','42']); fragment=opens+content; close=pairs[opens[-1]]\n template='Text: '+fragment+'\\nWhich single closing bracket should come next?\\nAnswer:'\n items.append({'prompt':template,'answer':' '+close})\n control.append({'prompt':'Text: '+fragment+'\\nThe next closing bracket is '+close+'. Copy that single bracket.\\nAnswer:','answer':' '+close})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Text: (((42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ((item\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([((42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{{value\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{[x\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([({n\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{[{value\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([{x\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (x\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{item\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [(((42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (value\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{n\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([[x\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [(x\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {[[n\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{({n\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {({{value\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [{(a + b\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [{value\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {value\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {item\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [(({item\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (((a + b\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {x\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [({[42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [[{42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{[{a + b\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [{((n\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {(((value\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (([{item\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {a + b\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ((x\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {x\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (a + b\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([[{42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (value\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ((n\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [{{(n\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ({(value\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [n\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [((42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {item\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [x\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {value\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([((n\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {[{42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [[(x\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([x\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {({a + b\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [n\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [({value\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [{{{item\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ({a + b\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Text: ({(42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [[{x\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {((a + b\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ({({item\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ({42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([value\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (item\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [([{item\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {([n\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (n\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [[[{value\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ({n\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [{[(n\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {[{n\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {(({value\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [{n\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [[42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{[(value\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{[{item\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [((n\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {[item\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ({[{42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [[[(item\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([item\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{((item\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [[42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [item\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{{(n\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {x\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {a + b\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {([value\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {item\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {n\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (x\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {((item\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ((n\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [[{42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([item\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [value\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [({item\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [[(item\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {a + b\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (([x\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [{a + b\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {([(value\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {[{[item\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {item\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [{item\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{x\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{x\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [{(a + b\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([a + b\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (value\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [(a + b\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {[({42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([42\nWhich single closing bracket should come next?\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Text: [{n\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [[{x\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [((42\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {item\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {n\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ({({item\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ({(42\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {((item\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {([(value\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [({[42\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [n\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [n\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{[{value\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{[{item\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [x\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([item\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([({n\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {a + b\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([x\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{{(n\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {((a + b\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {[{n\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [[{42\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {(((value\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {a + b\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [value\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ({[{42\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [42\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{n\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{x\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [[{42\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [{{(n\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [{(a + b\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [{(a + b\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (value\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (([x\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (n\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [{((n\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {({{value\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {x\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (42\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([42\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {x\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([{x\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [42\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ({42\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [{value\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [42\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ((n\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [[(item\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [[42\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{x\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (((a + b\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (value\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [{a + b\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [42\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ((x\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([42\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [{[(n\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {([value\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Text: ([((42\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {item\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [[(x\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{item\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ((item\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([a + b\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([value\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {x\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [{{{item\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {[[n\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {item\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {value\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([[{42\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [[42\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{[x\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {(({value\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {value\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [(((42\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [42\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {[{42\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {a + b\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {[{[item\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [[[{value\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (x\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{({n\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [item\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [(x\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([item\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [((n\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (([{item\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (value\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([[x\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ({n\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([((n\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [({value\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [[[(item\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [([{item\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {([n\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {42\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {[item\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {[({42\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{{value\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [{item\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ((n\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{[(value\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {item\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{[{a + b\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ({a + b\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {{((item\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (((42\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [(({item\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (item\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: {({a + b\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (x\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (42\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [(a + b\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ({(value\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: ([42\nThe next closing bracket is ]. Copy that single bracket.\nAnswer:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Text: (a + b\nThe next closing bracket is ). Copy that single bracket.\nAnswer:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Text: [({item\nThe next closing bracket is }. Copy that single bracket.\nAnswer:",
+    "continuation": " }",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 0.6594
+}

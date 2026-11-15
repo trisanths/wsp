@@ -1,0 +1,104 @@
+{
+  "id": "mlp_html_entity_ampersand_prefix_granite8b_L39_k2_001",
+  "kind": "mlp_cluster",
+  "title": "granite-3.3-8b-instruct layer 39, HTML entity ampersand prefix",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/granite8b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "html_escape"
+  ],
+  "models": [
+    "ibm-granite/granite-3.3-8b-instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'html_escape' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.6264,
+      "control_value": -0.001,
+      "split": "person_a held-out skill items (html_escape)",
+      "seeds": null,
+      "source": "person_a/catalog/granite8b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.1298"
+    }
+  ],
+  "generated": true,
+  "model": "ibm-granite/granite-3.3-8b-instruct",
+  "layer": 39,
+  "layers": [
+    39
+  ],
+  "units_file": "components/ibm-granite__granite-3.3-8b-instruct/mlp_html_entity_ampersand_prefix_granite8b_L39_k2_001.pt",
+  "units_remote": "person_a/parts/granite8b/mlp_html_entity_ampersand_prefix_granite8b_L39_k2_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'html_escape'",
+    "label": "HTML entity ampersand prefix",
+    "num_units": 2,
+    "d_model": 4096,
+    "effect": {
+      "math|search": -0.0,
+      "math|heldout": -0.0001,
+      "code|search": 0.0,
+      "code|heldout": -0.0001,
+      "facts|search": -0.0009,
+      "facts|heldout": 0.0007,
+      "multilingual|search": -0.0004,
+      "multilingual|heldout": 0.0002,
+      "general_text|search": 0.0002,
+      "general_text|heldout": 0.0002,
+      "json_literals|search": 0.0014,
+      "json_literals__control|search": 0.0006,
+      "json_literals|heldout": 0.0013,
+      "json_literals__control|heldout": -0.0003,
+      "url_scheme|search": 0.0,
+      "url_scheme__control|search": -0.0,
+      "url_scheme|heldout": -0.0006,
+      "url_scheme__control|heldout": -0.0,
+      "sql_keywords|search": -0.0008,
+      "sql_keywords__control|search": 0.001,
+      "sql_keywords|heldout": 0.0006,
+      "sql_keywords__control|heldout": 0.0018,
+      "si_unit_symbols|search": 0.0031,
+      "si_unit_symbols__control|search": 0.0001,
+      "si_unit_symbols|heldout": -0.0001,
+      "si_unit_symbols__control|heldout": 0.0003,
+      "html_escape|search": 0.6251,
+      "html_escape__control|search": 0.0931,
+      "html_escape|heldout": 0.6264,
+      "html_escape__control|heldout": 0.1298
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.2084,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0002,
+      0.0002,
+      -0.0044,
+      -0.0002,
+      -0.0004
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L39 840 reads ampersand .512 and has negative ampersand down direction -.659; 1155 reads space-& .718 and writes it .663. Their opposing input/output lexical orientations suggest a context-dependent entity prefix mechanism, and they top independent HTML-escape attribution."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/granite8b/html_escape.json",
+    "hash": "b3be9fdc1dbb6bdd",
+    "description": "Encode reserved HTML text characters as named HTML entities, with matched controls preserving the same characters as plain text.",
+    "name": "html_escape"
+  },
+  "catalog_id": "mlp_html_entity_ampersand_prefix_granite8b_L39_k2_001",
+  "exported_copy": "library/granite8b/mlp_html_entity_ampersand_prefix_granite8b_L39_k2_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

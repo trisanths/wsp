@@ -1,0 +1,980 @@
+{
+ "name": "html_escape",
+ "description": "Encode reserved HTML text characters as named HTML entities, with matched controls preserving the same characters as plain text.",
+ "hash": "b3be9fdc1dbb6bdd",
+ "agent_items": false,
+ "generator_code": "import random,json,html\nrandom.seed(0)\nitems=[];control=[]\nchars=['&','<','>','\"']\ncontexts=['a text node','a heading','a paragraph','a list item','a caption','a title']\nfor i in range(96):\n c=chars[i%4];ctx=random.choice(contexts)\n prefix=f'The character {repr(c)} occurs in {ctx}. '\n items.append({'prompt':prefix+'Write its HTML named entity, not a numeric entity. Output only the entity.\\nAnswer:', 'answer':' '+html.escape(c,quote=True)})\n control.append({'prompt':prefix+'Write the original character unchanged, without quotes. Output only that character.\\nAnswer:', 'answer':' '+c})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "The character '\"' occurs in a paragraph. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &quot;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a list item. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &amp;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a heading. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &quot;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a paragraph. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &quot;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a list item. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &amp;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a heading. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &lt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a list item. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &lt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a text node. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &amp;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a paragraph. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &quot;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a list item. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &gt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a text node. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &amp;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a heading. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &quot;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a text node. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &amp;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a caption. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &lt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a text node. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &gt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a text node. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &gt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a title. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &quot;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a caption. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &amp;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a paragraph. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &amp;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a caption. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &gt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a caption. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &quot;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a list item. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &gt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a text node. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &amp;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a caption. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &gt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a title. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &quot;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a caption. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &gt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a heading. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &gt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a list item. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &lt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a paragraph. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &amp;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a heading. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &lt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a list item. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &gt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a title. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &lt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a text node. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &quot;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a heading. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &quot;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a caption. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &quot;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a paragraph. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &amp;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a paragraph. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &gt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a text node. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &lt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a caption. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &amp;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a paragraph. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &gt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a caption. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &lt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a paragraph. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &gt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a caption. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &amp;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a title. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &amp;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a heading. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &quot;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a caption. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &lt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a text node. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &quot;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a caption. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &quot;",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The character '<' occurs in a title. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &lt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a list item. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &quot;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a list item. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &amp;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a title. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &gt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a text node. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &lt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a title. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &lt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a paragraph. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &gt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a text node. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &gt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a heading. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &lt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a list item. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &amp;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a caption. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &quot;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a caption. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &quot;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a paragraph. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &gt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a caption. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &lt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a paragraph. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &quot;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a caption. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &amp;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a heading. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &amp;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a list item. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &quot;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a text node. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &gt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a list item. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &amp;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a paragraph. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &quot;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a paragraph. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &gt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a caption. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &lt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a text node. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &amp;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a paragraph. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &gt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a paragraph. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &lt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a caption. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &quot;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a list item. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &quot;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a paragraph. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &gt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a text node. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &amp;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a paragraph. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &amp;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a caption. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &amp;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a heading. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &gt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a title. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &amp;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a caption. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &lt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a heading. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &amp;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a title. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &quot;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a paragraph. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &gt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a text node. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &lt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a heading. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &lt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a caption. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &gt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a title. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &quot;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a caption. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &gt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a heading. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &lt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a list item. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &lt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a list item. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &lt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a caption. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &lt;",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a title. Write its HTML named entity, not a numeric entity. Output only the entity.\nAnswer:",
+    "continuation": " &lt;",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "The character '<' occurs in a heading. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a caption. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a caption. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a title. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a caption. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a list item. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a text node. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a paragraph. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a text node. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a text node. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a heading. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a text node. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a heading. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a title. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a text node. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a heading. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a caption. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a caption. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a title. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a heading. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a caption. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a list item. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a heading. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a paragraph. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a title. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a paragraph. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a text node. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a paragraph. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a caption. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a caption. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a paragraph. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a title. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a heading. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a title. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a paragraph. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a caption. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a caption. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a list item. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a caption. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a caption. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a caption. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a paragraph. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a title. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a text node. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a heading. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a list item. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a caption. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a paragraph. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " >",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The character '<' occurs in a caption. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a text node. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a paragraph. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a caption. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a list item. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a paragraph. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a text node. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a caption. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a heading. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a paragraph. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a caption. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a text node. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a text node. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a list item. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a list item. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a paragraph. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a paragraph. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a list item. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a title. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a paragraph. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a list item. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a text node. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a paragraph. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a text node. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a heading. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a list item. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a heading. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a list item. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a paragraph. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a caption. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a list item. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a title. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a paragraph. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a title. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a paragraph. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a caption. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a caption. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "The character '>' occurs in a text node. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a list item. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a caption. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a text node. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a title. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a heading. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "The character '\"' occurs in a heading. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a paragraph. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a list item. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "The character '&' occurs in a list item. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "The character '<' occurs in a caption. Write the original character unchanged, without quotes. Output only that character.\nAnswer:",
+    "continuation": " <",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 3.009
+}

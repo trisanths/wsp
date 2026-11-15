@@ -1,0 +1,113 @@
+{
+  "id": "heads_early_subject-token_aggregation_heads_for_fact_r_lfm2.5_2.6b_L2_k6_001",
+  "kind": "attn_heads",
+  "title": "LFM2.5-2.6B layer 2, early subject-token aggregation heads for fact recall (L2)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_2.6b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "facts"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-2.6B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'facts' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.9109,
+      "control_value": 0.1877,
+      "split": "person_a held-out skill items (facts)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_2.6b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-2.6B",
+  "layer": 2,
+  "layers": [
+    2
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-2.6B/heads_early_subject-token_aggregation_heads_for_fact_r_lfm2.5_2.6b_L2_k6_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_2.6b/heads_early_subject-token_aggregation_heads_for_fact_r_lfm2.5_2.6b_L2_k6_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'facts'",
+    "label": "early subject-token aggregation heads for fact recall (L2)",
+    "num_units": 6,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0268,
+      "math|heldout": 0.0194,
+      "code|search": -0.01,
+      "code|heldout": -0.0207,
+      "facts|search": 0.8438,
+      "facts|heldout": 0.9109,
+      "multilingual|search": 0.017,
+      "multilingual|heldout": -0.0599,
+      "general_text|search": 0.0666,
+      "general_text|heldout": 0.0974,
+      "month_successor|search": 0.27,
+      "month_successor__control|search": -0.0041,
+      "month_successor|heldout": -0.0107,
+      "month_successor__control|heldout": -0.0024,
+      "weekday_successor|search": 0.0649,
+      "weekday_successor__control|search": -0.0121,
+      "weekday_successor|heldout": 0.0574,
+      "weekday_successor__control|heldout": -0.0017,
+      "roman_numerals|search": -0.0525,
+      "roman_numerals__control|search": -0.0014,
+      "roman_numerals|heldout": 0.0395,
+      "roman_numerals__control|heldout": 0.0125,
+      "object_color|search": 0.0441,
+      "object_color__control|search": 0.0012,
+      "object_color|heldout": -0.0672,
+      "object_color__control|heldout": -0.0089,
+      "antonym|search": 0.0205,
+      "antonym__control|search": -0.002,
+      "antonym|heldout": 0.1184,
+      "antonym__control|heldout": -0.0105,
+      "ordinal_word|search": -0.0037,
+      "ordinal_word__control|search": -0.0729,
+      "ordinal_word|heldout": -0.0047,
+      "ordinal_word__control|heldout": -0.0677,
+      "capital_city|search": 0.0225,
+      "capital_city__control|search": 0.0014,
+      "capital_city|heldout": -0.0238,
+      "capital_city__control|heldout": 0.0014,
+      "past_tense|search": -0.0239,
+      "past_tense__control|search": 0.0107,
+      "past_tense|heldout": -0.0228,
+      "past_tense__control|heldout": -0.0034
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.2813,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.2236,
+      -0.0003,
+      -0.1129,
+      0.6137,
+      0.2146
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "These are the L2 heads with the largest facts attribution after head 16 (4: .23, 14: .20, 25: .16, 13: .16, 22: .14, 6: .10). Heads 16 and 15, which also carry past-tense attribution, were excluded. L2 is the first attention layer, so these heads likely assemble multi-token subject names that the L3 MLP fact store (screened) then enriches."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "builtin",
+    "name": "facts"
+  },
+  "catalog_id": "heads_early_subject-token_aggregation_heads_for_fact_r_lfm2.5_2.6b_L2_k6_001",
+  "exported_copy": "library/lfm2.5_2.6b/heads_early_subject-token_aggregation_heads_for_fact_r_lfm2.5_2.6b_L2_k6_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

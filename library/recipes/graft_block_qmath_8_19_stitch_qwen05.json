@@ -1,0 +1,77 @@
+{
+  "id": "graft_block_qmath_8_19_stitch_qwen05",
+  "kind": "recipe",
+  "title": "Qwen-Math layers 8..19 with a donor_lm stitch in Qwen-0.5B at layer 7",
+  "status": "rejected",
+  "added_by": "Person B",
+  "source": "results/stitch_graft_s0.json",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "gsm8k",
+    "graft",
+    "block",
+    "stitch"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-0.5B-Instruct",
+    "Qwen/Qwen2.5-Math-1.5B"
+  ],
+  "evidence": [
+    {
+      "claim": "block graft with a trained stitch vs a random block with the same stitch",
+      "metric": "GSM8K search accuracy",
+      "value": 0.38,
+      "control_value": 0.375,
+      "split": "GSM8K search split (200 items from GSM8K train)",
+      "seeds": [
+        0
+      ],
+      "source": "results/stitch_graft_s0.json",
+      "generated": true,
+      "control": "random same-length block",
+      "note": "matched LoRA 0.455"
+    }
+  ],
+  "generated": true,
+  "host": "Qwen/Qwen2.5-0.5B-Instruct",
+  "program": {
+    "host": "Qwen/Qwen2.5-0.5B-Instruct",
+    "seed": 0,
+    "masks": null,
+    "task_vectors": [],
+    "grafts": [
+      {
+        "id": "qmath_block_8_19",
+        "at": 7,
+        "control": null,
+        "control_seed": 0,
+        "glue_rank": 64,
+        "stitch": {
+          "kind": "linear",
+          "objective": "donor_lm",
+          "steps": 1000,
+          "lr": 0.001,
+          "batch_size": 8,
+          "seq_len": 256,
+          "seed": 0
+        }
+      }
+    ],
+    "heal": {
+      "steps": 300,
+      "data": "gsm8k_train",
+      "lr": 0.0003,
+      "batch_size": 8,
+      "seq_len": 384
+    }
+  },
+  "text": "host Qwen/Qwen2.5-0.5B-Instruct\nseed 0\ngraft qmath_block_8_19 at 7 rank 64 stitch linear objective donor_lm steps 1000 lr 0.001 batch_size 8 seq_len 256 seed 0\nheal steps 300 data gsm8k_train lr 0.0003 batch_size 8 seq_len 384\n",
+  "program_file": "recipes/graft_block_qmath_8_19_stitch_qwen05.wsp",
+  "syntax_gap": null,
+  "components": [
+    "qmath_block_8_19",
+    "stitch_qwen05b_instruct_h7_d8_donor_lm_linear"
+  ],
+  "status_reason": "ties the random block (1 seed); the matched LoRA scores 45.5"
+}

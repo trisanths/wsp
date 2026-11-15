@@ -1,0 +1,1220 @@
+{
+ "name": "past_tense",
+ "description": "Give the past tense of an irregular English verb, few-shot. Control: same format copying the verb.",
+ "hash": "5928ff924c467359",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nP=[('go','went'),('eat','ate'),('see','saw'),('take','took'),('give','gave'),('come','came'),('run','ran'),('write','wrote'),('speak','spoke'),('drink','drank'),('sing','sang'),('swim','swam'),('drive','drove'),('ride','rode'),('fly','flew'),('know','knew'),('grow','grew'),('throw','threw'),('break','broke'),('choose','chose'),('freeze','froze'),('steal','stole'),('wake','woke'),('begin','began'),('ring','rang'),('sit','sat'),('stand','stood'),('find','found'),('think','thought'),('buy','bought'),('bring','brought'),('teach','taught'),('catch','caught'),('fight','fought'),('sell','sold'),('tell','told'),('make','made'),('feel','felt'),('leave','left'),('keep','kept'),('sleep','slept'),('meet','met'),('lose','lost'),('hold','held'),('fall','fell')]\nitems=[];control=[]\nfor t in range(120):\n    s=random.sample(P,4)\n    items.append({\"prompt\":\"Past tense:\\n\"+\"\\n\".join(f\"{a} -> {b}\" for a,b in s[:3])+f\"\\n{s[3][0]} ->\",\"answer\":\" \"+s[3][1]})\n    s=random.sample(P,4)\n    control.append({\"prompt\":\"Copy:\\n\"+\"\\n\".join(f\"{a} -> {a}\" for a,b in s[:3])+f\"\\n{s[3][0]} ->\",\"answer\":\" \"+s[3][0]})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Past tense:\ndrink -> drank\nrun -> ran\ndrive -> drove\nbuy ->",
+    "continuation": " bought",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\ndrive -> drove\nleave -> left\ncome -> came\nsee ->",
+    "continuation": " saw",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nsleep -> slept\nchoose -> chose\nsell -> sold\nleave ->",
+    "continuation": " left",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nhold -> held\nsteal -> stole\nbring -> brought\ntell ->",
+    "continuation": " told",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\ntake -> took\nkeep -> kept\nride -> rode\neat ->",
+    "continuation": " ate",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nfind -> found\nfight -> fought\nteach -> taught\nhold ->",
+    "continuation": " held",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nsleep -> slept\nfreeze -> froze\nrun -> ran\nfall ->",
+    "continuation": " fell",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\ngrow -> grew\ngive -> gave\nfly -> flew\nmeet ->",
+    "continuation": " met",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nbreak -> broke\nhold -> held\nwake -> woke\nfeel ->",
+    "continuation": " felt",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nride -> rode\ntake -> took\nhold -> held\nsing ->",
+    "continuation": " sang",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\ntell -> told\nspeak -> spoke\nbreak -> broke\nwrite ->",
+    "continuation": " wrote",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nsing -> sang\nmeet -> met\nspeak -> spoke\nknow ->",
+    "continuation": " knew",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\ntake -> took\ncatch -> caught\nbuy -> bought\nsee ->",
+    "continuation": " saw",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\neat -> ate\nlose -> lost\ngo -> went\nswim ->",
+    "continuation": " swam",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nsteal -> stole\nmeet -> met\nwrite -> wrote\nhold ->",
+    "continuation": " held",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\ndrive -> drove\nknow -> knew\neat -> ate\nthrow ->",
+    "continuation": " threw",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nfall -> fell\neat -> ate\nleave -> left\nfly ->",
+    "continuation": " flew",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nsee -> saw\nsell -> sold\nthrow -> threw\nspeak ->",
+    "continuation": " spoke",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nkeep -> kept\ngrow -> grew\nsell -> sold\nleave ->",
+    "continuation": " left",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nbreak -> broke\nhold -> held\nwrite -> wrote\nfight ->",
+    "continuation": " fought",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nteach -> taught\nrun -> ran\nchoose -> chose\ntell ->",
+    "continuation": " told",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nbegin -> began\nmake -> made\nsleep -> slept\nspeak ->",
+    "continuation": " spoke",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nsee -> saw\nfall -> fell\nleave -> left\nmeet ->",
+    "continuation": " met",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nride -> rode\ngo -> went\nlose -> lost\nhold ->",
+    "continuation": " held",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nfall -> fell\nthink -> thought\nkeep -> kept\nbuy ->",
+    "continuation": " bought",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nfind -> found\nbegin -> began\nsell -> sold\nswim ->",
+    "continuation": " swam",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nsee -> saw\nthrow -> threw\nsing -> sang\ndrink ->",
+    "continuation": " drank",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nbuy -> bought\nsteal -> stole\nring -> rang\nsing ->",
+    "continuation": " sang",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\ndrink -> drank\nfind -> found\nmake -> made\ncome ->",
+    "continuation": " came",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nspeak -> spoke\ngo -> went\nsit -> sat\nhold ->",
+    "continuation": " held",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nleave -> left\nring -> rang\nfreeze -> froze\nmake ->",
+    "continuation": " made",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\ndrive -> drove\ngrow -> grew\nwake -> woke\nbring ->",
+    "continuation": " brought",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nswim -> swam\nfight -> fought\ngive -> gave\nchoose ->",
+    "continuation": " chose",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nteach -> taught\nfind -> found\nsee -> saw\nchoose ->",
+    "continuation": " chose",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nsteal -> stole\nwrite -> wrote\nfight -> fought\nknow ->",
+    "continuation": " knew",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nsleep -> slept\nbegin -> began\nfight -> fought\ntake ->",
+    "continuation": " took",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nsit -> sat\nfight -> fought\nthrow -> threw\nknow ->",
+    "continuation": " knew",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\ntake -> took\nring -> rang\ngo -> went\nrun ->",
+    "continuation": " ran",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nride -> rode\ntake -> took\nhold -> held\neat ->",
+    "continuation": " ate",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nfight -> fought\ngive -> gave\nhold -> held\ncome ->",
+    "continuation": " came",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nrun -> ran\nbring -> brought\ndrink -> drank\neat ->",
+    "continuation": " ate",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nfall -> fell\ngive -> gave\nspeak -> spoke\nstand ->",
+    "continuation": " stood",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nfight -> fought\nteach -> taught\ntell -> told\nleave ->",
+    "continuation": " left",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nsleep -> slept\ndrive -> drove\nleave -> left\nmake ->",
+    "continuation": " made",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nkeep -> kept\nteach -> taught\nsteal -> stole\nknow ->",
+    "continuation": " knew",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nfeel -> felt\nsit -> sat\nthink -> thought\nrun ->",
+    "continuation": " ran",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nthrow -> threw\nwrite -> wrote\ntell -> told\nleave ->",
+    "continuation": " left",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nwrite -> wrote\nsee -> saw\nleave -> left\neat ->",
+    "continuation": " ate",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nthink -> thought\nride -> rode\nfeel -> felt\ntake ->",
+    "continuation": " took",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nbreak -> broke\nfly -> flew\ndrink -> drank\nmake ->",
+    "continuation": " made",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\ngrow -> grew\ndrink -> drank\ntell -> told\nfall ->",
+    "continuation": " fell",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nsee -> saw\nsing -> sang\nthink -> thought\ngive ->",
+    "continuation": " gave",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nfly -> flew\ngrow -> grew\nfeel -> felt\nsing ->",
+    "continuation": " sang",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nrun -> ran\nsell -> sold\nfeel -> felt\nchoose ->",
+    "continuation": " chose",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nthink -> thought\nride -> rode\nbegin -> began\nbreak ->",
+    "continuation": " broke",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\ncome -> came\nfreeze -> froze\nkeep -> kept\nwrite ->",
+    "continuation": " wrote",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nfeel -> felt\nthrow -> threw\nthink -> thought\nteach ->",
+    "continuation": " taught",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nsleep -> slept\nbring -> brought\nstand -> stood\nride ->",
+    "continuation": " rode",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nrun -> ran\nleave -> left\nteach -> taught\ndrink ->",
+    "continuation": " drank",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nwake -> woke\nswim -> swam\ngo -> went\nfly ->",
+    "continuation": " flew",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Past tense:\nkeep -> kept\nsleep -> slept\nride -> rode\ntell ->",
+    "continuation": " told",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\neat -> ate\nthink -> thought\nfind -> found\nhold ->",
+    "continuation": " held",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\ngrow -> grew\ncome -> came\nwake -> woke\ngive ->",
+    "continuation": " gave",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nspeak -> spoke\nmeet -> met\nfight -> fought\nwake ->",
+    "continuation": " woke",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nring -> rang\nstand -> stood\nmeet -> met\ncome ->",
+    "continuation": " came",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nbring -> brought\nwake -> woke\ngrow -> grew\nspeak ->",
+    "continuation": " spoke",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nsee -> saw\nchoose -> chose\ngo -> went\nthink ->",
+    "continuation": " thought",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nring -> rang\nstand -> stood\nsee -> saw\ngrow ->",
+    "continuation": " grew",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nfreeze -> froze\nteach -> taught\nmeet -> met\ntake ->",
+    "continuation": " took",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nswim -> swam\nsee -> saw\nkeep -> kept\nlose ->",
+    "continuation": " lost",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nbring -> brought\nwake -> woke\nfeel -> felt\nride ->",
+    "continuation": " rode",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nfeel -> felt\nfind -> found\nchoose -> chose\nsleep ->",
+    "continuation": " slept",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nfly -> flew\nknow -> knew\ndrink -> drank\nsell ->",
+    "continuation": " sold",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nfind -> found\ndrink -> drank\nthink -> thought\nfight ->",
+    "continuation": " fought",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nsell -> sold\nleave -> left\nstand -> stood\nbring ->",
+    "continuation": " brought",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nteach -> taught\nsit -> sat\ngrow -> grew\nride ->",
+    "continuation": " rode",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\ncome -> came\nswim -> swam\nbegin -> began\ntake ->",
+    "continuation": " took",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nbring -> brought\nstand -> stood\ndrink -> drank\nteach ->",
+    "continuation": " taught",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nwrite -> wrote\nleave -> left\nthink -> thought\nlose ->",
+    "continuation": " lost",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\ngrow -> grew\neat -> ate\nfight -> fought\nlose ->",
+    "continuation": " lost",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nsit -> sat\nsleep -> slept\ncome -> came\neat ->",
+    "continuation": " ate",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\ngive -> gave\nfall -> fell\neat -> ate\nfight ->",
+    "continuation": " fought",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nbreak -> broke\nfight -> fought\nspeak -> spoke\nmake ->",
+    "continuation": " made",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nfly -> flew\nfreeze -> froze\ncatch -> caught\nknow ->",
+    "continuation": " knew",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\ndrink -> drank\nwake -> woke\nstand -> stood\nsee ->",
+    "continuation": " saw",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\ndrive -> drove\nsell -> sold\nkeep -> kept\nfly ->",
+    "continuation": " flew",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nsee -> saw\nride -> rode\nhold -> held\ngrow ->",
+    "continuation": " grew",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nbring -> brought\nbreak -> broke\ntell -> told\nsleep ->",
+    "continuation": " slept",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nsell -> sold\nride -> rode\nleave -> left\ntell ->",
+    "continuation": " told",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nthink -> thought\nwake -> woke\nring -> rang\nfind ->",
+    "continuation": " found",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nmeet -> met\ndrive -> drove\nchoose -> chose\nthrow ->",
+    "continuation": " threw",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nmake -> made\nsleep -> slept\nsell -> sold\nleave ->",
+    "continuation": " left",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nbegin -> began\ndrive -> drove\nbuy -> bought\nwake ->",
+    "continuation": " woke",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nstand -> stood\nlose -> lost\nsee -> saw\nspeak ->",
+    "continuation": " spoke",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nsteal -> stole\ngive -> gave\nteach -> taught\ngrow ->",
+    "continuation": " grew",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nsteal -> stole\nsing -> sang\nknow -> knew\nfly ->",
+    "continuation": " flew",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nsleep -> slept\ncatch -> caught\nfall -> fell\nfight ->",
+    "continuation": " fought",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nhold -> held\nspeak -> spoke\ndrink -> drank\nsee ->",
+    "continuation": " saw",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nswim -> swam\nstand -> stood\nfind -> found\nknow ->",
+    "continuation": " knew",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nwrite -> wrote\nthrow -> threw\nlose -> lost\nsee ->",
+    "continuation": " saw",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nchoose -> chose\nbuy -> bought\ntake -> took\nstand ->",
+    "continuation": " stood",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nsteal -> stole\nfind -> found\ntake -> took\nrun ->",
+    "continuation": " ran",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nbuy -> bought\nbegin -> began\ncatch -> caught\nring ->",
+    "continuation": " rang",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nstand -> stood\nmake -> made\ncatch -> caught\nchoose ->",
+    "continuation": " chose",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nring -> rang\nteach -> taught\nwrite -> wrote\ntake ->",
+    "continuation": " took",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\ngo -> went\nspeak -> spoke\ndrink -> drank\nthrow ->",
+    "continuation": " threw",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nfight -> fought\ndrink -> drank\ngrow -> grew\nleave ->",
+    "continuation": " left",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\ngo -> went\nhold -> held\nfight -> fought\nkeep ->",
+    "continuation": " kept",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nrun -> ran\nstand -> stood\nsleep -> slept\nsell ->",
+    "continuation": " sold",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nhold -> held\nteach -> taught\nfly -> flew\nsell ->",
+    "continuation": " sold",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nsleep -> slept\nmake -> made\nring -> rang\ncome ->",
+    "continuation": " came",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nbring -> brought\ngive -> gave\ncome -> came\nfight ->",
+    "continuation": " fought",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\ncome -> came\nhold -> held\nfight -> fought\nleave ->",
+    "continuation": " left",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nmake -> made\nstand -> stood\nsee -> saw\nsit ->",
+    "continuation": " sat",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\ntake -> took\ntell -> told\ngo -> went\ncome ->",
+    "continuation": " came",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nthink -> thought\nteach -> taught\nfeel -> felt\nhold ->",
+    "continuation": " held",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nbegin -> began\nsee -> saw\nwrite -> wrote\nkeep ->",
+    "continuation": " kept",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nwake -> woke\nbuy -> bought\nsleep -> slept\ncome ->",
+    "continuation": " came",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nrun -> ran\ntell -> told\nbring -> brought\nsteal ->",
+    "continuation": " stole",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense:\nsit -> sat\nfeel -> felt\nbuy -> bought\nspeak ->",
+    "continuation": " spoke",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Copy:\nsleep -> sleep\nhold -> hold\nswim -> swim\nfly ->",
+    "continuation": " fly",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nstand -> stand\neat -> eat\nteach -> teach\nfreeze ->",
+    "continuation": " freeze",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ndrive -> drive\nswim -> swim\nwrite -> write\nbring ->",
+    "continuation": " bring",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nleave -> leave\neat -> eat\nsit -> sit\ngive ->",
+    "continuation": " give",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nchoose -> choose\nstand -> stand\nring -> ring\ntake ->",
+    "continuation": " take",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nwrite -> write\ndrink -> drink\nthrow -> throw\neat ->",
+    "continuation": " eat",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nbring -> bring\nthink -> think\nfight -> fight\ngrow ->",
+    "continuation": " grow",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nstand -> stand\ncatch -> catch\nchoose -> choose\nwrite ->",
+    "continuation": " write",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nrun -> run\ndrive -> drive\nwrite -> write\nleave ->",
+    "continuation": " leave",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nknow -> know\nbreak -> break\nswim -> swim\ndrive ->",
+    "continuation": " drive",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nlose -> lose\nmeet -> meet\nfall -> fall\nwake ->",
+    "continuation": " wake",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nfall -> fall\ndrink -> drink\nthink -> think\nsit ->",
+    "continuation": " sit",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nchoose -> choose\nwake -> wake\nfind -> find\nswim ->",
+    "continuation": " swim",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nmake -> make\nride -> ride\nfly -> fly\ncome ->",
+    "continuation": " come",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nbreak -> break\ndrive -> drive\nrun -> run\nfind ->",
+    "continuation": " find",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nkeep -> keep\nbuy -> buy\nring -> ring\ntake ->",
+    "continuation": " take",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ntell -> tell\nmeet -> meet\nwake -> wake\ndrive ->",
+    "continuation": " drive",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nsit -> sit\ntell -> tell\nfight -> fight\nbreak ->",
+    "continuation": " break",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nbring -> bring\ncome -> come\nswim -> swim\nrun ->",
+    "continuation": " run",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nfeel -> feel\nbreak -> break\nthink -> think\ncome ->",
+    "continuation": " come",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nwrite -> write\nwake -> wake\nfall -> fall\neat ->",
+    "continuation": " eat",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nfreeze -> freeze\nspeak -> speak\nride -> ride\nswim ->",
+    "continuation": " swim",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nbuy -> buy\nsteal -> steal\nfight -> fight\ndrink ->",
+    "continuation": " drink",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nring -> ring\nstand -> stand\ngo -> go\nfreeze ->",
+    "continuation": " freeze",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nfall -> fall\nswim -> swim\nrun -> run\nbring ->",
+    "continuation": " bring",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ndrive -> drive\ntell -> tell\nsleep -> sleep\ncome ->",
+    "continuation": " come",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nfight -> fight\nsleep -> sleep\nride -> ride\nsell ->",
+    "continuation": " sell",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nsteal -> steal\nhold -> hold\ndrink -> drink\nsing ->",
+    "continuation": " sing",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nwrite -> write\nfly -> fly\nbegin -> begin\nsing ->",
+    "continuation": " sing",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nfall -> fall\nmake -> make\nstand -> stand\nlose ->",
+    "continuation": " lose",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nmake -> make\nsing -> sing\nfall -> fall\nhold ->",
+    "continuation": " hold",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nfreeze -> freeze\ngive -> give\ndrive -> drive\nmake ->",
+    "continuation": " make",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nwrite -> write\ngo -> go\nbreak -> break\nbegin ->",
+    "continuation": " begin",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nsit -> sit\nlose -> lose\nsleep -> sleep\ngo ->",
+    "continuation": " go",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ngo -> go\nsee -> see\nteach -> teach\nfreeze ->",
+    "continuation": " freeze",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nkeep -> keep\nfall -> fall\nbuy -> buy\nsleep ->",
+    "continuation": " sleep",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ngrow -> grow\nbring -> bring\ngive -> give\ncome ->",
+    "continuation": " come",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nsing -> sing\ngive -> give\nstand -> stand\nbreak ->",
+    "continuation": " break",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nteach -> teach\nmeet -> meet\nbuy -> buy\nsleep ->",
+    "continuation": " sleep",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nhold -> hold\nlose -> lose\nsit -> sit\ngo ->",
+    "continuation": " go",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nsleep -> sleep\nkeep -> keep\nspeak -> speak\nchoose ->",
+    "continuation": " choose",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nring -> ring\nleave -> leave\nfeel -> feel\nfly ->",
+    "continuation": " fly",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nteach -> teach\nring -> ring\nfly -> fly\ndrive ->",
+    "continuation": " drive",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nsing -> sing\nsteal -> steal\nfight -> fight\ngrow ->",
+    "continuation": " grow",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ngive -> give\ncome -> come\ndrive -> drive\nfly ->",
+    "continuation": " fly",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ngo -> go\nleave -> leave\ndrive -> drive\nfall ->",
+    "continuation": " fall",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ngo -> go\nride -> ride\nchoose -> choose\nwrite ->",
+    "continuation": " write",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nfreeze -> freeze\nteach -> teach\nsleep -> sleep\nlose ->",
+    "continuation": " lose",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nwrite -> write\nsit -> sit\ncome -> come\nbegin ->",
+    "continuation": " begin",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nfight -> fight\ncatch -> catch\nsee -> see\nmake ->",
+    "continuation": " make",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ntell -> tell\nfreeze -> freeze\nbegin -> begin\nmake ->",
+    "continuation": " make",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ngive -> give\nfind -> find\nride -> ride\nbreak ->",
+    "continuation": " break",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nrun -> run\nstand -> stand\ngive -> give\ndrink ->",
+    "continuation": " drink",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ngo -> go\nthrow -> throw\nsleep -> sleep\nfall ->",
+    "continuation": " fall",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nsteal -> steal\nbegin -> begin\ncome -> come\nkeep ->",
+    "continuation": " keep",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ndrink -> drink\nring -> ring\nfeel -> feel\nbreak ->",
+    "continuation": " break",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nsell -> sell\nfind -> find\nkeep -> keep\nrun ->",
+    "continuation": " run",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nbring -> bring\nknow -> know\ntake -> take\nchoose ->",
+    "continuation": " choose",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nthink -> think\ncome -> come\nfreeze -> freeze\ncatch ->",
+    "continuation": " catch",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nhold -> hold\ngive -> give\neat -> eat\nwrite ->",
+    "continuation": " write",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Copy:\ndrink -> drink\nfind -> find\nbring -> bring\ncome ->",
+    "continuation": " come",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nfeel -> feel\nbreak -> break\nbegin -> begin\nsit ->",
+    "continuation": " sit",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nsing -> sing\nring -> ring\ndrink -> drink\nspeak ->",
+    "continuation": " speak",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nleave -> leave\nrun -> run\nfall -> fall\nsit ->",
+    "continuation": " sit",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ngive -> give\ngrow -> grow\nchoose -> choose\nsell ->",
+    "continuation": " sell",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nride -> ride\nfind -> find\ncome -> come\nbegin ->",
+    "continuation": " begin",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\neat -> eat\nride -> ride\nbegin -> begin\nsteal ->",
+    "continuation": " steal",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nstand -> stand\nfreeze -> freeze\ngo -> go\nride ->",
+    "continuation": " ride",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nmake -> make\nsit -> sit\nsleep -> sleep\nhold ->",
+    "continuation": " hold",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ndrive -> drive\nsee -> see\nsit -> sit\nthink ->",
+    "continuation": " think",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nring -> ring\nsee -> see\nfly -> fly\nsleep ->",
+    "continuation": " sleep",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nride -> ride\nring -> ring\nfeel -> feel\nbreak ->",
+    "continuation": " break",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nchoose -> choose\ntell -> tell\nstand -> stand\ndrink ->",
+    "continuation": " drink",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nleave -> leave\ncome -> come\nhold -> hold\nfall ->",
+    "continuation": " fall",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nwake -> wake\nbring -> bring\nsit -> sit\ngo ->",
+    "continuation": " go",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nmeet -> meet\nsee -> see\nride -> ride\nkeep ->",
+    "continuation": " keep",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ngo -> go\nbuy -> buy\ncome -> come\nsteal ->",
+    "continuation": " steal",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nchoose -> choose\ncatch -> catch\nmake -> make\ngrow ->",
+    "continuation": " grow",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ndrink -> drink\nswim -> swim\nbuy -> buy\nwrite ->",
+    "continuation": " write",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nfind -> find\ndrive -> drive\nwake -> wake\nwrite ->",
+    "continuation": " write",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nmeet -> meet\nwake -> wake\nring -> ring\nlose ->",
+    "continuation": " lose",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nsit -> sit\nthrow -> throw\nbreak -> break\nthink ->",
+    "continuation": " think",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ncatch -> catch\nspeak -> speak\nbreak -> break\nrun ->",
+    "continuation": " run",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nbreak -> break\nsteal -> steal\ntake -> take\nsee ->",
+    "continuation": " see",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nsing -> sing\nwrite -> write\nfall -> fall\nring ->",
+    "continuation": " ring",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nfreeze -> freeze\nswim -> swim\nfeel -> feel\ncome ->",
+    "continuation": " come",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ndrink -> drink\nchoose -> choose\nrun -> run\ngive ->",
+    "continuation": " give",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ngo -> go\ngrow -> grow\nsit -> sit\nfight ->",
+    "continuation": " fight",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nthrow -> throw\nthink -> think\nwrite -> write\ngrow ->",
+    "continuation": " grow",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nride -> ride\nhold -> hold\nfeel -> feel\nstand ->",
+    "continuation": " stand",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nkeep -> keep\nbreak -> break\nspeak -> speak\nring ->",
+    "continuation": " ring",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nknow -> know\nbring -> bring\nwake -> wake\nkeep ->",
+    "continuation": " keep",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nwake -> wake\ncome -> come\nknow -> know\nthink ->",
+    "continuation": " think",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ngrow -> grow\nfall -> fall\nsing -> sing\nthink ->",
+    "continuation": " think",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nbring -> bring\nteach -> teach\nfall -> fall\ncatch ->",
+    "continuation": " catch",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nknow -> know\nswim -> swim\nbreak -> break\nbegin ->",
+    "continuation": " begin",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ncatch -> catch\nteach -> teach\nsit -> sit\nchoose ->",
+    "continuation": " choose",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nthink -> think\nchoose -> choose\ndrink -> drink\nteach ->",
+    "continuation": " teach",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nsleep -> sleep\ngive -> give\nsee -> see\nteach ->",
+    "continuation": " teach",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nthink -> think\nhold -> hold\ndrive -> drive\nwrite ->",
+    "continuation": " write",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nsteal -> steal\nwrite -> write\nbring -> bring\nfall ->",
+    "continuation": " fall",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nrun -> run\nwake -> wake\nfind -> find\nfreeze ->",
+    "continuation": " freeze",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nsee -> see\ngive -> give\nfly -> fly\nspeak ->",
+    "continuation": " speak",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ncome -> come\nfall -> fall\nsell -> sell\nhold ->",
+    "continuation": " hold",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nswim -> swim\ngo -> go\nbring -> bring\nhold ->",
+    "continuation": " hold",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nsit -> sit\nthrow -> throw\nsleep -> sleep\neat ->",
+    "continuation": " eat",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nsit -> sit\nsteal -> steal\nchoose -> choose\nstand ->",
+    "continuation": " stand",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nbegin -> begin\ngive -> give\nleave -> leave\ndrink ->",
+    "continuation": " drink",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ngo -> go\nsteal -> steal\nfreeze -> freeze\nsee ->",
+    "continuation": " see",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nring -> ring\nbegin -> begin\nsell -> sell\ndrink ->",
+    "continuation": " drink",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nsteal -> steal\nstand -> stand\nmeet -> meet\nhold ->",
+    "continuation": " hold",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nsteal -> steal\nsing -> sing\ndrink -> drink\nmeet ->",
+    "continuation": " meet",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nteach -> teach\nfeel -> feel\nsleep -> sleep\nsteal ->",
+    "continuation": " steal",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nsleep -> sleep\nthink -> think\nring -> ring\nhold ->",
+    "continuation": " hold",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nbreak -> break\nwrite -> write\ntell -> tell\nsteal ->",
+    "continuation": " steal",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nbring -> bring\nride -> ride\nbreak -> break\ngo ->",
+    "continuation": " go",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ngrow -> grow\nwake -> wake\nbreak -> break\nhold ->",
+    "continuation": " hold",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ntell -> tell\nlose -> lose\nchoose -> choose\nwake ->",
+    "continuation": " wake",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\nsee -> see\nleave -> leave\nkeep -> keep\nspeak ->",
+    "continuation": " speak",
+    "digits_only": false
+   },
+   {
+    "context": "Copy:\ndrink -> drink\nfall -> fall\nfly -> fly\nsee ->",
+    "continuation": " see",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 13.6042
+}

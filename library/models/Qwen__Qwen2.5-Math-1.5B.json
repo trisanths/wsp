@@ -1,0 +1,124 @@
+{
+  "id": "Qwen__Qwen2.5-Math-1.5B",
+  "kind": "model",
+  "title": "Qwen2.5-Math-1.5B (1.54B)",
+  "status": "validated",
+  "added_by": "Trisanth",
+  "source": "person_a/registry/configs/qwenmath1.5b.json, atlas/zoo.json",
+  "updated": "2026-11-14",
+  "skills": [
+    "math"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Math-1.5B"
+  ],
+  "evidence": [],
+  "generated": true,
+  "hf_id": "Qwen/Qwen2.5-Math-1.5B",
+  "family": "qwen2",
+  "params_b": 1.54,
+  "active_params_b": null,
+  "layers": 28,
+  "hidden": 1536,
+  "vocab": 151936,
+  "vocab_source": "person_a/registry/configs/qwenmath1.5b.json",
+  "tokenizer_family": null,
+  "license": "apache-2.0",
+  "experts": null,
+  "experts_per_token": null,
+  "needs": {
+    "transformers": "4.57.1",
+    "trust_remote_code": false,
+    "multi_gpu": false,
+    "gpu": "H200"
+  },
+  "scores": {
+    "gsm8k_search_harness": {
+      "value": 0.45,
+      "split": "GSM8K search split (200 items from GSM8K train)",
+      "prompt": "wsp_eval harness GSM8K prompt",
+      "source": "results/gate_hour8_3seeds.json",
+      "n": 200
+    }
+  },
+  "structure_notes": [
+    {
+      "note": "no BOS token: the first text token is the attention sink and carries massive, input-invariant activations; feed the donor's mean sink state at position 0 (audit)",
+      "source": "results/audit_sink_rows.json"
+    },
+    {
+      "note": "range-fetched tensors equal the checkpoint; a block part of layers 8..19 equals the donor layers (max diff 4e-5) (audit)",
+      "source": "results/README.md"
+    },
+    {
+      "note": "a donor_lm stitch into layer 8 leaves 0.03 to 0.09 nats of penalty from same-tokenizer hosts (stitch study)",
+      "source": "results/stitch_study_rows.json"
+    },
+    {
+      "note": "single-layer 512-neuron GSM8K clusters at layers 10, 18, 24 do not beat random (run 2)",
+      "source": "results/sweep2_rows.json"
+    },
+    {
+      "note": "mining registry role first_pair_donor, status active",
+      "source": "person_a/registry/donors.csv"
+    }
+  ],
+  "components": [
+    "qmath_l10_activation512",
+    "qmath_l10_contrast512",
+    "qmath_l10_attribution512",
+    "qmath_l18_activation512",
+    "qmath_l18_contrast512",
+    "qmath_l18_attribution512",
+    "qmath_l24_activation512",
+    "qmath_l24_contrast512",
+    "qmath_l24_attribution512",
+    "run1_qmath_l18_top512",
+    "gate_qmath_l10_contrast512",
+    "mlp_cluster_qwen25math15b_l16_gsm8k",
+    "mlp_cluster_qwen25math15b_l21_gsm8k",
+    "mlp_cluster_qwen25math15b_l17_gsm8k",
+    "attn_heads_qwen25math15b_l22_gsm8k",
+    "attn_heads_qwen25math15b_l20_gsm8k",
+    "attn_heads_qwen25math15b_l21_gsm8k",
+    "heads_math-reasoning-heads_qwenmath1.5b_L22_k4_001",
+    "heads_math_reasoning_l22_heads_6_9_11_qwenmath1.5b_L22_k3_001",
+    "heads_math_reasoning_l22_heads_6_10_11_qwenmath1.5b_L22_k3_001",
+    "mlp_math_reasoning_l22_activation512_qwenmath1.5b_L22_k512_001",
+    "mlp_math_reasoning_l22_activation384_qwenmath1.5b_L22_k384_001",
+    "mlp_numeratordenominator_answer_support_qwenmath1.5b_L22_k1_001",
+    "heads_sign_transport_in_product_descriptions_qwenmath1.5b_L15_k1_001",
+    "heads_negative-sign_transport_for_product_sign_qwenmath1.5b_L11_k1_001",
+    "mlp_fraction_role_question_interpretation_qwenmath1.5b_L13_k4_001",
+    "heads_fraction_constituent_selection_qwenmath1.5b_L22_k1_001",
+    "mlp_fraction-role_blank-completion_support_qwenmath1.5b_L27_k2_001",
+    "heads_signed_mathematical_role_routing_qwenmath1.5b_L20_k1_001",
+    "mlp_early_relational_expression_support_qwenmath1.5b_L0_k4_001",
+    "mlp_fraction_expression_interpretation_qwenmath1.5b_L8_k6_001",
+    "mlp_calendar-period_support_for_month-offset_complet_qwenmath1.5b_L21_k1_001",
+    "mlp_fraction-role_placeholder_and_argument-boundary__qwenmath1.5b_L10_k4_001",
+    "mlp_product-sign_parity_and_polarity_features_qwenmath1.5b_L12_k4_001",
+    "mlp_small-number_operand_support_for_month_offsets_qwenmath1.5b_L21_k1_001",
+    "mlp_positive-sign_and_answer-option_support_qwenmath1.5b_L17_k2_001",
+    "mlp_braced-argument_role_completion_qwenmath1.5b_L11_k6_001",
+    "mlp_question-to-fraction-terminology_completion_qwenmath1.5b_L17_k4_001",
+    "mlp_digit_and_zero-comparison_support_for_product_si_qwenmath1.5b_L11_k4_001",
+    "mlp_displayed_signed-product_interpretation_qwenmath1.5b_L6_k5_001",
+    "mlp_month-name_answer_support_qwenmath1.5b_L24_k1_001",
+    "mlp_fraction_numeratordenominator_vocabulary_qwenmath1.5b_L21_k1_001",
+    "pilot_qmath15_l6_top256",
+    "pilot_qmath15_l6_top512",
+    "pilot_qmath15_l12_top256",
+    "pilot_qmath15_l12_top512",
+    "pilot_qmath15_l18_top256",
+    "pilot_qmath15_l18_top512",
+    "pilot_qmath15_l24_top256",
+    "pilot_qmath15_l24_top512",
+    "qmath_block_8_19",
+    "qmath_block_4_23"
+  ],
+  "arch_sources": [
+    "person_a/registry/configs/qwenmath1.5b.json",
+    "atlas/zoo.json"
+  ]
+}

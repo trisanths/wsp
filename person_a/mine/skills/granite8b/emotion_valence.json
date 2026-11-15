@@ -1,0 +1,1220 @@
+{
+ "name": "emotion_valence",
+ "description": "Determine positive versus negative emotional sentiment from descriptive adjectives, with a matched noun-extraction control.",
+ "hash": "e13991a20fb08317",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\npos=['wonderful','excellent','delightful','fantastic','amazing','pleasant','enjoyable','lovely','superb','brilliant','great','marvelous','satisfying','impressive','beautiful','perfect']\nneg=['terrible','awful','horrible','dreadful','disappointing','unpleasant','miserable','disgusting','appalling','bad','atrocious','annoying','frustrating','depressing','poor','horrendous']\nnouns=['movie','meal','concert','trip','book','service','show','experience']\ncs=[(w,label,n) for label,ws in [('positive',pos),('negative',neg)] for w in ws for n in nouns];random.shuffle(cs)\nitems=[];control=[]\nfor w,label,n in cs[:120]:\n sentence=f'The {n} was {w}.'\n items.append({'prompt':f'Classify the sentiment as positive or negative.\\nText: {sentence}\\nAnswer:','answer':' '+label})\n control.append({'prompt':f'Which noun is being described?\\nText: {sentence}\\nAnswer:','answer':' '+n})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The concert was atrocious.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The experience was wonderful.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The meal was marvelous.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The meal was depressing.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The trip was atrocious.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The concert was unpleasant.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The experience was horrible.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The meal was enjoyable.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The service was enjoyable.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The experience was lovely.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The concert was frustrating.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The service was superb.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The show was annoying.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The trip was appalling.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The show was disgusting.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The show was atrocious.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The movie was satisfying.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The concert was impressive.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The book was terrible.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The book was marvelous.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The show was depressing.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The service was delightful.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The movie was terrible.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The trip was satisfying.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The show was impressive.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The concert was miserable.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The show was pleasant.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The concert was wonderful.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The movie was beautiful.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The show was horrendous.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The book was disappointing.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The movie was frustrating.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The experience was miserable.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The trip was poor.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The movie was impressive.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The meal was unpleasant.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The movie was horrible.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The show was wonderful.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The book was beautiful.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The trip was perfect.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The concert was fantastic.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The meal was miserable.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The experience was superb.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The service was annoying.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The meal was disgusting.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The book was excellent.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The meal was dreadful.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The meal was superb.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The book was impressive.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The service was marvelous.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The service was dreadful.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The service was horrendous.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The book was unpleasant.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The experience was marvelous.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The book was superb.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The show was marvelous.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The meal was satisfying.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The trip was dreadful.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The concert was great.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The concert was enjoyable.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The concert was disappointing.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The service was impressive.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The trip was excellent.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The meal was lovely.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The service was pleasant.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The movie was miserable.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The experience was perfect.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The meal was wonderful.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The book was fantastic.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The book was brilliant.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The movie was marvelous.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The experience was great.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The service was depressing.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The show was disappointing.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The movie was unpleasant.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The movie was amazing.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The concert was pleasant.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The meal was horrendous.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The trip was enjoyable.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The show was great.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The trip was pleasant.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The service was fantastic.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The show was enjoyable.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The book was poor.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The show was poor.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The show was awful.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The service was excellent.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The service was beautiful.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The experience was dreadful.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The show was frustrating.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The movie was pleasant.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The service was atrocious.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The service was poor.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The show was appalling.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The meal was impressive.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The experience was disgusting.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The book was wonderful.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The trip was lovely.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The service was frustrating.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The meal was awful.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The book was horrible.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The book was appalling.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The meal was disappointing.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The show was beautiful.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The experience was atrocious.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The show was fantastic.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The trip was delightful.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The trip was terrible.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The experience was beautiful.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The concert was annoying.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The book was pleasant.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The experience was frustrating.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The concert was horrible.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The concert was lovely.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The experience was amazing.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The movie was appalling.\nAnswer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The concert was amazing.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The service was wonderful.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The trip was superb.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the sentiment as positive or negative.\nText: The service was satisfying.\nAnswer:",
+    "continuation": " positive",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Which noun is being described?\nText: The concert was pleasant.\nAnswer:",
+    "continuation": " concert",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The service was impressive.\nAnswer:",
+    "continuation": " service",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The meal was superb.\nAnswer:",
+    "continuation": " meal",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The show was appalling.\nAnswer:",
+    "continuation": " show",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The meal was impressive.\nAnswer:",
+    "continuation": " meal",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The meal was lovely.\nAnswer:",
+    "continuation": " meal",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The concert was disappointing.\nAnswer:",
+    "continuation": " concert",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The book was wonderful.\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The trip was terrible.\nAnswer:",
+    "continuation": " trip",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The book was disappointing.\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The meal was satisfying.\nAnswer:",
+    "continuation": " meal",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The meal was dreadful.\nAnswer:",
+    "continuation": " meal",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The meal was enjoyable.\nAnswer:",
+    "continuation": " meal",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The show was great.\nAnswer:",
+    "continuation": " show",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The service was marvelous.\nAnswer:",
+    "continuation": " service",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The show was poor.\nAnswer:",
+    "continuation": " show",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The experience was horrible.\nAnswer:",
+    "continuation": " experience",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The show was wonderful.\nAnswer:",
+    "continuation": " show",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The book was superb.\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The experience was dreadful.\nAnswer:",
+    "continuation": " experience",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The trip was excellent.\nAnswer:",
+    "continuation": " trip",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The show was disappointing.\nAnswer:",
+    "continuation": " show",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The service was frustrating.\nAnswer:",
+    "continuation": " service",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The meal was unpleasant.\nAnswer:",
+    "continuation": " meal",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The movie was pleasant.\nAnswer:",
+    "continuation": " movie",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The book was horrible.\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The show was enjoyable.\nAnswer:",
+    "continuation": " show",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The trip was poor.\nAnswer:",
+    "continuation": " trip",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The show was atrocious.\nAnswer:",
+    "continuation": " show",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The concert was lovely.\nAnswer:",
+    "continuation": " concert",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The movie was frustrating.\nAnswer:",
+    "continuation": " movie",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The meal was disgusting.\nAnswer:",
+    "continuation": " meal",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The trip was satisfying.\nAnswer:",
+    "continuation": " trip",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The experience was amazing.\nAnswer:",
+    "continuation": " experience",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The experience was superb.\nAnswer:",
+    "continuation": " experience",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The experience was atrocious.\nAnswer:",
+    "continuation": " experience",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The book was brilliant.\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The movie was impressive.\nAnswer:",
+    "continuation": " movie",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The movie was terrible.\nAnswer:",
+    "continuation": " movie",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The trip was perfect.\nAnswer:",
+    "continuation": " trip",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The service was enjoyable.\nAnswer:",
+    "continuation": " service",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The movie was unpleasant.\nAnswer:",
+    "continuation": " movie",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The show was frustrating.\nAnswer:",
+    "continuation": " show",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The experience was lovely.\nAnswer:",
+    "continuation": " experience",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The book was pleasant.\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The service was pleasant.\nAnswer:",
+    "continuation": " service",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The show was impressive.\nAnswer:",
+    "continuation": " show",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The concert was unpleasant.\nAnswer:",
+    "continuation": " concert",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The service was annoying.\nAnswer:",
+    "continuation": " service",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The meal was disappointing.\nAnswer:",
+    "continuation": " meal",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The service was excellent.\nAnswer:",
+    "continuation": " service",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The concert was horrible.\nAnswer:",
+    "continuation": " concert",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The movie was beautiful.\nAnswer:",
+    "continuation": " movie",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The concert was amazing.\nAnswer:",
+    "continuation": " concert",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The show was fantastic.\nAnswer:",
+    "continuation": " show",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The trip was delightful.\nAnswer:",
+    "continuation": " trip",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The book was beautiful.\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The concert was frustrating.\nAnswer:",
+    "continuation": " concert",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The service was depressing.\nAnswer:",
+    "continuation": " service",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The service was atrocious.\nAnswer:",
+    "continuation": " service",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Which noun is being described?\nText: The meal was marvelous.\nAnswer:",
+    "continuation": " meal",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The show was pleasant.\nAnswer:",
+    "continuation": " show",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The experience was marvelous.\nAnswer:",
+    "continuation": " experience",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The show was annoying.\nAnswer:",
+    "continuation": " show",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The experience was wonderful.\nAnswer:",
+    "continuation": " experience",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The movie was appalling.\nAnswer:",
+    "continuation": " movie",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The movie was miserable.\nAnswer:",
+    "continuation": " movie",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The show was horrendous.\nAnswer:",
+    "continuation": " show",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The concert was great.\nAnswer:",
+    "continuation": " concert",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The book was marvelous.\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The book was impressive.\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The concert was miserable.\nAnswer:",
+    "continuation": " concert",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The meal was miserable.\nAnswer:",
+    "continuation": " meal",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The meal was horrendous.\nAnswer:",
+    "continuation": " meal",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The trip was atrocious.\nAnswer:",
+    "continuation": " trip",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The movie was amazing.\nAnswer:",
+    "continuation": " movie",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The service was dreadful.\nAnswer:",
+    "continuation": " service",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The trip was appalling.\nAnswer:",
+    "continuation": " trip",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The movie was satisfying.\nAnswer:",
+    "continuation": " movie",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The book was unpleasant.\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The show was beautiful.\nAnswer:",
+    "continuation": " show",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The experience was beautiful.\nAnswer:",
+    "continuation": " experience",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The movie was marvelous.\nAnswer:",
+    "continuation": " movie",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The service was superb.\nAnswer:",
+    "continuation": " service",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The service was delightful.\nAnswer:",
+    "continuation": " service",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The service was beautiful.\nAnswer:",
+    "continuation": " service",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The book was terrible.\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The meal was awful.\nAnswer:",
+    "continuation": " meal",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The trip was pleasant.\nAnswer:",
+    "continuation": " trip",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The movie was horrible.\nAnswer:",
+    "continuation": " movie",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The show was disgusting.\nAnswer:",
+    "continuation": " show",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The concert was impressive.\nAnswer:",
+    "continuation": " concert",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The experience was great.\nAnswer:",
+    "continuation": " experience",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The service was horrendous.\nAnswer:",
+    "continuation": " service",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The trip was dreadful.\nAnswer:",
+    "continuation": " trip",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The book was poor.\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The meal was wonderful.\nAnswer:",
+    "continuation": " meal",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The book was fantastic.\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The service was poor.\nAnswer:",
+    "continuation": " service",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The service was fantastic.\nAnswer:",
+    "continuation": " service",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The trip was superb.\nAnswer:",
+    "continuation": " trip",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The meal was depressing.\nAnswer:",
+    "continuation": " meal",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The experience was frustrating.\nAnswer:",
+    "continuation": " experience",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The trip was lovely.\nAnswer:",
+    "continuation": " trip",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The trip was enjoyable.\nAnswer:",
+    "continuation": " trip",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The concert was annoying.\nAnswer:",
+    "continuation": " concert",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The experience was miserable.\nAnswer:",
+    "continuation": " experience",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The concert was enjoyable.\nAnswer:",
+    "continuation": " concert",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The show was awful.\nAnswer:",
+    "continuation": " show",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The concert was atrocious.\nAnswer:",
+    "continuation": " concert",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The concert was wonderful.\nAnswer:",
+    "continuation": " concert",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The experience was perfect.\nAnswer:",
+    "continuation": " experience",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The show was marvelous.\nAnswer:",
+    "continuation": " show",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The experience was disgusting.\nAnswer:",
+    "continuation": " experience",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The show was depressing.\nAnswer:",
+    "continuation": " show",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The service was wonderful.\nAnswer:",
+    "continuation": " service",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The book was excellent.\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The service was satisfying.\nAnswer:",
+    "continuation": " service",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The concert was fantastic.\nAnswer:",
+    "continuation": " concert",
+    "digits_only": false
+   },
+   {
+    "context": "Which noun is being described?\nText: The book was appalling.\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 4.6698
+}

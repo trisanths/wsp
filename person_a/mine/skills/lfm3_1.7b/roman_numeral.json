@@ -1,0 +1,1220 @@
+{
+ "name": "roman_numeral",
+ "description": "Convert an Arabic integer (1-39) to Roman numerals, few-shot. Control: same format but the second line is the arabic successor.",
+ "hash": "58a91e929708edbd",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\ndef roman(n):\n    vals=[(10,'X'),(9,'IX'),(5,'V'),(4,'IV'),(1,'I')]\n    s=''\n    for v,r in vals:\n        while n>=v: s+=r; n-=v\n    return s\nitems=[];control=[]\nfor t in range(120):\n    shots=random.sample(range(1,40),3); q=random.choice([x for x in range(2,40) if x not in shots])\n    p=''.join(f\"Number: {a}\\nRoman: {roman(a)}\\n\\n\" for a in shots)+f\"Number: {q}\\nRoman:\"\n    items.append({\"prompt\":p,\"answer\":\" \"+roman(q)})\n    p2=''.join(f\"Number: {a}\\nNext: {a+1}\\n\\n\" for a in shots)+f\"Number: {q}\\nNext:\"\n    control.append({\"prompt\":p2,\"answer\":f\" {q+1}\"})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Number: 11\nRoman: XI\n\nNumber: 29\nRoman: XXIX\n\nNumber: 34\nRoman: XXXIV\n\nNumber: 36\nRoman:",
+    "continuation": " XXXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 39\nRoman: XXXIX\n\nNumber: 10\nRoman: X\n\nNumber: 25\nRoman: XXV\n\nNumber: 21\nRoman:",
+    "continuation": " XXI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 34\nRoman: XXXIV\n\nNumber: 32\nRoman: XXXII\n\nNumber: 21\nRoman: XXI\n\nNumber: 36\nRoman:",
+    "continuation": " XXXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 33\nRoman: XXXIII\n\nNumber: 9\nRoman: IX\n\nNumber: 19\nRoman: XIX\n\nNumber: 11\nRoman:",
+    "continuation": " XI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 14\nRoman: XIV\n\nNumber: 19\nRoman: XIX\n\nNumber: 35\nRoman: XXXV\n\nNumber: 30\nRoman:",
+    "continuation": " XXX",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 32\nRoman: XXXII\n\nNumber: 21\nRoman: XXI\n\nNumber: 20\nRoman: XX\n\nNumber: 34\nRoman:",
+    "continuation": " XXXIV",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 12\nRoman: XII\n\nNumber: 14\nRoman: XIV\n\nNumber: 25\nRoman: XXV\n\nNumber: 22\nRoman:",
+    "continuation": " XXII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 26\nRoman: XXVI\n\nNumber: 34\nRoman: XXXIV\n\nNumber: 18\nRoman: XVIII\n\nNumber: 38\nRoman:",
+    "continuation": " XXXVIII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 15\nRoman: XV\n\nNumber: 3\nRoman: III\n\nNumber: 37\nRoman: XXXVII\n\nNumber: 39\nRoman:",
+    "continuation": " XXXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 23\nRoman: XXIII\n\nNumber: 6\nRoman: VI\n\nNumber: 21\nRoman: XXI\n\nNumber: 10\nRoman:",
+    "continuation": " X",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 10\nRoman: X\n\nNumber: 36\nRoman: XXXVI\n\nNumber: 1\nRoman: I\n\nNumber: 32\nRoman:",
+    "continuation": " XXXII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 18\nRoman: XVIII\n\nNumber: 2\nRoman: II\n\nNumber: 3\nRoman: III\n\nNumber: 6\nRoman:",
+    "continuation": " VI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 16\nRoman: XVI\n\nNumber: 14\nRoman: XIV\n\nNumber: 38\nRoman: XXXVIII\n\nNumber: 30\nRoman:",
+    "continuation": " XXX",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 29\nRoman: XXIX\n\nNumber: 8\nRoman: VIII\n\nNumber: 17\nRoman: XVII\n\nNumber: 11\nRoman:",
+    "continuation": " XI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 22\nRoman: XXII\n\nNumber: 24\nRoman: XXIV\n\nNumber: 6\nRoman: VI\n\nNumber: 26\nRoman:",
+    "continuation": " XXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 14\nRoman: XIV\n\nNumber: 39\nRoman: XXXIX\n\nNumber: 36\nRoman: XXXVI\n\nNumber: 21\nRoman:",
+    "continuation": " XXI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 22\nRoman: XXII\n\nNumber: 10\nRoman: X\n\nNumber: 11\nRoman: XI\n\nNumber: 29\nRoman:",
+    "continuation": " XXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 28\nRoman: XXVIII\n\nNumber: 4\nRoman: IV\n\nNumber: 7\nRoman: VII\n\nNumber: 13\nRoman:",
+    "continuation": " XIII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 31\nRoman: XXXI\n\nNumber: 23\nRoman: XXIII\n\nNumber: 38\nRoman: XXXVIII\n\nNumber: 15\nRoman:",
+    "continuation": " XV",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 3\nRoman: III\n\nNumber: 18\nRoman: XVIII\n\nNumber: 11\nRoman: XI\n\nNumber: 13\nRoman:",
+    "continuation": " XIII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 29\nRoman: XXIX\n\nNumber: 34\nRoman: XXXIV\n\nNumber: 17\nRoman: XVII\n\nNumber: 5\nRoman:",
+    "continuation": " V",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 22\nRoman: XXII\n\nNumber: 11\nRoman: XI\n\nNumber: 10\nRoman: X\n\nNumber: 34\nRoman:",
+    "continuation": " XXXIV",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 11\nRoman: XI\n\nNumber: 22\nRoman: XXII\n\nNumber: 34\nRoman: XXXIV\n\nNumber: 19\nRoman:",
+    "continuation": " XIX",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 32\nRoman: XXXII\n\nNumber: 28\nRoman: XXVIII\n\nNumber: 3\nRoman: III\n\nNumber: 22\nRoman:",
+    "continuation": " XXII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 10\nRoman: X\n\nNumber: 37\nRoman: XXXVII\n\nNumber: 26\nRoman: XXVI\n\nNumber: 31\nRoman:",
+    "continuation": " XXXI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 8\nRoman: VIII\n\nNumber: 39\nRoman: XXXIX\n\nNumber: 29\nRoman: XXIX\n\nNumber: 14\nRoman:",
+    "continuation": " XIV",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 20\nRoman: XX\n\nNumber: 23\nRoman: XXIII\n\nNumber: 25\nRoman: XXV\n\nNumber: 18\nRoman:",
+    "continuation": " XVIII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 5\nRoman: V\n\nNumber: 32\nRoman: XXXII\n\nNumber: 17\nRoman: XVII\n\nNumber: 23\nRoman:",
+    "continuation": " XXIII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 12\nRoman: XII\n\nNumber: 34\nRoman: XXXIV\n\nNumber: 5\nRoman: V\n\nNumber: 23\nRoman:",
+    "continuation": " XXIII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 7\nRoman: VII\n\nNumber: 17\nRoman: XVII\n\nNumber: 5\nRoman: V\n\nNumber: 19\nRoman:",
+    "continuation": " XIX",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 1\nRoman: I\n\nNumber: 32\nRoman: XXXII\n\nNumber: 22\nRoman: XXII\n\nNumber: 17\nRoman:",
+    "continuation": " XVII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 38\nRoman: XXXVIII\n\nNumber: 18\nRoman: XVIII\n\nNumber: 29\nRoman: XXIX\n\nNumber: 35\nRoman:",
+    "continuation": " XXXV",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 6\nRoman: VI\n\nNumber: 22\nRoman: XXII\n\nNumber: 3\nRoman: III\n\nNumber: 39\nRoman:",
+    "continuation": " XXXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 23\nRoman: XXIII\n\nNumber: 19\nRoman: XIX\n\nNumber: 38\nRoman: XXXVIII\n\nNumber: 10\nRoman:",
+    "continuation": " X",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 31\nRoman: XXXI\n\nNumber: 5\nRoman: V\n\nNumber: 6\nRoman: VI\n\nNumber: 38\nRoman:",
+    "continuation": " XXXVIII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 2\nRoman: II\n\nNumber: 34\nRoman: XXXIV\n\nNumber: 29\nRoman: XXIX\n\nNumber: 15\nRoman:",
+    "continuation": " XV",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 6\nRoman: VI\n\nNumber: 21\nRoman: XXI\n\nNumber: 33\nRoman: XXXIII\n\nNumber: 36\nRoman:",
+    "continuation": " XXXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 1\nRoman: I\n\nNumber: 39\nRoman: XXXIX\n\nNumber: 13\nRoman: XIII\n\nNumber: 24\nRoman:",
+    "continuation": " XXIV",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 10\nRoman: X\n\nNumber: 3\nRoman: III\n\nNumber: 6\nRoman: VI\n\nNumber: 39\nRoman:",
+    "continuation": " XXXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 31\nRoman: XXXI\n\nNumber: 25\nRoman: XXV\n\nNumber: 39\nRoman: XXXIX\n\nNumber: 16\nRoman:",
+    "continuation": " XVI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 30\nRoman: XXX\n\nNumber: 28\nRoman: XXVIII\n\nNumber: 24\nRoman: XXIV\n\nNumber: 39\nRoman:",
+    "continuation": " XXXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 17\nRoman: XVII\n\nNumber: 38\nRoman: XXXVIII\n\nNumber: 11\nRoman: XI\n\nNumber: 31\nRoman:",
+    "continuation": " XXXI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 12\nRoman: XII\n\nNumber: 8\nRoman: VIII\n\nNumber: 31\nRoman: XXXI\n\nNumber: 17\nRoman:",
+    "continuation": " XVII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 12\nRoman: XII\n\nNumber: 13\nRoman: XIII\n\nNumber: 3\nRoman: III\n\nNumber: 21\nRoman:",
+    "continuation": " XXI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 31\nRoman: XXXI\n\nNumber: 36\nRoman: XXXVI\n\nNumber: 7\nRoman: VII\n\nNumber: 25\nRoman:",
+    "continuation": " XXV",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 3\nRoman: III\n\nNumber: 34\nRoman: XXXIV\n\nNumber: 10\nRoman: X\n\nNumber: 20\nRoman:",
+    "continuation": " XX",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 14\nRoman: XIV\n\nNumber: 3\nRoman: III\n\nNumber: 10\nRoman: X\n\nNumber: 9\nRoman:",
+    "continuation": " IX",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 31\nRoman: XXXI\n\nNumber: 5\nRoman: V\n\nNumber: 6\nRoman: VI\n\nNumber: 12\nRoman:",
+    "continuation": " XII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 4\nRoman: IV\n\nNumber: 3\nRoman: III\n\nNumber: 31\nRoman: XXXI\n\nNumber: 30\nRoman:",
+    "continuation": " XXX",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 33\nRoman: XXXIII\n\nNumber: 37\nRoman: XXXVII\n\nNumber: 17\nRoman: XVII\n\nNumber: 24\nRoman:",
+    "continuation": " XXIV",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 15\nRoman: XV\n\nNumber: 24\nRoman: XXIV\n\nNumber: 11\nRoman: XI\n\nNumber: 26\nRoman:",
+    "continuation": " XXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 3\nRoman: III\n\nNumber: 39\nRoman: XXXIX\n\nNumber: 2\nRoman: II\n\nNumber: 16\nRoman:",
+    "continuation": " XVI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 25\nRoman: XXV\n\nNumber: 37\nRoman: XXXVII\n\nNumber: 27\nRoman: XXVII\n\nNumber: 4\nRoman:",
+    "continuation": " IV",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 26\nRoman: XXVI\n\nNumber: 36\nRoman: XXXVI\n\nNumber: 34\nRoman: XXXIV\n\nNumber: 20\nRoman:",
+    "continuation": " XX",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 8\nRoman: VIII\n\nNumber: 32\nRoman: XXXII\n\nNumber: 26\nRoman: XXVI\n\nNumber: 19\nRoman:",
+    "continuation": " XIX",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 8\nRoman: VIII\n\nNumber: 36\nRoman: XXXVI\n\nNumber: 22\nRoman: XXII\n\nNumber: 39\nRoman:",
+    "continuation": " XXXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 7\nRoman: VII\n\nNumber: 20\nRoman: XX\n\nNumber: 36\nRoman: XXXVI\n\nNumber: 22\nRoman:",
+    "continuation": " XXII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 33\nRoman: XXXIII\n\nNumber: 3\nRoman: III\n\nNumber: 37\nRoman: XXXVII\n\nNumber: 8\nRoman:",
+    "continuation": " VIII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 36\nRoman: XXXVI\n\nNumber: 39\nRoman: XXXIX\n\nNumber: 1\nRoman: I\n\nNumber: 4\nRoman:",
+    "continuation": " IV",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 22\nRoman: XXII\n\nNumber: 8\nRoman: VIII\n\nNumber: 31\nRoman: XXXI\n\nNumber: 10\nRoman:",
+    "continuation": " X",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Number: 7\nRoman: VII\n\nNumber: 17\nRoman: XVII\n\nNumber: 35\nRoman: XXXV\n\nNumber: 12\nRoman:",
+    "continuation": " XII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 26\nRoman: XXVI\n\nNumber: 22\nRoman: XXII\n\nNumber: 20\nRoman: XX\n\nNumber: 31\nRoman:",
+    "continuation": " XXXI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 7\nRoman: VII\n\nNumber: 36\nRoman: XXXVI\n\nNumber: 31\nRoman: XXXI\n\nNumber: 34\nRoman:",
+    "continuation": " XXXIV",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 13\nRoman: XIII\n\nNumber: 17\nRoman: XVII\n\nNumber: 23\nRoman: XXIII\n\nNumber: 35\nRoman:",
+    "continuation": " XXXV",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 39\nRoman: XXXIX\n\nNumber: 5\nRoman: V\n\nNumber: 2\nRoman: II\n\nNumber: 11\nRoman:",
+    "continuation": " XI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 6\nRoman: VI\n\nNumber: 5\nRoman: V\n\nNumber: 13\nRoman: XIII\n\nNumber: 19\nRoman:",
+    "continuation": " XIX",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 1\nRoman: I\n\nNumber: 34\nRoman: XXXIV\n\nNumber: 7\nRoman: VII\n\nNumber: 15\nRoman:",
+    "continuation": " XV",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 25\nRoman: XXV\n\nNumber: 27\nRoman: XXVII\n\nNumber: 3\nRoman: III\n\nNumber: 19\nRoman:",
+    "continuation": " XIX",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 34\nRoman: XXXIV\n\nNumber: 39\nRoman: XXXIX\n\nNumber: 5\nRoman: V\n\nNumber: 30\nRoman:",
+    "continuation": " XXX",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 21\nRoman: XXI\n\nNumber: 5\nRoman: V\n\nNumber: 13\nRoman: XIII\n\nNumber: 18\nRoman:",
+    "continuation": " XVIII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 33\nRoman: XXXIII\n\nNumber: 32\nRoman: XXXII\n\nNumber: 26\nRoman: XXVI\n\nNumber: 21\nRoman:",
+    "continuation": " XXI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 13\nRoman: XIII\n\nNumber: 23\nRoman: XXIII\n\nNumber: 8\nRoman: VIII\n\nNumber: 6\nRoman:",
+    "continuation": " VI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 28\nRoman: XXVIII\n\nNumber: 21\nRoman: XXI\n\nNumber: 14\nRoman: XIV\n\nNumber: 35\nRoman:",
+    "continuation": " XXXV",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 27\nRoman: XXVII\n\nNumber: 25\nRoman: XXV\n\nNumber: 4\nRoman: IV\n\nNumber: 13\nRoman:",
+    "continuation": " XIII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 26\nRoman: XXVI\n\nNumber: 6\nRoman: VI\n\nNumber: 2\nRoman: II\n\nNumber: 21\nRoman:",
+    "continuation": " XXI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 11\nRoman: XI\n\nNumber: 29\nRoman: XXIX\n\nNumber: 5\nRoman: V\n\nNumber: 20\nRoman:",
+    "continuation": " XX",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 10\nRoman: X\n\nNumber: 32\nRoman: XXXII\n\nNumber: 39\nRoman: XXXIX\n\nNumber: 7\nRoman:",
+    "continuation": " VII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 14\nRoman: XIV\n\nNumber: 17\nRoman: XVII\n\nNumber: 36\nRoman: XXXVI\n\nNumber: 24\nRoman:",
+    "continuation": " XXIV",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 32\nRoman: XXXII\n\nNumber: 38\nRoman: XXXVIII\n\nNumber: 22\nRoman: XXII\n\nNumber: 14\nRoman:",
+    "continuation": " XIV",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 36\nRoman: XXXVI\n\nNumber: 9\nRoman: IX\n\nNumber: 19\nRoman: XIX\n\nNumber: 10\nRoman:",
+    "continuation": " X",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 3\nRoman: III\n\nNumber: 39\nRoman: XXXIX\n\nNumber: 7\nRoman: VII\n\nNumber: 29\nRoman:",
+    "continuation": " XXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 26\nRoman: XXVI\n\nNumber: 37\nRoman: XXXVII\n\nNumber: 27\nRoman: XXVII\n\nNumber: 4\nRoman:",
+    "continuation": " IV",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 3\nRoman: III\n\nNumber: 5\nRoman: V\n\nNumber: 15\nRoman: XV\n\nNumber: 12\nRoman:",
+    "continuation": " XII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 29\nRoman: XXIX\n\nNumber: 32\nRoman: XXXII\n\nNumber: 38\nRoman: XXXVIII\n\nNumber: 15\nRoman:",
+    "continuation": " XV",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 24\nRoman: XXIV\n\nNumber: 37\nRoman: XXXVII\n\nNumber: 3\nRoman: III\n\nNumber: 35\nRoman:",
+    "continuation": " XXXV",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 4\nRoman: IV\n\nNumber: 27\nRoman: XXVII\n\nNumber: 13\nRoman: XIII\n\nNumber: 8\nRoman:",
+    "continuation": " VIII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 37\nRoman: XXXVII\n\nNumber: 11\nRoman: XI\n\nNumber: 14\nRoman: XIV\n\nNumber: 5\nRoman:",
+    "continuation": " V",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 4\nRoman: IV\n\nNumber: 25\nRoman: XXV\n\nNumber: 1\nRoman: I\n\nNumber: 9\nRoman:",
+    "continuation": " IX",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 36\nRoman: XXXVI\n\nNumber: 1\nRoman: I\n\nNumber: 6\nRoman: VI\n\nNumber: 28\nRoman:",
+    "continuation": " XXVIII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 9\nRoman: IX\n\nNumber: 16\nRoman: XVI\n\nNumber: 19\nRoman: XIX\n\nNumber: 26\nRoman:",
+    "continuation": " XXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 12\nRoman: XII\n\nNumber: 4\nRoman: IV\n\nNumber: 33\nRoman: XXXIII\n\nNumber: 34\nRoman:",
+    "continuation": " XXXIV",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 21\nRoman: XXI\n\nNumber: 37\nRoman: XXXVII\n\nNumber: 16\nRoman: XVI\n\nNumber: 22\nRoman:",
+    "continuation": " XXII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 38\nRoman: XXXVIII\n\nNumber: 19\nRoman: XIX\n\nNumber: 24\nRoman: XXIV\n\nNumber: 29\nRoman:",
+    "continuation": " XXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 28\nRoman: XXVIII\n\nNumber: 6\nRoman: VI\n\nNumber: 24\nRoman: XXIV\n\nNumber: 17\nRoman:",
+    "continuation": " XVII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 34\nRoman: XXXIV\n\nNumber: 23\nRoman: XXIII\n\nNumber: 8\nRoman: VIII\n\nNumber: 12\nRoman:",
+    "continuation": " XII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 13\nRoman: XIII\n\nNumber: 39\nRoman: XXXIX\n\nNumber: 37\nRoman: XXXVII\n\nNumber: 9\nRoman:",
+    "continuation": " IX",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 31\nRoman: XXXI\n\nNumber: 16\nRoman: XVI\n\nNumber: 4\nRoman: IV\n\nNumber: 23\nRoman:",
+    "continuation": " XXIII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 16\nRoman: XVI\n\nNumber: 10\nRoman: X\n\nNumber: 35\nRoman: XXXV\n\nNumber: 32\nRoman:",
+    "continuation": " XXXII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 13\nRoman: XIII\n\nNumber: 30\nRoman: XXX\n\nNumber: 25\nRoman: XXV\n\nNumber: 27\nRoman:",
+    "continuation": " XXVII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 1\nRoman: I\n\nNumber: 22\nRoman: XXII\n\nNumber: 21\nRoman: XXI\n\nNumber: 24\nRoman:",
+    "continuation": " XXIV",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 4\nRoman: IV\n\nNumber: 2\nRoman: II\n\nNumber: 35\nRoman: XXXV\n\nNumber: 31\nRoman:",
+    "continuation": " XXXI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 29\nRoman: XXIX\n\nNumber: 6\nRoman: VI\n\nNumber: 39\nRoman: XXXIX\n\nNumber: 27\nRoman:",
+    "continuation": " XXVII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 8\nRoman: VIII\n\nNumber: 39\nRoman: XXXIX\n\nNumber: 13\nRoman: XIII\n\nNumber: 23\nRoman:",
+    "continuation": " XXIII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 16\nRoman: XVI\n\nNumber: 2\nRoman: II\n\nNumber: 18\nRoman: XVIII\n\nNumber: 10\nRoman:",
+    "continuation": " X",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 1\nRoman: I\n\nNumber: 9\nRoman: IX\n\nNumber: 10\nRoman: X\n\nNumber: 21\nRoman:",
+    "continuation": " XXI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 1\nRoman: I\n\nNumber: 31\nRoman: XXXI\n\nNumber: 27\nRoman: XXVII\n\nNumber: 36\nRoman:",
+    "continuation": " XXXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 9\nRoman: IX\n\nNumber: 1\nRoman: I\n\nNumber: 26\nRoman: XXVI\n\nNumber: 30\nRoman:",
+    "continuation": " XXX",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 5\nRoman: V\n\nNumber: 20\nRoman: XX\n\nNumber: 23\nRoman: XXIII\n\nNumber: 32\nRoman:",
+    "continuation": " XXXII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 3\nRoman: III\n\nNumber: 20\nRoman: XX\n\nNumber: 1\nRoman: I\n\nNumber: 32\nRoman:",
+    "continuation": " XXXII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 32\nRoman: XXXII\n\nNumber: 13\nRoman: XIII\n\nNumber: 35\nRoman: XXXV\n\nNumber: 17\nRoman:",
+    "continuation": " XVII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 20\nRoman: XX\n\nNumber: 25\nRoman: XXV\n\nNumber: 27\nRoman: XXVII\n\nNumber: 7\nRoman:",
+    "continuation": " VII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 21\nRoman: XXI\n\nNumber: 1\nRoman: I\n\nNumber: 14\nRoman: XIV\n\nNumber: 2\nRoman:",
+    "continuation": " II",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 18\nRoman: XVIII\n\nNumber: 12\nRoman: XII\n\nNumber: 7\nRoman: VII\n\nNumber: 35\nRoman:",
+    "continuation": " XXXV",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 26\nRoman: XXVI\n\nNumber: 6\nRoman: VI\n\nNumber: 24\nRoman: XXIV\n\nNumber: 10\nRoman:",
+    "continuation": " X",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 20\nRoman: XX\n\nNumber: 7\nRoman: VII\n\nNumber: 5\nRoman: V\n\nNumber: 26\nRoman:",
+    "continuation": " XXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 11\nRoman: XI\n\nNumber: 16\nRoman: XVI\n\nNumber: 15\nRoman: XV\n\nNumber: 33\nRoman:",
+    "continuation": " XXXIII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 2\nRoman: II\n\nNumber: 1\nRoman: I\n\nNumber: 12\nRoman: XII\n\nNumber: 23\nRoman:",
+    "continuation": " XXIII",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 35\nRoman: XXXV\n\nNumber: 10\nRoman: X\n\nNumber: 7\nRoman: VII\n\nNumber: 36\nRoman:",
+    "continuation": " XXXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 18\nRoman: XVIII\n\nNumber: 9\nRoman: IX\n\nNumber: 16\nRoman: XVI\n\nNumber: 35\nRoman:",
+    "continuation": " XXXV",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 24\nRoman: XXIV\n\nNumber: 33\nRoman: XXXIII\n\nNumber: 25\nRoman: XXV\n\nNumber: 38\nRoman:",
+    "continuation": " XXXVIII",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Number: 10\nNext: 11\n\nNumber: 32\nNext: 33\n\nNumber: 39\nNext: 40\n\nNumber: 7\nNext:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 26\nNext: 27\n\nNumber: 22\nNext: 23\n\nNumber: 20\nNext: 21\n\nNumber: 31\nNext:",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 31\nNext: 32\n\nNumber: 5\nNext: 6\n\nNumber: 6\nNext: 7\n\nNumber: 12\nNext:",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 28\nNext: 29\n\nNumber: 6\nNext: 7\n\nNumber: 24\nNext: 25\n\nNumber: 17\nNext:",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 34\nNext: 35\n\nNumber: 23\nNext: 24\n\nNumber: 8\nNext: 9\n\nNumber: 12\nNext:",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 13\nNext: 14\n\nNumber: 17\nNext: 18\n\nNumber: 23\nNext: 24\n\nNumber: 35\nNext:",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 7\nNext: 8\n\nNumber: 17\nNext: 18\n\nNumber: 35\nNext: 36\n\nNumber: 12\nNext:",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 31\nNext: 32\n\nNumber: 16\nNext: 17\n\nNumber: 4\nNext: 5\n\nNumber: 23\nNext:",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 5\nNext: 6\n\nNumber: 20\nNext: 21\n\nNumber: 23\nNext: 24\n\nNumber: 32\nNext:",
+    "continuation": " 33",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 1\nNext: 2\n\nNumber: 32\nNext: 33\n\nNumber: 22\nNext: 23\n\nNumber: 17\nNext:",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 7\nNext: 8\n\nNumber: 20\nNext: 21\n\nNumber: 36\nNext: 37\n\nNumber: 22\nNext:",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 14\nNext: 15\n\nNumber: 3\nNext: 4\n\nNumber: 10\nNext: 11\n\nNumber: 9\nNext:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 26\nNext: 27\n\nNumber: 34\nNext: 35\n\nNumber: 18\nNext: 19\n\nNumber: 38\nNext:",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 36\nNext: 37\n\nNumber: 9\nNext: 10\n\nNumber: 19\nNext: 20\n\nNumber: 10\nNext:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 33\nNext: 34\n\nNumber: 37\nNext: 38\n\nNumber: 17\nNext: 18\n\nNumber: 24\nNext:",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 24\nNext: 25\n\nNumber: 37\nNext: 38\n\nNumber: 3\nNext: 4\n\nNumber: 35\nNext:",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 12\nNext: 13\n\nNumber: 14\nNext: 15\n\nNumber: 25\nNext: 26\n\nNumber: 22\nNext:",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 1\nNext: 2\n\nNumber: 39\nNext: 40\n\nNumber: 13\nNext: 14\n\nNumber: 24\nNext:",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 8\nNext: 9\n\nNumber: 32\nNext: 33\n\nNumber: 26\nNext: 27\n\nNumber: 19\nNext:",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 36\nNext: 37\n\nNumber: 1\nNext: 2\n\nNumber: 6\nNext: 7\n\nNumber: 28\nNext:",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 7\nNext: 8\n\nNumber: 36\nNext: 37\n\nNumber: 31\nNext: 32\n\nNumber: 34\nNext:",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 27\nNext: 28\n\nNumber: 25\nNext: 26\n\nNumber: 4\nNext: 5\n\nNumber: 13\nNext:",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 13\nNext: 14\n\nNumber: 30\nNext: 31\n\nNumber: 25\nNext: 26\n\nNumber: 27\nNext:",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 2\nNext: 3\n\nNumber: 34\nNext: 35\n\nNumber: 29\nNext: 30\n\nNumber: 15\nNext:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 12\nNext: 13\n\nNumber: 4\nNext: 5\n\nNumber: 33\nNext: 34\n\nNumber: 34\nNext:",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 4\nNext: 5\n\nNumber: 2\nNext: 3\n\nNumber: 35\nNext: 36\n\nNumber: 31\nNext:",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 3\nNext: 4\n\nNumber: 5\nNext: 6\n\nNumber: 15\nNext: 16\n\nNumber: 12\nNext:",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 23\nNext: 24\n\nNumber: 19\nNext: 20\n\nNumber: 38\nNext: 39\n\nNumber: 10\nNext:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 14\nNext: 15\n\nNumber: 39\nNext: 40\n\nNumber: 36\nNext: 37\n\nNumber: 21\nNext:",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 26\nNext: 27\n\nNumber: 6\nNext: 7\n\nNumber: 24\nNext: 25\n\nNumber: 10\nNext:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 38\nNext: 39\n\nNumber: 18\nNext: 19\n\nNumber: 29\nNext: 30\n\nNumber: 35\nNext:",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 31\nNext: 32\n\nNumber: 36\nNext: 37\n\nNumber: 7\nNext: 8\n\nNumber: 25\nNext:",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 32\nNext: 33\n\nNumber: 28\nNext: 29\n\nNumber: 3\nNext: 4\n\nNumber: 22\nNext:",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 20\nNext: 21\n\nNumber: 7\nNext: 8\n\nNumber: 5\nNext: 6\n\nNumber: 26\nNext:",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 12\nNext: 13\n\nNumber: 8\nNext: 9\n\nNumber: 31\nNext: 32\n\nNumber: 17\nNext:",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 1\nNext: 2\n\nNumber: 9\nNext: 10\n\nNumber: 10\nNext: 11\n\nNumber: 21\nNext:",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 21\nNext: 22\n\nNumber: 5\nNext: 6\n\nNumber: 13\nNext: 14\n\nNumber: 18\nNext:",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 31\nNext: 32\n\nNumber: 5\nNext: 6\n\nNumber: 6\nNext: 7\n\nNumber: 38\nNext:",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 11\nNext: 12\n\nNumber: 22\nNext: 23\n\nNumber: 34\nNext: 35\n\nNumber: 19\nNext:",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 31\nNext: 32\n\nNumber: 25\nNext: 26\n\nNumber: 39\nNext: 40\n\nNumber: 16\nNext:",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 15\nNext: 16\n\nNumber: 3\nNext: 4\n\nNumber: 37\nNext: 38\n\nNumber: 39\nNext:",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 26\nNext: 27\n\nNumber: 6\nNext: 7\n\nNumber: 2\nNext: 3\n\nNumber: 21\nNext:",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 9\nNext: 10\n\nNumber: 16\nNext: 17\n\nNumber: 19\nNext: 20\n\nNumber: 26\nNext:",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 23\nNext: 24\n\nNumber: 6\nNext: 7\n\nNumber: 21\nNext: 22\n\nNumber: 10\nNext:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 20\nNext: 21\n\nNumber: 25\nNext: 26\n\nNumber: 27\nNext: 28\n\nNumber: 7\nNext:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 39\nNext: 40\n\nNumber: 5\nNext: 6\n\nNumber: 2\nNext: 3\n\nNumber: 11\nNext:",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 10\nNext: 11\n\nNumber: 37\nNext: 38\n\nNumber: 26\nNext: 27\n\nNumber: 31\nNext:",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 32\nNext: 33\n\nNumber: 21\nNext: 22\n\nNumber: 20\nNext: 21\n\nNumber: 34\nNext:",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 12\nNext: 13\n\nNumber: 13\nNext: 14\n\nNumber: 3\nNext: 4\n\nNumber: 21\nNext:",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 8\nNext: 9\n\nNumber: 39\nNext: 40\n\nNumber: 13\nNext: 14\n\nNumber: 23\nNext:",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 37\nNext: 38\n\nNumber: 11\nNext: 12\n\nNumber: 14\nNext: 15\n\nNumber: 5\nNext:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 18\nNext: 19\n\nNumber: 12\nNext: 13\n\nNumber: 7\nNext: 8\n\nNumber: 35\nNext:",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 12\nNext: 13\n\nNumber: 34\nNext: 35\n\nNumber: 5\nNext: 6\n\nNumber: 23\nNext:",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 2\nNext: 3\n\nNumber: 1\nNext: 2\n\nNumber: 12\nNext: 13\n\nNumber: 23\nNext:",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 1\nNext: 2\n\nNumber: 31\nNext: 32\n\nNumber: 27\nNext: 28\n\nNumber: 36\nNext:",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 9\nNext: 10\n\nNumber: 1\nNext: 2\n\nNumber: 26\nNext: 27\n\nNumber: 30\nNext:",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 10\nNext: 11\n\nNumber: 3\nNext: 4\n\nNumber: 6\nNext: 7\n\nNumber: 39\nNext:",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 10\nNext: 11\n\nNumber: 36\nNext: 37\n\nNumber: 1\nNext: 2\n\nNumber: 32\nNext:",
+    "continuation": " 33",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 28\nNext: 29\n\nNumber: 21\nNext: 22\n\nNumber: 14\nNext: 15\n\nNumber: 35\nNext:",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 21\nNext: 22\n\nNumber: 37\nNext: 38\n\nNumber: 16\nNext: 17\n\nNumber: 22\nNext:",
+    "continuation": " 23",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Number: 34\nNext: 35\n\nNumber: 32\nNext: 33\n\nNumber: 21\nNext: 22\n\nNumber: 36\nNext:",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 20\nNext: 21\n\nNumber: 23\nNext: 24\n\nNumber: 25\nNext: 26\n\nNumber: 18\nNext:",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 26\nNext: 27\n\nNumber: 36\nNext: 37\n\nNumber: 34\nNext: 35\n\nNumber: 20\nNext:",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 16\nNext: 17\n\nNumber: 14\nNext: 15\n\nNumber: 38\nNext: 39\n\nNumber: 30\nNext:",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 39\nNext: 40\n\nNumber: 10\nNext: 11\n\nNumber: 25\nNext: 26\n\nNumber: 21\nNext:",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 11\nNext: 12\n\nNumber: 16\nNext: 17\n\nNumber: 15\nNext: 16\n\nNumber: 33\nNext:",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 6\nNext: 7\n\nNumber: 5\nNext: 6\n\nNumber: 13\nNext: 14\n\nNumber: 19\nNext:",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 7\nNext: 8\n\nNumber: 17\nNext: 18\n\nNumber: 5\nNext: 6\n\nNumber: 19\nNext:",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 36\nNext: 37\n\nNumber: 39\nNext: 40\n\nNumber: 1\nNext: 2\n\nNumber: 4\nNext:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 3\nNext: 4\n\nNumber: 18\nNext: 19\n\nNumber: 11\nNext: 12\n\nNumber: 13\nNext:",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 4\nNext: 5\n\nNumber: 3\nNext: 4\n\nNumber: 31\nNext: 32\n\nNumber: 30\nNext:",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 8\nNext: 9\n\nNumber: 39\nNext: 40\n\nNumber: 29\nNext: 30\n\nNumber: 14\nNext:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 17\nNext: 18\n\nNumber: 38\nNext: 39\n\nNumber: 11\nNext: 12\n\nNumber: 31\nNext:",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 14\nNext: 15\n\nNumber: 17\nNext: 18\n\nNumber: 36\nNext: 37\n\nNumber: 24\nNext:",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 14\nNext: 15\n\nNumber: 19\nNext: 20\n\nNumber: 35\nNext: 36\n\nNumber: 30\nNext:",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 11\nNext: 12\n\nNumber: 29\nNext: 30\n\nNumber: 5\nNext: 6\n\nNumber: 20\nNext:",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 15\nNext: 16\n\nNumber: 24\nNext: 25\n\nNumber: 11\nNext: 12\n\nNumber: 26\nNext:",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 29\nNext: 30\n\nNumber: 8\nNext: 9\n\nNumber: 17\nNext: 18\n\nNumber: 11\nNext:",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 22\nNext: 23\n\nNumber: 10\nNext: 11\n\nNumber: 11\nNext: 12\n\nNumber: 29\nNext:",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 25\nNext: 26\n\nNumber: 37\nNext: 38\n\nNumber: 27\nNext: 28\n\nNumber: 4\nNext:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 16\nNext: 17\n\nNumber: 2\nNext: 3\n\nNumber: 18\nNext: 19\n\nNumber: 10\nNext:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 3\nNext: 4\n\nNumber: 20\nNext: 21\n\nNumber: 1\nNext: 2\n\nNumber: 32\nNext:",
+    "continuation": " 33",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 33\nNext: 34\n\nNumber: 32\nNext: 33\n\nNumber: 26\nNext: 27\n\nNumber: 21\nNext:",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 18\nNext: 19\n\nNumber: 2\nNext: 3\n\nNumber: 3\nNext: 4\n\nNumber: 6\nNext:",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 22\nNext: 23\n\nNumber: 11\nNext: 12\n\nNumber: 10\nNext: 11\n\nNumber: 34\nNext:",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 4\nNext: 5\n\nNumber: 25\nNext: 26\n\nNumber: 1\nNext: 2\n\nNumber: 9\nNext:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 31\nNext: 32\n\nNumber: 23\nNext: 24\n\nNumber: 38\nNext: 39\n\nNumber: 15\nNext:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 1\nNext: 2\n\nNumber: 22\nNext: 23\n\nNumber: 21\nNext: 22\n\nNumber: 24\nNext:",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 3\nNext: 4\n\nNumber: 39\nNext: 40\n\nNumber: 7\nNext: 8\n\nNumber: 29\nNext:",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 6\nNext: 7\n\nNumber: 21\nNext: 22\n\nNumber: 33\nNext: 34\n\nNumber: 36\nNext:",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 22\nNext: 23\n\nNumber: 24\nNext: 25\n\nNumber: 6\nNext: 7\n\nNumber: 26\nNext:",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 28\nNext: 29\n\nNumber: 4\nNext: 5\n\nNumber: 7\nNext: 8\n\nNumber: 13\nNext:",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 13\nNext: 14\n\nNumber: 23\nNext: 24\n\nNumber: 8\nNext: 9\n\nNumber: 6\nNext:",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 3\nNext: 4\n\nNumber: 39\nNext: 40\n\nNumber: 2\nNext: 3\n\nNumber: 16\nNext:",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 33\nNext: 34\n\nNumber: 3\nNext: 4\n\nNumber: 37\nNext: 38\n\nNumber: 8\nNext:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 29\nNext: 30\n\nNumber: 32\nNext: 33\n\nNumber: 38\nNext: 39\n\nNumber: 15\nNext:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 25\nNext: 26\n\nNumber: 27\nNext: 28\n\nNumber: 3\nNext: 4\n\nNumber: 19\nNext:",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 34\nNext: 35\n\nNumber: 39\nNext: 40\n\nNumber: 5\nNext: 6\n\nNumber: 30\nNext:",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 38\nNext: 39\n\nNumber: 19\nNext: 20\n\nNumber: 24\nNext: 25\n\nNumber: 29\nNext:",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 26\nNext: 27\n\nNumber: 37\nNext: 38\n\nNumber: 27\nNext: 28\n\nNumber: 4\nNext:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 18\nNext: 19\n\nNumber: 9\nNext: 10\n\nNumber: 16\nNext: 17\n\nNumber: 35\nNext:",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 33\nNext: 34\n\nNumber: 9\nNext: 10\n\nNumber: 19\nNext: 20\n\nNumber: 11\nNext:",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 21\nNext: 22\n\nNumber: 1\nNext: 2\n\nNumber: 14\nNext: 15\n\nNumber: 2\nNext:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 16\nNext: 17\n\nNumber: 10\nNext: 11\n\nNumber: 35\nNext: 36\n\nNumber: 32\nNext:",
+    "continuation": " 33",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 32\nNext: 33\n\nNumber: 38\nNext: 39\n\nNumber: 22\nNext: 23\n\nNumber: 14\nNext:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 32\nNext: 33\n\nNumber: 13\nNext: 14\n\nNumber: 35\nNext: 36\n\nNumber: 17\nNext:",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 6\nNext: 7\n\nNumber: 22\nNext: 23\n\nNumber: 3\nNext: 4\n\nNumber: 39\nNext:",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 22\nNext: 23\n\nNumber: 8\nNext: 9\n\nNumber: 31\nNext: 32\n\nNumber: 10\nNext:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 4\nNext: 5\n\nNumber: 27\nNext: 28\n\nNumber: 13\nNext: 14\n\nNumber: 8\nNext:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 11\nNext: 12\n\nNumber: 29\nNext: 30\n\nNumber: 34\nNext: 35\n\nNumber: 36\nNext:",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 5\nNext: 6\n\nNumber: 32\nNext: 33\n\nNumber: 17\nNext: 18\n\nNumber: 23\nNext:",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 1\nNext: 2\n\nNumber: 34\nNext: 35\n\nNumber: 7\nNext: 8\n\nNumber: 15\nNext:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 8\nNext: 9\n\nNumber: 36\nNext: 37\n\nNumber: 22\nNext: 23\n\nNumber: 39\nNext:",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 13\nNext: 14\n\nNumber: 39\nNext: 40\n\nNumber: 37\nNext: 38\n\nNumber: 9\nNext:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 29\nNext: 30\n\nNumber: 34\nNext: 35\n\nNumber: 17\nNext: 18\n\nNumber: 5\nNext:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 35\nNext: 36\n\nNumber: 10\nNext: 11\n\nNumber: 7\nNext: 8\n\nNumber: 36\nNext:",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 3\nNext: 4\n\nNumber: 34\nNext: 35\n\nNumber: 10\nNext: 11\n\nNumber: 20\nNext:",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 24\nNext: 25\n\nNumber: 33\nNext: 34\n\nNumber: 25\nNext: 26\n\nNumber: 38\nNext:",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 30\nNext: 31\n\nNumber: 28\nNext: 29\n\nNumber: 24\nNext: 25\n\nNumber: 39\nNext:",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Number: 29\nNext: 30\n\nNumber: 6\nNext: 7\n\nNumber: 39\nNext: 40\n\nNumber: 27\nNext:",
+    "continuation": " 28",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 5.062
+}

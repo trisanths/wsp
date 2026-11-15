@@ -1,0 +1,120 @@
+{
+  "id": "mlp_inline-code_delimiter_closure_support_olmo2_7b_L31_k2_001",
+  "kind": "mlp_cluster",
+  "title": "OLMo-2-1124-7B-Instruct layer 31, Inline-code delimiter closure support",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/olmo2_7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "markdown_inline_code"
+  ],
+  "models": [
+    "allenai/OLMo-2-1124-7B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'markdown_inline_code' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1739,
+      "control_value": -0.0056,
+      "split": "person_a held-out skill items (markdown_inline_code)",
+      "seeds": null,
+      "source": "person_a/catalog/olmo2_7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0038"
+    }
+  ],
+  "generated": true,
+  "model": "allenai/OLMo-2-1124-7B-Instruct",
+  "layer": 31,
+  "layers": [
+    31
+  ],
+  "units_file": "components/allenai__OLMo-2-1124-7B-Instruct/mlp_inline-code_delimiter_closure_support_olmo2_7b_L31_k2_001.pt",
+  "units_remote": "person_a/parts/olmo2_7b/mlp_inline-code_delimiter_closure_support_olmo2_7b_L31_k2_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'markdown_inline_code'",
+    "label": "Inline-code delimiter closure support",
+    "num_units": 2,
+    "d_model": 4096,
+    "effect": {
+      "math|search": 0.0,
+      "math|heldout": 0.0002,
+      "code|search": 0.0025,
+      "code|heldout": 0.0026,
+      "facts|search": -0.001,
+      "facts|heldout": 0.0007,
+      "multilingual|search": -0.0053,
+      "multilingual|heldout": -0.006,
+      "general_text|search": -0.0005,
+      "general_text|heldout": -0.0003,
+      "web_url_scheme|search": -0.0275,
+      "web_url_scheme__control|search": -0.0489,
+      "web_url_scheme|heldout": -0.025,
+      "web_url_scheme__control|heldout": -0.0497,
+      "si_unit_names|search": 0.0,
+      "si_unit_names__control|search": -0.013,
+      "si_unit_names|heldout": 0.0009,
+      "si_unit_names__control|heldout": -0.012,
+      "python_declaration_keyword|search": 0.0005,
+      "python_declaration_keyword__control|search": -0.0044,
+      "python_declaration_keyword|heldout": 0.0005,
+      "python_declaration_keyword__control|heldout": -0.0038,
+      "html_named_entity|search": -0.0301,
+      "html_named_entity__control|search": -0.0298,
+      "html_named_entity|heldout": -0.0324,
+      "html_named_entity__control|heldout": -0.0367,
+      "sql_clause_keyword|search": 0.0011,
+      "sql_clause_keyword__control|search": -0.0026,
+      "sql_clause_keyword|heldout": 0.0067,
+      "sql_clause_keyword__control|heldout": 0.0009,
+      "css_property_name|search": -0.013,
+      "css_property_name__control|search": -0.0009,
+      "css_property_name|heldout": -0.0084,
+      "css_property_name__control|heldout": -0.0005,
+      "json_python_literals|search": -0.0071,
+      "json_python_literals__control|search": -0.0854,
+      "json_python_literals|heldout": -0.0085,
+      "json_python_literals__control|heldout": -0.0829,
+      "c_string_escapes|search": -0.0289,
+      "c_string_escapes__control|search": 0.0,
+      "c_string_escapes|heldout": -0.0359,
+      "c_string_escapes__control|heldout": 0.0,
+      "markdown_inline_code|search": 0.1774,
+      "markdown_inline_code__control|search": -0.0033,
+      "markdown_inline_code|heldout": 0.1739,
+      "markdown_inline_code__control|heldout": -0.0038
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0591,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0011,
+      -0.0002,
+      0.0001,
+      -0.0281,
+      -0.0009
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "After strong L28 backtick channel showed a .096 effect, independent attribution pointed to late formatting units: L31 3885 emits comment/string-closing patterns (**/ and quoted delimiters; attribution .142), while 9456 strongly writes closing single quotes, quote-comma/period/newline (.057 attribution). Hypothesis: shared literal-boundary closure supports Markdown inline code."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/olmo2_7b/markdown_inline_code.json",
+    "hash": "4ae1b8a59861ffcc",
+    "description": "Wrap identifiers in Markdown inline-code delimiters, with matched identifier-copy control.",
+    "name": "markdown_inline_code"
+  },
+  "catalog_id": "mlp_inline-code_delimiter_closure_support_olmo2_7b_L31_k2_001",
+  "exported_copy": "library/olmo2_7b/mlp_inline-code_delimiter_closure_support_olmo2_7b_L31_k2_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

@@ -1,0 +1,58 @@
+{
+  "id": "tapread_lfm25_12b_l11",
+  "kind": "block",
+  "title": "LFM2.5-1.2B-Instruct layers 0..11, tap read point for knowledge",
+  "status": "candidate",
+  "added_by": "Trisanth",
+  "source": "results/round8_rows.json (run 8)",
+  "updated": "2026-11-14",
+  "skills": [
+    "knowledge",
+    "mmlu"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-1.2B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "Llama-1B + tap reading layer 11 at host layer 10 vs the host alone",
+      "metric": "MMLU dev accuracy, mean over seeds",
+      "value": 0.499,
+      "control_value": 0.475,
+      "split": "MMLU test, 1000 seeded items (round 6 dev)",
+      "seeds": [
+        0,
+        1
+      ],
+      "source": "results/round8_rows.json",
+      "generated": true,
+      "control": "host alone, no training",
+      "note": "donor alone 0.262"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-1.2B-Instruct",
+  "layer": null,
+  "layers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "units_file": null,
+  "units_remote": null,
+  "signature": {
+    "method": "tap read point: the donor runs layers 0..11 on the prompt and a gated cross-attention branch in the host reads layer 11",
+    "read_layer": 11
+  },
+  "status_reason": "weak read point: 49.9 vs host 47.5 (run 8)",
+  "use": "tap LiquidAI/LFM2.5-1.2B-Instruct layer 11 at <host layer>"
+}

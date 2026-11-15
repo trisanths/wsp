@@ -1,0 +1,116 @@
+{
+  "id": "mlp_greek-letter_token_detectors_l12_early_mlp_mimo2.6_distill_9b_L12_k64_001",
+  "kind": "mlp_cluster",
+  "title": "MiMo-V2.6-Distill-Qwen-9B layer 12, greek-letter token detectors (L12, early MLP)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/mimo2.6_distill_9b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "greek_letter_successor"
+  ],
+  "models": [
+    "XiaomiMiMo/MiMo-V2.6-Distill-Qwen-9B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'greek_letter_successor' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2693,
+      "control_value": 0.0189,
+      "split": "person_a held-out skill items (greek_letter_successor)",
+      "seeds": null,
+      "source": "person_a/catalog/mimo2.6_distill_9b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0738"
+    }
+  ],
+  "generated": true,
+  "model": "XiaomiMiMo/MiMo-V2.6-Distill-Qwen-9B",
+  "layer": 12,
+  "layers": [
+    12
+  ],
+  "units_file": "components/XiaomiMiMo__MiMo-V2.6-Distill-Qwen-9B/mlp_greek-letter_token_detectors_l12_early_mlp_mimo2.6_distill_9b_L12_k64_001.pt",
+  "units_remote": "person_a/parts/mimo2.6_distill_9b/mlp_greek-letter_token_detectors_l12_early_mlp_mimo2.6_distill_9b_L12_k64_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'greek_letter_successor'",
+    "label": "greek-letter token detectors (L12, early MLP)",
+    "num_units": 64,
+    "d_model": 4096,
+    "effect": {
+      "math|search": -0.0006,
+      "math|heldout": 0.0003,
+      "code|search": -0.0005,
+      "code|heldout": -0.0001,
+      "facts|search": 0.0072,
+      "facts|heldout": 0.0077,
+      "multilingual|search": -0.0002,
+      "multilingual|heldout": 0.0009,
+      "general_text|search": 0.002,
+      "general_text|heldout": 0.001,
+      "month_successor|search": 0.06,
+      "month_successor__control|search": -0.0186,
+      "month_successor|heldout": 0.0672,
+      "month_successor__control|heldout": -0.0267,
+      "roman_numeral|search": 0.0758,
+      "roman_numeral__control|search": 0.0277,
+      "roman_numeral|heldout": 0.0736,
+      "roman_numeral__control|heldout": 0.028,
+      "ordinal_word|search": 0.0803,
+      "ordinal_word__control|search": 0.0932,
+      "ordinal_word|heldout": 0.078,
+      "ordinal_word__control|heldout": 0.0984,
+      "weekday_successor|search": -0.0615,
+      "weekday_successor__control|search": 0.0228,
+      "weekday_successor|heldout": -0.0698,
+      "weekday_successor__control|heldout": 0.0285,
+      "color_of_object|search": 0.0111,
+      "color_of_object__control|search": -0.0024,
+      "color_of_object|heldout": 0.0012,
+      "color_of_object__control|heldout": 0.0057,
+      "greek_letter_successor|search": 0.2868,
+      "greek_letter_successor__control|search": 0.0868,
+      "greek_letter_successor|heldout": 0.2693,
+      "greek_letter_successor__control|heldout": 0.0738,
+      "country_of_city|search": -0.0002,
+      "country_of_city__control|search": 0.0665,
+      "country_of_city|heldout": 0.0048,
+      "country_of_city__control|heldout": 0.0651,
+      "en_fr_translation|search": 0.002,
+      "en_fr_translation__control|search": 0.0005,
+      "en_fr_translation|heldout": -0.0002,
+      "en_fr_translation__control|heldout": 0.0009
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0956,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0206,
+      0.0868,
+      -0.0341,
+      0.0397,
+      -0.0183
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Seed 6590 (greek attribution .271) plus the 63 L12 units whose gate/up rows give the largest silu(gate)*up response to greek-letter token embeddings (after post-attention RMSNorm) relative to random tokens. These are input-side detectors, not output writers."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/mimo2.6_distill_9b/greek_letter_successor.json",
+    "hash": "889de7649fe7a926",
+    "description": "Continue the Greek alphabet: given two consecutive Greek letter names, give the next. Control repeats the last given letter.",
+    "name": "greek_letter_successor"
+  },
+  "catalog_id": "mlp_greek-letter_token_detectors_l12_early_mlp_mimo2.6_distill_9b_L12_k64_001",
+  "exported_copy": "library/mimo2.6_distill_9b/mlp_greek-letter_token_detectors_l12_early_mlp_mimo2.6_distill_9b_L12_k64_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

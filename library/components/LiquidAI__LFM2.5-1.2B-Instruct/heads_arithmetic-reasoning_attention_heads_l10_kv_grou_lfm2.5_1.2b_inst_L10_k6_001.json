@@ -1,0 +1,113 @@
+{
+  "id": "heads_arithmetic-reasoning_attention_heads_l10_kv_grou_lfm2.5_1.2b_inst_L10_k6_001",
+  "kind": "attn_heads",
+  "title": "LFM2.5-1.2B-Instruct layer 10, arithmetic-reasoning attention heads (L10 KV group 5 + heads 25/27)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_1.2b_inst.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "math"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-1.2B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'math' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1855,
+      "control_value": 0.0299,
+      "split": "person_a held-out skill items (math)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_1.2b_inst.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-1.2B-Instruct",
+  "layer": 10,
+  "layers": [
+    10
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-1.2B-Instruct/heads_arithmetic-reasoning_attention_heads_l10_kv_grou_lfm2.5_1.2b_inst_L10_k6_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_1.2b_inst/heads_arithmetic-reasoning_attention_heads_l10_kv_grou_lfm2.5_1.2b_inst_L10_k6_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'math'",
+    "label": "arithmetic-reasoning attention heads (L10 KV group 5 + heads 25/27)",
+    "num_units": 6,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.1819,
+      "math|heldout": 0.1855,
+      "code|search": 0.0255,
+      "code|heldout": 0.0197,
+      "facts|search": -0.024,
+      "facts|heldout": -0.1339,
+      "multilingual|search": 0.0358,
+      "multilingual|heldout": 0.0442,
+      "general_text|search": 0.0273,
+      "general_text|heldout": 0.0295,
+      "month_successor|search": 0.0025,
+      "month_successor__control|search": -0.2036,
+      "month_successor|heldout": -0.0055,
+      "month_successor__control|heldout": -0.2322,
+      "weekday_successor|search": -0.0663,
+      "weekday_successor__control|search": -0.0341,
+      "weekday_successor|heldout": 0.1611,
+      "weekday_successor__control|heldout": -0.1941,
+      "object_color|search": -0.0236,
+      "object_color__control|search": -0.362,
+      "object_color|heldout": 0.0043,
+      "object_color__control|heldout": -0.6165,
+      "feminine_pronoun|search": 0.0475,
+      "feminine_pronoun__control|search": 0.1067,
+      "feminine_pronoun|heldout": 0.0402,
+      "feminine_pronoun__control|heldout": 0.0441,
+      "month_list_next|search": 0.009,
+      "month_list_next__control|search": -0.0018,
+      "month_list_next|heldout": 0.0053,
+      "month_list_next__control|heldout": -0.0013,
+      "weekday_list_next|search": -0.0126,
+      "weekday_list_next__control|search": -0.0212,
+      "weekday_list_next|heldout": 0.0155,
+      "weekday_list_next__control|heldout": -0.0311,
+      "roman_numeral|search": -0.2504,
+      "roman_numeral__control|search": -0.2927,
+      "roman_numeral|heldout": -0.1315,
+      "roman_numeral__control|heldout": -0.3254,
+      "masculine_pronoun|search": 0.0429,
+      "masculine_pronoun__control|search": -0.0044,
+      "masculine_pronoun|heldout": 0.0329,
+      "masculine_pronoun__control|heldout": -0.0516
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0606,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0554,
+      0.0432,
+      0.0395,
+      0.0061,
+      0.0051
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L10 head 25 is one of the two largest out_proj norms in the layer (6.2), and it and head 27 are the non-copy heads of KV group 6. Heads 24/26, the copy heads, carried no math effect: [25,27] dropped math by .176 but [24,26] only .035. Adding the whole KV group 5 (20-23) kept the math drop and cancelled the side effects. The final set drops math by .182, with every other skill under .05."
+  },
+  "tier": "confirmed",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "builtin",
+    "name": "math"
+  },
+  "catalog_id": "heads_arithmetic-reasoning_attention_heads_l10_kv_grou_lfm2.5_1.2b_inst_L10_k6_001",
+  "exported_copy": "library/lfm2.5_1.2b_inst/heads_arithmetic-reasoning_attention_heads_l10_kv_grou_lfm2.5_1.2b_inst_L10_k6_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

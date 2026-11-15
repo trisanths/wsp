@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_qwen__qwen3-30b-a3b_code_l19",
+  "kind": "expert",
+  "title": "Qwen3-30B-A3B layer 19, 8 experts for code (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "code"
+  ],
+  "models": [
+    "Qwen/Qwen3-30B-A3B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 19 of Qwen3-30B-A3B on 'code' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.46433,
+      "control_value": 6e-05,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 19 of Qwen3-30B-A3B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 8.00265,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 8.30166,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "Qwen/Qwen3-30B-A3B",
+  "layer": 19,
+  "layers": [
+    19
+  ],
+  "units_file": "components/Qwen__Qwen3-30B-A3B/map_expert_qwen__qwen3-30b-a3b_code_l19.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "code",
+    "data": "CodeAlpaca Python tasks (approved pool); tokens of the reference solution",
+    "n_units": 8,
+    "experts": [
+      71,
+      97,
+      107,
+      122,
+      0,
+      55,
+      77,
+      85
+    ],
+    "details": [
+      {
+        "expert": 71,
+        "skill_freq": 0.724142,
+        "general_freq": 0.0,
+        "log_ratio": 8.8877,
+        "heldout_log_ratio": 8.8748
+      },
+      {
+        "expert": 97,
+        "skill_freq": 0.650088,
+        "general_freq": 0.0,
+        "log_ratio": 8.7798,
+        "heldout_log_ratio": 8.7641
+      },
+      {
+        "expert": 107,
+        "skill_freq": 0.5625,
+        "general_freq": 0.0,
+        "log_ratio": 8.6352,
+        "heldout_log_ratio": 8.6514
+      },
+      {
+        "expert": 122,
+        "skill_freq": 0.761554,
+        "general_freq": 0.000154,
+        "log_ratio": 8.0059,
+        "heldout_log_ratio": 8.9051
+      },
+      {
+        "expert": 0,
+        "skill_freq": 0.240427,
+        "general_freq": 0.0,
+        "log_ratio": 7.7854,
+        "heldout_log_ratio": 7.7233
+      },
+      {
+        "expert": 55,
+        "skill_freq": 0.223371,
+        "general_freq": 0.0,
+        "log_ratio": 7.7119,
+        "heldout_log_ratio": 7.7677
+      },
+      {
+        "expert": 77,
+        "skill_freq": 0.151629,
+        "general_freq": 0.0,
+        "log_ratio": 7.3247,
+        "heldout_log_ratio": 7.3392
+      },
+      {
+        "expert": 85,
+        "skill_freq": 0.400968,
+        "general_freq": 0.000308,
+        "log_ratio": 6.8906,
+        "heldout_log_ratio": 8.3877
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "CodeAlpaca Python tasks (approved pool); tokens of the reference solution",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 30.53,
+  "n_layers": 48,
+  "hidden": 2048,
+  "family": "qwen3_moe",
+  "architecture": "Qwen3MoeForCausalLM",
+  "license": "apache-2.0",
+  "revision": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39"
+}

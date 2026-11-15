@@ -1,0 +1,1020 @@
+{
+ "name": "bracket_closure",
+ "description": "Complete the final missing closing bracket in a balanced nested delimiter string; matched controls copy an internal letter.",
+ "hash": "dd49e834aeed79cf",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nitems=[];control=[]; pairs={'(':')','[':']','{':'}'}\nfor i in range(100):\n opens=[random.choice(list(pairs)) for _ in range(random.randrange(1,5))]; letter=random.choice(list('abcxyz')); full=''.join(opens)+letter+''.join(pairs[o] for o in opens[::-1]); s=full[:-1]\n items.append({'prompt':'Write only the missing final closing bracket.\\n(a -> )\\n[b -> ]\\n{(c) -> }\\n'+s+' ->','answer':' '+full[-1]})\n control.append({'prompt':'Write only the letter inside the brackets.\\n(a -> a\\n[b -> b\\n{(c) -> c\\n'+s+' ->','answer':' '+letter})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{{x} ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n(z ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n(y ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[{[(y)]} ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{{[{c}]} ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n(([{x}]) ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[[[{b}]] ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n([[{z}]] ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n([a] ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{[{z}] ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{{y} ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n(x ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{c ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n({({x})} ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n(((c)) ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[(a) ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n([z] ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[x ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{{[{x}]} ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n([z] ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n((y) ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[{{(y)}} ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[[{z}] ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[({[z]}) ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[z ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n(z ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{{[{b}]} ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n([[a]] ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n({c} ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{a ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{(((b))) ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[[{a}] ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{({{b}}) ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n([((z))] ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n([b] ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{b ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n([((y))] ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[[(a)] ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{b ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[y ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[{(c)} ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[[z] ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n({(z)} ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[((z)) ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{({c}) ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n((a) ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n({z} ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{[[y]] ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n(((z)) ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[(((z))) ->",
+    "continuation": " ]",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n([({y})] ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[z ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n(a ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n([{a}] ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[{b} ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{x ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[[{z}] ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[([{x}]) ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n(c ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n(b ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[{{{x}}} ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n({y} ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{{{b}} ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[y ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{(({b})) ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{x ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{{[(b)]} ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[((y)) ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{[x] ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[[[(x)]] ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n(b ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n([x] ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{{((x))} ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[[z] ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{{{(y)}} ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{((c)) ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{c ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{([b]) ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{z ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{y ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n(a ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{((x)) ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n((y) ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[z ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[b ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[({x}) ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[[(x)] ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{c ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n(([a]) ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[{c} ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[z ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{([(b)]) ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[z ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[{x} ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{{a} ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{{a} ->",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[{(c)} ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n([c] ->",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n[(c) ->",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the missing final closing bracket.\n(a -> )\n[b -> ]\n{(c) -> }\n{[({z})] ->",
+    "continuation": " }",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n([c] ->",
+    "continuation": " c",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{a ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{{a} ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[z ->",
+    "continuation": " z",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n({(z)} ->",
+    "continuation": " z",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[((z)) ->",
+    "continuation": " z",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{([(b)]) ->",
+    "continuation": " b",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{{{(y)}} ->",
+    "continuation": " y",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[({[z]}) ->",
+    "continuation": " z",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[[{a}] ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{b ->",
+    "continuation": " b",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[b ->",
+    "continuation": " b",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[{(c)} ->",
+    "continuation": " c",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[z ->",
+    "continuation": " z",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[[{z}] ->",
+    "continuation": " z",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{x ->",
+    "continuation": " x",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n([z] ->",
+    "continuation": " z",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{{y} ->",
+    "continuation": " y",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n(((c)) ->",
+    "continuation": " c",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{{a} ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[[{z}] ->",
+    "continuation": " z",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{c ->",
+    "continuation": " c",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n([[{z}]] ->",
+    "continuation": " z",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n([((z))] ->",
+    "continuation": " z",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[[(x)] ->",
+    "continuation": " x",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[{(c)} ->",
+    "continuation": " c",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[{{{x}}} ->",
+    "continuation": " x",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{[[y]] ->",
+    "continuation": " y",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{c ->",
+    "continuation": " c",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{((x)) ->",
+    "continuation": " x",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{{x} ->",
+    "continuation": " x",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n([a] ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n(z ->",
+    "continuation": " z",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n([({y})] ->",
+    "continuation": " y",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n([{a}] ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n([z] ->",
+    "continuation": " z",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n({z} ->",
+    "continuation": " z",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[{c} ->",
+    "continuation": " c",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n((y) ->",
+    "continuation": " y",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[x ->",
+    "continuation": " x",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[[z] ->",
+    "continuation": " z",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{y ->",
+    "continuation": " y",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[y ->",
+    "continuation": " y",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n((a) ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[{[(y)]} ->",
+    "continuation": " y",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[(((z))) ->",
+    "continuation": " z",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{x ->",
+    "continuation": " x",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{((c)) ->",
+    "continuation": " c",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n(y ->",
+    "continuation": " y",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[{{(y)}} ->",
+    "continuation": " y",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n({({x})} ->",
+    "continuation": " x",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n([b] ->",
+    "continuation": " b",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[[(a)] ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[[z] ->",
+    "continuation": " z",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{([b]) ->",
+    "continuation": " b",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{{[{x}]} ->",
+    "continuation": " x",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n([x] ->",
+    "continuation": " x",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[z ->",
+    "continuation": " z",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{({{b}}) ->",
+    "continuation": " b",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[z ->",
+    "continuation": " z",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{{[{b}]} ->",
+    "continuation": " b",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[y ->",
+    "continuation": " y",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n(b ->",
+    "continuation": " b",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{(((b))) ->",
+    "continuation": " b",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{(({b})) ->",
+    "continuation": " b",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{b ->",
+    "continuation": " b",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[{b} ->",
+    "continuation": " b",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{[{z}] ->",
+    "continuation": " z",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{c ->",
+    "continuation": " c",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[[[(x)]] ->",
+    "continuation": " x",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[[[{b}]] ->",
+    "continuation": " b",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n(a ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n(([a]) ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[(a) ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[z ->",
+    "continuation": " z",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[((y)) ->",
+    "continuation": " y",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n(([{x}]) ->",
+    "continuation": " x",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n(b ->",
+    "continuation": " b",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n([[a]] ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n([((y))] ->",
+    "continuation": " y",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n({y} ->",
+    "continuation": " y",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[([{x}]) ->",
+    "continuation": " x",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{z ->",
+    "continuation": " z",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{[x] ->",
+    "continuation": " x",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{[({z})] ->",
+    "continuation": " z",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{{{b}} ->",
+    "continuation": " b",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[{x} ->",
+    "continuation": " x",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n((y) ->",
+    "continuation": " y",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{{[(b)]} ->",
+    "continuation": " b",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{{[{c}]} ->",
+    "continuation": " c",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n({c} ->",
+    "continuation": " c",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{{((x))} ->",
+    "continuation": " x",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n(((z)) ->",
+    "continuation": " z",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n(x ->",
+    "continuation": " x",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n{({c}) ->",
+    "continuation": " c",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n(a ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n(z ->",
+    "continuation": " z",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[(c) ->",
+    "continuation": " c",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n(c ->",
+    "continuation": " c",
+    "digits_only": false
+   },
+   {
+    "context": "Write only the letter inside the brackets.\n(a -> a\n[b -> b\n{(c) -> c\n[({x}) ->",
+    "continuation": " x",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 2.4287
+}

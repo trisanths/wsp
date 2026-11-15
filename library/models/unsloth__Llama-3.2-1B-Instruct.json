@@ -1,0 +1,163 @@
+{
+  "id": "unsloth__Llama-3.2-1B-Instruct",
+  "kind": "model",
+  "title": "Llama-3.2-1B-Instruct (1.24B)",
+  "status": "validated",
+  "added_by": "Trisanth",
+  "source": "profiles.json, person_a/registry/configs/llama1b_host.json, atlas/zoo.json",
+  "updated": "2026-11-14",
+  "skills": [
+    "general"
+  ],
+  "models": [
+    "unsloth/Llama-3.2-1B-Instruct"
+  ],
+  "evidence": [],
+  "generated": true,
+  "hf_id": "unsloth/Llama-3.2-1B-Instruct",
+  "family": "llama",
+  "params_b": 1.236,
+  "active_params_b": 1.236,
+  "layers": 16,
+  "hidden": 2048,
+  "vocab": 128256,
+  "vocab_source": "person_a/registry/configs/llama1b_host.json",
+  "tokenizer_family": "llama3",
+  "license": "llama3.2",
+  "experts": null,
+  "experts_per_token": null,
+  "needs": {
+    "transformers": "4.57.1",
+    "trust_remote_code": false,
+    "multi_gpu": false,
+    "gpu": "H200"
+  },
+  "scores": {
+    "mmlu_dev": {
+      "value": 0.48,
+      "split": "MMLU test, 1000 seeded items (round 6 dev)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round10_rows.json",
+      "n": 1000
+    },
+    "mmlu_heldout": {
+      "value": 0.4455,
+      "split": "MMLU test, 2000 seeded items disjoint from dev (round 7 held-out)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round10_rows.json",
+      "n": 2000
+    },
+    "medmcqa": {
+      "value": 0.41,
+      "split": "MedMCQA validation, 1000 seeded items (round 10)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round10_rows.json",
+      "n": 1000
+    },
+    "mmlu_dev_round8": {
+      "value": 0.475,
+      "split": "MMLU test, 1000 seeded items (round 6 dev)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round8_rows.json"
+    },
+    "mmlu_heldout_round7": {
+      "value": 0.4465,
+      "split": "MMLU test, 2000 seeded items disjoint from dev (round 7 held-out)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round7_rows.json"
+    },
+    "triviaqa": {
+      "value": 0.376,
+      "split": "TriviaQA validation, 1000 questions",
+      "prompt": "alias match on a 16-token greedy answer",
+      "source": "results/round7_rows.json"
+    },
+    "gsm8k_search_raw": {
+      "value": 0.25,
+      "split": "GSM8K search split (200 items from GSM8K train)",
+      "prompt": "raw 'Question: ... Answer:' prompt, greedy generation",
+      "source": "results/round5_rows.json"
+    },
+    "gsm8k_search_harness": {
+      "value": 0.23,
+      "split": "GSM8K search split (200 items from GSM8K train)",
+      "prompt": "wsp_eval harness GSM8K prompt",
+      "source": "results/gate_hour8_3seeds.json",
+      "n": 200
+    },
+    "gsm8k_heldout_harness": {
+      "value": 0.2009,
+      "split": "GSM8K test, 1319 items (held-out)",
+      "prompt": "wsp_eval harness GSM8K prompt",
+      "source": "results/base_scores_heldout.json"
+    },
+    "if_guard_heldout": {
+      "value": 0.4878,
+      "split": "wsp_eval if_guard held-out, 410 items",
+      "prompt": "wsp_eval harness",
+      "source": "results/base_scores_heldout.json"
+    }
+  },
+  "structure_notes": [
+    {
+      "note": "tap write layer 10 of 16 in runs 6 to 8; for donor layer 20, host layer 6 scored 68.5 and layer 10 67.7 (run 7 layer map)",
+      "source": "results/round7_rows.json"
+    },
+    {
+      "note": "graft placement: host layer 6 gives about 38 to 40% on GSM8K search, layers 10 and 14 about 22 to 26%, whatever the part (run 2)",
+      "source": "results/sweep2_rows.json"
+    },
+    {
+      "note": "the 37 Deletion Tuning masks in catalog.jsonl are built on this model",
+      "source": "catalog.jsonl"
+    },
+    {
+      "note": "mining registry role first_pair_host, status active",
+      "source": "person_a/registry/donors.csv"
+    }
+  ],
+  "components": [
+    "mask_mmlupro_biology_llama1b",
+    "mask_mmlupro_business_llama1b",
+    "mask_mmlupro_chemistry_llama1b",
+    "mask_mmlupro_computer_science_llama1b",
+    "mask_mmlupro_economics_llama1b",
+    "mask_mmlupro_engineering_llama1b",
+    "mask_mmlupro_health_llama1b",
+    "mask_mmlupro_history_llama1b",
+    "mask_mmlupro_law_llama1b",
+    "mask_mmlupro_math_llama1b",
+    "mask_mmlupro_other_llama1b",
+    "mask_mmlupro_philosophy_llama1b",
+    "mask_mmlupro_physics_llama1b",
+    "mask_mmlupro_psychology_llama1b",
+    "mask_bbeh_boardgame_qa_llama1b",
+    "mask_bbeh_boolean_expressions_llama1b",
+    "mask_bbeh_buggy_tables_llama1b",
+    "mask_bbeh_causal_understanding_llama1b",
+    "mask_bbeh_disambiguation_qa_llama1b",
+    "mask_bbeh_dyck_languages_llama1b",
+    "mask_bbeh_geometric_shapes_llama1b",
+    "mask_bbeh_hyperbaton_llama1b",
+    "mask_bbeh_linguini_llama1b",
+    "mask_bbeh_movie_recommendation_llama1b",
+    "mask_bbeh_multistep_arithmetic_llama1b",
+    "mask_bbeh_nycc_llama1b",
+    "mask_bbeh_object_counting_llama1b",
+    "mask_bbeh_object_properties_llama1b",
+    "mask_bbeh_sarc_triples_llama1b",
+    "mask_bbeh_shuffled_objects_llama1b",
+    "mask_bbeh_spatial_reasoning_llama1b",
+    "mask_bbeh_sportqa_llama1b",
+    "mask_bbeh_temporal_sequence_llama1b",
+    "mask_bbeh_time_arithmetic_llama1b",
+    "mask_bbeh_web_of_lies_llama1b",
+    "mask_bbeh_word_sorting_llama1b",
+    "mask_bbeh_zebra_puzzles_llama1b"
+  ],
+  "arch_sources": [
+    "profiles.json",
+    "person_a/registry/configs/llama1b_host.json",
+    "atlas/zoo.json"
+  ]
+}

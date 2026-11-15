@@ -1,0 +1,55 @@
+{
+  "id": "bake_tap_mmlu_llama1b_qwen7b",
+  "kind": "recipe",
+  "title": "Bake the Qwen-7B tap into a plain Llama-1B",
+  "status": "rejected",
+  "added_by": "Person B",
+  "source": "results/bake_rows.json (modal_bake.py)",
+  "updated": "2026-11-14",
+  "skills": [
+    "knowledge",
+    "mmlu",
+    "bake"
+  ],
+  "models": [
+    "unsloth/Llama-3.2-1B-Instruct",
+    "Qwen/Qwen2.5-7B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "bake the tapped teacher vs distil the donor directly",
+      "metric": "MMLU held-out accuracy",
+      "value": 0.4875,
+      "control_value": 0.4875,
+      "split": "MMLU test, 2000 seeded items disjoint from dev (round 7 held-out)",
+      "seeds": [
+        0
+      ],
+      "source": "results/bake_rows.json",
+      "generated": true,
+      "control": "bake_donor",
+      "note": "LoRA on gold letters 0.486, host 0.4465"
+    }
+  ],
+  "generated": true,
+  "host": "unsloth/Llama-3.2-1B-Instruct",
+  "program": {
+    "bake": {
+      "host": "unsloth/Llama-3.2-1B-Instruct",
+      "teacher": "tap_mmlu_llama1b_qwen7b_l20_h10",
+      "lora": {
+        "rank": 16
+      },
+      "lr": 0.0001,
+      "batch_size": 16,
+      "steps": 1500,
+      "data": "20557 MMLU auxiliary_train prompts",
+      "mode": "answer"
+    }
+  },
+  "text": null,
+  "program_file": null,
+  "syntax_gap": "the text syntax has no bake statement; see wsp/bake.py and modal_bake.py",
+  "components": [],
+  "status_reason": "equals plain donor distillation and a label LoRA; keeps 4 of 23 points"
+}

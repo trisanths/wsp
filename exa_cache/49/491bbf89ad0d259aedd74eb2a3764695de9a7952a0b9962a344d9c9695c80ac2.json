@@ -1,0 +1,321 @@
+{
+ "cost_dollars": 0.012,
+ "endpoint": "search",
+ "fetched_at": "2026-11-15T02:22:58Z",
+ "key": "491bbf89ad0d259aedd74eb2a3764695de9a7952a0b9962a344d9c9695c80ac2",
+ "params": {
+  "category": "publication",
+  "contents": {
+   "highlights": true
+  },
+  "end_published_date": "2026-11-14T00:00:00Z",
+  "exclude_domains": [
+   "*.kaggle.com",
+   "github.com/TIGER-AI-Lab/MMLU-Pro",
+   "github.com/google-deepmind/bbeh",
+   "github.com/openai/grade-school-math",
+   "huggingface.co/datasets",
+   "kaggle.com",
+   "paperswithcode.com/dataset",
+   "tensorflow.org/datasets"
+  ],
+  "num_results": 5,
+  "output_schema": {
+   "properties": {
+    "claims": {
+     "items": {
+      "properties": {
+       "claim": {
+        "type": "string"
+       },
+       "layer_hint": {
+        "type": "string"
+       },
+       "model": {
+        "type": "string"
+       },
+       "strength": {
+        "enum": [
+         "weak",
+         "medium",
+         "strong"
+        ],
+        "type": "string"
+       }
+      },
+      "required": [
+       "claim",
+       "layer_hint",
+       "model",
+       "strength"
+      ],
+      "type": "object"
+     },
+     "maxItems": 5,
+     "type": "array"
+    }
+   },
+   "required": [
+    "claims"
+   ],
+   "type": "object"
+  },
+  "query": "At what relative depth should a layer or module taken from one transformer be inserted into another, and how does a depth mismatch affect accuracy?",
+  "system_prompt": "Prefer peer-reviewed papers and arXiv preprints about transformer language models. Give layer locations as fractions of model depth where you can, name the model each claim was measured on, and rate how strong the evidence is.",
+  "type": "deep-lite"
+ },
+ "response": {
+  "auto_date": null,
+  "context": null,
+  "cost_dollars": {
+   "contents": null,
+   "search": null,
+   "total": 0.012
+  },
+  "notices": null,
+  "output": {
+   "content": {
+    "claims": [
+     {
+      "claim": "For transformer model stitching, insert the donor layer at the same relative depth as its source position: layer i of a D-layer donor into layer i of a D-layer receiver. If depths differ, align by proportionally matching relative depth (i/Ddonor \u2248 j/Dreceiver), or align by representational similarity rather than index.",
+      "layer_hint": "relative depth",
+      "model": "Transformer encoders/BERT; model-stitching settings",
+      "strength": "medium"
+     },
+     {
+      "claim": "A depth mismatch can reduce accuracy because donor and receiver layers operate in different representational regimes; later donor layers can sometimes work in earlier receiver positions, but this is not a reliable rule. Accuracy is best when representations are aligned, including by grouping similar consecutive layers when depths differ.",
+      "layer_hint": "depth mismatch",
+      "model": "Transformer encoders/BERT",
+      "strength": "medium"
+     }
+    ]
+   },
+   "grounding": [
+    {
+     "citations": [
+      {
+       "title": "Model Stitching: Looking For Functional Similarity Between Representations",
+       "url": "https://doi.org/10.48550/arxiv.2303.11277"
+      },
+      {
+       "title": "Training-free Heterogeneous Model Merging",
+       "url": "https://doi.org/10.48550/arxiv.2501.00061"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "Model Stitching: Looking For Functional Similarity Between Representations",
+       "url": "https://doi.org/10.48550/arxiv.2303.11277"
+      },
+      {
+       "title": "Training-free Heterogeneous Model Merging",
+       "url": "https://doi.org/10.48550/arxiv.2501.00061"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "Model Stitching: Looking For Functional Similarity Between Representations",
+       "url": "https://doi.org/10.48550/arxiv.2303.11277"
+      },
+      {
+       "title": "Training-free Heterogeneous Model Merging",
+       "url": "https://doi.org/10.48550/arxiv.2501.00061"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "Model Stitching: Looking For Functional Similarity Between Representations",
+       "url": "https://doi.org/10.48550/arxiv.2303.11277"
+      },
+      {
+       "title": "Training-free Heterogeneous Model Merging",
+       "url": "https://doi.org/10.48550/arxiv.2501.00061"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].strength"
+    },
+    {
+     "citations": [
+      {
+       "title": "Model Stitching: Looking For Functional Similarity Between Representations",
+       "url": "https://doi.org/10.48550/arxiv.2303.11277"
+      },
+      {
+       "title": "Training-free Heterogeneous Model Merging",
+       "url": "https://doi.org/10.48550/arxiv.2501.00061"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "Model Stitching: Looking For Functional Similarity Between Representations",
+       "url": "https://doi.org/10.48550/arxiv.2303.11277"
+      },
+      {
+       "title": "Training-free Heterogeneous Model Merging",
+       "url": "https://doi.org/10.48550/arxiv.2501.00061"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "Model Stitching: Looking For Functional Similarity Between Representations",
+       "url": "https://doi.org/10.48550/arxiv.2303.11277"
+      },
+      {
+       "title": "Training-free Heterogeneous Model Merging",
+       "url": "https://doi.org/10.48550/arxiv.2501.00061"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "Model Stitching: Looking For Functional Similarity Between Representations",
+       "url": "https://doi.org/10.48550/arxiv.2303.11277"
+      },
+      {
+       "title": "Training-free Heterogeneous Model Merging",
+       "url": "https://doi.org/10.48550/arxiv.2501.00061"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].strength"
+    }
+   ]
+  },
+  "resolved_search_type": "",
+  "results": [
+   {
+    "author": "Adriano Hernandez, Rumen Dangovski, Lu, Peter Y., Marin Soljacic A",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "Model stitching (Lenc & Vedaldi 2015) is a compelling methodology to compare different neural network representations, because it allows us to measure to what degree they may be interchanged. We expand on a previous work from Bansal, Nakkiran & Barak which used model stitching to compare representations of the same shapes learned by differently seeded and/or trained neural networks of the same architecture. Our contribution enables us to compare the representations learned by layers with different shapes from neural networks with different archi tectures. We subsequently reveal unexpected behavior of model stitching. Namely, we find that stitching, based on convolutions, for small ResNets, can reach high accuracy if those layers come later in the first (sender) network than in the second (receiver), even if those layers are far apart. This leads us to hypothesize that stitches are not in fact learning to match the representations expected by receiver layers, but instead finding different repre sentations which nonetheless yield similar results. Thus, we suggest that model stitching, naively implemented, may not necessarily always be an accurate measure of similarity."
+    ],
+    "id": "https://exa.ai/library/publication/x6hjp6dt8b7",
+    "image": null,
+    "published_date": "2023-03-20T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Model Stitching: Looking For Functional Similarity Between Representations",
+    "url": "https://doi.org/10.48550/arxiv.2303.11277"
+   },
+   {
+    "author": "Zhengqi Xu, Han Zheng, Jie Song, Sun, Li, Mingli Song",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "The challenge of training-free model merging for heterogeneous models remains largely unexplored, owing to the formidable difficulties posed by model heterogeneity. Specifically, models may differ not only in layer depth but also in layer width, rendering their parameter spaces incompatible for alignment through the element-wise one-to-one mapping employed in existing methods. In this work, we present a pioneering model merging framework designed to tackle the aforementioned challenge, concentrating on two dimensions of architectural heterogeneity: depth heterogeneity and width heterogeneity. Specifically, with respect to depth heterogeneity where the number of layers differs, we observe that adjacent layers of the model often exhibit similar representations [14], and the input and output of consecutive intermediate layers can be substituted with fewer layers, or even a single layer [26]. Accordingly, we introduce a depth-heterogeneous model merging algorithm, which initially partitions the deeper model into multiple segments, with each segment comprising layers exhibiting similar representations. We ensure that the number of segments corresponds to the number of layers in the shallower model, thereby addressing the inconsistency in the number of layers. Regarding width heterogeneity, prior approaches necessitate that the two models share identical widths (i.e., dimensions) in order to establish a one-to-one mapping between the neurons. In contrast, we introduce an elastic neuron zipping algorithm that constructs mapping matrices to project weights of differing widths onto a common width, thus circumventing the need for identical widths.\n\n...\n\nCosine similarity is commonly employed as Simf p\u00a8 , \u00a8q . B. Depth-heterogeneous Merging Eqn. 3 reveals that, for depth-homogeneous models, our optimization goal is to maximize the aggregate feature simi larities across each layer. However, for depth-heterogeneous models, this formulation is not applicable, as the layers of the two models cannot be directly aligned in a one-to-one manner. Fortunately, prior research has demonstrated that adjacent layers often exhibit similar representations, and the functionality of multiple layers can be effectively replaced by a single independent layer. Drawing inspiration from this, we align the layers of the two models by segmenting the deeper model and treating consecutive layers with analogous representations as a unified segment. Specifically, we assume Model A is deeper than Model B, and partition the layers of Model A into a set of segments S A. Let f A ij represent the feature from the j-th layer of the i-th segment S A i of Model A, and f B i denote the features of the i-th layer of Model B. The objective for depth-heterogeneous merging is thus formulated as: arg max P A ij ,P B ij ,S A i\n\n...\n\nFor natural language understanding classification tasks, we investigate Transformer encoder-based masked language models. Specifi cally, we consider 5 different BERT models, seeds 1 through 5, from the MultiBERTs reproduction [3] and each model has 12 layers. To obtain models with different depths, we repeated the even-numbered layers of each model, extending the depth of the models to 17 layers.\n\n...\n\nrefers to ... The LMA. refers to aligning depth via layer-wise model alignment. As shown in Tab. I, compared to single-task models, the merged models achieve higher joint accuracy and per-task average accuracy, regardless of whether the merging is depth-homogeneous or depth-heterogeneous. For the proposed depth-heterogeneous merging method, the models merged with depth-heterogeneous architectures not only achieve higher average performance compared to the weight average of depth homogeneous models but also exhibit similar performance to the models merged with depth-homogeneous architectures. It demonstrates the effectiveness of our proposed depth heterogeneous merging method. Furthermore, by comparing different depth alignment methods, we find that depth alignment based on LMA often achieves better fusion performance, particularly in terms of joint accuracy and average per-task accuracy.\n\n...\n\nFurthermore, we compare the representational similarity between ResNet50 and aforementioned three models. As shown in Fig. 3b, the diagonal representational similarity reflects the layer-by-layer similarity between the deep model and the aligned shallow models. We observe that the optimal alignment for SMA does not align along the diagonal. In contrast, this issue does not occur with LMA. Moreover, we calculated the mean of the diagonal elements in the similarity matrices corresponding to SMA and LMA in Fig. 3b, obtaining values of 88.24% and 89.69%, respectively. This further demonstrates that the alignment results of LMA are globally superior.\n\n...\n\nWe present a novel model merging framework designed to address the merging of depth-heterogeneous and width heterogeneous models. Two heuristic approaches, segment wise model alignment and layer-wise model alignment, achieve depth alignment by partitioning the layers of the deeper model into multiple segments, equal in number to the layers of the shallower model. An elastic neuron zipping technique is proposed for the merging of width-heterogeneous models. Through experimental analysis, we demonstrate that the pro posed framework for merging heterogeneous models is both feasible and effective across a range of tasks and architectures."
+    ],
+    "id": "https://exa.ai/library/publication/l4vlw8fcmx3",
+    "image": null,
+    "published_date": "2024-12-29T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Training-free Heterogeneous Model Merging",
+    "url": "https://doi.org/10.48550/arxiv.2501.00061"
+   },
+   {
+    "author": null,
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "the first (bottom-most) layers of some \u201cbottom model\u201d B . Our intuition is that r has better quality\n...\nthe first ` layers of network A if \u201cswapping out\u201d these layers with r will improve performance. \n\u201c"
+    ],
+    "id": "https://papers.neurips.cc/paper_files/paper/2021/file/01ded4259d101feb739b06c399e9cd9c-Paper.pdf",
+    "image": null,
+    "published_date": null,
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Revisiting Model Stitching to Compare Neural Representations",
+    "url": "https://papers.neurips.cc/paper_files/paper/2021/file/01ded4259d101feb739b06c399e9cd9c-Paper.pdf"
+   },
+   {
+    "author": "Gabriel Garcia",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "When researchers ask whether two transformer layers are \u201cequivalent\u201d for com pression, they often conflate distinct tests. Replacement asks whether one layer\u2019s map can substitute for another\u2019s in place; interchange asks whether two layers ap proximately commute when their positions are swapped. Both are output-grounded swap-KL probes, but they need not agree: on pretrained transformers the protocol gap can change which layers look safe to prune by several-fold under the same evaluator, especially when replacement distances are high. We measure both protocols across checkpoints and architectures. On a Pythia training trajectory (410M and 1.4B; Figure 4), the replacement\u2013interchange gap grows from initialization to convergence. Under one matched WikiText-2 contract at 8B scale, Qwen3-8B enters a divergent regime: interchange-guided removal is several-fold safer than replacement-guided at the same layer budgets, while Llama-3.1-8B ties the two protocols for pruning cost even though interchange KL is lower, showing metric gaps need not map one-to-one to removal. Before layer removal or merging, score both swap-KLs on the target checkpoint; the diagnostic requires only unlabeled forward passes.\n\n...\n\nLarge language models exhibit layer-level redundancy, but calling two layers \u201cequivalent\u201d is incom plete without stating how equivalence is tested. Replacement and interchange are distinct output grounded tests; their disagreement is model- and pair-dependent, and in high-replacement-distance regimes it materially changes zero-shot pruning choices. We study two swap protocols on pretrained checkpoints. Replacement copies one layer\u2019s weights into another slot while the rest of the stack is unchanged. Interchange exchanges two layers\u2019 weights so each block still runs once but at swapped depth. Both are evaluated as empirical swap-KL on finite prompts (\u00a73, \u00a74), as behavioral probes rather than process-algebra certificates [Milner, 1989, Park, 1981]. Intuitively, replacement probes whether one residual map can substitute for another in place, while interchange probes whether two maps approximately commute at nearby depths [Veit et al., 2016]; the two can diverge sharply depending on how perturbations propagate.\n\n...\n\nRemark 1 (Position Interchange Distance). An alternative test is mutual position interchange: simultaneously replacing layer i\u2019s weights with layer j\u2019s and layer j\u2019s weights with layer i\u2019s, so each layer still executes once but at the other\u2019s depth. We denote the resulting model M i\u2194 j and define (note: M i\u2194 j = M j\u2194 i by construction, so interchange is symmetric and requires no max symmetrization) dinterchange(i, j) = Ex\u2208X KL pM (\u00b7 | x) \u2225 pM i\u2194 j(\u00b7 | x) . (4) This tests whether the order of two layers matters, rather than whether one can replace the other. Because no layer\u2019s computation is eliminated (both still run, just at swapped positions), inter change distance is structurally less disruptive than swap-KL distance. Empirically, we observe dinterchange(i, j) \u2264 drepl(i, j) across all tested model-pair combinations; Remark 2 provides an il lustrative analysis under simplifying assumptions. As we show in \u00a74.4, the gap between these two metrics is itself informative: in our model suite it is negligible for models with absolute positional embeddings and largest for the deep, well-trained RoPE models. This pattern is driven primarily by layer distance and training duration (controlled ablations confirm PE type is a correlated secondary factor, not the proximate cause; \u00a74.4). Remark 2 (Interchange perturbation is empirically smaller). Across all tested model-pair combi nations, dinterchange(i, j) \u2264 drepl(i, j). This holds because interchange tests layer order (both layers still execute), not layer equivalence (which eliminates one); the perturbation is structurally less disruptive. A mechanistic analysis under simplifying assumptions (showing that the perturbation difference is O(\u2225 J\u2225 \u00b7 \u2225 g\u2225 ) vs. O(\u2225 g\u2225 ) for replacement) and empirical Jacobian measurements across GPT-2-Medium and Pythia-410M are in Appendix O. In checkpoints with expansive deep-layer Jacobians (e.g., pretrained Pythia-410M in Appendix O), replacement-side perturbations can be amplified along the depth axis while interchange cross-terms remain comparatively small when layers are approximately structurally commutative in depth; this is one Jacobian-level account of a protocol gap where it appears, not a claim that positional-encoding type is the proximate cause (see Appendix P)."
+    ],
+    "id": "https://exa.ai/library/publication/nybqbymp1kh",
+    "image": null,
+    "published_date": "2026-05-15T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "No Free Swap: Protocol-Dependent Layer Redundancy in Transformers",
+    "url": "https://arxiv.org/abs/2605.16234"
+   },
+   {
+    "author": "Arthur Guijt, Dirk Thierens, Tanja Alderliesten, Peter A. N. Bosman",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "If we compare the fronts obtained on ImageNet (a) and VOC in Figure 4 against those obtained for ImageNet (b) in Figure 5 , it can be observed that the distribution of found networks is quite different. For the first two the front is noticeably concave, whereas on ImageNet (b) the front is mostly convex. How two networks are matched in steps 1 and 2, has a significant effect on the distribution of multiply-adds of the subnetworks that can be found. When two networks with greatly differing depth are stitched, as is the case for ImageNet (a) and VOC, a large portion of layers in the deeper network may remain without a match in the other network. If these layers are consecutive, all of these layers will either be included or excluded as one unit. This can result in large portion of the computational costs being present or absent, with no potential networks in between. The approach used to match therefore has a large impact on the distribution of multiply-adds. The approach used in this work, matched as early as possible given the possible matches. In effect, for each group of compatible layers a large block is created. This resulted in the staircase for ImageNet (a), and the large cliff for VOC. Altering the matching approach for a better distribution of matches may therefore be necessary to obtain a less concave front."
+    ],
+    "id": "https://exa.ai/library/publication/j125qdnb5tc",
+    "image": null,
+    "published_date": "2024-03-21T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Stitching for Neuroevolution: Recombining Deep Neural Networks without Breaking Them",
+    "url": "https://doi.org/10.48550/arxiv.2403.14224"
+   }
+  ],
+  "search_time": 3954.3,
+  "statuses": null,
+  "warnings": null
+ },
+ "sdk_version": "2.28.0"
+}

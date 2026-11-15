@@ -1,0 +1,116 @@
+{
+  "id": "mlp_roman-numeral_family_l10_128_units_lfm3_1.7b_L10_k128_001",
+  "kind": "mlp_cluster",
+  "title": "LFM3-1.7B layer 10, Roman-numeral family (L10, 128 units)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm3_1.7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "roman_numeral"
+  ],
+  "models": [
+    "LiquidAI/LFM3-1.7B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'roman_numeral' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2936,
+      "control_value": 0.0095,
+      "split": "person_a held-out skill items (roman_numeral)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm3_1.7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0615"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM3-1.7B",
+  "layer": 10,
+  "layers": [
+    10
+  ],
+  "units_file": "components/LiquidAI__LFM3-1.7B/mlp_roman-numeral_family_l10_128_units_lfm3_1.7b_L10_k128_001.pt",
+  "units_remote": "person_a/parts/lfm3_1.7b/mlp_roman-numeral_family_l10_128_units_lfm3_1.7b_L10_k128_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'roman_numeral'",
+    "label": "Roman-numeral family (L10, 128 units)",
+    "num_units": 128,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0044,
+      "math|heldout": 0.0228,
+      "code|search": 0.0071,
+      "code|heldout": 0.0016,
+      "facts|search": 0.0656,
+      "facts|heldout": 0.0663,
+      "multilingual|search": 0.0085,
+      "multilingual|heldout": 0.0352,
+      "general_text|search": 0.0333,
+      "general_text|heldout": 0.0347,
+      "roman_numeral|search": 0.3964,
+      "roman_numeral__control|search": 0.0341,
+      "roman_numeral|heldout": 0.2936,
+      "roman_numeral__control|heldout": 0.0615,
+      "number_word|search": 0.0046,
+      "number_word__control|search": 0.0709,
+      "number_word|heldout": 0.0089,
+      "number_word__control|heldout": 0.0618,
+      "month_successor|search": -0.0703,
+      "month_successor__control|search": 0.0232,
+      "month_successor|heldout": -0.0003,
+      "month_successor__control|heldout": 0.0067,
+      "weekday_successor|search": 0.0381,
+      "weekday_successor__control|search": -0.1767,
+      "weekday_successor|heldout": 0.0589,
+      "weekday_successor__control|heldout": -0.0402,
+      "object_color|search": 0.0475,
+      "object_color__control|search": 0.0365,
+      "object_color|heldout": 0.0275,
+      "object_color__control|heldout": -0.0249,
+      "nationality_to_country|search": 0.003,
+      "nationality_to_country__control|search": 0.003,
+      "nationality_to_country|heldout": 0.015,
+      "nationality_to_country__control|heldout": 0.0023,
+      "ordinal_word|search": 0.0326,
+      "ordinal_word__control|search": 0.0248,
+      "ordinal_word|heldout": 0.0347,
+      "ordinal_word__control|heldout": 0.0169,
+      "comparative_adjective|search": -0.0102,
+      "comparative_adjective__control|search": 0.0028,
+      "comparative_adjective|heldout": -0.0411,
+      "comparative_adjective__control|heldout": 0.0026
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1321,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0075,
+      0.0146,
+      0.0422,
+      -0.0233,
+      0.0064
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "The L10 roman gate family at 128 units. Ablation: roman .396, control .034, others \u2264 .066."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm3_1.7b/roman_numeral.json",
+    "hash": "58a91e929708edbd",
+    "description": "Convert an Arabic integer (1-39) to Roman numerals, few-shot. Control: same format but the second line is the arabic successor.",
+    "name": "roman_numeral"
+  },
+  "catalog_id": "mlp_roman-numeral_family_l10_128_units_lfm3_1.7b_L10_k128_001",
+  "exported_copy": "library/lfm3_1.7b/mlp_roman-numeral_family_l10_128_units_lfm3_1.7b_L10_k128_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

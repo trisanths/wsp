@@ -1,0 +1,620 @@
+{
+ "name": "federal_courts",
+ "description": "Retrieve the federal court level (district, appellate, Supreme) from a fixed table of institutional roles and facts; matched nonlegal plant anatomy classification.",
+ "hash": "94952b3bdeec529d",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nlegal={'district':['the ordinary federal trial court for civil actions','the ordinary federal trial court for felony prosecutions','the federal court level where a jury ordinarily determines disputed trial facts','the general first-instance trial level of the federal judiciary','the federal level where witnesses ordinarily testify in a civil jury trial'], 'appellate':['the intermediate federal level reviewing final district-court decisions','the level occupied by the United States courts of appeals','the federal circuit-court level that ordinarily reviews legal errors rather than trying facts','the intermediate federal reviewing level below the Supreme Court','the federal level where a three-judge panel ordinarily reviews a district-court judgment'], 'Supreme':['the highest court in the United States federal system','the United States court with nine justices','the final judicial authority on the meaning of the federal Constitution','the highest federal court that usually chooses cases by granting certiorari','the United States court headed by the Chief Justice']}\ncontrol={'root':['the plant organ that normally absorbs water from soil','the plant organ that anchors the plant in the soil','the underground organ bearing root hairs','the organ that forms the primary belowground absorbing system','the organ that grows downward from the radicle'], 'stem':['the plant axis that supports leaves and flowers','the main shoot structure containing nodes and internodes','the structure that connects roots to leaves above ground','the plant axis from which branches emerge','the supporting organ of which a tree trunk is an example'], 'leaf':['the usually flat green organ specialized for photosynthesis','the organ with a blade attached by a petiole','the plant organ whose surface often contains many stomata','the structure of which a maple blade is an example','the photosynthetic organ that typically grows from a stem node']}\nframes=['Classify {d} as {options}.\\nThe correct category is','For {d}, choose one category: {options}.\\nCategory:','The category describing {d}, among {options}, is','Identify {d}. Categories: {options}.\\nAnswer:']\ndef make(table):\n options=', '.join(table);rows=[{'prompt':f.format(d=d,options=options),'answer':' '+a} for a,ds in table.items() for d in ds for f in frames];random.shuffle(rows);return rows\njson.dump({'items':make(legal),'control':make(control)},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Identify the intermediate federal level reviewing final district-court decisions. Categories: district, appellate, Supreme.\nAnswer:",
+    "continuation": " appellate",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the ordinary federal trial court for felony prosecutions as district, appellate, Supreme.\nThe correct category is",
+    "continuation": " district",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinary federal trial court for civil actions. Categories: district, appellate, Supreme.\nAnswer:",
+    "continuation": " district",
+    "digits_only": false
+   },
+   {
+    "context": "For the federal court level where a jury ordinarily determines disputed trial facts, choose one category: district, appellate, Supreme.\nCategory:",
+    "continuation": " district",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the highest federal court that usually chooses cases by granting certiorari as district, appellate, Supreme.\nThe correct category is",
+    "continuation": " Supreme",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the federal level where witnesses ordinarily testify in a civil jury trial, among district, appellate, Supreme, is",
+    "continuation": " district",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the intermediate federal level reviewing final district-court decisions, among district, appellate, Supreme, is",
+    "continuation": " appellate",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the highest court in the United States federal system, among district, appellate, Supreme, is",
+    "continuation": " Supreme",
+    "digits_only": false
+   },
+   {
+    "context": "For the ordinary federal trial court for felony prosecutions, choose one category: district, appellate, Supreme.\nCategory:",
+    "continuation": " district",
+    "digits_only": false
+   },
+   {
+    "context": "For the level occupied by the United States courts of appeals, choose one category: district, appellate, Supreme.\nCategory:",
+    "continuation": " appellate",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the level occupied by the United States courts of appeals, among district, appellate, Supreme, is",
+    "continuation": " appellate",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the level occupied by the United States courts of appeals as district, appellate, Supreme.\nThe correct category is",
+    "continuation": " appellate",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the United States court with nine justices, among district, appellate, Supreme, is",
+    "continuation": " Supreme",
+    "digits_only": false
+   },
+   {
+    "context": "For the United States court with nine justices, choose one category: district, appellate, Supreme.\nCategory:",
+    "continuation": " Supreme",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the federal court level where a jury ordinarily determines disputed trial facts. Categories: district, appellate, Supreme.\nAnswer:",
+    "continuation": " district",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the highest federal court that usually chooses cases by granting certiorari, among district, appellate, Supreme, is",
+    "continuation": " Supreme",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the general first-instance trial level of the federal judiciary as district, appellate, Supreme.\nThe correct category is",
+    "continuation": " district",
+    "digits_only": false
+   },
+   {
+    "context": "For the intermediate federal reviewing level below the Supreme Court, choose one category: district, appellate, Supreme.\nCategory:",
+    "continuation": " appellate",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the highest court in the United States federal system. Categories: district, appellate, Supreme.\nAnswer:",
+    "continuation": " Supreme",
+    "digits_only": false
+   },
+   {
+    "context": "For the highest federal court that usually chooses cases by granting certiorari, choose one category: district, appellate, Supreme.\nCategory:",
+    "continuation": " Supreme",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the federal circuit-court level that ordinarily reviews legal errors rather than trying facts as district, appellate, Supreme.\nThe correct category is",
+    "continuation": " appellate",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the United States court headed by the Chief Justice. Categories: district, appellate, Supreme.\nAnswer:",
+    "continuation": " Supreme",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the federal circuit-court level that ordinarily reviews legal errors rather than trying facts. Categories: district, appellate, Supreme.\nAnswer:",
+    "continuation": " appellate",
+    "digits_only": false
+   },
+   {
+    "context": "For the federal level where a three-judge panel ordinarily reviews a district-court judgment, choose one category: district, appellate, Supreme.\nCategory:",
+    "continuation": " appellate",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the general first-instance trial level of the federal judiciary, among district, appellate, Supreme, is",
+    "continuation": " district",
+    "digits_only": false
+   },
+   {
+    "context": "For the final judicial authority on the meaning of the federal Constitution, choose one category: district, appellate, Supreme.\nCategory:",
+    "continuation": " Supreme",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the highest federal court that usually chooses cases by granting certiorari. Categories: district, appellate, Supreme.\nAnswer:",
+    "continuation": " Supreme",
+    "digits_only": false
+   },
+   {
+    "context": "For the general first-instance trial level of the federal judiciary, choose one category: district, appellate, Supreme.\nCategory:",
+    "continuation": " district",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the United States court headed by the Chief Justice, among district, appellate, Supreme, is",
+    "continuation": " Supreme",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the federal level where a three-judge panel ordinarily reviews a district-court judgment as district, appellate, Supreme.\nThe correct category is",
+    "continuation": " appellate",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "For the ordinary federal trial court for civil actions, choose one category: district, appellate, Supreme.\nCategory:",
+    "continuation": " district",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the final judicial authority on the meaning of the federal Constitution as district, appellate, Supreme.\nThe correct category is",
+    "continuation": " Supreme",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the general first-instance trial level of the federal judiciary. Categories: district, appellate, Supreme.\nAnswer:",
+    "continuation": " district",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the United States court with nine justices as district, appellate, Supreme.\nThe correct category is",
+    "continuation": " Supreme",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the ordinary federal trial court for felony prosecutions, among district, appellate, Supreme, is",
+    "continuation": " district",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the federal level where witnesses ordinarily testify in a civil jury trial. Categories: district, appellate, Supreme.\nAnswer:",
+    "continuation": " district",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the final judicial authority on the meaning of the federal Constitution, among district, appellate, Supreme, is",
+    "continuation": " Supreme",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the highest court in the United States federal system as district, appellate, Supreme.\nThe correct category is",
+    "continuation": " Supreme",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the federal level where witnesses ordinarily testify in a civil jury trial as district, appellate, Supreme.\nThe correct category is",
+    "continuation": " district",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the federal level where a three-judge panel ordinarily reviews a district-court judgment. Categories: district, appellate, Supreme.\nAnswer:",
+    "continuation": " appellate",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the United States court with nine justices. Categories: district, appellate, Supreme.\nAnswer:",
+    "continuation": " Supreme",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the federal court level where a jury ordinarily determines disputed trial facts as district, appellate, Supreme.\nThe correct category is",
+    "continuation": " district",
+    "digits_only": false
+   },
+   {
+    "context": "For the highest court in the United States federal system, choose one category: district, appellate, Supreme.\nCategory:",
+    "continuation": " Supreme",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinary federal trial court for felony prosecutions. Categories: district, appellate, Supreme.\nAnswer:",
+    "continuation": " district",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the intermediate federal reviewing level below the Supreme Court as district, appellate, Supreme.\nThe correct category is",
+    "continuation": " appellate",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the level occupied by the United States courts of appeals. Categories: district, appellate, Supreme.\nAnswer:",
+    "continuation": " appellate",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the intermediate federal reviewing level below the Supreme Court, among district, appellate, Supreme, is",
+    "continuation": " appellate",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the final judicial authority on the meaning of the federal Constitution. Categories: district, appellate, Supreme.\nAnswer:",
+    "continuation": " Supreme",
+    "digits_only": false
+   },
+   {
+    "context": "For the federal level where witnesses ordinarily testify in a civil jury trial, choose one category: district, appellate, Supreme.\nCategory:",
+    "continuation": " district",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the federal level where a three-judge panel ordinarily reviews a district-court judgment, among district, appellate, Supreme, is",
+    "continuation": " appellate",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the intermediate federal reviewing level below the Supreme Court. Categories: district, appellate, Supreme.\nAnswer:",
+    "continuation": " appellate",
+    "digits_only": false
+   },
+   {
+    "context": "For the United States court headed by the Chief Justice, choose one category: district, appellate, Supreme.\nCategory:",
+    "continuation": " Supreme",
+    "digits_only": false
+   },
+   {
+    "context": "For the intermediate federal level reviewing final district-court decisions, choose one category: district, appellate, Supreme.\nCategory:",
+    "continuation": " appellate",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the ordinary federal trial court for civil actions as district, appellate, Supreme.\nThe correct category is",
+    "continuation": " district",
+    "digits_only": false
+   },
+   {
+    "context": "For the federal circuit-court level that ordinarily reviews legal errors rather than trying facts, choose one category: district, appellate, Supreme.\nCategory:",
+    "continuation": " appellate",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the federal court level where a jury ordinarily determines disputed trial facts, among district, appellate, Supreme, is",
+    "continuation": " district",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the United States court headed by the Chief Justice as district, appellate, Supreme.\nThe correct category is",
+    "continuation": " Supreme",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the federal circuit-court level that ordinarily reviews legal errors rather than trying facts, among district, appellate, Supreme, is",
+    "continuation": " appellate",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the intermediate federal level reviewing final district-court decisions as district, appellate, Supreme.\nThe correct category is",
+    "continuation": " appellate",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the ordinary federal trial court for civil actions, among district, appellate, Supreme, is",
+    "continuation": " district",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "For the structure that connects roots to leaves above ground, choose one category: root, stem, leaf.\nCategory:",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the organ that forms the primary belowground absorbing system. Categories: root, stem, leaf.\nAnswer:",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the usually flat green organ specialized for photosynthesis, among root, stem, leaf, is",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the organ that forms the primary belowground absorbing system as root, stem, leaf.\nThe correct category is",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant axis that supports leaves and flowers. Categories: root, stem, leaf.\nAnswer:",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the organ that grows downward from the radicle as root, stem, leaf.\nThe correct category is",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the plant organ that anchors the plant in the soil as root, stem, leaf.\nThe correct category is",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the organ with a blade attached by a petiole, among root, stem, leaf, is",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the organ that grows downward from the radicle. Categories: root, stem, leaf.\nAnswer:",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the underground organ bearing root hairs as root, stem, leaf.\nThe correct category is",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "For the underground organ bearing root hairs, choose one category: root, stem, leaf.\nCategory:",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "For the plant organ that normally absorbs water from soil, choose one category: root, stem, leaf.\nCategory:",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the plant organ whose surface often contains many stomata, among root, stem, leaf, is",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the supporting organ of which a tree trunk is an example. Categories: root, stem, leaf.\nAnswer:",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the organ with a blade attached by a petiole as root, stem, leaf.\nThe correct category is",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the underground organ bearing root hairs, among root, stem, leaf, is",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "For the usually flat green organ specialized for photosynthesis, choose one category: root, stem, leaf.\nCategory:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "For the supporting organ of which a tree trunk is an example, choose one category: root, stem, leaf.\nCategory:",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "For the plant axis from which branches emerge, choose one category: root, stem, leaf.\nCategory:",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the structure of which a maple blade is an example, among root, stem, leaf, is",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "For the structure of which a maple blade is an example, choose one category: root, stem, leaf.\nCategory:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "For the plant organ that anchors the plant in the soil, choose one category: root, stem, leaf.\nCategory:",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "For the organ that forms the primary belowground absorbing system, choose one category: root, stem, leaf.\nCategory:",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the organ that grows downward from the radicle, among root, stem, leaf, is",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the structure of which a maple blade is an example as root, stem, leaf.\nThe correct category is",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "For the plant organ whose surface often contains many stomata, choose one category: root, stem, leaf.\nCategory:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the plant axis that supports leaves and flowers, among root, stem, leaf, is",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the plant axis from which branches emerge as root, stem, leaf.\nThe correct category is",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant organ whose surface often contains many stomata. Categories: root, stem, leaf.\nAnswer:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the main shoot structure containing nodes and internodes as root, stem, leaf.\nThe correct category is",
+    "continuation": " stem",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The category describing the supporting organ of which a tree trunk is an example, among root, stem, leaf, is",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the photosynthetic organ that typically grows from a stem node as root, stem, leaf.\nThe correct category is",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "For the plant axis that supports leaves and flowers, choose one category: root, stem, leaf.\nCategory:",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the plant organ that normally absorbs water from soil, among root, stem, leaf, is",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant organ that anchors the plant in the soil. Categories: root, stem, leaf.\nAnswer:",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the organ that forms the primary belowground absorbing system, among root, stem, leaf, is",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the supporting organ of which a tree trunk is an example as root, stem, leaf.\nThe correct category is",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the structure that connects roots to leaves above ground. Categories: root, stem, leaf.\nAnswer:",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the plant organ that normally absorbs water from soil as root, stem, leaf.\nThe correct category is",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the usually flat green organ specialized for photosynthesis. Categories: root, stem, leaf.\nAnswer:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the main shoot structure containing nodes and internodes, among root, stem, leaf, is",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant axis from which branches emerge. Categories: root, stem, leaf.\nAnswer:",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the main shoot structure containing nodes and internodes. Categories: root, stem, leaf.\nAnswer:",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the photosynthetic organ that typically grows from a stem node, among root, stem, leaf, is",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the usually flat green organ specialized for photosynthesis as root, stem, leaf.\nThe correct category is",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the underground organ bearing root hairs. Categories: root, stem, leaf.\nAnswer:",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the organ with a blade attached by a petiole. Categories: root, stem, leaf.\nAnswer:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the structure of which a maple blade is an example. Categories: root, stem, leaf.\nAnswer:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "For the photosynthetic organ that typically grows from a stem node, choose one category: root, stem, leaf.\nCategory:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the plant organ whose surface often contains many stomata as root, stem, leaf.\nThe correct category is",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the plant axis from which branches emerge, among root, stem, leaf, is",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the photosynthetic organ that typically grows from a stem node. Categories: root, stem, leaf.\nAnswer:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant organ that normally absorbs water from soil. Categories: root, stem, leaf.\nAnswer:",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "For the main shoot structure containing nodes and internodes, choose one category: root, stem, leaf.\nCategory:",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the structure that connects roots to leaves above ground, among root, stem, leaf, is",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "The category describing the plant organ that anchors the plant in the soil, among root, stem, leaf, is",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the plant axis that supports leaves and flowers as root, stem, leaf.\nThe correct category is",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the structure that connects roots to leaves above ground as root, stem, leaf.\nThe correct category is",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "For the organ with a blade attached by a petiole, choose one category: root, stem, leaf.\nCategory:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "For the organ that grows downward from the radicle, choose one category: root, stem, leaf.\nCategory:",
+    "continuation": " root",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 0.6844
+}

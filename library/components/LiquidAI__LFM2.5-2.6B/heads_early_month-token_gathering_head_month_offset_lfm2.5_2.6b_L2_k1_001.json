@@ -1,0 +1,100 @@
+{
+  "id": "heads_early_month-token_gathering_head_month_offset_lfm2.5_2.6b_L2_k1_001",
+  "kind": "attn_heads",
+  "title": "LFM2.5-2.6B layer 2, early month-token gathering head (month offset)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_2.6b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "month_successor"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-2.6B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'month_successor' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.3684,
+      "control_value": 0.1207,
+      "split": "person_a held-out skill items (month_successor)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_2.6b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0022"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-2.6B",
+  "layer": 2,
+  "layers": [
+    2
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-2.6B/heads_early_month-token_gathering_head_month_offset_lfm2.5_2.6b_L2_k1_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_2.6b/heads_early_month-token_gathering_head_month_offset_lfm2.5_2.6b_L2_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'month_successor'",
+    "label": "early month-token gathering head (month offset)",
+    "num_units": 1,
+    "d_model": 2048,
+    "effect": {
+      "math|search": -0.007,
+      "math|heldout": -0.0076,
+      "code|search": -0.0781,
+      "code|heldout": -0.0772,
+      "facts|search": -0.1925,
+      "facts|heldout": -0.0952,
+      "multilingual|search": -0.0033,
+      "multilingual|heldout": -0.0539,
+      "general_text|search": -0.1895,
+      "general_text|heldout": -0.1886,
+      "month_successor|search": 0.5024,
+      "month_successor__control|search": 0.0016,
+      "month_successor|heldout": 0.3684,
+      "month_successor__control|heldout": 0.0022,
+      "weekday_successor|search": 0.1334,
+      "weekday_successor__control|search": -0.0084,
+      "weekday_successor|heldout": 0.3189,
+      "weekday_successor__control|heldout": 0.004,
+      "roman_numerals|search": 0.0124,
+      "roman_numerals__control|search": 0.0011,
+      "roman_numerals|heldout": -0.0008,
+      "roman_numerals__control|heldout": 0.0013,
+      "object_color|search": 0.0901,
+      "object_color__control|search": -0.004,
+      "object_color|heldout": 0.0956,
+      "object_color__control|heldout": -0.0085
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1675,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.1529,
+      -0.0643,
+      0.2716,
+      0.2053,
+      0.0378
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L2 h30 has the largest OV gain (4.2) on month/weekday embeddings among the candidate heads; attribution ranks it #2 for month_successor and #1 for weekday_successor. Ablation gives .502 month drop, number-successor control .002."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_2.6b/month_successor.json",
+    "hash": "daacbf190d5d8adf",
+    "description": "Name the month that is k (1-3) months after a given month, few-shot. Control: same arrow format with integer successor (+k).",
+    "name": "month_successor"
+  },
+  "catalog_id": "heads_early_month-token_gathering_head_month_offset_lfm2.5_2.6b_L2_k1_001",
+  "exported_copy": "library/lfm2.5_2.6b/heads_early_month-token_gathering_head_month_offset_lfm2.5_2.6b_L2_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

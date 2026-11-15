@@ -1,0 +1,1220 @@
+{
+ "name": "antonym",
+ "description": "Produce the antonym of an English adjective. Control: copy the same adjective in the same frame.",
+ "hash": "686de13a2a82f35b",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nP=[('hot','cold'),('big','small'),('fast','slow'),('tall','short'),('happy','sad'),('rich','poor'),('light','dark'),('hard','soft'),('wet','dry'),('old','young'),('early','late'),('strong','weak'),('thick','thin'),('high','low'),('open','closed'),('full','empty'),('clean','dirty'),('cheap','expensive'),('loud','quiet'),('heavy','light'),('deep','shallow'),('wide','narrow'),('good','bad'),('true','false'),('alive','dead'),('first','last'),('safe','dangerous'),('right','wrong'),('push','pull'),('win','lose')]\nP=P+[(b,a) for a,b in P if b not in ('light','closed','expensive','dangerous','last','wrong','pull','lose','dead','false')]\nitems=[];control=[]\nfor i in range(120):\n    a,b=random.choice(P)\n    items.append({\"prompt\":f\"The opposite of \\\"{a}\\\" is \\\"\",\"answer\":b})\nfor i in range(120):\n    a,b=random.choice(P)\n    control.append({\"prompt\":f\"The same word as \\\"{a}\\\" is \\\"\",\"answer\":a})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "The opposite of \"wide\" is \"",
+    "continuation": "narrow",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"clean\" is \"",
+    "continuation": "dirty",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"strong\" is \"",
+    "continuation": "weak",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"fast\" is \"",
+    "continuation": "slow",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"fast\" is \"",
+    "continuation": "slow",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"quiet\" is \"",
+    "continuation": "loud",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"slow\" is \"",
+    "continuation": "fast",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"dirty\" is \"",
+    "continuation": "clean",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"wide\" is \"",
+    "continuation": "narrow",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"heavy\" is \"",
+    "continuation": "light",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"hot\" is \"",
+    "continuation": "cold",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"push\" is \"",
+    "continuation": "pull",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"dry\" is \"",
+    "continuation": "wet",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"old\" is \"",
+    "continuation": "young",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"light\" is \"",
+    "continuation": "dark",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"wet\" is \"",
+    "continuation": "dry",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"dry\" is \"",
+    "continuation": "wet",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"low\" is \"",
+    "continuation": "high",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"safe\" is \"",
+    "continuation": "dangerous",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"heavy\" is \"",
+    "continuation": "light",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"heavy\" is \"",
+    "continuation": "light",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"low\" is \"",
+    "continuation": "high",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"short\" is \"",
+    "continuation": "tall",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"high\" is \"",
+    "continuation": "low",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"thick\" is \"",
+    "continuation": "thin",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"clean\" is \"",
+    "continuation": "dirty",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"poor\" is \"",
+    "continuation": "rich",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"low\" is \"",
+    "continuation": "high",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"hard\" is \"",
+    "continuation": "soft",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"young\" is \"",
+    "continuation": "old",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"good\" is \"",
+    "continuation": "bad",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"old\" is \"",
+    "continuation": "young",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"rich\" is \"",
+    "continuation": "poor",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"first\" is \"",
+    "continuation": "last",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"cold\" is \"",
+    "continuation": "hot",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"deep\" is \"",
+    "continuation": "shallow",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"slow\" is \"",
+    "continuation": "fast",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"thin\" is \"",
+    "continuation": "thick",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"sad\" is \"",
+    "continuation": "happy",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"rich\" is \"",
+    "continuation": "poor",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"deep\" is \"",
+    "continuation": "shallow",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"dry\" is \"",
+    "continuation": "wet",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"right\" is \"",
+    "continuation": "wrong",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"young\" is \"",
+    "continuation": "old",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"small\" is \"",
+    "continuation": "big",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"thin\" is \"",
+    "continuation": "thick",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"full\" is \"",
+    "continuation": "empty",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"clean\" is \"",
+    "continuation": "dirty",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"short\" is \"",
+    "continuation": "tall",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"sad\" is \"",
+    "continuation": "happy",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"happy\" is \"",
+    "continuation": "sad",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"good\" is \"",
+    "continuation": "bad",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"hot\" is \"",
+    "continuation": "cold",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"loud\" is \"",
+    "continuation": "quiet",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"dark\" is \"",
+    "continuation": "light",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"loud\" is \"",
+    "continuation": "quiet",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"wet\" is \"",
+    "continuation": "dry",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"wet\" is \"",
+    "continuation": "dry",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"full\" is \"",
+    "continuation": "empty",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"sad\" is \"",
+    "continuation": "happy",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The opposite of \"clean\" is \"",
+    "continuation": "dirty",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"poor\" is \"",
+    "continuation": "rich",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"wide\" is \"",
+    "continuation": "narrow",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"cold\" is \"",
+    "continuation": "hot",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"cold\" is \"",
+    "continuation": "hot",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"poor\" is \"",
+    "continuation": "rich",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"thick\" is \"",
+    "continuation": "thin",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"alive\" is \"",
+    "continuation": "dead",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"old\" is \"",
+    "continuation": "young",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"soft\" is \"",
+    "continuation": "hard",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"narrow\" is \"",
+    "continuation": "wide",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"alive\" is \"",
+    "continuation": "dead",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"first\" is \"",
+    "continuation": "last",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"first\" is \"",
+    "continuation": "last",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"full\" is \"",
+    "continuation": "empty",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"small\" is \"",
+    "continuation": "big",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"cheap\" is \"",
+    "continuation": "expensive",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"rich\" is \"",
+    "continuation": "poor",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"light\" is \"",
+    "continuation": "dark",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"loud\" is \"",
+    "continuation": "quiet",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"poor\" is \"",
+    "continuation": "rich",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"young\" is \"",
+    "continuation": "old",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"happy\" is \"",
+    "continuation": "sad",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"push\" is \"",
+    "continuation": "pull",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"rich\" is \"",
+    "continuation": "poor",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"deep\" is \"",
+    "continuation": "shallow",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"push\" is \"",
+    "continuation": "pull",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"soft\" is \"",
+    "continuation": "hard",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"cold\" is \"",
+    "continuation": "hot",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"dirty\" is \"",
+    "continuation": "clean",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"high\" is \"",
+    "continuation": "low",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"light\" is \"",
+    "continuation": "dark",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"poor\" is \"",
+    "continuation": "rich",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"rich\" is \"",
+    "continuation": "poor",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"sad\" is \"",
+    "continuation": "happy",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"poor\" is \"",
+    "continuation": "rich",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"dirty\" is \"",
+    "continuation": "clean",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"high\" is \"",
+    "continuation": "low",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"loud\" is \"",
+    "continuation": "quiet",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"young\" is \"",
+    "continuation": "old",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"deep\" is \"",
+    "continuation": "shallow",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"narrow\" is \"",
+    "continuation": "wide",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"dark\" is \"",
+    "continuation": "light",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"quiet\" is \"",
+    "continuation": "loud",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"small\" is \"",
+    "continuation": "big",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"tall\" is \"",
+    "continuation": "short",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"dirty\" is \"",
+    "continuation": "clean",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"late\" is \"",
+    "continuation": "early",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"rich\" is \"",
+    "continuation": "poor",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"fast\" is \"",
+    "continuation": "slow",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"dirty\" is \"",
+    "continuation": "clean",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"happy\" is \"",
+    "continuation": "sad",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"open\" is \"",
+    "continuation": "closed",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"light\" is \"",
+    "continuation": "dark",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"slow\" is \"",
+    "continuation": "fast",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"late\" is \"",
+    "continuation": "early",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"empty\" is \"",
+    "continuation": "full",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"strong\" is \"",
+    "continuation": "weak",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"quiet\" is \"",
+    "continuation": "loud",
+    "digits_only": false
+   },
+   {
+    "context": "The opposite of \"narrow\" is \"",
+    "continuation": "wide",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "The same word as \"slow\" is \"",
+    "continuation": "slow",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"right\" is \"",
+    "continuation": "right",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"late\" is \"",
+    "continuation": "late",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"first\" is \"",
+    "continuation": "first",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"low\" is \"",
+    "continuation": "low",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"late\" is \"",
+    "continuation": "late",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"soft\" is \"",
+    "continuation": "soft",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"heavy\" is \"",
+    "continuation": "heavy",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"open\" is \"",
+    "continuation": "open",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"thin\" is \"",
+    "continuation": "thin",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"rich\" is \"",
+    "continuation": "rich",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"cold\" is \"",
+    "continuation": "cold",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"thick\" is \"",
+    "continuation": "thick",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"weak\" is \"",
+    "continuation": "weak",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"hot\" is \"",
+    "continuation": "hot",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"right\" is \"",
+    "continuation": "right",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"light\" is \"",
+    "continuation": "light",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"hard\" is \"",
+    "continuation": "hard",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"quiet\" is \"",
+    "continuation": "quiet",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"small\" is \"",
+    "continuation": "small",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"strong\" is \"",
+    "continuation": "strong",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"low\" is \"",
+    "continuation": "low",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"dark\" is \"",
+    "continuation": "dark",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"good\" is \"",
+    "continuation": "good",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"fast\" is \"",
+    "continuation": "fast",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"old\" is \"",
+    "continuation": "old",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"early\" is \"",
+    "continuation": "early",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"dry\" is \"",
+    "continuation": "dry",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"young\" is \"",
+    "continuation": "young",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"right\" is \"",
+    "continuation": "right",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"big\" is \"",
+    "continuation": "big",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"soft\" is \"",
+    "continuation": "soft",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"slow\" is \"",
+    "continuation": "slow",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"safe\" is \"",
+    "continuation": "safe",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"light\" is \"",
+    "continuation": "light",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"clean\" is \"",
+    "continuation": "clean",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"weak\" is \"",
+    "continuation": "weak",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"early\" is \"",
+    "continuation": "early",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"dry\" is \"",
+    "continuation": "dry",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"thin\" is \"",
+    "continuation": "thin",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"true\" is \"",
+    "continuation": "true",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"quiet\" is \"",
+    "continuation": "quiet",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"safe\" is \"",
+    "continuation": "safe",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"quiet\" is \"",
+    "continuation": "quiet",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"dark\" is \"",
+    "continuation": "dark",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"early\" is \"",
+    "continuation": "early",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"empty\" is \"",
+    "continuation": "empty",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"big\" is \"",
+    "continuation": "big",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"soft\" is \"",
+    "continuation": "soft",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"cold\" is \"",
+    "continuation": "cold",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"sad\" is \"",
+    "continuation": "sad",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"high\" is \"",
+    "continuation": "high",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"good\" is \"",
+    "continuation": "good",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"strong\" is \"",
+    "continuation": "strong",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"happy\" is \"",
+    "continuation": "happy",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"strong\" is \"",
+    "continuation": "strong",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"wide\" is \"",
+    "continuation": "wide",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"hard\" is \"",
+    "continuation": "hard",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"cheap\" is \"",
+    "continuation": "cheap",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"small\" is \"",
+    "continuation": "small",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The same word as \"low\" is \"",
+    "continuation": "low",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"big\" is \"",
+    "continuation": "big",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"light\" is \"",
+    "continuation": "light",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"full\" is \"",
+    "continuation": "full",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"low\" is \"",
+    "continuation": "low",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"first\" is \"",
+    "continuation": "first",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"fast\" is \"",
+    "continuation": "fast",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"empty\" is \"",
+    "continuation": "empty",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"dry\" is \"",
+    "continuation": "dry",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"open\" is \"",
+    "continuation": "open",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"dark\" is \"",
+    "continuation": "dark",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"low\" is \"",
+    "continuation": "low",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"thick\" is \"",
+    "continuation": "thick",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"sad\" is \"",
+    "continuation": "sad",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"push\" is \"",
+    "continuation": "push",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"hard\" is \"",
+    "continuation": "hard",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"dirty\" is \"",
+    "continuation": "dirty",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"tall\" is \"",
+    "continuation": "tall",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"win\" is \"",
+    "continuation": "win",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"rich\" is \"",
+    "continuation": "rich",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"hard\" is \"",
+    "continuation": "hard",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"wide\" is \"",
+    "continuation": "wide",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"full\" is \"",
+    "continuation": "full",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"big\" is \"",
+    "continuation": "big",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"short\" is \"",
+    "continuation": "short",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"dry\" is \"",
+    "continuation": "dry",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"high\" is \"",
+    "continuation": "high",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"bad\" is \"",
+    "continuation": "bad",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"dark\" is \"",
+    "continuation": "dark",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"good\" is \"",
+    "continuation": "good",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"happy\" is \"",
+    "continuation": "happy",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"open\" is \"",
+    "continuation": "open",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"clean\" is \"",
+    "continuation": "clean",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"tall\" is \"",
+    "continuation": "tall",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"hard\" is \"",
+    "continuation": "hard",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"empty\" is \"",
+    "continuation": "empty",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"short\" is \"",
+    "continuation": "short",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"dry\" is \"",
+    "continuation": "dry",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"happy\" is \"",
+    "continuation": "happy",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"true\" is \"",
+    "continuation": "true",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"thick\" is \"",
+    "continuation": "thick",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"low\" is \"",
+    "continuation": "low",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"dirty\" is \"",
+    "continuation": "dirty",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"empty\" is \"",
+    "continuation": "empty",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"cheap\" is \"",
+    "continuation": "cheap",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"high\" is \"",
+    "continuation": "high",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"late\" is \"",
+    "continuation": "late",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"tall\" is \"",
+    "continuation": "tall",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"thick\" is \"",
+    "continuation": "thick",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"fast\" is \"",
+    "continuation": "fast",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"cold\" is \"",
+    "continuation": "cold",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"hard\" is \"",
+    "continuation": "hard",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"deep\" is \"",
+    "continuation": "deep",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"wide\" is \"",
+    "continuation": "wide",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"push\" is \"",
+    "continuation": "push",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"early\" is \"",
+    "continuation": "early",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"tall\" is \"",
+    "continuation": "tall",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"clean\" is \"",
+    "continuation": "clean",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"young\" is \"",
+    "continuation": "young",
+    "digits_only": false
+   },
+   {
+    "context": "The same word as \"hard\" is \"",
+    "continuation": "hard",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 9.4241
+}

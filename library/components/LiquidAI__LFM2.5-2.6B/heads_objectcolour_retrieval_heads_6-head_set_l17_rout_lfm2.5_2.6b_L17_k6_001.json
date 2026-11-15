@@ -1,0 +1,116 @@
+{
+  "id": "heads_objectcolour_retrieval_heads_6-head_set_l17_rout_lfm2.5_2.6b_L17_k6_001",
+  "kind": "attn_heads",
+  "title": "LFM2.5-2.6B layer 17, object\u2192colour retrieval heads, 6-head set (L17 routers + colour writers)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_2.6b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "object_color"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-2.6B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'object_color' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1799,
+      "control_value": 0.0501,
+      "split": "person_a held-out skill items (object_color)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_2.6b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0023"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-2.6B",
+  "layer": 17,
+  "layers": [
+    17
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-2.6B/heads_objectcolour_retrieval_heads_6-head_set_l17_rout_lfm2.5_2.6b_L17_k6_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_2.6b/heads_objectcolour_retrieval_heads_6-head_set_l17_rout_lfm2.5_2.6b_L17_k6_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'object_color'",
+    "label": "object\u2192colour retrieval heads, 6-head set (L17 routers + colour writers)",
+    "num_units": 6,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.018,
+      "math|heldout": 0.0194,
+      "code|search": -0.0704,
+      "code|heldout": -0.0465,
+      "facts|search": -0.1788,
+      "facts|heldout": -0.0662,
+      "multilingual|search": 0.0562,
+      "multilingual|heldout": 0.0459,
+      "general_text|search": -0.3804,
+      "general_text|heldout": -0.4047,
+      "month_successor|search": -0.1113,
+      "month_successor__control|search": -0.0035,
+      "month_successor|heldout": 0.0162,
+      "month_successor__control|heldout": -0.0022,
+      "weekday_successor|search": -0.0424,
+      "weekday_successor__control|search": -0.0103,
+      "weekday_successor|heldout": -0.0679,
+      "weekday_successor__control|heldout": -0.0014,
+      "roman_numerals|search": -0.0714,
+      "roman_numerals__control|search": -0.0009,
+      "roman_numerals|heldout": -0.0209,
+      "roman_numerals__control|heldout": 0.0001,
+      "object_color|search": 0.2365,
+      "object_color__control|search": -0.0015,
+      "object_color|heldout": 0.1799,
+      "object_color__control|heldout": -0.0023,
+      "antonym|search": 0.0038,
+      "antonym__control|search": -0.0047,
+      "antonym|heldout": -0.0144,
+      "antonym__control|heldout": -0.0018,
+      "ordinal_word|search": -0.0017,
+      "ordinal_word__control|search": -0.0751,
+      "ordinal_word|heldout": -0.0027,
+      "ordinal_word__control|heldout": -0.0605,
+      "capital_city|search": 0.0302,
+      "capital_city__control|search": 0.0056,
+      "capital_city|heldout": 0.0303,
+      "capital_city__control|heldout": 0.0039,
+      "past_tense|search": 0.0279,
+      "past_tense__control|search": 0.001,
+      "past_tense|heldout": 0.0013,
+      "past_tense__control|heldout": 0.0028
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0788,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.046,
+      0.0033,
+      0.0258,
+      0.0697,
+      0.1057
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "This combines the screened L17 colour routers (11, 14, 16, 19; attribution-selected, OV not colour-writing) with heads 17 and 21. Those two are the top L17 heads by static OV object\u2192colour category score (z +0.58 / +0.64 over 18 objects and 11 colour words), so the set now holds both the routing and the writing step."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_2.6b/object_color.json",
+    "hash": "d478b75b6e78351d",
+    "description": "Name the typical colour of a common object, few-shot 'Object: X. Color: Y'. Control: same format copying the object name ('Name: X').",
+    "name": "object_color"
+  },
+  "catalog_id": "heads_objectcolour_retrieval_heads_6-head_set_l17_rout_lfm2.5_2.6b_L17_k6_001",
+  "exported_copy": "library/lfm2.5_2.6b/heads_objectcolour_retrieval_heads_6-head_set_l17_rout_lfm2.5_2.6b_L17_k6_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

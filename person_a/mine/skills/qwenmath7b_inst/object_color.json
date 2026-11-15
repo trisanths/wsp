@@ -1,0 +1,620 @@
+{
+ "name": "object_color",
+ "description": "Name the typical colour of a common object. Control: same objects, asking for the number of letters... no: asking for the plural form? Control here: same template asking what category (fruit/plant/etc.) the object is is hard; instead control asks for the number of wheels/legs-free: the object's name repeated (copy).",
+ "hash": "09a84f2e32c43332",
+ "agent_items": false,
+ "generator_code": "\nimport random, json\nrandom.seed(0)\nC={'grass':'green','snow':'white','coal':'black','a ripe banana':'yellow','a ripe tomato':'red','the clear daytime sky':'blue','a lemon':'yellow','milk':'white','blood':'red','a lime':'green','charcoal':'black','an orange':'orange','a carrot':'orange','chocolate':'brown','a strawberry':'red','a crow':'black','a polar bear':'white','a frog':'green','a cherry':'red','the sun in drawings':'yellow','a pumpkin':'orange','soil':'brown','an eggplant':'purple','a flamingo':'pink','a fire truck':'red','a school bus':'yellow','ink of a typical pen':'blue','a leaf in summer':'green','a swan':'white','coffee':'brown'}\nO=['grass','snow','coal','banana','tomato','sky','lemon','milk','blood','lime','charcoal','orange','carrot','chocolate','strawberry','crow','bear','frog','cherry','sun','pumpkin','soil','eggplant','flamingo','truck','bus','ink','leaf','swan','coffee']\nitems=[];control=[]\nkeys=list(C)\nfor r in range(2):\n  for i,k in enumerate(keys):\n    pre=random.choice([\"Q: What color is\",\"Q: What is the usual color of\"])\n    items.append({\"prompt\":f\"{pre} {k}?\\nA: The color is\",\"answer\":\" \"+C[k]})\n    control.append({\"prompt\":f\"Q: Repeat the last word of '{k}'.\\nA: The word is\",\"answer\":\" \"+k.split()[-1]})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))\n",
+ "items": {
+  "search": [
+   {
+    "context": "Q: What color is a carrot?\nA: The color is",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a ripe banana?\nA: The color is",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is coffee?\nA: The color is",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a lemon?\nA: The color is",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a strawberry?\nA: The color is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a carrot?\nA: The color is",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of a frog?\nA: The color is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of the clear daytime sky?\nA: The color is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of milk?\nA: The color is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of a pumpkin?\nA: The color is",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of a school bus?\nA: The color is",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of a swan?\nA: The color is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of a flamingo?\nA: The color is",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of a leaf in summer?\nA: The color is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of a swan?\nA: The color is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is coffee?\nA: The color is",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of grass?\nA: The color is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of snow?\nA: The color is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is an orange?\nA: The color is",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is blood?\nA: The color is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of a strawberry?\nA: The color is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a crow?\nA: The color is",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is soil?\nA: The color is",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of a polar bear?\nA: The color is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of a pumpkin?\nA: The color is",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of the clear daytime sky?\nA: The color is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is charcoal?\nA: The color is",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a crow?\nA: The color is",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of an orange?\nA: The color is",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of a ripe banana?\nA: The color is",
+    "continuation": " yellow",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Q: What color is a frog?\nA: The color is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of a leaf in summer?\nA: The color is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is soil?\nA: The color is",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of a ripe tomato?\nA: The color is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is charcoal?\nA: The color is",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of the sun in drawings?\nA: The color is",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a lime?\nA: The color is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of a ripe tomato?\nA: The color is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a flamingo?\nA: The color is",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a lime?\nA: The color is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of a lemon?\nA: The color is",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of chocolate?\nA: The color is",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a cherry?\nA: The color is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of blood?\nA: The color is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of an eggplant?\nA: The color is",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is chocolate?\nA: The color is",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of milk?\nA: The color is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of an eggplant?\nA: The color is",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is grass?\nA: The color is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of the sun in drawings?\nA: The color is",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a school bus?\nA: The color is",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is snow?\nA: The color is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of coal?\nA: The color is",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of a polar bear?\nA: The color is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is coal?\nA: The color is",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of ink of a typical pen?\nA: The color is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is ink of a typical pen?\nA: The color is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a cherry?\nA: The color is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of a fire truck?\nA: The color is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What is the usual color of a fire truck?\nA: The color is",
+    "continuation": " red",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Q: Repeat the last word of 'ink of a typical pen'.\nA: The word is",
+    "continuation": " pen",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'coffee'.\nA: The word is",
+    "continuation": " coffee",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a flamingo'.\nA: The word is",
+    "continuation": " flamingo",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a lime'.\nA: The word is",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'coal'.\nA: The word is",
+    "continuation": " coal",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'the clear daytime sky'.\nA: The word is",
+    "continuation": " sky",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a cherry'.\nA: The word is",
+    "continuation": " cherry",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'chocolate'.\nA: The word is",
+    "continuation": " chocolate",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a frog'.\nA: The word is",
+    "continuation": " frog",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'an eggplant'.\nA: The word is",
+    "continuation": " eggplant",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a leaf in summer'.\nA: The word is",
+    "continuation": " summer",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a school bus'.\nA: The word is",
+    "continuation": " bus",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'the sun in drawings'.\nA: The word is",
+    "continuation": " drawings",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'charcoal'.\nA: The word is",
+    "continuation": " charcoal",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a ripe banana'.\nA: The word is",
+    "continuation": " banana",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'an orange'.\nA: The word is",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'coffee'.\nA: The word is",
+    "continuation": " coffee",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'milk'.\nA: The word is",
+    "continuation": " milk",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a crow'.\nA: The word is",
+    "continuation": " crow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'the clear daytime sky'.\nA: The word is",
+    "continuation": " sky",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'an eggplant'.\nA: The word is",
+    "continuation": " eggplant",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a flamingo'.\nA: The word is",
+    "continuation": " flamingo",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'charcoal'.\nA: The word is",
+    "continuation": " charcoal",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a crow'.\nA: The word is",
+    "continuation": " crow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a ripe tomato'.\nA: The word is",
+    "continuation": " tomato",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'soil'.\nA: The word is",
+    "continuation": " soil",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a carrot'.\nA: The word is",
+    "continuation": " carrot",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a pumpkin'.\nA: The word is",
+    "continuation": " pumpkin",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a swan'.\nA: The word is",
+    "continuation": " swan",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a ripe banana'.\nA: The word is",
+    "continuation": " banana",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Q: Repeat the last word of 'a lime'.\nA: The word is",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'coal'.\nA: The word is",
+    "continuation": " coal",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a carrot'.\nA: The word is",
+    "continuation": " carrot",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a pumpkin'.\nA: The word is",
+    "continuation": " pumpkin",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a strawberry'.\nA: The word is",
+    "continuation": " strawberry",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a strawberry'.\nA: The word is",
+    "continuation": " strawberry",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a frog'.\nA: The word is",
+    "continuation": " frog",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'the sun in drawings'.\nA: The word is",
+    "continuation": " drawings",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'grass'.\nA: The word is",
+    "continuation": " grass",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'blood'.\nA: The word is",
+    "continuation": " blood",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a leaf in summer'.\nA: The word is",
+    "continuation": " summer",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a polar bear'.\nA: The word is",
+    "continuation": " bear",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'snow'.\nA: The word is",
+    "continuation": " snow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'ink of a typical pen'.\nA: The word is",
+    "continuation": " pen",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a lemon'.\nA: The word is",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'chocolate'.\nA: The word is",
+    "continuation": " chocolate",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a fire truck'.\nA: The word is",
+    "continuation": " truck",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'an orange'.\nA: The word is",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'grass'.\nA: The word is",
+    "continuation": " grass",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a swan'.\nA: The word is",
+    "continuation": " swan",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a school bus'.\nA: The word is",
+    "continuation": " bus",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'snow'.\nA: The word is",
+    "continuation": " snow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'milk'.\nA: The word is",
+    "continuation": " milk",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a polar bear'.\nA: The word is",
+    "continuation": " bear",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a ripe tomato'.\nA: The word is",
+    "continuation": " tomato",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a cherry'.\nA: The word is",
+    "continuation": " cherry",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'soil'.\nA: The word is",
+    "continuation": " soil",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a fire truck'.\nA: The word is",
+    "continuation": " truck",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'a lemon'.\nA: The word is",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Repeat the last word of 'blood'.\nA: The word is",
+    "continuation": " blood",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 5.0272
+}

@@ -1,0 +1,800 @@
+{
+ "name": "roman_numeral",
+ "description": "Convert an integer 1-39 to its Roman numeral. Control: same template, write the integer as Arabic digits after doubling.",
+ "hash": "20db11f11a683ac2",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\ndef rom(n):\n    out='';\n    for v,s in [(10,'X'),(9,'IX'),(5,'V'),(4,'IV'),(1,'I')]:\n        while n>=v: out+=s; n-=v\n    return out\nitems=[];control=[]\nfor n in range(1,40):\n    items.append({'prompt':f'The number {n} in Roman numerals is','answer':' '+rom(n)})\n    items.append({'prompt':f'King Louis the {n}th is written Louis','answer':' '+rom(n)})\nfor n in range(1,40):\n    control.append({'prompt':f'The number {n} times two is','answer':' '+str(2*n)})\n    control.append({'prompt':f'The number {n} plus one is','answer':' '+str(n+1)})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "King Louis the 16th is written Louis",
+    "continuation": " XVI",
+    "digits_only": false
+   },
+   {
+    "context": "The number 21 in Roman numerals is",
+    "continuation": " XXI",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 19th is written Louis",
+    "continuation": " XIX",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 6th is written Louis",
+    "continuation": " VI",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 39th is written Louis",
+    "continuation": " XXXIX",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 32th is written Louis",
+    "continuation": " XXXII",
+    "digits_only": false
+   },
+   {
+    "context": "The number 22 in Roman numerals is",
+    "continuation": " XXII",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 1th is written Louis",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "The number 10 in Roman numerals is",
+    "continuation": " X",
+    "digits_only": false
+   },
+   {
+    "context": "The number 5 in Roman numerals is",
+    "continuation": " V",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 29th is written Louis",
+    "continuation": " XXIX",
+    "digits_only": false
+   },
+   {
+    "context": "The number 34 in Roman numerals is",
+    "continuation": " XXXIV",
+    "digits_only": false
+   },
+   {
+    "context": "The number 28 in Roman numerals is",
+    "continuation": " XXVIII",
+    "digits_only": false
+   },
+   {
+    "context": "The number 39 in Roman numerals is",
+    "continuation": " XXXIX",
+    "digits_only": false
+   },
+   {
+    "context": "The number 8 in Roman numerals is",
+    "continuation": " VIII",
+    "digits_only": false
+   },
+   {
+    "context": "The number 23 in Roman numerals is",
+    "continuation": " XXIII",
+    "digits_only": false
+   },
+   {
+    "context": "The number 2 in Roman numerals is",
+    "continuation": " II",
+    "digits_only": false
+   },
+   {
+    "context": "The number 13 in Roman numerals is",
+    "continuation": " XIII",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 4th is written Louis",
+    "continuation": " IV",
+    "digits_only": false
+   },
+   {
+    "context": "The number 6 in Roman numerals is",
+    "continuation": " VI",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 8th is written Louis",
+    "continuation": " VIII",
+    "digits_only": false
+   },
+   {
+    "context": "The number 27 in Roman numerals is",
+    "continuation": " XXVII",
+    "digits_only": false
+   },
+   {
+    "context": "The number 17 in Roman numerals is",
+    "continuation": " XVII",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 21th is written Louis",
+    "continuation": " XXI",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 24th is written Louis",
+    "continuation": " XXIV",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 13th is written Louis",
+    "continuation": " XIII",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 15th is written Louis",
+    "continuation": " XV",
+    "digits_only": false
+   },
+   {
+    "context": "The number 37 in Roman numerals is",
+    "continuation": " XXXVII",
+    "digits_only": false
+   },
+   {
+    "context": "The number 7 in Roman numerals is",
+    "continuation": " VII",
+    "digits_only": false
+   },
+   {
+    "context": "The number 14 in Roman numerals is",
+    "continuation": " XIV",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 12th is written Louis",
+    "continuation": " XII",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 38th is written Louis",
+    "continuation": " XXXVIII",
+    "digits_only": false
+   },
+   {
+    "context": "The number 1 in Roman numerals is",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 2th is written Louis",
+    "continuation": " II",
+    "digits_only": false
+   },
+   {
+    "context": "The number 30 in Roman numerals is",
+    "continuation": " XXX",
+    "digits_only": false
+   },
+   {
+    "context": "The number 38 in Roman numerals is",
+    "continuation": " XXXVIII",
+    "digits_only": false
+   },
+   {
+    "context": "The number 15 in Roman numerals is",
+    "continuation": " XV",
+    "digits_only": false
+   },
+   {
+    "context": "The number 26 in Roman numerals is",
+    "continuation": " XXVI",
+    "digits_only": false
+   },
+   {
+    "context": "The number 29 in Roman numerals is",
+    "continuation": " XXIX",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "King Louis the 7th is written Louis",
+    "continuation": " VII",
+    "digits_only": false
+   },
+   {
+    "context": "The number 31 in Roman numerals is",
+    "continuation": " XXXI",
+    "digits_only": false
+   },
+   {
+    "context": "The number 11 in Roman numerals is",
+    "continuation": " XI",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 34th is written Louis",
+    "continuation": " XXXIV",
+    "digits_only": false
+   },
+   {
+    "context": "The number 12 in Roman numerals is",
+    "continuation": " XII",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 28th is written Louis",
+    "continuation": " XXVIII",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 18th is written Louis",
+    "continuation": " XVIII",
+    "digits_only": false
+   },
+   {
+    "context": "The number 16 in Roman numerals is",
+    "continuation": " XVI",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 11th is written Louis",
+    "continuation": " XI",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 22th is written Louis",
+    "continuation": " XXII",
+    "digits_only": false
+   },
+   {
+    "context": "The number 3 in Roman numerals is",
+    "continuation": " III",
+    "digits_only": false
+   },
+   {
+    "context": "The number 24 in Roman numerals is",
+    "continuation": " XXIV",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 35th is written Louis",
+    "continuation": " XXXV",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 10th is written Louis",
+    "continuation": " X",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 5th is written Louis",
+    "continuation": " V",
+    "digits_only": false
+   },
+   {
+    "context": "The number 36 in Roman numerals is",
+    "continuation": " XXXVI",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 30th is written Louis",
+    "continuation": " XXX",
+    "digits_only": false
+   },
+   {
+    "context": "The number 35 in Roman numerals is",
+    "continuation": " XXXV",
+    "digits_only": false
+   },
+   {
+    "context": "The number 18 in Roman numerals is",
+    "continuation": " XVIII",
+    "digits_only": false
+   },
+   {
+    "context": "The number 9 in Roman numerals is",
+    "continuation": " IX",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 36th is written Louis",
+    "continuation": " XXXVI",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 20th is written Louis",
+    "continuation": " XX",
+    "digits_only": false
+   },
+   {
+    "context": "The number 4 in Roman numerals is",
+    "continuation": " IV",
+    "digits_only": false
+   },
+   {
+    "context": "The number 25 in Roman numerals is",
+    "continuation": " XXV",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 37th is written Louis",
+    "continuation": " XXXVII",
+    "digits_only": false
+   },
+   {
+    "context": "The number 19 in Roman numerals is",
+    "continuation": " XIX",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 9th is written Louis",
+    "continuation": " IX",
+    "digits_only": false
+   },
+   {
+    "context": "The number 33 in Roman numerals is",
+    "continuation": " XXXIII",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 14th is written Louis",
+    "continuation": " XIV",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 23th is written Louis",
+    "continuation": " XXIII",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 31th is written Louis",
+    "continuation": " XXXI",
+    "digits_only": false
+   },
+   {
+    "context": "The number 20 in Roman numerals is",
+    "continuation": " XX",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 26th is written Louis",
+    "continuation": " XXVI",
+    "digits_only": false
+   },
+   {
+    "context": "The number 32 in Roman numerals is",
+    "continuation": " XXXII",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 33th is written Louis",
+    "continuation": " XXXIII",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 17th is written Louis",
+    "continuation": " XVII",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 3th is written Louis",
+    "continuation": " III",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 27th is written Louis",
+    "continuation": " XXVII",
+    "digits_only": false
+   },
+   {
+    "context": "King Louis the 25th is written Louis",
+    "continuation": " XXV",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "The number 34 plus one is",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "The number 10 times two is",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "The number 2 times two is",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "The number 13 plus one is",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "The number 10 plus one is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "The number 20 plus one is",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "The number 21 times two is",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "The number 6 plus one is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "The number 39 times two is",
+    "continuation": " 78",
+    "digits_only": false
+   },
+   {
+    "context": "The number 37 plus one is",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "The number 38 plus one is",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "The number 4 plus one is",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "The number 11 plus one is",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "The number 15 plus one is",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "The number 3 times two is",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "The number 28 times two is",
+    "continuation": " 56",
+    "digits_only": false
+   },
+   {
+    "context": "The number 35 times two is",
+    "continuation": " 70",
+    "digits_only": false
+   },
+   {
+    "context": "The number 9 times two is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "The number 6 times two is",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "The number 12 plus one is",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "The number 27 times two is",
+    "continuation": " 54",
+    "digits_only": false
+   },
+   {
+    "context": "The number 16 times two is",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "The number 3 plus one is",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "The number 33 plus one is",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "The number 26 times two is",
+    "continuation": " 52",
+    "digits_only": false
+   },
+   {
+    "context": "The number 29 times two is",
+    "continuation": " 58",
+    "digits_only": false
+   },
+   {
+    "context": "The number 22 times two is",
+    "continuation": " 44",
+    "digits_only": false
+   },
+   {
+    "context": "The number 30 times two is",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": "The number 5 plus one is",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "The number 19 times two is",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "The number 22 plus one is",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "The number 38 times two is",
+    "continuation": " 76",
+    "digits_only": false
+   },
+   {
+    "context": "The number 23 plus one is",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "The number 12 times two is",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "The number 34 times two is",
+    "continuation": " 68",
+    "digits_only": false
+   },
+   {
+    "context": "The number 18 plus one is",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "The number 16 plus one is",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "The number 36 plus one is",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "The number 27 plus one is",
+    "continuation": " 28",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The number 17 plus one is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "The number 24 plus one is",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "The number 14 plus one is",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "The number 7 plus one is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "The number 13 times two is",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "The number 30 plus one is",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "The number 18 times two is",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "The number 21 plus one is",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "The number 31 plus one is",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "The number 36 times two is",
+    "continuation": " 72",
+    "digits_only": false
+   },
+   {
+    "context": "The number 1 plus one is",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "The number 11 times two is",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "The number 4 times two is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "The number 19 plus one is",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "The number 8 times two is",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "The number 26 plus one is",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "The number 24 times two is",
+    "continuation": " 48",
+    "digits_only": false
+   },
+   {
+    "context": "The number 39 plus one is",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "The number 15 times two is",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "The number 23 times two is",
+    "continuation": " 46",
+    "digits_only": false
+   },
+   {
+    "context": "The number 1 times two is",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "The number 33 times two is",
+    "continuation": " 66",
+    "digits_only": false
+   },
+   {
+    "context": "The number 35 plus one is",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "The number 20 times two is",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "The number 28 plus one is",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "The number 25 plus one is",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "The number 2 plus one is",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "The number 32 times two is",
+    "continuation": " 64",
+    "digits_only": false
+   },
+   {
+    "context": "The number 7 times two is",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "The number 14 times two is",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "The number 25 times two is",
+    "continuation": " 50",
+    "digits_only": false
+   },
+   {
+    "context": "The number 31 times two is",
+    "continuation": " 62",
+    "digits_only": false
+   },
+   {
+    "context": "The number 29 plus one is",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "The number 32 plus one is",
+    "continuation": " 33",
+    "digits_only": false
+   },
+   {
+    "context": "The number 8 plus one is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "The number 17 times two is",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "The number 5 times two is",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "The number 37 times two is",
+    "continuation": " 74",
+    "digits_only": false
+   },
+   {
+    "context": "The number 9 plus one is",
+    "continuation": " 10",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 3.462
+}

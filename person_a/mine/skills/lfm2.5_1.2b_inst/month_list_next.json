@@ -1,0 +1,500 @@
+{
+ "name": "month_list_next",
+ "description": "Continue a comma-separated list of consecutive months with the next month. Control: list of consecutive integers.",
+ "hash": "38645c13ea408cba",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nM=['January','February','March','April','May','June','July','August','September','October','November','December']\nitems=[];control=[]\nfor i in range(12):\n    for L in (2,3,4,5):\n        seq=[M[(i+j)%12] for j in range(L)]\n        items.append({'prompt':'Months in order: '+', '.join(seq)+',','answer':' '+M[(i+L)%12]})\nfor t in range(48):\n    s=random.randint(3,40); L=random.choice([2,3,4,5])\n    control.append({'prompt':'Numbers in order: '+', '.join(str(s+j) for j in range(L))+',','answer':' '+str(s+L)})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Months in order: January, February, March,",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: September, October, November,",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: October, November,",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: January, February,",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: June, July,",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: June, July, August, September, October,",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: April, May, June, July,",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: April, May,",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: February, March, April, May, June,",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: August, September,",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: December, January,",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: December, January, February, March, April,",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: December, January, February, March,",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: February, March, April,",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: November, December, January, February,",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: March, April, May, June, July,",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: June, July, August,",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: July, August, September, October, November,",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: April, May, June, July, August,",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: March, April, May, June,",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: December, January, February,",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: January, February, March, April, May,",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: March, April, May,",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: February, March,",
+    "continuation": " April",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Months in order: October, November, December, January, February,",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: August, September, October,",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: October, November, December, January,",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: May, June, July,",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: September, October, November, December, January,",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: November, December, January,",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: November, December,",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: February, March, April, May,",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: September, October, November, December,",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: May, June, July, August,",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: March, April,",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: November, December, January, February, March,",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: April, May, June,",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: October, November, December,",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: June, July, August, September,",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: August, September, October, November,",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: May, June, July, August, September,",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: July, August, September,",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: August, September, October, November, December,",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: September, October,",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: May, June,",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: January, February, March, April,",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: July, August, September, October,",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Months in order: July, August,",
+    "continuation": " September",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Numbers in order: 16, 17, 18, 19, 20,",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 38, 39, 40, 41, 42,",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 40, 41, 42, 43,",
+    "continuation": " 44",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 37, 38, 39,",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 40, 41, 42,",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 21, 22, 23,",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 35, 36, 37, 38, 39,",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 23, 24, 25,",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 3, 4, 5, 6, 7,",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 39, 40, 41,",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 27, 28, 29, 30,",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 31, 32, 33, 34, 35,",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 12, 13,",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 23, 24, 25, 26, 27,",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 7, 8, 9, 10,",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 33, 34,",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 5, 6, 7, 8,",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 33, 34,",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 23, 24,",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 6, 7,",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 24, 25, 26,",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 15, 16, 17,",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 10, 11, 12, 13,",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 31, 32,",
+    "continuation": " 33",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Numbers in order: 22, 23,",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 28, 29, 30, 31,",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 8, 9, 10, 11, 12,",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 36, 37, 38,",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 8, 9,",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 18, 19, 20,",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 25, 26,",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 8, 9, 10, 11, 12,",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 27, 28, 29, 30, 31,",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 9, 10, 11, 12,",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 8, 9, 10,",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 5, 6, 7, 8,",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 36, 37, 38, 39,",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 35, 36, 37,",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 25, 26, 27, 28, 29,",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 37, 38, 39, 40, 41,",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 37, 38, 39,",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 38, 39, 40, 41,",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 38, 39, 40, 41,",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 21, 22, 23,",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 31, 32, 33, 34,",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 33, 34, 35, 36,",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 15, 16, 17,",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 9, 10, 11, 12,",
+    "continuation": " 13",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 8.7226
+}

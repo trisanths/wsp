@@ -1,0 +1,116 @@
+{
+  "id": "heads_cardinal-direction_opposition_support_phi4_14b_L8_k1_001",
+  "kind": "attn_heads",
+  "title": "phi-4 layer 8, Cardinal-direction opposition support",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/phi4_14b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "compass_opposite"
+  ],
+  "models": [
+    "microsoft/phi-4"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'compass_opposite' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.222,
+      "control_value": 0.004,
+      "split": "person_a held-out skill items (compass_opposite)",
+      "seeds": null,
+      "source": "person_a/catalog/phi4_14b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0185"
+    }
+  ],
+  "generated": true,
+  "model": "microsoft/phi-4",
+  "layer": 8,
+  "layers": [
+    8
+  ],
+  "units_file": "components/microsoft__phi-4/heads_cardinal-direction_opposition_support_phi4_14b_L8_k1_001.pt",
+  "units_remote": "person_a/parts\\phi4_14b\\heads_cardinal-direction_opposition_support_phi4_14b_L8_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'compass_opposite'",
+    "label": "Cardinal-direction opposition support",
+    "num_units": 1,
+    "d_model": 5120,
+    "effect": {
+      "math|search": 0.0006,
+      "math|heldout": 0.0001,
+      "code|search": 0.0006,
+      "code|heldout": -0.0016,
+      "facts|search": -0.0012,
+      "facts|heldout": 0.0036,
+      "multilingual|search": 0.0023,
+      "multilingual|heldout": 0.0005,
+      "general_text|search": -0.0006,
+      "general_text|heldout": -0.0018,
+      "ordinal_word|search": 0.0156,
+      "ordinal_word__control|search": -0.004,
+      "ordinal_word|heldout": 0.0238,
+      "ordinal_word__control|heldout": 0.0011,
+      "product_sign|search": 0.0304,
+      "product_sign__control|search": 0.0138,
+      "product_sign|heldout": 0.0152,
+      "product_sign__control|heldout": 0.0244,
+      "weekday_offset|search": -0.0782,
+      "weekday_offset__control|search": 0.0109,
+      "weekday_offset|heldout": -0.0684,
+      "weekday_offset__control|heldout": 0.0109,
+      "fraction_role|search": 0.019,
+      "fraction_role__control|search": 0.0538,
+      "fraction_role|heldout": 0.0048,
+      "fraction_role__control|heldout": 0.0489,
+      "month_number|search": 0.0227,
+      "month_number__control|search": -0.0116,
+      "month_number|heldout": 0.0295,
+      "month_number__control|heldout": -0.0029,
+      "comparative_adjective|search": -0.003,
+      "comparative_adjective__control|search": -0.0001,
+      "comparative_adjective|heldout": -0.0058,
+      "comparative_adjective__control|heldout": -0.0004,
+      "compass_opposite|search": 0.2416,
+      "compass_opposite__control|search": -0.0274,
+      "compass_opposite|heldout": 0.222,
+      "compass_opposite__control|heldout": -0.0185,
+      "roman_numeral|search": 0.0016,
+      "roman_numeral__control|search": -0.0182,
+      "roman_numeral|heldout": 0.0001,
+      "roman_numeral__control|heldout": -0.01
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0805,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0367,
+      0.0061,
+      0.0236,
+      -0.083,
+      0.0367
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Read static OV mapping on north-minus-south embeddings: strongest negative vocabulary alignment is Conversely (-.065 cosine), suggesting relational reversal rather than simple direction copying. Weight clue weak; independent attribution then ablation show selective .242 compass_opposite drop, matched control -.027, other target drops <=.030."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine\\skills\\phi4_14b\\compass_opposite.json",
+    "hash": "7e782ef31b47e7b3",
+    "description": "Retrieve opposite cardinal direction; matched control copies cardinal direction in same format.",
+    "name": "compass_opposite"
+  },
+  "catalog_id": "heads_cardinal-direction_opposition_support_phi4_14b_L8_k1_001",
+  "exported_copy": null,
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

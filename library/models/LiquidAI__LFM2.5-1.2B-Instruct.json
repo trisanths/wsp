@@ -1,0 +1,136 @@
+{
+  "id": "LiquidAI__LFM2.5-1.2B-Instruct",
+  "kind": "model",
+  "title": "LFM2.5-1.2B-Instruct (1.17B)",
+  "status": "validated",
+  "added_by": "Trisanth",
+  "source": "profiles.json, atlas/zoo.json, docs/donors.md",
+  "updated": "2026-11-14",
+  "skills": [
+    "general",
+    "math"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-1.2B-Instruct"
+  ],
+  "evidence": [],
+  "generated": true,
+  "hf_id": "LiquidAI/LFM2.5-1.2B-Instruct",
+  "family": "lfm2",
+  "params_b": 1.17,
+  "active_params_b": 1.17,
+  "layers": 16,
+  "hidden": 2048,
+  "vocab": 65536,
+  "vocab_source": "docs/donors.md",
+  "tokenizer_family": "lfm2",
+  "license": "lfm1.0",
+  "experts": null,
+  "experts_per_token": null,
+  "needs": {
+    "transformers": "4.57.1",
+    "trust_remote_code": false,
+    "multi_gpu": false,
+    "gpu": "H200"
+  },
+  "scores": {
+    "mmlu_dev_round8": {
+      "value": 0.262,
+      "split": "MMLU test, 1000 seeded items (round 6 dev)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round8_rows.json"
+    },
+    "gsm8k_search_raw": {
+      "value": 0.385,
+      "split": "GSM8K search split (200 items from GSM8K train)",
+      "prompt": "raw 'Question: ... Answer:' prompt, greedy generation (wsp_eval harness)",
+      "source": "results/baselines_rows.json"
+    }
+  },
+  "structure_notes": [
+    {
+      "note": "tap read at layer 11 of 16 gives 49.9 MMLU dev (host 47.5); alone 26.2 on the raw prompt (run 8)",
+      "source": "results/round8_rows.json"
+    },
+    {
+      "note": "docs/donors.md: type lfm2, layers (conv / attn) 16, needs transformers 4.57",
+      "source": "docs/donors.md"
+    },
+    {
+      "note": "conv layers: block parts with conv layers need the conv state cache, which the part cache does not handle yet; taps work",
+      "source": "docs/donors.md"
+    },
+    {
+      "note": "mining registry role donor, status active",
+      "source": "person_a/registry/donors.csv"
+    }
+  ],
+  "components": [
+    "mlp_roman_numeral_token_writer_lfm2.5_1.2b_inst_L13_k1_001",
+    "mlp_feminine_pronoun_writer_sheherherself_cross-ling_lfm2.5_1.2b_inst_L13_k1_001",
+    "mlp_colour-word_writer_lfm2.5_1.2b_inst_L13_k1_001",
+    "mlp_masculine_pronoun_writer_hehishimself_lfm2.5_1.2b_inst_L13_k1_001",
+    "mlp_weekday-name_writer_for_day-offset_reasoning_lfm2.5_1.2b_inst_L13_k1_001",
+    "mlp_month-name_writer_for_month-offset_reasoning_lfm2.5_1.2b_inst_L13_k3_001",
+    "heads_non-english_language_routing_heads_l10_lfm2.5_1.2b_inst_L10_k4_001",
+    "heads_day-of-week_successor_gqa_head_group_l5_kv_group_lfm2.5_1.2b_inst_L5_k4_001",
+    "heads_month-successor_gqa_head_group_l14_kv_group_2_lfm2.5_1.2b_inst_L14_k4_001",
+    "heads_non-english_language_routing_heads_8-head_set_l1_lfm2.5_1.2b_inst_L10_k8_001",
+    "heads_arithmetic-reasoning_attention_heads_l10_kv_grou_lfm2.5_1.2b_inst_L10_k6_001",
+    "heads_arithmetic-reasoning_attention_unit_9_heads_l10_lfm2.5_1.2b_inst_L10_k9_001",
+    "heads_arithmetic_attention_unit_l12_head_11_kv_group_6_lfm2.5_1.2b_inst_L12_k5_001",
+    "heads_month-successor_attention_unit_l10_heads_51325_k_lfm2.5_1.2b_inst_L10_k7_001",
+    "mlp_object_color-attribute_writer_family_l13_mlp_64__lfm2.5_1.2b_inst_L13_k62_001",
+    "mlp_roman_numeral_writer_family_l13_mlp_64_units_lfm2.5_1.2b_inst_L13_k63_001",
+    "mlp_month-successor_writer_family_l13_mlp_64_units_lfm2.5_1.2b_inst_L13_k60_001",
+    "mlp_object_color-attribute_writer_family_l13_mlp_128_lfm2.5_1.2b_inst_L13_k126_001",
+    "mlp_month-successor_writer_family_l13_mlp_128_units_lfm2.5_1.2b_inst_L13_k124_001",
+    "mlp_weekday-successor_family_l14_mlp_64_units_lfm2.5_1.2b_inst_L14_k61_001",
+    "mlp_roman_numeral_family_l11_mlp_64_units_lfm2.5_1.2b_inst_L11_k61_001",
+    "mlp_month-successor_family_l12_mlp_64_units_lfm2.5_1.2b_inst_L12_k62_001",
+    "mlp_roman_numeral_family_l11_mlp_128_units_lfm2.5_1.2b_inst_L11_k125_001",
+    "mlp_weekday-successor_family_l10_mlp_64_units_lfm2.5_1.2b_inst_L10_k62_001",
+    "mlp_object_color-attribute_writer_family_l13_mlp_256_lfm2.5_1.2b_inst_L13_k254_001",
+    "mlp_month-successor_writer_family_l13_mlp_256_units_lfm2.5_1.2b_inst_L13_k252_001",
+    "mlp_roman_numeral_family_l11_mlp_256_units_lfm2.5_1.2b_inst_L11_k253_001",
+    "mlp_weekday-successor_family_l14_mlp_128_units_lfm2.5_1.2b_inst_L14_k125_001",
+    "mlp_month-successor_family_l12_mlp_256_units_lfm2.5_1.2b_inst_L12_k254_001",
+    "mlp_weekday-successor_family_l14_mlp_256_units_lfm2.5_1.2b_inst_L14_k253_001",
+    "mlp_roman_numeral_family_l7_mlp_64_units_lfm2.5_1.2b_inst_L7_k62_001",
+    "mlp_object_color-attribute_writer_family_l13_mlp_512_lfm2.5_1.2b_inst_L13_k510_001",
+    "mlp_roman_numeral_family_l5_mlp_128_units_lfm2.5_1.2b_inst_L5_k127_001",
+    "mlp_masculine_pronoun_output_family_l15_mlp_64_units_lfm2.5_1.2b_inst_L15_k61_001",
+    "mlp_month-successor_output_family_l15_mlp_64_units_lfm2.5_1.2b_inst_L15_k61_001",
+    "mlp_roman_numeral_output_family_l15_mlp_64_units_lfm2.5_1.2b_inst_L15_k62_001",
+    "mlp_roman_numeral_family_l10_mlp_64_units_lfm2.5_1.2b_inst_L10_k63_001",
+    "mlp_masculine_pronoun_family_l13_mlp_64_units_lfm2.5_1.2b_inst_L13_k63_001",
+    "mlp_feminine_pronoun_output_family_l15_mlp_64_units_lfm2.5_1.2b_inst_L15_k62_001",
+    "mlp_masculine_pronoun_output_family_l15_mlp_128_unit_lfm2.5_1.2b_inst_L15_k125_001",
+    "mlp_roman_numeral_family_l12_mlp_64_units_lfm2.5_1.2b_inst_L12_k63_001",
+    "mlp_weekday-successor_family_l9_mlp_64_units_lfm2.5_1.2b_inst_L9_k61_001",
+    "mlp_weekday-successor_writer_family_l13_mlp_64_units_lfm2.5_1.2b_inst_L13_k62_001",
+    "mlp_weekday-successor_writer_family_l13_mlp_128_unit_lfm2.5_1.2b_inst_L13_k126_001",
+    "mlp_roman_numeral_writer_family_l13_mlp_128_units_lfm2.5_1.2b_inst_L13_k127_001",
+    "mlp_weekday-successor_writer_family_l13_mlp_256_unit_lfm2.5_1.2b_inst_L13_k254_001",
+    "mlp_masculine_pronoun_family_l13_mlp_128_units_lfm2.5_1.2b_inst_L13_k127_001",
+    "mlp_roman_numeral_writer_family_l13_mlp_256_units_lfm2.5_1.2b_inst_L13_k255_001",
+    "mlp_feminine_pronoun_output_family_l15_mlp_128_units_lfm2.5_1.2b_inst_L15_k126_001",
+    "mlp_masculine_pronoun_output_family_l15_mlp_256_unit_lfm2.5_1.2b_inst_L15_k253_001",
+    "mlp_feminine_pronoun_output_family_l15_mlp_256_units_lfm2.5_1.2b_inst_L15_k254_001",
+    "mlp_roman_numeral_family_l11_mlp_512_units_lfm2.5_1.2b_inst_L11_k509_001",
+    "mlp_roman_numeral_output_family_l15_mlp_128_units_lfm2.5_1.2b_inst_L15_k125_001",
+    "mlp_weekday-successor_writer_family_l13_mlp_512_unit_lfm2.5_1.2b_inst_L13_k510_001",
+    "mlp_month-successor_writer_family_l13_mlp_512_units_lfm2.5_1.2b_inst_L13_k508_001",
+    "mlp_weekday-successor_family_l14_mlp_512_units_lfm2.5_1.2b_inst_L14_k509_001",
+    "mlp_masculine_pronoun_family_l13_mlp_256_units_lfm2.5_1.2b_inst_L13_k255_001",
+    "mlp_roman_numeral_family_l5_mlp_256_units_lfm2.5_1.2b_inst_L5_k255_001",
+    "mlp_roman_numeral_writer_family_l13_mlp_512_units_lfm2.5_1.2b_inst_L13_k511_001",
+    "mlp_masculine_pronoun_output_family_l15_mlp_512_unit_lfm2.5_1.2b_inst_L15_k509_001",
+    "tapread_lfm25_12b_l11"
+  ],
+  "arch_sources": [
+    "profiles.json",
+    "atlas/zoo.json",
+    "docs/donors.md"
+  ]
+}

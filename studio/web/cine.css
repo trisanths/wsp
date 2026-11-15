@@ -1,0 +1,40 @@
+/* Motion for the showcase surfaces: the autoresearch pipeline, the mining views and the 3D stages.
+   These use the app's own theme tokens (light and dark) and add movement, not a new look:
+   a stage frame for 3D scenes, live chips that pulse, numbers that count, rows that reveal,
+   and a soft sweep of light across a panel while work runs. */
+
+/* a frame for a 3D scene: the app's card, with a soft inner light that follows the theme */
+.stage3d { position: relative; border-radius: 16px; background: var(--bg-card); box-shadow: var(--shadow-card); overflow: hidden; isolation: isolate; }
+.stage3d::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(600px 300px at 50% 0%, color-mix(in srgb, var(--blue) 10%, transparent), transparent 70%); }
+.stage3d .stage-hud { position: absolute; inset: 12px 14px auto 14px; display: flex; justify-content: space-between; gap: 10px; pointer-events: none; font-size: 12px; color: var(--text-3); }
+.stage3d .stage-hud > * { pointer-events: auto; }
+
+/* a panel that work is running in: a slow sweep of light crosses it */
+.working { position: relative; overflow: hidden; }
+.working::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--blue) 9%, transparent) 50%, transparent 70%);
+  transform: translateX(-100%); animation: sweep 2.8s ease-in-out infinite; }
+@keyframes sweep { to { transform: translateX(100%); } }
+
+/* a live chip: a dot that breathes */
+.livechip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-2); }
+.livechip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 0 color-mix(in srgb, var(--green) 45%, transparent); animation: breathe 1.6s ease-out infinite; }
+@keyframes breathe { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--green) 45%, transparent); } 100% { box-shadow: 0 0 0 7px transparent; } }
+
+/* rows and cards that enter one after another: set --i on each */
+.reveal { animation: reveal .5s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--i, 0) * 45ms); }
+@keyframes reveal { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* a stage that is active glows softly with the accent; done stages settle */
+.glow-on { box-shadow: 0 0 0 1px color-mix(in srgb, var(--blue) 45%, transparent), 0 6px 24px color-mix(in srgb, var(--blue) 18%, transparent); transition: box-shadow .3s ease; }
+
+/* a flow line between stages: a dash that travels */
+.flowline { stroke-dasharray: 4 6; animation: flow 1.2s linear infinite; }
+@keyframes flow { to { stroke-dashoffset: -20; } }
+
+.num-tab { font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) {
+  .working::after, .livechip::before, .reveal, .flowline { animation: none; }
+}

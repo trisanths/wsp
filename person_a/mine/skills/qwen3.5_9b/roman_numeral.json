@@ -1,0 +1,1220 @@
+{
+ "name": "roman_numeral",
+ "description": "Convert an Arabic number (1-39) into Roman numerals in a few-shot list. Control: same list format but the answer is the same Arabic number written in digits (copy), so no Roman knowledge needed.",
+ "hash": "26d67b5d9c0bdd5f",
+ "agent_items": false,
+ "generator_code": "\nimport random, json\nrandom.seed(0)\ndef roman(n):\n    vals=[(10,'X'),(9,'IX'),(5,'V'),(4,'IV'),(1,'I')]\n    s=''\n    for v,c in vals:\n        while n>=v: s+=c; n-=v\n    return s\nitems=[];control=[]\nfor _ in range(120):\n    a,b,n=random.sample(range(1,40),3)\n    items.append({\"prompt\":f\"Convert to Roman numerals.\\n{a} = {roman(a)}\\n{b} = {roman(b)}\\n{n} =\",\"answer\":\" \"+roman(n)})\n    control.append({\"prompt\":f\"Copy the number.\\n{a} = {a}\\n{b} = {b}\\n{n} =\",\"answer\":f\" {n}\"})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))\n",
+ "items": {
+  "search": [
+   {
+    "context": "Convert to Roman numerals.\n31 = XXXI\n37 = XXXVII\n11 =",
+    "continuation": " XI",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n22 = XXII\n24 = XXIV\n6 =",
+    "continuation": " VI",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n24 = XXIV\n35 = XXXV\n12 =",
+    "continuation": " XII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n23 = XXIII\n38 = XXXVIII\n14 =",
+    "continuation": " XIV",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n26 = XXVI\n22 = XXII\n20 =",
+    "continuation": " XX",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n11 = XI\n22 = XXII\n34 =",
+    "continuation": " XXXIV",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n11 = XI\n16 = XVI\n15 =",
+    "continuation": " XV",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n35 = XXXV\n14 = XIV\n39 =",
+    "continuation": " XXXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n3 = III\n6 = VI\n35 =",
+    "continuation": " XXXV",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n25 = XXV\n21 = XXI\n37 =",
+    "continuation": " XXXVII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n39 = XXXIX\n2 = II\n13 =",
+    "continuation": " XIII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n19 = XIX\n23 = XXIII\n38 =",
+    "continuation": " XXXVIII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n36 = XXXVI\n38 = XXXVIII\n19 =",
+    "continuation": " XIX",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n35 = XXXV\n18 = XVIII\n9 =",
+    "continuation": " IX",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n27 = XXVII\n3 = III\n26 =",
+    "continuation": " XXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n13 = XIII\n37 = XXXVII\n15 =",
+    "continuation": " XV",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n27 = XXVII\n21 = XXI\n1 =",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n6 = VI\n9 = IX\n10 =",
+    "continuation": " X",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n26 = XXVI\n20 = XX\n31 =",
+    "continuation": " XXXI",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n37 = XXXVII\n27 = XXVII\n3 =",
+    "continuation": " III",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n22 = XXII\n31 = XXXI\n36 =",
+    "continuation": " XXXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n36 = XXXVI\n9 = IX\n19 =",
+    "continuation": " XIX",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n5 = V\n2 = II\n8 =",
+    "continuation": " VIII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n9 = IX\n1 = I\n26 =",
+    "continuation": " XXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n32 = XXXII\n30 = XXX\n28 =",
+    "continuation": " XXVIII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n13 = XIII\n39 = XXXIX\n37 =",
+    "continuation": " XXXVII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n24 = XXIV\n8 = VIII\n3 =",
+    "continuation": " III",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n28 = XXVIII\n3 = III\n20 =",
+    "continuation": " XX",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n39 = XXXIX\n1 = I\n3 =",
+    "continuation": " III",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n13 = XIII\n16 = XVI\n2 =",
+    "continuation": " II",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n21 = XXI\n14 = XIV\n36 =",
+    "continuation": " XXXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n29 = XXIX\n6 = VI\n39 =",
+    "continuation": " XXXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n12 = XII\n8 = VIII\n31 =",
+    "continuation": " XXXI",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n35 = XXXV\n28 = XXVIII\n7 =",
+    "continuation": " VII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n22 = XXII\n3 = III\n18 =",
+    "continuation": " XVIII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n34 = XXXIV\n23 = XXIII\n8 =",
+    "continuation": " VIII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n1 = I\n6 = VI\n26 =",
+    "continuation": " XXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n5 = V\n20 = XX\n23 =",
+    "continuation": " XXIII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n8 = VIII\n36 = XXXVI\n22 =",
+    "continuation": " XXII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n27 = XXVII\n7 = VII\n36 =",
+    "continuation": " XXXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n39 = XXXIX\n13 = XIII\n22 =",
+    "continuation": " XXII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n2 = II\n18 = XVIII\n29 =",
+    "continuation": " XXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n6 = VI\n21 = XXI\n8 =",
+    "continuation": " VIII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n33 = XXXIII\n32 = XXXII\n7 =",
+    "continuation": " VII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n35 = XXXV\n39 = XXXIX\n10 =",
+    "continuation": " X",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n10 = X\n18 = XVIII\n22 =",
+    "continuation": " XXII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n3 = III\n14 = XIV\n17 =",
+    "continuation": " XVII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n20 = XX\n36 = XXXVI\n19 =",
+    "continuation": " XIX",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n5 = V\n6 = VI\n13 =",
+    "continuation": " XIII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n31 = XXXI\n8 = VIII\n32 =",
+    "continuation": " XXXII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n17 = XVII\n31 = XXXI\n5 =",
+    "continuation": " V",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n29 = XXIX\n32 = XXXII\n23 =",
+    "continuation": " XXIII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n33 = XXXIII\n30 = XXX\n3 =",
+    "continuation": " III",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n39 = XXXIX\n13 = XIII\n20 =",
+    "continuation": " XX",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n10 = X\n18 = XVIII\n2 =",
+    "continuation": " II",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n16 = XVI\n21 = XXI\n5 =",
+    "continuation": " V",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n1 = I\n32 = XXXII\n22 =",
+    "continuation": " XXII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n4 = IV\n20 = XX\n12 =",
+    "continuation": " XII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n14 = XIV\n4 = IV\n11 =",
+    "continuation": " XI",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n13 = XIII\n36 = XXXVI\n6 =",
+    "continuation": " VI",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Convert to Roman numerals.\n33 = XXXIII\n9 = IX\n19 =",
+    "continuation": " XIX",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n32 = XXXII\n21 = XXI\n20 =",
+    "continuation": " XX",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n30 = XXX\n4 = IV\n27 =",
+    "continuation": " XXVII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n10 = X\n15 = XV\n3 =",
+    "continuation": " III",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n26 = XXVI\n34 = XXXIV\n18 =",
+    "continuation": " XVIII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n14 = XIV\n1 = I\n34 =",
+    "continuation": " XXXIV",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n33 = XXXIII\n20 = XX\n23 =",
+    "continuation": " XXIII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n25 = XXV\n27 = XXVII\n3 =",
+    "continuation": " III",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n34 = XXXIV\n5 = V\n20 =",
+    "continuation": " XX",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n31 = XXXI\n29 = XXIX\n34 =",
+    "continuation": " XXXIV",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n17 = XVII\n33 = XXXIII\n32 =",
+    "continuation": " XXXII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n8 = VIII\n17 = XVII\n9 =",
+    "continuation": " IX",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n20 = XX\n7 = VII\n5 =",
+    "continuation": " V",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n22 = XXII\n10 = X\n11 =",
+    "continuation": " XI",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n6 = VI\n22 = XXII\n3 =",
+    "continuation": " III",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n13 = XIII\n17 = XVII\n23 =",
+    "continuation": " XXIII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n15 = XV\n4 = IV\n25 =",
+    "continuation": " XXV",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n9 = IX\n20 = XX\n25 =",
+    "continuation": " XXV",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n16 = XVI\n19 = XIX\n12 =",
+    "continuation": " XII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n17 = XVII\n11 = XI\n29 =",
+    "continuation": " XXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n28 = XXVIII\n4 = IV\n7 =",
+    "continuation": " VII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n39 = XXXIX\n7 = VII\n26 =",
+    "continuation": " XXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n11 = XI\n10 = X\n38 =",
+    "continuation": " XXXVIII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n18 = XVIII\n12 = XII\n7 =",
+    "continuation": " VII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n27 = XXVII\n6 = VI\n1 =",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n17 = XVII\n8 = VIII\n39 =",
+    "continuation": " XXXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n37 = XXXVII\n35 = XXXV\n39 =",
+    "continuation": " XXXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n7 = VII\n13 = XIII\n8 =",
+    "continuation": " VIII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n7 = VII\n23 = XXIII\n28 =",
+    "continuation": " XXVIII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n37 = XXXVII\n25 = XXV\n6 =",
+    "continuation": " VI",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n24 = XXIV\n11 = XI\n22 =",
+    "continuation": " XXII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n29 = XXIX\n6 = VI\n21 =",
+    "continuation": " XXI",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n11 = XI\n29 = XXIX\n5 =",
+    "continuation": " V",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n31 = XXXI\n26 = XXVI\n6 =",
+    "continuation": " VI",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n16 = XVI\n31 = XXXI\n23 =",
+    "continuation": " XXIII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n34 = XXXIV\n16 = XVI\n14 =",
+    "continuation": " XIV",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n34 = XXXIV\n32 = XXXII\n36 =",
+    "continuation": " XXXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n17 = XVII\n4 = IV\n36 =",
+    "continuation": " XXXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n36 = XXXVI\n21 = XXI\n24 =",
+    "continuation": " XXIV",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n19 = XIX\n1 = I\n9 =",
+    "continuation": " IX",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n32 = XXXII\n38 = XXXVIII\n22 =",
+    "continuation": " XXII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n16 = XVI\n10 = X\n35 =",
+    "continuation": " XXXV",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n25 = XXV\n17 = XVII\n10 =",
+    "continuation": " X",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n13 = XIII\n12 = XII\n3 =",
+    "continuation": " III",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n29 = XXIX\n25 = XXV\n37 =",
+    "continuation": " XXXVII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n8 = VIII\n26 = XXVI\n6 =",
+    "continuation": " VI",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n29 = XXIX\n12 = XII\n1 =",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n18 = XVIII\n8 = VIII\n15 =",
+    "continuation": " XV",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n19 = XIX\n24 = XXIV\n26 =",
+    "continuation": " XXVI",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n14 = XIV\n25 = XXV\n38 =",
+    "continuation": " XXXVIII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n17 = XVII\n5 = V\n15 =",
+    "continuation": " XV",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n31 = XXXI\n27 = XXVII\n37 =",
+    "continuation": " XXXVII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n36 = XXXVI\n1 = I\n30 =",
+    "continuation": " XXX",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n38 = XXXVIII\n27 = XXVII\n18 =",
+    "continuation": " XVIII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n9 = IX\n7 = VII\n17 =",
+    "continuation": " XVII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n28 = XXVIII\n12 = XII\n4 =",
+    "continuation": " IV",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n31 = XXXI\n22 = XXII\n8 =",
+    "continuation": " VIII",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n37 = XXXVII\n3 = III\n39 =",
+    "continuation": " XXXIX",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n14 = XIV\n4 = IV\n2 =",
+    "continuation": " II",
+    "digits_only": false
+   },
+   {
+    "context": "Convert to Roman numerals.\n8 = VIII\n31 = XXXI\n16 =",
+    "continuation": " XVI",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Copy the number.\n15 = 15\n4 = 4\n25 =",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n32 = 32\n21 = 21\n20 =",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n20 = 20\n36 = 36\n19 =",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n31 = 31\n26 = 26\n6 =",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n16 = 16\n31 = 31\n23 =",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n10 = 10\n15 = 15\n3 =",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n33 = 33\n9 = 9\n19 =",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n34 = 34\n32 = 32\n36 =",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n18 = 18\n8 = 8\n15 =",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n21 = 21\n14 = 14\n36 =",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n1 = 1\n32 = 32\n22 =",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n3 = 3\n14 = 14\n17 =",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n35 = 35\n14 = 14\n39 =",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n17 = 17\n11 = 11\n29 =",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n31 = 31\n8 = 8\n32 =",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n27 = 27\n6 = 6\n1 =",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n11 = 11\n16 = 16\n15 =",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n5 = 5\n20 = 20\n23 =",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n10 = 10\n18 = 18\n2 =",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n7 = 7\n23 = 23\n28 =",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n30 = 30\n4 = 4\n27 =",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n22 = 22\n10 = 10\n11 =",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n36 = 36\n21 = 21\n24 =",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n34 = 34\n23 = 23\n8 =",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n24 = 24\n11 = 11\n22 =",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n32 = 32\n38 = 38\n22 =",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n11 = 11\n10 = 10\n38 =",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n35 = 35\n28 = 28\n7 =",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n13 = 13\n37 = 37\n15 =",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n38 = 38\n27 = 27\n18 =",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n29 = 29\n6 = 6\n39 =",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n35 = 35\n39 = 39\n10 =",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n9 = 9\n1 = 1\n26 =",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n9 = 9\n7 = 7\n17 =",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n6 = 6\n21 = 21\n8 =",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n29 = 29\n25 = 25\n37 =",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n31 = 31\n29 = 29\n34 =",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n22 = 22\n3 = 3\n18 =",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n5 = 5\n2 = 2\n8 =",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n27 = 27\n7 = 7\n36 =",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n3 = 3\n6 = 6\n35 =",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n6 = 6\n22 = 22\n3 =",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n37 = 37\n25 = 25\n6 =",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n25 = 25\n21 = 21\n37 =",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n17 = 17\n5 = 5\n15 =",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n26 = 26\n34 = 34\n18 =",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n32 = 32\n30 = 30\n28 =",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n11 = 11\n22 = 22\n34 =",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n33 = 33\n32 = 32\n7 =",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n25 = 25\n17 = 17\n10 =",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n37 = 37\n35 = 35\n39 =",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n36 = 36\n1 = 1\n30 =",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n39 = 39\n1 = 1\n3 =",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n31 = 31\n22 = 22\n8 =",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n8 = 8\n26 = 26\n6 =",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n29 = 29\n12 = 12\n1 =",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n8 = 8\n36 = 36\n22 =",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n39 = 39\n2 = 2\n13 =",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n20 = 20\n7 = 7\n5 =",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n29 = 29\n6 = 6\n21 =",
+    "continuation": " 21",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Copy the number.\n24 = 24\n35 = 35\n12 =",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n24 = 24\n8 = 8\n3 =",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n39 = 39\n13 = 13\n20 =",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n36 = 36\n38 = 38\n19 =",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n22 = 22\n24 = 24\n6 =",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n28 = 28\n12 = 12\n4 =",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n14 = 14\n1 = 1\n34 =",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n13 = 13\n16 = 16\n2 =",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n14 = 14\n4 = 4\n11 =",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n37 = 37\n27 = 27\n3 =",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n5 = 5\n6 = 6\n13 =",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n13 = 13\n39 = 39\n37 =",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n2 = 2\n18 = 18\n29 =",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n9 = 9\n20 = 20\n25 =",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n26 = 26\n22 = 22\n20 =",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n13 = 13\n17 = 17\n23 =",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n17 = 17\n31 = 31\n5 =",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n35 = 35\n18 = 18\n9 =",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n27 = 27\n21 = 21\n1 =",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n33 = 33\n30 = 30\n3 =",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n13 = 13\n12 = 12\n3 =",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n19 = 19\n24 = 24\n26 =",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n17 = 17\n33 = 33\n32 =",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n19 = 19\n23 = 23\n38 =",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n36 = 36\n9 = 9\n19 =",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n7 = 7\n13 = 13\n8 =",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n26 = 26\n20 = 20\n31 =",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n19 = 19\n1 = 1\n9 =",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n28 = 28\n4 = 4\n7 =",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n1 = 1\n6 = 6\n26 =",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n27 = 27\n3 = 3\n26 =",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n6 = 6\n9 = 9\n10 =",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n8 = 8\n17 = 17\n9 =",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n29 = 29\n32 = 32\n23 =",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n4 = 4\n20 = 20\n12 =",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n18 = 18\n12 = 12\n7 =",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n25 = 25\n27 = 27\n3 =",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n34 = 34\n5 = 5\n20 =",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n11 = 11\n29 = 29\n5 =",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n39 = 39\n7 = 7\n26 =",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n14 = 14\n4 = 4\n2 =",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n23 = 23\n38 = 38\n14 =",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n31 = 31\n27 = 27\n37 =",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n17 = 17\n4 = 4\n36 =",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n16 = 16\n19 = 19\n12 =",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n14 = 14\n25 = 25\n38 =",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n12 = 12\n8 = 8\n31 =",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n13 = 13\n36 = 36\n6 =",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n17 = 17\n8 = 8\n39 =",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n31 = 31\n37 = 37\n11 =",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n28 = 28\n3 = 3\n20 =",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n33 = 33\n20 = 20\n23 =",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n16 = 16\n21 = 21\n5 =",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n34 = 34\n16 = 16\n14 =",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n22 = 22\n31 = 31\n36 =",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n37 = 37\n3 = 3\n39 =",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n10 = 10\n18 = 18\n22 =",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n8 = 8\n31 = 31\n16 =",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n39 = 39\n13 = 13\n22 =",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the number.\n16 = 16\n10 = 10\n35 =",
+    "continuation": " 35",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 6.5583
+}

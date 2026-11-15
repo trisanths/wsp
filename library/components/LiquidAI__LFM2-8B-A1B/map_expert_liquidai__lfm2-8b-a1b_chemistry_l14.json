@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_liquidai__lfm2-8b-a1b_chemistry_l14",
+  "kind": "expert",
+  "title": "LFM2-8B-A1B layer 14, 8 experts for chemistry (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "chemistry"
+  ],
+  "models": [
+    "LiquidAI/LFM2-8B-A1B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 14 of LFM2-8B-A1B on 'chemistry' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.23791,
+      "control_value": 0.03496,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 14 of LFM2-8B-A1B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 1.83172,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 2.31086,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-8B-A1B",
+  "layer": 14,
+  "layers": [
+    14
+  ],
+  "units_file": "components/LiquidAI__LFM2-8B-A1B/map_expert_liquidai__lfm2-8b-a1b_chemistry_l14.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "chemistry",
+    "data": "cais/mmlu all test (subjects: high_school_chemistry, college_chemistry): chemistry questions, correct answer text",
+    "n_units": 8,
+    "experts": [
+      27,
+      22,
+      19,
+      1,
+      3,
+      30,
+      20,
+      2
+    ],
+    "details": [
+      {
+        "expert": 27,
+        "skill_freq": 0.579876,
+        "general_freq": 0.006317,
+        "log_ratio": 4.504,
+        "heldout_log_ratio": 6.1432
+      },
+      {
+        "expert": 22,
+        "skill_freq": 0.022614,
+        "general_freq": 0.001695,
+        "log_ratio": 2.538,
+        "heldout_log_ratio": 3.6901
+      },
+      {
+        "expert": 19,
+        "skill_freq": 0.823651,
+        "general_freq": 0.134515,
+        "log_ratio": 1.8114,
+        "heldout_log_ratio": 2.3027
+      },
+      {
+        "expert": 1,
+        "skill_freq": 0.225934,
+        "general_freq": 0.044222,
+        "log_ratio": 1.6292,
+        "heldout_log_ratio": 1.6144
+      },
+      {
+        "expert": 3,
+        "skill_freq": 0.041079,
+        "general_freq": 0.011556,
+        "log_ratio": 1.2621,
+        "heldout_log_ratio": 1.3836
+      },
+      {
+        "expert": 30,
+        "skill_freq": 0.023029,
+        "general_freq": 0.00755,
+        "log_ratio": 1.1064,
+        "heldout_log_ratio": 0.8982
+      },
+      {
+        "expert": 20,
+        "skill_freq": 0.158921,
+        "general_freq": 0.061941,
+        "log_ratio": 0.9412,
+        "heldout_log_ratio": 1.2731
+      },
+      {
+        "expert": 2,
+        "skill_freq": 0.028216,
+        "general_freq": 0.011864,
+        "log_ratio": 0.8615,
+        "heldout_log_ratio": 1.1816
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: high_school_chemistry, college_chemistry): chemistry questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 8.34,
+  "n_layers": 24,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "7ed1404fdf502a5446c1b67d4fe1533158d6f2ad"
+}

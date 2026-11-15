@@ -1,0 +1,1220 @@
+{
+ "name": "emotion_synonyms",
+ "description": "Map an emotional adjective to its basic emotion category; matched controls copy the adjective.",
+ "hash": "4bafe64735659acc",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\ngroups={'happy':'joyful delighted cheerful elated ecstatic jubilant pleased glad thrilled content overjoyed blissful merry gleeful upbeat'.split(),'sad':'sorrowful miserable gloomy unhappy heartbroken dejected despondent downcast mournful melancholic depressed crestfallen woeful disheartened forlorn'.split(),'angry':'furious enraged irritated annoyed irate livid wrathful indignant resentful exasperated outraged incensed infuriated mad aggravated'.split(),'afraid':'scared frightened terrified fearful anxious alarmed panicked apprehensive nervous petrified intimidated worried horrified uneasy terrorized'.split()}\npairs=[(w,k) for k,ws in groups.items() for w in ws];items=[];control=[]\nfor i in range(120):\n w,k=pairs[i%len(pairs)]\n prefix=random.choice(['Emotion word: {w}.','A person feels {w}.','The feeling is described as {w}.']).format(w=w)\n items.append({'prompt':prefix+'\\nChoose the closest basic emotion: happy, sad, angry, afraid.\\nAnswer:','answer':' '+k})\n control.append({'prompt':prefix+'\\nCopy the emotional adjective exactly.\\nAnswer:','answer':' '+w})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "The feeling is described as horrified.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: mad.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as exasperated.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels elated.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as panicked.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as terrorized.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: gleeful.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: downcast.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as furious.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as depressed.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as terrified.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: content.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels mournful.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels glad.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as sorrowful.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: miserable.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as depressed.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels forlorn.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: cheerful.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels miserable.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels thrilled.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: terrified.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: mad.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as melancholic.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: resentful.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as aggravated.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: frightened.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as intimidated.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels dejected.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: indignant.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as overjoyed.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: melancholic.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels fearful.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as alarmed.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: aggravated.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: annoyed.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: gleeful.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: apprehensive.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as despondent.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as apprehensive.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels merry.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels enraged.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as livid.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as heartbroken.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels pleased.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels infuriated.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: livid.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as dejected.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: uneasy.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as petrified.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels disheartened.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels irate.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels petrified.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: disheartened.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels irate.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: sorrowful.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels upbeat.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: anxious.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels uneasy.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as mournful.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The feeling is described as ecstatic.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as despondent.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: downcast.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as incensed.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: enraged.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels crestfallen.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: elated.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels joyful.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as alarmed.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: blissful.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels delighted.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as irritated.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels glad.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels worried.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as pleased.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: worried.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: terrorized.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels overjoyed.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: crestfallen.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: unhappy.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels outraged.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels intimidated.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as scared.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as forlorn.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as blissful.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: joyful.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels infuriated.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels woeful.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels content.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as horrified.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels exasperated.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels unhappy.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as gloomy.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels furious.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: thrilled.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels irritated.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as heartbroken.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as merry.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: wrathful.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels incensed.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as wrathful.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as gloomy.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: ecstatic.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as woeful.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels upbeat.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: scared.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: delighted.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as resentful.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: frightened.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as outraged.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as panicked.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as cheerful.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: jubilant.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels annoyed.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels jubilant.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as nervous.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels nervous.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: indignant.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as anxious.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: fearful.\nChoose the closest basic emotion: happy, sad, angry, afraid.\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Emotion word: terrorized.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " terrorized",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as despondent.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " despondent",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as dejected.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " dejected",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels furious.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " furious",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: thrilled.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " thrilled",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as incensed.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " incensed",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as ecstatic.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " ecstatic",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as heartbroken.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " heartbroken",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as resentful.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " resentful",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as overjoyed.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " overjoyed",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels upbeat.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " upbeat",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: livid.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " livid",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: downcast.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " downcast",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: unhappy.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " unhappy",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as petrified.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " petrified",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as blissful.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " blissful",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: gleeful.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " gleeful",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: apprehensive.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " apprehensive",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels irate.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " irate",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels content.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " content",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: downcast.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " downcast",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels worried.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " worried",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: wrathful.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " wrathful",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: annoyed.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " annoyed",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels exasperated.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " exasperated",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as wrathful.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " wrathful",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as scared.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " scared",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as alarmed.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " alarmed",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: miserable.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " miserable",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels annoyed.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " annoyed",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: melancholic.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " melancholic",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels pleased.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " pleased",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as melancholic.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " melancholic",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels jubilant.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " jubilant",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as livid.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " livid",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels upbeat.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " upbeat",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: blissful.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " blissful",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: aggravated.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " aggravated",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: mad.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " mad",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as apprehensive.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " apprehensive",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as furious.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " furious",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as pleased.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " pleased",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as horrified.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " horrified",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as depressed.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " depressed",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as panicked.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " panicked",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: enraged.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " enraged",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: resentful.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " resentful",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as terrorized.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " terrorized",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as heartbroken.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " heartbroken",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: ecstatic.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " ecstatic",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels infuriated.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " infuriated",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: jubilant.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " jubilant",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels dejected.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " dejected",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels nervous.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " nervous",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: scared.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " scared",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: delighted.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " delighted",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as despondent.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " despondent",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as terrified.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " terrified",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels glad.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " glad",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels unhappy.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " unhappy",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The feeling is described as exasperated.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " exasperated",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: frightened.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " frightened",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: disheartened.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " disheartened",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels mournful.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " mournful",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: mad.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " mad",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as nervous.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " nervous",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels crestfallen.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " crestfallen",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: indignant.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " indignant",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels uneasy.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " uneasy",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels miserable.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " miserable",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: uneasy.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " uneasy",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as aggravated.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " aggravated",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels enraged.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " enraged",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels overjoyed.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " overjoyed",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as panicked.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " panicked",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: worried.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " worried",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels disheartened.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " disheartened",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels glad.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " glad",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as depressed.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " depressed",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels petrified.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " petrified",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as woeful.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " woeful",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: frightened.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " frightened",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels delighted.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " delighted",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: content.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " content",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: terrified.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " terrified",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels woeful.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " woeful",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: cheerful.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " cheerful",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels incensed.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " incensed",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels outraged.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " outraged",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: gleeful.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " gleeful",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as sorrowful.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " sorrowful",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels forlorn.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " forlorn",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as irritated.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " irritated",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels irate.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " irate",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: anxious.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " anxious",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as forlorn.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " forlorn",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels joyful.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " joyful",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as alarmed.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " alarmed",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as gloomy.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " gloomy",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels intimidated.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " intimidated",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as anxious.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " anxious",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels elated.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " elated",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as cheerful.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " cheerful",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as merry.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " merry",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: crestfallen.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " crestfallen",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as outraged.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " outraged",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels fearful.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " fearful",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as mournful.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " mournful",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: joyful.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " joyful",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as horrified.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " horrified",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as intimidated.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " intimidated",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: elated.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " elated",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: sorrowful.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " sorrowful",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels irritated.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " irritated",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels thrilled.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " thrilled",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: indignant.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " indignant",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels infuriated.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " infuriated",
+    "digits_only": false
+   },
+   {
+    "context": "Emotion word: fearful.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " fearful",
+    "digits_only": false
+   },
+   {
+    "context": "A person feels merry.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " merry",
+    "digits_only": false
+   },
+   {
+    "context": "The feeling is described as gloomy.\nCopy the emotional adjective exactly.\nAnswer:",
+    "continuation": " gloomy",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 5.0364
+}

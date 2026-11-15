@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_qwen__qwen3.5-35b-a3b_physics_l9",
+  "kind": "expert",
+  "title": "Qwen3.5-35B-A3B layer 9, 8 experts for physics (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "physics"
+  ],
+  "models": [
+    "Qwen/Qwen3.5-35B-A3B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 9 of Qwen3.5-35B-A3B on 'physics' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.20619,
+      "control_value": 0.00307,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 9 of Qwen3.5-35B-A3B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 4.62474,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 5.15418,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "Qwen/Qwen3.5-35B-A3B",
+  "layer": 9,
+  "layers": [
+    9
+  ],
+  "units_file": "components/Qwen__Qwen3.5-35B-A3B/map_expert_qwen__qwen3.5-35b-a3b_physics_l9.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "physics",
+    "data": "cais/mmlu all test (subjects: high_school_physics, college_physics, conceptual_physics, astronomy): physics questions, correct answer text",
+    "n_units": 8,
+    "experts": [
+      64,
+      191,
+      116,
+      203,
+      97,
+      10,
+      2,
+      134
+    ],
+    "details": [
+      {
+        "expert": 64,
+        "skill_freq": 0.245089,
+        "general_freq": 0.000773,
+        "log_ratio": 5.6378,
+        "heldout_log_ratio": 7.8085
+      },
+      {
+        "expert": 191,
+        "skill_freq": 0.026935,
+        "general_freq": 0.0,
+        "log_ratio": 5.5997,
+        "heldout_log_ratio": 5.6975
+      },
+      {
+        "expert": 116,
+        "skill_freq": 0.021429,
+        "general_freq": 0.0,
+        "log_ratio": 5.372,
+        "heldout_log_ratio": 5.4247
+      },
+      {
+        "expert": 203,
+        "skill_freq": 0.051488,
+        "general_freq": 0.000619,
+        "log_ratio": 4.2732,
+        "heldout_log_ratio": 3.9597
+      },
+      {
+        "expert": 97,
+        "skill_freq": 0.255357,
+        "general_freq": 0.00402,
+        "log_ratio": 4.1272,
+        "heldout_log_ratio": 5.3242
+      },
+      {
+        "expert": 10,
+        "skill_freq": 0.565774,
+        "general_freq": 0.009433,
+        "log_ratio": 4.0836,
+        "heldout_log_ratio": 4.651
+      },
+      {
+        "expert": 2,
+        "skill_freq": 0.114583,
+        "general_freq": 0.001856,
+        "log_ratio": 4.0713,
+        "heldout_log_ratio": 4.3113
+      },
+      {
+        "expert": 134,
+        "skill_freq": 0.368899,
+        "general_freq": 0.007886,
+        "log_ratio": 3.8331,
+        "heldout_log_ratio": 4.0565
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: high_school_physics, college_physics, conceptual_physics, astronomy): physics questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 35.95,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "qwen3_5_moe",
+  "architecture": "Qwen3_5MoeForCausalLM",
+  "license": "apache-2.0",
+  "revision": "59d61f3ce65a6d9863b86d2e96597125219dc754"
+}

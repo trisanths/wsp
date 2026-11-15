@@ -1,0 +1,1220 @@
+{
+ "name": "python_return",
+ "description": "Evaluate simple Python functions with an early return and unreachable assignment; matched controls ask the initial literal value.",
+ "hash": "44b4906424840a50",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\na=[];c=[]\nfor i in range(120):\n x=random.randrange(1,20);y=random.randrange(1,20);z=random.randrange(21,40);op=random.choice(['+','-']);res=x+y if op=='+' else x-y\n stem=f'def f():\\n    x = {x}\\n    return x {op} {y}\\n    x = {z}\\n\\n'\n a.append({'prompt':stem+'What does f() return? Answer:','answer':' '+str(res)})\n c.append({'prompt':stem+'What integer is initially assigned to x? Answer:','answer':' '+str(x)})\njson.dump({'items':a,'control':c},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "def f():\n    x = 15\n    return x + 2\n    x = 34\n\nWhat does f() return? Answer:",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 3\n    return x + 8\n    x = 25\n\nWhat does f() return? Answer:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 1\n    return x - 11\n    x = 31\n\nWhat does f() return? Answer:",
+    "continuation": " -10",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 17\n    return x + 5\n    x = 30\n\nWhat does f() return? Answer:",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 17\n    return x - 19\n    x = 29\n\nWhat does f() return? Answer:",
+    "continuation": " -2",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 13\n    return x + 14\n    x = 31\n\nWhat does f() return? Answer:",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 11\n    return x - 2\n    x = 22\n\nWhat does f() return? Answer:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 17\n    return x - 8\n    x = 27\n\nWhat does f() return? Answer:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 1\n    return x + 4\n    x = 27\n\nWhat does f() return? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 16\n    return x + 19\n    x = 31\n\nWhat does f() return? Answer:",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 5\n    return x - 8\n    x = 36\n\nWhat does f() return? Answer:",
+    "continuation": " -3",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 15\n    return x + 14\n    x = 32\n\nWhat does f() return? Answer:",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 19\n    return x - 9\n    x = 35\n\nWhat does f() return? Answer:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 7\n    return x - 9\n    x = 38\n\nWhat does f() return? Answer:",
+    "continuation": " -2",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 12\n    return x + 13\n    x = 38\n\nWhat does f() return? Answer:",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 18\n    return x - 19\n    x = 30\n\nWhat does f() return? Answer:",
+    "continuation": " -1",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 2\n    return x + 13\n    x = 21\n\nWhat does f() return? Answer:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 8\n    return x + 2\n    x = 39\n\nWhat does f() return? Answer:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 16\n    return x + 12\n    x = 39\n\nWhat does f() return? Answer:",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 10\n    return x + 4\n    x = 36\n\nWhat does f() return? Answer:",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 15\n    return x + 17\n    x = 29\n\nWhat does f() return? Answer:",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 19\n    return x + 3\n    x = 37\n\nWhat does f() return? Answer:",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 14\n    return x - 19\n    x = 37\n\nWhat does f() return? Answer:",
+    "continuation": " -5",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 3\n    return x + 3\n    x = 27\n\nWhat does f() return? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 16\n    return x + 16\n    x = 27\n\nWhat does f() return? Answer:",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 12\n    return x + 13\n    x = 29\n\nWhat does f() return? Answer:",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 11\n    return x - 2\n    x = 38\n\nWhat does f() return? Answer:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 11\n    return x - 2\n    x = 22\n\nWhat does f() return? Answer:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 16\n    return x + 11\n    x = 31\n\nWhat does f() return? Answer:",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 2\n    return x + 17\n    x = 35\n\nWhat does f() return? Answer:",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 1\n    return x + 16\n    x = 31\n\nWhat does f() return? Answer:",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 12\n    return x + 3\n    x = 31\n\nWhat does f() return? Answer:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 10\n    return x + 12\n    x = 39\n\nWhat does f() return? Answer:",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 1\n    return x + 7\n    x = 31\n\nWhat does f() return? Answer:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 10\n    return x - 1\n    x = 35\n\nWhat does f() return? Answer:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 7\n    return x + 2\n    x = 27\n\nWhat does f() return? Answer:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 3\n    return x - 3\n    x = 31\n\nWhat does f() return? Answer:",
+    "continuation": " 0",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 19\n    return x - 14\n    x = 22\n\nWhat does f() return? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 3\n    return x - 18\n    x = 33\n\nWhat does f() return? Answer:",
+    "continuation": " -15",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 3\n    return x - 16\n    x = 29\n\nWhat does f() return? Answer:",
+    "continuation": " -13",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 11\n    return x + 11\n    x = 32\n\nWhat does f() return? Answer:",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 1\n    return x + 17\n    x = 35\n\nWhat does f() return? Answer:",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 9\n    return x + 3\n    x = 28\n\nWhat does f() return? Answer:",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 2\n    return x + 9\n    x = 36\n\nWhat does f() return? Answer:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 16\n    return x - 18\n    x = 24\n\nWhat does f() return? Answer:",
+    "continuation": " -2",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 16\n    return x + 3\n    x = 23\n\nWhat does f() return? Answer:",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 12\n    return x + 18\n    x = 25\n\nWhat does f() return? Answer:",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 3\n    return x + 5\n    x = 25\n\nWhat does f() return? Answer:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 15\n    return x + 13\n    x = 35\n\nWhat does f() return? Answer:",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 6\n    return x - 5\n    x = 28\n\nWhat does f() return? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 14\n    return x + 2\n    x = 24\n\nWhat does f() return? Answer:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 1\n    return x + 18\n    x = 34\n\nWhat does f() return? Answer:",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 15\n    return x + 3\n    x = 29\n\nWhat does f() return? Answer:",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 14\n    return x + 3\n    x = 32\n\nWhat does f() return? Answer:",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 4\n    return x - 7\n    x = 35\n\nWhat does f() return? Answer:",
+    "continuation": " -3",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 4\n    return x + 18\n    x = 31\n\nWhat does f() return? Answer:",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 4\n    return x - 10\n    x = 38\n\nWhat does f() return? Answer:",
+    "continuation": " -6",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 16\n    return x + 13\n    x = 39\n\nWhat does f() return? Answer:",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 18\n    return x + 3\n    x = 25\n\nWhat does f() return? Answer:",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 6\n    return x + 19\n    x = 33\n\nWhat does f() return? Answer:",
+    "continuation": " 25",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "def f():\n    x = 4\n    return x + 9\n    x = 38\n\nWhat does f() return? Answer:",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 16\n    return x - 4\n    x = 36\n\nWhat does f() return? Answer:",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 2\n    return x + 10\n    x = 31\n\nWhat does f() return? Answer:",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 11\n    return x + 17\n    x = 29\n\nWhat does f() return? Answer:",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 13\n    return x + 3\n    x = 32\n\nWhat does f() return? Answer:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 13\n    return x - 18\n    x = 37\n\nWhat does f() return? Answer:",
+    "continuation": " -5",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 13\n    return x - 3\n    x = 21\n\nWhat does f() return? Answer:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 13\n    return x - 14\n    x = 22\n\nWhat does f() return? Answer:",
+    "continuation": " -1",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 1\n    return x - 1\n    x = 26\n\nWhat does f() return? Answer:",
+    "continuation": " 0",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 11\n    return x + 3\n    x = 27\n\nWhat does f() return? Answer:",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 17\n    return x - 16\n    x = 33\n\nWhat does f() return? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 4\n    return x - 16\n    x = 33\n\nWhat does f() return? Answer:",
+    "continuation": " -12",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 14\n    return x - 11\n    x = 27\n\nWhat does f() return? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 14\n    return x + 5\n    x = 36\n\nWhat does f() return? Answer:",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 9\n    return x + 1\n    x = 22\n\nWhat does f() return? Answer:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 2\n    return x - 16\n    x = 31\n\nWhat does f() return? Answer:",
+    "continuation": " -14",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 4\n    return x + 16\n    x = 25\n\nWhat does f() return? Answer:",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 7\n    return x - 13\n    x = 39\n\nWhat does f() return? Answer:",
+    "continuation": " -6",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 8\n    return x + 1\n    x = 29\n\nWhat does f() return? Answer:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 10\n    return x - 13\n    x = 31\n\nWhat does f() return? Answer:",
+    "continuation": " -3",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 7\n    return x + 2\n    x = 26\n\nWhat does f() return? Answer:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 15\n    return x + 17\n    x = 36\n\nWhat does f() return? Answer:",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 6\n    return x - 5\n    x = 35\n\nWhat does f() return? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 9\n    return x - 19\n    x = 26\n\nWhat does f() return? Answer:",
+    "continuation": " -10",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 1\n    return x - 5\n    x = 25\n\nWhat does f() return? Answer:",
+    "continuation": " -4",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 7\n    return x + 1\n    x = 21\n\nWhat does f() return? Answer:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 15\n    return x - 6\n    x = 21\n\nWhat does f() return? Answer:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 15\n    return x + 16\n    x = 39\n\nWhat does f() return? Answer:",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 18\n    return x - 1\n    x = 23\n\nWhat does f() return? Answer:",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 5\n    return x + 12\n    x = 34\n\nWhat does f() return? Answer:",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 12\n    return x + 16\n    x = 39\n\nWhat does f() return? Answer:",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 10\n    return x + 6\n    x = 27\n\nWhat does f() return? Answer:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 2\n    return x + 10\n    x = 26\n\nWhat does f() return? Answer:",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 7\n    return x + 12\n    x = 24\n\nWhat does f() return? Answer:",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 12\n    return x - 19\n    x = 22\n\nWhat does f() return? Answer:",
+    "continuation": " -7",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 2\n    return x + 1\n    x = 27\n\nWhat does f() return? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 14\n    return x - 4\n    x = 24\n\nWhat does f() return? Answer:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 8\n    return x - 5\n    x = 38\n\nWhat does f() return? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 16\n    return x - 5\n    x = 39\n\nWhat does f() return? Answer:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 5\n    return x - 13\n    x = 39\n\nWhat does f() return? Answer:",
+    "continuation": " -8",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 10\n    return x + 12\n    x = 34\n\nWhat does f() return? Answer:",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 3\n    return x + 13\n    x = 31\n\nWhat does f() return? Answer:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 15\n    return x + 4\n    x = 29\n\nWhat does f() return? Answer:",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 8\n    return x - 12\n    x = 26\n\nWhat does f() return? Answer:",
+    "continuation": " -4",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 6\n    return x - 5\n    x = 39\n\nWhat does f() return? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 18\n    return x + 1\n    x = 35\n\nWhat does f() return? Answer:",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 7\n    return x - 4\n    x = 27\n\nWhat does f() return? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 4\n    return x - 13\n    x = 27\n\nWhat does f() return? Answer:",
+    "continuation": " -9",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 17\n    return x + 13\n    x = 37\n\nWhat does f() return? Answer:",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 2\n    return x - 17\n    x = 25\n\nWhat does f() return? Answer:",
+    "continuation": " -15",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 8\n    return x - 8\n    x = 35\n\nWhat does f() return? Answer:",
+    "continuation": " 0",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 9\n    return x - 6\n    x = 24\n\nWhat does f() return? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 17\n    return x + 12\n    x = 24\n\nWhat does f() return? Answer:",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 4\n    return x + 16\n    x = 27\n\nWhat does f() return? Answer:",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 10\n    return x - 4\n    x = 23\n\nWhat does f() return? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 19\n    return x + 14\n    x = 22\n\nWhat does f() return? Answer:",
+    "continuation": " 33",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 14\n    return x + 13\n    x = 33\n\nWhat does f() return? Answer:",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 14\n    return x - 17\n    x = 36\n\nWhat does f() return? Answer:",
+    "continuation": " -3",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 10\n    return x + 13\n    x = 34\n\nWhat does f() return? Answer:",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 14\n    return x - 7\n    x = 30\n\nWhat does f() return? Answer:",
+    "continuation": " 7",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "def f():\n    x = 4\n    return x + 16\n    x = 25\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 16\n    return x - 4\n    x = 36\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 3\n    return x + 5\n    x = 25\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 7\n    return x + 12\n    x = 24\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 12\n    return x - 19\n    x = 22\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 11\n    return x + 17\n    x = 29\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 4\n    return x + 9\n    x = 38\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 14\n    return x - 4\n    x = 24\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 4\n    return x - 13\n    x = 27\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 1\n    return x + 16\n    x = 31\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 4\n    return x - 10\n    x = 38\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 12\n    return x + 18\n    x = 25\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 17\n    return x - 8\n    x = 27\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 10\n    return x - 13\n    x = 31\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 6\n    return x - 5\n    x = 28\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 1\n    return x - 5\n    x = 25\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 11\n    return x - 2\n    x = 22\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 19\n    return x - 14\n    x = 22\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 4\n    return x - 7\n    x = 35\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 18\n    return x - 1\n    x = 23\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 2\n    return x + 10\n    x = 31\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 14\n    return x + 5\n    x = 36\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 16\n    return x - 5\n    x = 39\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 7\n    return x + 2\n    x = 27\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 12\n    return x + 16\n    x = 39\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 10\n    return x + 12\n    x = 34\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 6\n    return x - 5\n    x = 35\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 1\n    return x + 7\n    x = 31\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 18\n    return x - 19\n    x = 30\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 4\n    return x + 16\n    x = 27\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 12\n    return x + 3\n    x = 31\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 16\n    return x - 18\n    x = 24\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 3\n    return x + 3\n    x = 27\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 10\n    return x - 4\n    x = 23\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 9\n    return x + 3\n    x = 28\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 6\n    return x - 5\n    x = 39\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 11\n    return x + 3\n    x = 27\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 10\n    return x - 1\n    x = 35\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 14\n    return x - 19\n    x = 37\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 3\n    return x - 16\n    x = 29\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 1\n    return x + 4\n    x = 27\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 9\n    return x + 1\n    x = 22\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 5\n    return x + 12\n    x = 34\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 16\n    return x + 19\n    x = 31\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 8\n    return x - 8\n    x = 35\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 13\n    return x + 3\n    x = 32\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 16\n    return x + 16\n    x = 27\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 13\n    return x + 14\n    x = 31\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 2\n    return x + 9\n    x = 36\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 15\n    return x + 4\n    x = 29\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 15\n    return x - 6\n    x = 21\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 17\n    return x + 12\n    x = 24\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 16\n    return x + 11\n    x = 31\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 14\n    return x + 13\n    x = 33\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 18\n    return x + 1\n    x = 35\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 7\n    return x - 4\n    x = 27\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 3\n    return x - 18\n    x = 33\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 5\n    return x - 8\n    x = 36\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 14\n    return x - 11\n    x = 27\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 10\n    return x + 6\n    x = 27\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 10",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "def f():\n    x = 1\n    return x - 11\n    x = 31\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 11\n    return x - 2\n    x = 38\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 14\n    return x + 3\n    x = 32\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 19\n    return x - 9\n    x = 35\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 3\n    return x + 8\n    x = 25\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 19\n    return x + 14\n    x = 22\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 13\n    return x - 18\n    x = 37\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 2\n    return x + 17\n    x = 35\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 18\n    return x + 3\n    x = 25\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 10\n    return x + 4\n    x = 36\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 15\n    return x + 13\n    x = 35\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 12\n    return x + 13\n    x = 29\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 1\n    return x + 17\n    x = 35\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 7\n    return x - 13\n    x = 39\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 17\n    return x - 19\n    x = 29\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 2\n    return x - 16\n    x = 31\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 14\n    return x + 2\n    x = 24\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 7\n    return x - 9\n    x = 38\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 2\n    return x + 13\n    x = 21\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 15\n    return x + 3\n    x = 29\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 8\n    return x - 12\n    x = 26\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 17\n    return x + 13\n    x = 37\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 17\n    return x - 16\n    x = 33\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 15\n    return x + 14\n    x = 32\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 19\n    return x + 3\n    x = 37\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 15\n    return x + 16\n    x = 39\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 16\n    return x + 12\n    x = 39\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 5\n    return x - 13\n    x = 39\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 7\n    return x + 2\n    x = 26\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 3\n    return x - 3\n    x = 31\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 12\n    return x + 13\n    x = 38\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 8\n    return x + 2\n    x = 39\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 4\n    return x - 16\n    x = 33\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 1\n    return x + 18\n    x = 34\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 16\n    return x + 13\n    x = 39\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 9\n    return x - 19\n    x = 26\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 13\n    return x - 14\n    x = 22\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 1\n    return x - 1\n    x = 26\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 2\n    return x + 10\n    x = 26\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 15\n    return x + 17\n    x = 36\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 10\n    return x + 13\n    x = 34\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 17\n    return x + 5\n    x = 30\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 9\n    return x - 6\n    x = 24\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 8\n    return x - 5\n    x = 38\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 8\n    return x + 1\n    x = 29\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 2\n    return x - 17\n    x = 25\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 10\n    return x + 12\n    x = 39\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 6\n    return x + 19\n    x = 33\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 7\n    return x + 1\n    x = 21\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 15\n    return x + 2\n    x = 34\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 11\n    return x - 2\n    x = 22\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 13\n    return x - 3\n    x = 21\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 4\n    return x + 18\n    x = 31\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 2\n    return x + 1\n    x = 27\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 15\n    return x + 17\n    x = 29\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 14\n    return x - 17\n    x = 36\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 16\n    return x + 3\n    x = 23\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 14\n    return x - 7\n    x = 30\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 11\n    return x + 11\n    x = 32\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "def f():\n    x = 3\n    return x + 13\n    x = 31\n\nWhat integer is initially assigned to x? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 3.7797
+}

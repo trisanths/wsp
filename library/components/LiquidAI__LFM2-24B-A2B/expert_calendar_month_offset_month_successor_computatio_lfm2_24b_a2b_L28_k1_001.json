@@ -1,0 +1,88 @@
+{
+  "id": "expert_calendar_month_offset_month_successor_computatio_lfm2_24b_a2b_L28_k1_001",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 28, calendar month offset (month successor computation)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "month_successor"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'month_successor' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.5234,
+      "control_value": 0.038,
+      "split": "person_a held-out skill items (month_successor)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0577"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 28,
+  "layers": [
+    28
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/expert_calendar_month_offset_month_successor_computatio_lfm2_24b_a2b_L28_k1_001.pt",
+  "units_remote": "person_a/parts/lfm2_24b_a2b/expert_calendar_month_offset_month_successor_computatio_lfm2_24b_a2b_L28_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'month_successor'",
+    "label": "calendar month offset (month successor computation)",
+    "num_units": 1,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0137,
+      "math|heldout": 0.0171,
+      "code|search": 0.0048,
+      "code|heldout": 0.0071,
+      "facts|search": 0.0116,
+      "facts|heldout": -0.0121,
+      "multilingual|search": 0.0013,
+      "multilingual|heldout": 0.0026,
+      "general_text|search": 0.0016,
+      "general_text|heldout": 0.0,
+      "month_successor|search": 0.4243,
+      "month_successor__control|search": -0.0564,
+      "month_successor|heldout": 0.5234,
+      "month_successor__control|heldout": -0.0577
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1414,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0024,
+      0.0,
+      0.0,
+      0.1924,
+      0.0
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L28 expert 6's router row favours sequence-like tokens (Roman numerals z=+1.86, digits +1.12, months +.52) and avoids units and pronouns. Its w2 has number-word (.17) and ordinal (.15) aligned columns. L28-29 is where late experts first write month-name directions (L28 e55 cos .29, L29 e48 .36). Attribution put it 2nd (.41), and ablation gave month .424 with the number-successor control at -.056."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2_24b_a2b/month_successor.json",
+    "hash": "d32b08204ae7ef0d",
+    "description": "Name the month that comes k months after a given month (calendar month arithmetic). Control: integer successor with the same sentence frame.",
+    "name": "month_successor"
+  },
+  "catalog_id": "expert_calendar_month_offset_month_successor_computatio_lfm2_24b_a2b_L28_k1_001",
+  "exported_copy": "library/lfm2_24b_a2b/expert_calendar_month_offset_month_successor_computatio_lfm2_24b_a2b_L28_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

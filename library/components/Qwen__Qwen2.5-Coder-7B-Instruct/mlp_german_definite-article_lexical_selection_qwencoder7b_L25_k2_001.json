@@ -1,0 +1,96 @@
+{
+  "id": "mlp_german_definite-article_lexical_selection_qwencoder7b_L25_k2_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen2.5-Coder-7B-Instruct layer 25, German definite-article lexical selection",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwencoder7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "german_article"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Coder-7B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'german_article' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1628,
+      "control_value": 0.0045,
+      "split": "person_a held-out skill items (german_article)",
+      "seeds": null,
+      "source": "person_a/catalog/qwencoder7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0029"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "layer": 25,
+  "layers": [
+    25
+  ],
+  "units_file": "components/Qwen__Qwen2.5-Coder-7B-Instruct/mlp_german_definite-article_lexical_selection_qwencoder7b_L25_k2_001.pt",
+  "units_remote": "person_a/parts/qwencoder7b/mlp_german_definite-article_lexical_selection_qwencoder7b_L25_k2_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'german_article'",
+    "label": "German definite-article lexical selection",
+    "num_units": 2,
+    "d_model": 3584,
+    "effect": {
+      "math|search": 0.0001,
+      "math|heldout": 0.0001,
+      "code|search": 0.0003,
+      "code|heldout": 0.0003,
+      "facts|search": 0.001,
+      "facts|heldout": -0.0013,
+      "multilingual|search": -0.0019,
+      "multilingual|heldout": 0.0083,
+      "general_text|search": 0.0004,
+      "general_text|heldout": 0.0007,
+      "english_agreement|search": -0.0319,
+      "english_agreement__control|search": -0.1098,
+      "english_agreement|heldout": -0.032,
+      "english_agreement__control|heldout": -0.101,
+      "german_article|search": 0.1726,
+      "german_article__control|search": 0.003,
+      "german_article|heldout": 0.1628,
+      "german_article__control|heldout": 0.0029,
+      "emotion_synonym|search": -0.0166,
+      "emotion_synonym__control|search": -0.0329,
+      "emotion_synonym|heldout": -0.0158,
+      "emotion_synonym__control|heldout": -0.0457
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0575,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0058,
+      0.0069,
+      0.0007,
+      0.0119,
+      -0.003
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "8792 writes f\u00fcr/auf/mit/oder/und/der, while 9145 writes the; independent attribution and ablation show .173 article drop vs .003 noun-copy control, with no other target degradation."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwencoder7b/german_article.json",
+    "hash": "ed11538e4268b12b",
+    "description": "Supply the nominative definite article of a German noun (der/die/das); control repeats the same noun.",
+    "name": "german_article"
+  },
+  "catalog_id": "mlp_german_definite-article_lexical_selection_qwencoder7b_L25_k2_001",
+  "exported_copy": "library/qwencoder7b/mlp_german_definite-article_lexical_selection_qwencoder7b_L25_k2_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

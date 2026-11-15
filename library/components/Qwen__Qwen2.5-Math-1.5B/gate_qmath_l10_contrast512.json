@@ -1,0 +1,90 @@
+{
+  "id": "gate_qmath_l10_contrast512",
+  "kind": "mlp_cluster",
+  "title": "Qwen2.5-Math-1.5B layer 10, 512 MLP neurons by Cohen's d contrast (hour-8 gate)",
+  "status": "rejected",
+  "added_by": "Person B",
+  "source": "results/gate_hour8_3seeds.json",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "gsm8k"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Math-1.5B"
+  ],
+  "evidence": [
+    {
+      "claim": "graft vs a random same-size cluster through the same glue and heal",
+      "metric": "GSM8K accuracy, mean over seeds",
+      "value": 0.41,
+      "control_value": 0.4033,
+      "split": "GSM8K search split (200 items from GSM8K train)",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "source": "results/gate_hour8_3seeds.json",
+      "generated": true,
+      "control": "random same-size cluster, same layer",
+      "note": "host unsloth/Llama-3.2-1B-Instruct, rank-64 glue, 300 heal steps"
+    },
+    {
+      "claim": "graft vs a host LoRA matched to the glue and part params",
+      "metric": "GSM8K accuracy, mean over seeds",
+      "value": 0.41,
+      "control_value": 0.445,
+      "split": "GSM8K search split (200 items from GSM8K train)",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "source": "results/gate_hour8_3seeds.json",
+      "generated": true,
+      "control": "matched LoRA"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Math-1.5B",
+  "layer": 10,
+  "layers": [
+    10
+  ],
+  "units_file": null,
+  "units_remote": "/vol/eval/work/gate_parts/mlp_cluster_qwen25math15b_l10_gsm8k.pt",
+  "signature": {
+    "function": "more active on gsm8k text than on generic text",
+    "method": "activation contrast: Cohen's d of |activation|",
+    "skill_data": "gsm8k heal split (train), 256 texts",
+    "control_data": "WikiText-2 train, 256 texts",
+    "n_units": 512,
+    "n_units_in_layer": 8960,
+    "unit_effects": [
+      1.3867,
+      1.3504,
+      1.3394,
+      1.241,
+      0.9998,
+      0.9789,
+      0.9421,
+      0.9266,
+      0.9138,
+      0.8264,
+      0.8262,
+      0.814,
+      0.7841,
+      0.7688,
+      0.7381,
+      0.7264
+    ],
+    "mean_effect": 0.3628,
+    "random_mean_effect": -0.0528,
+    "layer_rank": 1,
+    "extracted": "2026-11-15T01:19:22+00:00",
+    "unit_effects_note": "first 16 of 512 kept here"
+  },
+  "original_id": "qmath_l10_contrast512",
+  "status_reason": "hour-8 gate: +0.7 over random, lost or tied on 2 of 3 seeds; LoRA 44.5 beats it (search split)"
+}

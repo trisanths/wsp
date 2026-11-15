@@ -1,0 +1,335 @@
+{
+ "cost_dollars": 0.012,
+ "endpoint": "search",
+ "fetched_at": "2026-11-15T02:23:17Z",
+ "key": "a83453df32819ca0790f3bd80cf254fec205c6fe5ab0861b5d717e41e2ea3016",
+ "params": {
+  "category": "publication",
+  "contents": {
+   "highlights": true
+  },
+  "end_published_date": "2026-11-14T00:00:00Z",
+  "exclude_domains": [
+   "*.kaggle.com",
+   "github.com/TIGER-AI-Lab/MMLU-Pro",
+   "github.com/google-deepmind/bbeh",
+   "github.com/openai/grade-school-math",
+   "huggingface.co/datasets",
+   "kaggle.com",
+   "paperswithcode.com/dataset",
+   "tensorflow.org/datasets"
+  ],
+  "num_results": 5,
+  "output_schema": {
+   "properties": {
+    "claims": {
+     "items": {
+      "properties": {
+       "claim": {
+        "type": "string"
+       },
+       "layer_hint": {
+        "type": "string"
+       },
+       "model": {
+        "type": "string"
+       },
+       "strength": {
+        "enum": [
+         "weak",
+         "medium",
+         "strong"
+        ],
+        "type": "string"
+       }
+      },
+      "required": [
+       "claim",
+       "layer_hint",
+       "model",
+       "strength"
+      ],
+      "type": "object"
+     },
+     "maxItems": 5,
+     "type": "array"
+    }
+   },
+   "required": [
+    "claims"
+   ],
+   "type": "object"
+  },
+  "query": "How many fine-tuning steps does it take to heal a language model after layer pruning, layer stacking or model surgery, and which parameters should be trained?",
+  "system_prompt": "Prefer peer-reviewed papers and arXiv preprints about transformer language models. Give layer locations as fractions of model depth where you can, name the model each claim was measured on, and rate how strong the evidence is.",
+  "type": "deep-lite"
+ },
+ "response": {
+  "auto_date": null,
+  "context": null,
+  "cost_dollars": {
+   "contents": null,
+   "search": null,
+   "total": 0.012
+  },
+  "notices": null,
+  "output": {
+   "content": {
+    "claims": [
+     {
+      "claim": "For layer concatenation/stacking surgery, CoMe-mp uses 2,000 fine-tuning steps and CoMe-sp uses 10,000 steps; both train the merged layers.",
+      "layer_hint": "Merged layers corresponding to pruned original-layer groups",
+      "model": "Not specified in the excerpt",
+      "strength": "medium"
+     },
+     {
+      "claim": "After layer pruning, train the LM head plus the last one, two, or three layers; partial-layer fine-tuning outperforms LoRA.",
+      "layer_hint": "LM head plus final 1\u20133 transformer layers",
+      "model": "Llama-3.1-8B-Instruct, Vicuna-7B-v1.5, Qwen1.5-7B, Gemma2-2B-Instruct",
+      "strength": "strong"
+     },
+     {
+      "claim": "For healing after layer pruning, LoRA can be applied to all linear weights; CULL-MT used rank 128 and alpha 256.",
+      "layer_hint": "All linear layers",
+      "model": "LLaMA3.1-8B-Instruct and NLLB-3.3B",
+      "strength": "medium"
+     }
+    ]
+   },
+   "grounding": [
+    {
+     "citations": [
+      {
+       "title": "Layer as Puzzle Pieces: Compressing Large Language Models through Layer Concatenation",
+       "url": "https://papers.neurips.cc/paper_files/paper/2025/file/0a4096f09ab230082df548f901d4f79e-Paper-Conference.pdf"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "Layer as Puzzle Pieces: Compressing Large Language Models through Layer Concatenation",
+       "url": "https://papers.neurips.cc/paper_files/paper/2025/file/0a4096f09ab230082df548f901d4f79e-Paper-Conference.pdf"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "Layer as Puzzle Pieces: Compressing Large Language Models through Layer Concatenation",
+       "url": "https://papers.neurips.cc/paper_files/paper/2025/file/0a4096f09ab230082df548f901d4f79e-Paper-Conference.pdf"
+      }
+     ],
+     "confidence": "low",
+     "field": "claims[0].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "Layer as Puzzle Pieces: Compressing Large Language Models through Layer Concatenation",
+       "url": "https://papers.neurips.cc/paper_files/paper/2025/file/0a4096f09ab230082df548f901d4f79e-Paper-Conference.pdf"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].strength"
+    },
+    {
+     "citations": [
+      {
+       "title": "Reassessing Layer Pruning in LLMs: New Insights and Methods",
+       "url": "https://doi.org/10.48550/arxiv.2411.15558"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "Reassessing Layer Pruning in LLMs: New Insights and Methods",
+       "url": "https://doi.org/10.48550/arxiv.2411.15558"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "Reassessing Layer Pruning in LLMs: New Insights and Methods",
+       "url": "https://doi.org/10.48550/arxiv.2411.15558"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "Reassessing Layer Pruning in LLMs: New Insights and Methods",
+       "url": "https://doi.org/10.48550/arxiv.2411.15558"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].strength"
+    },
+    {
+     "citations": [
+      {
+       "title": "CULL-MT: Compression Using Language and Layer pruning for Machine Translation",
+       "url": "https://doi.org/10.48550/arxiv.2411.06506"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[2].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "CULL-MT: Compression Using Language and Layer pruning for Machine Translation",
+       "url": "https://doi.org/10.48550/arxiv.2411.06506"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[2].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "CULL-MT: Compression Using Language and Layer pruning for Machine Translation",
+       "url": "https://doi.org/10.48550/arxiv.2411.06506"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[2].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "CULL-MT: Compression Using Language and Layer pruning for Machine Translation",
+       "url": "https://doi.org/10.48550/arxiv.2411.06506"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[2].strength"
+    }
+   ]
+  },
+  "resolved_search_type": "",
+  "results": [
+   {
+    "author": null,
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "In the post-training stage, we further exploit the layer correspondences established during the pruning phase to fine-tune the merged layers in the pruned model. We employ two distinct knowledge distillation strategies, enabling the merged layers to recover the mapping capacities of the original layer groups more effectively.\n\n...\n\n4.3 Post-Training via Hierarchical Distillation Strategy \nAfter a progressive merging process, we aim to replace the original layers with the fused ones to \nalleviate representational gaps induced by pruning. Thus, each fused layer should maintain equivalent \nfeature representation capabilities to its original group, enhancing model performance. We align their \nfeature representations through post-training. Our progressive layer merging process creates a direct \nmapping between pruned and original layers, formalized as: P = [{ a1, b1} , .\n\n...\n\nWe use the original model as the teacher model and the pruned lightweight model as the student \nmodel, transferring knowledge from the teacher model to the student model.\n\n...\n\nThe optimization process requires iterating through all mapping pairs in P from shallow to deep layers. This process is named multi-process post-training (CoMe-mp). While CoMe-mp updates one layer per iteration and uses minimal resources, its sequential nature prevents joint optimization of shallow and deep layers. To address this, we consolidate multiple training processes into one, iterating over\n\n...\n\nTable 7: Experimental setting for post-training methods.\n\n| Method | # Iterations | # Epochs | # Steps | Batch size | Token length |\n| --- | --- | --- | --- | --- | --- |\n| FuseGPT | 10 | 20 | 128 | 8 | 2048 |\n| LLM-Streamline | 1 | 5 | 938 | 32 | 2048 |\n| CoMe-mp | 7 | 1 | 2000 | 32 | 512 |\n| CoMe-sp | 1 | 1 | 10000 | 32 | 512 |\n\nB.2 Implementation of Post-Training \nTab. 7 summarizes the post-training settings for all methods. Based on these settings, we quantify the \nresource consumption of each method by calculating the total number of tokens required to train a \nsingle layer, which we denote as Tlayer. This metric is computed as follows: \nTlayer = # Iterations \u00d7 # Layers \u00d7 # Epochs \u00d7 # Steps \u00d7 Batch size \u00d7 Token length, (9) \nwhere \u201c# Layers\u201d indicates the number of layers updated in each iteration. \nThe post-training process for the FuseGPT method is synchronized with the pruning process, utilizing \n1,024 samples from the Wiki-2 dataset, in accordance with the settings of Pei et al. [27]. In each \niteration, the parameters of one layer are merged into seven adjacent layers. Pruning ten layers \nrequires ten iterations, with seven layers updated in each iteration. For FuseGPT, Tlayer \u2248 2.93B. \nThe LLM-Streamline trains a merged layer using 30,000 samples and employs five epochs, following \nthe settings of Chen et al. [5]. For LLM-Streamline, Tlayer \u2248 0.31B. \nWe carry out the post-training process of CoMe after completing the pruning process. After pruning \n10 layers, the pruned model has seven layers corresponding to multiple layers of the original model. \nTherefore, in CoMe-mp, there are seven training iterations requiring minimal training resources."
+    ],
+    "id": "https://papers.neurips.cc/paper_files/paper/2025/file/0a4096f09ab230082df548f901d4f79e-Paper-Conference.pdf",
+    "image": null,
+    "published_date": null,
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Layer as Puzzle Pieces: Compressing Large Language Models through Layer Concatenation",
+    "url": "https://papers.neurips.cc/paper_files/paper/2025/file/0a4096f09ab230082df548f901d4f79e-Paper-Conference.pdf"
+   },
+   {
+    "author": "Yao Lu, Hao Cheng, Fang, Yujie, Zeyu Wang, Jiaheng Wei, Dongwei Xu, et al.",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "Following by the common practice of previous studies (Khan & Fang, 2023) , we choose to fine-tune only the later layers that are closer to the output, while keeping the earlier layers, which capture more general features, frozen. Specifically, we use two different fine-tuning strategies: one is to finetune only the model head (lm head only), and the other is to finetune the lm head plus the last layer (lm head + last layer), the last two layers (lm head + last two layers), and the last three layers (lm head + last three layers). In view of the superiority of the reverse-order metric in Section 4.1, we use it to prune here. For the Vicuna-7B-v1.5, Qwen1.5-7B, and Llama-3.1-8B-Instruct models, we prune 8 layers. For the Gemma2-2B-Instruct model, we prune 6 layers. Subsequently, we utilize LoRA, QLoRA and partial-layer fine-tuning methods to restore performance.\n\n...\n\nResults. As shown in the Table 2 and Table B , we find that fine-tuning with QLoRA slightly hurts the performance of pruned models compared to LoRA. Excitingly, the effect of partial-layer finetuning is significantly better than LoRA, providing a viable new direction for fine-tuning models after pruning. In the ablation study, we compare the performance of LoRA with partial-layer finetuning for the full model in Table 3 , which shows that partial-layer fine-tuning and LoRA perform similarly. This suggests that the conventional insights for the full model fine-tuning do not hold after pruning, i.e., the structural changes and parameter reduction of the model enable partial layer fine-tuning to adapt more effectively to the new parameter distribution and fully leverage the potential benefits of pruning. When considering fine-tuning methods for LLMs, in addition to performance, the training cost is also a significant factor to take into account. Therefore, we compare the training cost of these fine-tuning methods, including training time, gpu memory and trainable parameters. Specifically, we conduct experiments on 2 empty NVIDIA RTX A100 GPUs using the pruned Llama-3.1-8B-Instruct model (with 8 layers removed in reverse order). Table 4 shows the comparison among these fine-tuning methods. We find that compared to LoRA, partial-layer fine-tuning involves more trainable parameters but maintains comparable GPU usage and achieves faster training time. Additionally, partial-layer fine-tuning outperforms LoRA in effectiveness. In contrast, although QLoRA consumes less GPU memory, it has much longer training time and yields poorer performance. In summary, we conclude that partial-layer fine-tuning is an effective approach to restoring the performance of pruned models when sufficient memory is available."
+    ],
+    "id": "https://exa.ai/library/publication/bxyp5j3q8lh",
+    "image": null,
+    "published_date": "2024-11-23T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Reassessing Layer Pruning in LLMs: New Insights and Methods",
+    "url": "https://doi.org/10.48550/arxiv.2411.15558"
+   },
+   {
+    "author": "Pedram Rostami, Mohammad Javad Dousti",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "This is not a significant concern, as the process is intended to run only once to create the compressed model.\n\n...\n\nHealing. To restore any performance loss after pruning, we perform fine-tuning using sequencelevel knowledge distillation (Kim and Rush, 2016) from the original model to the pruned model. Finetuning the pruned model with new datasets can result in catastrophic forgetting (De Lange et al., 2022) . To address this, we utilize knowledge distillation from the original model, which helps maintain performance consistency and mitigate the risk of forgetting (Li and Hoiem, 2018) .\n\nTo leverage sequence-level knowledge distillation, we use a generated dataset. The source sentences are drawn from the training datasets, while the target sentences are the translations produced by the original model. This generated dataset en-compasses all the selected translation directions.\n\n...\n\n### Efficient Fine-tuning\n\nWe fine-tune the models at different stages to optimize their performance. For LLMs, we initially fine-tune them to improve their zero-shot performance on the translation task. After pruning layers from the models, we fine-tune them again to heal the damage caused by removing layers. However, if the model already exhibits excellent performance in translation, there is no need for initial fine-tuning. Therefore, for multilingual NMT models such as NLLB-3.3B, we only perform fine-tuning in the healing phase.\n\n...\n\nFor the initial fine-tuning of the LLaMA3.1-8B-Instruct model, we utilized the optimal LoRA hyperparameters identified by Zhang et al. (2023) . However, during the healing process, we adjusted the LoRA rank to 128 and the LoRA \u03b1 to 256 to enhance the model's recovery by increasing the number of trainable parameters. In addition, we applied the same LoRA rank and alpha settings (128 and 256, respectively) to all linear weights in the pruned NLLB model. To further enhance the robustness of our experiments, we implemented a LoRA dropout rate of 0.1 across all trials."
+    ],
+    "id": "https://exa.ai/library/publication/rnm0w3q89g3",
+    "image": null,
+    "published_date": "2024-11-10T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "CULL-MT: Compression Using Language and Layer pruning for Machine Translation",
+    "url": "https://doi.org/10.48550/arxiv.2411.06506"
+   },
+   {
+    "author": "Zhaojia Liu, Jiawen Lyn, Wei Zhu, Xing Tian",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "3.4 The complete process of ALoRA With the guidance of the importance score in Equation 6, we can now formally define the whole working process of our ALoRA framework (Fig ure 1). Our working flow of allocating the LoRA ranks builds upon the following intuitions: (a) the pruning and allocation of LoRA ranks is conducted gradually to avoid performance degradation. (b) if the LoRA ranks in a Transformer module re ceive relatively high importance scores and are not pruned, this module is deemed important. It may need more LoRA ranks for adaptation so that the LoRA parameters can better learn the task knowl edge. The framework of ALoRA is centered on our AB-LoRA method, which requires the super network to be trained for K1 epochs on the train set. We freeze the architectural parameters and train only the model parameters on the train set. No bi-level optimization is required, thus saving training time costs. Then, for each LoRA rank, we evaluate the importance score on a batch of samples Bval from the development set. Then, nA LoRA ranks with the lowest scores are pruned by zero ing out their corresponding gate units. Moreover, if some Transformer modules do not have pruned LoRA ranks, we allocate the parameter budgets to them to enhance the adaptation further. 23 After the pruning and adding operations, we tune the al tered super-network for K2 > 0 epochs to recover the lost performance. The above steps are repeated for NA times."
+    ],
+    "id": "https://exa.ai/library/publication/5q0gfkhvc8k",
+    "image": null,
+    "published_date": "2024-01-01T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "ALoRA: Allocating Low-Rank Adaptation for Fine-tuning Large Language Models",
+    "url": "https://doi.org/10.18653/v1/2024.naacl-long.35"
+   },
+   {
+    "author": "Wagner, Moritz, Roux, Christophe, Zimmer, Max, Pokutta, Sebastian",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "While Neural Network pruning typically requires retraining the model to recover pruning-induced performance degradation, state-of-the-art Large Language Model (LLM) pruning methods instead solve a layer-wise mask selection and reconstruc tion problem on a small set of calibration data to avoid full retraining, as it is considered computationally infeasible for LLMs. Reconstructing single matrices in isolation has favorable properties, such as convexity of the objective and sig nificantly reduced memory requirements compared to full retraining. In practice, however, reconstruction is often implemented at coarser granularities, e.g., re constructing a whole transformer block against its dense activations instead of a single matrix. In this work, we study the key design choices when reconstruct ing or retraining the remaining weights after pruning. We conduct an extensive computational study on state-of-the-art GPT architectures, and report several sur prising findings that challenge common intuitions about retraining after pruning. In particular, we observe a free lunch scenario: reconstructing attention and MLP components separately within each transformer block is nearly the most resource efficient yet achieves the best perplexity. Most importantly, this Pareto-optimal setup achieves better performance than full retraining, despite requiring only a fraction of the memory. Furthermore, we demonstrate that simple and efficient pruning criteria such as Wanda can outperform much more complex approaches when the reconstruction step is properly executed, highlighting its importance. Our findings challenge the narrative that retraining should be avoided at all costs and provide important insights into post-pruning performance recovery for LLMs.\n\n...\n\nReconstructing at block size 1 2 is most effective. For OPT-1.3B in Figure 3, block size 1 2 (recon structing\n\n...\n\n4 CONCLUSION In this work, we revisited post-pruning retraining of LLMs through the lens of local reconstruction. Across models, we consistently observe that reconstructing attention and MLP components separately within each transformer block (block size 1 2) is Pareto-optimal: it matches or outperforms coarser granularities in perplexity and zero-shot accuracy while requiring only a fraction of the memory. We further ablate propagation strategies and loss functions. When hyperparameters are identical, no strategy (SP, MP, DP) or loss function (MSE, CS) universally outperforms others; in optimal configuration comparisons, MP paired with MSE tends to have a slight advantage. Finally, once proper local reconstruction is applied, simple mask-selection methods such as Wanda can match or surpass more complex algorithms like SparseGPT across sparsity regimes, underscoring the central role of the reconstruction step. Taken together, our results suggest a practical recipe for post-pruning recovery in LLMs: favor block size 1 2 local reconstruction, pair it with MP and MSE, and use simple pruning methods when possible.\n\nThis configuration is simple, memory-efficient, and reliably competitive, outperforming full-model fine-tuning on the same calibration data in our evaluations."
+    ],
+    "id": "https://exa.ai/library/publication/y8f06w3ftrv",
+    "image": null,
+    "published_date": "2025-10-16T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "A Free Lunch in LLM Compression: Revisiting Retraining after Pruning",
+    "url": "https://arxiv.org/abs/2510.14444"
+   }
+  ],
+  "search_time": 5088.6,
+  "statuses": null,
+  "warnings": null
+ },
+ "sdk_version": "2.28.0"
+}

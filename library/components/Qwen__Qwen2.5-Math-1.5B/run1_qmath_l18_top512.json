@@ -1,0 +1,49 @@
+{
+  "id": "run1_qmath_l18_top512",
+  "kind": "mlp_cluster",
+  "title": "Qwen2.5-Math-1.5B layer 18, top 512 MLP neurons by mean |activation| (run 1)",
+  "status": "rejected",
+  "added_by": "Trisanth",
+  "source": "results/graft_run1_s0.json (run 1)",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "gsm8k"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Math-1.5B"
+  ],
+  "evidence": [
+    {
+      "claim": "graft at host layer 10 with full-rank glue vs a random 512-neuron control",
+      "metric": "GSM8K search accuracy",
+      "value": 0.25,
+      "control_value": 0.33,
+      "split": "GSM8K search split (200 items from GSM8K train)",
+      "seeds": [
+        0
+      ],
+      "source": "results/graft_run1_s0.json",
+      "generated": true,
+      "control": "random same-size cluster, same layer",
+      "note": "host 25.0 untrained; the control's gain comes from the heal format and 6.3M glue params"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Math-1.5B",
+  "layer": 18,
+  "layers": [
+    18
+  ],
+  "units_file": null,
+  "units_remote": null,
+  "signature": {
+    "method": "top 512 MLP neurons by mean |activation| on GSM8K train text",
+    "n_units": 512,
+    "fit_r2_pooled": 0.9873600413490637,
+    "fit_note": "the 0.987 R squared was inflated by first-token outlier rows (results/README.md run 1)",
+    "part_params": 2360832,
+    "glue_params": 6291456
+  },
+  "status_reason": "run 1: 25.0 vs the random control 33.0 (1 seed, search split)"
+}

@@ -1,0 +1,116 @@
+{
+  "id": "mlp_past-tense_verb_inflection_256-unit_l20_mlp_clus_qwen3.5_9b_L20_k256_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen3.5-9B layer 20, past-tense verb inflection (256-unit L20 MLP cluster)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwen3.5_9b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "past_tense"
+  ],
+  "models": [
+    "Qwen/Qwen3.5-9B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'past_tense' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2004,
+      "control_value": 0.0012,
+      "split": "person_a held-out skill items (past_tense)",
+      "seeds": null,
+      "source": "person_a/catalog/qwen3.5_9b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0014"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen3.5-9B",
+  "layer": 20,
+  "layers": [
+    20
+  ],
+  "units_file": "components/Qwen__Qwen3.5-9B/mlp_past-tense_verb_inflection_256-unit_l20_mlp_clus_qwen3.5_9b_L20_k256_001.pt",
+  "units_remote": "person_a/parts/qwen3.5_9b/mlp_past-tense_verb_inflection_256-unit_l20_mlp_clus_qwen3.5_9b_L20_k256_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'past_tense'",
+    "label": "past-tense verb inflection (256-unit L20 MLP cluster)",
+    "num_units": 256,
+    "d_model": 4096,
+    "effect": {
+      "math|search": -0.0006,
+      "math|heldout": -0.0006,
+      "code|search": 0.0002,
+      "code|heldout": 0.0006,
+      "facts|search": 0.0153,
+      "facts|heldout": 0.0189,
+      "multilingual|search": -0.0003,
+      "multilingual|heldout": 0.0006,
+      "general_text|search": 0.0009,
+      "general_text|heldout": 0.0005,
+      "roman_numeral|search": 0.0053,
+      "roman_numeral__control|search": -0.0004,
+      "roman_numeral|heldout": 0.0056,
+      "roman_numeral__control|heldout": -0.0003,
+      "weekday_successor|search": 0.022,
+      "weekday_successor__control|search": 0.0008,
+      "weekday_successor|heldout": 0.0215,
+      "weekday_successor__control|heldout": 0.0003,
+      "month_successor|search": 0.0078,
+      "month_successor__control|search": 0.0008,
+      "month_successor|heldout": 0.006,
+      "month_successor__control|heldout": -0.0002,
+      "ordinal_words|search": 0.0351,
+      "ordinal_words__control|search": 0.0233,
+      "ordinal_words|heldout": 0.0378,
+      "ordinal_words__control|heldout": 0.0224,
+      "color_naming|search": 0.0034,
+      "color_naming__control|search": -0.0045,
+      "color_naming|heldout": 0.0084,
+      "color_naming__control|heldout": -0.0202,
+      "past_tense|search": 0.2505,
+      "past_tense__control|search": 0.0018,
+      "past_tense|heldout": 0.2004,
+      "past_tense__control|heldout": 0.0014,
+      "plural_nouns|search": 0.0158,
+      "plural_nouns__control|search": -0.0066,
+      "plural_nouns|heldout": 0.0207,
+      "plural_nouns__control|heldout": -0.0138,
+      "capital_city|search": -0.0014,
+      "capital_city__control|search": -0.0045,
+      "capital_city|heldout": -0.0014,
+      "capital_city__control|heldout": -0.0012
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0835,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0092,
+      0.0046,
+      0.0047,
+      -0.0072,
+      -0.0053
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "The same L20 seed-subspace growth (past-tense seeds 4379/7691/12073\u2026, minus the ordinal/plural subspaces) extended to 256 units. All units share the past-tense read/write directions."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwen3.5_9b/past_tense.json",
+    "hash": "352f785e5714a5c5",
+    "description": "Give the simple past tense of an English verb (regular and irregular), few-shot. Control: same verbs and format, but copy the base form (present tense).",
+    "name": "past_tense"
+  },
+  "catalog_id": "mlp_past-tense_verb_inflection_256-unit_l20_mlp_clus_qwen3.5_9b_L20_k256_001",
+  "exported_copy": "library/qwen3.5_9b/mlp_past-tense_verb_inflection_256-unit_l20_mlp_clus_qwen3.5_9b_L20_k256_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

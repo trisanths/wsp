@@ -1,0 +1,128 @@
+{
+  "id": "map_block_qwen__qwen3-30b-a3b_chemistry_l25_36",
+  "kind": "block",
+  "title": "Qwen3-30B-A3B layers 25 to 36, chemistry block (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "chemistry"
+  ],
+  "models": [
+    "Qwen/Qwen3-30B-A3B"
+  ],
+  "evidence": [
+    {
+      "claim": "skipping layers 25 to 36 of Qwen3-30B-A3B raises the loss on 'chemistry' text more than on general text; measured inside the donor only, not a gain on a host",
+      "metric": "summed layer score over the block, nats (skill loss increase minus general loss increase)",
+      "value": -0.45561,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "general_text loss increase, subtracted layer by layer"
+    },
+    {
+      "claim": "share of the positive layer score that falls inside the block (layers 25 to 36)",
+      "metric": "block_mass, fraction of the model's positive layer score",
+      "value": 0.0387,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same share, recomputed on the other half of the skill text for the same layers",
+      "metric": "check_mass, fraction of the positive layer score",
+      "value": 0.2718,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the per-layer score map from one half of the text agrees with the map from the other half",
+      "metric": "split_half_r, Pearson r over layers (whole map, same value for every block of the skill)",
+      "value": 0.9035,
+      "control_value": null,
+      "split": "search half against held-out half",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "Qwen/Qwen3-30B-A3B",
+  "layer": null,
+  "layers": [
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36
+  ],
+  "units_file": null,
+  "units_remote": null,
+  "signature": {
+    "method": "skip-layer map: loss increase on skill text when a decoder layer is skipped, minus the same on general_text (nats); the block is the shortest window that holds 60% of the positive score on the search half",
+    "skill": "chemistry",
+    "data": "cais/mmlu all test (subjects: high_school_chemistry, college_chemistry): chemistry questions, correct answer text",
+    "first_layer": 25,
+    "last_layer": 36,
+    "n_layers_in_block": 12,
+    "block_rank_in_skill": 3,
+    "block_mass": 0.0387,
+    "check_mass": 0.2718,
+    "split_half_r": 0.9035,
+    "summed_layer_score": -0.45561,
+    "layer_scores": [
+      0.00193,
+      -0.03775,
+      -0.02058,
+      -0.07477,
+      -0.02667,
+      0.04144,
+      -0.01261,
+      -0.04522,
+      -0.07793,
+      -0.11642,
+      -0.00697,
+      -0.08006
+    ],
+    "layer_influence": [
+      -0.03688,
+      -0.00958,
+      -0.01087,
+      0.07043,
+      -0.01317,
+      0.08453,
+      -0.01034,
+      0.00178,
+      -0.05896,
+      -0.0363,
+      -0.01678,
+      -0.06628
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: high_school_chemistry, college_chemistry): chemistry questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 30.53,
+  "n_layers": 48,
+  "hidden": 2048,
+  "family": "qwen3_moe",
+  "architecture": "Qwen3MoeForCausalLM",
+  "license": "apache-2.0",
+  "revision": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39"
+}

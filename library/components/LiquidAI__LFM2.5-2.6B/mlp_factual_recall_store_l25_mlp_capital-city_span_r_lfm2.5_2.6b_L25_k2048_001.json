@@ -1,0 +1,113 @@
+{
+  "id": "mlp_factual_recall_store_l25_mlp_capital-city_span_r_lfm2.5_2.6b_L25_k2048_001",
+  "kind": "mlp_cluster",
+  "title": "LFM2.5-2.6B layer 25, factual recall store (L25 MLP, capital-city span removed)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_2.6b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "facts"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-2.6B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'facts' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1728,
+      "control_value": 0.152,
+      "split": "person_a held-out skill items (facts)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_2.6b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-2.6B",
+  "layer": 25,
+  "layers": [
+    25
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-2.6B/mlp_factual_recall_store_l25_mlp_capital-city_span_r_lfm2.5_2.6b_L25_k2048_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_2.6b/mlp_factual_recall_store_l25_mlp_capital-city_span_r_lfm2.5_2.6b_L25_k2048_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'facts'",
+    "label": "factual recall store (L25 MLP, capital-city span removed)",
+    "num_units": 2048,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0071,
+      "math|heldout": 0.0248,
+      "code|search": 0.0005,
+      "code|heldout": -0.0024,
+      "facts|search": 0.2159,
+      "facts|heldout": 0.1728,
+      "multilingual|search": 0.0234,
+      "multilingual|heldout": 0.0264,
+      "general_text|search": 0.0148,
+      "general_text|heldout": 0.0166,
+      "month_successor|search": 0.0148,
+      "month_successor__control|search": -0.0013,
+      "month_successor|heldout": 0.0139,
+      "month_successor__control|heldout": -0.0007,
+      "weekday_successor|search": -0.0028,
+      "weekday_successor__control|search": 0.0021,
+      "weekday_successor|heldout": 0.0077,
+      "weekday_successor__control|heldout": 0.0,
+      "roman_numerals|search": 0.0418,
+      "roman_numerals__control|search": -0.0004,
+      "roman_numerals|heldout": 0.0074,
+      "roman_numerals__control|heldout": -0.0002,
+      "object_color|search": 0.0096,
+      "object_color__control|search": -0.0003,
+      "object_color|heldout": 0.0008,
+      "object_color__control|heldout": -0.0002,
+      "antonym|search": 0.0091,
+      "antonym__control|search": 0.0002,
+      "antonym|heldout": 0.0239,
+      "antonym__control|heldout": 0.0006,
+      "ordinal_word|search": -0.0036,
+      "ordinal_word__control|search": 0.0068,
+      "ordinal_word|heldout": -0.0053,
+      "ordinal_word__control|heldout": 0.0007,
+      "capital_city|search": 0.0268,
+      "capital_city__control|search": 0.0001,
+      "capital_city|heldout": 0.0216,
+      "capital_city__control|heldout": 0.0,
+      "past_tense|search": -0.0173,
+      "past_tense__control|search": 0.0017,
+      "past_tense|heldout": 0.001,
+      "past_tense__control|heldout": 0.0015
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.072,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.2142,
+      0.1492,
+      0.1347,
+      0.113,
+      0.149
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "The whole L25 MLP drops facts .68. Starting from the facts-attributed seeds (4654, 7823, 5336...), I kept 2048 units whose gate (w1) rows project onto the seed gate span, minus their projection onto the capital-city seed span. That subtraction separates general entity-fact readers from the capital lookup."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "builtin",
+    "name": "facts"
+  },
+  "catalog_id": "mlp_factual_recall_store_l25_mlp_capital-city_span_r_lfm2.5_2.6b_L25_k2048_001",
+  "exported_copy": "library/lfm2.5_2.6b/mlp_factual_recall_store_l25_mlp_capital-city_span_r_lfm2.5_2.6b_L25_k2048_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

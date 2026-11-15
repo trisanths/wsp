@@ -1,0 +1,1220 @@
+{
+ "name": "weekday_successor",
+ "description": "Name the weekday k (1-3) days after a given weekday, few-shot. Control: same arrow format with integer successor (+k).",
+ "hash": "2f490ab725a60635",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nD='Monday Tuesday Wednesday Thursday Friday Saturday Sunday'.split()\nitems=[];control=[]\nfor t in range(120):\n    k=random.choice([1,1,2,3])\n    shots=[]\n    for s in range(3):\n        a=random.randrange(7); shots.append(f\"{D[a]} + {k} -> {D[(a+k)%7]}\")\n    a=random.randrange(7)\n    items.append({\"prompt\":\"\\n\".join(shots)+f\"\\n{D[a]} + {k} ->\",\"answer\":\" \"+D[(a+k)%7]})\n    shots=[]\n    for s in range(3):\n        a=random.randrange(1,60); shots.append(f\"{a} + {k} -> {a+k}\")\n    a=random.randrange(1,60)\n    control.append({\"prompt\":\"\\n\".join(shots)+f\"\\n{a} + {k} ->\",\"answer\":\" \"+str(a+k)})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Tuesday + 1 -> Wednesday\nSaturday + 1 -> Sunday\nTuesday + 1 -> Wednesday\nMonday + 1 ->",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Thursday + 1 -> Friday\nSaturday + 1 -> Sunday\nWednesday + 1 -> Thursday\nThursday + 1 ->",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Wednesday + 1 -> Thursday\nWednesday + 1 -> Thursday\nThursday + 1 -> Friday\nSaturday + 1 ->",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Wednesday + 1 -> Thursday\nMonday + 1 -> Tuesday\nSaturday + 1 -> Sunday\nMonday + 1 ->",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Monday + 1 -> Tuesday\nWednesday + 1 -> Thursday\nThursday + 1 -> Friday\nFriday + 1 ->",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Wednesday + 1 -> Thursday\nTuesday + 1 -> Wednesday\nWednesday + 1 -> Thursday\nFriday + 1 ->",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Sunday + 3 -> Wednesday\nThursday + 3 -> Sunday\nSunday + 3 -> Wednesday\nSunday + 3 ->",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Monday + 3 -> Thursday\nWednesday + 3 -> Saturday\nSunday + 3 -> Wednesday\nMonday + 3 ->",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Saturday + 2 -> Monday\nWednesday + 2 -> Friday\nThursday + 2 -> Saturday\nSunday + 2 ->",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Saturday + 1 -> Sunday\nWednesday + 1 -> Thursday\nWednesday + 1 -> Thursday\nThursday + 1 ->",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Sunday + 1 -> Monday\nSaturday + 1 -> Sunday\nSaturday + 1 -> Sunday\nFriday + 1 ->",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Friday + 1 -> Saturday\nSunday + 1 -> Monday\nMonday + 1 -> Tuesday\nMonday + 1 ->",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Saturday + 1 -> Sunday\nMonday + 1 -> Tuesday\nThursday + 1 -> Friday\nTuesday + 1 ->",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Friday + 1 -> Saturday\nTuesday + 1 -> Wednesday\nSunday + 1 -> Monday\nWednesday + 1 ->",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Monday + 2 -> Wednesday\nThursday + 2 -> Saturday\nSunday + 2 -> Tuesday\nWednesday + 2 ->",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Friday + 3 -> Monday\nWednesday + 3 -> Saturday\nThursday + 3 -> Sunday\nThursday + 3 ->",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Sunday + 2 -> Tuesday\nTuesday + 2 -> Thursday\nThursday + 2 -> Saturday\nWednesday + 2 ->",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Saturday + 3 -> Tuesday\nTuesday + 3 -> Friday\nMonday + 3 -> Thursday\nThursday + 3 ->",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Friday + 1 -> Saturday\nSunday + 1 -> Monday\nWednesday + 1 -> Thursday\nFriday + 1 ->",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Sunday + 3 -> Wednesday\nThursday + 3 -> Sunday\nMonday + 3 -> Thursday\nTuesday + 3 ->",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Tuesday + 1 -> Wednesday\nFriday + 1 -> Saturday\nTuesday + 1 -> Wednesday\nTuesday + 1 ->",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Thursday + 1 -> Friday\nSunday + 1 -> Monday\nTuesday + 1 -> Wednesday\nWednesday + 1 ->",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Saturday + 3 -> Tuesday\nMonday + 3 -> Thursday\nMonday + 3 -> Thursday\nWednesday + 3 ->",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Friday + 1 -> Saturday\nSunday + 1 -> Monday\nSunday + 1 -> Monday\nTuesday + 1 ->",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Tuesday + 3 -> Friday\nTuesday + 3 -> Friday\nSunday + 3 -> Wednesday\nTuesday + 3 ->",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Sunday + 1 -> Monday\nWednesday + 1 -> Thursday\nTuesday + 1 -> Wednesday\nSaturday + 1 ->",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Saturday + 1 -> Sunday\nWednesday + 1 -> Thursday\nFriday + 1 -> Saturday\nWednesday + 1 ->",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Thursday + 1 -> Friday\nSunday + 1 -> Monday\nWednesday + 1 -> Thursday\nWednesday + 1 ->",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Friday + 1 -> Saturday\nFriday + 1 -> Saturday\nTuesday + 1 -> Wednesday\nSaturday + 1 ->",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Thursday + 1 -> Friday\nFriday + 1 -> Saturday\nThursday + 1 -> Friday\nFriday + 1 ->",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Saturday + 2 -> Monday\nMonday + 2 -> Wednesday\nFriday + 2 -> Sunday\nWednesday + 2 ->",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Friday + 1 -> Saturday\nThursday + 1 -> Friday\nFriday + 1 -> Saturday\nMonday + 1 ->",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Saturday + 3 -> Tuesday\nThursday + 3 -> Sunday\nWednesday + 3 -> Saturday\nSunday + 3 ->",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Wednesday + 1 -> Thursday\nSunday + 1 -> Monday\nFriday + 1 -> Saturday\nMonday + 1 ->",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Tuesday + 1 -> Wednesday\nSunday + 1 -> Monday\nMonday + 1 -> Tuesday\nWednesday + 1 ->",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Friday + 1 -> Saturday\nTuesday + 1 -> Wednesday\nTuesday + 1 -> Wednesday\nMonday + 1 ->",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Monday + 3 -> Thursday\nMonday + 3 -> Thursday\nSaturday + 3 -> Tuesday\nSunday + 3 ->",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Monday + 1 -> Tuesday\nWednesday + 1 -> Thursday\nTuesday + 1 -> Wednesday\nSunday + 1 ->",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Monday + 1 -> Tuesday\nMonday + 1 -> Tuesday\nSaturday + 1 -> Sunday\nTuesday + 1 ->",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Monday + 3 -> Thursday\nSaturday + 3 -> Tuesday\nWednesday + 3 -> Saturday\nWednesday + 3 ->",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Saturday + 1 -> Sunday\nThursday + 1 -> Friday\nSunday + 1 -> Monday\nTuesday + 1 ->",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Saturday + 2 -> Monday\nWednesday + 2 -> Friday\nMonday + 2 -> Wednesday\nWednesday + 2 ->",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Thursday + 3 -> Sunday\nSaturday + 3 -> Tuesday\nSaturday + 3 -> Tuesday\nFriday + 3 ->",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Wednesday + 1 -> Thursday\nThursday + 1 -> Friday\nSunday + 1 -> Monday\nMonday + 1 ->",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Monday + 1 -> Tuesday\nSaturday + 1 -> Sunday\nSunday + 1 -> Monday\nThursday + 1 ->",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Thursday + 1 -> Friday\nSaturday + 1 -> Sunday\nWednesday + 1 -> Thursday\nSaturday + 1 ->",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Tuesday + 1 -> Wednesday\nThursday + 1 -> Friday\nMonday + 1 -> Tuesday\nThursday + 1 ->",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Monday + 1 -> Tuesday\nSunday + 1 -> Monday\nFriday + 1 -> Saturday\nSaturday + 1 ->",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Thursday + 1 -> Friday\nThursday + 1 -> Friday\nFriday + 1 -> Saturday\nThursday + 1 ->",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Monday + 2 -> Wednesday\nFriday + 2 -> Sunday\nSunday + 2 -> Tuesday\nTuesday + 2 ->",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Sunday + 1 -> Monday\nTuesday + 1 -> Wednesday\nWednesday + 1 -> Thursday\nFriday + 1 ->",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Friday + 1 -> Saturday\nTuesday + 1 -> Wednesday\nSaturday + 1 -> Sunday\nWednesday + 1 ->",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Thursday + 3 -> Sunday\nWednesday + 3 -> Saturday\nSunday + 3 -> Wednesday\nSunday + 3 ->",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Friday + 3 -> Monday\nWednesday + 3 -> Saturday\nMonday + 3 -> Thursday\nTuesday + 3 ->",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Saturday + 1 -> Sunday\nMonday + 1 -> Tuesday\nWednesday + 1 -> Thursday\nWednesday + 1 ->",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Friday + 2 -> Sunday\nSunday + 2 -> Tuesday\nTuesday + 2 -> Thursday\nSunday + 2 ->",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Saturday + 1 -> Sunday\nSunday + 1 -> Monday\nFriday + 1 -> Saturday\nSaturday + 1 ->",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Thursday + 1 -> Friday\nSaturday + 1 -> Sunday\nSunday + 1 -> Monday\nThursday + 1 ->",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Thursday + 2 -> Saturday\nThursday + 2 -> Saturday\nSunday + 2 -> Tuesday\nFriday + 2 ->",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Sunday + 2 -> Tuesday\nSunday + 2 -> Tuesday\nTuesday + 2 -> Thursday\nThursday + 2 ->",
+    "continuation": " Saturday",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Friday + 3 -> Monday\nMonday + 3 -> Thursday\nWednesday + 3 -> Saturday\nThursday + 3 ->",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Tuesday + 2 -> Thursday\nThursday + 2 -> Saturday\nSunday + 2 -> Tuesday\nSunday + 2 ->",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Friday + 1 -> Saturday\nSaturday + 1 -> Sunday\nThursday + 1 -> Friday\nFriday + 1 ->",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Sunday + 1 -> Monday\nSaturday + 1 -> Sunday\nFriday + 1 -> Saturday\nFriday + 1 ->",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Thursday + 1 -> Friday\nSaturday + 1 -> Sunday\nMonday + 1 -> Tuesday\nWednesday + 1 ->",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Thursday + 1 -> Friday\nWednesday + 1 -> Thursday\nMonday + 1 -> Tuesday\nFriday + 1 ->",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Friday + 2 -> Sunday\nSunday + 2 -> Tuesday\nTuesday + 2 -> Thursday\nMonday + 2 ->",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Sunday + 3 -> Wednesday\nThursday + 3 -> Sunday\nMonday + 3 -> Thursday\nWednesday + 3 ->",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Friday + 1 -> Saturday\nSunday + 1 -> Monday\nThursday + 1 -> Friday\nWednesday + 1 ->",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Thursday + 2 -> Saturday\nMonday + 2 -> Wednesday\nFriday + 2 -> Sunday\nSunday + 2 ->",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Thursday + 2 -> Saturday\nWednesday + 2 -> Friday\nFriday + 2 -> Sunday\nTuesday + 2 ->",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Wednesday + 1 -> Thursday\nWednesday + 1 -> Thursday\nTuesday + 1 -> Wednesday\nMonday + 1 ->",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Friday + 1 -> Saturday\nThursday + 1 -> Friday\nSunday + 1 -> Monday\nSunday + 1 ->",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Friday + 1 -> Saturday\nMonday + 1 -> Tuesday\nThursday + 1 -> Friday\nSaturday + 1 ->",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Monday + 1 -> Tuesday\nWednesday + 1 -> Thursday\nSaturday + 1 -> Sunday\nSaturday + 1 ->",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Tuesday + 1 -> Wednesday\nSaturday + 1 -> Sunday\nFriday + 1 -> Saturday\nThursday + 1 ->",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Saturday + 2 -> Monday\nThursday + 2 -> Saturday\nSaturday + 2 -> Monday\nThursday + 2 ->",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Sunday + 1 -> Monday\nSunday + 1 -> Monday\nThursday + 1 -> Friday\nWednesday + 1 ->",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Friday + 1 -> Saturday\nMonday + 1 -> Tuesday\nSaturday + 1 -> Sunday\nThursday + 1 ->",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Saturday + 1 -> Sunday\nSaturday + 1 -> Sunday\nTuesday + 1 -> Wednesday\nSunday + 1 ->",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Saturday + 3 -> Tuesday\nThursday + 3 -> Sunday\nWednesday + 3 -> Saturday\nMonday + 3 ->",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Saturday + 1 -> Sunday\nThursday + 1 -> Friday\nThursday + 1 -> Friday\nMonday + 1 ->",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Sunday + 1 -> Monday\nSaturday + 1 -> Sunday\nThursday + 1 -> Friday\nThursday + 1 ->",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Monday + 1 -> Tuesday\nThursday + 1 -> Friday\nMonday + 1 -> Tuesday\nMonday + 1 ->",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Wednesday + 3 -> Saturday\nFriday + 3 -> Monday\nThursday + 3 -> Sunday\nFriday + 3 ->",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Monday + 2 -> Wednesday\nMonday + 2 -> Wednesday\nSunday + 2 -> Tuesday\nSunday + 2 ->",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Sunday + 1 -> Monday\nWednesday + 1 -> Thursday\nWednesday + 1 -> Thursday\nSaturday + 1 ->",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Tuesday + 1 -> Wednesday\nMonday + 1 -> Tuesday\nSunday + 1 -> Monday\nSunday + 1 ->",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Monday + 3 -> Thursday\nMonday + 3 -> Thursday\nWednesday + 3 -> Saturday\nFriday + 3 ->",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Wednesday + 2 -> Friday\nThursday + 2 -> Saturday\nWednesday + 2 -> Friday\nFriday + 2 ->",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Tuesday + 3 -> Friday\nFriday + 3 -> Monday\nSaturday + 3 -> Tuesday\nMonday + 3 ->",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Tuesday + 1 -> Wednesday\nMonday + 1 -> Tuesday\nSaturday + 1 -> Sunday\nWednesday + 1 ->",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Monday + 2 -> Wednesday\nMonday + 2 -> Wednesday\nThursday + 2 -> Saturday\nThursday + 2 ->",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Sunday + 1 -> Monday\nThursday + 1 -> Friday\nThursday + 1 -> Friday\nSaturday + 1 ->",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Friday + 3 -> Monday\nWednesday + 3 -> Saturday\nSaturday + 3 -> Tuesday\nSaturday + 3 ->",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Tuesday + 1 -> Wednesday\nSunday + 1 -> Monday\nThursday + 1 -> Friday\nWednesday + 1 ->",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Thursday + 3 -> Sunday\nThursday + 3 -> Sunday\nMonday + 3 -> Thursday\nMonday + 3 ->",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Tuesday + 2 -> Thursday\nTuesday + 2 -> Thursday\nSunday + 2 -> Tuesday\nTuesday + 2 ->",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Tuesday + 1 -> Wednesday\nWednesday + 1 -> Thursday\nWednesday + 1 -> Thursday\nThursday + 1 ->",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Saturday + 3 -> Tuesday\nTuesday + 3 -> Friday\nFriday + 3 -> Monday\nThursday + 3 ->",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Sunday + 3 -> Wednesday\nSaturday + 3 -> Tuesday\nSaturday + 3 -> Tuesday\nMonday + 3 ->",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Monday + 2 -> Wednesday\nWednesday + 2 -> Friday\nFriday + 2 -> Sunday\nMonday + 2 ->",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Saturday + 3 -> Tuesday\nSaturday + 3 -> Tuesday\nThursday + 3 -> Sunday\nFriday + 3 ->",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Sunday + 3 -> Wednesday\nFriday + 3 -> Monday\nTuesday + 3 -> Friday\nSaturday + 3 ->",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Saturday + 1 -> Sunday\nMonday + 1 -> Tuesday\nSaturday + 1 -> Sunday\nTuesday + 1 ->",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Monday + 2 -> Wednesday\nSunday + 2 -> Tuesday\nTuesday + 2 -> Thursday\nWednesday + 2 ->",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Sunday + 3 -> Wednesday\nSaturday + 3 -> Tuesday\nTuesday + 3 -> Friday\nMonday + 3 ->",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Thursday + 1 -> Friday\nWednesday + 1 -> Thursday\nWednesday + 1 -> Thursday\nSunday + 1 ->",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Tuesday + 1 -> Wednesday\nThursday + 1 -> Friday\nWednesday + 1 -> Thursday\nFriday + 1 ->",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Thursday + 1 -> Friday\nMonday + 1 -> Tuesday\nSaturday + 1 -> Sunday\nMonday + 1 ->",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Wednesday + 2 -> Friday\nThursday + 2 -> Saturday\nFriday + 2 -> Sunday\nTuesday + 2 ->",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Sunday + 1 -> Monday\nTuesday + 1 -> Wednesday\nFriday + 1 -> Saturday\nTuesday + 1 ->",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Sunday + 2 -> Tuesday\nThursday + 2 -> Saturday\nThursday + 2 -> Saturday\nSaturday + 2 ->",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Saturday + 1 -> Sunday\nWednesday + 1 -> Thursday\nThursday + 1 -> Friday\nSaturday + 1 ->",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Friday + 1 -> Saturday\nThursday + 1 -> Friday\nThursday + 1 -> Friday\nSunday + 1 ->",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Sunday + 3 -> Wednesday\nWednesday + 3 -> Saturday\nWednesday + 3 -> Saturday\nThursday + 3 ->",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Friday + 1 -> Saturday\nMonday + 1 -> Tuesday\nMonday + 1 -> Tuesday\nMonday + 1 ->",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Tuesday + 2 -> Thursday\nFriday + 2 -> Sunday\nMonday + 2 -> Wednesday\nMonday + 2 ->",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Monday + 2 -> Wednesday\nTuesday + 2 -> Thursday\nTuesday + 2 -> Thursday\nWednesday + 2 ->",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Monday + 3 -> Thursday\nTuesday + 3 -> Friday\nWednesday + 3 -> Saturday\nMonday + 3 ->",
+    "continuation": " Thursday",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "14 + 2 -> 16\n31 + 2 -> 33\n32 + 2 -> 34\n45 + 2 ->",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": "50 + 2 -> 52\n32 + 2 -> 34\n8 + 2 -> 10\n57 + 2 ->",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "59 + 1 -> 60\n35 + 1 -> 36\n39 + 1 -> 40\n44 + 1 ->",
+    "continuation": " 45",
+    "digits_only": false
+   },
+   {
+    "context": "27 + 1 -> 28\n2 + 1 -> 3\n32 + 1 -> 33\n59 + 1 ->",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": "52 + 3 -> 55\n31 + 3 -> 34\n5 + 3 -> 8\n52 + 3 ->",
+    "continuation": " 55",
+    "digits_only": false
+   },
+   {
+    "context": "7 + 1 -> 8\n13 + 1 -> 14\n8 + 1 -> 9\n39 + 1 ->",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "21 + 3 -> 24\n40 + 3 -> 43\n41 + 3 -> 44\n59 + 3 ->",
+    "continuation": " 62",
+    "digits_only": false
+   },
+   {
+    "context": "31 + 3 -> 34\n50 + 3 -> 53\n10 + 3 -> 13\n2 + 3 ->",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "30 + 1 -> 31\n4 + 1 -> 5\n52 + 1 -> 53\n53 + 1 ->",
+    "continuation": " 54",
+    "digits_only": false
+   },
+   {
+    "context": "53 + 2 -> 55\n35 + 2 -> 37\n14 + 2 -> 16\n52 + 2 ->",
+    "continuation": " 54",
+    "digits_only": false
+   },
+   {
+    "context": "26 + 1 -> 27\n54 + 1 -> 55\n46 + 1 -> 47\n34 + 1 ->",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "23 + 1 -> 24\n46 + 1 -> 47\n17 + 1 -> 18\n9 + 1 ->",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "3 + 3 -> 6\n39 + 3 -> 42\n2 + 3 -> 5\n13 + 3 ->",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "23 + 1 -> 24\n27 + 1 -> 28\n3 + 1 -> 4\n40 + 1 ->",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": "58 + 2 -> 60\n59 + 2 -> 61\n49 + 2 -> 51\n11 + 2 ->",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "33 + 3 -> 36\n3 + 3 -> 6\n37 + 3 -> 40\n6 + 3 ->",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "25 + 3 -> 28\n39 + 3 -> 42\n38 + 3 -> 41\n15 + 3 ->",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "34 + 1 -> 35\n47 + 1 -> 48\n5 + 1 -> 6\n20 + 1 ->",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "45 + 1 -> 46\n2 + 1 -> 3\n39 + 1 -> 40\n15 + 1 ->",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "32 + 3 -> 35\n7 + 3 -> 10\n20 + 3 -> 23\n36 + 3 ->",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "41 + 1 -> 42\n22 + 1 -> 23\n42 + 1 -> 43\n8 + 1 ->",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "35 + 1 -> 36\n26 + 1 -> 27\n48 + 1 -> 49\n50 + 1 ->",
+    "continuation": " 51",
+    "digits_only": false
+   },
+   {
+    "context": "19 + 1 -> 20\n19 + 1 -> 20\n57 + 1 -> 58\n36 + 1 ->",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "14 + 1 -> 15\n43 + 1 -> 44\n44 + 1 -> 45\n47 + 1 ->",
+    "continuation": " 48",
+    "digits_only": false
+   },
+   {
+    "context": "54 + 3 -> 57\n47 + 3 -> 50\n9 + 3 -> 12\n1 + 3 ->",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "11 + 3 -> 14\n29 + 3 -> 32\n5 + 3 -> 8\n17 + 3 ->",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "12 + 1 -> 13\n50 + 1 -> 51\n27 + 1 -> 28\n28 + 1 ->",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "3 + 1 -> 4\n18 + 1 -> 19\n11 + 1 -> 12\n10 + 1 ->",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "43 + 3 -> 46\n42 + 3 -> 45\n45 + 3 -> 48\n59 + 3 ->",
+    "continuation": " 62",
+    "digits_only": false
+   },
+   {
+    "context": "27 + 1 -> 28\n54 + 1 -> 55\n42 + 1 -> 43\n6 + 1 ->",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "54 + 1 -> 55\n17 + 1 -> 18\n5 + 1 -> 6\n15 + 1 ->",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "46 + 1 -> 47\n53 + 1 -> 54\n51 + 1 -> 52\n43 + 1 ->",
+    "continuation": " 44",
+    "digits_only": false
+   },
+   {
+    "context": "3 + 1 -> 4\n51 + 1 -> 52\n26 + 1 -> 27\n29 + 1 ->",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "34 + 1 -> 35\n17 + 1 -> 18\n4 + 1 -> 5\n52 + 1 ->",
+    "continuation": " 53",
+    "digits_only": false
+   },
+   {
+    "context": "56 + 3 -> 59\n27 + 3 -> 30\n3 + 3 -> 6\n26 + 3 ->",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "20 + 1 -> 21\n33 + 1 -> 34\n37 + 1 -> 38\n17 + 1 ->",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "25 + 2 -> 27\n21 + 2 -> 23\n37 + 2 -> 39\n16 + 2 ->",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "8 + 1 -> 9\n36 + 1 -> 37\n39 + 1 -> 40\n45 + 1 ->",
+    "continuation": " 46",
+    "digits_only": false
+   },
+   {
+    "context": "59 + 3 -> 62\n29 + 3 -> 32\n52 + 3 -> 55\n51 + 3 ->",
+    "continuation": " 54",
+    "digits_only": false
+   },
+   {
+    "context": "19 + 3 -> 22\n56 + 3 -> 59\n49 + 3 -> 52\n44 + 3 ->",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": "43 + 2 -> 45\n17 + 2 -> 19\n10 + 2 -> 12\n36 + 2 ->",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "58 + 1 -> 59\n21 + 1 -> 22\n53 + 1 -> 54\n21 + 1 ->",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "41 + 2 -> 43\n9 + 2 -> 11\n11 + 2 -> 13\n8 + 2 ->",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "12 + 1 -> 13\n4 + 1 -> 5\n33 + 1 -> 34\n30 + 1 ->",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "19 + 2 -> 21\n8 + 2 -> 10\n31 + 2 -> 33\n47 + 2 ->",
+    "continuation": " 49",
+    "digits_only": false
+   },
+   {
+    "context": "48 + 1 -> 49\n3 + 1 -> 4\n35 + 1 -> 36\n18 + 1 ->",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "21 + 3 -> 24\n33 + 3 -> 36\n16 + 3 -> 19\n16 + 3 ->",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "50 + 1 -> 51\n11 + 1 -> 12\n28 + 1 -> 29\n13 + 1 ->",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "7 + 1 -> 8\n51 + 1 -> 52\n10 + 1 -> 11\n55 + 1 ->",
+    "continuation": " 56",
+    "digits_only": false
+   },
+   {
+    "context": "32 + 3 -> 35\n44 + 3 -> 47\n59 + 3 -> 62\n57 + 3 ->",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": "12 + 1 -> 13\n7 + 1 -> 8\n31 + 1 -> 32\n55 + 1 ->",
+    "continuation": " 56",
+    "digits_only": false
+   },
+   {
+    "context": "43 + 2 -> 45\n56 + 2 -> 58\n13 + 2 -> 15\n35 + 2 ->",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "21 + 1 -> 22\n7 + 1 -> 8\n45 + 1 -> 46\n36 + 1 ->",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "51 + 1 -> 52\n17 + 1 -> 18\n20 + 1 -> 21\n35 + 1 ->",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "55 + 2 -> 57\n2 + 2 -> 4\n3 + 2 -> 5\n3 + 2 ->",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "32 + 3 -> 35\n26 + 3 -> 29\n17 + 3 -> 20\n14 + 3 ->",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "39 + 1 -> 40\n54 + 1 -> 55\n37 + 1 -> 38\n8 + 1 ->",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "42 + 1 -> 43\n32 + 1 -> 33\n46 + 1 -> 47\n42 + 1 ->",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "22 + 1 -> 23\n16 + 1 -> 17\n47 + 1 -> 48\n21 + 1 ->",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "8 + 1 -> 9\n46 + 1 -> 47\n15 + 1 -> 16\n24 + 1 ->",
+    "continuation": " 25",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "3 + 1 -> 4\n56 + 1 -> 57\n9 + 1 -> 10\n39 + 1 ->",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "24 + 1 -> 25\n37 + 1 -> 38\n59 + 1 -> 60\n55 + 1 ->",
+    "continuation": " 56",
+    "digits_only": false
+   },
+   {
+    "context": "28 + 3 -> 31\n58 + 3 -> 61\n37 + 3 -> 40\n28 + 3 ->",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "47 + 1 -> 48\n52 + 1 -> 53\n4 + 1 -> 5\n44 + 1 ->",
+    "continuation": " 45",
+    "digits_only": false
+   },
+   {
+    "context": "14 + 1 -> 15\n24 + 1 -> 25\n19 + 1 -> 20\n31 + 1 ->",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "7 + 3 -> 10\n7 + 3 -> 10\n36 + 3 -> 39\n59 + 3 ->",
+    "continuation": " 62",
+    "digits_only": false
+   },
+   {
+    "context": "43 + 1 -> 44\n37 + 1 -> 38\n37 + 1 -> 38\n57 + 1 ->",
+    "continuation": " 58",
+    "digits_only": false
+   },
+   {
+    "context": "39 + 1 -> 40\n49 + 1 -> 50\n1 + 1 -> 2\n57 + 1 ->",
+    "continuation": " 58",
+    "digits_only": false
+   },
+   {
+    "context": "46 + 2 -> 48\n44 + 2 -> 46\n14 + 2 -> 16\n28 + 2 ->",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "42 + 3 -> 45\n9 + 3 -> 12\n16 + 3 -> 19\n19 + 3 ->",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "9 + 1 -> 10\n36 + 1 -> 37\n43 + 1 -> 44\n20 + 1 ->",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "34 + 1 -> 35\n53 + 1 -> 54\n42 + 1 -> 43\n42 + 1 ->",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "5 + 2 -> 7\n8 + 2 -> 10\n23 + 2 -> 25\n45 + 2 ->",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": "56 + 1 -> 57\n11 + 1 -> 12\n52 + 1 -> 53\n10 + 1 ->",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "57 + 1 -> 58\n38 + 1 -> 39\n46 + 1 -> 47\n26 + 1 ->",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "52 + 1 -> 53\n41 + 1 -> 42\n6 + 1 -> 7\n5 + 1 ->",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "17 + 1 -> 18\n8 + 1 -> 9\n39 + 1 -> 40\n59 + 1 ->",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": "39 + 1 -> 40\n51 + 1 -> 52\n10 + 1 -> 11\n54 + 1 ->",
+    "continuation": " 55",
+    "digits_only": false
+   },
+   {
+    "context": "51 + 2 -> 53\n41 + 2 -> 43\n5 + 2 -> 7\n3 + 2 ->",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "52 + 3 -> 55\n22 + 3 -> 25\n8 + 3 -> 11\n31 + 3 ->",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "44 + 3 -> 47\n14 + 3 -> 17\n50 + 3 -> 53\n4 + 3 ->",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "10 + 1 -> 11\n23 + 1 -> 24\n30 + 1 -> 31\n41 + 1 ->",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "33 + 2 -> 35\n9 + 2 -> 11\n19 + 2 -> 21\n9 + 2 ->",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "15 + 1 -> 16\n9 + 1 -> 10\n3 + 1 -> 4\n20 + 1 ->",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "1 + 1 -> 2\n54 + 1 -> 55\n45 + 1 -> 46\n29 + 1 ->",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "57 + 1 -> 58\n57 + 1 -> 58\n41 + 1 -> 42\n50 + 1 ->",
+    "continuation": " 51",
+    "digits_only": false
+   },
+   {
+    "context": "46 + 1 -> 47\n52 + 1 -> 53\n39 + 1 -> 40\n58 + 1 ->",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "20 + 3 -> 23\n41 + 3 -> 44\n23 + 3 -> 26\n6 + 3 ->",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "14 + 3 -> 17\n1 + 3 -> 4\n46 + 3 -> 49\n49 + 3 ->",
+    "continuation": " 52",
+    "digits_only": false
+   },
+   {
+    "context": "9 + 3 -> 12\n57 + 3 -> 60\n10 + 3 -> 13\n3 + 3 ->",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "53 + 2 -> 55\n20 + 2 -> 22\n50 + 2 -> 52\n27 + 2 ->",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "44 + 3 -> 47\n27 + 3 -> 30\n58 + 3 -> 61\n37 + 3 ->",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "54 + 1 -> 55\n15 + 1 -> 16\n53 + 1 -> 54\n24 + 1 ->",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "11 + 1 -> 12\n16 + 1 -> 17\n15 + 1 -> 16\n41 + 1 ->",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "6 + 1 -> 7\n44 + 1 -> 45\n32 + 1 -> 33\n49 + 1 ->",
+    "continuation": " 50",
+    "digits_only": false
+   },
+   {
+    "context": "27 + 1 -> 28\n50 + 1 -> 51\n10 + 1 -> 11\n47 + 1 ->",
+    "continuation": " 48",
+    "digits_only": false
+   },
+   {
+    "context": "33 + 3 -> 36\n32 + 3 -> 35\n26 + 3 -> 29\n59 + 3 ->",
+    "continuation": " 62",
+    "digits_only": false
+   },
+   {
+    "context": "41 + 1 -> 42\n2 + 1 -> 3\n8 + 1 -> 9\n18 + 1 ->",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "10 + 2 -> 12\n32 + 2 -> 34\n57 + 2 -> 59\n56 + 2 ->",
+    "continuation": " 58",
+    "digits_only": false
+   },
+   {
+    "context": "20 + 1 -> 21\n22 + 1 -> 23\n48 + 1 -> 49\n44 + 1 ->",
+    "continuation": " 45",
+    "digits_only": false
+   },
+   {
+    "context": "22 + 2 -> 24\n22 + 2 -> 24\n51 + 2 -> 53\n24 + 2 ->",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "58 + 1 -> 59\n55 + 1 -> 56\n44 + 1 -> 45\n22 + 1 ->",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "7 + 1 -> 8\n13 + 1 -> 14\n30 + 1 -> 31\n25 + 1 ->",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "3 + 2 -> 5\n40 + 2 -> 42\n43 + 2 -> 45\n17 + 2 ->",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "13 + 1 -> 14\n17 + 1 -> 18\n23 + 1 -> 24\n58 + 1 ->",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "9 + 1 -> 10\n27 + 1 -> 28\n20 + 1 -> 21\n36 + 1 ->",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "35 + 3 -> 38\n12 + 3 -> 15\n14 + 3 -> 17\n25 + 3 ->",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "52 + 2 -> 54\n19 + 2 -> 21\n59 + 2 -> 61\n48 + 2 ->",
+    "continuation": " 50",
+    "digits_only": false
+   },
+   {
+    "context": "55 + 2 -> 57\n45 + 2 -> 47\n2 + 2 -> 4\n58 + 2 ->",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": "25 + 1 -> 26\n1 + 1 -> 2\n7 + 1 -> 8\n26 + 1 ->",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "34 + 1 -> 35\n9 + 1 -> 10\n37 + 1 -> 38\n34 + 1 ->",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "39 + 2 -> 41\n32 + 2 -> 34\n10 + 2 -> 12\n37 + 2 ->",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "14 + 2 -> 16\n58 + 2 -> 60\n44 + 2 -> 46\n38 + 2 ->",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "40 + 1 -> 41\n19 + 1 -> 20\n44 + 1 -> 45\n23 + 1 ->",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "52 + 1 -> 53\n10 + 1 -> 11\n52 + 1 -> 53\n35 + 1 ->",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "35 + 2 -> 37\n38 + 2 -> 40\n20 + 2 -> 22\n11 + 2 ->",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "34 + 1 -> 35\n4 + 1 -> 5\n25 + 1 -> 26\n27 + 1 ->",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "50 + 3 -> 53\n41 + 3 -> 44\n20 + 3 -> 23\n35 + 3 ->",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "19 + 1 -> 20\n35 + 1 -> 36\n58 + 1 -> 59\n39 + 1 ->",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "32 + 2 -> 34\n38 + 2 -> 40\n41 + 2 -> 43\n22 + 2 ->",
+    "continuation": " 24",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 6.3552
+}

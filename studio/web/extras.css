@@ -1,0 +1,136 @@
+/* Measured results and the compiler plan block. Tokens come from styles.css. */
+.mtag { margin-left: 2px; font-size: 11px; line-height: 14px; padding: 0 7px; }
+.mctl { font-size: 11px; line-height: 14px; padding: 0 6px; color: var(--text-3); }
+.num { font-variant-numeric: tabular-nums; }
+
+.mhome { width: min(768px, 100%); margin-top: 36px; }
+.mh { font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-2); margin: 0 0 8px; }
+.mtoggle { display: flex; align-items: center; gap: 8px; width: 100%; padding: 4px 6px; margin: 0 -6px; border: 0; border-radius: 6px; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.mtoggle:hover { background: var(--fill-1); color: var(--text-1); }
+.mtoggle:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+.mtk { flex: none; }
+.mtsub { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 400; color: var(--text-3); }
+.mchev { margin-left: auto; flex: none; display: inline-flex; color: var(--text-3); transition: transform .15s; }
+.mchev.open { transform: rotate(90deg); }
+@media (prefers-reduced-motion: reduce) { .mchev { transition: none; } }
+.mrow-ctl .ml { color: var(--text-2); }
+
+/* tooltips wrap inside their box; motion.css loads after styles.css and would set nowrap again */
+.t-tt { white-space: normal; max-width: 300px; overflow-wrap: anywhere; }
+
+/* spec page: the line under a section title that says what the section is */
+.sect > .slead { margin: -2px 0 4px; }
+.mcard { padding: 14px 16px 12px; }
+.mhd { display: flex; align-items: center; gap: 8px; }
+.mtitle { font-size: 14px; line-height: 20px; font-weight: 500; margin: 0; }
+.mmeta { font-size: 12px; line-height: 16px; margin: 4px 0 10px; }
+
+.mtable { display: block; }
+.mrow { display: grid; grid-template-columns: minmax(0, 1fr) 64px 72px 96px 56px; gap: 10px; align-items: center; padding: 5px 6px; border-radius: 6px; font-size: 13px; line-height: 18px; }
+.mrow .r { text-align: right; }
+.mrow.mhead { font-size: 12px; color: var(--text-3); padding-bottom: 4px; border-bottom: 1px solid var(--line-2); border-radius: 0; }
+.mrow.on { background: var(--fill-2); }
+.mrow .ml { min-width: 0; overflow-wrap: anywhere; }
+.mbar { display: block; height: 4px; border-radius: 2px; background: var(--fill-2); overflow: hidden; }
+.mbar i { display: block; height: 100%; background: var(--text-2); border-radius: 2px; }
+.mbar.ctl i { background: var(--text-4); }
+
+.mnote { margin: 12px 0 0; padding-top: 8px; border-top: 1px solid var(--line-2); font-size: 11px; line-height: 16px; color: var(--text-3); }
+.mnote-k { font-weight: 500; color: var(--text-2); }
+.mfoot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; }
+
+.mplan .mpgrid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 20px; align-items: start; margin-top: 8px; }
+.mpt { font-size: 13px; font-weight: 500; margin-bottom: 6px; display: flex; gap: 6px; align-items: center; }
+.mpl { font-size: 14px; line-height: 20px; }
+.mpv { font-size: 14px; line-height: 20px; color: var(--text-2); margin: 2px 0 4px; }
+.mpmeas { margin-top: 10px; font-size: 13px; line-height: 20px; }
+.mpnone { margin-top: 10px; }
+.mplan .mrow { grid-template-columns: minmax(0, 1fr) 54px 64px 56px 44px; gap: 8px; }
+.mplan .mbarcol, .mplan .mbar { display: none; }
+.mplan .mrow .ml { white-space: normal; }
+
+.fd .fdlede { margin: 0 0 10px; }
+.fdbtns { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.fdbtns a.off { opacity: .45; pointer-events: none; }
+.fdcmd { margin-top: 10px; font-size: 12px; line-height: 18px; color: var(--text-2); background: var(--bg-sunk); border-radius: 8px; padding: 6px 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.fdwait { margin: 8px 0 0; }
+.fdplan { margin-top: 12px; }
+.fdsrc { margin: 0 0 6px; font-size: 14px; line-height: 20px; }
+.fdstages { margin: 6px 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 13px; line-height: 18px; }
+.fdstages li { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.fdwarn { margin: 8px 0 0; padding: 0; list-style: none; font-size: 12px; line-height: 16px; color: var(--text-3); display: grid; gap: 3px; }
+.fdarms { margin: 8px 0 0; font-size: 13px; }
+.fdnote { margin: 8px 0 0; }
+
+@media (max-width: 720px) {
+  .mplan .mpgrid { grid-template-columns: 1fr; }
+  .mrow { grid-template-columns: minmax(0, 1fr) 56px 64px 56px; }
+  .mrow .mbar, .mrow .mbarcol { display: none; }
+}
+
+/* ---------- sponsors: Exa, Modal, past.dev ---------- */
+.powered { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px 0 6px; border: 1px solid var(--line-2); border-radius: 999px; background: var(--bg-raised); color: var(--text-2); font-size: 12px; line-height: 16px; text-decoration: none; white-space: nowrap; vertical-align: middle; transition: border-color .12s, color .12s, background .12s; }
+.powered:hover { border-color: var(--line-3); color: var(--text-1); background: var(--fill-1); }
+.powered img { flex: none; border-radius: 3px; }
+.powered b { font-weight: 600; color: var(--text-1); }
+.spmark { display: inline-block; vertical-align: -2px; border-radius: 3px; flex: none; }
+.spstrip { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; font-size: 12px; }
+
+/* ---------- exa ---------- */
+.rs-hd { display: inline-flex; align-items: center; gap: 10px; }
+.rs-exa { flex: none; display: inline-flex; align-items: center; height: 20px; margin-left: auto; opacity: .75; }
+.refs .spmark { opacity: .8; }
+
+/* ---------- sponsors: runs ---------- */
+.rstatchip { margin-left: 10px; }
+.rsechead { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.rsechead .rh2 { margin: 0; }
+.acthead { display: flex; justify-content: flex-end; margin: 4px 0 8px; }
+.ameta-chip { margin-left: 10px; }
+.trow .tc .spmark { margin-right: 6px; vertical-align: -1px; }
+.ulabel .spmark { margin-left: 6px; vertical-align: -1px; }
+.al .lr .spmark { opacity: .8; margin-top: 4px; }
+
+/* ---------- sponsors: build group (Modal) ---------- */
+.sp-note { display: flex; justify-content: center; margin-top: -2px; }
+.sec-r { display: inline-flex; align-items: center; gap: 8px; }
+.runrow .grow { flex: 1; }
+.dock-sp { display: flex; justify-content: center; margin-top: 8px; }
+.demo-sp { margin: 4px 0 14px; display: flex; justify-content: flex-start; }
+.demo-sp .spstrip { justify-content: flex-start; }
+@media (max-width: 720px) { .sp-note { display: none; } }
+
+/* ---------- sponsors: check ---------- */
+html.dark img.spmark[src$="pastdev.svg"], html.dark .powered img[src$="pastdev.svg"] { box-shadow: 0 0 0 1px rgba(255,255,255,.28); }
+@media (max-width: 720px) { html body .demo-type .dock-note { padding-left: 0; padding-right: 0; } }
+
+/* ---------- openai: sponsor marks ---------- */
+.rs-oai { flex: none; display: inline-flex; align-items: center; opacity: .75; margin-right: 6px; }
+.rh2-oai { display: flex; align-items: center; }
+.picker .spmark { flex: none; opacity: .8; }
+
+/* ---------- chart: hover card ---------- */
+.lcwrap { position: relative; outline: none; touch-action: pan-y; }
+.lcwrap:focus-visible { box-shadow: 0 0 0 2px var(--blue); border-radius: 8px; }
+.lchart .lc-cross { stroke: var(--text-3); stroke-width: 1; pointer-events: none; }
+.lchart .lc-hot { fill: var(--text-2); stroke: var(--bg-card); stroke-width: 1.5; pointer-events: none; }
+.lchart .lc-hot-best { fill: var(--blue); stroke: var(--bg-card); stroke-width: 1.5; pointer-events: none; }
+.lchart .lc-hit { fill: transparent; cursor: crosshair; }
+.lchart .lc-ref-hit { stroke: transparent; stroke-width: 12; cursor: default; }
+.lc-card { position: absolute; z-index: 5; top: 0; left: 0; width: 244px; max-width: calc(100% - 8px); pointer-events: none; background: var(--bg-raised); border: 1px solid var(--line-2); border-radius: 10px; box-shadow: var(--shadow-float); padding: 10px 12px; font-size: 12px; line-height: 1.45; color: var(--text-1, inherit); opacity: 0; transform: translateY(4px); transition: opacity var(--dropdown-close-dur) var(--dropdown-ease), transform var(--dropdown-close-dur) var(--dropdown-ease); }
+.lc-card[data-show="true"] { opacity: 1; transform: none; transition: opacity var(--dropdown-open-dur) var(--dropdown-ease), transform var(--dropdown-open-dur) var(--dropdown-ease); }
+.lc-card .lc-h { display: flex; justify-content: space-between; gap: 8px; font-weight: 600; }
+.lc-card .lc-new { color: var(--green-t); font-weight: 600; }
+.lc-card .lc-sub { color: var(--text-3); margin-bottom: 6px; overflow-wrap: anywhere; }
+.lc-card .lc-r { display: flex; justify-content: space-between; gap: 10px; }
+.lc-card .lc-sep { border-top: 1px solid var(--line-2); margin: 6px 0; }
+.lc-card .lc-r span:first-child { color: var(--text-2); }
+.lc-tip { position: absolute; z-index: 5; pointer-events: none; background: var(--bg-raised); border: 1px solid var(--line-2); border-radius: 6px; padding: 2px 8px; font-size: 11px; box-shadow: var(--shadow-float); transform: translate(-50%, -130%); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .lc-card, .lc-card[data-show="true"] { transition: none; transform: none; } }
+
+/* ---------- agents: dots passing between agents while a run is live ---------- */
+.alist.flowing { position: relative; }
+.alist.flowing .arow .an { min-width: 128px; }
+.aflow { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; z-index: 1; }
+.aflow .af-path { fill: none; stroke: var(--blue); stroke-width: 1; stroke-dasharray: 2 3; }
+.aflow .af-dot { fill: var(--blue); }

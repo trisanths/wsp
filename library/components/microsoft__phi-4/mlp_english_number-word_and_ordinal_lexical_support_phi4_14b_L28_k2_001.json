@@ -1,0 +1,112 @@
+{
+  "id": "mlp_english_number-word_and_ordinal_lexical_support_phi4_14b_L28_k2_001",
+  "kind": "mlp_cluster",
+  "title": "phi-4 layer 28, English number-word and ordinal lexical support",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/phi4_14b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "ordinal_word"
+  ],
+  "models": [
+    "microsoft/phi-4"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'ordinal_word' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2896,
+      "control_value": -0.0054,
+      "split": "person_a held-out skill items (ordinal_word)",
+      "seeds": null,
+      "source": "person_a/catalog/phi4_14b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0225"
+    }
+  ],
+  "generated": true,
+  "model": "microsoft/phi-4",
+  "layer": 28,
+  "layers": [
+    28
+  ],
+  "units_file": "components/microsoft__phi-4/mlp_english_number-word_and_ordinal_lexical_support_phi4_14b_L28_k2_001.pt",
+  "units_remote": "person_a/parts\\phi4_14b\\mlp_english_number-word_and_ordinal_lexical_support_phi4_14b_L28_k2_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'ordinal_word'",
+    "label": "English number-word and ordinal lexical support",
+    "num_units": 2,
+    "d_model": 5120,
+    "effect": {
+      "math|search": 0.0005,
+      "math|heldout": -0.0007,
+      "code|search": -0.0001,
+      "code|heldout": -0.0001,
+      "facts|search": -0.0009,
+      "facts|heldout": 0.0045,
+      "multilingual|search": -0.0002,
+      "multilingual|heldout": 0.0002,
+      "general_text|search": 0.0004,
+      "general_text|heldout": 0.0005,
+      "ordinal_word|search": 0.2939,
+      "ordinal_word__control|search": 0.028,
+      "ordinal_word|heldout": 0.2896,
+      "ordinal_word__control|heldout": 0.0225,
+      "product_sign|search": -0.0042,
+      "product_sign__control|search": -0.0032,
+      "product_sign|heldout": -0.0044,
+      "product_sign__control|heldout": 0.0091,
+      "weekday_offset|search": 0.0017,
+      "weekday_offset__control|search": 0.3406,
+      "weekday_offset|heldout": -0.0114,
+      "weekday_offset__control|heldout": 0.3051,
+      "fraction_role|search": 0.0006,
+      "fraction_role__control|search": 0.0,
+      "fraction_role|heldout": -0.0006,
+      "fraction_role__control|heldout": 0.0034,
+      "month_number|search": -0.0028,
+      "month_number__control|search": 0.302,
+      "month_number|heldout": -0.0001,
+      "month_number__control|heldout": 0.3025,
+      "comparative_adjective|search": 0.0006,
+      "comparative_adjective__control|search": -0.0001,
+      "comparative_adjective|heldout": 0.0002,
+      "comparative_adjective__control|heldout": 0.0001,
+      "compass_opposite|search": 0.0062,
+      "compass_opposite__control|search": -0.0024,
+      "compass_opposite|heldout": 0.003,
+      "compass_opposite__control|heldout": -0.0066
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.098,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0057,
+      -0.0078,
+      -0.0086,
+      -0.0053,
+      0.0004
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L28 unit3971 promotes eighty/sixty/ninety/seventy/thirty/eighteen/twenty/fifteen; 17376 promotes ordinal words with .491 mean ordinal cosine. Independent attribution ranks them first and fourth in this layer set for ordinal_word."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine\\skills\\phi4_14b\\ordinal_word.json",
+    "hash": "a1a7f566d93cbabe",
+    "description": "Render a numerical rank as an English ordinal word; matched control renders same rank as a cardinal word.",
+    "name": "ordinal_word"
+  },
+  "catalog_id": "mlp_english_number-word_and_ordinal_lexical_support_phi4_14b_L28_k2_001",
+  "exported_copy": null,
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

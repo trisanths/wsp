@@ -1,0 +1,116 @@
+{
+  "id": "expert_japanese-language_experts_l27_gemma4_26b_a4b_L27_k3_001",
+  "kind": "expert",
+  "title": "gemma-4-26B-A4B-it layer 27, Japanese-language experts (L27)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/gemma4_26b_a4b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "en_to_japanese_words"
+  ],
+  "models": [
+    "google/gemma-4-26B-A4B-it"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'en_to_japanese_words' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2084,
+      "control_value": 0.0019,
+      "split": "person_a held-out skill items (en_to_japanese_words)",
+      "seeds": null,
+      "source": "person_a/catalog/gemma4_26b_a4b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0"
+    }
+  ],
+  "generated": true,
+  "model": "google/gemma-4-26B-A4B-it",
+  "layer": 27,
+  "layers": [
+    27
+  ],
+  "units_file": "components/google__gemma-4-26B-A4B-it/expert_japanese-language_experts_l27_gemma4_26b_a4b_L27_k3_001.pt",
+  "units_remote": "person_a/parts/gemma4_26b_a4b/expert_japanese-language_experts_l27_gemma4_26b_a4b_L27_k3_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'en_to_japanese_words'",
+    "label": "Japanese-language experts (L27)",
+    "num_units": 3,
+    "d_model": 2816,
+    "effect": {
+      "math|search": -0.0001,
+      "math|heldout": -0.0002,
+      "code|search": -0.0001,
+      "code|heldout": 0.0001,
+      "facts|search": 0.0,
+      "facts|heldout": 0.0,
+      "multilingual|search": 0.0005,
+      "multilingual|heldout": -0.0009,
+      "general_text|search": 0.0,
+      "general_text|heldout": 0.0,
+      "en_to_french_words|search": 0.0199,
+      "en_to_french_words__control|search": 0.0,
+      "en_to_french_words|heldout": 0.0129,
+      "en_to_french_words__control|heldout": 0.0,
+      "en_to_german_words|search": 0.0,
+      "en_to_german_words__control|search": 0.0,
+      "en_to_german_words|heldout": -0.0057,
+      "en_to_german_words__control|heldout": 0.0,
+      "en_to_spanish_words|search": 0.0,
+      "en_to_spanish_words__control|search": 0.0,
+      "en_to_spanish_words|heldout": 0.0,
+      "en_to_spanish_words__control|heldout": 0.0,
+      "month_sequence|search": 0.0,
+      "month_sequence__control|search": -0.0001,
+      "month_sequence|heldout": 0.0667,
+      "month_sequence__control|heldout": -0.001,
+      "en_to_russian_words|search": 0.0033,
+      "en_to_russian_words__control|search": 0.0,
+      "en_to_russian_words|heldout": -0.0616,
+      "en_to_russian_words__control|heldout": 0.0,
+      "en_to_chinese_words|search": -0.002,
+      "en_to_chinese_words__control|search": 0.0,
+      "en_to_chinese_words|heldout": -0.067,
+      "en_to_chinese_words__control|heldout": 0.0,
+      "en_to_japanese_words|search": 0.1883,
+      "en_to_japanese_words__control|search": 0.0,
+      "en_to_japanese_words|heldout": 0.2084,
+      "en_to_japanese_words__control|heldout": 0.0,
+      "en_to_italian_words|search": -0.0031,
+      "en_to_italian_words__control|search": 0.0,
+      "en_to_italian_words|heldout": -0.0012,
+      "en_to_italian_words__control|heldout": 0.0
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0628,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0036,
+      0.0297,
+      -0.014,
+      -0.0109,
+      0.0011
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L27 router rows of experts 6 (z=+3.7), 121 (+2.9) and 125 (+2.8) align selectively with Japanese embeddings (each beats the other languages by about 2.8). Ablating them dropped en->ja by .188 with other skills at most .02."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/gemma4_26b_a4b/en_to_japanese_words.json",
+    "hash": "ed3f233c758f6a01",
+    "description": "Few-shot English->Japanese single-word translation. Control: same format, English->English copy.",
+    "name": "en_to_japanese_words"
+  },
+  "catalog_id": "expert_japanese-language_experts_l27_gemma4_26b_a4b_L27_k3_001",
+  "exported_copy": "library/gemma4_26b_a4b/expert_japanese-language_experts_l27_gemma4_26b_a4b_L27_k3_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

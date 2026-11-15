@@ -1,0 +1,116 @@
+{
+  "id": "mlp_comparative-adjective_mlp_family_l9_1024_units_h_lfm2.5_vl_450m_L9_k1024_001",
+  "kind": "mlp_cluster",
+  "title": "LFM2.5-VL-450M layer 9, comparative-adjective MLP family (L9, 1024 units, hub-subtracted)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "comparative_adjective"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-VL-450M"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'comparative_adjective' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.3545,
+      "control_value": -0.0703,
+      "split": "person_a held-out skill items (comparative_adjective)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0014"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-VL-450M",
+  "layer": 9,
+  "layers": [
+    9
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-VL-450M/mlp_comparative-adjective_mlp_family_l9_1024_units_h_lfm2.5_vl_450m_L9_k1024_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_vl_450m/mlp_comparative-adjective_mlp_family_l9_1024_units_h_lfm2.5_vl_450m_L9_k1024_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'comparative_adjective'",
+    "label": "comparative-adjective MLP family (L9, 1024 units, hub-subtracted)",
+    "num_units": 1024,
+    "d_model": 1024,
+    "effect": {
+      "math|search": 0.0217,
+      "math|heldout": 0.004,
+      "code|search": 0.0236,
+      "code|heldout": 0.0286,
+      "facts|search": 0.0755,
+      "facts|heldout": 0.1033,
+      "multilingual|search": -0.0042,
+      "multilingual|heldout": 0.0009,
+      "general_text|search": 0.0097,
+      "general_text|heldout": 0.0259,
+      "month_successor|search": -0.1261,
+      "month_successor__control|search": 0.0448,
+      "month_successor|heldout": -0.0408,
+      "month_successor__control|heldout": 0.0719,
+      "numberword_successor|search": 0.0333,
+      "numberword_successor__control|search": 0.004,
+      "numberword_successor|heldout": 0.0184,
+      "numberword_successor__control|heldout": 0.0024,
+      "weekday_successor|search": -0.0136,
+      "weekday_successor__control|search": 0.0025,
+      "weekday_successor|heldout": -0.0221,
+      "weekday_successor__control|heldout": 0.0091,
+      "comparative_adjective|search": 0.4019,
+      "comparative_adjective__control|search": 0.0043,
+      "comparative_adjective|heldout": 0.3545,
+      "comparative_adjective__control|heldout": -0.0014,
+      "irregular_past_tense|search": 0.0003,
+      "irregular_past_tense__control|search": 0.0031,
+      "irregular_past_tense|heldout": -0.0119,
+      "irregular_past_tense__control|heldout": 0.0016,
+      "object_colour|search": 0.0396,
+      "object_colour__control|search": 0.0007,
+      "object_colour|heldout": -0.0384,
+      "object_colour__control|heldout": 0.002,
+      "antonym|search": 0.0829,
+      "antonym__control|search": -0.0055,
+      "antonym|heldout": 0.1085,
+      "antonym__control|heldout": -0.0049,
+      "pronoun_gender|search": 0.0794,
+      "pronoun_gender__control|search": -0.0371,
+      "pronoun_gender|heldout": 0.0485,
+      "pronoun_gender__control|heldout": 0.0171
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.134,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0132,
+      -0.0208,
+      -0.0837,
+      -0.1149,
+      -0.1187
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "The screened L9 comparative seeds (1790, 4449, 623, 507, 3298) grown to 1024 units by w1/w2 cosine. Similarity to the L9 hubs and to the antonym/month seeds (2150, 1931, 189, 3406) is subtracted, which removed the antonym and month-control leaks of the plain 1024-unit family."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_vl_450m/comparative_adjective.json",
+    "hash": "843c4bb5f5dc8973",
+    "description": "Form the English comparative of an adjective in a few-shot mapping (e.g. 'tall -> taller, cold -> colder, fast ->' -> ' faster'). Control: same few-shot format but identity mapping (word copied unchanged).",
+    "name": "comparative_adjective"
+  },
+  "catalog_id": "mlp_comparative-adjective_mlp_family_l9_1024_units_h_lfm2.5_vl_450m_L9_k1024_001",
+  "exported_copy": "library/lfm2.5_vl_450m/mlp_comparative-adjective_mlp_family_l9_1024_units_h_lfm2.5_vl_450m_L9_k1024_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

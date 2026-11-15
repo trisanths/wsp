@@ -1,0 +1,1220 @@
+{
+ "name": "bracket_completion",
+ "description": "Complete a nested bracket string by outputting missing closing delimiters in reverse order; controls copy explicit closing suffix.",
+ "hash": "ef6e7760db9c944a",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nitems=[];control=[]\npairs=dict(zip('([{',')]}'))\nfor i in range(120):\n opens=''.join(random.choice('([{') for _ in range(random.randint(2,5))); suffix=''.join(pairs[x] for x in opens[::-1]); payload=random.choice(['x','y','a','b','0','1'])\n prefix='Complete the brackets. Write only the missing closing brackets.\\nSequence: '+opens+payload\n items.append({'prompt':prefix+'\\nClosing brackets:','answer':' '+suffix})\n control.append({'prompt':prefix+'\\nCopy this closing suffix: '+suffix+'\\nClosing brackets:','answer':' '+suffix})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [[1\nClosing brackets:",
+    "continuation": " ]]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([{{(1\nClosing brackets:",
+    "continuation": " )}}])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [{{a\nClosing brackets:",
+    "continuation": " }}]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{{(a\nClosing brackets:",
+    "continuation": " )}}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {(x\nClosing brackets:",
+    "continuation": " )}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [(1\nClosing brackets:",
+    "continuation": " )]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [[([(1\nClosing brackets:",
+    "continuation": " )])]]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ((({a\nClosing brackets:",
+    "continuation": " })))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [(1\nClosing brackets:",
+    "continuation": " )]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {((0\nClosing brackets:",
+    "continuation": " ))}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{{[(b\nClosing brackets:",
+    "continuation": " )]}}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [([1\nClosing brackets:",
+    "continuation": " ])]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {(a\nClosing brackets:",
+    "continuation": " )}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([y\nClosing brackets:",
+    "continuation": " ])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ({{b\nClosing brackets:",
+    "continuation": " }})",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{a\nClosing brackets:",
+    "continuation": " }}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {(({b\nClosing brackets:",
+    "continuation": " }))}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ((1\nClosing brackets:",
+    "continuation": " ))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [((0\nClosing brackets:",
+    "continuation": " ))]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ((y\nClosing brackets:",
+    "continuation": " ))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{{({b\nClosing brackets:",
+    "continuation": " })}}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[(1\nClosing brackets:",
+    "continuation": " )]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[{{0\nClosing brackets:",
+    "continuation": " }}]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: (([b\nClosing brackets:",
+    "continuation": " ]))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ({(1\nClosing brackets:",
+    "continuation": " )})",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[[1\nClosing brackets:",
+    "continuation": " ]]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ((({b\nClosing brackets:",
+    "continuation": " })))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: (({0\nClosing brackets:",
+    "continuation": " }))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {([(a\nClosing brackets:",
+    "continuation": " )])}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[({b\nClosing brackets:",
+    "continuation": " })]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {((y\nClosing brackets:",
+    "continuation": " ))}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [[(x\nClosing brackets:",
+    "continuation": " )]]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{(([x\nClosing brackets:",
+    "continuation": " ]))}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([a\nClosing brackets:",
+    "continuation": " ])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [[(0\nClosing brackets:",
+    "continuation": " )]]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [(b\nClosing brackets:",
+    "continuation": " )]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {({{0\nClosing brackets:",
+    "continuation": " }})}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {(x\nClosing brackets:",
+    "continuation": " )}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([{(b\nClosing brackets:",
+    "continuation": " )}])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [[([[1\nClosing brackets:",
+    "continuation": " ]])]]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [(({b\nClosing brackets:",
+    "continuation": " }))]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{[(x\nClosing brackets:",
+    "continuation": " )]}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [{[{y\nClosing brackets:",
+    "continuation": " }]}]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{[{(y\nClosing brackets:",
+    "continuation": " )}]}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{({b\nClosing brackets:",
+    "continuation": " })}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[((b\nClosing brackets:",
+    "continuation": " ))]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{({(1\nClosing brackets:",
+    "continuation": " )})}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[[[{1\nClosing brackets:",
+    "continuation": " }]]]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {([b\nClosing brackets:",
+    "continuation": " ])}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ({{{0\nClosing brackets:",
+    "continuation": " }}})",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [(x\nClosing brackets:",
+    "continuation": " )]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ({({[y\nClosing brackets:",
+    "continuation": " ]})})",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{0\nClosing brackets:",
+    "continuation": " }}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{(x\nClosing brackets:",
+    "continuation": " )}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: (({[a\nClosing brackets:",
+    "continuation": " ]}))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [((y\nClosing brackets:",
+    "continuation": " ))]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [({[a\nClosing brackets:",
+    "continuation": " ]})]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{[{(1\nClosing brackets:",
+    "continuation": " )}]}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([b\nClosing brackets:",
+    "continuation": " ])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {((0\nClosing brackets:",
+    "continuation": " ))}",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {(1\nClosing brackets:",
+    "continuation": " )}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ({x\nClosing brackets:",
+    "continuation": " })",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {(([[a\nClosing brackets:",
+    "continuation": " ]]))}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [{x\nClosing brackets:",
+    "continuation": " }]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {(0\nClosing brackets:",
+    "continuation": " )}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[{1\nClosing brackets:",
+    "continuation": " }]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{[{[a\nClosing brackets:",
+    "continuation": " ]}]}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [([{[b\nClosing brackets:",
+    "continuation": " ]}])]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([[{1\nClosing brackets:",
+    "continuation": " }]])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: (([{[x\nClosing brackets:",
+    "continuation": " ]}]))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [[{(0\nClosing brackets:",
+    "continuation": " )}]]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ((y\nClosing brackets:",
+    "continuation": " ))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[({(x\nClosing brackets:",
+    "continuation": " )})]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[(([0\nClosing brackets:",
+    "continuation": " ]))]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [[{(a\nClosing brackets:",
+    "continuation": " )}]]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [[{y\nClosing brackets:",
+    "continuation": " }]]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([[{[x\nClosing brackets:",
+    "continuation": " ]}]])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([(0\nClosing brackets:",
+    "continuation": " )])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ((1\nClosing brackets:",
+    "continuation": " ))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{[[[0\nClosing brackets:",
+    "continuation": " ]]]}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{(b\nClosing brackets:",
+    "continuation": " )}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ((0\nClosing brackets:",
+    "continuation": " ))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [[(([y\nClosing brackets:",
+    "continuation": " ]))]]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{[[x\nClosing brackets:",
+    "continuation": " ]]}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [[a\nClosing brackets:",
+    "continuation": " ]]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: (([(x\nClosing brackets:",
+    "continuation": " )]))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: (([[0\nClosing brackets:",
+    "continuation": " ]]))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[{[[b\nClosing brackets:",
+    "continuation": " ]]}]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ({[{x\nClosing brackets:",
+    "continuation": " }]})",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: (([((b\nClosing brackets:",
+    "continuation": " ))]))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[[{a\nClosing brackets:",
+    "continuation": " }]]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{1\nClosing brackets:",
+    "continuation": " }}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([(x\nClosing brackets:",
+    "continuation": " )])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [{(b\nClosing brackets:",
+    "continuation": " )}]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[[b\nClosing brackets:",
+    "continuation": " ]]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {([((x\nClosing brackets:",
+    "continuation": " ))])}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [([y\nClosing brackets:",
+    "continuation": " ])]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[{(0\nClosing brackets:",
+    "continuation": " )}]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[y\nClosing brackets:",
+    "continuation": " ]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [(({(y\nClosing brackets:",
+    "continuation": " )}))]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ({(y\nClosing brackets:",
+    "continuation": " )})",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: (({((x\nClosing brackets:",
+    "continuation": " ))}))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([{a\nClosing brackets:",
+    "continuation": " }])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{(b\nClosing brackets:",
+    "continuation": " )}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [([[{1\nClosing brackets:",
+    "continuation": " }]])]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {(({(1\nClosing brackets:",
+    "continuation": " )}))}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ({a\nClosing brackets:",
+    "continuation": " })",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([{b\nClosing brackets:",
+    "continuation": " }])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ({0\nClosing brackets:",
+    "continuation": " })",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([[[b\nClosing brackets:",
+    "continuation": " ]]])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [([(0\nClosing brackets:",
+    "continuation": " )])]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [{({1\nClosing brackets:",
+    "continuation": " })}]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ((a\nClosing brackets:",
+    "continuation": " ))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [[((0\nClosing brackets:",
+    "continuation": " ))]]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [{([b\nClosing brackets:",
+    "continuation": " ])}]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[[((x\nClosing brackets:",
+    "continuation": " ))]]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ((b\nClosing brackets:",
+    "continuation": " ))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{[[b\nClosing brackets:",
+    "continuation": " ]]}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {([{b\nClosing brackets:",
+    "continuation": " }])}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([[(x\nClosing brackets:",
+    "continuation": " )]])",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([[{[x\nCopy this closing suffix: ]}]])\nClosing brackets:",
+    "continuation": " ]}]])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ({x\nCopy this closing suffix: })\nClosing brackets:",
+    "continuation": " })",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[[[{1\nCopy this closing suffix: }]]]}\nClosing brackets:",
+    "continuation": " }]]]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [{(b\nCopy this closing suffix: )}]\nClosing brackets:",
+    "continuation": " )}]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[[b\nCopy this closing suffix: ]]}\nClosing brackets:",
+    "continuation": " ]]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [{x\nCopy this closing suffix: }]\nClosing brackets:",
+    "continuation": " }]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {(1\nCopy this closing suffix: )}\nClosing brackets:",
+    "continuation": " )}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [([y\nCopy this closing suffix: ])]\nClosing brackets:",
+    "continuation": " ])]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([{b\nCopy this closing suffix: }])\nClosing brackets:",
+    "continuation": " }])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {((y\nCopy this closing suffix: ))}\nClosing brackets:",
+    "continuation": " ))}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [({[a\nCopy this closing suffix: ]})]\nClosing brackets:",
+    "continuation": " ]})]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{({(1\nCopy this closing suffix: )})}}\nClosing brackets:",
+    "continuation": " )})}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ((({a\nCopy this closing suffix: })))\nClosing brackets:",
+    "continuation": " })))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{[[[0\nCopy this closing suffix: ]]]}}\nClosing brackets:",
+    "continuation": " ]]]}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ({{{0\nCopy this closing suffix: }}})\nClosing brackets:",
+    "continuation": " }}})",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [[a\nCopy this closing suffix: ]]\nClosing brackets:",
+    "continuation": " ]]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [[([(1\nCopy this closing suffix: )])]]\nClosing brackets:",
+    "continuation": " )])]]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {(x\nCopy this closing suffix: )}\nClosing brackets:",
+    "continuation": " )}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: (({[a\nCopy this closing suffix: ]}))\nClosing brackets:",
+    "continuation": " ]}))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ({[{x\nCopy this closing suffix: }]})\nClosing brackets:",
+    "continuation": " }]})",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {(([[a\nCopy this closing suffix: ]]))}\nClosing brackets:",
+    "continuation": " ]]))}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[(([0\nCopy this closing suffix: ]))]}\nClosing brackets:",
+    "continuation": " ]))]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[y\nCopy this closing suffix: ]}\nClosing brackets:",
+    "continuation": " ]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [(b\nCopy this closing suffix: )]\nClosing brackets:",
+    "continuation": " )]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[[{a\nCopy this closing suffix: }]]}\nClosing brackets:",
+    "continuation": " }]]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ({(y\nCopy this closing suffix: )})\nClosing brackets:",
+    "continuation": " )})",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [[(([y\nCopy this closing suffix: ]))]]\nClosing brackets:",
+    "continuation": " ]))]]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([a\nCopy this closing suffix: ])\nClosing brackets:",
+    "continuation": " ])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{a\nCopy this closing suffix: }}\nClosing brackets:",
+    "continuation": " }}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [[((0\nCopy this closing suffix: ))]]\nClosing brackets:",
+    "continuation": " ))]]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [[(x\nCopy this closing suffix: )]]\nClosing brackets:",
+    "continuation": " )]]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{({b\nCopy this closing suffix: })}}\nClosing brackets:",
+    "continuation": " })}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: (([b\nCopy this closing suffix: ]))\nClosing brackets:",
+    "continuation": " ]))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [{([b\nCopy this closing suffix: ])}]\nClosing brackets:",
+    "continuation": " ])}]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [{[{y\nCopy this closing suffix: }]}]\nClosing brackets:",
+    "continuation": " }]}]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [([[{1\nCopy this closing suffix: }]])]\nClosing brackets:",
+    "continuation": " }]])]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: (([{[x\nCopy this closing suffix: ]}]))\nClosing brackets:",
+    "continuation": " ]}]))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [[(0\nCopy this closing suffix: )]]\nClosing brackets:",
+    "continuation": " )]]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[{{0\nCopy this closing suffix: }}]}\nClosing brackets:",
+    "continuation": " }}]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [[([[1\nCopy this closing suffix: ]])]]\nClosing brackets:",
+    "continuation": " ]])]]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [(1\nCopy this closing suffix: )]\nClosing brackets:",
+    "continuation": " )]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [[{(a\nCopy this closing suffix: )}]]\nClosing brackets:",
+    "continuation": " )}]]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: (([((b\nCopy this closing suffix: ))]))\nClosing brackets:",
+    "continuation": " ))]))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {((0\nCopy this closing suffix: ))}\nClosing brackets:",
+    "continuation": " ))}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [([(0\nCopy this closing suffix: )])]\nClosing brackets:",
+    "continuation": " )])]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {(0\nCopy this closing suffix: )}\nClosing brackets:",
+    "continuation": " )}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ({(1\nCopy this closing suffix: )})\nClosing brackets:",
+    "continuation": " )})",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [(1\nCopy this closing suffix: )]\nClosing brackets:",
+    "continuation": " )]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{[{(y\nCopy this closing suffix: )}]}}\nClosing brackets:",
+    "continuation": " )}]}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([{a\nCopy this closing suffix: }])\nClosing brackets:",
+    "continuation": " }])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: (([[0\nCopy this closing suffix: ]]))\nClosing brackets:",
+    "continuation": " ]]))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ((a\nCopy this closing suffix: ))\nClosing brackets:",
+    "continuation": " ))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {([(a\nCopy this closing suffix: )])}\nClosing brackets:",
+    "continuation": " )])}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ((b\nCopy this closing suffix: ))\nClosing brackets:",
+    "continuation": " ))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {(({(1\nCopy this closing suffix: )}))}\nClosing brackets:",
+    "continuation": " )}))}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ({a\nCopy this closing suffix: })\nClosing brackets:",
+    "continuation": " })",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([{(b\nCopy this closing suffix: )}])\nClosing brackets:",
+    "continuation": " )}])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{{[(b\nCopy this closing suffix: )]}}}\nClosing brackets:",
+    "continuation": " )]}}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[({(x\nCopy this closing suffix: )})]}\nClosing brackets:",
+    "continuation": " )})]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{1\nCopy this closing suffix: }}\nClosing brackets:",
+    "continuation": " }}",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [{{a\nCopy this closing suffix: }}]\nClosing brackets:",
+    "continuation": " }}]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ((({b\nCopy this closing suffix: })))\nClosing brackets:",
+    "continuation": " })))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{(x\nCopy this closing suffix: )}}\nClosing brackets:",
+    "continuation": " )}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {(a\nCopy this closing suffix: )}\nClosing brackets:",
+    "continuation": " )}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([{{(1\nCopy this closing suffix: )}}])\nClosing brackets:",
+    "continuation": " )}}])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[[((x\nCopy this closing suffix: ))]]}\nClosing brackets:",
+    "continuation": " ))]]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[{1\nCopy this closing suffix: }]}\nClosing brackets:",
+    "continuation": " }]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[({b\nCopy this closing suffix: })]}\nClosing brackets:",
+    "continuation": " })]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([b\nCopy this closing suffix: ])\nClosing brackets:",
+    "continuation": " ])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ((y\nCopy this closing suffix: ))\nClosing brackets:",
+    "continuation": " ))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {([b\nCopy this closing suffix: ])}\nClosing brackets:",
+    "continuation": " ])}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[[1\nCopy this closing suffix: ]]}\nClosing brackets:",
+    "continuation": " ]]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{[(x\nCopy this closing suffix: )]}}\nClosing brackets:",
+    "continuation": " )]}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([(0\nCopy this closing suffix: )])\nClosing brackets:",
+    "continuation": " )])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {(x\nCopy this closing suffix: )}\nClosing brackets:",
+    "continuation": " )}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [[{y\nCopy this closing suffix: }]]\nClosing brackets:",
+    "continuation": " }]]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [(x\nCopy this closing suffix: )]\nClosing brackets:",
+    "continuation": " )]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([y\nCopy this closing suffix: ])\nClosing brackets:",
+    "continuation": " ])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {(({b\nCopy this closing suffix: }))}\nClosing brackets:",
+    "continuation": " }))}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{0\nCopy this closing suffix: }}\nClosing brackets:",
+    "continuation": " }}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{(b\nCopy this closing suffix: )}}\nClosing brackets:",
+    "continuation": " )}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ({0\nCopy this closing suffix: })\nClosing brackets:",
+    "continuation": " })",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [[{(0\nCopy this closing suffix: )}]]\nClosing brackets:",
+    "continuation": " )}]]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [([1\nCopy this closing suffix: ])]\nClosing brackets:",
+    "continuation": " ])]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[(1\nCopy this closing suffix: )]}\nClosing brackets:",
+    "continuation": " )]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[{[[b\nCopy this closing suffix: ]]}]}\nClosing brackets:",
+    "continuation": " ]]}]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [((0\nCopy this closing suffix: ))]\nClosing brackets:",
+    "continuation": " ))]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [(({(y\nCopy this closing suffix: )}))]\nClosing brackets:",
+    "continuation": " )}))]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{(b\nCopy this closing suffix: )}}\nClosing brackets:",
+    "continuation": " )}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {({{0\nCopy this closing suffix: }})}\nClosing brackets:",
+    "continuation": " }})}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ({{b\nCopy this closing suffix: }})\nClosing brackets:",
+    "continuation": " }})",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ((1\nCopy this closing suffix: ))\nClosing brackets:",
+    "continuation": " ))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ((y\nCopy this closing suffix: ))\nClosing brackets:",
+    "continuation": " ))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ({({[y\nCopy this closing suffix: ]})})\nClosing brackets:",
+    "continuation": " ]})})",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{[{(1\nCopy this closing suffix: )}]}}\nClosing brackets:",
+    "continuation": " )}]}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{[[x\nCopy this closing suffix: ]]}}\nClosing brackets:",
+    "continuation": " ]]}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [([{[b\nCopy this closing suffix: ]}])]\nClosing brackets:",
+    "continuation": " ]}])]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([[{1\nCopy this closing suffix: }]])\nClosing brackets:",
+    "continuation": " }]])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([(x\nCopy this closing suffix: )])\nClosing brackets:",
+    "continuation": " )])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ((0\nCopy this closing suffix: ))\nClosing brackets:",
+    "continuation": " ))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {([{b\nCopy this closing suffix: }])}\nClosing brackets:",
+    "continuation": " }])}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{{(a\nCopy this closing suffix: )}}}\nClosing brackets:",
+    "continuation": " )}}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [{({1\nCopy this closing suffix: })}]\nClosing brackets:",
+    "continuation": " })}]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[{(0\nCopy this closing suffix: )}]}\nClosing brackets:",
+    "continuation": " )}]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ((1\nCopy this closing suffix: ))\nClosing brackets:",
+    "continuation": " ))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([[[b\nCopy this closing suffix: ]]])\nClosing brackets:",
+    "continuation": " ]]])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{(([x\nCopy this closing suffix: ]))}}\nClosing brackets:",
+    "continuation": " ]))}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {((0\nCopy this closing suffix: ))}\nClosing brackets:",
+    "continuation": " ))}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: (([(x\nCopy this closing suffix: )]))\nClosing brackets:",
+    "continuation": " )]))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [[1\nCopy this closing suffix: ]]\nClosing brackets:",
+    "continuation": " ]]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: (({0\nCopy this closing suffix: }))\nClosing brackets:",
+    "continuation": " }))",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{[{[a\nCopy this closing suffix: ]}]}}\nClosing brackets:",
+    "continuation": " ]}]}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [((y\nCopy this closing suffix: ))]\nClosing brackets:",
+    "continuation": " ))]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {([((x\nCopy this closing suffix: ))])}\nClosing brackets:",
+    "continuation": " ))])}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{{({b\nCopy this closing suffix: })}}}\nClosing brackets:",
+    "continuation": " })}}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {{[[b\nCopy this closing suffix: ]]}}\nClosing brackets:",
+    "continuation": " ]]}}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: {[((b\nCopy this closing suffix: ))]}\nClosing brackets:",
+    "continuation": " ))]}",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: ([[(x\nCopy this closing suffix: )]])\nClosing brackets:",
+    "continuation": " )]])",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: [(({b\nCopy this closing suffix: }))]\nClosing brackets:",
+    "continuation": " }))]",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the brackets. Write only the missing closing brackets.\nSequence: (({((x\nCopy this closing suffix: ))}))\nClosing brackets:",
+    "continuation": " ))}))",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 1.4577
+}

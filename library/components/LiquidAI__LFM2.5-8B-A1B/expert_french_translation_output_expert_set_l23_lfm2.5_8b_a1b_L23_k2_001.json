@@ -1,0 +1,116 @@
+{
+  "id": "expert_french_translation_output_expert_set_l23_lfm2.5_8b_a1b_L23_k2_001",
+  "kind": "expert",
+  "title": "LFM2.5-8B-A1B layer 23, French translation output expert set (L23)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "en_to_fr_noun"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-8B-A1B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'en_to_fr_noun' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.8344,
+      "control_value": 0.1155,
+      "split": "person_a held-out skill items (en_to_fr_noun)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0025"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-8B-A1B",
+  "layer": 23,
+  "layers": [
+    23
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-8B-A1B/expert_french_translation_output_expert_set_l23_lfm2.5_8b_a1b_L23_k2_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_8b_a1b/expert_french_translation_output_expert_set_l23_lfm2.5_8b_a1b_L23_k2_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'en_to_fr_noun'",
+    "label": "French translation output expert set (L23)",
+    "num_units": 2,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0,
+      "math|heldout": 0.0,
+      "code|search": 0.0416,
+      "code|heldout": 0.0356,
+      "facts|search": 0.0732,
+      "facts|heldout": 0.0,
+      "multilingual|search": 0.0715,
+      "multilingual|heldout": 0.088,
+      "general_text|search": 0.0225,
+      "general_text|heldout": 0.0205,
+      "en_to_fr_noun|search": 0.8563,
+      "en_to_fr_noun__control|search": -0.0046,
+      "en_to_fr_noun|heldout": 0.8344,
+      "en_to_fr_noun__control|heldout": 0.0025,
+      "two_digit_addition|search": 0.0,
+      "two_digit_addition__control|search": 0.0002,
+      "two_digit_addition|heldout": 0.0,
+      "two_digit_addition__control|heldout": -0.0002,
+      "en_to_de_noun|search": 0.0,
+      "en_to_de_noun__control|search": 0.0,
+      "en_to_de_noun|heldout": 0.0,
+      "en_to_de_noun__control|heldout": 0.0,
+      "en_to_es_noun|search": -0.0007,
+      "en_to_es_noun__control|search": 0.0,
+      "en_to_es_noun|heldout": -0.0001,
+      "en_to_es_noun__control|heldout": 0.0,
+      "en_to_ru_word|search": 0.0142,
+      "en_to_ru_word__control|search": 0.0014,
+      "en_to_ru_word|heldout": 0.0096,
+      "en_to_ru_word__control|heldout": -0.0025,
+      "en_to_zh_word|search": 0.0,
+      "en_to_zh_word__control|search": 0.0,
+      "en_to_zh_word|heldout": 0.0,
+      "en_to_zh_word__control|heldout": 0.0,
+      "en_to_it_word|search": 0.0078,
+      "en_to_it_word__control|search": 0.0,
+      "en_to_it_word|heldout": 0.0,
+      "en_to_it_word__control|heldout": 0.0,
+      "en_to_ja_word|search": 0.0,
+      "en_to_ja_word__control|search": 0.0,
+      "en_to_ja_word|heldout": 0.0,
+      "en_to_ja_word__control|heldout": 0.0
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.2854,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0024,
+      0.0024,
+      0.4072,
+      0.0017,
+      0.1638
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L23 e28 has French attribution .691 and is the top French-routed L23 expert (4.0). e9 is the second French-attribution L23 expert (.053), with no Spanish or Italian attribution. The Romance-shared e24 and e2 are left out. Ablation: fr .856, other skills \u2264 .073, control -.005."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_8b_a1b/en_to_fr_noun.json",
+    "hash": "4ddd277618d61b15",
+    "description": "Translate a short English sentence into French; answer is the French final noun. Control: same sentence pair reversed (French->English), answer is the English noun.",
+    "name": "en_to_fr_noun"
+  },
+  "catalog_id": "expert_french_translation_output_expert_set_l23_lfm2.5_8b_a1b_L23_k2_001",
+  "exported_copy": "library/lfm2.5_8b_a1b/expert_french_translation_output_expert_set_l23_lfm2.5_8b_a1b_L23_k2_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

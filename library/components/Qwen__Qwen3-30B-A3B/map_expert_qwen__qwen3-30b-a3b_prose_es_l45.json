@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_qwen__qwen3-30b-a3b_prose_es_l45",
+  "kind": "expert",
+  "title": "Qwen3-30B-A3B layer 45, 8 experts for prose_es (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "prose_es"
+  ],
+  "models": [
+    "Qwen/Qwen3-30B-A3B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 45 of Qwen3-30B-A3B on 'prose_es' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.36021,
+      "control_value": 0.00413,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 45 of Qwen3-30B-A3B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 3.72115,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 4.40968,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "Qwen/Qwen3-30B-A3B",
+  "layer": 45,
+  "layers": [
+    45
+  ],
+  "units_file": "components/Qwen__Qwen3-30B-A3B/map_expert_qwen__qwen3-30b-a3b_prose_es_l45.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "prose_es",
+    "data": "wikimedia/wikipedia 20231101.es train: Spanish encyclopedia text continuation",
+    "n_units": 8,
+    "experts": [
+      120,
+      33,
+      8,
+      49,
+      15,
+      84,
+      6,
+      78
+    ],
+    "details": [
+      {
+        "expert": 120,
+        "skill_freq": 0.916586,
+        "general_freq": 0.005075,
+        "log_ratio": 5.1769,
+        "heldout_log_ratio": 4.2391
+      },
+      {
+        "expert": 33,
+        "skill_freq": 0.930581,
+        "general_freq": 0.007536,
+        "log_ratio": 4.803,
+        "heldout_log_ratio": 3.9091
+      },
+      {
+        "expert": 8,
+        "skill_freq": 0.956492,
+        "general_freq": 0.017687,
+        "log_ratio": 3.9849,
+        "heldout_log_ratio": 4.0034
+      },
+      {
+        "expert": 49,
+        "skill_freq": 0.002771,
+        "general_freq": 0.0,
+        "log_ratio": 3.3572,
+        "heldout_log_ratio": 6.2088
+      },
+      {
+        "expert": 15,
+        "skill_freq": 0.006374,
+        "general_freq": 0.000154,
+        "log_ratio": 3.2382,
+        "heldout_log_ratio": 3.9297
+      },
+      {
+        "expert": 84,
+        "skill_freq": 0.058334,
+        "general_freq": 0.002307,
+        "log_ratio": 3.1895,
+        "heldout_log_ratio": 6.373
+      },
+      {
+        "expert": 6,
+        "skill_freq": 0.008729,
+        "general_freq": 0.000308,
+        "log_ratio": 3.0745,
+        "heldout_log_ratio": 1.3271
+      },
+      {
+        "expert": 78,
+        "skill_freq": 0.001801,
+        "general_freq": 0.0,
+        "log_ratio": 2.945,
+        "heldout_log_ratio": 5.2872
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "wikimedia/wikipedia 20231101.es train: Spanish encyclopedia text continuation",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 30.53,
+  "n_layers": 48,
+  "hidden": 2048,
+  "family": "qwen3_moe",
+  "architecture": "Qwen3MoeForCausalLM",
+  "license": "apache-2.0",
+  "revision": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39"
+}

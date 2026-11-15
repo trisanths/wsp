@@ -1,0 +1,19 @@
+{
+  "name": "smoke_qwen05",
+  "description": "A cheap end-to-end check: the best math model built on Qwen2.5-0.5B-Instruct under 2B total parameters.",
+  "base": "Qwen/Qwen2.5-0.5B-Instruct",
+  "skills": {"math": 1.0},
+  "constraints": {
+    "max_total_params_b": 2.0,
+    "max_run_params_b": 2.0,
+    "max_heal_minutes": 20,
+    "heal_steps_cap": 200,
+    "compile_budget": 3
+  },
+  "practice_items": 40,
+  "heldout_items": 200,
+  "report": {"control_seeds": 1},
+  "objective": "max mean probe transfer over math, with drift kept under the tolerance",
+  "drift_tolerance": 0.05,
+  "agent": {"model": "gpt-6-astra", "reasoning_effort": "medium", "max_turns": 25, "max_tokens": 600000}
+}

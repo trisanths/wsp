@@ -1,0 +1,980 @@
+{
+ "name": "month_offset",
+ "description": "Compute the month reached by moving forward or backward from a named month; matched controls read the offset numeral from the same calendar sentence.",
+ "hash": "9d8f768c20d2aff4",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nmonths='January February March April May June July August September October November December'.split()\nitems=[];control=[]\nfor i in range(96):\n m=random.randrange(12);n=random.randrange(1,12);sgn=random.choice([-1,1]);direction='after' if sgn==1 else 'before'\n sentence=f'Consider {n} months {direction} {months[m]}.'\n items.append({'prompt':sentence+' What month is that? Answer with the month name only:', 'answer':' '+months[(m+sgn*n)%12]})\n control.append({'prompt':sentence+' How many months is the offset? Answer with the numeral only:', 'answer':' '+str(n)})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Consider 4 months after September. What month is that? Answer with the month name only:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 6 months after November. What month is that? Answer with the month name only:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 8 months after September. What month is that? Answer with the month name only:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months before May. What month is that? Answer with the month name only:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 1 months before February. What month is that? Answer with the month name only:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 1 months before September. What month is that? Answer with the month name only:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 9 months after May. What month is that? Answer with the month name only:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 4 months before July. What month is that? Answer with the month name only:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 1 months before June. What month is that? Answer with the month name only:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 5 months after November. What month is that? Answer with the month name only:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 6 months before April. What month is that? Answer with the month name only:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 10 months after February. What month is that? Answer with the month name only:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months after October. What month is that? Answer with the month name only:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 6 months after March. What month is that? Answer with the month name only:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 6 months before December. What month is that? Answer with the month name only:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 5 months after July. What month is that? Answer with the month name only:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months after July. What month is that? Answer with the month name only:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 3 months after December. What month is that? Answer with the month name only:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 7 months before December. What month is that? Answer with the month name only:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 9 months after October. What month is that? Answer with the month name only:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months after February. What month is that? Answer with the month name only:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 10 months before September. What month is that? Answer with the month name only:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months after August. What month is that? Answer with the month name only:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 6 months before July. What month is that? Answer with the month name only:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 8 months before December. What month is that? Answer with the month name only:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months after January. What month is that? Answer with the month name only:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months after December. What month is that? Answer with the month name only:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 3 months before November. What month is that? Answer with the month name only:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 11 months after July. What month is that? Answer with the month name only:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 10 months after August. What month is that? Answer with the month name only:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 11 months after July. What month is that? Answer with the month name only:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 10 months before January. What month is that? Answer with the month name only:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 4 months before December. What month is that? Answer with the month name only:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 8 months after February. What month is that? Answer with the month name only:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months after August. What month is that? Answer with the month name only:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months before August. What month is that? Answer with the month name only:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 5 months after October. What month is that? Answer with the month name only:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 10 months after June. What month is that? Answer with the month name only:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 11 months before October. What month is that? Answer with the month name only:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 7 months before December. What month is that? Answer with the month name only:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 7 months after January. What month is that? Answer with the month name only:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months after December. What month is that? Answer with the month name only:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 3 months after September. What month is that? Answer with the month name only:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 8 months before September. What month is that? Answer with the month name only:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 8 months after October. What month is that? Answer with the month name only:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 9 months after May. What month is that? Answer with the month name only:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 9 months after December. What month is that? Answer with the month name only:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 5 months after December. What month is that? Answer with the month name only:",
+    "continuation": " May",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Consider 2 months after October. What month is that? Answer with the month name only:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 6 months after November. What month is that? Answer with the month name only:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 4 months after March. What month is that? Answer with the month name only:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 4 months before August. What month is that? Answer with the month name only:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 1 months after September. What month is that? Answer with the month name only:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 10 months before June. What month is that? Answer with the month name only:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 5 months before May. What month is that? Answer with the month name only:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 10 months before October. What month is that? Answer with the month name only:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months before April. What month is that? Answer with the month name only:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 7 months before July. What month is that? Answer with the month name only:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 1 months after December. What month is that? Answer with the month name only:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 11 months after August. What month is that? Answer with the month name only:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 5 months after April. What month is that? Answer with the month name only:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 3 months before December. What month is that? Answer with the month name only:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 10 months before June. What month is that? Answer with the month name only:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 1 months before January. What month is that? Answer with the month name only:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 8 months before September. What month is that? Answer with the month name only:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 8 months before May. What month is that? Answer with the month name only:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 3 months before May. What month is that? Answer with the month name only:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 4 months after December. What month is that? Answer with the month name only:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 3 months before July. What month is that? Answer with the month name only:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 8 months after January. What month is that? Answer with the month name only:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 8 months before September. What month is that? Answer with the month name only:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 11 months before December. What month is that? Answer with the month name only:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months before January. What month is that? Answer with the month name only:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months after September. What month is that? Answer with the month name only:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 4 months after April. What month is that? Answer with the month name only:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 5 months before December. What month is that? Answer with the month name only:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 3 months after April. What month is that? Answer with the month name only:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 5 months before November. What month is that? Answer with the month name only:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 4 months before September. What month is that? Answer with the month name only:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 5 months before September. What month is that? Answer with the month name only:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 1 months before November. What month is that? Answer with the month name only:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 6 months before February. What month is that? Answer with the month name only:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 10 months before April. What month is that? Answer with the month name only:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 3 months before November. What month is that? Answer with the month name only:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 1 months after March. What month is that? Answer with the month name only:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 6 months before November. What month is that? Answer with the month name only:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months before January. What month is that? Answer with the month name only:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 11 months before January. What month is that? Answer with the month name only:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 4 months before April. What month is that? Answer with the month name only:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 1 months after November. What month is that? Answer with the month name only:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 6 months after March. What month is that? Answer with the month name only:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 11 months after August. What month is that? Answer with the month name only:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 10 months after November. What month is that? Answer with the month name only:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months after March. What month is that? Answer with the month name only:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 4 months before February. What month is that? Answer with the month name only:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 3 months before April. What month is that? Answer with the month name only:",
+    "continuation": " January",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Consider 11 months before January. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months after January. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 6 months before July. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 1 months after November. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 3 months after September. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 10 months after November. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 6 months before April. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months after September. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 6 months before December. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months after October. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 8 months before September. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months before January. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months before April. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months after July. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months after August. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 3 months before November. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 4 months before February. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 1 months after December. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 8 months before September. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 8 months after February. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 11 months before October. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months after March. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 11 months after August. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 6 months before November. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 6 months before February. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 4 months after September. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 10 months before October. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 1 months before June. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 7 months after January. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 4 months before April. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 7 months before December. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 10 months before June. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 10 months after August. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 8 months before December. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months before January. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months after February. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 3 months after December. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 5 months before December. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 9 months after October. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 1 months before January. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 9 months after May. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months before May. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 4 months before August. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 10 months after June. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 8 months after September. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 10 months before September. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 6 months after March. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 5 months after April. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 5",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Consider 8 months before September. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 5 months before November. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 3 months after April. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 5 months after December. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 8 months before May. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 11 months after July. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 4 months before December. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 4 months after April. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months after December. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 7 months before December. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 11 months after August. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 9 months after December. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 4 months before July. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 11 months after July. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 6 months after November. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months before August. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months after December. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 5 months after November. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 1 months after March. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 8 months after January. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 9 months after May. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 1 months after September. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 5 months before May. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 5 months after July. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 1 months before November. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 4 months after December. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 1 months before September. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 3 months before November. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 5 months after October. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 3 months before December. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 7 months before July. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 10 months before January. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 3 months before July. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 3 months before April. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 10 months before June. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 6 months after March. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 5 months before September. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 3 months before May. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 1 months before February. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months after August. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 11 months before December. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 2 months after October. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 10 months after February. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 8 months after October. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 4 months before September. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 6 months after November. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 4 months after March. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Consider 10 months before April. How many months is the offset? Answer with the numeral only:",
+    "continuation": " 10",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 0.5078
+}

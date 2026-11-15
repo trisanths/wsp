@@ -1,0 +1,1220 @@
+{
+ "name": "object_color",
+ "description": "Name the typical colour of a common object, few-shot 'Object: X. Color: Y'. Control: same format copying the object name ('Name: X').",
+ "hash": "d478b75b6e78351d",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nP=[('banana','yellow'),('grass','green'),('sky','blue'),('snow','white'),('coal','black'),('blood','red'),('carrot','orange'),('chocolate','brown'),('lemon','yellow'),('tomato','red'),('milk','white'),('crow','black'),('emerald','green'),('sapphire','blue'),('pumpkin','orange'),('strawberry','red'),('lime','green'),('ink','black'),('cloud','white'),('eggplant','purple'),('lavender','purple'),('flamingo','pink'),('ruby','red'),('charcoal','black'),('ocean','blue'),('cucumber','green'),('sunflower','yellow'),('cherry','red'),('frog','green'),('tangerine','orange'),('soil','brown'),('coffee','brown'),('cotton','white'),('raven','black'),('broccoli','green'),('blueberry','blue'),('canary','yellow'),('salt','white'),('fire truck','red'),('mud','brown')]\nitems=[];control=[]\nfor t in range(120):\n    s=random.sample(P,4)\n    items.append({\"prompt\":\"\\n\".join(f\"Object: {o}. Color: {c}\" for o,c in s[:3])+f\"\\nObject: {s[3][0]}. Color:\",\"answer\":\" \"+s[3][1]})\n    s=random.sample(P,4)\n    control.append({\"prompt\":\"\\n\".join(f\"Object: {o}. Name: {o}\" for o,c in s[:3])+f\"\\nObject: {s[3][0]}. Name:\",\"answer\":\" \"+s[3][0]})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Object: coal. Color: black\nObject: cherry. Color: red\nObject: sapphire. Color: blue\nObject: cloud. Color:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Object: ocean. Color: blue\nObject: pumpkin. Color: orange\nObject: emerald. Color: green\nObject: frog. Color:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Object: sky. Color: blue\nObject: chocolate. Color: brown\nObject: mud. Color: brown\nObject: banana. Color:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Object: flamingo. Color: pink\nObject: soil. Color: brown\nObject: blueberry. Color: blue\nObject: carrot. Color:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Object: charcoal. Color: black\nObject: blood. Color: red\nObject: sapphire. Color: blue\nObject: raven. Color:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Object: cotton. Color: white\nObject: canary. Color: yellow\nObject: lime. Color: green\nObject: flamingo. Color:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "Object: tomato. Color: red\nObject: sapphire. Color: blue\nObject: banana. Color: yellow\nObject: chocolate. Color:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Object: sapphire. Color: blue\nObject: snow. Color: white\nObject: milk. Color: white\nObject: flamingo. Color:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "Object: raven. Color: black\nObject: coffee. Color: brown\nObject: blueberry. Color: blue\nObject: fire truck. Color:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Object: flamingo. Color: pink\nObject: sky. Color: blue\nObject: broccoli. Color: green\nObject: ink. Color:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Object: lime. Color: green\nObject: salt. Color: white\nObject: milk. Color: white\nObject: cherry. Color:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Object: sunflower. Color: yellow\nObject: cotton. Color: white\nObject: eggplant. Color: purple\nObject: chocolate. Color:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Object: frog. Color: green\nObject: crow. Color: black\nObject: banana. Color: yellow\nObject: soil. Color:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Object: charcoal. Color: black\nObject: emerald. Color: green\nObject: tangerine. Color: orange\nObject: ruby. Color:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Object: lime. Color: green\nObject: lemon. Color: yellow\nObject: grass. Color: green\nObject: sapphire. Color:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Object: canary. Color: yellow\nObject: broccoli. Color: green\nObject: fire truck. Color: red\nObject: coal. Color:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Object: raven. Color: black\nObject: tomato. Color: red\nObject: ruby. Color: red\nObject: tangerine. Color:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Object: sunflower. Color: yellow\nObject: sky. Color: blue\nObject: milk. Color: white\nObject: frog. Color:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Object: mud. Color: brown\nObject: lime. Color: green\nObject: broccoli. Color: green\nObject: fire truck. Color:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Object: cloud. Color: white\nObject: blueberry. Color: blue\nObject: lavender. Color: purple\nObject: crow. Color:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Object: chocolate. Color: brown\nObject: blueberry. Color: blue\nObject: flamingo. Color: pink\nObject: broccoli. Color:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Object: soil. Color: brown\nObject: sapphire. Color: blue\nObject: flamingo. Color: pink\nObject: ink. Color:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Object: flamingo. Color: pink\nObject: chocolate. Color: brown\nObject: soil. Color: brown\nObject: coffee. Color:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Object: cucumber. Color: green\nObject: crow. Color: black\nObject: sunflower. Color: yellow\nObject: cherry. Color:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Object: cucumber. Color: green\nObject: banana. Color: yellow\nObject: raven. Color: black\nObject: coal. Color:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Object: tomato. Color: red\nObject: milk. Color: white\nObject: canary. Color: yellow\nObject: ocean. Color:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Object: frog. Color: green\nObject: coffee. Color: brown\nObject: salt. Color: white\nObject: sapphire. Color:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Object: tomato. Color: red\nObject: sunflower. Color: yellow\nObject: sapphire. Color: blue\nObject: frog. Color:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Object: blueberry. Color: blue\nObject: sunflower. Color: yellow\nObject: tomato. Color: red\nObject: salt. Color:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Object: fire truck. Color: red\nObject: coffee. Color: brown\nObject: tangerine. Color: orange\nObject: cherry. Color:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Object: cloud. Color: white\nObject: crow. Color: black\nObject: emerald. Color: green\nObject: sky. Color:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Object: ruby. Color: red\nObject: ocean. Color: blue\nObject: lime. Color: green\nObject: tomato. Color:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Object: grass. Color: green\nObject: raven. Color: black\nObject: frog. Color: green\nObject: emerald. Color:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Object: charcoal. Color: black\nObject: broccoli. Color: green\nObject: tomato. Color: red\nObject: carrot. Color:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Object: sky. Color: blue\nObject: pumpkin. Color: orange\nObject: blood. Color: red\nObject: crow. Color:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Object: broccoli. Color: green\nObject: carrot. Color: orange\nObject: sunflower. Color: yellow\nObject: cucumber. Color:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Object: coffee. Color: brown\nObject: ruby. Color: red\nObject: blood. Color: red\nObject: lavender. Color:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "Object: mud. Color: brown\nObject: pumpkin. Color: orange\nObject: banana. Color: yellow\nObject: flamingo. Color:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "Object: carrot. Color: orange\nObject: cucumber. Color: green\nObject: emerald. Color: green\nObject: lime. Color:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Object: eggplant. Color: purple\nObject: raven. Color: black\nObject: ocean. Color: blue\nObject: lime. Color:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Object: ruby. Color: red\nObject: grass. Color: green\nObject: crow. Color: black\nObject: banana. Color:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Object: lime. Color: green\nObject: eggplant. Color: purple\nObject: broccoli. Color: green\nObject: flamingo. Color:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "Object: lime. Color: green\nObject: lemon. Color: yellow\nObject: raven. Color: black\nObject: ruby. Color:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Object: broccoli. Color: green\nObject: cherry. Color: red\nObject: mud. Color: brown\nObject: carrot. Color:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Object: coal. Color: black\nObject: emerald. Color: green\nObject: canary. Color: yellow\nObject: pumpkin. Color:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Object: lemon. Color: yellow\nObject: sapphire. Color: blue\nObject: crow. Color: black\nObject: frog. Color:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Object: tangerine. Color: orange\nObject: lemon. Color: yellow\nObject: blueberry. Color: blue\nObject: eggplant. Color:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "Object: ruby. Color: red\nObject: cherry. Color: red\nObject: crow. Color: black\nObject: snow. Color:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Object: emerald. Color: green\nObject: cloud. Color: white\nObject: frog. Color: green\nObject: cotton. Color:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Object: sunflower. Color: yellow\nObject: coffee. Color: brown\nObject: tangerine. Color: orange\nObject: frog. Color:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Object: pumpkin. Color: orange\nObject: frog. Color: green\nObject: ocean. Color: blue\nObject: canary. Color:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Object: carrot. Color: orange\nObject: soil. Color: brown\nObject: cucumber. Color: green\nObject: blood. Color:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Object: blood. Color: red\nObject: raven. Color: black\nObject: sky. Color: blue\nObject: coal. Color:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Object: pumpkin. Color: orange\nObject: broccoli. Color: green\nObject: cucumber. Color: green\nObject: ink. Color:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Object: canary. Color: yellow\nObject: lemon. Color: yellow\nObject: milk. Color: white\nObject: chocolate. Color:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Object: milk. Color: white\nObject: flamingo. Color: pink\nObject: cherry. Color: red\nObject: snow. Color:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Object: flamingo. Color: pink\nObject: emerald. Color: green\nObject: strawberry. Color: red\nObject: grass. Color:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Object: blueberry. Color: blue\nObject: pumpkin. Color: orange\nObject: tangerine. Color: orange\nObject: emerald. Color:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Object: ocean. Color: blue\nObject: fire truck. Color: red\nObject: salt. Color: white\nObject: pumpkin. Color:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Object: crow. Color: black\nObject: carrot. Color: orange\nObject: ink. Color: black\nObject: chocolate. Color:",
+    "continuation": " brown",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Object: sapphire. Color: blue\nObject: blueberry. Color: blue\nObject: soil. Color: brown\nObject: frog. Color:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Object: strawberry. Color: red\nObject: frog. Color: green\nObject: charcoal. Color: black\nObject: raven. Color:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Object: sunflower. Color: yellow\nObject: lavender. Color: purple\nObject: frog. Color: green\nObject: sapphire. Color:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Object: soil. Color: brown\nObject: strawberry. Color: red\nObject: snow. Color: white\nObject: eggplant. Color:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "Object: eggplant. Color: purple\nObject: tangerine. Color: orange\nObject: snow. Color: white\nObject: sunflower. Color:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Object: banana. Color: yellow\nObject: frog. Color: green\nObject: mud. Color: brown\nObject: tangerine. Color:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Object: carrot. Color: orange\nObject: soil. Color: brown\nObject: tomato. Color: red\nObject: grass. Color:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Object: ocean. Color: blue\nObject: sunflower. Color: yellow\nObject: sky. Color: blue\nObject: lime. Color:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Object: lavender. Color: purple\nObject: broccoli. Color: green\nObject: tangerine. Color: orange\nObject: lime. Color:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Object: blood. Color: red\nObject: lemon. Color: yellow\nObject: tomato. Color: red\nObject: sky. Color:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Object: soil. Color: brown\nObject: ruby. Color: red\nObject: salt. Color: white\nObject: sapphire. Color:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Object: coal. Color: black\nObject: sunflower. Color: yellow\nObject: cloud. Color: white\nObject: raven. Color:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Object: blood. Color: red\nObject: lavender. Color: purple\nObject: cotton. Color: white\nObject: coffee. Color:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Object: cucumber. Color: green\nObject: sky. Color: blue\nObject: crow. Color: black\nObject: strawberry. Color:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Object: ocean. Color: blue\nObject: cloud. Color: white\nObject: chocolate. Color: brown\nObject: raven. Color:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Object: ocean. Color: blue\nObject: raven. Color: black\nObject: cotton. Color: white\nObject: sky. Color:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Object: ink. Color: black\nObject: pumpkin. Color: orange\nObject: grass. Color: green\nObject: chocolate. Color:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Object: carrot. Color: orange\nObject: sunflower. Color: yellow\nObject: coal. Color: black\nObject: tomato. Color:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Object: mud. Color: brown\nObject: cloud. Color: white\nObject: ruby. Color: red\nObject: salt. Color:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Object: cotton. Color: white\nObject: strawberry. Color: red\nObject: crow. Color: black\nObject: cloud. Color:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Object: salt. Color: white\nObject: cloud. Color: white\nObject: charcoal. Color: black\nObject: cucumber. Color:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Object: banana. Color: yellow\nObject: frog. Color: green\nObject: flamingo. Color: pink\nObject: milk. Color:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Object: mud. Color: brown\nObject: eggplant. Color: purple\nObject: blood. Color: red\nObject: cotton. Color:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Object: banana. Color: yellow\nObject: lime. Color: green\nObject: cucumber. Color: green\nObject: raven. Color:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Object: grass. Color: green\nObject: coffee. Color: brown\nObject: lavender. Color: purple\nObject: lime. Color:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Object: sunflower. Color: yellow\nObject: ocean. Color: blue\nObject: snow. Color: white\nObject: milk. Color:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Object: cucumber. Color: green\nObject: flamingo. Color: pink\nObject: eggplant. Color: purple\nObject: sunflower. Color:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Object: eggplant. Color: purple\nObject: broccoli. Color: green\nObject: fire truck. Color: red\nObject: tomato. Color:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Object: cloud. Color: white\nObject: frog. Color: green\nObject: blood. Color: red\nObject: fire truck. Color:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Object: ruby. Color: red\nObject: lavender. Color: purple\nObject: cherry. Color: red\nObject: carrot. Color:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Object: flamingo. Color: pink\nObject: charcoal. Color: black\nObject: blood. Color: red\nObject: mud. Color:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Object: grass. Color: green\nObject: emerald. Color: green\nObject: crow. Color: black\nObject: chocolate. Color:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Object: salt. Color: white\nObject: eggplant. Color: purple\nObject: milk. Color: white\nObject: ocean. Color:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Object: lime. Color: green\nObject: ruby. Color: red\nObject: cloud. Color: white\nObject: emerald. Color:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Object: grass. Color: green\nObject: raven. Color: black\nObject: canary. Color: yellow\nObject: sapphire. Color:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Object: banana. Color: yellow\nObject: cucumber. Color: green\nObject: sunflower. Color: yellow\nObject: lavender. Color:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "Object: fire truck. Color: red\nObject: grass. Color: green\nObject: cucumber. Color: green\nObject: coal. Color:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Object: ink. Color: black\nObject: raven. Color: black\nObject: strawberry. Color: red\nObject: sapphire. Color:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Object: soil. Color: brown\nObject: coffee. Color: brown\nObject: cotton. Color: white\nObject: lavender. Color:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "Object: milk. Color: white\nObject: flamingo. Color: pink\nObject: sunflower. Color: yellow\nObject: cherry. Color:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Object: sky. Color: blue\nObject: sapphire. Color: blue\nObject: lime. Color: green\nObject: blueberry. Color:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Object: canary. Color: yellow\nObject: chocolate. Color: brown\nObject: cucumber. Color: green\nObject: blood. Color:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Object: lavender. Color: purple\nObject: carrot. Color: orange\nObject: blueberry. Color: blue\nObject: ruby. Color:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Object: sunflower. Color: yellow\nObject: blood. Color: red\nObject: banana. Color: yellow\nObject: fire truck. Color:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Object: fire truck. Color: red\nObject: pumpkin. Color: orange\nObject: tomato. Color: red\nObject: crow. Color:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Object: snow. Color: white\nObject: ocean. Color: blue\nObject: banana. Color: yellow\nObject: carrot. Color:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Object: snow. Color: white\nObject: sky. Color: blue\nObject: soil. Color: brown\nObject: sunflower. Color:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Object: ocean. Color: blue\nObject: salt. Color: white\nObject: cloud. Color: white\nObject: banana. Color:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Object: snow. Color: white\nObject: raven. Color: black\nObject: blueberry. Color: blue\nObject: cherry. Color:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Object: canary. Color: yellow\nObject: cloud. Color: white\nObject: emerald. Color: green\nObject: carrot. Color:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Object: cucumber. Color: green\nObject: cherry. Color: red\nObject: raven. Color: black\nObject: coffee. Color:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Object: tomato. Color: red\nObject: ruby. Color: red\nObject: sunflower. Color: yellow\nObject: sky. Color:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Object: snow. Color: white\nObject: mud. Color: brown\nObject: tangerine. Color: orange\nObject: flamingo. Color:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "Object: carrot. Color: orange\nObject: emerald. Color: green\nObject: chocolate. Color: brown\nObject: fire truck. Color:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Object: banana. Color: yellow\nObject: blood. Color: red\nObject: cucumber. Color: green\nObject: mud. Color:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Object: lime. Color: green\nObject: fire truck. Color: red\nObject: tomato. Color: red\nObject: ocean. Color:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Object: eggplant. Color: purple\nObject: blueberry. Color: blue\nObject: coal. Color: black\nObject: banana. Color:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Object: tomato. Color: red\nObject: coffee. Color: brown\nObject: snow. Color: white\nObject: mud. Color:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Object: sapphire. Color: blue\nObject: sky. Color: blue\nObject: mud. Color: brown\nObject: tomato. Color:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Object: banana. Color: yellow\nObject: cloud. Color: white\nObject: lemon. Color: yellow\nObject: coal. Color:",
+    "continuation": " black",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Object: mud. Name: mud\nObject: carrot. Name: carrot\nObject: crow. Name: crow\nObject: sunflower. Name:",
+    "continuation": " sunflower",
+    "digits_only": false
+   },
+   {
+    "context": "Object: snow. Name: snow\nObject: ocean. Name: ocean\nObject: sunflower. Name: sunflower\nObject: banana. Name:",
+    "continuation": " banana",
+    "digits_only": false
+   },
+   {
+    "context": "Object: cotton. Name: cotton\nObject: tangerine. Name: tangerine\nObject: sky. Name: sky\nObject: fire truck. Name:",
+    "continuation": " fire truck",
+    "digits_only": false
+   },
+   {
+    "context": "Object: fire truck. Name: fire truck\nObject: blood. Name: blood\nObject: sky. Name: sky\nObject: coal. Name:",
+    "continuation": " coal",
+    "digits_only": false
+   },
+   {
+    "context": "Object: pumpkin. Name: pumpkin\nObject: blood. Name: blood\nObject: cotton. Name: cotton\nObject: raven. Name:",
+    "continuation": " raven",
+    "digits_only": false
+   },
+   {
+    "context": "Object: crow. Name: crow\nObject: raven. Name: raven\nObject: coal. Name: coal\nObject: eggplant. Name:",
+    "continuation": " eggplant",
+    "digits_only": false
+   },
+   {
+    "context": "Object: raven. Name: raven\nObject: lime. Name: lime\nObject: snow. Name: snow\nObject: blueberry. Name:",
+    "continuation": " blueberry",
+    "digits_only": false
+   },
+   {
+    "context": "Object: coal. Name: coal\nObject: lemon. Name: lemon\nObject: sunflower. Name: sunflower\nObject: eggplant. Name:",
+    "continuation": " eggplant",
+    "digits_only": false
+   },
+   {
+    "context": "Object: lemon. Name: lemon\nObject: tomato. Name: tomato\nObject: ink. Name: ink\nObject: flamingo. Name:",
+    "continuation": " flamingo",
+    "digits_only": false
+   },
+   {
+    "context": "Object: mud. Name: mud\nObject: lime. Name: lime\nObject: soil. Name: soil\nObject: coal. Name:",
+    "continuation": " coal",
+    "digits_only": false
+   },
+   {
+    "context": "Object: ink. Name: ink\nObject: chocolate. Name: chocolate\nObject: pumpkin. Name: pumpkin\nObject: charcoal. Name:",
+    "continuation": " charcoal",
+    "digits_only": false
+   },
+   {
+    "context": "Object: ruby. Name: ruby\nObject: soil. Name: soil\nObject: sunflower. Name: sunflower\nObject: sapphire. Name:",
+    "continuation": " sapphire",
+    "digits_only": false
+   },
+   {
+    "context": "Object: raven. Name: raven\nObject: lime. Name: lime\nObject: chocolate. Name: chocolate\nObject: fire truck. Name:",
+    "continuation": " fire truck",
+    "digits_only": false
+   },
+   {
+    "context": "Object: charcoal. Name: charcoal\nObject: sunflower. Name: sunflower\nObject: sky. Name: sky\nObject: lemon. Name:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Object: chocolate. Name: chocolate\nObject: blood. Name: blood\nObject: strawberry. Name: strawberry\nObject: carrot. Name:",
+    "continuation": " carrot",
+    "digits_only": false
+   },
+   {
+    "context": "Object: blood. Name: blood\nObject: ruby. Name: ruby\nObject: coal. Name: coal\nObject: chocolate. Name:",
+    "continuation": " chocolate",
+    "digits_only": false
+   },
+   {
+    "context": "Object: banana. Name: banana\nObject: cloud. Name: cloud\nObject: charcoal. Name: charcoal\nObject: grass. Name:",
+    "continuation": " grass",
+    "digits_only": false
+   },
+   {
+    "context": "Object: lavender. Name: lavender\nObject: sky. Name: sky\nObject: raven. Name: raven\nObject: tomato. Name:",
+    "continuation": " tomato",
+    "digits_only": false
+   },
+   {
+    "context": "Object: chocolate. Name: chocolate\nObject: ocean. Name: ocean\nObject: cucumber. Name: cucumber\nObject: salt. Name:",
+    "continuation": " salt",
+    "digits_only": false
+   },
+   {
+    "context": "Object: ocean. Name: ocean\nObject: lavender. Name: lavender\nObject: canary. Name: canary\nObject: strawberry. Name:",
+    "continuation": " strawberry",
+    "digits_only": false
+   },
+   {
+    "context": "Object: charcoal. Name: charcoal\nObject: cloud. Name: cloud\nObject: soil. Name: soil\nObject: blood. Name:",
+    "continuation": " blood",
+    "digits_only": false
+   },
+   {
+    "context": "Object: coffee. Name: coffee\nObject: pumpkin. Name: pumpkin\nObject: lemon. Name: lemon\nObject: ink. Name:",
+    "continuation": " ink",
+    "digits_only": false
+   },
+   {
+    "context": "Object: coffee. Name: coffee\nObject: snow. Name: snow\nObject: frog. Name: frog\nObject: eggplant. Name:",
+    "continuation": " eggplant",
+    "digits_only": false
+   },
+   {
+    "context": "Object: ink. Name: ink\nObject: cloud. Name: cloud\nObject: frog. Name: frog\nObject: charcoal. Name:",
+    "continuation": " charcoal",
+    "digits_only": false
+   },
+   {
+    "context": "Object: sky. Name: sky\nObject: ink. Name: ink\nObject: milk. Name: milk\nObject: tomato. Name:",
+    "continuation": " tomato",
+    "digits_only": false
+   },
+   {
+    "context": "Object: lavender. Name: lavender\nObject: charcoal. Name: charcoal\nObject: canary. Name: canary\nObject: sky. Name:",
+    "continuation": " sky",
+    "digits_only": false
+   },
+   {
+    "context": "Object: cloud. Name: cloud\nObject: ruby. Name: ruby\nObject: sunflower. Name: sunflower\nObject: tangerine. Name:",
+    "continuation": " tangerine",
+    "digits_only": false
+   },
+   {
+    "context": "Object: fire truck. Name: fire truck\nObject: coffee. Name: coffee\nObject: tomato. Name: tomato\nObject: canary. Name:",
+    "continuation": " canary",
+    "digits_only": false
+   },
+   {
+    "context": "Object: grass. Name: grass\nObject: chocolate. Name: chocolate\nObject: emerald. Name: emerald\nObject: fire truck. Name:",
+    "continuation": " fire truck",
+    "digits_only": false
+   },
+   {
+    "context": "Object: emerald. Name: emerald\nObject: eggplant. Name: eggplant\nObject: ink. Name: ink\nObject: crow. Name:",
+    "continuation": " crow",
+    "digits_only": false
+   },
+   {
+    "context": "Object: blueberry. Name: blueberry\nObject: banana. Name: banana\nObject: tangerine. Name: tangerine\nObject: blood. Name:",
+    "continuation": " blood",
+    "digits_only": false
+   },
+   {
+    "context": "Object: strawberry. Name: strawberry\nObject: tomato. Name: tomato\nObject: broccoli. Name: broccoli\nObject: frog. Name:",
+    "continuation": " frog",
+    "digits_only": false
+   },
+   {
+    "context": "Object: crow. Name: crow\nObject: strawberry. Name: strawberry\nObject: tangerine. Name: tangerine\nObject: flamingo. Name:",
+    "continuation": " flamingo",
+    "digits_only": false
+   },
+   {
+    "context": "Object: coffee. Name: coffee\nObject: flamingo. Name: flamingo\nObject: strawberry. Name: strawberry\nObject: lavender. Name:",
+    "continuation": " lavender",
+    "digits_only": false
+   },
+   {
+    "context": "Object: chocolate. Name: chocolate\nObject: tomato. Name: tomato\nObject: ink. Name: ink\nObject: grass. Name:",
+    "continuation": " grass",
+    "digits_only": false
+   },
+   {
+    "context": "Object: tangerine. Name: tangerine\nObject: chocolate. Name: chocolate\nObject: soil. Name: soil\nObject: ruby. Name:",
+    "continuation": " ruby",
+    "digits_only": false
+   },
+   {
+    "context": "Object: blood. Name: blood\nObject: broccoli. Name: broccoli\nObject: cucumber. Name: cucumber\nObject: raven. Name:",
+    "continuation": " raven",
+    "digits_only": false
+   },
+   {
+    "context": "Object: charcoal. Name: charcoal\nObject: snow. Name: snow\nObject: crow. Name: crow\nObject: pumpkin. Name:",
+    "continuation": " pumpkin",
+    "digits_only": false
+   },
+   {
+    "context": "Object: cherry. Name: cherry\nObject: sky. Name: sky\nObject: eggplant. Name: eggplant\nObject: flamingo. Name:",
+    "continuation": " flamingo",
+    "digits_only": false
+   },
+   {
+    "context": "Object: soil. Name: soil\nObject: ruby. Name: ruby\nObject: strawberry. Name: strawberry\nObject: sky. Name:",
+    "continuation": " sky",
+    "digits_only": false
+   },
+   {
+    "context": "Object: banana. Name: banana\nObject: sky. Name: sky\nObject: coffee. Name: coffee\nObject: lavender. Name:",
+    "continuation": " lavender",
+    "digits_only": false
+   },
+   {
+    "context": "Object: emerald. Name: emerald\nObject: sky. Name: sky\nObject: cucumber. Name: cucumber\nObject: frog. Name:",
+    "continuation": " frog",
+    "digits_only": false
+   },
+   {
+    "context": "Object: blueberry. Name: blueberry\nObject: cloud. Name: cloud\nObject: mud. Name: mud\nObject: broccoli. Name:",
+    "continuation": " broccoli",
+    "digits_only": false
+   },
+   {
+    "context": "Object: lemon. Name: lemon\nObject: strawberry. Name: strawberry\nObject: soil. Name: soil\nObject: ruby. Name:",
+    "continuation": " ruby",
+    "digits_only": false
+   },
+   {
+    "context": "Object: lavender. Name: lavender\nObject: coffee. Name: coffee\nObject: emerald. Name: emerald\nObject: broccoli. Name:",
+    "continuation": " broccoli",
+    "digits_only": false
+   },
+   {
+    "context": "Object: emerald. Name: emerald\nObject: blueberry. Name: blueberry\nObject: blood. Name: blood\nObject: lemon. Name:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Object: blood. Name: blood\nObject: cucumber. Name: cucumber\nObject: banana. Name: banana\nObject: charcoal. Name:",
+    "continuation": " charcoal",
+    "digits_only": false
+   },
+   {
+    "context": "Object: coal. Name: coal\nObject: coffee. Name: coffee\nObject: lime. Name: lime\nObject: eggplant. Name:",
+    "continuation": " eggplant",
+    "digits_only": false
+   },
+   {
+    "context": "Object: lime. Name: lime\nObject: coal. Name: coal\nObject: pumpkin. Name: pumpkin\nObject: eggplant. Name:",
+    "continuation": " eggplant",
+    "digits_only": false
+   },
+   {
+    "context": "Object: emerald. Name: emerald\nObject: ocean. Name: ocean\nObject: coffee. Name: coffee\nObject: chocolate. Name:",
+    "continuation": " chocolate",
+    "digits_only": false
+   },
+   {
+    "context": "Object: carrot. Name: carrot\nObject: blueberry. Name: blueberry\nObject: soil. Name: soil\nObject: flamingo. Name:",
+    "continuation": " flamingo",
+    "digits_only": false
+   },
+   {
+    "context": "Object: chocolate. Name: chocolate\nObject: mud. Name: mud\nObject: cloud. Name: cloud\nObject: lemon. Name:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Object: cherry. Name: cherry\nObject: eggplant. Name: eggplant\nObject: ruby. Name: ruby\nObject: blood. Name:",
+    "continuation": " blood",
+    "digits_only": false
+   },
+   {
+    "context": "Object: tangerine. Name: tangerine\nObject: coffee. Name: coffee\nObject: frog. Name: frog\nObject: snow. Name:",
+    "continuation": " snow",
+    "digits_only": false
+   },
+   {
+    "context": "Object: cucumber. Name: cucumber\nObject: blueberry. Name: blueberry\nObject: raven. Name: raven\nObject: cloud. Name:",
+    "continuation": " cloud",
+    "digits_only": false
+   },
+   {
+    "context": "Object: tomato. Name: tomato\nObject: coffee. Name: coffee\nObject: fire truck. Name: fire truck\nObject: blood. Name:",
+    "continuation": " blood",
+    "digits_only": false
+   },
+   {
+    "context": "Object: ruby. Name: ruby\nObject: soil. Name: soil\nObject: canary. Name: canary\nObject: milk. Name:",
+    "continuation": " milk",
+    "digits_only": false
+   },
+   {
+    "context": "Object: emerald. Name: emerald\nObject: ruby. Name: ruby\nObject: chocolate. Name: chocolate\nObject: coal. Name:",
+    "continuation": " coal",
+    "digits_only": false
+   },
+   {
+    "context": "Object: carrot. Name: carrot\nObject: eggplant. Name: eggplant\nObject: blueberry. Name: blueberry\nObject: cloud. Name:",
+    "continuation": " cloud",
+    "digits_only": false
+   },
+   {
+    "context": "Object: soil. Name: soil\nObject: sapphire. Name: sapphire\nObject: snow. Name: snow\nObject: grass. Name:",
+    "continuation": " grass",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Object: ink. Name: ink\nObject: cloud. Name: cloud\nObject: pumpkin. Name: pumpkin\nObject: tomato. Name:",
+    "continuation": " tomato",
+    "digits_only": false
+   },
+   {
+    "context": "Object: cherry. Name: cherry\nObject: blood. Name: blood\nObject: charcoal. Name: charcoal\nObject: pumpkin. Name:",
+    "continuation": " pumpkin",
+    "digits_only": false
+   },
+   {
+    "context": "Object: grass. Name: grass\nObject: chocolate. Name: chocolate\nObject: ink. Name: ink\nObject: sky. Name:",
+    "continuation": " sky",
+    "digits_only": false
+   },
+   {
+    "context": "Object: sunflower. Name: sunflower\nObject: canary. Name: canary\nObject: cotton. Name: cotton\nObject: eggplant. Name:",
+    "continuation": " eggplant",
+    "digits_only": false
+   },
+   {
+    "context": "Object: sapphire. Name: sapphire\nObject: salt. Name: salt\nObject: snow. Name: snow\nObject: ocean. Name:",
+    "continuation": " ocean",
+    "digits_only": false
+   },
+   {
+    "context": "Object: salt. Name: salt\nObject: cloud. Name: cloud\nObject: soil. Name: soil\nObject: coal. Name:",
+    "continuation": " coal",
+    "digits_only": false
+   },
+   {
+    "context": "Object: banana. Name: banana\nObject: sapphire. Name: sapphire\nObject: eggplant. Name: eggplant\nObject: chocolate. Name:",
+    "continuation": " chocolate",
+    "digits_only": false
+   },
+   {
+    "context": "Object: charcoal. Name: charcoal\nObject: broccoli. Name: broccoli\nObject: crow. Name: crow\nObject: sapphire. Name:",
+    "continuation": " sapphire",
+    "digits_only": false
+   },
+   {
+    "context": "Object: grass. Name: grass\nObject: banana. Name: banana\nObject: crow. Name: crow\nObject: eggplant. Name:",
+    "continuation": " eggplant",
+    "digits_only": false
+   },
+   {
+    "context": "Object: salt. Name: salt\nObject: blood. Name: blood\nObject: carrot. Name: carrot\nObject: broccoli. Name:",
+    "continuation": " broccoli",
+    "digits_only": false
+   },
+   {
+    "context": "Object: fire truck. Name: fire truck\nObject: tangerine. Name: tangerine\nObject: broccoli. Name: broccoli\nObject: lime. Name:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Object: blood. Name: blood\nObject: coal. Name: coal\nObject: emerald. Name: emerald\nObject: pumpkin. Name:",
+    "continuation": " pumpkin",
+    "digits_only": false
+   },
+   {
+    "context": "Object: chocolate. Name: chocolate\nObject: raven. Name: raven\nObject: strawberry. Name: strawberry\nObject: milk. Name:",
+    "continuation": " milk",
+    "digits_only": false
+   },
+   {
+    "context": "Object: grass. Name: grass\nObject: frog. Name: frog\nObject: cherry. Name: cherry\nObject: sunflower. Name:",
+    "continuation": " sunflower",
+    "digits_only": false
+   },
+   {
+    "context": "Object: ruby. Name: ruby\nObject: emerald. Name: emerald\nObject: lime. Name: lime\nObject: eggplant. Name:",
+    "continuation": " eggplant",
+    "digits_only": false
+   },
+   {
+    "context": "Object: canary. Name: canary\nObject: blood. Name: blood\nObject: raven. Name: raven\nObject: fire truck. Name:",
+    "continuation": " fire truck",
+    "digits_only": false
+   },
+   {
+    "context": "Object: sunflower. Name: sunflower\nObject: sky. Name: sky\nObject: cucumber. Name: cucumber\nObject: canary. Name:",
+    "continuation": " canary",
+    "digits_only": false
+   },
+   {
+    "context": "Object: coal. Name: coal\nObject: sky. Name: sky\nObject: coffee. Name: coffee\nObject: lime. Name:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Object: blood. Name: blood\nObject: soil. Name: soil\nObject: sapphire. Name: sapphire\nObject: cloud. Name:",
+    "continuation": " cloud",
+    "digits_only": false
+   },
+   {
+    "context": "Object: pumpkin. Name: pumpkin\nObject: lemon. Name: lemon\nObject: sky. Name: sky\nObject: eggplant. Name:",
+    "continuation": " eggplant",
+    "digits_only": false
+   },
+   {
+    "context": "Object: emerald. Name: emerald\nObject: flamingo. Name: flamingo\nObject: milk. Name: milk\nObject: strawberry. Name:",
+    "continuation": " strawberry",
+    "digits_only": false
+   },
+   {
+    "context": "Object: salt. Name: salt\nObject: tangerine. Name: tangerine\nObject: coffee. Name: coffee\nObject: lime. Name:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Object: cotton. Name: cotton\nObject: lemon. Name: lemon\nObject: cloud. Name: cloud\nObject: carrot. Name:",
+    "continuation": " carrot",
+    "digits_only": false
+   },
+   {
+    "context": "Object: tomato. Name: tomato\nObject: cherry. Name: cherry\nObject: canary. Name: canary\nObject: blood. Name:",
+    "continuation": " blood",
+    "digits_only": false
+   },
+   {
+    "context": "Object: sky. Name: sky\nObject: snow. Name: snow\nObject: milk. Name: milk\nObject: ruby. Name:",
+    "continuation": " ruby",
+    "digits_only": false
+   },
+   {
+    "context": "Object: cherry. Name: cherry\nObject: soil. Name: soil\nObject: blood. Name: blood\nObject: coffee. Name:",
+    "continuation": " coffee",
+    "digits_only": false
+   },
+   {
+    "context": "Object: tomato. Name: tomato\nObject: eggplant. Name: eggplant\nObject: carrot. Name: carrot\nObject: coal. Name:",
+    "continuation": " coal",
+    "digits_only": false
+   },
+   {
+    "context": "Object: tomato. Name: tomato\nObject: frog. Name: frog\nObject: raven. Name: raven\nObject: lavender. Name:",
+    "continuation": " lavender",
+    "digits_only": false
+   },
+   {
+    "context": "Object: blueberry. Name: blueberry\nObject: lemon. Name: lemon\nObject: cloud. Name: cloud\nObject: chocolate. Name:",
+    "continuation": " chocolate",
+    "digits_only": false
+   },
+   {
+    "context": "Object: mud. Name: mud\nObject: chocolate. Name: chocolate\nObject: coffee. Name: coffee\nObject: salt. Name:",
+    "continuation": " salt",
+    "digits_only": false
+   },
+   {
+    "context": "Object: charcoal. Name: charcoal\nObject: flamingo. Name: flamingo\nObject: soil. Name: soil\nObject: cloud. Name:",
+    "continuation": " cloud",
+    "digits_only": false
+   },
+   {
+    "context": "Object: coal. Name: coal\nObject: lime. Name: lime\nObject: milk. Name: milk\nObject: frog. Name:",
+    "continuation": " frog",
+    "digits_only": false
+   },
+   {
+    "context": "Object: lemon. Name: lemon\nObject: canary. Name: canary\nObject: raven. Name: raven\nObject: sapphire. Name:",
+    "continuation": " sapphire",
+    "digits_only": false
+   },
+   {
+    "context": "Object: grass. Name: grass\nObject: ink. Name: ink\nObject: frog. Name: frog\nObject: chocolate. Name:",
+    "continuation": " chocolate",
+    "digits_only": false
+   },
+   {
+    "context": "Object: flamingo. Name: flamingo\nObject: fire truck. Name: fire truck\nObject: carrot. Name: carrot\nObject: blood. Name:",
+    "continuation": " blood",
+    "digits_only": false
+   },
+   {
+    "context": "Object: salt. Name: salt\nObject: cucumber. Name: cucumber\nObject: frog. Name: frog\nObject: carrot. Name:",
+    "continuation": " carrot",
+    "digits_only": false
+   },
+   {
+    "context": "Object: cotton. Name: cotton\nObject: coffee. Name: coffee\nObject: cucumber. Name: cucumber\nObject: eggplant. Name:",
+    "continuation": " eggplant",
+    "digits_only": false
+   },
+   {
+    "context": "Object: grass. Name: grass\nObject: raven. Name: raven\nObject: sky. Name: sky\nObject: emerald. Name:",
+    "continuation": " emerald",
+    "digits_only": false
+   },
+   {
+    "context": "Object: tomato. Name: tomato\nObject: lemon. Name: lemon\nObject: pumpkin. Name: pumpkin\nObject: lavender. Name:",
+    "continuation": " lavender",
+    "digits_only": false
+   },
+   {
+    "context": "Object: tomato. Name: tomato\nObject: tangerine. Name: tangerine\nObject: charcoal. Name: charcoal\nObject: cotton. Name:",
+    "continuation": " cotton",
+    "digits_only": false
+   },
+   {
+    "context": "Object: carrot. Name: carrot\nObject: emerald. Name: emerald\nObject: tangerine. Name: tangerine\nObject: ocean. Name:",
+    "continuation": " ocean",
+    "digits_only": false
+   },
+   {
+    "context": "Object: ruby. Name: ruby\nObject: cherry. Name: cherry\nObject: lavender. Name: lavender\nObject: mud. Name:",
+    "continuation": " mud",
+    "digits_only": false
+   },
+   {
+    "context": "Object: mud. Name: mud\nObject: tangerine. Name: tangerine\nObject: ocean. Name: ocean\nObject: snow. Name:",
+    "continuation": " snow",
+    "digits_only": false
+   },
+   {
+    "context": "Object: salt. Name: salt\nObject: sunflower. Name: sunflower\nObject: ink. Name: ink\nObject: frog. Name:",
+    "continuation": " frog",
+    "digits_only": false
+   },
+   {
+    "context": "Object: mud. Name: mud\nObject: lemon. Name: lemon\nObject: eggplant. Name: eggplant\nObject: ocean. Name:",
+    "continuation": " ocean",
+    "digits_only": false
+   },
+   {
+    "context": "Object: cherry. Name: cherry\nObject: tangerine. Name: tangerine\nObject: flamingo. Name: flamingo\nObject: ocean. Name:",
+    "continuation": " ocean",
+    "digits_only": false
+   },
+   {
+    "context": "Object: chocolate. Name: chocolate\nObject: coffee. Name: coffee\nObject: cucumber. Name: cucumber\nObject: lime. Name:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Object: blueberry. Name: blueberry\nObject: fire truck. Name: fire truck\nObject: tomato. Name: tomato\nObject: frog. Name:",
+    "continuation": " frog",
+    "digits_only": false
+   },
+   {
+    "context": "Object: lemon. Name: lemon\nObject: strawberry. Name: strawberry\nObject: cloud. Name: cloud\nObject: flamingo. Name:",
+    "continuation": " flamingo",
+    "digits_only": false
+   },
+   {
+    "context": "Object: broccoli. Name: broccoli\nObject: fire truck. Name: fire truck\nObject: sunflower. Name: sunflower\nObject: soil. Name:",
+    "continuation": " soil",
+    "digits_only": false
+   },
+   {
+    "context": "Object: mud. Name: mud\nObject: coal. Name: coal\nObject: cherry. Name: cherry\nObject: blueberry. Name:",
+    "continuation": " blueberry",
+    "digits_only": false
+   },
+   {
+    "context": "Object: sky. Name: sky\nObject: fire truck. Name: fire truck\nObject: mud. Name: mud\nObject: lemon. Name:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Object: carrot. Name: carrot\nObject: tomato. Name: tomato\nObject: pumpkin. Name: pumpkin\nObject: sky. Name:",
+    "continuation": " sky",
+    "digits_only": false
+   },
+   {
+    "context": "Object: banana. Name: banana\nObject: sapphire. Name: sapphire\nObject: raven. Name: raven\nObject: mud. Name:",
+    "continuation": " mud",
+    "digits_only": false
+   },
+   {
+    "context": "Object: sapphire. Name: sapphire\nObject: fire truck. Name: fire truck\nObject: blueberry. Name: blueberry\nObject: salt. Name:",
+    "continuation": " salt",
+    "digits_only": false
+   },
+   {
+    "context": "Object: sapphire. Name: sapphire\nObject: grass. Name: grass\nObject: ruby. Name: ruby\nObject: soil. Name:",
+    "continuation": " soil",
+    "digits_only": false
+   },
+   {
+    "context": "Object: ruby. Name: ruby\nObject: ocean. Name: ocean\nObject: cherry. Name: cherry\nObject: coffee. Name:",
+    "continuation": " coffee",
+    "digits_only": false
+   },
+   {
+    "context": "Object: cherry. Name: cherry\nObject: pumpkin. Name: pumpkin\nObject: fire truck. Name: fire truck\nObject: cucumber. Name:",
+    "continuation": " cucumber",
+    "digits_only": false
+   },
+   {
+    "context": "Object: pumpkin. Name: pumpkin\nObject: charcoal. Name: charcoal\nObject: coal. Name: coal\nObject: fire truck. Name:",
+    "continuation": " fire truck",
+    "digits_only": false
+   },
+   {
+    "context": "Object: charcoal. Name: charcoal\nObject: chocolate. Name: chocolate\nObject: sky. Name: sky\nObject: fire truck. Name:",
+    "continuation": " fire truck",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 8.7995
+}

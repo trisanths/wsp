@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_qwen__qwen3.5-35b-a3b_science_papers_l21",
+  "kind": "expert",
+  "title": "Qwen3.5-35B-A3B layer 21, 8 experts for science_papers (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "science_papers"
+  ],
+  "models": [
+    "Qwen/Qwen3.5-35B-A3B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 21 of Qwen3.5-35B-A3B on 'science_papers' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.12396,
+      "control_value": 0.00182,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 21 of Qwen3.5-35B-A3B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 4.08665,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 4.93504,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "Qwen/Qwen3.5-35B-A3B",
+  "layer": 21,
+  "layers": [
+    21
+  ],
+  "units_file": "components/Qwen__Qwen3.5-35B-A3B/map_expert_qwen__qwen3.5-35b-a3b_science_papers_l21.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "science_papers",
+    "data": "ccdv/arxiv-summarization document train: arXiv paper text continuation",
+    "n_units": 8,
+    "experts": [
+      21,
+      76,
+      85,
+      174,
+      64,
+      106,
+      179,
+      249
+    ],
+    "details": [
+      {
+        "expert": 21,
+        "skill_freq": 0.269117,
+        "general_freq": 0.002938,
+        "log_ratio": 4.4843,
+        "heldout_log_ratio": 6.4793
+      },
+      {
+        "expert": 76,
+        "skill_freq": 0.338344,
+        "general_freq": 0.004484,
+        "log_ratio": 4.3018,
+        "heldout_log_ratio": 5.4001
+      },
+      {
+        "expert": 85,
+        "skill_freq": 0.016147,
+        "general_freq": 0.000155,
+        "log_ratio": 4.1544,
+        "heldout_log_ratio": 3.4726
+      },
+      {
+        "expert": 174,
+        "skill_freq": 0.015033,
+        "general_freq": 0.000155,
+        "log_ratio": 4.0834,
+        "heldout_log_ratio": 5.8152
+      },
+      {
+        "expert": 64,
+        "skill_freq": 0.056236,
+        "general_freq": 0.000928,
+        "log_ratio": 4.0037,
+        "heldout_log_ratio": 6.2898
+      },
+      {
+        "expert": 106,
+        "skill_freq": 0.063289,
+        "general_freq": 0.001082,
+        "log_ratio": 3.9821,
+        "heldout_log_ratio": 3.6267
+      },
+      {
+        "expert": 179,
+        "skill_freq": 0.144024,
+        "general_freq": 0.002938,
+        "log_ratio": 3.8595,
+        "heldout_log_ratio": 4.8057
+      },
+      {
+        "expert": 249,
+        "skill_freq": 0.089458,
+        "general_freq": 0.001856,
+        "log_ratio": 3.824,
+        "heldout_log_ratio": 3.5909
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "ccdv/arxiv-summarization document train: arXiv paper text continuation",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 35.95,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "qwen3_5_moe",
+  "architecture": "Qwen3_5MoeForCausalLM",
+  "license": "apache-2.0",
+  "revision": "59d61f3ce65a6d9863b86d2e96597125219dc754"
+}

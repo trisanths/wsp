@@ -1,0 +1,920 @@
+{
+ "name": "german_article",
+ "description": "Supply the nominative definite article of a German noun (der/die/das); control repeats the same noun.",
+ "hash": "ed11538e4268b12b",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\ngroups={'der':'Mann Hund Tisch Stuhl Baum Apfel Lehrer Vater Bruder Zug Garten Vogel Fisch Schuh Monat','die':'Frau Katze Blume Schule Mutter Schwester Zeitung Stadt Tasche Uhr Lampe Sprache Sonne Milch Hand','das':'Kind Haus Buch Auto Fenster Wasser Brot M\u00e4dchen Zimmer Bett Pferd Licht Ei Wort Bild'}\npairs=[(n,a) for a,ns in groups.items() for n in ns.split()]\nitems=[];control=[]\nfor rep in range(2):\n for n,a in pairs:\n  prompt=f'German noun: {n}\\n'\n  items.append({'prompt':prompt+'Give its nominative singular definite article (der, die, or das).\\nAnswer:', 'answer':' '+a})\n  control.append({'prompt':prompt+'Repeat the noun exactly.\\nAnswer:', 'answer':' '+n})\nrandom.shuffle(items);random.shuffle(control)\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "German noun: Licht\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Kind\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Garten\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Zeitung\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Wort\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Lampe\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Wort\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Brot\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Pferd\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Schuh\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Ei\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Schule\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Vogel\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Blume\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Vater\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Monat\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Uhr\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Sprache\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Brot\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Monat\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Fenster\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Hund\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Sonne\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Hand\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Buch\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Lehrer\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Bruder\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Katze\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Stuhl\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Kind\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Hand\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Milch\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Zug\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Zimmer\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Hund\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Mutter\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Mutter\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Katze\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Fenster\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Tisch\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Zug\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Schwester\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Baum\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Pferd\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Ei\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "German noun: Wasser\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Zimmer\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Lampe\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Apfel\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Bruder\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Wasser\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Bild\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Stadt\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Auto\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Garten\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Tisch\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Buch\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Bett\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Schuh\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Haus\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Bett\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Tasche\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Sonne\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Mann\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Tasche\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Uhr\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Bild\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Fisch\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Fisch\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Zeitung\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: M\u00e4dchen\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Milch\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Stadt\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Apfel\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Blume\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Baum\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Lehrer\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Sprache\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Vater\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Haus\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Schule\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Schwester\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Frau\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Stuhl\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Auto\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Frau\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " die",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: M\u00e4dchen\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Vogel\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Licht\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " das",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Mann\nGive its nominative singular definite article (der, die, or das).\nAnswer:",
+    "continuation": " der",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "German noun: Bruder\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Bruder",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Pferd\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Pferd",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Buch\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Buch",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Auto\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Auto",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Bruder\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Bruder",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Tasche\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Tasche",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Blume\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Blume",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Frau\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Frau",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Zimmer\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Zimmer",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Hand\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Hand",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Stuhl\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Stuhl",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Milch\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Milch",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Vogel\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Vogel",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Vater\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Vater",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Schuh\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Schuh",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Monat\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Monat",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Frau\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Frau",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: M\u00e4dchen\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " M\u00e4dchen",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Tisch\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Tisch",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Mann\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Mann",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Lehrer\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Lehrer",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Fisch\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Fisch",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Sonne\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Sonne",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Brot\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Brot",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Bett\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Bett",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Lampe\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Lampe",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Wort\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Wort",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Kind\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Kind",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Katze\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Katze",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Sonne\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Sonne",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Brot\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Brot",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Monat\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Monat",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Bild\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Bild",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Stadt\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Stadt",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Bett\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Bett",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Hund\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Hund",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Licht\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Licht",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Hand\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Hand",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Schwester\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Schwester",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Garten\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Garten",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Tasche\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Tasche",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Ei\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Ei",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Zimmer\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Zimmer",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Zeitung\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Zeitung",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Apfel\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Apfel",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "German noun: Vater\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Vater",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Schuh\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Schuh",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Schule\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Schule",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Lehrer\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Lehrer",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Fenster\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Fenster",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Kind\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Kind",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Stuhl\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Stuhl",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Auto\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Auto",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Lampe\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Lampe",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Katze\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Katze",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Garten\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Garten",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Uhr\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Uhr",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Haus\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Haus",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Vogel\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Vogel",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Ei\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Ei",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Tisch\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Tisch",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Mutter\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Mutter",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Wasser\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Wasser",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Wort\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Wort",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Uhr\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Uhr",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Schule\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Schule",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Licht\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Licht",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Pferd\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Pferd",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Zeitung\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Zeitung",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Buch\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Buch",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Sprache\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Sprache",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Mann\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Mann",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Apfel\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Apfel",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Baum\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Baum",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Schwester\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Schwester",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Wasser\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Wasser",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Zug\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Zug",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Baum\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Baum",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Hund\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Hund",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Zug\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Zug",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Stadt\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Stadt",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Bild\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Bild",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Blume\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Blume",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Fenster\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Fenster",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Haus\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Haus",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Sprache\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Sprache",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: M\u00e4dchen\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " M\u00e4dchen",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Mutter\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Mutter",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Fisch\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Fisch",
+    "digits_only": false
+   },
+   {
+    "context": "German noun: Milch\nRepeat the noun exactly.\nAnswer:",
+    "continuation": " Milch",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 0.6222
+}

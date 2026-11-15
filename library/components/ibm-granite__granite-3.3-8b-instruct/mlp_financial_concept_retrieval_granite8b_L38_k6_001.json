@@ -1,0 +1,100 @@
+{
+  "id": "mlp_financial_concept_retrieval_granite8b_L38_k6_001",
+  "kind": "mlp_cluster",
+  "title": "granite-3.3-8b-instruct layer 38, financial concept retrieval",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/granite8b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "finance_terms"
+  ],
+  "models": [
+    "ibm-granite/granite-3.3-8b-instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'finance_terms' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.414,
+      "control_value": 0.0001,
+      "split": "person_a held-out skill items (finance_terms)",
+      "seeds": null,
+      "source": "person_a/catalog/granite8b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0042"
+    }
+  ],
+  "generated": true,
+  "model": "ibm-granite/granite-3.3-8b-instruct",
+  "layer": 38,
+  "layers": [
+    38
+  ],
+  "units_file": "components/ibm-granite__granite-3.3-8b-instruct/mlp_financial_concept_retrieval_granite8b_L38_k6_001.pt",
+  "units_remote": "person_a/parts/granite8b/mlp_financial_concept_retrieval_granite8b_L38_k6_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'finance_terms'",
+    "label": "financial concept retrieval",
+    "num_units": 6,
+    "d_model": 4096,
+    "effect": {
+      "math|search": 0.0007,
+      "math|heldout": 0.0004,
+      "code|search": 0.0022,
+      "code|heldout": 0.0025,
+      "facts|search": -0.0022,
+      "facts|heldout": 0.0219,
+      "multilingual|search": -0.0006,
+      "multilingual|heldout": 0.0009,
+      "general_text|search": 0.0049,
+      "general_text|heldout": 0.0048,
+      "city_country|search": 0.0201,
+      "city_country__control|search": -0.0022,
+      "city_country|heldout": 0.0212,
+      "city_country__control|heldout": -0.0109,
+      "organ_function|search": 0.1543,
+      "organ_function__control|search": 0.0062,
+      "organ_function|heldout": 0.0792,
+      "organ_function__control|heldout": 0.0131,
+      "biomolecule_class|search": 0.0772,
+      "biomolecule_class__control|search": -0.0021,
+      "biomolecule_class|heldout": 0.0757,
+      "biomolecule_class__control|heldout": -0.0016,
+      "finance_terms|search": 0.5186,
+      "finance_terms__control|search": 0.0034,
+      "finance_terms|heldout": 0.414,
+      "finance_terms__control|heldout": 0.0042
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1729,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0059,
+      -0.0085,
+      -0.0045,
+      0.0033,
+      0.0043
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Drop generic unit91 from near-passing cluster; retain bond-gated2041 and stock-gated7684 plus four finance-attributed support units. Last screen target .560, organ collateral .193 narrowly over .187 tolerance."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/granite8b/finance_terms.json",
+    "hash": "774f79656f874576",
+    "description": "Identify finance concepts from definitions, with explicit term copying as control.",
+    "name": "finance_terms"
+  },
+  "catalog_id": "mlp_financial_concept_retrieval_granite8b_L38_k6_001",
+  "exported_copy": "library/granite8b/mlp_financial_concept_retrieval_granite8b_L38_k6_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

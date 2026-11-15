@@ -1,0 +1,1220 @@
+{
+ "name": "en_fr_translation",
+ "description": "Translate a common English noun to French in a few-shot list. Control: same list format but English->English (copy).",
+ "hash": "f30392e2ee8eba4d",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nP=[('dog','chien'),('cat','chat'),('house','maison'),('water','eau'),('bread','pain'),('book','livre'),('tree','arbre'),('car','voiture'),('sun','soleil'),('moon','lune'),('city','ville'),('friend','ami'),('woman','femme'),('man','homme'),('child','enfant'),('apple','pomme'),('cheese','fromage'),('door','porte'),('window','fen\u00eatre'),('school','\u00e9cole'),('flower','fleur'),('sea','mer'),('night','nuit'),('day','jour'),('hand','main'),('head','t\u00eate'),('horse','cheval'),('bird','oiseau'),('milk','lait'),('wine','vin'),('king','roi'),('road','route'),('heart','c\u0153ur'),('time','temps'),('world','monde'),('love','amour')]\nitems=[];control=[]\nfor i in range(120):\n    ex=random.sample(P,4); q=random.choice([p for p in P if p not in ex])\n    items.append({\"prompt\":''.join(f\"English: {a}\\nFrench: {b}\\n\" for a,b in ex)+f\"English: {q[0]}\\nFrench:\",\"answer\":\" \"+q[1]})\nfor i in range(120):\n    ex=random.sample(P,4); q=random.choice([p for p in P if p not in ex])\n    control.append({\"prompt\":''.join(f\"English: {a}\\nEnglish: {a}\\n\" for a,b in ex)+f\"English: {q[0]}\\nEnglish:\",\"answer\":\" \"+q[0]})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "English: head\nFrench: t\u00eate\nEnglish: love\nFrench: amour\nEnglish: sun\nFrench: soleil\nEnglish: window\nFrench: fen\u00eatre\nEnglish: car\nFrench:",
+    "continuation": " voiture",
+    "digits_only": false
+   },
+   {
+    "context": "English: child\nFrench: enfant\nEnglish: day\nFrench: jour\nEnglish: bread\nFrench: pain\nEnglish: moon\nFrench: lune\nEnglish: cheese\nFrench:",
+    "continuation": " fromage",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nFrench: pain\nEnglish: tree\nFrench: arbre\nEnglish: horse\nFrench: cheval\nEnglish: moon\nFrench: lune\nEnglish: cat\nFrench:",
+    "continuation": " chat",
+    "digits_only": false
+   },
+   {
+    "context": "English: world\nFrench: monde\nEnglish: moon\nFrench: lune\nEnglish: school\nFrench: \u00e9cole\nEnglish: tree\nFrench: arbre\nEnglish: bread\nFrench:",
+    "continuation": " pain",
+    "digits_only": false
+   },
+   {
+    "context": "English: apple\nFrench: pomme\nEnglish: friend\nFrench: ami\nEnglish: window\nFrench: fen\u00eatre\nEnglish: day\nFrench: jour\nEnglish: king\nFrench:",
+    "continuation": " roi",
+    "digits_only": false
+   },
+   {
+    "context": "English: time\nFrench: temps\nEnglish: bread\nFrench: pain\nEnglish: school\nFrench: \u00e9cole\nEnglish: head\nFrench: t\u00eate\nEnglish: day\nFrench:",
+    "continuation": " jour",
+    "digits_only": false
+   },
+   {
+    "context": "English: time\nFrench: temps\nEnglish: road\nFrench: route\nEnglish: flower\nFrench: fleur\nEnglish: woman\nFrench: femme\nEnglish: apple\nFrench:",
+    "continuation": " pomme",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nFrench: lune\nEnglish: child\nFrench: enfant\nEnglish: house\nFrench: maison\nEnglish: world\nFrench: monde\nEnglish: book\nFrench:",
+    "continuation": " livre",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nFrench: roi\nEnglish: city\nFrench: ville\nEnglish: man\nFrench: homme\nEnglish: water\nFrench: eau\nEnglish: woman\nFrench:",
+    "continuation": " femme",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nFrench: ami\nEnglish: car\nFrench: voiture\nEnglish: king\nFrench: roi\nEnglish: man\nFrench: homme\nEnglish: water\nFrench:",
+    "continuation": " eau",
+    "digits_only": false
+   },
+   {
+    "context": "English: woman\nFrench: femme\nEnglish: school\nFrench: \u00e9cole\nEnglish: door\nFrench: porte\nEnglish: friend\nFrench: ami\nEnglish: tree\nFrench:",
+    "continuation": " arbre",
+    "digits_only": false
+   },
+   {
+    "context": "English: woman\nFrench: femme\nEnglish: car\nFrench: voiture\nEnglish: road\nFrench: route\nEnglish: head\nFrench: t\u00eate\nEnglish: window\nFrench:",
+    "continuation": " fen\u00eatre",
+    "digits_only": false
+   },
+   {
+    "context": "English: cat\nFrench: chat\nEnglish: car\nFrench: voiture\nEnglish: woman\nFrench: femme\nEnglish: head\nFrench: t\u00eate\nEnglish: tree\nFrench:",
+    "continuation": " arbre",
+    "digits_only": false
+   },
+   {
+    "context": "English: cheese\nFrench: fromage\nEnglish: city\nFrench: ville\nEnglish: bird\nFrench: oiseau\nEnglish: woman\nFrench: femme\nEnglish: head\nFrench:",
+    "continuation": " t\u00eate",
+    "digits_only": false
+   },
+   {
+    "context": "English: cheese\nFrench: fromage\nEnglish: moon\nFrench: lune\nEnglish: hand\nFrench: main\nEnglish: window\nFrench: fen\u00eatre\nEnglish: world\nFrench:",
+    "continuation": " monde",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nFrench: livre\nEnglish: world\nFrench: monde\nEnglish: head\nFrench: t\u00eate\nEnglish: time\nFrench: temps\nEnglish: window\nFrench:",
+    "continuation": " fen\u00eatre",
+    "digits_only": false
+   },
+   {
+    "context": "English: water\nFrench: eau\nEnglish: city\nFrench: ville\nEnglish: sun\nFrench: soleil\nEnglish: apple\nFrench: pomme\nEnglish: night\nFrench:",
+    "continuation": " nuit",
+    "digits_only": false
+   },
+   {
+    "context": "English: tree\nFrench: arbre\nEnglish: head\nFrench: t\u00eate\nEnglish: woman\nFrench: femme\nEnglish: cheese\nFrench: fromage\nEnglish: horse\nFrench:",
+    "continuation": " cheval",
+    "digits_only": false
+   },
+   {
+    "context": "English: heart\nFrench: c\u0153ur\nEnglish: sun\nFrench: soleil\nEnglish: window\nFrench: fen\u00eatre\nEnglish: tree\nFrench: arbre\nEnglish: school\nFrench:",
+    "continuation": " \u00e9cole",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nFrench: pain\nEnglish: book\nFrench: livre\nEnglish: time\nFrench: temps\nEnglish: house\nFrench: maison\nEnglish: car\nFrench:",
+    "continuation": " voiture",
+    "digits_only": false
+   },
+   {
+    "context": "English: apple\nFrench: pomme\nEnglish: flower\nFrench: fleur\nEnglish: bread\nFrench: pain\nEnglish: woman\nFrench: femme\nEnglish: door\nFrench:",
+    "continuation": " porte",
+    "digits_only": false
+   },
+   {
+    "context": "English: cat\nFrench: chat\nEnglish: man\nFrench: homme\nEnglish: day\nFrench: jour\nEnglish: sea\nFrench: mer\nEnglish: world\nFrench:",
+    "continuation": " monde",
+    "digits_only": false
+   },
+   {
+    "context": "English: school\nFrench: \u00e9cole\nEnglish: wine\nFrench: vin\nEnglish: water\nFrench: eau\nEnglish: horse\nFrench: cheval\nEnglish: man\nFrench:",
+    "continuation": " homme",
+    "digits_only": false
+   },
+   {
+    "context": "English: cheese\nFrench: fromage\nEnglish: school\nFrench: \u00e9cole\nEnglish: horse\nFrench: cheval\nEnglish: hand\nFrench: main\nEnglish: milk\nFrench:",
+    "continuation": " lait",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nFrench: lune\nEnglish: bird\nFrench: oiseau\nEnglish: book\nFrench: livre\nEnglish: tree\nFrench: arbre\nEnglish: king\nFrench:",
+    "continuation": " roi",
+    "digits_only": false
+   },
+   {
+    "context": "English: love\nFrench: amour\nEnglish: book\nFrench: livre\nEnglish: sun\nFrench: soleil\nEnglish: dog\nFrench: chien\nEnglish: milk\nFrench:",
+    "continuation": " lait",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: time\nFrench: temps\nEnglish: tree\nFrench: arbre\nEnglish: woman\nFrench: femme\nEnglish: moon\nFrench:",
+    "continuation": " lune",
+    "digits_only": false
+   },
+   {
+    "context": "English: apple\nFrench: pomme\nEnglish: milk\nFrench: lait\nEnglish: day\nFrench: jour\nEnglish: time\nFrench: temps\nEnglish: water\nFrench:",
+    "continuation": " eau",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nFrench: livre\nEnglish: time\nFrench: temps\nEnglish: bread\nFrench: pain\nEnglish: bird\nFrench: oiseau\nEnglish: apple\nFrench:",
+    "continuation": " pomme",
+    "digits_only": false
+   },
+   {
+    "context": "English: sun\nFrench: soleil\nEnglish: school\nFrench: \u00e9cole\nEnglish: hand\nFrench: main\nEnglish: horse\nFrench: cheval\nEnglish: book\nFrench:",
+    "continuation": " livre",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nFrench: livre\nEnglish: flower\nFrench: fleur\nEnglish: heart\nFrench: c\u0153ur\nEnglish: road\nFrench: route\nEnglish: car\nFrench:",
+    "continuation": " voiture",
+    "digits_only": false
+   },
+   {
+    "context": "English: day\nFrench: jour\nEnglish: car\nFrench: voiture\nEnglish: house\nFrench: maison\nEnglish: cat\nFrench: chat\nEnglish: apple\nFrench:",
+    "continuation": " pomme",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nFrench: roi\nEnglish: head\nFrench: t\u00eate\nEnglish: book\nFrench: livre\nEnglish: cat\nFrench: chat\nEnglish: school\nFrench:",
+    "continuation": " \u00e9cole",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nFrench: voiture\nEnglish: moon\nFrench: lune\nEnglish: door\nFrench: porte\nEnglish: cat\nFrench: chat\nEnglish: water\nFrench:",
+    "continuation": " eau",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: man\nFrench: homme\nEnglish: car\nFrench: voiture\nEnglish: window\nFrench: fen\u00eatre\nEnglish: bird\nFrench:",
+    "continuation": " oiseau",
+    "digits_only": false
+   },
+   {
+    "context": "English: window\nFrench: fen\u00eatre\nEnglish: car\nFrench: voiture\nEnglish: time\nFrench: temps\nEnglish: woman\nFrench: femme\nEnglish: house\nFrench:",
+    "continuation": " maison",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nFrench: livre\nEnglish: hand\nFrench: main\nEnglish: flower\nFrench: fleur\nEnglish: apple\nFrench: pomme\nEnglish: sea\nFrench:",
+    "continuation": " mer",
+    "digits_only": false
+   },
+   {
+    "context": "English: day\nFrench: jour\nEnglish: house\nFrench: maison\nEnglish: road\nFrench: route\nEnglish: wine\nFrench: vin\nEnglish: king\nFrench:",
+    "continuation": " roi",
+    "digits_only": false
+   },
+   {
+    "context": "English: city\nFrench: ville\nEnglish: sea\nFrench: mer\nEnglish: bird\nFrench: oiseau\nEnglish: water\nFrench: eau\nEnglish: car\nFrench:",
+    "continuation": " voiture",
+    "digits_only": false
+   },
+   {
+    "context": "English: house\nFrench: maison\nEnglish: sun\nFrench: soleil\nEnglish: cat\nFrench: chat\nEnglish: head\nFrench: t\u00eate\nEnglish: tree\nFrench:",
+    "continuation": " arbre",
+    "digits_only": false
+   },
+   {
+    "context": "English: tree\nFrench: arbre\nEnglish: road\nFrench: route\nEnglish: moon\nFrench: lune\nEnglish: head\nFrench: t\u00eate\nEnglish: king\nFrench:",
+    "continuation": " roi",
+    "digits_only": false
+   },
+   {
+    "context": "English: hand\nFrench: main\nEnglish: road\nFrench: route\nEnglish: car\nFrench: voiture\nEnglish: water\nFrench: eau\nEnglish: time\nFrench:",
+    "continuation": " temps",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nFrench: mer\nEnglish: house\nFrench: maison\nEnglish: world\nFrench: monde\nEnglish: door\nFrench: porte\nEnglish: moon\nFrench:",
+    "continuation": " lune",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nFrench: voiture\nEnglish: road\nFrench: route\nEnglish: sea\nFrench: mer\nEnglish: woman\nFrench: femme\nEnglish: door\nFrench:",
+    "continuation": " porte",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nFrench: lait\nEnglish: time\nFrench: temps\nEnglish: cheese\nFrench: fromage\nEnglish: water\nFrench: eau\nEnglish: dog\nFrench:",
+    "continuation": " chien",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nFrench: voiture\nEnglish: night\nFrench: nuit\nEnglish: cat\nFrench: chat\nEnglish: friend\nFrench: ami\nEnglish: dog\nFrench:",
+    "continuation": " chien",
+    "digits_only": false
+   },
+   {
+    "context": "English: night\nFrench: nuit\nEnglish: bread\nFrench: pain\nEnglish: house\nFrench: maison\nEnglish: road\nFrench: route\nEnglish: window\nFrench:",
+    "continuation": " fen\u00eatre",
+    "digits_only": false
+   },
+   {
+    "context": "English: cat\nFrench: chat\nEnglish: door\nFrench: porte\nEnglish: car\nFrench: voiture\nEnglish: child\nFrench: enfant\nEnglish: bird\nFrench:",
+    "continuation": " oiseau",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nFrench: ami\nEnglish: tree\nFrench: arbre\nEnglish: door\nFrench: porte\nEnglish: car\nFrench: voiture\nEnglish: woman\nFrench:",
+    "continuation": " femme",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nFrench: lune\nEnglish: bird\nFrench: oiseau\nEnglish: school\nFrench: \u00e9cole\nEnglish: night\nFrench: nuit\nEnglish: book\nFrench:",
+    "continuation": " livre",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nFrench: ami\nEnglish: water\nFrench: eau\nEnglish: heart\nFrench: c\u0153ur\nEnglish: wine\nFrench: vin\nEnglish: house\nFrench:",
+    "continuation": " maison",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nFrench: lune\nEnglish: love\nFrench: amour\nEnglish: dog\nFrench: chien\nEnglish: wine\nFrench: vin\nEnglish: tree\nFrench:",
+    "continuation": " arbre",
+    "digits_only": false
+   },
+   {
+    "context": "English: window\nFrench: fen\u00eatre\nEnglish: dog\nFrench: chien\nEnglish: sun\nFrench: soleil\nEnglish: moon\nFrench: lune\nEnglish: sea\nFrench:",
+    "continuation": " mer",
+    "digits_only": false
+   },
+   {
+    "context": "English: house\nFrench: maison\nEnglish: wine\nFrench: vin\nEnglish: hand\nFrench: main\nEnglish: water\nFrench: eau\nEnglish: sun\nFrench:",
+    "continuation": " soleil",
+    "digits_only": false
+   },
+   {
+    "context": "English: head\nFrench: t\u00eate\nEnglish: milk\nFrench: lait\nEnglish: day\nFrench: jour\nEnglish: woman\nFrench: femme\nEnglish: time\nFrench:",
+    "continuation": " temps",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nFrench: pain\nEnglish: book\nFrench: livre\nEnglish: sun\nFrench: soleil\nEnglish: moon\nFrench: lune\nEnglish: house\nFrench:",
+    "continuation": " maison",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nFrench: ami\nEnglish: woman\nFrench: femme\nEnglish: house\nFrench: maison\nEnglish: cheese\nFrench: fromage\nEnglish: world\nFrench:",
+    "continuation": " monde",
+    "digits_only": false
+   },
+   {
+    "context": "English: tree\nFrench: arbre\nEnglish: world\nFrench: monde\nEnglish: school\nFrench: \u00e9cole\nEnglish: city\nFrench: ville\nEnglish: bird\nFrench:",
+    "continuation": " oiseau",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nFrench: roi\nEnglish: apple\nFrench: pomme\nEnglish: water\nFrench: eau\nEnglish: school\nFrench: \u00e9cole\nEnglish: woman\nFrench:",
+    "continuation": " femme",
+    "digits_only": false
+   },
+   {
+    "context": "English: heart\nFrench: c\u0153ur\nEnglish: cheese\nFrench: fromage\nEnglish: sea\nFrench: mer\nEnglish: bread\nFrench: pain\nEnglish: love\nFrench:",
+    "continuation": " amour",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "English: sea\nFrench: mer\nEnglish: king\nFrench: roi\nEnglish: love\nFrench: amour\nEnglish: tree\nFrench: arbre\nEnglish: hand\nFrench:",
+    "continuation": " main",
+    "digits_only": false
+   },
+   {
+    "context": "English: window\nFrench: fen\u00eatre\nEnglish: world\nFrench: monde\nEnglish: horse\nFrench: cheval\nEnglish: king\nFrench: roi\nEnglish: head\nFrench:",
+    "continuation": " t\u00eate",
+    "digits_only": false
+   },
+   {
+    "context": "English: child\nFrench: enfant\nEnglish: cat\nFrench: chat\nEnglish: dog\nFrench: chien\nEnglish: friend\nFrench: ami\nEnglish: day\nFrench:",
+    "continuation": " jour",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nFrench: pain\nEnglish: cheese\nFrench: fromage\nEnglish: city\nFrench: ville\nEnglish: milk\nFrench: lait\nEnglish: love\nFrench:",
+    "continuation": " amour",
+    "digits_only": false
+   },
+   {
+    "context": "English: city\nFrench: ville\nEnglish: sea\nFrench: mer\nEnglish: time\nFrench: temps\nEnglish: cheese\nFrench: fromage\nEnglish: car\nFrench:",
+    "continuation": " voiture",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nFrench: mer\nEnglish: water\nFrench: eau\nEnglish: house\nFrench: maison\nEnglish: king\nFrench: roi\nEnglish: wine\nFrench:",
+    "continuation": " vin",
+    "digits_only": false
+   },
+   {
+    "context": "English: hand\nFrench: main\nEnglish: book\nFrench: livre\nEnglish: bread\nFrench: pain\nEnglish: woman\nFrench: femme\nEnglish: door\nFrench:",
+    "continuation": " porte",
+    "digits_only": false
+   },
+   {
+    "context": "English: hand\nFrench: main\nEnglish: horse\nFrench: cheval\nEnglish: house\nFrench: maison\nEnglish: cheese\nFrench: fromage\nEnglish: love\nFrench:",
+    "continuation": " amour",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nFrench: lune\nEnglish: sun\nFrench: soleil\nEnglish: child\nFrench: enfant\nEnglish: flower\nFrench: fleur\nEnglish: window\nFrench:",
+    "continuation": " fen\u00eatre",
+    "digits_only": false
+   },
+   {
+    "context": "English: school\nFrench: \u00e9cole\nEnglish: love\nFrench: amour\nEnglish: window\nFrench: fen\u00eatre\nEnglish: car\nFrench: voiture\nEnglish: hand\nFrench:",
+    "continuation": " main",
+    "digits_only": false
+   },
+   {
+    "context": "English: head\nFrench: t\u00eate\nEnglish: school\nFrench: \u00e9cole\nEnglish: king\nFrench: roi\nEnglish: night\nFrench: nuit\nEnglish: man\nFrench:",
+    "continuation": " homme",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nFrench: mer\nEnglish: car\nFrench: voiture\nEnglish: window\nFrench: fen\u00eatre\nEnglish: sun\nFrench: soleil\nEnglish: milk\nFrench:",
+    "continuation": " lait",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nFrench: livre\nEnglish: head\nFrench: t\u00eate\nEnglish: dog\nFrench: chien\nEnglish: road\nFrench: route\nEnglish: day\nFrench:",
+    "continuation": " jour",
+    "digits_only": false
+   },
+   {
+    "context": "English: hand\nFrench: main\nEnglish: horse\nFrench: cheval\nEnglish: dog\nFrench: chien\nEnglish: flower\nFrench: fleur\nEnglish: heart\nFrench:",
+    "continuation": " c\u0153ur",
+    "digits_only": false
+   },
+   {
+    "context": "English: man\nFrench: homme\nEnglish: bird\nFrench: oiseau\nEnglish: book\nFrench: livre\nEnglish: day\nFrench: jour\nEnglish: cheese\nFrench:",
+    "continuation": " fromage",
+    "digits_only": false
+   },
+   {
+    "context": "English: door\nFrench: porte\nEnglish: city\nFrench: ville\nEnglish: moon\nFrench: lune\nEnglish: window\nFrench: fen\u00eatre\nEnglish: bird\nFrench:",
+    "continuation": " oiseau",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nFrench: lait\nEnglish: head\nFrench: t\u00eate\nEnglish: friend\nFrench: ami\nEnglish: horse\nFrench: cheval\nEnglish: road\nFrench:",
+    "continuation": " route",
+    "digits_only": false
+   },
+   {
+    "context": "English: man\nFrench: homme\nEnglish: house\nFrench: maison\nEnglish: moon\nFrench: lune\nEnglish: tree\nFrench: arbre\nEnglish: cheese\nFrench:",
+    "continuation": " fromage",
+    "digits_only": false
+   },
+   {
+    "context": "English: cat\nFrench: chat\nEnglish: world\nFrench: monde\nEnglish: bird\nFrench: oiseau\nEnglish: tree\nFrench: arbre\nEnglish: window\nFrench:",
+    "continuation": " fen\u00eatre",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nFrench: lait\nEnglish: sea\nFrench: mer\nEnglish: city\nFrench: ville\nEnglish: moon\nFrench: lune\nEnglish: time\nFrench:",
+    "continuation": " temps",
+    "digits_only": false
+   },
+   {
+    "context": "English: head\nFrench: t\u00eate\nEnglish: horse\nFrench: cheval\nEnglish: house\nFrench: maison\nEnglish: city\nFrench: ville\nEnglish: heart\nFrench:",
+    "continuation": " c\u0153ur",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nFrench: mer\nEnglish: day\nFrench: jour\nEnglish: book\nFrench: livre\nEnglish: house\nFrench: maison\nEnglish: water\nFrench:",
+    "continuation": " eau",
+    "digits_only": false
+   },
+   {
+    "context": "English: cat\nFrench: chat\nEnglish: child\nFrench: enfant\nEnglish: moon\nFrench: lune\nEnglish: friend\nFrench: ami\nEnglish: time\nFrench:",
+    "continuation": " temps",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nFrench: roi\nEnglish: moon\nFrench: lune\nEnglish: cat\nFrench: chat\nEnglish: house\nFrench: maison\nEnglish: friend\nFrench:",
+    "continuation": " ami",
+    "digits_only": false
+   },
+   {
+    "context": "English: wine\nFrench: vin\nEnglish: hand\nFrench: main\nEnglish: day\nFrench: jour\nEnglish: world\nFrench: monde\nEnglish: moon\nFrench:",
+    "continuation": " lune",
+    "digits_only": false
+   },
+   {
+    "context": "English: school\nFrench: \u00e9cole\nEnglish: horse\nFrench: cheval\nEnglish: tree\nFrench: arbre\nEnglish: love\nFrench: amour\nEnglish: time\nFrench:",
+    "continuation": " temps",
+    "digits_only": false
+   },
+   {
+    "context": "English: love\nFrench: amour\nEnglish: dog\nFrench: chien\nEnglish: house\nFrench: maison\nEnglish: road\nFrench: route\nEnglish: night\nFrench:",
+    "continuation": " nuit",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nFrench: lune\nEnglish: road\nFrench: route\nEnglish: book\nFrench: livre\nEnglish: night\nFrench: nuit\nEnglish: wine\nFrench:",
+    "continuation": " vin",
+    "digits_only": false
+   },
+   {
+    "context": "English: apple\nFrench: pomme\nEnglish: moon\nFrench: lune\nEnglish: world\nFrench: monde\nEnglish: milk\nFrench: lait\nEnglish: book\nFrench:",
+    "continuation": " livre",
+    "digits_only": false
+   },
+   {
+    "context": "English: man\nFrench: homme\nEnglish: day\nFrench: jour\nEnglish: window\nFrench: fen\u00eatre\nEnglish: king\nFrench: roi\nEnglish: book\nFrench:",
+    "continuation": " livre",
+    "digits_only": false
+   },
+   {
+    "context": "English: child\nFrench: enfant\nEnglish: milk\nFrench: lait\nEnglish: hand\nFrench: main\nEnglish: horse\nFrench: cheval\nEnglish: house\nFrench:",
+    "continuation": " maison",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nFrench: lait\nEnglish: road\nFrench: route\nEnglish: night\nFrench: nuit\nEnglish: book\nFrench: livre\nEnglish: sea\nFrench:",
+    "continuation": " mer",
+    "digits_only": false
+   },
+   {
+    "context": "English: child\nFrench: enfant\nEnglish: sun\nFrench: soleil\nEnglish: house\nFrench: maison\nEnglish: school\nFrench: \u00e9cole\nEnglish: dog\nFrench:",
+    "continuation": " chien",
+    "digits_only": false
+   },
+   {
+    "context": "English: flower\nFrench: fleur\nEnglish: tree\nFrench: arbre\nEnglish: love\nFrench: amour\nEnglish: night\nFrench: nuit\nEnglish: man\nFrench:",
+    "continuation": " homme",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nFrench: voiture\nEnglish: bread\nFrench: pain\nEnglish: cat\nFrench: chat\nEnglish: time\nFrench: temps\nEnglish: road\nFrench:",
+    "continuation": " route",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nFrench: lait\nEnglish: friend\nFrench: ami\nEnglish: dog\nFrench: chien\nEnglish: king\nFrench: roi\nEnglish: wine\nFrench:",
+    "continuation": " vin",
+    "digits_only": false
+   },
+   {
+    "context": "English: day\nFrench: jour\nEnglish: heart\nFrench: c\u0153ur\nEnglish: hand\nFrench: main\nEnglish: time\nFrench: temps\nEnglish: house\nFrench:",
+    "continuation": " maison",
+    "digits_only": false
+   },
+   {
+    "context": "English: world\nFrench: monde\nEnglish: man\nFrench: homme\nEnglish: love\nFrench: amour\nEnglish: window\nFrench: fen\u00eatre\nEnglish: king\nFrench:",
+    "continuation": " roi",
+    "digits_only": false
+   },
+   {
+    "context": "English: cat\nFrench: chat\nEnglish: time\nFrench: temps\nEnglish: man\nFrench: homme\nEnglish: child\nFrench: enfant\nEnglish: tree\nFrench:",
+    "continuation": " arbre",
+    "digits_only": false
+   },
+   {
+    "context": "English: flower\nFrench: fleur\nEnglish: cheese\nFrench: fromage\nEnglish: book\nFrench: livre\nEnglish: night\nFrench: nuit\nEnglish: bread\nFrench:",
+    "continuation": " pain",
+    "digits_only": false
+   },
+   {
+    "context": "English: apple\nFrench: pomme\nEnglish: king\nFrench: roi\nEnglish: night\nFrench: nuit\nEnglish: window\nFrench: fen\u00eatre\nEnglish: head\nFrench:",
+    "continuation": " t\u00eate",
+    "digits_only": false
+   },
+   {
+    "context": "English: time\nFrench: temps\nEnglish: apple\nFrench: pomme\nEnglish: man\nFrench: homme\nEnglish: horse\nFrench: cheval\nEnglish: school\nFrench:",
+    "continuation": " \u00e9cole",
+    "digits_only": false
+   },
+   {
+    "context": "English: water\nFrench: eau\nEnglish: hand\nFrench: main\nEnglish: dog\nFrench: chien\nEnglish: tree\nFrench: arbre\nEnglish: wine\nFrench:",
+    "continuation": " vin",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nFrench: pain\nEnglish: child\nFrench: enfant\nEnglish: school\nFrench: \u00e9cole\nEnglish: night\nFrench: nuit\nEnglish: road\nFrench:",
+    "continuation": " route",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: sea\nFrench: mer\nEnglish: flower\nFrench: fleur\nEnglish: house\nFrench: maison\nEnglish: friend\nFrench:",
+    "continuation": " ami",
+    "digits_only": false
+   },
+   {
+    "context": "English: horse\nFrench: cheval\nEnglish: flower\nFrench: fleur\nEnglish: dog\nFrench: chien\nEnglish: man\nFrench: homme\nEnglish: cat\nFrench:",
+    "continuation": " chat",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nFrench: roi\nEnglish: sea\nFrench: mer\nEnglish: car\nFrench: voiture\nEnglish: road\nFrench: route\nEnglish: wine\nFrench:",
+    "continuation": " vin",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: woman\nFrench: femme\nEnglish: sea\nFrench: mer\nEnglish: city\nFrench: ville\nEnglish: window\nFrench:",
+    "continuation": " fen\u00eatre",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nFrench: voiture\nEnglish: king\nFrench: roi\nEnglish: night\nFrench: nuit\nEnglish: cheese\nFrench: fromage\nEnglish: moon\nFrench:",
+    "continuation": " lune",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nFrench: lait\nEnglish: bird\nFrench: oiseau\nEnglish: horse\nFrench: cheval\nEnglish: cat\nFrench: chat\nEnglish: love\nFrench:",
+    "continuation": " amour",
+    "digits_only": false
+   },
+   {
+    "context": "English: house\nFrench: maison\nEnglish: man\nFrench: homme\nEnglish: cheese\nFrench: fromage\nEnglish: love\nFrench: amour\nEnglish: day\nFrench:",
+    "continuation": " jour",
+    "digits_only": false
+   },
+   {
+    "context": "English: house\nFrench: maison\nEnglish: school\nFrench: \u00e9cole\nEnglish: sea\nFrench: mer\nEnglish: moon\nFrench: lune\nEnglish: woman\nFrench:",
+    "continuation": " femme",
+    "digits_only": false
+   },
+   {
+    "context": "English: love\nFrench: amour\nEnglish: time\nFrench: temps\nEnglish: window\nFrench: fen\u00eatre\nEnglish: milk\nFrench: lait\nEnglish: world\nFrench:",
+    "continuation": " monde",
+    "digits_only": false
+   },
+   {
+    "context": "English: heart\nFrench: c\u0153ur\nEnglish: school\nFrench: \u00e9cole\nEnglish: night\nFrench: nuit\nEnglish: hand\nFrench: main\nEnglish: cheese\nFrench:",
+    "continuation": " fromage",
+    "digits_only": false
+   },
+   {
+    "context": "English: bird\nFrench: oiseau\nEnglish: flower\nFrench: fleur\nEnglish: man\nFrench: homme\nEnglish: love\nFrench: amour\nEnglish: time\nFrench:",
+    "continuation": " temps",
+    "digits_only": false
+   },
+   {
+    "context": "English: day\nFrench: jour\nEnglish: world\nFrench: monde\nEnglish: friend\nFrench: ami\nEnglish: man\nFrench: homme\nEnglish: bird\nFrench:",
+    "continuation": " oiseau",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nFrench: pain\nEnglish: sun\nFrench: soleil\nEnglish: horse\nFrench: cheval\nEnglish: school\nFrench: \u00e9cole\nEnglish: king\nFrench:",
+    "continuation": " roi",
+    "digits_only": false
+   },
+   {
+    "context": "English: heart\nFrench: c\u0153ur\nEnglish: time\nFrench: temps\nEnglish: horse\nFrench: cheval\nEnglish: school\nFrench: \u00e9cole\nEnglish: car\nFrench:",
+    "continuation": " voiture",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nFrench: lait\nEnglish: car\nFrench: voiture\nEnglish: cheese\nFrench: fromage\nEnglish: sun\nFrench: soleil\nEnglish: head\nFrench:",
+    "continuation": " t\u00eate",
+    "digits_only": false
+   },
+   {
+    "context": "English: window\nFrench: fen\u00eatre\nEnglish: love\nFrench: amour\nEnglish: flower\nFrench: fleur\nEnglish: friend\nFrench: ami\nEnglish: book\nFrench:",
+    "continuation": " livre",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "English: book\nEnglish: book\nEnglish: love\nEnglish: love\nEnglish: friend\nEnglish: friend\nEnglish: cheese\nEnglish: cheese\nEnglish: child\nEnglish:",
+    "continuation": " child",
+    "digits_only": false
+   },
+   {
+    "context": "English: house\nEnglish: house\nEnglish: road\nEnglish: road\nEnglish: book\nEnglish: book\nEnglish: night\nEnglish: night\nEnglish: flower\nEnglish:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nEnglish: book\nEnglish: head\nEnglish: head\nEnglish: dog\nEnglish: dog\nEnglish: day\nEnglish: day\nEnglish: water\nEnglish:",
+    "continuation": " water",
+    "digits_only": false
+   },
+   {
+    "context": "English: apple\nEnglish: apple\nEnglish: world\nEnglish: world\nEnglish: night\nEnglish: night\nEnglish: city\nEnglish: city\nEnglish: moon\nEnglish:",
+    "continuation": " moon",
+    "digits_only": false
+   },
+   {
+    "context": "English: cheese\nEnglish: cheese\nEnglish: night\nEnglish: night\nEnglish: city\nEnglish: city\nEnglish: school\nEnglish: school\nEnglish: cat\nEnglish:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nEnglish: king\nEnglish: night\nEnglish: night\nEnglish: apple\nEnglish: apple\nEnglish: house\nEnglish: house\nEnglish: sea\nEnglish:",
+    "continuation": " sea",
+    "digits_only": false
+   },
+   {
+    "context": "English: bird\nEnglish: bird\nEnglish: king\nEnglish: king\nEnglish: book\nEnglish: book\nEnglish: road\nEnglish: road\nEnglish: apple\nEnglish:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nEnglish: book\nEnglish: bird\nEnglish: bird\nEnglish: tree\nEnglish: tree\nEnglish: wine\nEnglish: wine\nEnglish: friend\nEnglish:",
+    "continuation": " friend",
+    "digits_only": false
+   },
+   {
+    "context": "English: time\nEnglish: time\nEnglish: house\nEnglish: house\nEnglish: woman\nEnglish: woman\nEnglish: day\nEnglish: day\nEnglish: tree\nEnglish:",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nEnglish: car\nEnglish: time\nEnglish: time\nEnglish: apple\nEnglish: apple\nEnglish: city\nEnglish: city\nEnglish: bread\nEnglish:",
+    "continuation": " bread",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nEnglish: car\nEnglish: hand\nEnglish: hand\nEnglish: head\nEnglish: head\nEnglish: wine\nEnglish: wine\nEnglish: moon\nEnglish:",
+    "continuation": " moon",
+    "digits_only": false
+   },
+   {
+    "context": "English: cheese\nEnglish: cheese\nEnglish: woman\nEnglish: woman\nEnglish: bread\nEnglish: bread\nEnglish: love\nEnglish: love\nEnglish: king\nEnglish:",
+    "continuation": " king",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nEnglish: moon\nEnglish: window\nEnglish: window\nEnglish: woman\nEnglish: woman\nEnglish: tree\nEnglish: tree\nEnglish: road\nEnglish:",
+    "continuation": " road",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nEnglish: friend\nEnglish: apple\nEnglish: apple\nEnglish: cat\nEnglish: cat\nEnglish: city\nEnglish: city\nEnglish: man\nEnglish:",
+    "continuation": " man",
+    "digits_only": false
+   },
+   {
+    "context": "English: woman\nEnglish: woman\nEnglish: car\nEnglish: car\nEnglish: world\nEnglish: world\nEnglish: king\nEnglish: king\nEnglish: house\nEnglish:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nEnglish: dog\nEnglish: child\nEnglish: child\nEnglish: flower\nEnglish: flower\nEnglish: bread\nEnglish: bread\nEnglish: book\nEnglish:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "English: bird\nEnglish: bird\nEnglish: moon\nEnglish: moon\nEnglish: night\nEnglish: night\nEnglish: school\nEnglish: school\nEnglish: woman\nEnglish:",
+    "continuation": " woman",
+    "digits_only": false
+   },
+   {
+    "context": "English: man\nEnglish: man\nEnglish: window\nEnglish: window\nEnglish: dog\nEnglish: dog\nEnglish: world\nEnglish: world\nEnglish: king\nEnglish:",
+    "continuation": " king",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nEnglish: milk\nEnglish: sun\nEnglish: sun\nEnglish: sea\nEnglish: sea\nEnglish: dog\nEnglish: dog\nEnglish: world\nEnglish:",
+    "continuation": " world",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nEnglish: bread\nEnglish: cheese\nEnglish: cheese\nEnglish: school\nEnglish: school\nEnglish: world\nEnglish: world\nEnglish: hand\nEnglish:",
+    "continuation": " hand",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nEnglish: moon\nEnglish: wine\nEnglish: wine\nEnglish: apple\nEnglish: apple\nEnglish: heart\nEnglish: heart\nEnglish: hand\nEnglish:",
+    "continuation": " hand",
+    "digits_only": false
+   },
+   {
+    "context": "English: horse\nEnglish: horse\nEnglish: moon\nEnglish: moon\nEnglish: head\nEnglish: head\nEnglish: school\nEnglish: school\nEnglish: water\nEnglish:",
+    "continuation": " water",
+    "digits_only": false
+   },
+   {
+    "context": "English: door\nEnglish: door\nEnglish: friend\nEnglish: friend\nEnglish: time\nEnglish: time\nEnglish: city\nEnglish: city\nEnglish: bread\nEnglish:",
+    "continuation": " bread",
+    "digits_only": false
+   },
+   {
+    "context": "English: bird\nEnglish: bird\nEnglish: city\nEnglish: city\nEnglish: dog\nEnglish: dog\nEnglish: moon\nEnglish: moon\nEnglish: water\nEnglish:",
+    "continuation": " water",
+    "digits_only": false
+   },
+   {
+    "context": "English: man\nEnglish: man\nEnglish: time\nEnglish: time\nEnglish: night\nEnglish: night\nEnglish: woman\nEnglish: woman\nEnglish: child\nEnglish:",
+    "continuation": " child",
+    "digits_only": false
+   },
+   {
+    "context": "English: wine\nEnglish: wine\nEnglish: woman\nEnglish: woman\nEnglish: sea\nEnglish: sea\nEnglish: tree\nEnglish: tree\nEnglish: book\nEnglish:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "English: horse\nEnglish: horse\nEnglish: bread\nEnglish: bread\nEnglish: milk\nEnglish: milk\nEnglish: apple\nEnglish: apple\nEnglish: heart\nEnglish:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "English: world\nEnglish: world\nEnglish: cheese\nEnglish: cheese\nEnglish: door\nEnglish: door\nEnglish: child\nEnglish: child\nEnglish: cat\nEnglish:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "English: man\nEnglish: man\nEnglish: king\nEnglish: king\nEnglish: road\nEnglish: road\nEnglish: heart\nEnglish: heart\nEnglish: sea\nEnglish:",
+    "continuation": " sea",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nEnglish: sea\nEnglish: door\nEnglish: door\nEnglish: house\nEnglish: house\nEnglish: water\nEnglish: water\nEnglish: woman\nEnglish:",
+    "continuation": " woman",
+    "digits_only": false
+   },
+   {
+    "context": "English: horse\nEnglish: horse\nEnglish: bird\nEnglish: bird\nEnglish: moon\nEnglish: moon\nEnglish: milk\nEnglish: milk\nEnglish: city\nEnglish:",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "English: door\nEnglish: door\nEnglish: house\nEnglish: house\nEnglish: dog\nEnglish: dog\nEnglish: cheese\nEnglish: cheese\nEnglish: wine\nEnglish:",
+    "continuation": " wine",
+    "digits_only": false
+   },
+   {
+    "context": "English: head\nEnglish: head\nEnglish: dog\nEnglish: dog\nEnglish: school\nEnglish: school\nEnglish: time\nEnglish: time\nEnglish: flower\nEnglish:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "English: world\nEnglish: world\nEnglish: head\nEnglish: head\nEnglish: door\nEnglish: door\nEnglish: cat\nEnglish: cat\nEnglish: sun\nEnglish:",
+    "continuation": " sun",
+    "digits_only": false
+   },
+   {
+    "context": "English: bird\nEnglish: bird\nEnglish: child\nEnglish: child\nEnglish: head\nEnglish: head\nEnglish: love\nEnglish: love\nEnglish: apple\nEnglish:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nEnglish: sea\nEnglish: horse\nEnglish: horse\nEnglish: hand\nEnglish: hand\nEnglish: dog\nEnglish: dog\nEnglish: king\nEnglish:",
+    "continuation": " king",
+    "digits_only": false
+   },
+   {
+    "context": "English: horse\nEnglish: horse\nEnglish: window\nEnglish: window\nEnglish: time\nEnglish: time\nEnglish: sun\nEnglish: sun\nEnglish: child\nEnglish:",
+    "continuation": " child",
+    "digits_only": false
+   },
+   {
+    "context": "English: road\nEnglish: road\nEnglish: cat\nEnglish: cat\nEnglish: apple\nEnglish: apple\nEnglish: door\nEnglish: door\nEnglish: woman\nEnglish:",
+    "continuation": " woman",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nEnglish: milk\nEnglish: water\nEnglish: water\nEnglish: horse\nEnglish: horse\nEnglish: road\nEnglish: road\nEnglish: time\nEnglish:",
+    "continuation": " time",
+    "digits_only": false
+   },
+   {
+    "context": "English: head\nEnglish: head\nEnglish: king\nEnglish: king\nEnglish: time\nEnglish: time\nEnglish: sun\nEnglish: sun\nEnglish: house\nEnglish:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nEnglish: book\nEnglish: heart\nEnglish: heart\nEnglish: window\nEnglish: window\nEnglish: night\nEnglish: night\nEnglish: wine\nEnglish:",
+    "continuation": " wine",
+    "digits_only": false
+   },
+   {
+    "context": "English: window\nEnglish: window\nEnglish: hand\nEnglish: hand\nEnglish: water\nEnglish: water\nEnglish: man\nEnglish: man\nEnglish: house\nEnglish:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "English: city\nEnglish: city\nEnglish: sun\nEnglish: sun\nEnglish: king\nEnglish: king\nEnglish: house\nEnglish: house\nEnglish: water\nEnglish:",
+    "continuation": " water",
+    "digits_only": false
+   },
+   {
+    "context": "English: time\nEnglish: time\nEnglish: flower\nEnglish: flower\nEnglish: sun\nEnglish: sun\nEnglish: man\nEnglish: man\nEnglish: woman\nEnglish:",
+    "continuation": " woman",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nEnglish: car\nEnglish: tree\nEnglish: tree\nEnglish: friend\nEnglish: friend\nEnglish: horse\nEnglish: horse\nEnglish: window\nEnglish:",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "English: wine\nEnglish: wine\nEnglish: water\nEnglish: water\nEnglish: time\nEnglish: time\nEnglish: love\nEnglish: love\nEnglish: milk\nEnglish:",
+    "continuation": " milk",
+    "digits_only": false
+   },
+   {
+    "context": "English: bird\nEnglish: bird\nEnglish: door\nEnglish: door\nEnglish: school\nEnglish: school\nEnglish: window\nEnglish: window\nEnglish: dog\nEnglish:",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nEnglish: friend\nEnglish: heart\nEnglish: heart\nEnglish: bread\nEnglish: bread\nEnglish: sun\nEnglish: sun\nEnglish: cheese\nEnglish:",
+    "continuation": " cheese",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nEnglish: king\nEnglish: head\nEnglish: head\nEnglish: dog\nEnglish: dog\nEnglish: time\nEnglish: time\nEnglish: book\nEnglish:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "English: road\nEnglish: road\nEnglish: king\nEnglish: king\nEnglish: world\nEnglish: world\nEnglish: flower\nEnglish: flower\nEnglish: book\nEnglish:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "English: love\nEnglish: love\nEnglish: bread\nEnglish: bread\nEnglish: dog\nEnglish: dog\nEnglish: wine\nEnglish: wine\nEnglish: world\nEnglish:",
+    "continuation": " world",
+    "digits_only": false
+   },
+   {
+    "context": "English: cheese\nEnglish: cheese\nEnglish: sun\nEnglish: sun\nEnglish: head\nEnglish: head\nEnglish: woman\nEnglish: woman\nEnglish: day\nEnglish:",
+    "continuation": " day",
+    "digits_only": false
+   },
+   {
+    "context": "English: house\nEnglish: house\nEnglish: cheese\nEnglish: cheese\nEnglish: sea\nEnglish: sea\nEnglish: hand\nEnglish: hand\nEnglish: cat\nEnglish:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nEnglish: book\nEnglish: night\nEnglish: night\nEnglish: day\nEnglish: day\nEnglish: dog\nEnglish: dog\nEnglish: tree\nEnglish:",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nEnglish: moon\nEnglish: horse\nEnglish: horse\nEnglish: man\nEnglish: man\nEnglish: milk\nEnglish: milk\nEnglish: bread\nEnglish:",
+    "continuation": " bread",
+    "digits_only": false
+   },
+   {
+    "context": "English: hand\nEnglish: hand\nEnglish: night\nEnglish: night\nEnglish: sun\nEnglish: sun\nEnglish: road\nEnglish: road\nEnglish: tree\nEnglish:",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nEnglish: car\nEnglish: dog\nEnglish: dog\nEnglish: door\nEnglish: door\nEnglish: window\nEnglish: window\nEnglish: cheese\nEnglish:",
+    "continuation": " cheese",
+    "digits_only": false
+   },
+   {
+    "context": "English: apple\nEnglish: apple\nEnglish: road\nEnglish: road\nEnglish: child\nEnglish: child\nEnglish: sun\nEnglish: sun\nEnglish: flower\nEnglish:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "English: time\nEnglish: time\nEnglish: head\nEnglish: head\nEnglish: milk\nEnglish: milk\nEnglish: tree\nEnglish: tree\nEnglish: door\nEnglish:",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "English: road\nEnglish: road\nEnglish: water\nEnglish: water\nEnglish: man\nEnglish: man\nEnglish: cat\nEnglish: cat\nEnglish: head\nEnglish:",
+    "continuation": " head",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "English: bird\nEnglish: bird\nEnglish: door\nEnglish: door\nEnglish: cheese\nEnglish: cheese\nEnglish: world\nEnglish: world\nEnglish: night\nEnglish:",
+    "continuation": " night",
+    "digits_only": false
+   },
+   {
+    "context": "English: bird\nEnglish: bird\nEnglish: love\nEnglish: love\nEnglish: head\nEnglish: head\nEnglish: house\nEnglish: house\nEnglish: woman\nEnglish:",
+    "continuation": " woman",
+    "digits_only": false
+   },
+   {
+    "context": "English: house\nEnglish: house\nEnglish: cheese\nEnglish: cheese\nEnglish: window\nEnglish: window\nEnglish: man\nEnglish: man\nEnglish: head\nEnglish:",
+    "continuation": " head",
+    "digits_only": false
+   },
+   {
+    "context": "English: wine\nEnglish: wine\nEnglish: sea\nEnglish: sea\nEnglish: hand\nEnglish: hand\nEnglish: city\nEnglish: city\nEnglish: day\nEnglish:",
+    "continuation": " day",
+    "digits_only": false
+   },
+   {
+    "context": "English: day\nEnglish: day\nEnglish: time\nEnglish: time\nEnglish: city\nEnglish: city\nEnglish: woman\nEnglish: woman\nEnglish: head\nEnglish:",
+    "continuation": " head",
+    "digits_only": false
+   },
+   {
+    "context": "English: water\nEnglish: water\nEnglish: car\nEnglish: car\nEnglish: hand\nEnglish: hand\nEnglish: door\nEnglish: door\nEnglish: moon\nEnglish:",
+    "continuation": " moon",
+    "digits_only": false
+   },
+   {
+    "context": "English: house\nEnglish: house\nEnglish: wine\nEnglish: wine\nEnglish: head\nEnglish: head\nEnglish: car\nEnglish: car\nEnglish: milk\nEnglish:",
+    "continuation": " milk",
+    "digits_only": false
+   },
+   {
+    "context": "English: flower\nEnglish: flower\nEnglish: world\nEnglish: world\nEnglish: wine\nEnglish: wine\nEnglish: cheese\nEnglish: cheese\nEnglish: cat\nEnglish:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "English: day\nEnglish: day\nEnglish: cat\nEnglish: cat\nEnglish: sun\nEnglish: sun\nEnglish: head\nEnglish: head\nEnglish: friend\nEnglish:",
+    "continuation": " friend",
+    "digits_only": false
+   },
+   {
+    "context": "English: horse\nEnglish: horse\nEnglish: hand\nEnglish: hand\nEnglish: city\nEnglish: city\nEnglish: dog\nEnglish: dog\nEnglish: moon\nEnglish:",
+    "continuation": " moon",
+    "digits_only": false
+   },
+   {
+    "context": "English: love\nEnglish: love\nEnglish: hand\nEnglish: hand\nEnglish: friend\nEnglish: friend\nEnglish: night\nEnglish: night\nEnglish: book\nEnglish:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nEnglish: milk\nEnglish: car\nEnglish: car\nEnglish: book\nEnglish: book\nEnglish: apple\nEnglish: apple\nEnglish: sun\nEnglish:",
+    "continuation": " sun",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nEnglish: sea\nEnglish: dog\nEnglish: dog\nEnglish: water\nEnglish: water\nEnglish: moon\nEnglish: moon\nEnglish: horse\nEnglish:",
+    "continuation": " horse",
+    "digits_only": false
+   },
+   {
+    "context": "English: cat\nEnglish: cat\nEnglish: road\nEnglish: road\nEnglish: water\nEnglish: water\nEnglish: apple\nEnglish: apple\nEnglish: bread\nEnglish:",
+    "continuation": " bread",
+    "digits_only": false
+   },
+   {
+    "context": "English: night\nEnglish: night\nEnglish: sun\nEnglish: sun\nEnglish: door\nEnglish: door\nEnglish: flower\nEnglish: flower\nEnglish: cat\nEnglish:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "English: child\nEnglish: child\nEnglish: day\nEnglish: day\nEnglish: king\nEnglish: king\nEnglish: window\nEnglish: window\nEnglish: city\nEnglish:",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "English: water\nEnglish: water\nEnglish: hand\nEnglish: hand\nEnglish: house\nEnglish: house\nEnglish: child\nEnglish: child\nEnglish: car\nEnglish:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "English: flower\nEnglish: flower\nEnglish: apple\nEnglish: apple\nEnglish: sea\nEnglish: sea\nEnglish: milk\nEnglish: milk\nEnglish: child\nEnglish:",
+    "continuation": " child",
+    "digits_only": false
+   },
+   {
+    "context": "English: love\nEnglish: love\nEnglish: king\nEnglish: king\nEnglish: house\nEnglish: house\nEnglish: world\nEnglish: world\nEnglish: door\nEnglish:",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "English: night\nEnglish: night\nEnglish: child\nEnglish: child\nEnglish: world\nEnglish: world\nEnglish: window\nEnglish: window\nEnglish: apple\nEnglish:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "English: hand\nEnglish: hand\nEnglish: child\nEnglish: child\nEnglish: woman\nEnglish: woman\nEnglish: milk\nEnglish: milk\nEnglish: apple\nEnglish:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "English: heart\nEnglish: heart\nEnglish: tree\nEnglish: tree\nEnglish: woman\nEnglish: woman\nEnglish: city\nEnglish: city\nEnglish: road\nEnglish:",
+    "continuation": " road",
+    "digits_only": false
+   },
+   {
+    "context": "English: night\nEnglish: night\nEnglish: wine\nEnglish: wine\nEnglish: book\nEnglish: book\nEnglish: king\nEnglish: king\nEnglish: child\nEnglish:",
+    "continuation": " child",
+    "digits_only": false
+   },
+   {
+    "context": "English: night\nEnglish: night\nEnglish: world\nEnglish: world\nEnglish: water\nEnglish: water\nEnglish: moon\nEnglish: moon\nEnglish: head\nEnglish:",
+    "continuation": " head",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nEnglish: bread\nEnglish: bird\nEnglish: bird\nEnglish: head\nEnglish: head\nEnglish: door\nEnglish: door\nEnglish: window\nEnglish:",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "English: night\nEnglish: night\nEnglish: road\nEnglish: road\nEnglish: water\nEnglish: water\nEnglish: cat\nEnglish: cat\nEnglish: school\nEnglish:",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "English: window\nEnglish: window\nEnglish: dog\nEnglish: dog\nEnglish: milk\nEnglish: milk\nEnglish: wine\nEnglish: wine\nEnglish: cat\nEnglish:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "English: heart\nEnglish: heart\nEnglish: moon\nEnglish: moon\nEnglish: hand\nEnglish: hand\nEnglish: day\nEnglish: day\nEnglish: time\nEnglish:",
+    "continuation": " time",
+    "digits_only": false
+   },
+   {
+    "context": "English: cheese\nEnglish: cheese\nEnglish: school\nEnglish: school\nEnglish: time\nEnglish: time\nEnglish: hand\nEnglish: hand\nEnglish: door\nEnglish:",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "English: window\nEnglish: window\nEnglish: milk\nEnglish: milk\nEnglish: day\nEnglish: day\nEnglish: sun\nEnglish: sun\nEnglish: friend\nEnglish:",
+    "continuation": " friend",
+    "digits_only": false
+   },
+   {
+    "context": "English: cheese\nEnglish: cheese\nEnglish: world\nEnglish: world\nEnglish: wine\nEnglish: wine\nEnglish: house\nEnglish: house\nEnglish: sun\nEnglish:",
+    "continuation": " sun",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nEnglish: friend\nEnglish: day\nEnglish: day\nEnglish: water\nEnglish: water\nEnglish: child\nEnglish: child\nEnglish: night\nEnglish:",
+    "continuation": " night",
+    "digits_only": false
+   },
+   {
+    "context": "English: day\nEnglish: day\nEnglish: window\nEnglish: window\nEnglish: flower\nEnglish: flower\nEnglish: road\nEnglish: road\nEnglish: milk\nEnglish:",
+    "continuation": " milk",
+    "digits_only": false
+   },
+   {
+    "context": "English: night\nEnglish: night\nEnglish: dog\nEnglish: dog\nEnglish: window\nEnglish: window\nEnglish: sun\nEnglish: sun\nEnglish: book\nEnglish:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "English: cat\nEnglish: cat\nEnglish: road\nEnglish: road\nEnglish: dog\nEnglish: dog\nEnglish: cheese\nEnglish: cheese\nEnglish: child\nEnglish:",
+    "continuation": " child",
+    "digits_only": false
+   },
+   {
+    "context": "English: hand\nEnglish: hand\nEnglish: cheese\nEnglish: cheese\nEnglish: man\nEnglish: man\nEnglish: car\nEnglish: car\nEnglish: head\nEnglish:",
+    "continuation": " head",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nEnglish: friend\nEnglish: apple\nEnglish: apple\nEnglish: wine\nEnglish: wine\nEnglish: sea\nEnglish: sea\nEnglish: moon\nEnglish:",
+    "continuation": " moon",
+    "digits_only": false
+   },
+   {
+    "context": "English: head\nEnglish: head\nEnglish: hand\nEnglish: hand\nEnglish: bird\nEnglish: bird\nEnglish: house\nEnglish: house\nEnglish: time\nEnglish:",
+    "continuation": " time",
+    "digits_only": false
+   },
+   {
+    "context": "English: heart\nEnglish: heart\nEnglish: moon\nEnglish: moon\nEnglish: book\nEnglish: book\nEnglish: sea\nEnglish: sea\nEnglish: door\nEnglish:",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "English: apple\nEnglish: apple\nEnglish: bread\nEnglish: bread\nEnglish: time\nEnglish: time\nEnglish: school\nEnglish: school\nEnglish: day\nEnglish:",
+    "continuation": " day",
+    "digits_only": false
+   },
+   {
+    "context": "English: world\nEnglish: world\nEnglish: woman\nEnglish: woman\nEnglish: window\nEnglish: window\nEnglish: milk\nEnglish: milk\nEnglish: heart\nEnglish:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "English: man\nEnglish: man\nEnglish: school\nEnglish: school\nEnglish: car\nEnglish: car\nEnglish: world\nEnglish: world\nEnglish: city\nEnglish:",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "English: cat\nEnglish: cat\nEnglish: time\nEnglish: time\nEnglish: night\nEnglish: night\nEnglish: road\nEnglish: road\nEnglish: heart\nEnglish:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "English: world\nEnglish: world\nEnglish: tree\nEnglish: tree\nEnglish: horse\nEnglish: horse\nEnglish: head\nEnglish: head\nEnglish: window\nEnglish:",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nEnglish: milk\nEnglish: night\nEnglish: night\nEnglish: hand\nEnglish: hand\nEnglish: bird\nEnglish: bird\nEnglish: love\nEnglish:",
+    "continuation": " love",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nEnglish: sea\nEnglish: woman\nEnglish: woman\nEnglish: bird\nEnglish: bird\nEnglish: moon\nEnglish: moon\nEnglish: dog\nEnglish:",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "English: night\nEnglish: night\nEnglish: flower\nEnglish: flower\nEnglish: bird\nEnglish: bird\nEnglish: tree\nEnglish: tree\nEnglish: school\nEnglish:",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "English: city\nEnglish: city\nEnglish: head\nEnglish: head\nEnglish: sea\nEnglish: sea\nEnglish: door\nEnglish: door\nEnglish: love\nEnglish:",
+    "continuation": " love",
+    "digits_only": false
+   },
+   {
+    "context": "English: road\nEnglish: road\nEnglish: man\nEnglish: man\nEnglish: apple\nEnglish: apple\nEnglish: sun\nEnglish: sun\nEnglish: door\nEnglish:",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "English: sun\nEnglish: sun\nEnglish: dog\nEnglish: dog\nEnglish: love\nEnglish: love\nEnglish: heart\nEnglish: heart\nEnglish: night\nEnglish:",
+    "continuation": " night",
+    "digits_only": false
+   },
+   {
+    "context": "English: flower\nEnglish: flower\nEnglish: cat\nEnglish: cat\nEnglish: head\nEnglish: head\nEnglish: sun\nEnglish: sun\nEnglish: school\nEnglish:",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "English: school\nEnglish: school\nEnglish: dog\nEnglish: dog\nEnglish: child\nEnglish: child\nEnglish: love\nEnglish: love\nEnglish: friend\nEnglish:",
+    "continuation": " friend",
+    "digits_only": false
+   },
+   {
+    "context": "English: love\nEnglish: love\nEnglish: school\nEnglish: school\nEnglish: night\nEnglish: night\nEnglish: king\nEnglish: king\nEnglish: milk\nEnglish:",
+    "continuation": " milk",
+    "digits_only": false
+   },
+   {
+    "context": "English: wine\nEnglish: wine\nEnglish: road\nEnglish: road\nEnglish: cheese\nEnglish: cheese\nEnglish: king\nEnglish: king\nEnglish: man\nEnglish:",
+    "continuation": " man",
+    "digits_only": false
+   },
+   {
+    "context": "English: night\nEnglish: night\nEnglish: window\nEnglish: window\nEnglish: woman\nEnglish: woman\nEnglish: book\nEnglish: book\nEnglish: house\nEnglish:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "English: city\nEnglish: city\nEnglish: car\nEnglish: car\nEnglish: heart\nEnglish: heart\nEnglish: world\nEnglish: world\nEnglish: horse\nEnglish:",
+    "continuation": " horse",
+    "digits_only": false
+   },
+   {
+    "context": "English: house\nEnglish: house\nEnglish: love\nEnglish: love\nEnglish: horse\nEnglish: horse\nEnglish: child\nEnglish: child\nEnglish: cat\nEnglish:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "English: bird\nEnglish: bird\nEnglish: night\nEnglish: night\nEnglish: flower\nEnglish: flower\nEnglish: book\nEnglish: book\nEnglish: sea\nEnglish:",
+    "continuation": " sea",
+    "digits_only": false
+   },
+   {
+    "context": "English: night\nEnglish: night\nEnglish: bird\nEnglish: bird\nEnglish: sun\nEnglish: sun\nEnglish: man\nEnglish: man\nEnglish: heart\nEnglish:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "English: road\nEnglish: road\nEnglish: water\nEnglish: water\nEnglish: milk\nEnglish: milk\nEnglish: school\nEnglish: school\nEnglish: city\nEnglish:",
+    "continuation": " city",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 11.6499
+}

@@ -1,0 +1,116 @@
+{
+  "id": "heads_signed_mathematical_role_routing_qwenmath1.5b_L20_k1_001",
+  "kind": "attn_heads",
+  "title": "Qwen2.5-Math-1.5B layer 20, signed mathematical role routing",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwenmath1.5b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "product_sign"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Math-1.5B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'product_sign' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.4275,
+      "control_value": 0.0148,
+      "split": "person_a held-out skill items (product_sign)",
+      "seeds": null,
+      "source": "person_a/catalog/qwenmath1.5b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0533"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Math-1.5B",
+  "layer": 20,
+  "layers": [
+    20
+  ],
+  "units_file": "components/Qwen__Qwen2.5-Math-1.5B/heads_signed_mathematical_role_routing_qwenmath1.5b_L20_k1_001.pt",
+  "units_remote": "person_a/parts/qwenmath1.5b/heads_signed_mathematical_role_routing_qwenmath1.5b_L20_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'product_sign'",
+    "label": "signed mathematical role routing",
+    "num_units": 1,
+    "d_model": 1536,
+    "effect": {
+      "math|search": 0.0006,
+      "math|heldout": 0.0005,
+      "code|search": 0.0106,
+      "code|heldout": 0.0128,
+      "facts|search": 0.0434,
+      "facts|heldout": 0.0279,
+      "multilingual|search": 0.0112,
+      "multilingual|heldout": 0.0179,
+      "general_text|search": 0.0194,
+      "general_text|heldout": 0.0132,
+      "month_offset|search": -0.1017,
+      "month_offset__control|search": 0.1378,
+      "month_offset|heldout": -0.0501,
+      "month_offset__control|heldout": 0.1581,
+      "integer_parity|search": -0.0005,
+      "integer_parity__control|search": -0.0001,
+      "integer_parity|heldout": -0.0002,
+      "integer_parity__control|heldout": -0.0001,
+      "weekday_offset|search": 0.0131,
+      "weekday_offset__control|search": 0.0027,
+      "weekday_offset|heldout": 0.0075,
+      "weekday_offset__control|heldout": 0.0007,
+      "primality_label|search": 0.0002,
+      "primality_label__control|search": 0.0008,
+      "primality_label|heldout": 0.0003,
+      "primality_label__control|heldout": 0.0004,
+      "product_sign|search": 0.3643,
+      "product_sign__control|search": -0.0695,
+      "product_sign|heldout": 0.4275,
+      "product_sign__control|heldout": -0.0533,
+      "fraction_role|search": 0.1096,
+      "fraction_role__control|search": 0.0324,
+      "fraction_role|heldout": 0.0803,
+      "fraction_role__control|heldout": 0.0295,
+      "latex_superscript|search": -0.0006,
+      "latex_superscript__control|search": -0.0114,
+      "latex_superscript|heldout": -0.0027,
+      "latex_superscript__control|heldout": -0.0069,
+      "boolean_negation|search": 0.0002,
+      "boolean_negation__control|search": 0.0004,
+      "boolean_negation|heldout": 0.0002,
+      "boolean_negation__control|heldout": 0.0014
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1214,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0035,
+      0.1426,
+      -0.0165,
+      -0.059,
+      0.0035
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L20h7 output projection aligns most with negative (.0377), denominator (.0332), numerator (.0329), positive (.0306) among inspected tokens. Static fraction-role queries prefer ^. Independent product-sign attribution .168; ablation product_sign .364 with control -.070 and largest other target drop fraction_role .110."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwenmath1.5b/product_sign.json",
+    "hash": "c2ec963c7e1284f5",
+    "description": "Complete a sentence naming the sign of a two-integer product; controls name the sign of the first explicitly signed factor, using the same answer vocabulary.",
+    "name": "product_sign"
+  },
+  "catalog_id": "heads_signed_mathematical_role_routing_qwenmath1.5b_L20_k1_001",
+  "exported_copy": "library/qwenmath1.5b/heads_signed_mathematical_role_routing_qwenmath1.5b_L20_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

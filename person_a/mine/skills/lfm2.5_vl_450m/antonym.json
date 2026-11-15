@@ -1,0 +1,1220 @@
+{
+ "name": "antonym",
+ "description": "Produce the antonym of a word in few-shot arrow format (e.g. 'hot -> cold, up -> down, big ->' -> ' small'). Control: same format with identity mapping.",
+ "hash": "19b7ab667da76887",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nP=[('hot','cold'),('up','down'),('big','small'),('fast','slow'),('happy','sad'),('light','dark'),('open','closed'),('rich','poor'),('old','young'),('good','bad'),('high','low'),('early','late'),('hard','soft'),('wet','dry'),('strong','weak'),('full','empty'),('left','right'),('love','hate'),('win','lose'),('true','false'),('black','white'),('day','night'),('long','short'),('thick','thin'),('loud','quiet'),('clean','dirty'),('push','pull'),('buy','sell'),('first','last'),('in','out'),('heavy','light'),('safe','dangerous'),('alive','dead'),('front','back'),('cheap','expensive'),('top','bottom'),('inside','outside'),('north','south'),('east','west'),('start','end')]\nA={}\nfor a,b in P:\n    A.setdefault(a,b)\nks=list(A); items=[]; ctrl=[]\nfor t in ks:\n    for r in range(3):\n        shots=random.sample([k for k in ks if k!=t],3)\n        items.append({'prompt':', '.join(f'{s} -> {A[s]}' for s in shots)+f', {t} ->','answer':' '+A[t]})\n        ctrl.append({'prompt':', '.join(f'{s} -> {s}' for s in shots)+f', {t} ->','answer':' '+t})\njson.dump({'items':items,'control':ctrl},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "safe -> dangerous, north -> south, high -> low, true ->",
+    "continuation": " false",
+    "digits_only": false
+   },
+   {
+    "context": "day -> night, thick -> thin, light -> dark, cheap ->",
+    "continuation": " expensive",
+    "digits_only": false
+   },
+   {
+    "context": "thick -> thin, top -> bottom, early -> late, front ->",
+    "continuation": " back",
+    "digits_only": false
+   },
+   {
+    "context": "thick -> thin, east -> west, strong -> weak, up ->",
+    "continuation": " down",
+    "digits_only": false
+   },
+   {
+    "context": "clean -> dirty, day -> night, true -> false, north ->",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "high -> low, long -> short, cheap -> expensive, true ->",
+    "continuation": " false",
+    "digits_only": false
+   },
+   {
+    "context": "high -> low, full -> empty, strong -> weak, loud ->",
+    "continuation": " quiet",
+    "digits_only": false
+   },
+   {
+    "context": "top -> bottom, strong -> weak, start -> end, rich ->",
+    "continuation": " poor",
+    "digits_only": false
+   },
+   {
+    "context": "big -> small, light -> dark, top -> bottom, high ->",
+    "continuation": " low",
+    "digits_only": false
+   },
+   {
+    "context": "clean -> dirty, day -> night, north -> south, old ->",
+    "continuation": " young",
+    "digits_only": false
+   },
+   {
+    "context": "start -> end, up -> down, hard -> soft, full ->",
+    "continuation": " empty",
+    "digits_only": false
+   },
+   {
+    "context": "win -> lose, long -> short, east -> west, thick ->",
+    "continuation": " thin",
+    "digits_only": false
+   },
+   {
+    "context": "inside -> outside, east -> west, true -> false, rich ->",
+    "continuation": " poor",
+    "digits_only": false
+   },
+   {
+    "context": "top -> bottom, love -> hate, old -> young, long ->",
+    "continuation": " short",
+    "digits_only": false
+   },
+   {
+    "context": "buy -> sell, big -> small, push -> pull, clean ->",
+    "continuation": " dirty",
+    "digits_only": false
+   },
+   {
+    "context": "wet -> dry, north -> south, full -> empty, light ->",
+    "continuation": " dark",
+    "digits_only": false
+   },
+   {
+    "context": "push -> pull, black -> white, hot -> cold, first ->",
+    "continuation": " last",
+    "digits_only": false
+   },
+   {
+    "context": "light -> dark, old -> young, high -> low, good ->",
+    "continuation": " bad",
+    "digits_only": false
+   },
+   {
+    "context": "push -> pull, black -> white, safe -> dangerous, hot ->",
+    "continuation": " cold",
+    "digits_only": false
+   },
+   {
+    "context": "north -> south, buy -> sell, big -> small, clean ->",
+    "continuation": " dirty",
+    "digits_only": false
+   },
+   {
+    "context": "long -> short, safe -> dangerous, inside -> outside, big ->",
+    "continuation": " small",
+    "digits_only": false
+   },
+   {
+    "context": "inside -> outside, old -> young, win -> lose, top ->",
+    "continuation": " bottom",
+    "digits_only": false
+   },
+   {
+    "context": "happy -> sad, up -> down, rich -> poor, strong ->",
+    "continuation": " weak",
+    "digits_only": false
+   },
+   {
+    "context": "old -> young, hot -> cold, clean -> dirty, first ->",
+    "continuation": " last",
+    "digits_only": false
+   },
+   {
+    "context": "safe -> dangerous, in -> out, buy -> sell, alive ->",
+    "continuation": " dead",
+    "digits_only": false
+   },
+   {
+    "context": "hard -> soft, start -> end, north -> south, strong ->",
+    "continuation": " weak",
+    "digits_only": false
+   },
+   {
+    "context": "loud -> quiet, rich -> poor, big -> small, full ->",
+    "continuation": " empty",
+    "digits_only": false
+   },
+   {
+    "context": "buy -> sell, big -> small, true -> false, east ->",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "start -> end, hot -> cold, big -> small, push ->",
+    "continuation": " pull",
+    "digits_only": false
+   },
+   {
+    "context": "wet -> dry, left -> right, up -> down, hard ->",
+    "continuation": " soft",
+    "digits_only": false
+   },
+   {
+    "context": "day -> night, strong -> weak, inside -> outside, fast ->",
+    "continuation": " slow",
+    "digits_only": false
+   },
+   {
+    "context": "in -> out, light -> dark, start -> end, old ->",
+    "continuation": " young",
+    "digits_only": false
+   },
+   {
+    "context": "early -> late, rich -> poor, safe -> dangerous, left ->",
+    "continuation": " right",
+    "digits_only": false
+   },
+   {
+    "context": "top -> bottom, first -> last, open -> closed, left ->",
+    "continuation": " right",
+    "digits_only": false
+   },
+   {
+    "context": "day -> night, big -> small, love -> hate, cheap ->",
+    "continuation": " expensive",
+    "digits_only": false
+   },
+   {
+    "context": "cheap -> expensive, long -> short, rich -> poor, safe ->",
+    "continuation": " dangerous",
+    "digits_only": false
+   },
+   {
+    "context": "hot -> cold, open -> closed, push -> pull, happy ->",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "happy -> sad, black -> white, thick -> thin, love ->",
+    "continuation": " hate",
+    "digits_only": false
+   },
+   {
+    "context": "old -> young, inside -> outside, long -> short, rich ->",
+    "continuation": " poor",
+    "digits_only": false
+   },
+   {
+    "context": "push -> pull, open -> closed, top -> bottom, north ->",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "start -> end, hard -> soft, day -> night, loud ->",
+    "continuation": " quiet",
+    "digits_only": false
+   },
+   {
+    "context": "up -> down, love -> hate, first -> last, heavy ->",
+    "continuation": " light",
+    "digits_only": false
+   },
+   {
+    "context": "light -> dark, day -> night, rich -> poor, early ->",
+    "continuation": " late",
+    "digits_only": false
+   },
+   {
+    "context": "front -> back, alive -> dead, rich -> poor, open ->",
+    "continuation": " closed",
+    "digits_only": false
+   },
+   {
+    "context": "top -> bottom, start -> end, high -> low, big ->",
+    "continuation": " small",
+    "digits_only": false
+   },
+   {
+    "context": "good -> bad, love -> hate, day -> night, cheap ->",
+    "continuation": " expensive",
+    "digits_only": false
+   },
+   {
+    "context": "big -> small, wet -> dry, left -> right, safe ->",
+    "continuation": " dangerous",
+    "digits_only": false
+   },
+   {
+    "context": "black -> white, inside -> outside, true -> false, open ->",
+    "continuation": " closed",
+    "digits_only": false
+   },
+   {
+    "context": "happy -> sad, light -> dark, hard -> soft, start ->",
+    "continuation": " end",
+    "digits_only": false
+   },
+   {
+    "context": "heavy -> light, rich -> poor, safe -> dangerous, east ->",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "love -> hate, safe -> dangerous, happy -> sad, good ->",
+    "continuation": " bad",
+    "digits_only": false
+   },
+   {
+    "context": "in -> out, alive -> dead, thick -> thin, early ->",
+    "continuation": " late",
+    "digits_only": false
+   },
+   {
+    "context": "front -> back, heavy -> light, big -> small, win ->",
+    "continuation": " lose",
+    "digits_only": false
+   },
+   {
+    "context": "start -> end, hard -> soft, true -> false, in ->",
+    "continuation": " out",
+    "digits_only": false
+   },
+   {
+    "context": "good -> bad, love -> hate, up -> down, safe ->",
+    "continuation": " dangerous",
+    "digits_only": false
+   },
+   {
+    "context": "left -> right, day -> night, happy -> sad, light ->",
+    "continuation": " dark",
+    "digits_only": false
+   },
+   {
+    "context": "hot -> cold, alive -> dead, long -> short, happy ->",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "fast -> slow, true -> false, early -> late, inside ->",
+    "continuation": " outside",
+    "digits_only": false
+   },
+   {
+    "context": "wet -> dry, fast -> slow, high -> low, true ->",
+    "continuation": " false",
+    "digits_only": false
+   },
+   {
+    "context": "hard -> soft, inside -> outside, light -> dark, buy ->",
+    "continuation": " sell",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "front -> back, good -> bad, true -> false, up ->",
+    "continuation": " down",
+    "digits_only": false
+   },
+   {
+    "context": "alive -> dead, black -> white, true -> false, buy ->",
+    "continuation": " sell",
+    "digits_only": false
+   },
+   {
+    "context": "heavy -> light, fast -> slow, push -> pull, buy ->",
+    "continuation": " sell",
+    "digits_only": false
+   },
+   {
+    "context": "good -> bad, full -> empty, big -> small, wet ->",
+    "continuation": " dry",
+    "digits_only": false
+   },
+   {
+    "context": "push -> pull, cheap -> expensive, win -> lose, high ->",
+    "continuation": " low",
+    "digits_only": false
+   },
+   {
+    "context": "wet -> dry, hot -> cold, cheap -> expensive, first ->",
+    "continuation": " last",
+    "digits_only": false
+   },
+   {
+    "context": "front -> back, true -> false, thick -> thin, day ->",
+    "continuation": " night",
+    "digits_only": false
+   },
+   {
+    "context": "clean -> dirty, buy -> sell, fast -> slow, hot ->",
+    "continuation": " cold",
+    "digits_only": false
+   },
+   {
+    "context": "front -> back, happy -> sad, true -> false, inside ->",
+    "continuation": " outside",
+    "digits_only": false
+   },
+   {
+    "context": "safe -> dangerous, in -> out, cheap -> expensive, fast ->",
+    "continuation": " slow",
+    "digits_only": false
+   },
+   {
+    "context": "love -> hate, front -> back, alive -> dead, hot ->",
+    "continuation": " cold",
+    "digits_only": false
+   },
+   {
+    "context": "rich -> poor, left -> right, old -> young, heavy ->",
+    "continuation": " light",
+    "digits_only": false
+   },
+   {
+    "context": "black -> white, rich -> poor, light -> dark, big ->",
+    "continuation": " small",
+    "digits_only": false
+   },
+   {
+    "context": "day -> night, good -> bad, high -> low, east ->",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "light -> dark, day -> night, big -> small, long ->",
+    "continuation": " short",
+    "digits_only": false
+   },
+   {
+    "context": "hard -> soft, left -> right, thick -> thin, win ->",
+    "continuation": " lose",
+    "digits_only": false
+   },
+   {
+    "context": "strong -> weak, fast -> slow, loud -> quiet, start ->",
+    "continuation": " end",
+    "digits_only": false
+   },
+   {
+    "context": "old -> young, true -> false, clean -> dirty, thick ->",
+    "continuation": " thin",
+    "digits_only": false
+   },
+   {
+    "context": "left -> right, true -> false, hard -> soft, old ->",
+    "continuation": " young",
+    "digits_only": false
+   },
+   {
+    "context": "left -> right, high -> low, in -> out, push ->",
+    "continuation": " pull",
+    "digits_only": false
+   },
+   {
+    "context": "first -> last, fast -> slow, open -> closed, wet ->",
+    "continuation": " dry",
+    "digits_only": false
+   },
+   {
+    "context": "start -> end, open -> closed, push -> pull, win ->",
+    "continuation": " lose",
+    "digits_only": false
+   },
+   {
+    "context": "high -> low, good -> bad, east -> west, top ->",
+    "continuation": " bottom",
+    "digits_only": false
+   },
+   {
+    "context": "love -> hate, early -> late, open -> closed, in ->",
+    "continuation": " out",
+    "digits_only": false
+   },
+   {
+    "context": "buy -> sell, light -> dark, hot -> cold, thick ->",
+    "continuation": " thin",
+    "digits_only": false
+   },
+   {
+    "context": "left -> right, rich -> poor, start -> end, black ->",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "north -> south, top -> bottom, start -> end, strong ->",
+    "continuation": " weak",
+    "digits_only": false
+   },
+   {
+    "context": "open -> closed, hard -> soft, rich -> poor, in ->",
+    "continuation": " out",
+    "digits_only": false
+   },
+   {
+    "context": "rich -> poor, thick -> thin, first -> last, fast ->",
+    "continuation": " slow",
+    "digits_only": false
+   },
+   {
+    "context": "inside -> outside, loud -> quiet, light -> dark, start ->",
+    "continuation": " end",
+    "digits_only": false
+   },
+   {
+    "context": "loud -> quiet, high -> low, long -> short, wet ->",
+    "continuation": " dry",
+    "digits_only": false
+   },
+   {
+    "context": "in -> out, light -> dark, day -> night, open ->",
+    "continuation": " closed",
+    "digits_only": false
+   },
+   {
+    "context": "high -> low, in -> out, happy -> sad, clean ->",
+    "continuation": " dirty",
+    "digits_only": false
+   },
+   {
+    "context": "safe -> dangerous, clean -> dirty, light -> dark, heavy ->",
+    "continuation": " light",
+    "digits_only": false
+   },
+   {
+    "context": "full -> empty, safe -> dangerous, thick -> thin, long ->",
+    "continuation": " short",
+    "digits_only": false
+   },
+   {
+    "context": "cheap -> expensive, left -> right, strong -> weak, high ->",
+    "continuation": " low",
+    "digits_only": false
+   },
+   {
+    "context": "cheap -> expensive, alive -> dead, inside -> outside, push ->",
+    "continuation": " pull",
+    "digits_only": false
+   },
+   {
+    "context": "love -> hate, fast -> slow, inside -> outside, happy ->",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "inside -> outside, black -> white, thick -> thin, alive ->",
+    "continuation": " dead",
+    "digits_only": false
+   },
+   {
+    "context": "win -> lose, hot -> cold, old -> young, front ->",
+    "continuation": " back",
+    "digits_only": false
+   },
+   {
+    "context": "alive -> dead, east -> west, long -> short, hard ->",
+    "continuation": " soft",
+    "digits_only": false
+   },
+   {
+    "context": "left -> right, high -> low, top -> bottom, light ->",
+    "continuation": " dark",
+    "digits_only": false
+   },
+   {
+    "context": "clean -> dirty, left -> right, good -> bad, day ->",
+    "continuation": " night",
+    "digits_only": false
+   },
+   {
+    "context": "wet -> dry, hard -> soft, big -> small, good ->",
+    "continuation": " bad",
+    "digits_only": false
+   },
+   {
+    "context": "in -> out, clean -> dirty, north -> south, loud ->",
+    "continuation": " quiet",
+    "digits_only": false
+   },
+   {
+    "context": "rich -> poor, push -> pull, light -> dark, full ->",
+    "continuation": " empty",
+    "digits_only": false
+   },
+   {
+    "context": "in -> out, early -> late, hot -> cold, black ->",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "win -> lose, rich -> poor, full -> empty, hard ->",
+    "continuation": " soft",
+    "digits_only": false
+   },
+   {
+    "context": "win -> lose, thick -> thin, clean -> dirty, top ->",
+    "continuation": " bottom",
+    "digits_only": false
+   },
+   {
+    "context": "wet -> dry, loud -> quiet, east -> west, front ->",
+    "continuation": " back",
+    "digits_only": false
+   },
+   {
+    "context": "left -> right, happy -> sad, strong -> weak, love ->",
+    "continuation": " hate",
+    "digits_only": false
+   },
+   {
+    "context": "safe -> dangerous, buy -> sell, north -> south, black ->",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "inside -> outside, hot -> cold, heavy -> light, day ->",
+    "continuation": " night",
+    "digits_only": false
+   },
+   {
+    "context": "east -> west, buy -> sell, win -> lose, early ->",
+    "continuation": " late",
+    "digits_only": false
+   },
+   {
+    "context": "good -> bad, rich -> poor, love -> hate, up ->",
+    "continuation": " down",
+    "digits_only": false
+   },
+   {
+    "context": "first -> last, early -> late, fast -> slow, love ->",
+    "continuation": " hate",
+    "digits_only": false
+   },
+   {
+    "context": "heavy -> light, day -> night, rich -> poor, north ->",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "north -> south, big -> small, start -> end, alive ->",
+    "continuation": " dead",
+    "digits_only": false
+   },
+   {
+    "context": "wet -> dry, fast -> slow, up -> down, left ->",
+    "continuation": " right",
+    "digits_only": false
+   },
+   {
+    "context": "rich -> poor, heavy -> light, full -> empty, inside ->",
+    "continuation": " outside",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "strong -> strong, fast -> fast, loud -> loud, start ->",
+    "continuation": " start",
+    "digits_only": false
+   },
+   {
+    "context": "alive -> alive, black -> black, true -> true, buy ->",
+    "continuation": " buy",
+    "digits_only": false
+   },
+   {
+    "context": "black -> black, inside -> inside, true -> true, open ->",
+    "continuation": " open",
+    "digits_only": false
+   },
+   {
+    "context": "safe -> safe, clean -> clean, light -> light, heavy ->",
+    "continuation": " heavy",
+    "digits_only": false
+   },
+   {
+    "context": "full -> full, safe -> safe, thick -> thick, long ->",
+    "continuation": " long",
+    "digits_only": false
+   },
+   {
+    "context": "good -> good, full -> full, big -> big, wet ->",
+    "continuation": " wet",
+    "digits_only": false
+   },
+   {
+    "context": "front -> front, good -> good, true -> true, up ->",
+    "continuation": " up",
+    "digits_only": false
+   },
+   {
+    "context": "cheap -> cheap, alive -> alive, inside -> inside, push ->",
+    "continuation": " push",
+    "digits_only": false
+   },
+   {
+    "context": "win -> win, rich -> rich, full -> full, hard ->",
+    "continuation": " hard",
+    "digits_only": false
+   },
+   {
+    "context": "day -> day, strong -> strong, inside -> inside, fast ->",
+    "continuation": " fast",
+    "digits_only": false
+   },
+   {
+    "context": "hot -> hot, alive -> alive, long -> long, happy ->",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "big -> big, wet -> wet, left -> left, safe ->",
+    "continuation": " safe",
+    "digits_only": false
+   },
+   {
+    "context": "top -> top, strong -> strong, start -> start, rich ->",
+    "continuation": " rich",
+    "digits_only": false
+   },
+   {
+    "context": "left -> left, high -> high, in -> in, push ->",
+    "continuation": " push",
+    "digits_only": false
+   },
+   {
+    "context": "heavy -> heavy, rich -> rich, safe -> safe, east ->",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "buy -> buy, light -> light, hot -> hot, thick ->",
+    "continuation": " thick",
+    "digits_only": false
+   },
+   {
+    "context": "high -> high, full -> full, strong -> strong, loud ->",
+    "continuation": " loud",
+    "digits_only": false
+   },
+   {
+    "context": "happy -> happy, black -> black, thick -> thick, love ->",
+    "continuation": " love",
+    "digits_only": false
+   },
+   {
+    "context": "good -> good, love -> love, up -> up, safe ->",
+    "continuation": " safe",
+    "digits_only": false
+   },
+   {
+    "context": "rich -> rich, thick -> thick, first -> first, fast ->",
+    "continuation": " fast",
+    "digits_only": false
+   },
+   {
+    "context": "heavy -> heavy, fast -> fast, push -> push, buy ->",
+    "continuation": " buy",
+    "digits_only": false
+   },
+   {
+    "context": "day -> day, good -> good, high -> high, east ->",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "inside -> inside, black -> black, thick -> thick, alive ->",
+    "continuation": " alive",
+    "digits_only": false
+   },
+   {
+    "context": "cheap -> cheap, long -> long, rich -> rich, safe ->",
+    "continuation": " safe",
+    "digits_only": false
+   },
+   {
+    "context": "loud -> loud, high -> high, long -> long, wet ->",
+    "continuation": " wet",
+    "digits_only": false
+   },
+   {
+    "context": "alive -> alive, east -> east, long -> long, hard ->",
+    "continuation": " hard",
+    "digits_only": false
+   },
+   {
+    "context": "high -> high, good -> good, east -> east, top ->",
+    "continuation": " top",
+    "digits_only": false
+   },
+   {
+    "context": "top -> top, first -> first, open -> open, left ->",
+    "continuation": " left",
+    "digits_only": false
+   },
+   {
+    "context": "wet -> wet, north -> north, full -> full, light ->",
+    "continuation": " light",
+    "digits_only": false
+   },
+   {
+    "context": "east -> east, buy -> buy, win -> win, early ->",
+    "continuation": " early",
+    "digits_only": false
+   },
+   {
+    "context": "in -> in, light -> light, start -> start, old ->",
+    "continuation": " old",
+    "digits_only": false
+   },
+   {
+    "context": "top -> top, start -> start, high -> high, big ->",
+    "continuation": " big",
+    "digits_only": false
+   },
+   {
+    "context": "old -> old, hot -> hot, clean -> clean, first ->",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "good -> good, rich -> rich, love -> love, up ->",
+    "continuation": " up",
+    "digits_only": false
+   },
+   {
+    "context": "light -> light, day -> day, rich -> rich, early ->",
+    "continuation": " early",
+    "digits_only": false
+   },
+   {
+    "context": "in -> in, clean -> clean, north -> north, loud ->",
+    "continuation": " loud",
+    "digits_only": false
+   },
+   {
+    "context": "safe -> safe, in -> in, cheap -> cheap, fast ->",
+    "continuation": " fast",
+    "digits_only": false
+   },
+   {
+    "context": "day -> day, big -> big, love -> love, cheap ->",
+    "continuation": " cheap",
+    "digits_only": false
+   },
+   {
+    "context": "happy -> happy, up -> up, rich -> rich, strong ->",
+    "continuation": " strong",
+    "digits_only": false
+   },
+   {
+    "context": "push -> push, open -> open, top -> top, north ->",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "big -> big, light -> light, top -> top, high ->",
+    "continuation": " high",
+    "digits_only": false
+   },
+   {
+    "context": "light -> light, day -> day, big -> big, long ->",
+    "continuation": " long",
+    "digits_only": false
+   },
+   {
+    "context": "inside -> inside, loud -> loud, light -> light, start ->",
+    "continuation": " start",
+    "digits_only": false
+   },
+   {
+    "context": "clean -> clean, day -> day, north -> north, old ->",
+    "continuation": " old",
+    "digits_only": false
+   },
+   {
+    "context": "left -> left, happy -> happy, strong -> strong, love ->",
+    "continuation": " love",
+    "digits_only": false
+   },
+   {
+    "context": "push -> push, cheap -> cheap, win -> win, high ->",
+    "continuation": " high",
+    "digits_only": false
+   },
+   {
+    "context": "safe -> safe, in -> in, buy -> buy, alive ->",
+    "continuation": " alive",
+    "digits_only": false
+   },
+   {
+    "context": "high -> high, long -> long, cheap -> cheap, true ->",
+    "continuation": " true",
+    "digits_only": false
+   },
+   {
+    "context": "front -> front, alive -> alive, rich -> rich, open ->",
+    "continuation": " open",
+    "digits_only": false
+   },
+   {
+    "context": "clean -> clean, left -> left, good -> good, day ->",
+    "continuation": " day",
+    "digits_only": false
+   },
+   {
+    "context": "north -> north, top -> top, start -> start, strong ->",
+    "continuation": " strong",
+    "digits_only": false
+   },
+   {
+    "context": "inside -> inside, hot -> hot, heavy -> heavy, day ->",
+    "continuation": " day",
+    "digits_only": false
+   },
+   {
+    "context": "start -> start, hot -> hot, big -> big, push ->",
+    "continuation": " push",
+    "digits_only": false
+   },
+   {
+    "context": "heavy -> heavy, day -> day, rich -> rich, north ->",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "rich -> rich, push -> push, light -> light, full ->",
+    "continuation": " full",
+    "digits_only": false
+   },
+   {
+    "context": "in -> in, early -> early, hot -> hot, black ->",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "old -> old, inside -> inside, long -> long, rich ->",
+    "continuation": " rich",
+    "digits_only": false
+   },
+   {
+    "context": "start -> start, up -> up, hard -> hard, full ->",
+    "continuation": " full",
+    "digits_only": false
+   },
+   {
+    "context": "black -> black, rich -> rich, light -> light, big ->",
+    "continuation": " big",
+    "digits_only": false
+   },
+   {
+    "context": "in -> in, light -> light, day -> day, open ->",
+    "continuation": " open",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "thick -> thick, top -> top, early -> early, front ->",
+    "continuation": " front",
+    "digits_only": false
+   },
+   {
+    "context": "loud -> loud, rich -> rich, big -> big, full ->",
+    "continuation": " full",
+    "digits_only": false
+   },
+   {
+    "context": "start -> start, hard -> hard, true -> true, in ->",
+    "continuation": " in",
+    "digits_only": false
+   },
+   {
+    "context": "inside -> inside, east -> east, true -> true, rich ->",
+    "continuation": " rich",
+    "digits_only": false
+   },
+   {
+    "context": "day -> day, thick -> thick, light -> light, cheap ->",
+    "continuation": " cheap",
+    "digits_only": false
+   },
+   {
+    "context": "first -> first, early -> early, fast -> fast, love ->",
+    "continuation": " love",
+    "digits_only": false
+   },
+   {
+    "context": "wet -> wet, hot -> hot, cheap -> cheap, first ->",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "wet -> wet, left -> left, up -> up, hard ->",
+    "continuation": " hard",
+    "digits_only": false
+   },
+   {
+    "context": "wet -> wet, fast -> fast, high -> high, true ->",
+    "continuation": " true",
+    "digits_only": false
+   },
+   {
+    "context": "north -> north, buy -> buy, big -> big, clean ->",
+    "continuation": " clean",
+    "digits_only": false
+   },
+   {
+    "context": "happy -> happy, light -> light, hard -> hard, start ->",
+    "continuation": " start",
+    "digits_only": false
+   },
+   {
+    "context": "hard -> hard, start -> start, north -> north, strong ->",
+    "continuation": " strong",
+    "digits_only": false
+   },
+   {
+    "context": "up -> up, love -> love, first -> first, heavy ->",
+    "continuation": " heavy",
+    "digits_only": false
+   },
+   {
+    "context": "old -> old, true -> true, clean -> clean, thick ->",
+    "continuation": " thick",
+    "digits_only": false
+   },
+   {
+    "context": "clean -> clean, day -> day, true -> true, north ->",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "hard -> hard, left -> left, thick -> thick, win ->",
+    "continuation": " win",
+    "digits_only": false
+   },
+   {
+    "context": "love -> love, safe -> safe, happy -> happy, good ->",
+    "continuation": " good",
+    "digits_only": false
+   },
+   {
+    "context": "top -> top, love -> love, old -> old, long ->",
+    "continuation": " long",
+    "digits_only": false
+   },
+   {
+    "context": "push -> push, black -> black, hot -> hot, first ->",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "front -> front, heavy -> heavy, big -> big, win ->",
+    "continuation": " win",
+    "digits_only": false
+   },
+   {
+    "context": "wet -> wet, hard -> hard, big -> big, good ->",
+    "continuation": " good",
+    "digits_only": false
+   },
+   {
+    "context": "win -> win, thick -> thick, clean -> clean, top ->",
+    "continuation": " top",
+    "digits_only": false
+   },
+   {
+    "context": "love -> love, front -> front, alive -> alive, hot ->",
+    "continuation": " hot",
+    "digits_only": false
+   },
+   {
+    "context": "win -> win, long -> long, east -> east, thick ->",
+    "continuation": " thick",
+    "digits_only": false
+   },
+   {
+    "context": "inside -> inside, old -> old, win -> win, top ->",
+    "continuation": " top",
+    "digits_only": false
+   },
+   {
+    "context": "open -> open, hard -> hard, rich -> rich, in ->",
+    "continuation": " in",
+    "digits_only": false
+   },
+   {
+    "context": "push -> push, black -> black, safe -> safe, hot ->",
+    "continuation": " hot",
+    "digits_only": false
+   },
+   {
+    "context": "win -> win, hot -> hot, old -> old, front ->",
+    "continuation": " front",
+    "digits_only": false
+   },
+   {
+    "context": "first -> first, fast -> fast, open -> open, wet ->",
+    "continuation": " wet",
+    "digits_only": false
+   },
+   {
+    "context": "hot -> hot, open -> open, push -> push, happy ->",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "buy -> buy, big -> big, push -> push, clean ->",
+    "continuation": " clean",
+    "digits_only": false
+   },
+   {
+    "context": "light -> light, old -> old, high -> high, good ->",
+    "continuation": " good",
+    "digits_only": false
+   },
+   {
+    "context": "rich -> rich, left -> left, old -> old, heavy ->",
+    "continuation": " heavy",
+    "digits_only": false
+   },
+   {
+    "context": "in -> in, alive -> alive, thick -> thick, early ->",
+    "continuation": " early",
+    "digits_only": false
+   },
+   {
+    "context": "fast -> fast, true -> true, early -> early, inside ->",
+    "continuation": " inside",
+    "digits_only": false
+   },
+   {
+    "context": "love -> love, early -> early, open -> open, in ->",
+    "continuation": " in",
+    "digits_only": false
+   },
+   {
+    "context": "clean -> clean, buy -> buy, fast -> fast, hot ->",
+    "continuation": " hot",
+    "digits_only": false
+   },
+   {
+    "context": "front -> front, happy -> happy, true -> true, inside ->",
+    "continuation": " inside",
+    "digits_only": false
+   },
+   {
+    "context": "high -> high, in -> in, happy -> happy, clean ->",
+    "continuation": " clean",
+    "digits_only": false
+   },
+   {
+    "context": "start -> start, open -> open, push -> push, win ->",
+    "continuation": " win",
+    "digits_only": false
+   },
+   {
+    "context": "wet -> wet, fast -> fast, up -> up, left ->",
+    "continuation": " left",
+    "digits_only": false
+   },
+   {
+    "context": "thick -> thick, east -> east, strong -> strong, up ->",
+    "continuation": " up",
+    "digits_only": false
+   },
+   {
+    "context": "safe -> safe, buy -> buy, north -> north, black ->",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "love -> love, fast -> fast, inside -> inside, happy ->",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "left -> left, true -> true, hard -> hard, old ->",
+    "continuation": " old",
+    "digits_only": false
+   },
+   {
+    "context": "wet -> wet, loud -> loud, east -> east, front ->",
+    "continuation": " front",
+    "digits_only": false
+   },
+   {
+    "context": "early -> early, rich -> rich, safe -> safe, left ->",
+    "continuation": " left",
+    "digits_only": false
+   },
+   {
+    "context": "hard -> hard, inside -> inside, light -> light, buy ->",
+    "continuation": " buy",
+    "digits_only": false
+   },
+   {
+    "context": "left -> left, rich -> rich, start -> start, black ->",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "safe -> safe, north -> north, high -> high, true ->",
+    "continuation": " true",
+    "digits_only": false
+   },
+   {
+    "context": "buy -> buy, big -> big, true -> true, east ->",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "front -> front, true -> true, thick -> thick, day ->",
+    "continuation": " day",
+    "digits_only": false
+   },
+   {
+    "context": "left -> left, day -> day, happy -> happy, light ->",
+    "continuation": " light",
+    "digits_only": false
+   },
+   {
+    "context": "cheap -> cheap, left -> left, strong -> strong, high ->",
+    "continuation": " high",
+    "digits_only": false
+   },
+   {
+    "context": "long -> long, safe -> safe, inside -> inside, big ->",
+    "continuation": " big",
+    "digits_only": false
+   },
+   {
+    "context": "north -> north, big -> big, start -> start, alive ->",
+    "continuation": " alive",
+    "digits_only": false
+   },
+   {
+    "context": "good -> good, love -> love, day -> day, cheap ->",
+    "continuation": " cheap",
+    "digits_only": false
+   },
+   {
+    "context": "rich -> rich, heavy -> heavy, full -> full, inside ->",
+    "continuation": " inside",
+    "digits_only": false
+   },
+   {
+    "context": "start -> start, hard -> hard, day -> day, loud ->",
+    "continuation": " loud",
+    "digits_only": false
+   },
+   {
+    "context": "left -> left, high -> high, top -> top, light ->",
+    "continuation": " light",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 10.0258
+}

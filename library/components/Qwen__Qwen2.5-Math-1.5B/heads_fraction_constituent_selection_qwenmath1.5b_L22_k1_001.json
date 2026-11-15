@@ -1,0 +1,116 @@
+{
+  "id": "heads_fraction_constituent_selection_qwenmath1.5b_L22_k1_001",
+  "kind": "attn_heads",
+  "title": "Qwen2.5-Math-1.5B layer 22, fraction constituent selection",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwenmath1.5b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "fraction_role"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Math-1.5B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'fraction_role' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.173,
+      "control_value": -0.0096,
+      "split": "person_a held-out skill items (fraction_role)",
+      "seeds": null,
+      "source": "person_a/catalog/qwenmath1.5b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0002"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Math-1.5B",
+  "layer": 22,
+  "layers": [
+    22
+  ],
+  "units_file": "components/Qwen__Qwen2.5-Math-1.5B/heads_fraction_constituent_selection_qwenmath1.5b_L22_k1_001.pt",
+  "units_remote": "person_a/parts/qwenmath1.5b/heads_fraction_constituent_selection_qwenmath1.5b_L22_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'fraction_role'",
+    "label": "fraction constituent selection",
+    "num_units": 1,
+    "d_model": 1536,
+    "effect": {
+      "math|search": 0.0,
+      "math|heldout": -0.0,
+      "code|search": -0.0021,
+      "code|heldout": -0.0023,
+      "facts|search": -0.0076,
+      "facts|heldout": 0.0017,
+      "multilingual|search": -0.0029,
+      "multilingual|heldout": -0.0048,
+      "general_text|search": 0.0006,
+      "general_text|heldout": 0.002,
+      "month_offset|search": -0.0545,
+      "month_offset__control|search": 0.009,
+      "month_offset|heldout": -0.0559,
+      "month_offset__control|heldout": 0.0,
+      "integer_parity|search": 0.0001,
+      "integer_parity__control|search": 0.0,
+      "integer_parity|heldout": 0.0,
+      "integer_parity__control|heldout": 0.0,
+      "weekday_offset|search": 0.0042,
+      "weekday_offset__control|search": 0.0001,
+      "weekday_offset|heldout": 0.0017,
+      "weekday_offset__control|heldout": 0.0003,
+      "primality_label|search": 0.0002,
+      "primality_label__control|search": 0.0004,
+      "primality_label|heldout": 0.0001,
+      "primality_label__control|heldout": 0.0004,
+      "product_sign|search": -0.0186,
+      "product_sign__control|search": -0.1121,
+      "product_sign|heldout": 0.0244,
+      "product_sign__control|heldout": -0.0838,
+      "fraction_role|search": 0.1602,
+      "fraction_role__control|search": -0.0027,
+      "fraction_role|heldout": 0.173,
+      "fraction_role__control|heldout": -0.0002,
+      "latex_superscript|search": -0.0014,
+      "latex_superscript__control|search": -0.0054,
+      "latex_superscript|heldout": -0.0055,
+      "latex_superscript__control|heldout": -0.0028,
+      "boolean_negation|search": 0.0002,
+      "boolean_negation__control|search": 0.0006,
+      "boolean_negation|heldout": 0.0001,
+      "boolean_negation__control|heldout": 0.0006
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0534,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.1039,
+      0.031,
+      -0.0068,
+      0.0036,
+      0.028
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L22h1 o_proj subspace aligns most with denominator (.030) among inspected role/syntax words. Static QK differentiates numerator queries (2/{) from denominator queries ()/+). Ablation selectively reduces fraction_role .160 with control -.003 and no other skill drop above .004; attribution independently ranks it .132."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwenmath1.5b/fraction_role.json",
+    "hash": "9a67d44be1012229",
+    "description": "Identify numerator versus denominator from a referenced part of a fraction; controls copy the explicitly provided numeric part.",
+    "name": "fraction_role"
+  },
+  "catalog_id": "heads_fraction_constituent_selection_qwenmath1.5b_L22_k1_001",
+  "exported_copy": "library/qwenmath1.5b/heads_fraction_constituent_selection_qwenmath1.5b_L22_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

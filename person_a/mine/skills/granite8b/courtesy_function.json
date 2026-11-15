@@ -1,0 +1,1220 @@
+{
+ "name": "courtesy_function",
+ "description": "Identify whether an utterance is an apology, thanks, or a request; matched control extracts the speaker name.",
+ "hash": "062868641363f8c3",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\npatterns={'apology':['I am sorry for being late.','Please forgive my mistake.','I apologize for the delay.','Sorry for interrupting you.','I regret what I said.','My apologies for the confusion.','I am sorry I broke your cup.','Please accept my sincere apology.','I should not have said that; sorry.','Forgive me for forgetting your birthday.'], 'thanks':['Thank you for your help.','I really appreciate your kindness.','Thanks for the lovely gift.','I am grateful for your support.','Many thanks for coming today.','Thank you for explaining everything.','I appreciate your hard work.','Thanks a lot for the ride.','I am so thankful for your advice.','Thank you for inviting me.'], 'request':['Could you please open the window?','Please pass me the salt.','Would you mind helping me?','Can you lend me a pen, please?','Please close the door.','Could you tell me the time?','Would you please repeat that?','May I borrow your umbrella?','Please send me the document.','Could you bring me a glass of water?']}\nnames=['Alice','David','Maria','Peter']\ncs=[(lab,text,n) for lab,ss in patterns.items() for text in ss for n in names]; random.shuffle(cs)\nitems=[];control=[]\nfor label,text,n in cs:\n record=f'{n} says: \"{text}\"'\n items.append({'prompt':f'Classify the utterance as apology, thanks, or request.\\n{record}\\nAnswer:','answer':' '+label})\n control.append({'prompt':f'Who is speaking? Give the name only.\\n{record}\\nAnswer:','answer':' '+n})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"May I borrow your umbrella?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"I am sorry I broke your cup.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"Could you tell me the time?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"I am sorry for being late.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"Thank you for explaining everything.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"Could you please open the window?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"Could you bring me a glass of water?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"Thank you for your help.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"I apologize for the delay.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"I really appreciate your kindness.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"My apologies for the confusion.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"I apologize for the delay.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"Please pass me the salt.\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"I am sorry for being late.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"Many thanks for coming today.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"Please pass me the salt.\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"Thank you for explaining everything.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"Forgive me for forgetting your birthday.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"Please close the door.\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"Could you bring me a glass of water?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"Please accept my sincere apology.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"Forgive me for forgetting your birthday.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"I regret what I said.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"Thanks a lot for the ride.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"Please close the door.\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"Please forgive my mistake.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"Can you lend me a pen, please?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"I am grateful for your support.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"Thank you for your help.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"I am grateful for your support.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"I really appreciate your kindness.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"Please close the door.\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"Could you bring me a glass of water?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"Please accept my sincere apology.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"I am so thankful for your advice.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"Would you mind helping me?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"I appreciate your hard work.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"I am grateful for your support.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"Would you please repeat that?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"I appreciate your hard work.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"Please forgive my mistake.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"I regret what I said.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"Can you lend me a pen, please?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"Thank you for inviting me.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"I am so thankful for your advice.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"I appreciate your hard work.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"I should not have said that; sorry.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"I apologize for the delay.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"Thanks for the lovely gift.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"Please forgive my mistake.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"Could you please open the window?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"Would you please repeat that?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"Can you lend me a pen, please?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"I apologize for the delay.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"Thanks a lot for the ride.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"I regret what I said.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"I am so thankful for your advice.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"Could you tell me the time?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"Many thanks for coming today.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"Would you mind helping me?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"May I borrow your umbrella?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"I am grateful for your support.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"Would you please repeat that?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"Would you mind helping me?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"I am sorry I broke your cup.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"Thank you for your help.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"Thank you for your help.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"Many thanks for coming today.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"Thanks for the lovely gift.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"Thanks a lot for the ride.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"Could you tell me the time?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"Thank you for inviting me.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"My apologies for the confusion.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"Please send me the document.\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"Thank you for explaining everything.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"Sorry for interrupting you.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"May I borrow your umbrella?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"I am sorry for being late.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"I really appreciate your kindness.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"I am sorry I broke your cup.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"I am so thankful for your advice.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"Sorry for interrupting you.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"I really appreciate your kindness.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"Could you bring me a glass of water?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"Can you lend me a pen, please?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"Please forgive my mistake.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"I should not have said that; sorry.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"Please pass me the salt.\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"I am sorry I broke your cup.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"Please close the door.\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"Please send me the document.\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"I am sorry for being late.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"Thanks a lot for the ride.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"Forgive me for forgetting your birthday.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"May I borrow your umbrella?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"Thanks for the lovely gift.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"Thank you for inviting me.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"My apologies for the confusion.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"Thank you for inviting me.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"I regret what I said.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"Sorry for interrupting you.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"Please accept my sincere apology.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"Please accept my sincere apology.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"Please send me the document.\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"I appreciate your hard work.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"Could you tell me the time?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"Could you please open the window?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"My apologies for the confusion.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"Thank you for explaining everything.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"Forgive me for forgetting your birthday.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"I should not have said that; sorry.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"Could you please open the window?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"Please pass me the salt.\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"Thanks for the lovely gift.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nPeter says: \"Many thanks for coming today.\"\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"Would you mind helping me?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nDavid says: \"I should not have said that; sorry.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nAlice says: \"Sorry for interrupting you.\"\nAnswer:",
+    "continuation": " apology",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"Please send me the document.\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the utterance as apology, thanks, or request.\nMaria says: \"Would you please repeat that?\"\nAnswer:",
+    "continuation": " request",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"May I borrow your umbrella?\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"I am grateful for your support.\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"I apologize for the delay.\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"Forgive me for forgetting your birthday.\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"May I borrow your umbrella?\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"Would you mind helping me?\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"May I borrow your umbrella?\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"Thank you for inviting me.\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"My apologies for the confusion.\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"I really appreciate your kindness.\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"I am so thankful for your advice.\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"I should not have said that; sorry.\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"Thank you for your help.\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"I am sorry I broke your cup.\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"Please forgive my mistake.\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"Can you lend me a pen, please?\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"Could you bring me a glass of water?\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"I am grateful for your support.\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"Thanks a lot for the ride.\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"I am sorry I broke your cup.\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"Would you please repeat that?\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"Please send me the document.\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"Thank you for inviting me.\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"Would you mind helping me?\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"Please send me the document.\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"Sorry for interrupting you.\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"I really appreciate your kindness.\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"Please accept my sincere apology.\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"Please pass me the salt.\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"Thanks for the lovely gift.\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"Please close the door.\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"I am so thankful for your advice.\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"Thanks a lot for the ride.\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"Many thanks for coming today.\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"Can you lend me a pen, please?\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"I appreciate your hard work.\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"Thanks a lot for the ride.\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"I am so thankful for your advice.\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"I regret what I said.\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"I appreciate your hard work.\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"I apologize for the delay.\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"Thank you for explaining everything.\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"Please close the door.\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"I really appreciate your kindness.\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"I should not have said that; sorry.\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"I am sorry I broke your cup.\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"Please close the door.\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"Could you please open the window?\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"Thank you for inviting me.\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"Please accept my sincere apology.\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"I should not have said that; sorry.\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"Please pass me the salt.\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"Thank you for your help.\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"I should not have said that; sorry.\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"Could you tell me the time?\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"Could you please open the window?\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"Would you please repeat that?\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"My apologies for the confusion.\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"My apologies for the confusion.\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"I am sorry for being late.\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"Could you tell me the time?\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"Can you lend me a pen, please?\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"I apologize for the delay.\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"Please pass me the salt.\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"I am sorry I broke your cup.\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"Would you mind helping me?\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"Thank you for your help.\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"I am grateful for your support.\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"Many thanks for coming today.\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"Could you bring me a glass of water?\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"Thanks for the lovely gift.\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"Please forgive my mistake.\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"I regret what I said.\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"I am sorry for being late.\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"Thank you for explaining everything.\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"Sorry for interrupting you.\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"Could you please open the window?\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"I am sorry for being late.\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"Thank you for explaining everything.\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"Can you lend me a pen, please?\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"Please send me the document.\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"Thank you for explaining everything.\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"Could you tell me the time?\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"I apologize for the delay.\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"Forgive me for forgetting your birthday.\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"Please pass me the salt.\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"Please close the door.\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"I regret what I said.\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"I am so thankful for your advice.\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"I appreciate your hard work.\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"Many thanks for coming today.\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"Forgive me for forgetting your birthday.\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"Thank you for inviting me.\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"Would you please repeat that?\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"Could you tell me the time?\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"Could you bring me a glass of water?\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"Many thanks for coming today.\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"Thanks for the lovely gift.\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"Thanks a lot for the ride.\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"Sorry for interrupting you.\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"Please send me the document.\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"I am sorry for being late.\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"Could you please open the window?\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"My apologies for the confusion.\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"I really appreciate your kindness.\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"Forgive me for forgetting your birthday.\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"Could you bring me a glass of water?\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"Would you mind helping me?\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"Please forgive my mistake.\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"May I borrow your umbrella?\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"I am grateful for your support.\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"Thank you for your help.\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"I regret what I said.\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"Thanks for the lovely gift.\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"Please accept my sincere apology.\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"Sorry for interrupting you.\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nAlice says: \"I appreciate your hard work.\"\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nMaria says: \"Would you please repeat that?\"\nAnswer:",
+    "continuation": " Maria",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nPeter says: \"Please forgive my mistake.\"\nAnswer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Who is speaking? Give the name only.\nDavid says: \"Please accept my sincere apology.\"\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 6.6429
+}

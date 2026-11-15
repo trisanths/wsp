@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sapien Banner Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville&display=swap">
+<style>
+/* Studio tokens (studio/web/STYLE.md). Layout: one 1600x640 SVG stage.
+   Left: wordmark. Centre: the new model as a stack of layer slabs.
+   Right: open-model cards. Parts travel right to left along hairlines. */
+:root {
+  --bg: #ffffff; --bg-card: #fafafa; --bg-sunk: #f8f8f7;
+  --text-1: #1a1a1a; --text-2: #4d4d4d; --text-3: #737373; --text-4: #b9b9b7;
+  --line-2: #0000000f; --line-3: #00000024; --line-path: #0000001c;
+  --blue: #0081f2; --blue-soft: #0081f21f;
+  --serif: "Libre Baskerville", Georgia, Cambria, "Times New Roman", serif;
+  --sans: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+html.dark {
+  --bg: #242424; --bg-card: #1c1c1c; --bg-sunk: #1a1a1a;
+  --text-1: #e6e6e6; --text-2: #b3b3b3; --text-3: #8c8c8c; --text-4: #595959;
+  --line-2: #ffffff0f; --line-3: #ffffff26; --line-path: #ffffff1f;
+  --blue: #1a93fe; --blue-soft: #1a93fe29;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg-sunk); color: var(--text-1); font: 14px/20px var(--sans); }
+.page { max-width: 1680px; margin: 0 auto; padding: 24px 16px 40px; display: flex; flex-direction: column; gap: 16px; }
+.bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.bar .t { color: var(--text-3); font-size: 13px; }
+.bar button {
+  font: 500 14px/20px var(--sans); color: var(--text-1); background: transparent;
+  border: 1px solid var(--line-3); border-radius: 8px; padding: 6px 12px; cursor: pointer;
+}
+.bar button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.frame { border-radius: 12px; overflow: hidden; box-shadow: 0 0 0 1px var(--line-2), 0 12px 32px #00000014; }
+svg { display: block; width: 100%; height: auto; background: var(--bg); }
+
+.wordmark { font-family: var(--serif); font-size: 104px; fill: var(--text-1); }
+.tagline { font-family: var(--sans); font-size: 24px; fill: var(--text-3); }
+.pill rect { fill: none; stroke: var(--line-3); }
+.pill text { font-family: var(--sans); font-size: 14px; fill: var(--text-2); }
+.cap { font-family: var(--mono); font-size: 12px; fill: var(--text-3); letter-spacing: .04em; }
+
+.slab { fill: var(--bg); stroke: var(--line-3); }
+.part { fill: var(--blue); }
+.part-l { font-family: var(--mono); font-size: 10.5px; fill: #ffffff; }
+.path { fill: none; stroke: var(--line-path); stroke-width: 1.25; }
+.chip { fill: var(--blue); }
+.chip-ghost { fill: var(--blue-soft); stroke: var(--blue); stroke-width: 1; }
+
+.card { fill: var(--bg-card); stroke: var(--line-2); }
+.card-sh { fill: none; stroke: var(--line-3); stroke-opacity: .5; }
+.card-l { font-family: var(--mono); font-size: 11px; fill: var(--text-2); }
+.mono-fallback { font-family: var(--sans); font-weight: 600; font-size: 22px; fill: var(--text-2); }
+.yours { fill: none; stroke: var(--line-3); stroke-dasharray: 4 4; }
+.yours-t { font-family: var(--serif); font-size: 16px; fill: var(--text-2); }
+
+@media (prefers-reduced-motion: reduce) { .moving { display: none; } }
+/* ?export=1: the stage alone at 1600x640, for headless screenshots */
+html.export body { background: var(--bg); }
+html.export .page { max-width: none; padding: 0; gap: 0; }
+html.export .bar { display: none; }
+html.export .frame { border-radius: 0; box-shadow: none; }
+html.export svg { width: 1600px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="bar">
+    <span class="t">Sapien launch banner, mockup at 1600 x 640. Parts move right to left, from open models into one new model.</span>
+    <button type="button" id="theme">Dark theme</button>
+  </div>
+
+  <div class="frame">
+  <svg id="stage" viewBox="0 0 1600 640" role="img" aria-label="Sapien: parts mined from open models, combined into one new model">
+    <!-- paths sit under everything -->
+    <g id="paths"></g>
+
+    <!-- left: wordmark -->
+    <text class="wordmark" x="96" y="300">Sapien</text>
+    <text class="tagline" x="100" y="352">Build models from the parts of open models.</text>
+    <g id="pills" transform="translate(100 392)"></g>
+
+    <!-- centre: the new model -->
+    <g id="stack"></g>
+    <text class="cap" x="738" y="532" text-anchor="middle">ONE NEW MODEL</text>
+
+    <!-- moving parts -->
+    <g id="chips"></g>
+
+    <!-- right: open models -->
+    <g id="cards"></g>
+    <text class="cap" x="1338" y="532" text-anchor="middle">MINED FROM OPEN MODELS</text>
+  </svg>
+  </div>
+</div>
+
+<script>
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  // Set a logo.dev publishable key with ?token=pk_... ; without one the page uses favicons.
+  var Q = new URLSearchParams(location.search);
+  var TOKEN = Q.get('token') || '';
+  if (Q.get('export')) document.documentElement.classList.add('export');
+  if (Q.get('theme') === 'dark') document.documentElement.classList.add('dark');
+
+  function el(tag, attrs, parent, text) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+
+  // ---- pills under the tagline
+  var pills = document.getElementById('pills');
+  var px = 0;
+  ['experts', 'attention heads', 'MLP clusters', 'layer blocks'].forEach(function (t) {
+    var w = Math.round(t.length * 7.6 + 28);
+    var g = el('g', { class: 'pill', transform: 'translate(' + px + ' 0)' }, pills);
+    el('rect', { x: 0, y: 0, width: w, height: 30, rx: 15 }, g);
+    el('text', { x: w / 2, y: 20, 'text-anchor': 'middle' }, g, t);
+    px += w + 8;
+  });
+
+  // ---- the stack: 8 layer slabs
+  var SX = 628, SW = 220, SH = 28, STOP = 168, SGAP = 40;
+  var stack = document.getElementById('stack');
+  var slotY = [];
+  for (var i = 0; i < 8; i++) {
+    var y = STOP + i * SGAP;
+    slotY.push(y);
+    el('rect', { class: 'slab', x: SX, y: y, width: SW, height: SH, rx: 8 }, stack);
+  }
+
+  // ---- open-model cards, 3 x 3
+  var CX = 1130, CW = 128, CH = 104, CG = 16, CTOP = 150;
+  var MODELS = [
+    { name: 'Kimi-K3', domain: 'kimi.com', mono: 'K' },
+    { name: 'Qwen3-30B-A3B', domain: 'qwen.ai', mono: 'Q' },
+    { name: 'DeepSeek-V4', domain: 'deepseek.com', mono: 'D' },
+    { name: 'LFM2-8B-A1B', domain: 'liquid.ai', mono: 'L' },
+    { name: 'Llama-3.1-8B', domain: 'llama.com', mono: 'M' },
+    { name: 'Gemma-4-31B', domain: 'deepmind.google', mono: 'G' },
+    { name: 'Phi-4', domain: 'microsoft.com', mono: 'P' },
+    { name: 'Granite-3.3-8B', domain: 'ibm.com', mono: 'G' },
+    { yours: true }
+  ];
+  var cards = document.getElementById('cards');
+  var centres = [];
+  MODELS.forEach(function (m, k) {
+    var col = k % 3, row = Math.floor(k / 3);
+    var x = CX + col * (CW + CG), y = CTOP + row * (CH + CG);
+    centres.push({ x: x + CW / 2, y: y + CH / 2, left: x });
+    var g = el('g', {}, cards);
+    if (m.yours) {
+      el('rect', { class: 'yours', x: x + .5, y: y + .5, width: CW - 1, height: CH - 1, rx: 12 }, g);
+      el('text', { class: 'yours-t', x: x + CW / 2, y: y + 50, 'text-anchor': 'middle' }, g, 'Your');
+      el('text', { class: 'yours-t', x: x + CW / 2, y: y + 72, 'text-anchor': 'middle' }, g, 'models…');
+      return;
+    }
+    el('rect', { class: 'card', x: x, y: y, width: CW, height: CH, rx: 12 }, g);
+    el('rect', { class: 'card-sh', x: x + .5, y: y + .5, width: CW - 1, height: CH - 1, rx: 12 }, g);
+    var fb = el('text', { class: 'mono-fallback', x: x + CW / 2, y: y + 52, 'text-anchor': 'middle' }, g, m.mono);
+    var img = el('image', { x: x + CW / 2 - 22, y: y + 22, width: 44, height: 44, preserveAspectRatio: 'xMidYMid meet' }, g);
+    img.style.display = 'none';
+    el('text', { class: 'card-l', x: x + CW / 2, y: y + 88, 'text-anchor': 'middle' }, g, m.name);
+
+    var srcs = [];
+    if (TOKEN) srcs.push('https://img.logo.dev/' + m.domain + '?token=' + encodeURIComponent(TOKEN) + '&size=128&format=png&retina=true');
+    srcs.push('https://www.google.com/s2/favicons?domain=' + m.domain + '&sz=128');
+    (function tryNext(j) {
+      if (j >= srcs.length) return;
+      var probe = new Image();
+      probe.onload = function () {
+        if (probe.naturalWidth < 32) return tryNext(j + 1); // a 16px default globe is worse than the monogram
+        img.setAttribute('href', srcs[j]); img.style.display = ''; fb.style.display = 'none';
+      };
+      probe.onerror = function () { tryNext(j + 1); };
+      probe.src = srcs[j];
+    })(0);
+  });
+
+  // ---- flows: card -> slab, with the part that docked there
+  var FLOWS = [
+    { from: 1, slot: 1, label: 'L18 · 8 experts', w: 120 },
+    { from: 2, slot: 3, label: 'L22 · experts', w: 104 },
+    { from: 0, slot: 5, label: 'attn heads', w: 84 },
+    { from: 3, slot: 6, label: 'MLP cluster', w: 92 },
+    { from: 5, slot: 2, label: 'block 8..19', w: 96 }
+  ];
+  var paths = document.getElementById('paths');
+  var chips = document.getElementById('chips');
+  var endX = SX + SW;
+  FLOWS.forEach(function (f, n) {
+    var c = centres[f.from];
+    var y1 = slotY[f.slot] + SH / 2;
+    var d = 'M' + c.x + ' ' + c.y + ' C ' + (c.x - 220) + ' ' + c.y + ', ' + (endX + 160) + ' ' + y1 + ', ' + endX + ' ' + y1;
+    el('path', { class: 'path', d: d, id: 'p' + n }, paths);
+
+    // the docked part inside the slab (right-aligned)
+    var px0 = endX - f.w - 4;
+    el('rect', { class: 'part', x: px0, y: slotY[f.slot] + 4, width: f.w, height: SH - 8, rx: 5 }, stack);
+    el('text', { class: 'part-l', x: px0 + 8, y: slotY[f.slot] + 18 }, stack, f.label);
+
+    // a resting chip midway (visible with no motion), plus a moving copy
+    var rest = el('rect', { class: 'chip-ghost', x: -14, y: -7, width: 28, height: 14, rx: 4 }, chips);
+    var mid = document.getElementById('p' + n);
+    var L = mid.getTotalLength();
+    var pt = mid.getPointAtLength(L * (0.42 + 0.06 * (n % 3)));
+    rest.setAttribute('transform', 'translate(' + pt.x.toFixed(1) + ' ' + pt.y.toFixed(1) + ')');
+
+    var mv = el('rect', { class: 'chip moving', x: -14, y: -7, width: 28, height: 14, rx: 4 }, chips);
+    var am = el('animateMotion', { dur: '4.8s', repeatCount: 'indefinite', begin: (-n * 0.95) + 's', keyPoints: '0;1', keyTimes: '0;1', calcMode: 'spline', keySplines: '.45 0 .25 1' }, mv);
+    el('mpath', { href: '#p' + n }, am);
+  });
+
+  // cards drawn last so paths start from under them
+  document.getElementById('stage').appendChild(cards);
+
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.getElementById('stage').pauseAnimations();
+  }
+
+  // ---- theme toggle
+  var btn = document.getElementById('theme');
+  btn.addEventListener('click', function () {
+    var dark = document.documentElement.classList.toggle('dark');
+    btn.textContent = dark ? 'Light theme' : 'Dark theme';
+  });
+})();
+</script>
+</body>
+</html>

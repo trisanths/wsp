@@ -1,0 +1,820 @@
+{
+ "name": "anatomical_function",
+ "description": "Identify organs and tissues from their physiological functions; marker-reading controls preserve the same sentence.",
+ "hash": "38bc247c824976b8",
+ "agent_items": false,
+ "generator_code": "import json,random\nrandom.seed(0)\nfacts=[('pumps blood through the body','heart'),('filters blood and produces urine','kidney'),('produces bile','liver'),('controls thought and voluntary movement','brain'),('exchanges oxygen and carbon dioxide in breathing','lung'),('stores urine before urination','bladder'),('produces insulin','pancreas'),('stores bile','gallbladder'),('churns food and secretes gastric acid','stomach'),('absorbs most nutrients from digested food','small intestine'),('absorbs water from remaining digestive contents','colon'),('carries blood away from the heart','artery'),('carries blood toward the heart','vein'),('connects muscle to bone','tendon'),('connects bone to bone','ligament'),('contracts to produce movement','muscle'),('transmits electrical signals in the nervous system','nerve'),('forms the rigid framework of the skeleton','bone'),('covers the body and provides its outer protective barrier','skin'),('produces thyroid hormones','thyroid')]\nitems=[];control=[]\nfor rep in range(4):\n for function,organ in facts:\n  marker=random.choice(['red','blue','green','white'])\n  stem=f'Physiology note: this structure {function}. Marker: {marker}. '\n  q=['Name the anatomical structure. Answer:','Which organ or tissue is described? Answer:','Identify the body structure. Answer:','What anatomical structure has this function? Answer:'][rep]\n  items.append({'prompt':stem+q,'answer':' '+organ});control.append({'prompt':stem+'What is the marker? Answer:','answer':' '+marker})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Physiology note: this structure transmits electrical signals in the nervous system. Marker: red. Identify the body structure. Answer:",
+    "continuation": " nerve",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure exchanges oxygen and carbon dioxide in breathing. Marker: red. Identify the body structure. Answer:",
+    "continuation": " lung",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure produces bile. Marker: blue. Identify the body structure. Answer:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure absorbs water from remaining digestive contents. Marker: green. Identify the body structure. Answer:",
+    "continuation": " colon",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure exchanges oxygen and carbon dioxide in breathing. Marker: green. Which organ or tissue is described? Answer:",
+    "continuation": " lung",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure carries blood away from the heart. Marker: red. Which organ or tissue is described? Answer:",
+    "continuation": " artery",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure churns food and secretes gastric acid. Marker: red. What anatomical structure has this function? Answer:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure carries blood away from the heart. Marker: green. Name the anatomical structure. Answer:",
+    "continuation": " artery",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure produces insulin. Marker: white. What anatomical structure has this function? Answer:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure filters blood and produces urine. Marker: blue. Identify the body structure. Answer:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure contracts to produce movement. Marker: blue. What anatomical structure has this function? Answer:",
+    "continuation": " muscle",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure churns food and secretes gastric acid. Marker: green. Name the anatomical structure. Answer:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure forms the rigid framework of the skeleton. Marker: green. Which organ or tissue is described? Answer:",
+    "continuation": " bone",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure absorbs most nutrients from digested food. Marker: red. Which organ or tissue is described? Answer:",
+    "continuation": " small intestine",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure filters blood and produces urine. Marker: white. Name the anatomical structure. Answer:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure connects bone to bone. Marker: green. Name the anatomical structure. Answer:",
+    "continuation": " ligament",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure carries blood toward the heart. Marker: green. Identify the body structure. Answer:",
+    "continuation": " vein",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure produces thyroid hormones. Marker: blue. Identify the body structure. Answer:",
+    "continuation": " thyroid",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure controls thought and voluntary movement. Marker: blue. What anatomical structure has this function? Answer:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure covers the body and provides its outer protective barrier. Marker: red. Name the anatomical structure. Answer:",
+    "continuation": " skin",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure stores bile. Marker: white. Identify the body structure. Answer:",
+    "continuation": " gallbladder",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure produces bile. Marker: red. Name the anatomical structure. Answer:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure covers the body and provides its outer protective barrier. Marker: green. What anatomical structure has this function? Answer:",
+    "continuation": " skin",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure connects bone to bone. Marker: green. What anatomical structure has this function? Answer:",
+    "continuation": " ligament",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure controls thought and voluntary movement. Marker: white. Which organ or tissue is described? Answer:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure stores bile. Marker: white. Name the anatomical structure. Answer:",
+    "continuation": " gallbladder",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure absorbs water from remaining digestive contents. Marker: blue. Name the anatomical structure. Answer:",
+    "continuation": " colon",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure pumps blood through the body. Marker: green. What anatomical structure has this function? Answer:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure produces insulin. Marker: white. Which organ or tissue is described? Answer:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure contracts to produce movement. Marker: blue. Name the anatomical structure. Answer:",
+    "continuation": " muscle",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure contracts to produce movement. Marker: white. Identify the body structure. Answer:",
+    "continuation": " muscle",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure carries blood away from the heart. Marker: red. What anatomical structure has this function? Answer:",
+    "continuation": " artery",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure stores urine before urination. Marker: blue. Which organ or tissue is described? Answer:",
+    "continuation": " bladder",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure forms the rigid framework of the skeleton. Marker: white. What anatomical structure has this function? Answer:",
+    "continuation": " bone",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure pumps blood through the body. Marker: white. Name the anatomical structure. Answer:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure controls thought and voluntary movement. Marker: green. Name the anatomical structure. Answer:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure transmits electrical signals in the nervous system. Marker: green. Name the anatomical structure. Answer:",
+    "continuation": " nerve",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure transmits electrical signals in the nervous system. Marker: blue. What anatomical structure has this function? Answer:",
+    "continuation": " nerve",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure churns food and secretes gastric acid. Marker: green. Which organ or tissue is described? Answer:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure produces thyroid hormones. Marker: white. What anatomical structure has this function? Answer:",
+    "continuation": " thyroid",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Physiology note: this structure churns food and secretes gastric acid. Marker: red. Identify the body structure. Answer:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure connects muscle to bone. Marker: red. Name the anatomical structure. Answer:",
+    "continuation": " tendon",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure pumps blood through the body. Marker: blue. Identify the body structure. Answer:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure produces thyroid hormones. Marker: blue. Which organ or tissue is described? Answer:",
+    "continuation": " thyroid",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure pumps blood through the body. Marker: white. Which organ or tissue is described? Answer:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure absorbs most nutrients from digested food. Marker: blue. What anatomical structure has this function? Answer:",
+    "continuation": " small intestine",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure produces bile. Marker: green. Which organ or tissue is described? Answer:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure connects bone to bone. Marker: green. Identify the body structure. Answer:",
+    "continuation": " ligament",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure contracts to produce movement. Marker: green. Which organ or tissue is described? Answer:",
+    "continuation": " muscle",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure absorbs water from remaining digestive contents. Marker: red. Which organ or tissue is described? Answer:",
+    "continuation": " colon",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure filters blood and produces urine. Marker: red. Which organ or tissue is described? Answer:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure controls thought and voluntary movement. Marker: white. Identify the body structure. Answer:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure exchanges oxygen and carbon dioxide in breathing. Marker: white. Name the anatomical structure. Answer:",
+    "continuation": " lung",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure produces insulin. Marker: green. Identify the body structure. Answer:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure produces insulin. Marker: green. Name the anatomical structure. Answer:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure produces thyroid hormones. Marker: green. Name the anatomical structure. Answer:",
+    "continuation": " thyroid",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure absorbs most nutrients from digested food. Marker: blue. Name the anatomical structure. Answer:",
+    "continuation": " small intestine",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure forms the rigid framework of the skeleton. Marker: white. Identify the body structure. Answer:",
+    "continuation": " bone",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure carries blood toward the heart. Marker: red. What anatomical structure has this function? Answer:",
+    "continuation": " vein",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure connects muscle to bone. Marker: white. What anatomical structure has this function? Answer:",
+    "continuation": " tendon",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure absorbs water from remaining digestive contents. Marker: blue. What anatomical structure has this function? Answer:",
+    "continuation": " colon",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure connects bone to bone. Marker: white. Which organ or tissue is described? Answer:",
+    "continuation": " ligament",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure covers the body and provides its outer protective barrier. Marker: green. Identify the body structure. Answer:",
+    "continuation": " skin",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure carries blood toward the heart. Marker: white. Which organ or tissue is described? Answer:",
+    "continuation": " vein",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure carries blood toward the heart. Marker: blue. Name the anatomical structure. Answer:",
+    "continuation": " vein",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure stores bile. Marker: red. What anatomical structure has this function? Answer:",
+    "continuation": " gallbladder",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure transmits electrical signals in the nervous system. Marker: blue. Which organ or tissue is described? Answer:",
+    "continuation": " nerve",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure forms the rigid framework of the skeleton. Marker: red. Name the anatomical structure. Answer:",
+    "continuation": " bone",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure exchanges oxygen and carbon dioxide in breathing. Marker: red. What anatomical structure has this function? Answer:",
+    "continuation": " lung",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure stores bile. Marker: white. Which organ or tissue is described? Answer:",
+    "continuation": " gallbladder",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure stores urine before urination. Marker: red. Identify the body structure. Answer:",
+    "continuation": " bladder",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure filters blood and produces urine. Marker: blue. What anatomical structure has this function? Answer:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure covers the body and provides its outer protective barrier. Marker: red. Which organ or tissue is described? Answer:",
+    "continuation": " skin",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure carries blood away from the heart. Marker: red. Identify the body structure. Answer:",
+    "continuation": " artery",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure produces bile. Marker: blue. What anatomical structure has this function? Answer:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure stores urine before urination. Marker: green. What anatomical structure has this function? Answer:",
+    "continuation": " bladder",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure connects muscle to bone. Marker: red. Which organ or tissue is described? Answer:",
+    "continuation": " tendon",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure stores urine before urination. Marker: white. Name the anatomical structure. Answer:",
+    "continuation": " bladder",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure connects muscle to bone. Marker: blue. Identify the body structure. Answer:",
+    "continuation": " tendon",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure absorbs most nutrients from digested food. Marker: green. Identify the body structure. Answer:",
+    "continuation": " small intestine",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Physiology note: this structure produces insulin. Marker: white. What is the marker? Answer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure exchanges oxygen and carbon dioxide in breathing. Marker: white. What is the marker? Answer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure carries blood away from the heart. Marker: green. What is the marker? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure produces bile. Marker: red. What is the marker? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure exchanges oxygen and carbon dioxide in breathing. Marker: red. What is the marker? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure absorbs water from remaining digestive contents. Marker: red. What is the marker? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure transmits electrical signals in the nervous system. Marker: blue. What is the marker? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure absorbs most nutrients from digested food. Marker: blue. What is the marker? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure stores urine before urination. Marker: blue. What is the marker? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure stores bile. Marker: white. What is the marker? Answer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure absorbs water from remaining digestive contents. Marker: green. What is the marker? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure produces thyroid hormones. Marker: green. What is the marker? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure covers the body and provides its outer protective barrier. Marker: green. What is the marker? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure forms the rigid framework of the skeleton. Marker: white. What is the marker? Answer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure pumps blood through the body. Marker: blue. What is the marker? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure contracts to produce movement. Marker: blue. What is the marker? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure churns food and secretes gastric acid. Marker: red. What is the marker? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure transmits electrical signals in the nervous system. Marker: blue. What is the marker? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure carries blood toward the heart. Marker: green. What is the marker? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure filters blood and produces urine. Marker: red. What is the marker? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure stores bile. Marker: white. What is the marker? Answer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure transmits electrical signals in the nervous system. Marker: green. What is the marker? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure covers the body and provides its outer protective barrier. Marker: red. What is the marker? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure absorbs water from remaining digestive contents. Marker: blue. What is the marker? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure produces bile. Marker: blue. What is the marker? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure stores bile. Marker: red. What is the marker? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure absorbs most nutrients from digested food. Marker: blue. What is the marker? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure filters blood and produces urine. Marker: blue. What is the marker? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure controls thought and voluntary movement. Marker: white. What is the marker? Answer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure transmits electrical signals in the nervous system. Marker: red. What is the marker? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure stores urine before urination. Marker: white. What is the marker? Answer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure connects bone to bone. Marker: green. What is the marker? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure absorbs water from remaining digestive contents. Marker: blue. What is the marker? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure stores urine before urination. Marker: red. What is the marker? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure covers the body and provides its outer protective barrier. Marker: red. What is the marker? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure absorbs most nutrients from digested food. Marker: red. What is the marker? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure covers the body and provides its outer protective barrier. Marker: green. What is the marker? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure produces thyroid hormones. Marker: blue. What is the marker? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure produces bile. Marker: green. What is the marker? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure carries blood away from the heart. Marker: red. What is the marker? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Physiology note: this structure contracts to produce movement. Marker: green. What is the marker? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure carries blood away from the heart. Marker: red. What is the marker? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure churns food and secretes gastric acid. Marker: green. What is the marker? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure produces thyroid hormones. Marker: blue. What is the marker? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure connects muscle to bone. Marker: red. What is the marker? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure connects muscle to bone. Marker: blue. What is the marker? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure stores bile. Marker: white. What is the marker? Answer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure connects muscle to bone. Marker: red. What is the marker? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure controls thought and voluntary movement. Marker: white. What is the marker? Answer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure exchanges oxygen and carbon dioxide in breathing. Marker: green. What is the marker? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure exchanges oxygen and carbon dioxide in breathing. Marker: red. What is the marker? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure connects bone to bone. Marker: white. What is the marker? Answer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure filters blood and produces urine. Marker: blue. What is the marker? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure connects bone to bone. Marker: green. What is the marker? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure stores urine before urination. Marker: green. What is the marker? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure filters blood and produces urine. Marker: white. What is the marker? Answer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure pumps blood through the body. Marker: white. What is the marker? Answer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure produces insulin. Marker: green. What is the marker? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure forms the rigid framework of the skeleton. Marker: green. What is the marker? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure connects bone to bone. Marker: green. What is the marker? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure carries blood away from the heart. Marker: red. What is the marker? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure produces insulin. Marker: green. What is the marker? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure produces thyroid hormones. Marker: white. What is the marker? Answer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure connects muscle to bone. Marker: white. What is the marker? Answer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure pumps blood through the body. Marker: white. What is the marker? Answer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure contracts to produce movement. Marker: white. What is the marker? Answer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure absorbs most nutrients from digested food. Marker: green. What is the marker? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure controls thought and voluntary movement. Marker: green. What is the marker? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure produces bile. Marker: blue. What is the marker? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure carries blood toward the heart. Marker: blue. What is the marker? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure produces insulin. Marker: white. What is the marker? Answer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure churns food and secretes gastric acid. Marker: red. What is the marker? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure pumps blood through the body. Marker: green. What is the marker? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure forms the rigid framework of the skeleton. Marker: white. What is the marker? Answer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure controls thought and voluntary movement. Marker: blue. What is the marker? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure contracts to produce movement. Marker: blue. What is the marker? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure carries blood toward the heart. Marker: white. What is the marker? Answer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure churns food and secretes gastric acid. Marker: green. What is the marker? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure carries blood toward the heart. Marker: red. What is the marker? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology note: this structure forms the rigid framework of the skeleton. Marker: red. What is the marker? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 7.7433
+}

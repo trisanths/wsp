@@ -1,0 +1,1220 @@
+{
+ "name": "english_plurals",
+ "description": "English noun plural inflection including regular spelling rules and irregular forms; control copies singular lemma.",
+ "hash": "8c36c74bfc92e99a",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nirregular=dict(zip('child man woman mouse goose tooth foot person ox louse sheep deer fish'.split(),'children men women mice geese teeth feet people oxen lice sheep deer fish'.split()))\nregular='cat dog book chair table car tree bird flower house apple orange horse cow pig monkey rabbit lion tiger bear duck goat pen cup desk road room door window box fox church brush dish bus class match watch baby city story party lady family country boy toy key day tray wolf leaf knife wife life shelf thief loaf'.split()\ndef plural(w):\n if w in irregular:return irregular[w]\n if w.endswith('fe'):return w[:-2]+'ves'\n if w.endswith('f'):return w[:-1]+'ves'\n if w.endswith('y') and w[-2] not in 'aeiou':return w[:-1]+'ies'\n if w.endswith(('s','x','ch','sh')):return w+'es'\n return w+'s'\nwords=list(irregular)+regular;items=[];control=[]\nfor i in range(120):\n w=words[i%len(words)]\n p=random.choice(['Singular noun: {w}\\nPlural noun:','Give the plural of \"{w}\".\\nAnswer:','English noun: {w}\\nIts plural form is:']).format(w=w)\n items.append({'prompt':p,'answer':' '+plural(w)})\n control.append({'prompt':p.replace('Plural noun:','Copy singular noun:').replace('plural of','singular of').replace('plural form','singular form'),'answer':' '+w})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "English noun: country\nIts plural form is:",
+    "continuation": " countries",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: bear\nPlural noun:",
+    "continuation": " bears",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: monkey\nIts plural form is:",
+    "continuation": " monkeys",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"mouse\".\nAnswer:",
+    "continuation": " mice",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: door\nIts plural form is:",
+    "continuation": " doors",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: toy\nIts plural form is:",
+    "continuation": " toys",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: woman\nPlural noun:",
+    "continuation": " women",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: house\nPlural noun:",
+    "continuation": " houses",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: lion\nIts plural form is:",
+    "continuation": " lions",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: horse\nIts plural form is:",
+    "continuation": " horses",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: bus\nIts plural form is:",
+    "continuation": " buses",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: thief\nPlural noun:",
+    "continuation": " thieves",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"apple\".\nAnswer:",
+    "continuation": " apples",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"life\".\nAnswer:",
+    "continuation": " lives",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: goose\nIts plural form is:",
+    "continuation": " geese",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: chair\nPlural noun:",
+    "continuation": " chairs",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: dog\nIts plural form is:",
+    "continuation": " dogs",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"rabbit\".\nAnswer:",
+    "continuation": " rabbits",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: woman\nPlural noun:",
+    "continuation": " women",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"tooth\".\nAnswer:",
+    "continuation": " teeth",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"ox\".\nAnswer:",
+    "continuation": " oxen",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: cup\nPlural noun:",
+    "continuation": " cups",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: fox\nPlural noun:",
+    "continuation": " foxes",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: cat\nIts plural form is:",
+    "continuation": " cats",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: pig\nPlural noun:",
+    "continuation": " pigs",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: church\nIts plural form is:",
+    "continuation": " churches",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: dish\nPlural noun:",
+    "continuation": " dishes",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: church\nIts plural form is:",
+    "continuation": " churches",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"louse\".\nAnswer:",
+    "continuation": " lice",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: desk\nPlural noun:",
+    "continuation": " desks",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: sheep\nIts plural form is:",
+    "continuation": " sheep",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: orange\nPlural noun:",
+    "continuation": " oranges",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"class\".\nAnswer:",
+    "continuation": " classes",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: watch\nIts plural form is:",
+    "continuation": " watches",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: duck\nPlural noun:",
+    "continuation": " ducks",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: house\nPlural noun:",
+    "continuation": " houses",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: cat\nPlural noun:",
+    "continuation": " cats",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: city\nPlural noun:",
+    "continuation": " cities",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: flower\nIts plural form is:",
+    "continuation": " flowers",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: window\nIts plural form is:",
+    "continuation": " windows",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"man\".\nAnswer:",
+    "continuation": " men",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"bird\".\nAnswer:",
+    "continuation": " birds",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: pen\nIts plural form is:",
+    "continuation": " pens",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: tree\nIts plural form is:",
+    "continuation": " trees",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"foot\".\nAnswer:",
+    "continuation": " feet",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"tiger\".\nAnswer:",
+    "continuation": " tigers",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: orange\nPlural noun:",
+    "continuation": " oranges",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: bird\nIts plural form is:",
+    "continuation": " birds",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: bus\nPlural noun:",
+    "continuation": " buses",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: fox\nIts plural form is:",
+    "continuation": " foxes",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"monkey\".\nAnswer:",
+    "continuation": " monkeys",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"goat\".\nAnswer:",
+    "continuation": " goats",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"party\".\nAnswer:",
+    "continuation": " parties",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: table\nPlural noun:",
+    "continuation": " tables",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"apple\".\nAnswer:",
+    "continuation": " apples",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: book\nPlural noun:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"dog\".\nAnswer:",
+    "continuation": " dogs",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: road\nPlural noun:",
+    "continuation": " roads",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"boy\".\nAnswer:",
+    "continuation": " boys",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: fish\nIts plural form is:",
+    "continuation": " fish",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "English noun: goose\nIts plural form is:",
+    "continuation": " geese",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: sheep\nIts plural form is:",
+    "continuation": " sheep",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: deer\nPlural noun:",
+    "continuation": " deer",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: window\nIts plural form is:",
+    "continuation": " windows",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: tiger\nPlural noun:",
+    "continuation": " tigers",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"book\".\nAnswer:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: wolf\nPlural noun:",
+    "continuation": " wolves",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"child\".\nAnswer:",
+    "continuation": " children",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: room\nIts plural form is:",
+    "continuation": " rooms",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: deer\nPlural noun:",
+    "continuation": " deer",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"man\".\nAnswer:",
+    "continuation": " men",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: flower\nIts plural form is:",
+    "continuation": " flowers",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"person\".\nAnswer:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"brush\".\nAnswer:",
+    "continuation": " brushes",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: wife\nIts plural form is:",
+    "continuation": " wives",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: family\nPlural noun:",
+    "continuation": " families",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: class\nPlural noun:",
+    "continuation": " classes",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"loaf\".\nAnswer:",
+    "continuation": " loaves",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: cow\nPlural noun:",
+    "continuation": " cows",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: person\nPlural noun:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"door\".\nAnswer:",
+    "continuation": " doors",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"lady\".\nAnswer:",
+    "continuation": " ladies",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: goat\nIts plural form is:",
+    "continuation": " goats",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: car\nIts plural form is:",
+    "continuation": " cars",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: child\nIts plural form is:",
+    "continuation": " children",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: key\nPlural noun:",
+    "continuation": " keys",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"box\".\nAnswer:",
+    "continuation": " boxes",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"chair\".\nAnswer:",
+    "continuation": " chairs",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"louse\".\nAnswer:",
+    "continuation": " lice",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: dish\nIts plural form is:",
+    "continuation": " dishes",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"room\".\nAnswer:",
+    "continuation": " rooms",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"car\".\nAnswer:",
+    "continuation": " cars",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: foot\nIts plural form is:",
+    "continuation": " feet",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"tree\".\nAnswer:",
+    "continuation": " trees",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: shelf\nPlural noun:",
+    "continuation": " shelves",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"bear\".\nAnswer:",
+    "continuation": " bears",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: ox\nIts plural form is:",
+    "continuation": " oxen",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: fish\nIts plural form is:",
+    "continuation": " fish",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: horse\nPlural noun:",
+    "continuation": " horses",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"lion\".\nAnswer:",
+    "continuation": " lions",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: cup\nIts plural form is:",
+    "continuation": " cups",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: table\nIts plural form is:",
+    "continuation": " tables",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: leaf\nPlural noun:",
+    "continuation": " leaves",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: pig\nIts plural form is:",
+    "continuation": " pigs",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"mouse\".\nAnswer:",
+    "continuation": " mice",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: brush\nPlural noun:",
+    "continuation": " brushes",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: day\nPlural noun:",
+    "continuation": " days",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: road\nIts plural form is:",
+    "continuation": " roads",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: pen\nPlural noun:",
+    "continuation": " pens",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: rabbit\nIts plural form is:",
+    "continuation": " rabbits",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: baby\nIts plural form is:",
+    "continuation": " babies",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: tray\nIts plural form is:",
+    "continuation": " trays",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: knife\nPlural noun:",
+    "continuation": " knives",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"duck\".\nAnswer:",
+    "continuation": " ducks",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"tooth\".\nAnswer:",
+    "continuation": " teeth",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: story\nIts plural form is:",
+    "continuation": " stories",
+    "digits_only": false
+   },
+   {
+    "context": "Give the plural of \"box\".\nAnswer:",
+    "continuation": " boxes",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: cow\nPlural noun:",
+    "continuation": " cows",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: match\nIts plural form is:",
+    "continuation": " matches",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: desk\nPlural noun:",
+    "continuation": " desks",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Singular noun: class\nCopy singular noun:",
+    "continuation": " class",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: sheep\nIts singular form is:",
+    "continuation": " sheep",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: bird\nIts singular form is:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"tree\".\nAnswer:",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: shelf\nCopy singular noun:",
+    "continuation": " shelf",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: window\nIts singular form is:",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: goose\nIts singular form is:",
+    "continuation": " goose",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: ox\nIts singular form is:",
+    "continuation": " ox",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: road\nIts singular form is:",
+    "continuation": " road",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: sheep\nIts singular form is:",
+    "continuation": " sheep",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"dog\".\nAnswer:",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: orange\nCopy singular noun:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: house\nCopy singular noun:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: person\nCopy singular noun:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: fox\nIts singular form is:",
+    "continuation": " fox",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: child\nIts singular form is:",
+    "continuation": " child",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: woman\nCopy singular noun:",
+    "continuation": " woman",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: city\nCopy singular noun:",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"apple\".\nAnswer:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"louse\".\nAnswer:",
+    "continuation": " louse",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: deer\nCopy singular noun:",
+    "continuation": " deer",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"brush\".\nAnswer:",
+    "continuation": " brush",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: horse\nCopy singular noun:",
+    "continuation": " horse",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: house\nCopy singular noun:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"room\".\nAnswer:",
+    "continuation": " room",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: cup\nIts singular form is:",
+    "continuation": " cup",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: goat\nIts singular form is:",
+    "continuation": " goat",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: watch\nIts singular form is:",
+    "continuation": " watch",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: chair\nCopy singular noun:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"duck\".\nAnswer:",
+    "continuation": " duck",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: orange\nCopy singular noun:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"foot\".\nAnswer:",
+    "continuation": " foot",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: cat\nIts singular form is:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"tooth\".\nAnswer:",
+    "continuation": " tooth",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: pen\nIts singular form is:",
+    "continuation": " pen",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"mouse\".\nAnswer:",
+    "continuation": " mouse",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: deer\nCopy singular noun:",
+    "continuation": " deer",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: duck\nCopy singular noun:",
+    "continuation": " duck",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: fox\nCopy singular noun:",
+    "continuation": " fox",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: window\nIts singular form is:",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: lion\nIts singular form is:",
+    "continuation": " lion",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: wife\nIts singular form is:",
+    "continuation": " wife",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: dish\nIts singular form is:",
+    "continuation": " dish",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: horse\nIts singular form is:",
+    "continuation": " horse",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: baby\nIts singular form is:",
+    "continuation": " baby",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: tiger\nCopy singular noun:",
+    "continuation": " tiger",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: pig\nCopy singular noun:",
+    "continuation": " pig",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: toy\nIts singular form is:",
+    "continuation": " toy",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: tree\nIts singular form is:",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: leaf\nCopy singular noun:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"box\".\nAnswer:",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: knife\nCopy singular noun:",
+    "continuation": " knife",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"louse\".\nAnswer:",
+    "continuation": " louse",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"box\".\nAnswer:",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: brush\nCopy singular noun:",
+    "continuation": " brush",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: day\nCopy singular noun:",
+    "continuation": " day",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: flower\nIts singular form is:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: bus\nIts singular form is:",
+    "continuation": " bus",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"person\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"car\".\nAnswer:",
+    "continuation": " car",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "English noun: monkey\nIts singular form is:",
+    "continuation": " monkey",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: dish\nCopy singular noun:",
+    "continuation": " dish",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: table\nCopy singular noun:",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"apple\".\nAnswer:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: bear\nCopy singular noun:",
+    "continuation": " bear",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: story\nIts singular form is:",
+    "continuation": " story",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"book\".\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: desk\nCopy singular noun:",
+    "continuation": " desk",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"boy\".\nAnswer:",
+    "continuation": " boy",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"tooth\".\nAnswer:",
+    "continuation": " tooth",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: bus\nCopy singular noun:",
+    "continuation": " bus",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: church\nIts singular form is:",
+    "continuation": " church",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"bird\".\nAnswer:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"loaf\".\nAnswer:",
+    "continuation": " loaf",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: door\nIts singular form is:",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: family\nCopy singular noun:",
+    "continuation": " family",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"monkey\".\nAnswer:",
+    "continuation": " monkey",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"life\".\nAnswer:",
+    "continuation": " life",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: dog\nIts singular form is:",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"party\".\nAnswer:",
+    "continuation": " party",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: pig\nIts singular form is:",
+    "continuation": " pig",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: pen\nCopy singular noun:",
+    "continuation": " pen",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"man\".\nAnswer:",
+    "continuation": " man",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: thief\nCopy singular noun:",
+    "continuation": " thief",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: cup\nCopy singular noun:",
+    "continuation": " cup",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"chair\".\nAnswer:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: woman\nCopy singular noun:",
+    "continuation": " woman",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"lion\".\nAnswer:",
+    "continuation": " lion",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"door\".\nAnswer:",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: cat\nCopy singular noun:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: goose\nIts singular form is:",
+    "continuation": " goose",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"rabbit\".\nAnswer:",
+    "continuation": " rabbit",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: flower\nIts singular form is:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"goat\".\nAnswer:",
+    "continuation": " goat",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: road\nCopy singular noun:",
+    "continuation": " road",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: car\nIts singular form is:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"child\".\nAnswer:",
+    "continuation": " child",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: room\nIts singular form is:",
+    "continuation": " room",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: foot\nIts singular form is:",
+    "continuation": " foot",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"lady\".\nAnswer:",
+    "continuation": " lady",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: match\nIts singular form is:",
+    "continuation": " match",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"mouse\".\nAnswer:",
+    "continuation": " mouse",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: tray\nIts singular form is:",
+    "continuation": " tray",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: fish\nIts singular form is:",
+    "continuation": " fish",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: cow\nCopy singular noun:",
+    "continuation": " cow",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: rabbit\nIts singular form is:",
+    "continuation": " rabbit",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"class\".\nAnswer:",
+    "continuation": " class",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: fish\nIts singular form is:",
+    "continuation": " fish",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: key\nCopy singular noun:",
+    "continuation": " key",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: country\nIts singular form is:",
+    "continuation": " country",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: church\nIts singular form is:",
+    "continuation": " church",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: wolf\nCopy singular noun:",
+    "continuation": " wolf",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: book\nCopy singular noun:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"bear\".\nAnswer:",
+    "continuation": " bear",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"ox\".\nAnswer:",
+    "continuation": " ox",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: cow\nCopy singular noun:",
+    "continuation": " cow",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"tiger\".\nAnswer:",
+    "continuation": " tiger",
+    "digits_only": false
+   },
+   {
+    "context": "Singular noun: desk\nCopy singular noun:",
+    "continuation": " desk",
+    "digits_only": false
+   },
+   {
+    "context": "Give the singular of \"man\".\nAnswer:",
+    "continuation": " man",
+    "digits_only": false
+   },
+   {
+    "context": "English noun: table\nIts singular form is:",
+    "continuation": " table",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 12.103
+}

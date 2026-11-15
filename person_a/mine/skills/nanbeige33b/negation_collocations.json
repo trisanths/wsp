@@ -1,0 +1,980 @@
+{
+ "name": "negation_collocations",
+ "description": "Complete conventional English no/not collocations from a semantic gloss. Matched controls complete conventional nonnegative collocations using the same format.",
+ "hash": "0243987ee9eef11f",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nnegative=[('no longer','not anymore'),('no matter','regardless of'),('no doubt','certainly'),('no wonder','unsurprisingly'),('not necessarily','not in every case'),('not yet','not up to this time'),('not only','the first half of the construction paired with but also'),('not even','emphasizing an extreme negative case')]\npositive=[('in fact','actually'),('in general','usually'),('as well','also'),('at least','at a minimum'),('of course','certainly'),('for example','for instance'),('by contrast','on the other hand'),('after all','despite everything')]\nitems=[];control=[]\nfor i in range(96):\n for bank,out in [(negative,items),(positive,control)]:\n  phrase,gloss=bank[i%len(bank)];first,last=phrase.rsplit(' ',1)\n  form=random.choice(['Complete the conventional English expression meaning \"{gloss}\": {first}','Fill in the next word of the phrase meaning \"{gloss}\": {first}','English phrase completion ({gloss}): {first}'])\n  out.append({'prompt':form.format(gloss=gloss,first=first),'answer':' '+last})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Complete the conventional English expression meaning \"emphasizing an extreme negative case\": not",
+    "continuation": " even",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"not anymore\": no",
+    "continuation": " longer",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"unsurprisingly\": no",
+    "continuation": " wonder",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"emphasizing an extreme negative case\": not",
+    "continuation": " even",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"not anymore\": no",
+    "continuation": " longer",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"not up to this time\": not",
+    "continuation": " yet",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"regardless of\": no",
+    "continuation": " matter",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"not anymore\": no",
+    "continuation": " longer",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"unsurprisingly\": no",
+    "continuation": " wonder",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"the first half of the construction paired with but also\": not",
+    "continuation": " only",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"not anymore\": no",
+    "continuation": " longer",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"emphasizing an extreme negative case\": not",
+    "continuation": " even",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"not in every case\": not",
+    "continuation": " necessarily",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"regardless of\": no",
+    "continuation": " matter",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"the first half of the construction paired with but also\": not",
+    "continuation": " only",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (certainly): no",
+    "continuation": " doubt",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"emphasizing an extreme negative case\": not",
+    "continuation": " even",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (not in every case): not",
+    "continuation": " necessarily",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"not in every case\": not",
+    "continuation": " necessarily",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"certainly\": no",
+    "continuation": " doubt",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (unsurprisingly): no",
+    "continuation": " wonder",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (the first half of the construction paired with but also): not",
+    "continuation": " only",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"not anymore\": no",
+    "continuation": " longer",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (certainly): no",
+    "continuation": " doubt",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"unsurprisingly\": no",
+    "continuation": " wonder",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"the first half of the construction paired with but also\": not",
+    "continuation": " only",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (the first half of the construction paired with but also): not",
+    "continuation": " only",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"not up to this time\": not",
+    "continuation": " yet",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (not anymore): no",
+    "continuation": " longer",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"not up to this time\": not",
+    "continuation": " yet",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"certainly\": no",
+    "continuation": " doubt",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (not up to this time): not",
+    "continuation": " yet",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"unsurprisingly\": no",
+    "continuation": " wonder",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"emphasizing an extreme negative case\": not",
+    "continuation": " even",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"unsurprisingly\": no",
+    "continuation": " wonder",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"not in every case\": not",
+    "continuation": " necessarily",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"certainly\": no",
+    "continuation": " doubt",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"regardless of\": no",
+    "continuation": " matter",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"not in every case\": not",
+    "continuation": " necessarily",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"the first half of the construction paired with but also\": not",
+    "continuation": " only",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"regardless of\": no",
+    "continuation": " matter",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"the first half of the construction paired with but also\": not",
+    "continuation": " only",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"not in every case\": not",
+    "continuation": " necessarily",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"not in every case\": not",
+    "continuation": " necessarily",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (emphasizing an extreme negative case): not",
+    "continuation": " even",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"not up to this time\": not",
+    "continuation": " yet",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (emphasizing an extreme negative case): not",
+    "continuation": " even",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"unsurprisingly\": no",
+    "continuation": " wonder",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "English phrase completion (regardless of): no",
+    "continuation": " matter",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"unsurprisingly\": no",
+    "continuation": " wonder",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"not anymore\": no",
+    "continuation": " longer",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (certainly): no",
+    "continuation": " doubt",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"not up to this time\": not",
+    "continuation": " yet",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (regardless of): no",
+    "continuation": " matter",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"the first half of the construction paired with but also\": not",
+    "continuation": " only",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (the first half of the construction paired with but also): not",
+    "continuation": " only",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"not up to this time\": not",
+    "continuation": " yet",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"not anymore\": no",
+    "continuation": " longer",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (emphasizing an extreme negative case): not",
+    "continuation": " even",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"unsurprisingly\": no",
+    "continuation": " wonder",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"certainly\": no",
+    "continuation": " doubt",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"regardless of\": no",
+    "continuation": " matter",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"unsurprisingly\": no",
+    "continuation": " wonder",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"not in every case\": not",
+    "continuation": " necessarily",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (not anymore): no",
+    "continuation": " longer",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"emphasizing an extreme negative case\": not",
+    "continuation": " even",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"certainly\": no",
+    "continuation": " doubt",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"not anymore\": no",
+    "continuation": " longer",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (emphasizing an extreme negative case): not",
+    "continuation": " even",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"the first half of the construction paired with but also\": not",
+    "continuation": " only",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"not up to this time\": not",
+    "continuation": " yet",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (not in every case): not",
+    "continuation": " necessarily",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (certainly): no",
+    "continuation": " doubt",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"regardless of\": no",
+    "continuation": " matter",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (emphasizing an extreme negative case): not",
+    "continuation": " even",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"emphasizing an extreme negative case\": not",
+    "continuation": " even",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (certainly): no",
+    "continuation": " doubt",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (not in every case): not",
+    "continuation": " necessarily",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"not anymore\": no",
+    "continuation": " longer",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"not in every case\": not",
+    "continuation": " necessarily",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"certainly\": no",
+    "continuation": " doubt",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"not in every case\": not",
+    "continuation": " necessarily",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"regardless of\": no",
+    "continuation": " matter",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (not anymore): no",
+    "continuation": " longer",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"unsurprisingly\": no",
+    "continuation": " wonder",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"certainly\": no",
+    "continuation": " doubt",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"not up to this time\": not",
+    "continuation": " yet",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"not up to this time\": not",
+    "continuation": " yet",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"the first half of the construction paired with but also\": not",
+    "continuation": " only",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"unsurprisingly\": no",
+    "continuation": " wonder",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"the first half of the construction paired with but also\": not",
+    "continuation": " only",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"regardless of\": no",
+    "continuation": " matter",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (regardless of): no",
+    "continuation": " matter",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (not up to this time): not",
+    "continuation": " yet",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"not up to this time\": not",
+    "continuation": " yet",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"regardless of\": no",
+    "continuation": " matter",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "English phrase completion (for instance): for",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"on the other hand\": by",
+    "continuation": " contrast",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (also): as",
+    "continuation": " well",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"at a minimum\": at",
+    "continuation": " least",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"certainly\": of",
+    "continuation": " course",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"usually\": in",
+    "continuation": " general",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"actually\": in",
+    "continuation": " fact",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (usually): in",
+    "continuation": " general",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (on the other hand): by",
+    "continuation": " contrast",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (certainly): of",
+    "continuation": " course",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"actually\": in",
+    "continuation": " fact",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"for instance\": for",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (for instance): for",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"despite everything\": after",
+    "continuation": " all",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (actually): in",
+    "continuation": " fact",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (actually): in",
+    "continuation": " fact",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"for instance\": for",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"despite everything\": after",
+    "continuation": " all",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (certainly): of",
+    "continuation": " course",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"despite everything\": after",
+    "continuation": " all",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (certainly): of",
+    "continuation": " course",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"for instance\": for",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"usually\": in",
+    "continuation": " general",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"also\": as",
+    "continuation": " well",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"certainly\": of",
+    "continuation": " course",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (despite everything): after",
+    "continuation": " all",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"on the other hand\": by",
+    "continuation": " contrast",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (at a minimum): at",
+    "continuation": " least",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"usually\": in",
+    "continuation": " general",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (on the other hand): by",
+    "continuation": " contrast",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"certainly\": of",
+    "continuation": " course",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (usually): in",
+    "continuation": " general",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (for instance): for",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"at a minimum\": at",
+    "continuation": " least",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (also): as",
+    "continuation": " well",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"at a minimum\": at",
+    "continuation": " least",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"certainly\": of",
+    "continuation": " course",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (despite everything): after",
+    "continuation": " all",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (also): as",
+    "continuation": " well",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (certainly): of",
+    "continuation": " course",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"for instance\": for",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"despite everything\": after",
+    "continuation": " all",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"also\": as",
+    "continuation": " well",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"usually\": in",
+    "continuation": " general",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"at a minimum\": at",
+    "continuation": " least",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"on the other hand\": by",
+    "continuation": " contrast",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (usually): in",
+    "continuation": " general",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (also): as",
+    "continuation": " well",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Complete the conventional English expression meaning \"for instance\": for",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (certainly): of",
+    "continuation": " course",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"also\": as",
+    "continuation": " well",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"at a minimum\": at",
+    "continuation": " least",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (despite everything): after",
+    "continuation": " all",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (actually): in",
+    "continuation": " fact",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"at a minimum\": at",
+    "continuation": " least",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (despite everything): after",
+    "continuation": " all",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"on the other hand\": by",
+    "continuation": " contrast",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"on the other hand\": by",
+    "continuation": " contrast",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (at a minimum): at",
+    "continuation": " least",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"despite everything\": after",
+    "continuation": " all",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"actually\": in",
+    "continuation": " fact",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"also\": as",
+    "continuation": " well",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"at a minimum\": at",
+    "continuation": " least",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (certainly): of",
+    "continuation": " course",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"on the other hand\": by",
+    "continuation": " contrast",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"on the other hand\": by",
+    "continuation": " contrast",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"at a minimum\": at",
+    "continuation": " least",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"on the other hand\": by",
+    "continuation": " contrast",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"usually\": in",
+    "continuation": " general",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"for instance\": for",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (on the other hand): by",
+    "continuation": " contrast",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"also\": as",
+    "continuation": " well",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (also): as",
+    "continuation": " well",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (actually): in",
+    "continuation": " fact",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (for instance): for",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (for instance): for",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"also\": as",
+    "continuation": " well",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (usually): in",
+    "continuation": " general",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"actually\": in",
+    "continuation": " fact",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"for instance\": for",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (despite everything): after",
+    "continuation": " all",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (usually): in",
+    "continuation": " general",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"at a minimum\": at",
+    "continuation": " least",
+    "digits_only": false
+   },
+   {
+    "context": "Fill in the next word of the phrase meaning \"on the other hand\": by",
+    "continuation": " contrast",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (certainly): of",
+    "continuation": " course",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (also): as",
+    "continuation": " well",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"actually\": in",
+    "continuation": " fact",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (at a minimum): at",
+    "continuation": " least",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (certainly): of",
+    "continuation": " course",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (usually): in",
+    "continuation": " general",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (despite everything): after",
+    "continuation": " all",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"despite everything\": after",
+    "continuation": " all",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the conventional English expression meaning \"actually\": in",
+    "continuation": " fact",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (actually): in",
+    "continuation": " fact",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (actually): in",
+    "continuation": " fact",
+    "digits_only": false
+   },
+   {
+    "context": "English phrase completion (usually): in",
+    "continuation": " general",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 7.0898
+}

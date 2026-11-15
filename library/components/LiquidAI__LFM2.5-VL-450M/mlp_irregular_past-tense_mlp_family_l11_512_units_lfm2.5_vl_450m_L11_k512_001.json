@@ -1,0 +1,116 @@
+{
+  "id": "mlp_irregular_past-tense_mlp_family_l11_512_units_lfm2.5_vl_450m_L11_k512_001",
+  "kind": "mlp_cluster",
+  "title": "LFM2.5-VL-450M layer 11, irregular past-tense MLP family (L11, 512 units)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "irregular_past_tense"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-VL-450M"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'irregular_past_tense' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.3211,
+      "control_value": 0.0466,
+      "split": "person_a held-out skill items (irregular_past_tense)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0019"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-VL-450M",
+  "layer": 11,
+  "layers": [
+    11
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-VL-450M/mlp_irregular_past-tense_mlp_family_l11_512_units_lfm2.5_vl_450m_L11_k512_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_vl_450m/mlp_irregular_past-tense_mlp_family_l11_512_units_lfm2.5_vl_450m_L11_k512_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'irregular_past_tense'",
+    "label": "irregular past-tense MLP family (L11, 512 units)",
+    "num_units": 512,
+    "d_model": 1024,
+    "effect": {
+      "math|search": 0.0036,
+      "math|heldout": 0.0011,
+      "code|search": 0.0086,
+      "code|heldout": 0.0172,
+      "facts|search": 0.0049,
+      "facts|heldout": -0.0152,
+      "multilingual|search": 0.0235,
+      "multilingual|heldout": 0.0397,
+      "general_text|search": 0.0368,
+      "general_text|heldout": 0.029,
+      "month_successor|search": -0.3258,
+      "month_successor__control|search": 0.0224,
+      "month_successor|heldout": 0.0049,
+      "month_successor__control|heldout": 0.0277,
+      "numberword_successor|search": 0.0028,
+      "numberword_successor__control|search": 0.0002,
+      "numberword_successor|heldout": 0.0107,
+      "numberword_successor__control|heldout": -0.0005,
+      "weekday_successor|search": 0.0312,
+      "weekday_successor__control|search": -0.0089,
+      "weekday_successor|heldout": 0.0707,
+      "weekday_successor__control|heldout": -0.0108,
+      "comparative_adjective|search": 0.0637,
+      "comparative_adjective__control|search": 0.0066,
+      "comparative_adjective|heldout": 0.0377,
+      "comparative_adjective__control|heldout": 0.0041,
+      "irregular_past_tense|search": 0.3032,
+      "irregular_past_tense__control|search": 0.0019,
+      "irregular_past_tense|heldout": 0.3211,
+      "irregular_past_tense__control|heldout": 0.0019,
+      "object_colour|search": 0.0152,
+      "object_colour__control|search": 0.0023,
+      "object_colour|heldout": 0.0157,
+      "object_colour__control|heldout": 0.0034,
+      "antonym|search": 0.0666,
+      "antonym__control|search": 0.0067,
+      "antonym|heldout": 0.1441,
+      "antonym__control|heldout": 0.0037,
+      "pronoun_gender|search": 0.009,
+      "pronoun_gender__control|search": -0.0473,
+      "pronoun_gender|heldout": 0.017,
+      "pronoun_gender__control|heldout": -0.0537
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1011,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0261,
+      0.0676,
+      0.0589,
+      0.0295,
+      0.0507
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "The L11 past-tense attribution seeds grown to 512 units by w1/w2 cosine, with similarity to month unit 3339 subtracted."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_vl_450m/irregular_past_tense.json",
+    "hash": "2503e9d5562d81b8",
+    "description": "Map an English verb to its irregular past tense in few-shot format (e.g. 'eat -> ate, see -> saw, go ->' -> ' went'). Control: same few-shot format with identity mapping.",
+    "name": "irregular_past_tense"
+  },
+  "catalog_id": "mlp_irregular_past-tense_mlp_family_l11_512_units_lfm2.5_vl_450m_L11_k512_001",
+  "exported_copy": "library/lfm2.5_vl_450m/mlp_irregular_past-tense_mlp_family_l11_512_units_lfm2.5_vl_450m_L11_k512_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

@@ -1,0 +1,1220 @@
+{
+ "name": "emotion_synonym",
+ "description": "Map an emotion adjective in a person's statement to happy, sad, angry, or afraid; control copies the person's name.",
+ "hash": "feebefd52e5c9119",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\ngroups={'happy':['delighted','joyful','ecstatic','cheerful','elated','thrilled'],'sad':['miserable','sorrowful','dejected','heartbroken','gloomy','downhearted'],'angry':['furious','irate','enraged','incensed','livid','outraged'],'afraid':['terrified','fearful','scared','frightened','petrified','alarmed']}\nnames=['Alice','Bob','Carol','David','Emma','Frank','Grace','Henry']\nitems=[];control=[]\nfor i in range(120):\n label=list(groups)[i%4]; adjective=random.choice(groups[label]); name=random.choice(names)\n s=f'{name} says: \"I feel {adjective}.\"'\n items.append({'prompt':s+'\\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\\nAnswer:', 'answer':' '+label})\n control.append({'prompt':s+'\\nWhat is the name of the speaker?\\nAnswer:', 'answer':' '+name})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "David says: \"I feel miserable.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Frank says: \"I feel frightened.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel frightened.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel frightened.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Frank says: \"I feel alarmed.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel scared.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Alice says: \"I feel downhearted.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel enraged.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel furious.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel sorrowful.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel petrified.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel sorrowful.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Frank says: \"I feel alarmed.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel scared.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel petrified.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Henry says: \"I feel elated.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Henry says: \"I feel dejected.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Henry says: \"I feel dejected.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Henry says: \"I feel livid.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel ecstatic.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel delighted.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel alarmed.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel terrified.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel joyful.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Alice says: \"I feel irate.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Alice says: \"I feel joyful.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel outraged.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel terrified.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Alice says: \"I feel joyful.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel gloomy.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel enraged.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel thrilled.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel joyful.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Henry says: \"I feel incensed.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel elated.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Henry says: \"I feel miserable.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel heartbroken.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Frank says: \"I feel delighted.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Henry says: \"I feel gloomy.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel joyful.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Alice says: \"I feel thrilled.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Henry says: \"I feel terrified.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel petrified.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel terrified.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel livid.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel irate.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel petrified.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Alice says: \"I feel thrilled.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Henry says: \"I feel irate.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel incensed.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel delighted.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel livid.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Frank says: \"I feel incensed.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel delighted.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel outraged.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel scared.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel enraged.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel downhearted.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel enraged.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel alarmed.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Frank says: \"I feel cheerful.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Henry says: \"I feel gloomy.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel furious.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel miserable.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel petrified.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel livid.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel terrified.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel cheerful.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel furious.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel alarmed.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel miserable.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel thrilled.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel scared.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel thrilled.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel incensed.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel delighted.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel terrified.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel outraged.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel irate.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel outraged.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel joyful.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel fearful.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Frank says: \"I feel downhearted.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Frank says: \"I feel sorrowful.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel frightened.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel delighted.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel incensed.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel alarmed.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel gloomy.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Alice says: \"I feel downhearted.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel scared.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Alice says: \"I feel furious.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel sorrowful.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel livid.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Alice says: \"I feel delighted.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel thrilled.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel scared.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Frank says: \"I feel thrilled.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Frank says: \"I feel thrilled.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel gloomy.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel cheerful.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel heartbroken.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel thrilled.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Henry says: \"I feel petrified.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel livid.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel miserable.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel sorrowful.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel enraged.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel livid.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Alice says: \"I feel ecstatic.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Frank says: \"I feel alarmed.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel furious.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel gloomy.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Frank says: \"I feel gloomy.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel gloomy.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel gloomy.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Henry says: \"I feel sorrowful.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel heartbroken.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel gloomy.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel cheerful.\"\nWhich basic emotion is expressed: happy, sad, angry, or afraid?\nAnswer:",
+    "continuation": " happy",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Emma says: \"I feel terrified.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Henry says: \"I feel gloomy.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Alice says: \"I feel thrilled.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel livid.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Alice says: \"I feel delighted.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel miserable.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Frank says: \"I feel cheerful.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Frank",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel scared.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel enraged.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel enraged.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel enraged.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel petrified.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel enraged.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel outraged.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel incensed.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel frightened.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Alice says: \"I feel downhearted.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Frank says: \"I feel delighted.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Frank",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel outraged.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel gloomy.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Carol",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel furious.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel thrilled.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "Frank says: \"I feel thrilled.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Frank",
+    "digits_only": false
+   },
+   {
+    "context": "Henry says: \"I feel miserable.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel scared.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Carol",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel cheerful.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Frank says: \"I feel downhearted.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Frank",
+    "digits_only": false
+   },
+   {
+    "context": "Henry says: \"I feel incensed.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Henry says: \"I feel elated.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Frank says: \"I feel gloomy.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Frank",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel thrilled.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel livid.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Carol",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel joyful.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel gloomy.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel petrified.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel livid.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel alarmed.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel elated.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel terrified.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Carol",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel joyful.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel furious.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel incensed.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Alice says: \"I feel downhearted.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel sorrowful.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Frank says: \"I feel alarmed.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Frank",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel petrified.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Alice says: \"I feel irate.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel scared.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel terrified.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel thrilled.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel incensed.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel gloomy.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Alice says: \"I feel joyful.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Henry says: \"I feel sorrowful.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel miserable.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel sorrowful.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Henry says: \"I feel gloomy.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel petrified.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel scared.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Carol",
+    "digits_only": false
+   },
+   {
+    "context": "Alice says: \"I feel furious.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Bob says: \"I feel frightened.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel outraged.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel delighted.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Carol",
+    "digits_only": false
+   },
+   {
+    "context": "Frank says: \"I feel alarmed.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Frank",
+    "digits_only": false
+   },
+   {
+    "context": "Frank says: \"I feel frightened.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Frank",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel gloomy.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel livid.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Carol",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel gloomy.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel enraged.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Carol",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel ecstatic.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Henry says: \"I feel irate.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Alice says: \"I feel joyful.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Henry says: \"I feel terrified.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel outraged.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Frank says: \"I feel alarmed.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Frank",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel delighted.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel delighted.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel scared.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Henry says: \"I feel dejected.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Frank says: \"I feel incensed.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Frank",
+    "digits_only": false
+   },
+   {
+    "context": "Henry says: \"I feel petrified.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel livid.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Carol",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel miserable.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel sorrowful.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Carol",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel alarmed.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel alarmed.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Henry says: \"I feel livid.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel gloomy.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel joyful.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Carol",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel heartbroken.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel petrified.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Henry says: \"I feel dejected.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel thrilled.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Carol",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel livid.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel downhearted.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Frank says: \"I feel sorrowful.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Frank",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel cheerful.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel furious.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel sorrowful.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel fearful.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel gloomy.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel frightened.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel furious.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Frank says: \"I feel thrilled.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Frank",
+    "digits_only": false
+   },
+   {
+    "context": "Carol says: \"I feel irate.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Carol",
+    "digits_only": false
+   },
+   {
+    "context": "Alice says: \"I feel ecstatic.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel joyful.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel alarmed.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel delighted.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel miserable.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel terrified.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel terrified.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel scared.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Bob says: \"I feel thrilled.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel delighted.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel heartbroken.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "David says: \"I feel irate.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Grace says: \"I feel cheerful.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "Alice says: \"I feel thrilled.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Emma says: \"I feel heartbroken.\"\nWhat is the name of the speaker?\nAnswer:",
+    "continuation": " Emma",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 5.4839
+}

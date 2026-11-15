@@ -1,0 +1,820 @@
+{
+ "name": "legal_definitions",
+ "description": "Retrieve common legal terms from plain-language definitions; controls read a marker in the same note.",
+ "hash": "7f54f289c9aa971e",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nfacts=[('the person who brings a civil lawsuit','plaintiff'),('the person being sued or accused','defendant'),('the official who presides over a court','judge'),('the group of citizens that decides facts at trial','jury'),('a legally enforceable agreement','contract'),('a written law enacted by a legislature','statute'),('a prior court decision used as authority','precedent'),('the power of a court to hear a case','jurisdiction'),('a sworn written statement','affidavit'),('a court order requiring a person to testify','subpoena'),('a court order requiring or prohibiting an action','injunction'),('a request for a higher court to review a decision','appeal'),('the decision of a jury','verdict'),('money paid as compensation for a legal injury','damages'),('failure to exercise reasonable care','negligence'),('a civil wrong other than breach of contract','tort'),('a person who testifies about relevant facts','witness'),('the process of proving a will in court','probate'),('a serious crime typically punishable by more than a year in prison','felony'),('a less serious crime than a felony','misdemeanor')]\nitems=[];control=[]\nfor rep in range(4):\n for definition,term in facts:\n  marker=random.choice(['red','blue','green','white']);stem=f'Legal glossary: {definition}. Marker: {marker}. '\n  q=['The legal term is','Complete with the legal term:','This is called','Give the legal term:'][rep]\n  items.append({'prompt':stem+q,'answer':' '+term});control.append({'prompt':stem+'The marker is','answer':' '+marker})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Legal glossary: a person who testifies about relevant facts. Marker: red. This is called",
+    "continuation": " witness",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a legally enforceable agreement. Marker: red. This is called",
+    "continuation": " contract",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the official who presides over a court. Marker: blue. This is called",
+    "continuation": " judge",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a court order requiring or prohibiting an action. Marker: green. This is called",
+    "continuation": " injunction",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a legally enforceable agreement. Marker: green. Complete with the legal term:",
+    "continuation": " contract",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a request for a higher court to review a decision. Marker: red. Complete with the legal term:",
+    "continuation": " appeal",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a sworn written statement. Marker: red. Give the legal term:",
+    "continuation": " affidavit",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a request for a higher court to review a decision. Marker: green. The legal term is",
+    "continuation": " appeal",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a prior court decision used as authority. Marker: white. Give the legal term:",
+    "continuation": " precedent",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the person being sued or accused. Marker: blue. This is called",
+    "continuation": " defendant",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a civil wrong other than breach of contract. Marker: blue. Give the legal term:",
+    "continuation": " tort",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a sworn written statement. Marker: green. The legal term is",
+    "continuation": " affidavit",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the process of proving a will in court. Marker: green. Complete with the legal term:",
+    "continuation": " probate",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a court order requiring a person to testify. Marker: red. Complete with the legal term:",
+    "continuation": " subpoena",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the person being sued or accused. Marker: white. The legal term is",
+    "continuation": " defendant",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: failure to exercise reasonable care. Marker: green. The legal term is",
+    "continuation": " negligence",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the decision of a jury. Marker: green. This is called",
+    "continuation": " verdict",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a less serious crime than a felony. Marker: blue. This is called",
+    "continuation": " misdemeanor",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the group of citizens that decides facts at trial. Marker: blue. Give the legal term:",
+    "continuation": " jury",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a serious crime typically punishable by more than a year in prison. Marker: red. The legal term is",
+    "continuation": " felony",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the power of a court to hear a case. Marker: white. This is called",
+    "continuation": " jurisdiction",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the official who presides over a court. Marker: red. The legal term is",
+    "continuation": " judge",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a serious crime typically punishable by more than a year in prison. Marker: green. Give the legal term:",
+    "continuation": " felony",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: failure to exercise reasonable care. Marker: green. Give the legal term:",
+    "continuation": " negligence",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the group of citizens that decides facts at trial. Marker: white. Complete with the legal term:",
+    "continuation": " jury",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the power of a court to hear a case. Marker: white. The legal term is",
+    "continuation": " jurisdiction",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a court order requiring or prohibiting an action. Marker: blue. The legal term is",
+    "continuation": " injunction",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the person who brings a civil lawsuit. Marker: green. Give the legal term:",
+    "continuation": " plaintiff",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a prior court decision used as authority. Marker: white. Complete with the legal term:",
+    "continuation": " precedent",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a civil wrong other than breach of contract. Marker: blue. The legal term is",
+    "continuation": " tort",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a civil wrong other than breach of contract. Marker: white. This is called",
+    "continuation": " tort",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a request for a higher court to review a decision. Marker: red. Give the legal term:",
+    "continuation": " appeal",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a written law enacted by a legislature. Marker: blue. Complete with the legal term:",
+    "continuation": " statute",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the process of proving a will in court. Marker: white. Give the legal term:",
+    "continuation": " probate",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the person who brings a civil lawsuit. Marker: white. The legal term is",
+    "continuation": " plaintiff",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the group of citizens that decides facts at trial. Marker: green. The legal term is",
+    "continuation": " jury",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a person who testifies about relevant facts. Marker: green. The legal term is",
+    "continuation": " witness",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a person who testifies about relevant facts. Marker: blue. Give the legal term:",
+    "continuation": " witness",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a sworn written statement. Marker: green. Complete with the legal term:",
+    "continuation": " affidavit",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a less serious crime than a felony. Marker: white. Give the legal term:",
+    "continuation": " misdemeanor",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Legal glossary: a sworn written statement. Marker: red. This is called",
+    "continuation": " affidavit",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: money paid as compensation for a legal injury. Marker: red. The legal term is",
+    "continuation": " damages",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the person who brings a civil lawsuit. Marker: blue. This is called",
+    "continuation": " plaintiff",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a less serious crime than a felony. Marker: blue. Complete with the legal term:",
+    "continuation": " misdemeanor",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the person who brings a civil lawsuit. Marker: white. Complete with the legal term:",
+    "continuation": " plaintiff",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a court order requiring a person to testify. Marker: blue. Give the legal term:",
+    "continuation": " subpoena",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the official who presides over a court. Marker: green. Complete with the legal term:",
+    "continuation": " judge",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: failure to exercise reasonable care. Marker: green. This is called",
+    "continuation": " negligence",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a civil wrong other than breach of contract. Marker: green. Complete with the legal term:",
+    "continuation": " tort",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a court order requiring or prohibiting an action. Marker: red. Complete with the legal term:",
+    "continuation": " injunction",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the person being sued or accused. Marker: red. Complete with the legal term:",
+    "continuation": " defendant",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the group of citizens that decides facts at trial. Marker: white. This is called",
+    "continuation": " jury",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a legally enforceable agreement. Marker: white. The legal term is",
+    "continuation": " contract",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a prior court decision used as authority. Marker: green. This is called",
+    "continuation": " precedent",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a prior court decision used as authority. Marker: green. The legal term is",
+    "continuation": " precedent",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a less serious crime than a felony. Marker: green. The legal term is",
+    "continuation": " misdemeanor",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a court order requiring a person to testify. Marker: blue. The legal term is",
+    "continuation": " subpoena",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the process of proving a will in court. Marker: white. This is called",
+    "continuation": " probate",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the decision of a jury. Marker: red. Give the legal term:",
+    "continuation": " verdict",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: money paid as compensation for a legal injury. Marker: white. Give the legal term:",
+    "continuation": " damages",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a court order requiring or prohibiting an action. Marker: blue. Give the legal term:",
+    "continuation": " injunction",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: failure to exercise reasonable care. Marker: white. Complete with the legal term:",
+    "continuation": " negligence",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a serious crime typically punishable by more than a year in prison. Marker: green. This is called",
+    "continuation": " felony",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the decision of a jury. Marker: white. Complete with the legal term:",
+    "continuation": " verdict",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the decision of a jury. Marker: blue. The legal term is",
+    "continuation": " verdict",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the power of a court to hear a case. Marker: red. Give the legal term:",
+    "continuation": " jurisdiction",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a person who testifies about relevant facts. Marker: blue. Complete with the legal term:",
+    "continuation": " witness",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the process of proving a will in court. Marker: red. The legal term is",
+    "continuation": " probate",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a legally enforceable agreement. Marker: red. Give the legal term:",
+    "continuation": " contract",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the power of a court to hear a case. Marker: white. Complete with the legal term:",
+    "continuation": " jurisdiction",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a written law enacted by a legislature. Marker: red. This is called",
+    "continuation": " statute",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the person being sued or accused. Marker: blue. Give the legal term:",
+    "continuation": " defendant",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a serious crime typically punishable by more than a year in prison. Marker: red. Complete with the legal term:",
+    "continuation": " felony",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a request for a higher court to review a decision. Marker: red. This is called",
+    "continuation": " appeal",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the official who presides over a court. Marker: blue. Give the legal term:",
+    "continuation": " judge",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a written law enacted by a legislature. Marker: green. Give the legal term:",
+    "continuation": " statute",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: money paid as compensation for a legal injury. Marker: red. Complete with the legal term:",
+    "continuation": " damages",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a written law enacted by a legislature. Marker: white. The legal term is",
+    "continuation": " statute",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: money paid as compensation for a legal injury. Marker: blue. This is called",
+    "continuation": " damages",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a court order requiring a person to testify. Marker: green. This is called",
+    "continuation": " subpoena",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Legal glossary: a prior court decision used as authority. Marker: white. The marker is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a legally enforceable agreement. Marker: white. The marker is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a request for a higher court to review a decision. Marker: green. The marker is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the official who presides over a court. Marker: red. The marker is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a legally enforceable agreement. Marker: red. The marker is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a court order requiring or prohibiting an action. Marker: red. The marker is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a person who testifies about relevant facts. Marker: blue. The marker is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a court order requiring a person to testify. Marker: blue. The marker is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a written law enacted by a legislature. Marker: blue. The marker is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the power of a court to hear a case. Marker: white. The marker is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a court order requiring or prohibiting an action. Marker: green. The marker is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a less serious crime than a felony. Marker: green. The marker is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a serious crime typically punishable by more than a year in prison. Marker: green. The marker is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the process of proving a will in court. Marker: white. The marker is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the person who brings a civil lawsuit. Marker: blue. The marker is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a civil wrong other than breach of contract. Marker: blue. The marker is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a sworn written statement. Marker: red. The marker is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a person who testifies about relevant facts. Marker: blue. The marker is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the decision of a jury. Marker: green. The marker is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the person being sued or accused. Marker: red. The marker is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the power of a court to hear a case. Marker: white. The marker is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a person who testifies about relevant facts. Marker: green. The marker is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a serious crime typically punishable by more than a year in prison. Marker: red. The marker is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a court order requiring or prohibiting an action. Marker: blue. The marker is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the official who presides over a court. Marker: blue. The marker is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the power of a court to hear a case. Marker: red. The marker is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a court order requiring a person to testify. Marker: blue. The marker is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the person being sued or accused. Marker: blue. The marker is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the group of citizens that decides facts at trial. Marker: white. The marker is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a person who testifies about relevant facts. Marker: red. The marker is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a written law enacted by a legislature. Marker: white. The marker is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: failure to exercise reasonable care. Marker: green. The marker is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a court order requiring or prohibiting an action. Marker: blue. The marker is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a written law enacted by a legislature. Marker: red. The marker is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a serious crime typically punishable by more than a year in prison. Marker: red. The marker is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a court order requiring a person to testify. Marker: red. The marker is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a serious crime typically punishable by more than a year in prison. Marker: green. The marker is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a less serious crime than a felony. Marker: blue. The marker is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the official who presides over a court. Marker: green. The marker is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a request for a higher court to review a decision. Marker: red. The marker is",
+    "continuation": " red",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Legal glossary: a civil wrong other than breach of contract. Marker: green. The marker is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a request for a higher court to review a decision. Marker: red. The marker is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a sworn written statement. Marker: green. The marker is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a less serious crime than a felony. Marker: blue. The marker is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: money paid as compensation for a legal injury. Marker: red. The marker is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: money paid as compensation for a legal injury. Marker: blue. The marker is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the power of a court to hear a case. Marker: white. The marker is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: money paid as compensation for a legal injury. Marker: red. The marker is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the group of citizens that decides facts at trial. Marker: white. The marker is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a legally enforceable agreement. Marker: green. The marker is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a legally enforceable agreement. Marker: red. The marker is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: failure to exercise reasonable care. Marker: white. The marker is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the person being sued or accused. Marker: blue. The marker is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: failure to exercise reasonable care. Marker: green. The marker is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a written law enacted by a legislature. Marker: green. The marker is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the person being sued or accused. Marker: white. The marker is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the person who brings a civil lawsuit. Marker: white. The marker is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a prior court decision used as authority. Marker: green. The marker is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the process of proving a will in court. Marker: green. The marker is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: failure to exercise reasonable care. Marker: green. The marker is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a request for a higher court to review a decision. Marker: red. The marker is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a prior court decision used as authority. Marker: green. The marker is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a less serious crime than a felony. Marker: white. The marker is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: money paid as compensation for a legal injury. Marker: white. The marker is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the person who brings a civil lawsuit. Marker: white. The marker is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a civil wrong other than breach of contract. Marker: white. The marker is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a court order requiring a person to testify. Marker: green. The marker is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the group of citizens that decides facts at trial. Marker: green. The marker is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the official who presides over a court. Marker: blue. The marker is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the decision of a jury. Marker: blue. The marker is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a prior court decision used as authority. Marker: white. The marker is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a sworn written statement. Marker: red. The marker is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the person who brings a civil lawsuit. Marker: green. The marker is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the process of proving a will in court. Marker: white. The marker is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the group of citizens that decides facts at trial. Marker: blue. The marker is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a civil wrong other than breach of contract. Marker: blue. The marker is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the decision of a jury. Marker: white. The marker is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: a sworn written statement. Marker: green. The marker is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the decision of a jury. Marker: red. The marker is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Legal glossary: the process of proving a will in court. Marker: red. The marker is",
+    "continuation": " red",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 5.8334
+}

@@ -1,0 +1,1220 @@
+{
+ "name": "en_to_fr_noun",
+ "description": "Translate a short English sentence into French; answer is the French final noun. Control: same sentence pair reversed (French->English), answer is the English noun.",
+ "hash": "4ddd277618d61b15",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nnouns=[(\"house\",\"maison\",\"la\"),(\"table\",\"table\",\"la\"),(\"car\",\"voiture\",\"la\"),(\"door\",\"porte\",\"la\"),(\"window\",\"fen\u00eatre\",\"la\"),(\"book\",\"livre\",\"le\"),(\"garden\",\"jardin\",\"le\"),(\"kitchen\",\"cuisine\",\"la\"),(\"city\",\"ville\",\"la\"),(\"street\",\"rue\",\"la\"),(\"school\",\"\u00e9cole\",\"l'\"),(\"church\",\"\u00e9glise\",\"l'\"),(\"forest\",\"for\u00eat\",\"la\"),(\"river\",\"rivi\u00e8re\",\"la\"),(\"bed\",\"lit\",\"le\"),(\"box\",\"bo\u00eete\",\"la\"),(\"bag\",\"sac\",\"le\"),(\"tree\",\"arbre\",\"l'\"),(\"room\",\"chambre\",\"la\"),(\"market\",\"march\u00e9\",\"le\"),(\"train\",\"train\",\"le\"),(\"boat\",\"bateau\",\"le\"),(\"park\",\"parc\",\"le\"),(\"office\",\"bureau\",\"le\"),(\"village\",\"village\",\"le\"),(\"bottle\",\"bouteille\",\"la\"),(\"shop\",\"magasin\",\"le\"),(\"field\",\"champ\",\"le\"),(\"castle\",\"ch\u00e2teau\",\"le\"),(\"library\",\"biblioth\u00e8que\",\"la\")]\nsubj=[(\"The dog\",\"Le chien\"),(\"The cat\",\"Le chat\"),(\"My brother\",\"Mon fr\u00e8re\"),(\"The child\",\"L'enfant\"),(\"The teacher\",\"Le professeur\"),(\"My mother\",\"Ma m\u00e8re\")]\npreps=[(\"is in\",\"est dans\"),(\"is near\",\"est pr\u00e8s de\"),(\"is behind\",\"est derri\u00e8re\"),(\"is under\",\"est sous\"),(\"sleeps in\",\"dort dans\"),(\"waits behind\",\"attend derri\u00e8re\")]\nitems=[];ctrl=[];seen=set()\nwhile len(items)<120:\n    n=random.choice(nouns);s=random.choice(subj);p=random.choice(preps)\n    key=(n[0],s[0],p[0])\n    if key in seen: continue\n    seen.add(key)\n    art=n[2]; frart=art if art==\"l'\" else art+\" \"\n    en=f\"{s[0]} {p[0]} the {n[0]}.\"\n    fr_prefix=f\"{s[1]} {p[1]} {frart}\".rstrip()\n    sep=\"\" if art==\"l'\" else \" \"\n    if art==\"l'\":\n        items.append({\"prompt\":f\"English: {en}\\nFrench: {s[1]} {p[1]} l'\",\"answer\":n[1]})\n    else:\n        items.append({\"prompt\":f\"English: {en}\\nFrench: {s[1]} {p[1]} {art}\",\"answer\":\" \"+n[1]})\n    frfull=f\"{s[1]} {p[1]} {frart}{n[1]}.\"\n    ctrl.append({\"prompt\":f\"French: {frfull}\\nEnglish: {s[0]} {p[0]} the\",\"answer\":\" \"+n[0]})\njson.dump({\"items\":items,\"control\":ctrl},open('/work/skill.json','w'),ensure_ascii=False)",
+ "items": {
+  "search": [
+   {
+    "context": "English: The teacher sleeps in the train.\nFrench: Le professeur dort dans le",
+    "continuation": " train",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child sleeps in the castle.\nFrench: L'enfant dort dans le",
+    "continuation": " ch\u00e2teau",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother sleeps in the forest.\nFrench: Ma m\u00e8re dort dans la",
+    "continuation": " for\u00eat",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother sleeps in the box.\nFrench: Mon fr\u00e8re dort dans la",
+    "continuation": " bo\u00eete",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog waits behind the garden.\nFrench: Le chien attend derri\u00e8re le",
+    "continuation": " jardin",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is in the market.\nFrench: Le professeur est dans le",
+    "continuation": " march\u00e9",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is under the church.\nFrench: Ma m\u00e8re est sous l'",
+    "continuation": "\u00e9glise",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is near the field.\nFrench: Le chien est pr\u00e8s de le",
+    "continuation": " champ",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher sleeps in the garden.\nFrench: Le professeur dort dans le",
+    "continuation": " jardin",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is in the bed.\nFrench: Le chien est dans le",
+    "continuation": " lit",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is in the library.\nFrench: Mon fr\u00e8re est dans la",
+    "continuation": " biblioth\u00e8que",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is in the river.\nFrench: Le chat est dans la",
+    "continuation": " rivi\u00e8re",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is near the library.\nFrench: Le professeur est pr\u00e8s de la",
+    "continuation": " biblioth\u00e8que",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is in the car.\nFrench: Le chat est dans la",
+    "continuation": " voiture",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is near the park.\nFrench: Ma m\u00e8re est pr\u00e8s de le",
+    "continuation": " parc",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is in the table.\nFrench: Le professeur est dans la",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child waits behind the house.\nFrench: L'enfant attend derri\u00e8re la",
+    "continuation": " maison",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother sleeps in the tree.\nFrench: Mon fr\u00e8re dort dans l'",
+    "continuation": "arbre",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is behind the box.\nFrench: L'enfant est derri\u00e8re la",
+    "continuation": " bo\u00eete",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog waits behind the village.\nFrench: Le chien attend derri\u00e8re le",
+    "continuation": " village",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is near the park.\nFrench: Le professeur est pr\u00e8s de le",
+    "continuation": " parc",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is near the bottle.\nFrench: L'enfant est pr\u00e8s de la",
+    "continuation": " bouteille",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is near the bottle.\nFrench: Le chat est pr\u00e8s de la",
+    "continuation": " bouteille",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher waits behind the window.\nFrench: Le professeur attend derri\u00e8re la",
+    "continuation": " fen\u00eatre",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is in the field.\nFrench: L'enfant est dans le",
+    "continuation": " champ",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child sleeps in the shop.\nFrench: L'enfant dort dans le",
+    "continuation": " magasin",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother waits behind the boat.\nFrench: Ma m\u00e8re attend derri\u00e8re le",
+    "continuation": " bateau",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is near the city.\nFrench: Ma m\u00e8re est pr\u00e8s de la",
+    "continuation": " ville",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is under the book.\nFrench: Le chien est sous le",
+    "continuation": " livre",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is in the box.\nFrench: Le chien est dans la",
+    "continuation": " bo\u00eete",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is behind the car.\nFrench: Ma m\u00e8re est derri\u00e8re la",
+    "continuation": " voiture",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat sleeps in the kitchen.\nFrench: Le chat dort dans la",
+    "continuation": " cuisine",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is in the school.\nFrench: Le professeur est dans l'",
+    "continuation": "\u00e9cole",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is near the school.\nFrench: Le chat est pr\u00e8s de l'",
+    "continuation": "\u00e9cole",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is in the market.\nFrench: Le chien est dans le",
+    "continuation": " march\u00e9",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is in the shop.\nFrench: Ma m\u00e8re est dans le",
+    "continuation": " magasin",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is near the market.\nFrench: Ma m\u00e8re est pr\u00e8s de le",
+    "continuation": " march\u00e9",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is near the door.\nFrench: Ma m\u00e8re est pr\u00e8s de la",
+    "continuation": " porte",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother waits behind the office.\nFrench: Mon fr\u00e8re attend derri\u00e8re le",
+    "continuation": " bureau",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is in the bag.\nFrench: Le professeur est dans le",
+    "continuation": " sac",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is behind the forest.\nFrench: Le chat est derri\u00e8re la",
+    "continuation": " for\u00eat",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is behind the window.\nFrench: Ma m\u00e8re est derri\u00e8re la",
+    "continuation": " fen\u00eatre",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is in the shop.\nFrench: Le chat est dans le",
+    "continuation": " magasin",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is under the house.\nFrench: Le professeur est sous la",
+    "continuation": " maison",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog sleeps in the village.\nFrench: Le chien dort dans le",
+    "continuation": " village",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child sleeps in the book.\nFrench: L'enfant dort dans le",
+    "continuation": " livre",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is near the park.\nFrench: Mon fr\u00e8re est pr\u00e8s de le",
+    "continuation": " parc",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is near the shop.\nFrench: Mon fr\u00e8re est pr\u00e8s de le",
+    "continuation": " magasin",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is in the city.\nFrench: L'enfant est dans la",
+    "continuation": " ville",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is behind the train.\nFrench: Le chat est derri\u00e8re le",
+    "continuation": " train",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is in the street.\nFrench: Ma m\u00e8re est dans la",
+    "continuation": " rue",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is near the street.\nFrench: Le chat est pr\u00e8s de la",
+    "continuation": " rue",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is in the river.\nFrench: Le chien est dans la",
+    "continuation": " rivi\u00e8re",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is under the window.\nFrench: Le chat est sous la",
+    "continuation": " fen\u00eatre",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is near the house.\nFrench: Le professeur est pr\u00e8s de la",
+    "continuation": " maison",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is behind the field.\nFrench: Le professeur est derri\u00e8re le",
+    "continuation": " champ",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is under the tree.\nFrench: L'enfant est sous l'",
+    "continuation": "arbre",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is near the shop.\nFrench: Ma m\u00e8re est pr\u00e8s de le",
+    "continuation": " magasin",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is in the boat.\nFrench: Le chien est dans le",
+    "continuation": " bateau",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is behind the shop.\nFrench: Ma m\u00e8re est derri\u00e8re le",
+    "continuation": " magasin",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "English: The cat sleeps in the castle.\nFrench: Le chat dort dans le",
+    "continuation": " ch\u00e2teau",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child sleeps in the boat.\nFrench: L'enfant dort dans le",
+    "continuation": " bateau",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is under the train.\nFrench: Mon fr\u00e8re est sous le",
+    "continuation": " train",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child waits behind the boat.\nFrench: L'enfant attend derri\u00e8re le",
+    "continuation": " bateau",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is under the room.\nFrench: Mon fr\u00e8re est sous la",
+    "continuation": " chambre",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother waits behind the car.\nFrench: Mon fr\u00e8re attend derri\u00e8re la",
+    "continuation": " voiture",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is in the book.\nFrench: Ma m\u00e8re est dans le",
+    "continuation": " livre",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is under the field.\nFrench: L'enfant est sous le",
+    "continuation": " champ",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is in the river.\nFrench: Mon fr\u00e8re est dans la",
+    "continuation": " rivi\u00e8re",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is in the box.\nFrench: Le professeur est dans la",
+    "continuation": " bo\u00eete",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother sleeps in the table.\nFrench: Mon fr\u00e8re dort dans la",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is under the forest.\nFrench: Ma m\u00e8re est sous la",
+    "continuation": " for\u00eat",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother sleeps in the bottle.\nFrench: Mon fr\u00e8re dort dans la",
+    "continuation": " bouteille",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is under the door.\nFrench: L'enfant est sous la",
+    "continuation": " porte",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is behind the market.\nFrench: Le chien est derri\u00e8re le",
+    "continuation": " march\u00e9",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog sleeps in the kitchen.\nFrench: Le chien dort dans la",
+    "continuation": " cuisine",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is near the field.\nFrench: Mon fr\u00e8re est pr\u00e8s de le",
+    "continuation": " champ",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is in the bag.\nFrench: L'enfant est dans le",
+    "continuation": " sac",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is under the school.\nFrench: Le professeur est sous l'",
+    "continuation": "\u00e9cole",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is in the bag.\nFrench: Mon fr\u00e8re est dans le",
+    "continuation": " sac",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother sleeps in the castle.\nFrench: Ma m\u00e8re dort dans le",
+    "continuation": " ch\u00e2teau",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat waits behind the bottle.\nFrench: Le chat attend derri\u00e8re la",
+    "continuation": " bouteille",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is behind the box.\nFrench: Mon fr\u00e8re est derri\u00e8re la",
+    "continuation": " bo\u00eete",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is behind the church.\nFrench: Le professeur est derri\u00e8re l'",
+    "continuation": "\u00e9glise",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog waits behind the market.\nFrench: Le chien attend derri\u00e8re le",
+    "continuation": " march\u00e9",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is behind the forest.\nFrench: Le chien est derri\u00e8re la",
+    "continuation": " for\u00eat",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother sleeps in the bag.\nFrench: Mon fr\u00e8re dort dans le",
+    "continuation": " sac",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is behind the table.\nFrench: Le professeur est derri\u00e8re la",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog waits behind the street.\nFrench: Le chien attend derri\u00e8re la",
+    "continuation": " rue",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is in the train.\nFrench: Le chien est dans le",
+    "continuation": " train",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is in the library.\nFrench: Le chien est dans la",
+    "continuation": " biblioth\u00e8que",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother waits behind the park.\nFrench: Ma m\u00e8re attend derri\u00e8re le",
+    "continuation": " parc",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is behind the book.\nFrench: Le chat est derri\u00e8re le",
+    "continuation": " livre",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother sleeps in the boat.\nFrench: Mon fr\u00e8re dort dans le",
+    "continuation": " bateau",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is behind the train.\nFrench: Mon fr\u00e8re est derri\u00e8re le",
+    "continuation": " train",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is under the car.\nFrench: Le professeur est sous la",
+    "continuation": " voiture",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child waits behind the market.\nFrench: L'enfant attend derri\u00e8re le",
+    "continuation": " march\u00e9",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is behind the church.\nFrench: L'enfant est derri\u00e8re l'",
+    "continuation": "\u00e9glise",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat waits behind the kitchen.\nFrench: Le chat attend derri\u00e8re la",
+    "continuation": " cuisine",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is under the table.\nFrench: Le chat est sous la",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is behind the market.\nFrench: Ma m\u00e8re est derri\u00e8re le",
+    "continuation": " march\u00e9",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is under the car.\nFrench: Ma m\u00e8re est sous la",
+    "continuation": " voiture",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat waits behind the box.\nFrench: Le chat attend derri\u00e8re la",
+    "continuation": " bo\u00eete",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother sleeps in the door.\nFrench: Mon fr\u00e8re dort dans la",
+    "continuation": " porte",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is near the shop.\nFrench: Le professeur est pr\u00e8s de le",
+    "continuation": " magasin",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is under the city.\nFrench: L'enfant est sous la",
+    "continuation": " ville",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is in the shop.\nFrench: Le chien est dans le",
+    "continuation": " magasin",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is near the boat.\nFrench: Le chat est pr\u00e8s de le",
+    "continuation": " bateau",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is in the shop.\nFrench: L'enfant est dans le",
+    "continuation": " magasin",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother waits behind the river.\nFrench: Ma m\u00e8re attend derri\u00e8re la",
+    "continuation": " rivi\u00e8re",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is behind the house.\nFrench: Ma m\u00e8re est derri\u00e8re la",
+    "continuation": " maison",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is near the market.\nFrench: Le chien est pr\u00e8s de le",
+    "continuation": " march\u00e9",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog waits behind the bottle.\nFrench: Le chien attend derri\u00e8re la",
+    "continuation": " bouteille",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is near the school.\nFrench: Le professeur est pr\u00e8s de l'",
+    "continuation": "\u00e9cole",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is near the window.\nFrench: Mon fr\u00e8re est pr\u00e8s de la",
+    "continuation": " fen\u00eatre",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is behind the church.\nFrench: Le chat est derri\u00e8re l'",
+    "continuation": "\u00e9glise",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog sleeps in the garden.\nFrench: Le chien dort dans le",
+    "continuation": " jardin",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child waits behind the bed.\nFrench: L'enfant attend derri\u00e8re le",
+    "continuation": " lit",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher waits behind the box.\nFrench: Le professeur attend derri\u00e8re la",
+    "continuation": " bo\u00eete",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is in the tree.\nFrench: Ma m\u00e8re est dans l'",
+    "continuation": "arbre",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "French: Mon fr\u00e8re est pr\u00e8s de le champ.\nEnglish: My brother is near the",
+    "continuation": " field",
+    "digits_only": false
+   },
+   {
+    "context": "French: L'enfant dort dans le bateau.\nEnglish: The child sleeps in the",
+    "continuation": " boat",
+    "digits_only": false
+   },
+   {
+    "context": "French: Mon fr\u00e8re est pr\u00e8s de le magasin.\nEnglish: My brother is near the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "French: Mon fr\u00e8re dort dans le bateau.\nEnglish: My brother sleeps in the",
+    "continuation": " boat",
+    "digits_only": false
+   },
+   {
+    "context": "French: Mon fr\u00e8re est derri\u00e8re le train.\nEnglish: My brother is behind the",
+    "continuation": " train",
+    "digits_only": false
+   },
+   {
+    "context": "French: L'enfant attend derri\u00e8re le bateau.\nEnglish: The child waits behind the",
+    "continuation": " boat",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chat dort dans le ch\u00e2teau.\nEnglish: The cat sleeps in the",
+    "continuation": " castle",
+    "digits_only": false
+   },
+   {
+    "context": "French: L'enfant attend derri\u00e8re le march\u00e9.\nEnglish: The child waits behind the",
+    "continuation": " market",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chat est pr\u00e8s de le bateau.\nEnglish: The cat is near the",
+    "continuation": " boat",
+    "digits_only": false
+   },
+   {
+    "context": "French: Ma m\u00e8re est derri\u00e8re la voiture.\nEnglish: My mother is behind the",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "French: L'enfant est sous l'arbre.\nEnglish: The child is under the",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "French: Mon fr\u00e8re est pr\u00e8s de le parc.\nEnglish: My brother is near the",
+    "continuation": " park",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chien est pr\u00e8s de le champ.\nEnglish: The dog is near the",
+    "continuation": " field",
+    "digits_only": false
+   },
+   {
+    "context": "French: Mon fr\u00e8re est dans le sac.\nEnglish: My brother is in the",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chat est derri\u00e8re le train.\nEnglish: The cat is behind the",
+    "continuation": " train",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chien attend derri\u00e8re le march\u00e9.\nEnglish: The dog waits behind the",
+    "continuation": " market",
+    "digits_only": false
+   },
+   {
+    "context": "French: Ma m\u00e8re est sous l'\u00e9glise.\nEnglish: My mother is under the",
+    "continuation": " church",
+    "digits_only": false
+   },
+   {
+    "context": "French: Ma m\u00e8re est pr\u00e8s de la porte.\nEnglish: My mother is near the",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le professeur est pr\u00e8s de la maison.\nEnglish: The teacher is near the",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chien attend derri\u00e8re la rue.\nEnglish: The dog waits behind the",
+    "continuation": " street",
+    "digits_only": false
+   },
+   {
+    "context": "French: Mon fr\u00e8re est sous le train.\nEnglish: My brother is under the",
+    "continuation": " train",
+    "digits_only": false
+   },
+   {
+    "context": "French: L'enfant est sous la porte.\nEnglish: The child is under the",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chat attend derri\u00e8re la cuisine.\nEnglish: The cat waits behind the",
+    "continuation": " kitchen",
+    "digits_only": false
+   },
+   {
+    "context": "French: Ma m\u00e8re est dans le magasin.\nEnglish: My mother is in the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chien est dans la biblioth\u00e8que.\nEnglish: The dog is in the",
+    "continuation": " library",
+    "digits_only": false
+   },
+   {
+    "context": "French: Ma m\u00e8re est derri\u00e8re le march\u00e9.\nEnglish: My mother is behind the",
+    "continuation": " market",
+    "digits_only": false
+   },
+   {
+    "context": "French: Mon fr\u00e8re est derri\u00e8re la bo\u00eete.\nEnglish: My brother is behind the",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chat est pr\u00e8s de l'\u00e9cole.\nEnglish: The cat is near the",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le professeur est dans la table.\nEnglish: The teacher is in the",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le professeur est pr\u00e8s de l'\u00e9cole.\nEnglish: The teacher is near the",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chat dort dans la cuisine.\nEnglish: The cat sleeps in the",
+    "continuation": " kitchen",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chien dort dans le village.\nEnglish: The dog sleeps in the",
+    "continuation": " village",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le professeur attend derri\u00e8re la fen\u00eatre.\nEnglish: The teacher waits behind the",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "French: Mon fr\u00e8re est pr\u00e8s de la fen\u00eatre.\nEnglish: My brother is near the",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chat est dans le magasin.\nEnglish: The cat is in the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le professeur est pr\u00e8s de le magasin.\nEnglish: The teacher is near the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le professeur est dans la bo\u00eete.\nEnglish: The teacher is in the",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chien est dans le march\u00e9.\nEnglish: The dog is in the",
+    "continuation": " market",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chat est pr\u00e8s de la bouteille.\nEnglish: The cat is near the",
+    "continuation": " bottle",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le professeur est dans le sac.\nEnglish: The teacher is in the",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le professeur dort dans le jardin.\nEnglish: The teacher sleeps in the",
+    "continuation": " garden",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chien est derri\u00e8re le march\u00e9.\nEnglish: The dog is behind the",
+    "continuation": " market",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chien est dans le train.\nEnglish: The dog is in the",
+    "continuation": " train",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chien est dans le lit.\nEnglish: The dog is in the",
+    "continuation": " bed",
+    "digits_only": false
+   },
+   {
+    "context": "French: Ma m\u00e8re est derri\u00e8re la maison.\nEnglish: My mother is behind the",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "French: Mon fr\u00e8re est sous la chambre.\nEnglish: My brother is under the",
+    "continuation": " room",
+    "digits_only": false
+   },
+   {
+    "context": "French: L'enfant est dans le champ.\nEnglish: The child is in the",
+    "continuation": " field",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le professeur est dans le march\u00e9.\nEnglish: The teacher is in the",
+    "continuation": " market",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le professeur est sous la maison.\nEnglish: The teacher is under the",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chat attend derri\u00e8re la bo\u00eete.\nEnglish: The cat waits behind the",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "French: Mon fr\u00e8re dort dans le sac.\nEnglish: My brother sleeps in the",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chien attend derri\u00e8re la bouteille.\nEnglish: The dog waits behind the",
+    "continuation": " bottle",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chien est sous le livre.\nEnglish: The dog is under the",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chien dort dans le jardin.\nEnglish: The dog sleeps in the",
+    "continuation": " garden",
+    "digits_only": false
+   },
+   {
+    "context": "French: L'enfant est sous la ville.\nEnglish: The child is under the",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chien est dans le magasin.\nEnglish: The dog is in the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "French: Mon fr\u00e8re attend derri\u00e8re le bureau.\nEnglish: My brother waits behind the",
+    "continuation": " office",
+    "digits_only": false
+   },
+   {
+    "context": "French: Mon fr\u00e8re est dans la biblioth\u00e8que.\nEnglish: My brother is in the",
+    "continuation": " library",
+    "digits_only": false
+   },
+   {
+    "context": "French: Mon fr\u00e8re dort dans la bouteille.\nEnglish: My brother sleeps in the",
+    "continuation": " bottle",
+    "digits_only": false
+   },
+   {
+    "context": "French: Ma m\u00e8re attend derri\u00e8re le parc.\nEnglish: My mother waits behind the",
+    "continuation": " park",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "French: Ma m\u00e8re dort dans la for\u00eat.\nEnglish: My mother sleeps in the",
+    "continuation": " forest",
+    "digits_only": false
+   },
+   {
+    "context": "French: Ma m\u00e8re attend derri\u00e8re le bateau.\nEnglish: My mother waits behind the",
+    "continuation": " boat",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chat est sous la fen\u00eatre.\nEnglish: The cat is under the",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le professeur est pr\u00e8s de la biblioth\u00e8que.\nEnglish: The teacher is near the",
+    "continuation": " library",
+    "digits_only": false
+   },
+   {
+    "context": "French: L'enfant dort dans le ch\u00e2teau.\nEnglish: The child sleeps in the",
+    "continuation": " castle",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chat est derri\u00e8re l'\u00e9glise.\nEnglish: The cat is behind the",
+    "continuation": " church",
+    "digits_only": false
+   },
+   {
+    "context": "French: Mon fr\u00e8re attend derri\u00e8re la voiture.\nEnglish: My brother waits behind the",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chien est dans la bo\u00eete.\nEnglish: The dog is in the",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chien est dans le bateau.\nEnglish: The dog is in the",
+    "continuation": " boat",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chien attend derri\u00e8re le village.\nEnglish: The dog waits behind the",
+    "continuation": " village",
+    "digits_only": false
+   },
+   {
+    "context": "French: L'enfant est dans la ville.\nEnglish: The child is in the",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "French: L'enfant dort dans le magasin.\nEnglish: The child sleeps in the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "French: Ma m\u00e8re est derri\u00e8re la fen\u00eatre.\nEnglish: My mother is behind the",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "French: L'enfant est dans le sac.\nEnglish: The child is in the",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chien attend derri\u00e8re le jardin.\nEnglish: The dog waits behind the",
+    "continuation": " garden",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chien dort dans la cuisine.\nEnglish: The dog sleeps in the",
+    "continuation": " kitchen",
+    "digits_only": false
+   },
+   {
+    "context": "French: Ma m\u00e8re est dans la rue.\nEnglish: My mother is in the",
+    "continuation": " street",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chat est dans la voiture.\nEnglish: The cat is in the",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "French: L'enfant attend derri\u00e8re la maison.\nEnglish: The child waits behind the",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chien est dans la rivi\u00e8re.\nEnglish: The dog is in the",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "French: Mon fr\u00e8re dort dans la porte.\nEnglish: My brother sleeps in the",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "French: L'enfant est dans le magasin.\nEnglish: The child is in the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "French: Mon fr\u00e8re dort dans la table.\nEnglish: My brother sleeps in the",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chat est dans la rivi\u00e8re.\nEnglish: The cat is in the",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "French: L'enfant est pr\u00e8s de la bouteille.\nEnglish: The child is near the",
+    "continuation": " bottle",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le professeur est derri\u00e8re la table.\nEnglish: The teacher is behind the",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "French: L'enfant est derri\u00e8re la bo\u00eete.\nEnglish: The child is behind the",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chat est sous la table.\nEnglish: The cat is under the",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "French: Ma m\u00e8re dort dans le ch\u00e2teau.\nEnglish: My mother sleeps in the",
+    "continuation": " castle",
+    "digits_only": false
+   },
+   {
+    "context": "French: Ma m\u00e8re est pr\u00e8s de le march\u00e9.\nEnglish: My mother is near the",
+    "continuation": " market",
+    "digits_only": false
+   },
+   {
+    "context": "French: Ma m\u00e8re est pr\u00e8s de le parc.\nEnglish: My mother is near the",
+    "continuation": " park",
+    "digits_only": false
+   },
+   {
+    "context": "French: Mon fr\u00e8re dort dans l'arbre.\nEnglish: My brother sleeps in the",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "French: Ma m\u00e8re est sous la for\u00eat.\nEnglish: My mother is under the",
+    "continuation": " forest",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chat est pr\u00e8s de la rue.\nEnglish: The cat is near the",
+    "continuation": " street",
+    "digits_only": false
+   },
+   {
+    "context": "French: Ma m\u00e8re est pr\u00e8s de le magasin.\nEnglish: My mother is near the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le professeur est derri\u00e8re l'\u00e9glise.\nEnglish: The teacher is behind the",
+    "continuation": " church",
+    "digits_only": false
+   },
+   {
+    "context": "French: L'enfant est sous le champ.\nEnglish: The child is under the",
+    "continuation": " field",
+    "digits_only": false
+   },
+   {
+    "context": "French: Mon fr\u00e8re est dans la rivi\u00e8re.\nEnglish: My brother is in the",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chat est derri\u00e8re le livre.\nEnglish: The cat is behind the",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chat attend derri\u00e8re la bouteille.\nEnglish: The cat waits behind the",
+    "continuation": " bottle",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le professeur attend derri\u00e8re la bo\u00eete.\nEnglish: The teacher waits behind the",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "French: Mon fr\u00e8re dort dans la bo\u00eete.\nEnglish: My brother sleeps in the",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chien est pr\u00e8s de le march\u00e9.\nEnglish: The dog is near the",
+    "continuation": " market",
+    "digits_only": false
+   },
+   {
+    "context": "French: L'enfant est derri\u00e8re l'\u00e9glise.\nEnglish: The child is behind the",
+    "continuation": " church",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le professeur est sous l'\u00e9cole.\nEnglish: The teacher is under the",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "French: Ma m\u00e8re attend derri\u00e8re la rivi\u00e8re.\nEnglish: My mother waits behind the",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le professeur est dans l'\u00e9cole.\nEnglish: The teacher is in the",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "French: Ma m\u00e8re est derri\u00e8re le magasin.\nEnglish: My mother is behind the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chien est derri\u00e8re la for\u00eat.\nEnglish: The dog is behind the",
+    "continuation": " forest",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le professeur dort dans le train.\nEnglish: The teacher sleeps in the",
+    "continuation": " train",
+    "digits_only": false
+   },
+   {
+    "context": "French: Ma m\u00e8re est pr\u00e8s de la ville.\nEnglish: My mother is near the",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "French: Ma m\u00e8re est dans le livre.\nEnglish: My mother is in the",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le professeur est derri\u00e8re le champ.\nEnglish: The teacher is behind the",
+    "continuation": " field",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le professeur est sous la voiture.\nEnglish: The teacher is under the",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le professeur est pr\u00e8s de le parc.\nEnglish: The teacher is near the",
+    "continuation": " park",
+    "digits_only": false
+   },
+   {
+    "context": "French: L'enfant attend derri\u00e8re le lit.\nEnglish: The child waits behind the",
+    "continuation": " bed",
+    "digits_only": false
+   },
+   {
+    "context": "French: L'enfant dort dans le livre.\nEnglish: The child sleeps in the",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "French: Ma m\u00e8re est dans l'arbre.\nEnglish: My mother is in the",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "French: Le chat est derri\u00e8re la for\u00eat.\nEnglish: The cat is behind the",
+    "continuation": " forest",
+    "digits_only": false
+   },
+   {
+    "context": "French: Ma m\u00e8re est sous la voiture.\nEnglish: My mother is under the",
+    "continuation": " car",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 9.2518
+}

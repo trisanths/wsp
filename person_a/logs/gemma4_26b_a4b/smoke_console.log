@@ -1,0 +1,47 @@
+model: google/gemma-4-26B-A4B-it | revision: 4d7ae4984b7db7de8f8457170b3f1a419ee76d52 | GPU: EngineH100
+structure: {
+ "n_layers": 30,
+ "d_model": 2816,
+ "layers_with": {
+  "attn": 30,
+  "mlp": 30,
+  "experts": 30
+ },
+ "example": {
+  "attn": {
+   "path": "self_attn.o_proj",
+   "n_heads": 16,
+   "head_dim": 256,
+   "type": "Gemma4TextAttention"
+  },
+  "mlp": {
+   "path": "mlp.down_proj",
+   "width": 2112
+  },
+  "experts": {
+   "path": "experts",
+   "n_experts": 128
+  }
+ },
+ "hf_id": "google/gemma-4-26B-A4B-it",
+ "revision": "4d7ae4984b7db7de8f8457170b3f1a419ee76d52",
+ "load_seconds": 27.6,
+ "model_class": "Gemma4ForConditionalGeneration",
+ "vocab": 262144
+}
+base scores (geometric-mean prob of answer tokens):
+   code|heldout 0.28367
+   code|search 0.29677
+   facts|heldout 0.00018
+   facts|search 0.00077
+   general_text|heldout 0.00118
+   general_text|search 0.00103
+   math|heldout 0.62178
+   math|search 0.56491
+   multilingual|heldout 0.05641
+   multilingual|search 0.04117
+margin vs shuffled answers (nats; < 0.25 => built-in skill skipped): {'math': 1.7015, 'code': 1.0932, 'facts': 4.6107, 'multilingual': 5.647, 'general_text': 0.9835}
+skipped skills: []
+one ablation {"kind": "attn_heads", "layer": 15, "indices": [0, 1]} -> {"math|search": 0.0093, "math|heldout": -0.0232, "code|search": 0.0175, "code|heldout": 0.0139, "facts|search": 0.026, "facts|heldout": -0.2778, "multilingual|search": -0.0209, "multilingual|heldout": 0.028, "general_text|search": 0.0, "general_text|heldout": 0.0254} in 17.7 s
+expert ablation {"kind": "expert", "layer": 0, "indices": [0, 1]} -> {"math|search": 0.025, "math|heldout": 0.0211, "code|search": 0.1032, "code|heldout": 0.1131, "facts|search": -4.3766, "facts|heldout": -6.7222, "multilingual|search": -0.0532, "multilingual|heldout": 0.1918, "general_text|search": -0.0777, "general_text|heldout": 0.1102} in 8.4 s
+smoke OK in 86.3 s (wall clock, includes model load)

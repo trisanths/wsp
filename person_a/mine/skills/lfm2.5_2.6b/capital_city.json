@@ -1,0 +1,1220 @@
+{
+ "name": "capital_city",
+ "description": "Name the capital of a country, few-shot 'Country: X. Capital: Y'. Control: same format copying country name.",
+ "hash": "1794e1d72923abc9",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nP=[('France','Paris'),('Germany','Berlin'),('Italy','Rome'),('Spain','Madrid'),('Japan','Tokyo'),('China','Beijing'),('Russia','Moscow'),('Egypt','Cairo'),('Canada','Ottawa'),('Australia','Canberra'),('Greece','Athens'),('Portugal','Lisbon'),('Norway','Oslo'),('Sweden','Stockholm'),('Finland','Helsinki'),('Poland','Warsaw'),('Austria','Vienna'),('Ireland','Dublin'),('Kenya','Nairobi'),('Peru','Lima'),('Chile','Santiago'),('Cuba','Havana'),('Thailand','Bangkok'),('Turkey','Ankara'),('Iran','Tehran'),('Iraq','Baghdad'),('India','Delhi'),('Argentina','Buenos'),('Hungary','Budapest'),('Denmark','Copenhagen'),('Belgium','Brussels'),('Netherlands','Amsterdam'),('Mexico','Mexico'),('Vietnam','Hanoi'),('Indonesia','Jakarta'),('Philippines','Manila'),('Colombia','Bog'),('Ukraine','Kyiv'),('Czech Republic','Prague'),('Romania','Bucharest')]\nitems=[];control=[]\nfor t in range(120):\n    s=random.sample(P,4)\n    items.append({\"prompt\":\"\\n\".join(f\"Country: {a}. Capital: {b}\" for a,b in s[:3])+f\"\\nCountry: {s[3][0]}. Capital:\",\"answer\":\" \"+s[3][1]})\n    s=random.sample(P,4)\n    control.append({\"prompt\":\"\\n\".join(f\"Country: {a}. Name: {a}\" for a,b in s[:3])+f\"\\nCountry: {s[3][0]}. Name:\",\"answer\":\" \"+s[3][0]})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Country: Japan. Capital: Tokyo\nCountry: Argentina. Capital: Buenos\nCountry: Sweden. Capital: Stockholm\nCountry: Kenya. Capital:",
+    "continuation": " Nairobi",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Iran. Capital: Tehran\nCountry: Finland. Capital: Helsinki\nCountry: Norway. Capital: Oslo\nCountry: Hungary. Capital:",
+    "continuation": " Budapest",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Italy. Capital: Rome\nCountry: Egypt. Capital: Cairo\nCountry: Romania. Capital: Bucharest\nCountry: France. Capital:",
+    "continuation": " Paris",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Cuba. Capital: Havana\nCountry: Belgium. Capital: Brussels\nCountry: Philippines. Capital: Manila\nCountry: Russia. Capital:",
+    "continuation": " Moscow",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Turkey. Capital: Ankara\nCountry: China. Capital: Beijing\nCountry: Sweden. Capital: Stockholm\nCountry: Vietnam. Capital:",
+    "continuation": " Hanoi",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Mexico. Capital: Mexico\nCountry: Colombia. Capital: Bog\nCountry: Austria. Capital: Vienna\nCountry: Cuba. Capital:",
+    "continuation": " Havana",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Australia. Capital: Canberra\nCountry: Sweden. Capital: Stockholm\nCountry: France. Capital: Paris\nCountry: Egypt. Capital:",
+    "continuation": " Cairo",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Sweden. Capital: Stockholm\nCountry: Spain. Capital: Madrid\nCountry: Greece. Capital: Athens\nCountry: Cuba. Capital:",
+    "continuation": " Havana",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Vietnam. Capital: Hanoi\nCountry: Netherlands. Capital: Amsterdam\nCountry: Philippines. Capital: Manila\nCountry: Czech Republic. Capital:",
+    "continuation": " Prague",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Cuba. Capital: Havana\nCountry: Italy. Capital: Rome\nCountry: Indonesia. Capital: Jakarta\nCountry: Ireland. Capital:",
+    "continuation": " Dublin",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Austria. Capital: Vienna\nCountry: Ukraine. Capital: Kyiv\nCountry: Greece. Capital: Athens\nCountry: Argentina. Capital:",
+    "continuation": " Buenos",
+    "digits_only": false
+   },
+   {
+    "context": "Country: India. Capital: Delhi\nCountry: Mexico. Capital: Mexico\nCountry: Peru. Capital: Lima\nCountry: Egypt. Capital:",
+    "continuation": " Cairo",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Hungary. Capital: Budapest\nCountry: Portugal. Capital: Lisbon\nCountry: France. Capital: Paris\nCountry: Belgium. Capital:",
+    "continuation": " Brussels",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Turkey. Capital: Ankara\nCountry: Norway. Capital: Oslo\nCountry: Denmark. Capital: Copenhagen\nCountry: Thailand. Capital:",
+    "continuation": " Bangkok",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Austria. Capital: Vienna\nCountry: Canada. Capital: Ottawa\nCountry: Germany. Capital: Berlin\nCountry: Sweden. Capital:",
+    "continuation": " Stockholm",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Colombia. Capital: Bog\nCountry: Indonesia. Capital: Jakarta\nCountry: Czech Republic. Capital: Prague\nCountry: Japan. Capital:",
+    "continuation": " Tokyo",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Vietnam. Capital: Hanoi\nCountry: Australia. Capital: Canberra\nCountry: Thailand. Capital: Bangkok\nCountry: Denmark. Capital:",
+    "continuation": " Copenhagen",
+    "digits_only": false
+   },
+   {
+    "context": "Country: India. Capital: Delhi\nCountry: Italy. Capital: Rome\nCountry: Greece. Capital: Athens\nCountry: Hungary. Capital:",
+    "continuation": " Budapest",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Romania. Capital: Bucharest\nCountry: Austria. Capital: Vienna\nCountry: Indonesia. Capital: Jakarta\nCountry: Czech Republic. Capital:",
+    "continuation": " Prague",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Kenya. Capital: Nairobi\nCountry: Philippines. Capital: Manila\nCountry: Chile. Capital: Santiago\nCountry: Portugal. Capital:",
+    "continuation": " Lisbon",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Egypt. Capital: Cairo\nCountry: Philippines. Capital: Manila\nCountry: Cuba. Capital: Havana\nCountry: Indonesia. Capital:",
+    "continuation": " Jakarta",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Belgium. Capital: Brussels\nCountry: Sweden. Capital: Stockholm\nCountry: Cuba. Capital: Havana\nCountry: Ireland. Capital:",
+    "continuation": " Dublin",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Cuba. Capital: Havana\nCountry: Egypt. Capital: Cairo\nCountry: Belgium. Capital: Brussels\nCountry: Netherlands. Capital:",
+    "continuation": " Amsterdam",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Iraq. Capital: Baghdad\nCountry: Portugal. Capital: Lisbon\nCountry: India. Capital: Delhi\nCountry: Argentina. Capital:",
+    "continuation": " Buenos",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Iraq. Capital: Baghdad\nCountry: France. Capital: Paris\nCountry: Vietnam. Capital: Hanoi\nCountry: Japan. Capital:",
+    "continuation": " Tokyo",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Australia. Capital: Canberra\nCountry: Greece. Capital: Athens\nCountry: Colombia. Capital: Bog\nCountry: Iran. Capital:",
+    "continuation": " Tehran",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Hungary. Capital: Budapest\nCountry: Netherlands. Capital: Amsterdam\nCountry: Ukraine. Capital: Kyiv\nCountry: Sweden. Capital:",
+    "continuation": " Stockholm",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Australia. Capital: Canberra\nCountry: India. Capital: Delhi\nCountry: Sweden. Capital: Stockholm\nCountry: Hungary. Capital:",
+    "continuation": " Budapest",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Philippines. Capital: Manila\nCountry: India. Capital: Delhi\nCountry: Australia. Capital: Canberra\nCountry: Ukraine. Capital:",
+    "continuation": " Kyiv",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Czech Republic. Capital: Prague\nCountry: Netherlands. Capital: Amsterdam\nCountry: Denmark. Capital: Copenhagen\nCountry: Argentina. Capital:",
+    "continuation": " Buenos",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Kenya. Capital: Nairobi\nCountry: Portugal. Capital: Lisbon\nCountry: Norway. Capital: Oslo\nCountry: Italy. Capital:",
+    "continuation": " Rome",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Thailand. Capital: Bangkok\nCountry: Iran. Capital: Tehran\nCountry: Austria. Capital: Vienna\nCountry: Australia. Capital:",
+    "continuation": " Canberra",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Germany. Capital: Berlin\nCountry: Vietnam. Capital: Hanoi\nCountry: Hungary. Capital: Budapest\nCountry: Norway. Capital:",
+    "continuation": " Oslo",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Turkey. Capital: Ankara\nCountry: Indonesia. Capital: Jakarta\nCountry: Australia. Capital: Canberra\nCountry: Russia. Capital:",
+    "continuation": " Moscow",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Italy. Capital: Rome\nCountry: Finland. Capital: Helsinki\nCountry: China. Capital: Beijing\nCountry: Portugal. Capital:",
+    "continuation": " Lisbon",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Indonesia. Capital: Jakarta\nCountry: Russia. Capital: Moscow\nCountry: India. Capital: Delhi\nCountry: Iraq. Capital:",
+    "continuation": " Baghdad",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Netherlands. Capital: Amsterdam\nCountry: Thailand. Capital: Bangkok\nCountry: China. Capital: Beijing\nCountry: Chile. Capital:",
+    "continuation": " Santiago",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Romania. Capital: Bucharest\nCountry: Finland. Capital: Helsinki\nCountry: France. Capital: Paris\nCountry: Cuba. Capital:",
+    "continuation": " Havana",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Russia. Capital: Moscow\nCountry: Iraq. Capital: Baghdad\nCountry: Norway. Capital: Oslo\nCountry: Austria. Capital:",
+    "continuation": " Vienna",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Peru. Capital: Lima\nCountry: Vietnam. Capital: Hanoi\nCountry: Iran. Capital: Tehran\nCountry: Austria. Capital:",
+    "continuation": " Vienna",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Thailand. Capital: Bangkok\nCountry: Germany. Capital: Berlin\nCountry: Portugal. Capital: Lisbon\nCountry: France. Capital:",
+    "continuation": " Paris",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Austria. Capital: Vienna\nCountry: Peru. Capital: Lima\nCountry: Indonesia. Capital: Jakarta\nCountry: Cuba. Capital:",
+    "continuation": " Havana",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Austria. Capital: Vienna\nCountry: Canada. Capital: Ottawa\nCountry: Vietnam. Capital: Hanoi\nCountry: Thailand. Capital:",
+    "continuation": " Bangkok",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Indonesia. Capital: Jakarta\nCountry: Argentina. Capital: Buenos\nCountry: Romania. Capital: Bucharest\nCountry: Russia. Capital:",
+    "continuation": " Moscow",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Japan. Capital: Tokyo\nCountry: Norway. Capital: Oslo\nCountry: Colombia. Capital: Bog\nCountry: Finland. Capital:",
+    "continuation": " Helsinki",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Canada. Capital: Ottawa\nCountry: Sweden. Capital: Stockholm\nCountry: Portugal. Capital: Lisbon\nCountry: Hungary. Capital:",
+    "continuation": " Budapest",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Denmark. Capital: Copenhagen\nCountry: Canada. Capital: Ottawa\nCountry: Philippines. Capital: Manila\nCountry: Peru. Capital:",
+    "continuation": " Lima",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Thailand. Capital: Bangkok\nCountry: Argentina. Capital: Buenos\nCountry: Portugal. Capital: Lisbon\nCountry: Spain. Capital:",
+    "continuation": " Madrid",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Norway. Capital: Oslo\nCountry: Kenya. Capital: Nairobi\nCountry: Hungary. Capital: Budapest\nCountry: Mexico. Capital:",
+    "continuation": " Mexico",
+    "digits_only": false
+   },
+   {
+    "context": "Country: India. Capital: Delhi\nCountry: Netherlands. Capital: Amsterdam\nCountry: Denmark. Capital: Copenhagen\nCountry: Hungary. Capital:",
+    "continuation": " Budapest",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Finland. Capital: Helsinki\nCountry: Hungary. Capital: Budapest\nCountry: Iran. Capital: Tehran\nCountry: Colombia. Capital:",
+    "continuation": " Bog",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Russia. Capital: Moscow\nCountry: Belgium. Capital: Brussels\nCountry: Iraq. Capital: Baghdad\nCountry: China. Capital:",
+    "continuation": " Beijing",
+    "digits_only": false
+   },
+   {
+    "context": "Country: China. Capital: Beijing\nCountry: Vietnam. Capital: Hanoi\nCountry: Italy. Capital: Rome\nCountry: Japan. Capital:",
+    "continuation": " Tokyo",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Finland. Capital: Helsinki\nCountry: Indonesia. Capital: Jakarta\nCountry: Iraq. Capital: Baghdad\nCountry: Ireland. Capital:",
+    "continuation": " Dublin",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Colombia. Capital: Bog\nCountry: Canada. Capital: Ottawa\nCountry: Greece. Capital: Athens\nCountry: Egypt. Capital:",
+    "continuation": " Cairo",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Greece. Capital: Athens\nCountry: Cuba. Capital: Havana\nCountry: Argentina. Capital: Buenos\nCountry: Spain. Capital:",
+    "continuation": " Madrid",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Cuba. Capital: Havana\nCountry: Norway. Capital: Oslo\nCountry: Poland. Capital: Warsaw\nCountry: Germany. Capital:",
+    "continuation": " Berlin",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Philippines. Capital: Manila\nCountry: Finland. Capital: Helsinki\nCountry: Denmark. Capital: Copenhagen\nCountry: Norway. Capital:",
+    "continuation": " Oslo",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Iran. Capital: Tehran\nCountry: Czech Republic. Capital: Prague\nCountry: Ukraine. Capital: Kyiv\nCountry: Finland. Capital:",
+    "continuation": " Helsinki",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Portugal. Capital: Lisbon\nCountry: Russia. Capital: Moscow\nCountry: Ireland. Capital: Dublin\nCountry: Egypt. Capital:",
+    "continuation": " Cairo",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Country: Sweden. Capital: Stockholm\nCountry: Philippines. Capital: Manila\nCountry: Belgium. Capital: Brussels\nCountry: Hungary. Capital:",
+    "continuation": " Budapest",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Poland. Capital: Warsaw\nCountry: Hungary. Capital: Budapest\nCountry: Turkey. Capital: Ankara\nCountry: Vietnam. Capital:",
+    "continuation": " Hanoi",
+    "digits_only": false
+   },
+   {
+    "context": "Country: India. Capital: Delhi\nCountry: Chile. Capital: Santiago\nCountry: Hungary. Capital: Budapest\nCountry: Sweden. Capital:",
+    "continuation": " Stockholm",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Belgium. Capital: Brussels\nCountry: Poland. Capital: Warsaw\nCountry: Spain. Capital: Madrid\nCountry: Peru. Capital:",
+    "continuation": " Lima",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Peru. Capital: Lima\nCountry: Denmark. Capital: Copenhagen\nCountry: Spain. Capital: Madrid\nCountry: India. Capital:",
+    "continuation": " Delhi",
+    "digits_only": false
+   },
+   {
+    "context": "Country: France. Capital: Paris\nCountry: Hungary. Capital: Budapest\nCountry: Romania. Capital: Bucharest\nCountry: Denmark. Capital:",
+    "continuation": " Copenhagen",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Russia. Capital: Moscow\nCountry: Belgium. Capital: Brussels\nCountry: Australia. Capital: Canberra\nCountry: Germany. Capital:",
+    "continuation": " Berlin",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Iran. Capital: Tehran\nCountry: India. Capital: Delhi\nCountry: Italy. Capital: Rome\nCountry: Austria. Capital:",
+    "continuation": " Vienna",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Chile. Capital: Santiago\nCountry: Indonesia. Capital: Jakarta\nCountry: Denmark. Capital: Copenhagen\nCountry: Austria. Capital:",
+    "continuation": " Vienna",
+    "digits_only": false
+   },
+   {
+    "context": "Country: China. Capital: Beijing\nCountry: Canada. Capital: Ottawa\nCountry: Australia. Capital: Canberra\nCountry: Italy. Capital:",
+    "continuation": " Rome",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Belgium. Capital: Brussels\nCountry: Thailand. Capital: Bangkok\nCountry: Ukraine. Capital: Kyiv\nCountry: Sweden. Capital:",
+    "continuation": " Stockholm",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Japan. Capital: Tokyo\nCountry: India. Capital: Delhi\nCountry: Kenya. Capital: Nairobi\nCountry: Vietnam. Capital:",
+    "continuation": " Hanoi",
+    "digits_only": false
+   },
+   {
+    "context": "Country: China. Capital: Beijing\nCountry: Chile. Capital: Santiago\nCountry: Mexico. Capital: Mexico\nCountry: Netherlands. Capital:",
+    "continuation": " Amsterdam",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Iraq. Capital: Baghdad\nCountry: Italy. Capital: Rome\nCountry: Portugal. Capital: Lisbon\nCountry: Poland. Capital:",
+    "continuation": " Warsaw",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Iran. Capital: Tehran\nCountry: Kenya. Capital: Nairobi\nCountry: Egypt. Capital: Cairo\nCountry: Vietnam. Capital:",
+    "continuation": " Hanoi",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Iran. Capital: Tehran\nCountry: Vietnam. Capital: Hanoi\nCountry: Mexico. Capital: Mexico\nCountry: Italy. Capital:",
+    "continuation": " Rome",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Ireland. Capital: Dublin\nCountry: Finland. Capital: Helsinki\nCountry: Germany. Capital: Berlin\nCountry: Egypt. Capital:",
+    "continuation": " Cairo",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Russia. Capital: Moscow\nCountry: India. Capital: Delhi\nCountry: Japan. Capital: Tokyo\nCountry: Australia. Capital:",
+    "continuation": " Canberra",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Romania. Capital: Bucharest\nCountry: Kenya. Capital: Nairobi\nCountry: Thailand. Capital: Bangkok\nCountry: Ukraine. Capital:",
+    "continuation": " Kyiv",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Mexico. Capital: Mexico\nCountry: Poland. Capital: Warsaw\nCountry: Portugal. Capital: Lisbon\nCountry: Kenya. Capital:",
+    "continuation": " Nairobi",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Ukraine. Capital: Kyiv\nCountry: Kenya. Capital: Nairobi\nCountry: Turkey. Capital: Ankara\nCountry: Iraq. Capital:",
+    "continuation": " Baghdad",
+    "digits_only": false
+   },
+   {
+    "context": "Country: France. Capital: Paris\nCountry: Hungary. Capital: Budapest\nCountry: Cuba. Capital: Havana\nCountry: Greece. Capital:",
+    "continuation": " Athens",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Romania. Capital: Bucharest\nCountry: Peru. Capital: Lima\nCountry: China. Capital: Beijing\nCountry: Mexico. Capital:",
+    "continuation": " Mexico",
+    "digits_only": false
+   },
+   {
+    "context": "Country: France. Capital: Paris\nCountry: Austria. Capital: Vienna\nCountry: Iraq. Capital: Baghdad\nCountry: Vietnam. Capital:",
+    "continuation": " Hanoi",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Germany. Capital: Berlin\nCountry: Netherlands. Capital: Amsterdam\nCountry: Chile. Capital: Santiago\nCountry: Austria. Capital:",
+    "continuation": " Vienna",
+    "digits_only": false
+   },
+   {
+    "context": "Country: India. Capital: Delhi\nCountry: Iran. Capital: Tehran\nCountry: Spain. Capital: Madrid\nCountry: Greece. Capital:",
+    "continuation": " Athens",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Iraq. Capital: Baghdad\nCountry: Cuba. Capital: Havana\nCountry: Peru. Capital: Lima\nCountry: India. Capital:",
+    "continuation": " Delhi",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Peru. Capital: Lima\nCountry: Indonesia. Capital: Jakarta\nCountry: Czech Republic. Capital: Prague\nCountry: Australia. Capital:",
+    "continuation": " Canberra",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Kenya. Capital: Nairobi\nCountry: Hungary. Capital: Budapest\nCountry: China. Capital: Beijing\nCountry: Czech Republic. Capital:",
+    "continuation": " Prague",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Thailand. Capital: Bangkok\nCountry: Chile. Capital: Santiago\nCountry: Argentina. Capital: Buenos\nCountry: Russia. Capital:",
+    "continuation": " Moscow",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Cuba. Capital: Havana\nCountry: Turkey. Capital: Ankara\nCountry: China. Capital: Beijing\nCountry: Romania. Capital:",
+    "continuation": " Bucharest",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Germany. Capital: Berlin\nCountry: Norway. Capital: Oslo\nCountry: Portugal. Capital: Lisbon\nCountry: Egypt. Capital:",
+    "continuation": " Cairo",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Ukraine. Capital: Kyiv\nCountry: Peru. Capital: Lima\nCountry: Greece. Capital: Athens\nCountry: Iran. Capital:",
+    "continuation": " Tehran",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Austria. Capital: Vienna\nCountry: Thailand. Capital: Bangkok\nCountry: Kenya. Capital: Nairobi\nCountry: Norway. Capital:",
+    "continuation": " Oslo",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Germany. Capital: Berlin\nCountry: Vietnam. Capital: Hanoi\nCountry: Colombia. Capital: Bog\nCountry: Sweden. Capital:",
+    "continuation": " Stockholm",
+    "digits_only": false
+   },
+   {
+    "context": "Country: France. Capital: Paris\nCountry: Iraq. Capital: Baghdad\nCountry: India. Capital: Delhi\nCountry: Chile. Capital:",
+    "continuation": " Santiago",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Czech Republic. Capital: Prague\nCountry: Germany. Capital: Berlin\nCountry: Iraq. Capital: Baghdad\nCountry: Japan. Capital:",
+    "continuation": " Tokyo",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Ireland. Capital: Dublin\nCountry: Vietnam. Capital: Hanoi\nCountry: Poland. Capital: Warsaw\nCountry: Sweden. Capital:",
+    "continuation": " Stockholm",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Belgium. Capital: Brussels\nCountry: Netherlands. Capital: Amsterdam\nCountry: Mexico. Capital: Mexico\nCountry: Chile. Capital:",
+    "continuation": " Santiago",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Greece. Capital: Athens\nCountry: Cuba. Capital: Havana\nCountry: India. Capital: Delhi\nCountry: Argentina. Capital:",
+    "continuation": " Buenos",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Italy. Capital: Rome\nCountry: Sweden. Capital: Stockholm\nCountry: Austria. Capital: Vienna\nCountry: Philippines. Capital:",
+    "continuation": " Manila",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Colombia. Capital: Bog\nCountry: Egypt. Capital: Cairo\nCountry: Iraq. Capital: Baghdad\nCountry: China. Capital:",
+    "continuation": " Beijing",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Chile. Capital: Santiago\nCountry: Russia. Capital: Moscow\nCountry: Philippines. Capital: Manila\nCountry: Thailand. Capital:",
+    "continuation": " Bangkok",
+    "digits_only": false
+   },
+   {
+    "context": "Country: India. Capital: Delhi\nCountry: China. Capital: Beijing\nCountry: France. Capital: Paris\nCountry: Czech Republic. Capital:",
+    "continuation": " Prague",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Czech Republic. Capital: Prague\nCountry: Finland. Capital: Helsinki\nCountry: Australia. Capital: Canberra\nCountry: Portugal. Capital:",
+    "continuation": " Lisbon",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Spain. Capital: Madrid\nCountry: Iran. Capital: Tehran\nCountry: France. Capital: Paris\nCountry: Russia. Capital:",
+    "continuation": " Moscow",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Spain. Capital: Madrid\nCountry: Italy. Capital: Rome\nCountry: Belgium. Capital: Brussels\nCountry: India. Capital:",
+    "continuation": " Delhi",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Iran. Capital: Tehran\nCountry: Ukraine. Capital: Kyiv\nCountry: Kenya. Capital: Nairobi\nCountry: France. Capital:",
+    "continuation": " Paris",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Spain. Capital: Madrid\nCountry: Vietnam. Capital: Hanoi\nCountry: Philippines. Capital: Manila\nCountry: Argentina. Capital:",
+    "continuation": " Buenos",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Colombia. Capital: Bog\nCountry: Kenya. Capital: Nairobi\nCountry: Norway. Capital: Oslo\nCountry: Russia. Capital:",
+    "continuation": " Moscow",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Iraq. Capital: Baghdad\nCountry: Argentina. Capital: Buenos\nCountry: Vietnam. Capital: Hanoi\nCountry: Netherlands. Capital:",
+    "continuation": " Amsterdam",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Australia. Capital: Canberra\nCountry: Thailand. Capital: Bangkok\nCountry: India. Capital: Delhi\nCountry: Italy. Capital:",
+    "continuation": " Rome",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Spain. Capital: Madrid\nCountry: Romania. Capital: Bucharest\nCountry: Denmark. Capital: Copenhagen\nCountry: Cuba. Capital:",
+    "continuation": " Havana",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Russia. Capital: Moscow\nCountry: Norway. Capital: Oslo\nCountry: Egypt. Capital: Cairo\nCountry: Czech Republic. Capital:",
+    "continuation": " Prague",
+    "digits_only": false
+   },
+   {
+    "context": "Country: France. Capital: Paris\nCountry: China. Capital: Beijing\nCountry: Iraq. Capital: Baghdad\nCountry: Romania. Capital:",
+    "continuation": " Bucharest",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Austria. Capital: Vienna\nCountry: Czech Republic. Capital: Prague\nCountry: Australia. Capital: Canberra\nCountry: Iran. Capital:",
+    "continuation": " Tehran",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Peru. Capital: Lima\nCountry: Philippines. Capital: Manila\nCountry: Japan. Capital: Tokyo\nCountry: France. Capital:",
+    "continuation": " Paris",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Australia. Capital: Canberra\nCountry: Netherlands. Capital: Amsterdam\nCountry: Spain. Capital: Madrid\nCountry: Romania. Capital:",
+    "continuation": " Bucharest",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Sweden. Capital: Stockholm\nCountry: Italy. Capital: Rome\nCountry: Romania. Capital: Bucharest\nCountry: Australia. Capital:",
+    "continuation": " Canberra",
+    "digits_only": false
+   },
+   {
+    "context": "Country: France. Capital: Paris\nCountry: Kenya. Capital: Nairobi\nCountry: Canada. Capital: Ottawa\nCountry: Japan. Capital:",
+    "continuation": " Tokyo",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Country: Romania. Name: Romania\nCountry: Russia. Name: Russia\nCountry: Portugal. Name: Portugal\nCountry: India. Name:",
+    "continuation": " India",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Spain. Name: Spain\nCountry: Iran. Name: Iran\nCountry: India. Name: India\nCountry: France. Name:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Mexico. Name: Mexico\nCountry: Denmark. Name: Denmark\nCountry: Italy. Name: Italy\nCountry: Czech Republic. Name:",
+    "continuation": " Czech Republic",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Czech Republic. Name: Czech Republic\nCountry: China. Name: China\nCountry: Italy. Name: Italy\nCountry: Japan. Name:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Finland. Name: Finland\nCountry: China. Name: China\nCountry: Mexico. Name: Mexico\nCountry: Vietnam. Name:",
+    "continuation": " Vietnam",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Portugal. Name: Portugal\nCountry: Vietnam. Name: Vietnam\nCountry: Japan. Name: Japan\nCountry: Peru. Name:",
+    "continuation": " Peru",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Vietnam. Name: Vietnam\nCountry: Austria. Name: Austria\nCountry: Spain. Name: Spain\nCountry: Philippines. Name:",
+    "continuation": " Philippines",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Japan. Name: Japan\nCountry: Canada. Name: Canada\nCountry: India. Name: India\nCountry: Peru. Name:",
+    "continuation": " Peru",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Canada. Name: Canada\nCountry: Australia. Name: Australia\nCountry: Ireland. Name: Ireland\nCountry: Cuba. Name:",
+    "continuation": " Cuba",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Romania. Name: Romania\nCountry: Austria. Name: Austria\nCountry: Belgium. Name: Belgium\nCountry: Japan. Name:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Ireland. Name: Ireland\nCountry: Egypt. Name: Egypt\nCountry: Finland. Name: Finland\nCountry: Turkey. Name:",
+    "continuation": " Turkey",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Thailand. Name: Thailand\nCountry: Belgium. Name: Belgium\nCountry: India. Name: India\nCountry: Sweden. Name:",
+    "continuation": " Sweden",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Vietnam. Name: Vietnam\nCountry: Austria. Name: Austria\nCountry: Egypt. Name: Egypt\nCountry: Czech Republic. Name:",
+    "continuation": " Czech Republic",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Turkey. Name: Turkey\nCountry: India. Name: India\nCountry: Italy. Name: Italy\nCountry: Canada. Name:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Egypt. Name: Egypt\nCountry: China. Name: China\nCountry: Poland. Name: Poland\nCountry: Russia. Name:",
+    "continuation": " Russia",
+    "digits_only": false
+   },
+   {
+    "context": "Country: China. Name: China\nCountry: Thailand. Name: Thailand\nCountry: Japan. Name: Japan\nCountry: Egypt. Name:",
+    "continuation": " Egypt",
+    "digits_only": false
+   },
+   {
+    "context": "Country: France. Name: France\nCountry: Kenya. Name: Kenya\nCountry: Turkey. Name: Turkey\nCountry: Germany. Name:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Chile. Name: Chile\nCountry: Italy. Name: Italy\nCountry: Vietnam. Name: Vietnam\nCountry: Australia. Name:",
+    "continuation": " Australia",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Egypt. Name: Egypt\nCountry: Iran. Name: Iran\nCountry: Iraq. Name: Iraq\nCountry: Ukraine. Name:",
+    "continuation": " Ukraine",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Iran. Name: Iran\nCountry: Chile. Name: Chile\nCountry: Colombia. Name: Colombia\nCountry: Poland. Name:",
+    "continuation": " Poland",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Turkey. Name: Turkey\nCountry: Kenya. Name: Kenya\nCountry: Belgium. Name: Belgium\nCountry: China. Name:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Netherlands. Name: Netherlands\nCountry: Finland. Name: Finland\nCountry: Canada. Name: Canada\nCountry: Ireland. Name:",
+    "continuation": " Ireland",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Netherlands. Name: Netherlands\nCountry: Spain. Name: Spain\nCountry: Hungary. Name: Hungary\nCountry: Peru. Name:",
+    "continuation": " Peru",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Ireland. Name: Ireland\nCountry: Kenya. Name: Kenya\nCountry: Hungary. Name: Hungary\nCountry: Turkey. Name:",
+    "continuation": " Turkey",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Italy. Name: Italy\nCountry: Ireland. Name: Ireland\nCountry: Greece. Name: Greece\nCountry: Australia. Name:",
+    "continuation": " Australia",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Chile. Name: Chile\nCountry: Turkey. Name: Turkey\nCountry: Colombia. Name: Colombia\nCountry: Italy. Name:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Kenya. Name: Kenya\nCountry: Thailand. Name: Thailand\nCountry: India. Name: India\nCountry: Denmark. Name:",
+    "continuation": " Denmark",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Czech Republic. Name: Czech Republic\nCountry: Netherlands. Name: Netherlands\nCountry: Australia. Name: Australia\nCountry: Colombia. Name:",
+    "continuation": " Colombia",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Germany. Name: Germany\nCountry: Egypt. Name: Egypt\nCountry: Norway. Name: Norway\nCountry: Czech Republic. Name:",
+    "continuation": " Czech Republic",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Norway. Name: Norway\nCountry: Peru. Name: Peru\nCountry: Ireland. Name: Ireland\nCountry: Portugal. Name:",
+    "continuation": " Portugal",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Philippines. Name: Philippines\nCountry: France. Name: France\nCountry: Denmark. Name: Denmark\nCountry: China. Name:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Poland. Name: Poland\nCountry: Australia. Name: Australia\nCountry: Indonesia. Name: Indonesia\nCountry: Hungary. Name:",
+    "continuation": " Hungary",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Portugal. Name: Portugal\nCountry: Poland. Name: Poland\nCountry: Denmark. Name: Denmark\nCountry: Cuba. Name:",
+    "continuation": " Cuba",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Netherlands. Name: Netherlands\nCountry: Cuba. Name: Cuba\nCountry: Poland. Name: Poland\nCountry: Chile. Name:",
+    "continuation": " Chile",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Egypt. Name: Egypt\nCountry: Australia. Name: Australia\nCountry: Ireland. Name: Ireland\nCountry: Germany. Name:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Denmark. Name: Denmark\nCountry: Egypt. Name: Egypt\nCountry: Belgium. Name: Belgium\nCountry: Thailand. Name:",
+    "continuation": " Thailand",
+    "digits_only": false
+   },
+   {
+    "context": "Country: China. Name: China\nCountry: Indonesia. Name: Indonesia\nCountry: Iraq. Name: Iraq\nCountry: Vietnam. Name:",
+    "continuation": " Vietnam",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Turkey. Name: Turkey\nCountry: Spain. Name: Spain\nCountry: Portugal. Name: Portugal\nCountry: Finland. Name:",
+    "continuation": " Finland",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Argentina. Name: Argentina\nCountry: Italy. Name: Italy\nCountry: Peru. Name: Peru\nCountry: Cuba. Name:",
+    "continuation": " Cuba",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Belgium. Name: Belgium\nCountry: Thailand. Name: Thailand\nCountry: Poland. Name: Poland\nCountry: Italy. Name:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "Country: France. Name: France\nCountry: Italy. Name: Italy\nCountry: Netherlands. Name: Netherlands\nCountry: Chile. Name:",
+    "continuation": " Chile",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Norway. Name: Norway\nCountry: Italy. Name: Italy\nCountry: Iraq. Name: Iraq\nCountry: Hungary. Name:",
+    "continuation": " Hungary",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Philippines. Name: Philippines\nCountry: Kenya. Name: Kenya\nCountry: Romania. Name: Romania\nCountry: Indonesia. Name:",
+    "continuation": " Indonesia",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Canada. Name: Canada\nCountry: Poland. Name: Poland\nCountry: Belgium. Name: Belgium\nCountry: Thailand. Name:",
+    "continuation": " Thailand",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Chile. Name: Chile\nCountry: Netherlands. Name: Netherlands\nCountry: Norway. Name: Norway\nCountry: Indonesia. Name:",
+    "continuation": " Indonesia",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Norway. Name: Norway\nCountry: Philippines. Name: Philippines\nCountry: China. Name: China\nCountry: Canada. Name:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "Country: China. Name: China\nCountry: Iraq. Name: Iraq\nCountry: France. Name: France\nCountry: Turkey. Name:",
+    "continuation": " Turkey",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Japan. Name: Japan\nCountry: Netherlands. Name: Netherlands\nCountry: Austria. Name: Austria\nCountry: Peru. Name:",
+    "continuation": " Peru",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Austria. Name: Austria\nCountry: Japan. Name: Japan\nCountry: Finland. Name: Finland\nCountry: Peru. Name:",
+    "continuation": " Peru",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Norway. Name: Norway\nCountry: Iran. Name: Iran\nCountry: Netherlands. Name: Netherlands\nCountry: Egypt. Name:",
+    "continuation": " Egypt",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Russia. Name: Russia\nCountry: Philippines. Name: Philippines\nCountry: Belgium. Name: Belgium\nCountry: Cuba. Name:",
+    "continuation": " Cuba",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Egypt. Name: Egypt\nCountry: Romania. Name: Romania\nCountry: Kenya. Name: Kenya\nCountry: Canada. Name:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Argentina. Name: Argentina\nCountry: Peru. Name: Peru\nCountry: Thailand. Name: Thailand\nCountry: China. Name:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Denmark. Name: Denmark\nCountry: Netherlands. Name: Netherlands\nCountry: Hungary. Name: Hungary\nCountry: Spain. Name:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Iraq. Name: Iraq\nCountry: Philippines. Name: Philippines\nCountry: Vietnam. Name: Vietnam\nCountry: Kenya. Name:",
+    "continuation": " Kenya",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Australia. Name: Australia\nCountry: Netherlands. Name: Netherlands\nCountry: Czech Republic. Name: Czech Republic\nCountry: China. Name:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Thailand. Name: Thailand\nCountry: Belgium. Name: Belgium\nCountry: Colombia. Name: Colombia\nCountry: Greece. Name:",
+    "continuation": " Greece",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Norway. Name: Norway\nCountry: Thailand. Name: Thailand\nCountry: Egypt. Name: Egypt\nCountry: Japan. Name:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Russia. Name: Russia\nCountry: Peru. Name: Peru\nCountry: Philippines. Name: Philippines\nCountry: Kenya. Name:",
+    "continuation": " Kenya",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Belgium. Name: Belgium\nCountry: Sweden. Name: Sweden\nCountry: Spain. Name: Spain\nCountry: Germany. Name:",
+    "continuation": " Germany",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Country: Ireland. Name: Ireland\nCountry: Kenya. Name: Kenya\nCountry: Finland. Name: Finland\nCountry: Australia. Name:",
+    "continuation": " Australia",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Argentina. Name: Argentina\nCountry: China. Name: China\nCountry: Turkey. Name: Turkey\nCountry: Finland. Name:",
+    "continuation": " Finland",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Germany. Name: Germany\nCountry: Egypt. Name: Egypt\nCountry: Ireland. Name: Ireland\nCountry: Italy. Name:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "Country: India. Name: India\nCountry: Colombia. Name: Colombia\nCountry: Mexico. Name: Mexico\nCountry: Peru. Name:",
+    "continuation": " Peru",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Sweden. Name: Sweden\nCountry: Ukraine. Name: Ukraine\nCountry: Spain. Name: Spain\nCountry: Iran. Name:",
+    "continuation": " Iran",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Ukraine. Name: Ukraine\nCountry: Kenya. Name: Kenya\nCountry: Belgium. Name: Belgium\nCountry: Japan. Name:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "Country: France. Name: France\nCountry: Sweden. Name: Sweden\nCountry: Peru. Name: Peru\nCountry: Egypt. Name:",
+    "continuation": " Egypt",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Turkey. Name: Turkey\nCountry: Indonesia. Name: Indonesia\nCountry: Portugal. Name: Portugal\nCountry: Sweden. Name:",
+    "continuation": " Sweden",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Germany. Name: Germany\nCountry: France. Name: France\nCountry: Portugal. Name: Portugal\nCountry: Peru. Name:",
+    "continuation": " Peru",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Ukraine. Name: Ukraine\nCountry: China. Name: China\nCountry: Russia. Name: Russia\nCountry: Indonesia. Name:",
+    "continuation": " Indonesia",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Czech Republic. Name: Czech Republic\nCountry: Denmark. Name: Denmark\nCountry: Indonesia. Name: Indonesia\nCountry: Austria. Name:",
+    "continuation": " Austria",
+    "digits_only": false
+   },
+   {
+    "context": "Country: China. Name: China\nCountry: Japan. Name: Japan\nCountry: Norway. Name: Norway\nCountry: Finland. Name:",
+    "continuation": " Finland",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Egypt. Name: Egypt\nCountry: Vietnam. Name: Vietnam\nCountry: Poland. Name: Poland\nCountry: Greece. Name:",
+    "continuation": " Greece",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Germany. Name: Germany\nCountry: Hungary. Name: Hungary\nCountry: Argentina. Name: Argentina\nCountry: India. Name:",
+    "continuation": " India",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Thailand. Name: Thailand\nCountry: Norway. Name: Norway\nCountry: Austria. Name: Austria\nCountry: Peru. Name:",
+    "continuation": " Peru",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Colombia. Name: Colombia\nCountry: China. Name: China\nCountry: Vietnam. Name: Vietnam\nCountry: Czech Republic. Name:",
+    "continuation": " Czech Republic",
+    "digits_only": false
+   },
+   {
+    "context": "Country: India. Name: India\nCountry: Italy. Name: Italy\nCountry: Iraq. Name: Iraq\nCountry: Colombia. Name:",
+    "continuation": " Colombia",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Japan. Name: Japan\nCountry: Italy. Name: Italy\nCountry: Netherlands. Name: Netherlands\nCountry: Austria. Name:",
+    "continuation": " Austria",
+    "digits_only": false
+   },
+   {
+    "context": "Country: China. Name: China\nCountry: Belgium. Name: Belgium\nCountry: Sweden. Name: Sweden\nCountry: Kenya. Name:",
+    "continuation": " Kenya",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Finland. Name: Finland\nCountry: Canada. Name: Canada\nCountry: Italy. Name: Italy\nCountry: Peru. Name:",
+    "continuation": " Peru",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Norway. Name: Norway\nCountry: Cuba. Name: Cuba\nCountry: Greece. Name: Greece\nCountry: Poland. Name:",
+    "continuation": " Poland",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Ukraine. Name: Ukraine\nCountry: Denmark. Name: Denmark\nCountry: Netherlands. Name: Netherlands\nCountry: Austria. Name:",
+    "continuation": " Austria",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Mexico. Name: Mexico\nCountry: Canada. Name: Canada\nCountry: Kenya. Name: Kenya\nCountry: Russia. Name:",
+    "continuation": " Russia",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Australia. Name: Australia\nCountry: Argentina. Name: Argentina\nCountry: Colombia. Name: Colombia\nCountry: China. Name:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Italy. Name: Italy\nCountry: Spain. Name: Spain\nCountry: Greece. Name: Greece\nCountry: Thailand. Name:",
+    "continuation": " Thailand",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Argentina. Name: Argentina\nCountry: Belgium. Name: Belgium\nCountry: China. Name: China\nCountry: Netherlands. Name:",
+    "continuation": " Netherlands",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Australia. Name: Australia\nCountry: Peru. Name: Peru\nCountry: Russia. Name: Russia\nCountry: Japan. Name:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Australia. Name: Australia\nCountry: Hungary. Name: Hungary\nCountry: Vietnam. Name: Vietnam\nCountry: Chile. Name:",
+    "continuation": " Chile",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Philippines. Name: Philippines\nCountry: Canada. Name: Canada\nCountry: Kenya. Name: Kenya\nCountry: Egypt. Name:",
+    "continuation": " Egypt",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Romania. Name: Romania\nCountry: Egypt. Name: Egypt\nCountry: Netherlands. Name: Netherlands\nCountry: Ukraine. Name:",
+    "continuation": " Ukraine",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Turkey. Name: Turkey\nCountry: Cuba. Name: Cuba\nCountry: Belgium. Name: Belgium\nCountry: Kenya. Name:",
+    "continuation": " Kenya",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Japan. Name: Japan\nCountry: Austria. Name: Austria\nCountry: Greece. Name: Greece\nCountry: Hungary. Name:",
+    "continuation": " Hungary",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Canada. Name: Canada\nCountry: Colombia. Name: Colombia\nCountry: Vietnam. Name: Vietnam\nCountry: Sweden. Name:",
+    "continuation": " Sweden",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Germany. Name: Germany\nCountry: Ireland. Name: Ireland\nCountry: Hungary. Name: Hungary\nCountry: Egypt. Name:",
+    "continuation": " Egypt",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Cuba. Name: Cuba\nCountry: Czech Republic. Name: Czech Republic\nCountry: Russia. Name: Russia\nCountry: China. Name:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Ukraine. Name: Ukraine\nCountry: Iraq. Name: Iraq\nCountry: Hungary. Name: Hungary\nCountry: Russia. Name:",
+    "continuation": " Russia",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Mexico. Name: Mexico\nCountry: Netherlands. Name: Netherlands\nCountry: Iraq. Name: Iraq\nCountry: Peru. Name:",
+    "continuation": " Peru",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Germany. Name: Germany\nCountry: Vietnam. Name: Vietnam\nCountry: Italy. Name: Italy\nCountry: Norway. Name:",
+    "continuation": " Norway",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Australia. Name: Australia\nCountry: Canada. Name: Canada\nCountry: Finland. Name: Finland\nCountry: Chile. Name:",
+    "continuation": " Chile",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Australia. Name: Australia\nCountry: Denmark. Name: Denmark\nCountry: Turkey. Name: Turkey\nCountry: Mexico. Name:",
+    "continuation": " Mexico",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Russia. Name: Russia\nCountry: Norway. Name: Norway\nCountry: Denmark. Name: Denmark\nCountry: Iran. Name:",
+    "continuation": " Iran",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Thailand. Name: Thailand\nCountry: Argentina. Name: Argentina\nCountry: Chile. Name: Chile\nCountry: Romania. Name:",
+    "continuation": " Romania",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Romania. Name: Romania\nCountry: Denmark. Name: Denmark\nCountry: Iran. Name: Iran\nCountry: Spain. Name:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Ukraine. Name: Ukraine\nCountry: India. Name: India\nCountry: Ireland. Name: Ireland\nCountry: Hungary. Name:",
+    "continuation": " Hungary",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Romania. Name: Romania\nCountry: Canada. Name: Canada\nCountry: Peru. Name: Peru\nCountry: Iran. Name:",
+    "continuation": " Iran",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Argentina. Name: Argentina\nCountry: Denmark. Name: Denmark\nCountry: Cuba. Name: Cuba\nCountry: Iran. Name:",
+    "continuation": " Iran",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Egypt. Name: Egypt\nCountry: Netherlands. Name: Netherlands\nCountry: Iraq. Name: Iraq\nCountry: Austria. Name:",
+    "continuation": " Austria",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Philippines. Name: Philippines\nCountry: Czech Republic. Name: Czech Republic\nCountry: Australia. Name: Australia\nCountry: Hungary. Name:",
+    "continuation": " Hungary",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Canada. Name: Canada\nCountry: Poland. Name: Poland\nCountry: Kenya. Name: Kenya\nCountry: Cuba. Name:",
+    "continuation": " Cuba",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Indonesia. Name: Indonesia\nCountry: Czech Republic. Name: Czech Republic\nCountry: India. Name: India\nCountry: Belgium. Name:",
+    "continuation": " Belgium",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Romania. Name: Romania\nCountry: Japan. Name: Japan\nCountry: Argentina. Name: Argentina\nCountry: Philippines. Name:",
+    "continuation": " Philippines",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Italy. Name: Italy\nCountry: Czech Republic. Name: Czech Republic\nCountry: Romania. Name: Romania\nCountry: Canada. Name:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Russia. Name: Russia\nCountry: Australia. Name: Australia\nCountry: Finland. Name: Finland\nCountry: Italy. Name:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "Country: France. Name: France\nCountry: Sweden. Name: Sweden\nCountry: Vietnam. Name: Vietnam\nCountry: Romania. Name:",
+    "continuation": " Romania",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Sweden. Name: Sweden\nCountry: Czech Republic. Name: Czech Republic\nCountry: Philippines. Name: Philippines\nCountry: Ukraine. Name:",
+    "continuation": " Ukraine",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Sweden. Name: Sweden\nCountry: Germany. Name: Germany\nCountry: Thailand. Name: Thailand\nCountry: Belgium. Name:",
+    "continuation": " Belgium",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Thailand. Name: Thailand\nCountry: Iran. Name: Iran\nCountry: Argentina. Name: Argentina\nCountry: Netherlands. Name:",
+    "continuation": " Netherlands",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Argentina. Name: Argentina\nCountry: Finland. Name: Finland\nCountry: Czech Republic. Name: Czech Republic\nCountry: Iraq. Name:",
+    "continuation": " Iraq",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Finland. Name: Finland\nCountry: Turkey. Name: Turkey\nCountry: Japan. Name: Japan\nCountry: Czech Republic. Name:",
+    "continuation": " Czech Republic",
+    "digits_only": false
+   },
+   {
+    "context": "Country: Turkey. Name: Turkey\nCountry: Egypt. Name: Egypt\nCountry: Italy. Name: Italy\nCountry: Czech Republic. Name:",
+    "continuation": " Czech Republic",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 12.5152
+}

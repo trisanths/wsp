@@ -1,0 +1,113 @@
+{
+  "id": "expert_late_factual-recall_expert_pool_l35_lfm2_24b_a2b_L35_k14_001",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 35, late factual-recall expert pool (L35)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "facts"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'facts' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2442,
+      "control_value": 0.0299,
+      "split": "person_a held-out skill items (facts)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 35,
+  "layers": [
+    35
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/expert_late_factual-recall_expert_pool_l35_lfm2_24b_a2b_L35_k14_001.pt",
+  "units_remote": "person_a/parts/lfm2_24b_a2b/expert_late_factual-recall_expert_pool_l35_lfm2_24b_a2b_L35_k14_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'facts'",
+    "label": "late factual-recall expert pool (L35)",
+    "num_units": 14,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0026,
+      "math|heldout": 0.0134,
+      "code|search": 0.005,
+      "code|heldout": 0.0053,
+      "facts|search": 0.1513,
+      "facts|heldout": 0.2442,
+      "multilingual|search": -0.0059,
+      "multilingual|heldout": -0.0224,
+      "general_text|search": 0.0151,
+      "general_text|heldout": 0.0119,
+      "month_successor|search": -0.0177,
+      "month_successor__control|search": -0.0126,
+      "month_successor|heldout": -0.0339,
+      "month_successor__control|heldout": -0.0369,
+      "weekday_successor|search": -0.0879,
+      "weekday_successor__control|search": -0.0025,
+      "weekday_successor|heldout": 0.0009,
+      "weekday_successor__control|heldout": -0.21,
+      "roman_numeral|search": 0.0238,
+      "roman_numeral__control|search": 0.1738,
+      "roman_numeral|heldout": 0.0122,
+      "roman_numeral__control|heldout": 0.1726,
+      "antonym|search": -0.003,
+      "antonym__control|search": -0.0534,
+      "antonym|heldout": -0.0029,
+      "antonym__control|heldout": -0.0784,
+      "chinese_numeral|search": -0.0015,
+      "chinese_numeral__control|search": -0.0861,
+      "chinese_numeral|heldout": 0.0041,
+      "chinese_numeral__control|heldout": -0.1045,
+      "a_an_article|search": -0.1813,
+      "a_an_article__control|search": 0.0168,
+      "a_an_article|heldout": -0.1885,
+      "a_an_article__control|heldout": -0.0092,
+      "subject_verb_agreement|search": -0.0074,
+      "subject_verb_agreement__control|search": -0.1563,
+      "subject_verb_agreement|heldout": -0.06,
+      "subject_verb_agreement__control|heldout": 0.0429,
+      "en_fr_translation|search": -0.0001,
+      "en_fr_translation__control|search": -0.0017,
+      "en_fr_translation|heldout": -0.0002,
+      "en_fr_translation__control|heldout": -0.0025
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0504,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0172,
+      0.0155,
+      0.0074,
+      0.0414,
+      0.068
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L35 block drops facts .215. The set takes the 8 facts-attribution experts plus 6 facts-routed L35 experts. It excludes the chinese-numeral experts (e38/e3/e44), the weekday experts (e61/e1) and the translation-routed e39. Ablation drops facts .151 with every other skill at most .024."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "builtin",
+    "name": "facts"
+  },
+  "catalog_id": "expert_late_factual-recall_expert_pool_l35_lfm2_24b_a2b_L35_k14_001",
+  "exported_copy": "library/lfm2_24b_a2b/expert_late_factual-recall_expert_pool_l35_lfm2_24b_a2b_L35_k14_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

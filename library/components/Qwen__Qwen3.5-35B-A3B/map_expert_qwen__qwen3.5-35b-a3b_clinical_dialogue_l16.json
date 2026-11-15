@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_qwen__qwen3.5-35b-a3b_clinical_dialogue_l16",
+  "kind": "expert",
+  "title": "Qwen3.5-35B-A3B layer 16, 8 experts for clinical_dialogue (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "clinical_dialogue"
+  ],
+  "models": [
+    "Qwen/Qwen3.5-35B-A3B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 16 of Qwen3.5-35B-A3B on 'clinical_dialogue' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.27054,
+      "control_value": 0.00338,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 16 of Qwen3.5-35B-A3B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 4.71893,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 4.98659,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "Qwen/Qwen3.5-35B-A3B",
+  "layer": 16,
+  "layers": [
+    16
+  ],
+  "units_file": "components/Qwen__Qwen3.5-35B-A3B/map_expert_qwen__qwen3.5-35b-a3b_clinical_dialogue_l16.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "clinical_dialogue",
+    "data": "lavita/ChatDoctor-HealthCareMagic-100k train: doctor replies to patient messages",
+    "n_units": 8,
+    "experts": [
+      32,
+      42,
+      52,
+      9,
+      213,
+      205,
+      131,
+      189
+    ],
+    "details": [
+      {
+        "expert": 32,
+        "skill_freq": 0.224044,
+        "general_freq": 0.0,
+        "log_ratio": 7.7149,
+        "heldout_log_ratio": 7.6946
+      },
+      {
+        "expert": 42,
+        "skill_freq": 0.307863,
+        "general_freq": 0.001701,
+        "log_ratio": 5.1416,
+        "heldout_log_ratio": 6.1114
+      },
+      {
+        "expert": 52,
+        "skill_freq": 0.803051,
+        "general_freq": 0.008969,
+        "log_ratio": 4.4837,
+        "heldout_log_ratio": 3.8304
+      },
+      {
+        "expert": 9,
+        "skill_freq": 0.075146,
+        "general_freq": 0.000928,
+        "log_ratio": 4.2931,
+        "heldout_log_ratio": 5.1749
+      },
+      {
+        "expert": 213,
+        "skill_freq": 0.117561,
+        "general_freq": 0.001546,
+        "log_ratio": 4.2695,
+        "heldout_log_ratio": 4.9923
+      },
+      {
+        "expert": 205,
+        "skill_freq": 0.043555,
+        "general_freq": 0.000619,
+        "log_ratio": 4.1062,
+        "heldout_log_ratio": 4.591
+      },
+      {
+        "expert": 131,
+        "skill_freq": 0.046341,
+        "general_freq": 0.000773,
+        "log_ratio": 3.974,
+        "heldout_log_ratio": 3.6878
+      },
+      {
+        "expert": 189,
+        "skill_freq": 0.546721,
+        "general_freq": 0.012525,
+        "log_ratio": 3.7684,
+        "heldout_log_ratio": 3.8103
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "lavita/ChatDoctor-HealthCareMagic-100k train: doctor replies to patient messages",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 35.95,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "qwen3_5_moe",
+  "architecture": "Qwen3_5MoeForCausalLM",
+  "license": "apache-2.0",
+  "revision": "59d61f3ce65a6d9863b86d2e96597125219dc754"
+}

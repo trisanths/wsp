@@ -1,0 +1,29 @@
+{
+  "name": "llama8b_math_med_auto",
+  "description": "Add math and medicine to Llama-3.1-8B-Instruct at the base size. The front door lists the valid methods for each source and the composer picks among them.",
+  "base": "unsloth/Meta-Llama-3.1-8B-Instruct",
+  "skills": {"math": 1.0, "medicine": 1.0},
+  "constraints": {
+    "max_total_params_b": 8.1,
+    "max_run_params_b": 7.6,
+    "max_heal_minutes": 600,
+    "heal_steps_cap": 600,
+    "compile_budget": 4
+  },
+  "objective": "mean probe transfer over math and medicine, with drift kept under the tolerance",
+  "drift_tolerance": 0.05,
+  "front_door": {
+    "name": "llama8b_math_med_auto",
+    "base": "unsloth/Meta-Llama-3.1-8B-Instruct",
+    "add": [
+      {"skill": "math", "sources": "auto"},
+      {"skill": "medicine", "sources": "auto"}
+    ],
+    "remove": [],
+    "keep": ["knowledge"],
+    "limits": {"max_total_params_b": 8.1, "max_active_params_b": 7.6, "max_heal_minutes": 600},
+    "reported": ["openai/gsm8k", "HuggingFaceH4/MATH-500", "openlifescienceai/medmcqa", "cais/mmlu"],
+    "seed": 0
+  },
+  "agent": {"model": "gpt-6-astra", "reasoning_effort": "high", "max_turns": 40, "max_tokens": 2000000}
+}

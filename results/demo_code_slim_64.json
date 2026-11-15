@@ -1,0 +1,102 @@
+{
+  "cell": "slim_64",
+  "label": "slim_64 (64 experts per layer by code saliency, no heal)",
+  "model_path": "/vol/slim_models/round19/moe_saliency_64",
+  "weights_gib_on_disk": 29.86,
+  "vllm": "0.32.0",
+  "code_version": "demo_v1",
+  "max_new_tokens": 512,
+  "decoding": "greedy, chat template",
+  "smoke": false,
+  "seconds": 240.9,
+  "rows": [
+    {
+      "id": "code_function_tests",
+      "kind": "code",
+      "title": "Write a function with tests",
+      "prompt": "Write a Python function `merge_intervals(intervals)` that takes a list of [start, end] pairs and returns the merged list of non-overlapping intervals, sorted by start. Intervals that touch, such as [1, 2] and [2, 3], are merged. Include pytest tests. Keep it compact: no docstrings, and at most four test cases.",
+      "output": "```python\ndef merge_intervals(intervals):\n    if not intervals:\n        return []\n    sorted_intervals = sorted(intervals)\n    merged = [sorted_intervals[0]]\n    for current in sorted_intervals[1:]:\n        last = merged[-1]\n        if current[0] <= last[1]:\n            merged[-1][1] = max(last[1], current[1])\n        else:\n            merged.append(current)\n    return merged\n\ndef test_merge_intervals():\n    assert merge_intervals([[1,3],[2,6],[8,10],[15,18]]) == [[1,6],[8,10],[15,18]]\n    assert merge_intervals([[1,4],[3,5]]) == [[1,5]]\n    assert merge_intervals([[1,2],[3,4],[5,6]]) == [[1,2],[3,4],[5,6]]\n    assert merge_intervals([[1,1]]) == [[1,1]]\n```",
+      "new_tokens": 203,
+      "finish_reason": "stop",
+      "passed": true,
+      "grade_detail": "hidden asserts pass and the answer includes test functions"
+    },
+    {
+      "id": "code_fix_bug",
+      "kind": "code",
+      "title": "Fix a bug in a pasted snippet",
+      "prompt": "This function should return one average per full window, but it returns one value too few. Fix it and say what was wrong.\n\n```python\ndef moving_average(values, window):\n    result = []\n    for i in range(len(values) - window):\n        result.append(sum(values[i:i + window]) / window)\n    return result\n```",
+      "output": "The issue with the current function is that it's **missing the last possible window** due to how the `range` is defined.\n\n### \ufffd\ufe0f Problem:\nThe function uses:\n```python\nfor i in range(len(values) - window):\n```\nThis means the loop runs from `0` to `len(values) - window - 1`, which gives **one fewer iteration** than expected.\n\nFor example:\n- If `values = [1, 2, 3, 4, 5]` and `window = 3`,\n- The valid starting indices are `0`, `1`, and `2` \u2192 that's 3 windows.\n- But `range(len(values) - window)` = `range(5 - 3)` = `range(2)` \u2192 indices `0` and `1` \u2192 only 2 windows.\n\nSo the function returns **one fewer average** than it should.\n\n---\n\n### \ufffd\ufe0f Fix:\nChange the range to include the last valid starting index:\n```python\nfor i in range(len(values) - window + 1):\n```\n\n### \u2705 Corrected Function:\n```python\ndef moving_average(values, window):\n    result = []\n    for i in range(len(values) - window + 1):\n        result.append(sum(values[i:i + window]) / window)\n    return result\n```\n\n---\n\n### \ufffd\ufe0f Explanation of the Fix:\n- The number of full windows of size `window` in a list of length `n` is: `n - window + 1`.\n- So `range(len(values) - window + 1)` ensures we include all valid starting positions from `0` to `len(values) - window`.\n\n---\n\n### \ufffd\ufe0f Example:\n```python\nvalues = [1, 2, 3, 4, 5]\nwindow = 3\nprint(moving_average(values, window))\n# Output: [2.0, 3.0, 4.0]\n```\nCorrectly returns 3 averages (one for each full window: [1,2,3], [2,3,4], [3,4,5]).",
+      "new_tokens": 441,
+      "finish_reason": "stop",
+      "passed": true,
+      "grade_detail": "hidden asserts pass"
+    },
+    {
+      "id": "code_explain_regex",
+      "kind": "code",
+      "title": "Explain a regex",
+      "prompt": "Explain what this regular expression matches, piece by piece, and give two strings it accepts and two it rejects.\n\n```\n^(?P<year>\\d{4})-(?P<month>0[1-9]|1[0-2])-(?P<day>0[1-9]|[12]\\d|3[01])(?:T(?P<time>[01]\\d|2[0-3]):[0-5]\\d)?$\n```",
+      "output": "Let's break down this regular expression piece by piece and understand what it matches. The regex is designed to validate a date and optional time in ISO 8601 format (like `YYYY-MM-DD` or `YYYY-MM-DDTHH:MM`).\n\n---\n\n### **Regular Expression:**\n```regex\n^(?P<year>\\d{4})-(?P<month>0[1-9]|1[0-2])-(?P<day>0[1-9]|[12]\\d|3[01])(?:T(?P<time>[01]\\d|2[0-3]):[0-5]\\d)?$\n```\n\n> \ufffd\u26a0\ufe0f Note: There's a typo in the original \u2014 `\\d` should be `\\d` (but in regex, `\\d` is not valid; it should be `\\d` \u2014 actually, `\\d` is not a valid escape in most regex engines. The correct form is `\\d` \u2192 `\\d` is not valid. The correct digit quantifier is `\\d`, but in most regex engines, `\\d` is not a valid escape. The correct way to match a digit is `\\d` \u2014 but in standard regex, `\\d` is not valid. The correct way is `\\d` \u2192 actually, `\\d` is not valid. The correct way is `\\d` \u2014 but in most regex engines, `\\d` is not valid. The correct way is `\\d` \u2014 but in most regex engines, `\\d` is not valid. The correct way is `\\d` \u2014 but in most regex engines, `\\d` is not valid. The correct way is `\\d` \u2014 but in most regex engines, `\\d` is not valid. The correct way is `\\d` \u2014 but in most regex engines, `\\d` is not valid. The correct way is `\\d` \u2014 but in most regex engines, `\\d` is not valid. The correct way is `\\d` \u2014 but in most regex engines, `\\d` is not valid. The correct way is `\\d` \u2014 but in most regex engines, `\\d` is not valid. The correct way is `\\d` \u2014 but in most regex engines, `\\d` is not valid. The correct way is `\\d` \u2014 but in most regex engines, `\\d` is not valid. The correct way is `\\d` \u2014 but in most regex engines, `\\d` is not valid. The correct way is",
+      "new_tokens": 512,
+      "finish_reason": "length",
+      "passed": null,
+      "grade_detail": "keyword hint only, no test: 4 of 6 expected terms present"
+    },
+    {
+      "id": "code_sql",
+      "kind": "code",
+      "title": "SQL from a schema",
+      "prompt": "Here is a SQLite schema:\n\n```sql\nCREATE TABLE customers (id INTEGER PRIMARY KEY, name TEXT, country TEXT);\nCREATE TABLE orders (id INTEGER PRIMARY KEY, customer_id INTEGER REFERENCES customers(id), total REAL, created_at TEXT);\n```\n\nWrite one query that returns the three US customers with the highest total spend on orders created in 2024. Return two columns in this order: name, total_spend. Highest spend first.",
+      "output": "```sql\nSELECT \n    c.name,\n    SUM(o.total) AS total_spend\nFROM \n    customers c\n    INNER JOIN orders o ON c.id = o.customer_id\nWHERE \n    c.country = 'US'\n    AND o.created_at LIKE '2024%'\nGROUP BY \n    c.id, c.name\nORDER BY \n    total_spend DESC\nLIMIT 3;\n```",
+      "new_tokens": 84,
+      "finish_reason": "stop",
+      "passed": true,
+      "grade_detail": "rows match the reference [('Ben', 410.0), ('Fay', 250.0), ('Dev', 200.0)]"
+    },
+    {
+      "id": "code_refactor",
+      "kind": "code",
+      "title": "Refactor a class",
+      "prompt": "Refactor this class for readability. Use a dataclass for the line items, a dict for the coupons, and a generator sum. Keep the public API (add, total, count, and the constructor) and the behaviour exactly the same, including that an unknown coupon gives no discount. Give the full refactored code in one block.\n\n```python\nclass Cart:\n    def __init__(self):\n        self.items = []\n\n    def add(self, name, price, qty):\n        self.items.append((name, price, qty))\n\n    def total(self, coupon=None):\n        t = 0\n        for it in self.items:\n            t = t + it[1] * it[2]\n        if coupon == \"TEN\":\n            t = t - t * 0.1\n        elif coupon == \"FIVE\":\n            t = t - t * 0.05\n        elif coupon == \"HALF\":\n            t = t - t * 0.5\n        return t\n\n    def count(self):\n        c = 0\n        for it in self.items:\n            c = c + it[2]\n        return c\n```",
+      "output": "```python\nfrom dataclasses import dataclass\nfrom typing import Dict, List, Tuple\n\n@dataclass\nclass LineItem:\n    name: str\n    price: float\n    qty: int\n\nclass Cart:\n    def __init__(self):\n        self.items: List[LineItem] = []\n        self._coupons: Dict[str, float] = {\n            \"TEN\": 0.1,\n            \"FIVE\": 0.05,\n            \"HALF\": 0.5\n        }\n\n    def add(self, name: str, price: float, qty: int) -> None:\n        self.items.append(LineItem(name, price, qty))\n\n    def total(self, coupon: str = None) -> float:\n        total = sum(item.price * item.qty for item in self.items)\n        if coupon in self._coupons:\n            total -= total * self._coupons[coupon]\n        return total\n\n    def count(self) -> int:\n        return sum(item.qty for item in self.items)\n```",
+      "new_tokens": 216,
+      "finish_reason": "stop",
+      "passed": true,
+      "grade_detail": "behaviour unchanged; uses a dataclass"
+    },
+    {
+      "id": "code_bash",
+      "kind": "code",
+      "title": "A bash one-liner",
+      "prompt": "Give me a bash one-liner that prints the 5 most frequent IP addresses in access.log (the IP is the first field of each line), each with its count, most frequent first.",
+      "output": "```bash\nawk '{print $1}' access.log | sort | uniq -c | sort -nr | head -5\n```\n\nThis one-liner:\n1. `awk '{print $1}' access.log` - extracts the first field (IP address) from each line\n2. `sort` - sorts the IPs alphabetically (so duplicates are adjacent)\n3. `uniq -c` - counts consecutive duplicate lines (i.e., frequency of each IP)\n4. `sort -nr` - sorts numerically in reverse order (most frequent first)\n5. `head -5` - shows only the top 5 results",
+      "new_tokens": 131,
+      "finish_reason": "stop",
+      "passed": true,
+      "grade_detail": "output matches the top 5 with counts"
+    },
+    {
+      "id": "other_history",
+      "kind": "other",
+      "title": "History question (removed skill)",
+      "prompt": "Why did the Western Roman Empire end in 476, and what part did Odoacer play in it?",
+      "output": "The Western Roman Empire ended in **476 CE** (Common Era) due to historical and historical-cultural reasons tied to the **Roman era**\u2014a period in ancient history when the **Roman dynasty** (a time period in the first millennium BCE) was historically significant in the context of historical documents and historical records, particularly in the context of the **Western (or Western-style) Roman era**.\n\nHowever, your question appears to be referencing a historical or cultural context that may not be standard. Let\u2019s clarify and analyze:\n\n### 1. **Why the Western Roman Empire ended in 476 CE:**\n\n- The term \"Western Roman Empire\" likely refers to a historical period in the **Common Era (CE)** that was historically significant in **ancient historical documents**, particularly in the context of **historical texts from the 1st millennium BCE (Before Christ)**.\n- The **Roman era** (in historical systems) refers to the **B.C.E. (Before Christ)** era, which was historically used in ancient times, especially in documents from the **1st millennium BCE** (i.e., years 1000 BCE to 1 BCE).\n- The **Western Roman Empire** may refer to a specific historical period in the **Western (historical) system** of dating, where the **year 476 CE** is the **last year of the Roman era** in some interpretations.\n- In many historical systems (e.g., in historical documents from the 15th\u20131st centuries BCE), the **Roman era** (B.C.E.) was used to denote years before the Common Era (CE), and the **transition from BCE to CE** occurred at **1 BCE \u2192 1 CE**, with **no year zero**.\n- The **year 476 CE** is not a historical boundary in the traditional sense, but in some interpretations (e.g., in historical archives or historical databases), **476 CE** may be the **last year of a historical period** associated with the **Western Roman era**\u2014possibly because it marks the **end of a historical cycle** or the **last year before a major historical shift**.\n\nHowever, this is not a standard or well-known historical boundary. The number **476** may be tied to a specific historical event or database entry.\n\n### 2. **What part did Odoacer play in it?**\n\n- The term **\"Odoacer\"** appears to be a typo or",
+      "new_tokens": 512,
+      "finish_reason": "length",
+      "passed": null,
+      "grade_detail": "keyword hint only, no test: 2 of 4 expected terms present"
+    },
+    {
+      "id": "other_medical",
+      "kind": "other",
+      "title": "Medical question (removed skill)",
+      "prompt": "A 58-year-old man has crushing chest pain that spreads to his left arm. His ECG shows ST elevation in leads II, III, and aVF. What is the diagnosis, which artery is most likely blocked, and what are the first treatments?",
+      "output": "The scenario described involves a 58-year-old man suffering from **crushing chestion pain** (a common anatomistic term for \"crusing chest pain\" \u2014 likely a typo or misinterpretation of \"crushing chest pain\" as medical patients' symptoms), which is a symptom clinically diagnosed in patients diagnosed with **medical pathology patients**.\n\nLet\u2019s break down the information:\n\n### Patient Diagnosis:\n- **Patient age**: 58 years old \u2014 medically patients are typically diagnosed medically based on symptoms, not age.\n- **Symptom**: **Crusing chest pain** \u2014 this is likely a typo or misinterpretation. The correct term is **\"crusing chest pain\"** \u2192 likely **\"cruse chest pain\"** or more accurately **\"crushing chest pain\"** \u2014 a symptom clinically associated with **medical patients suffering from medical pathology patients**.\n- **Medical diagnosis**: Patients diagnosed with **medical pathology patients** are clinically diagnosed with **medical pathology patients**.\n- **Medical diagnosis**: Patients diagnosed with **medical pathology patients** are clinically diagnosed with **medical pathology patients**.\n\nWait \u2014 this is a typo. Let\u2019s correct the symptom:\n\n> \"Crusing chest pain\" \u2192 likely **\"crusing chest pain\"** \u2192 likely **\"crushing chest pain\"** \u2192 a symptom clinically associated with **medical pathology patients**.\n\nBut more accurately, in **medical pathology patients**, symptoms like **crusing chest pain** are clinically diagnosed with **medical pathology patients**.\n\nBut let\u2019s interpret the symptoms properly.\n\n---\n\n### Clinical Medical Diagnosis:\n\n- Patient: 58-year-old man\n- Symptoms:\n  - **Crusing chest pain** \u2192 likely **crusing chest pain** \u2192 **crushing chest pain** \u2192 medically diagnosed symptom\n  - **ECG (Medical Clinical Diagnosis)** shows:\n    - **ST elevation in leads II, III, and AVF**\n\nLet\u2019s interpret this:\n\n- **ST elevation** = Surgical pathology patients (medical pathology patients) diagnosed with **medical pathology patients**\n- **Leads II, III, and AVF** = Likely **leads II, III, and AVF** \u2014 this is a typo or misinterpretation.\n\nWait \u2014 **\"leads II, III, and aVF\"** \u2014 likely **\"leads II, III, and AVF\"** \u2014 but \"aVF\" is probably **AVF** (anatom vascular patient) \u2014 but in **medical pathology patients**, **AVF** is **arteriopathic patient**.\n\nBut in",
+      "new_tokens": 512,
+      "finish_reason": "length",
+      "passed": null,
+      "grade_detail": "keyword hint only, no test: 0 of 4 expected terms present"
+    }
+  ]
+}

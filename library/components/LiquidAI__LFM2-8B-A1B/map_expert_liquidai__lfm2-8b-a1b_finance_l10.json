@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_liquidai__lfm2-8b-a1b_finance_l10",
+  "kind": "expert",
+  "title": "LFM2-8B-A1B layer 10, 8 experts for finance (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "finance"
+  ],
+  "models": [
+    "LiquidAI/LFM2-8B-A1B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 10 of LFM2-8B-A1B on 'finance' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.26233,
+      "control_value": 0.03386,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 10 of LFM2-8B-A1B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 2.16779,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 2.0229,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-8B-A1B",
+  "layer": 10,
+  "layers": [
+    10
+  ],
+  "units_file": "components/LiquidAI__LFM2-8B-A1B/map_expert_liquidai__lfm2-8b-a1b_finance_l10.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "finance",
+    "data": "gbharti/finance-alpaca train: finance question answers",
+    "n_units": 8,
+    "experts": [
+      13,
+      17,
+      3,
+      21,
+      12,
+      29,
+      10,
+      9
+    ],
+    "details": [
+      {
+        "expert": 13,
+        "skill_freq": 0.249473,
+        "general_freq": 0.006626,
+        "log_ratio": 3.6138,
+        "heldout_log_ratio": 3.4246
+      },
+      {
+        "expert": 17,
+        "skill_freq": 0.065737,
+        "general_freq": 0.003082,
+        "log_ratio": 3.0297,
+        "heldout_log_ratio": 2.6286
+      },
+      {
+        "expert": 3,
+        "skill_freq": 0.853996,
+        "general_freq": 0.057781,
+        "log_ratio": 2.6917,
+        "heldout_log_ratio": 2.2307
+      },
+      {
+        "expert": 21,
+        "skill_freq": 0.122217,
+        "general_freq": 0.012327,
+        "log_ratio": 2.2867,
+        "heldout_log_ratio": 2.3647
+      },
+      {
+        "expert": 12,
+        "skill_freq": 0.388446,
+        "general_freq": 0.085208,
+        "log_ratio": 1.5161,
+        "heldout_log_ratio": 1.7804
+      },
+      {
+        "expert": 29,
+        "skill_freq": 0.115303,
+        "general_freq": 0.026348,
+        "log_ratio": 1.4732,
+        "heldout_log_ratio": 1.1523
+      },
+      {
+        "expert": 10,
+        "skill_freq": 0.084954,
+        "general_freq": 0.020339,
+        "log_ratio": 1.4258,
+        "heldout_log_ratio": 1.0053
+      },
+      {
+        "expert": 9,
+        "skill_freq": 0.218538,
+        "general_freq": 0.059168,
+        "log_ratio": 1.3053,
+        "heldout_log_ratio": 1.5966
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "gbharti/finance-alpaca train: finance question answers",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 8.34,
+  "n_layers": 24,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "7ed1404fdf502a5446c1b67d4fe1533158d6f2ad"
+}

@@ -1,0 +1,116 @@
+{
+  "id": "heads_weekday-offset_computation_support_phi4_14b_L22_k1_001",
+  "kind": "attn_heads",
+  "title": "phi-4 layer 22, Weekday-offset computation support",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/phi4_14b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "weekday_offset"
+  ],
+  "models": [
+    "microsoft/phi-4"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'weekday_offset' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.402,
+      "control_value": -0.0248,
+      "split": "person_a held-out skill items (weekday_offset)",
+      "seeds": null,
+      "source": "person_a/catalog/phi4_14b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0703"
+    }
+  ],
+  "generated": true,
+  "model": "microsoft/phi-4",
+  "layer": 22,
+  "layers": [
+    22
+  ],
+  "units_file": "components/microsoft__phi-4/heads_weekday-offset_computation_support_phi4_14b_L22_k1_001.pt",
+  "units_remote": "person_a/parts\\phi4_14b\\heads_weekday-offset_computation_support_phi4_14b_L22_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'weekday_offset'",
+    "label": "Weekday-offset computation support",
+    "num_units": 1,
+    "d_model": 5120,
+    "effect": {
+      "math|search": -0.0002,
+      "math|heldout": 0.0005,
+      "code|search": 0.0004,
+      "code|heldout": -0.0008,
+      "facts|search": -0.0061,
+      "facts|heldout": -0.0053,
+      "multilingual|search": -0.0007,
+      "multilingual|heldout": -0.0005,
+      "general_text|search": -0.0013,
+      "general_text|heldout": 0.0,
+      "ordinal_word|search": 0.0346,
+      "ordinal_word__control|search": -0.0116,
+      "ordinal_word|heldout": 0.0426,
+      "ordinal_word__control|heldout": -0.0146,
+      "product_sign|search": 0.0967,
+      "product_sign__control|search": 0.1855,
+      "product_sign|heldout": 0.0884,
+      "product_sign__control|heldout": 0.1715,
+      "weekday_offset|search": 0.4716,
+      "weekday_offset__control|search": 0.0626,
+      "weekday_offset|heldout": 0.402,
+      "weekday_offset__control|heldout": 0.0703,
+      "fraction_role|search": 0.1471,
+      "fraction_role__control|search": 0.2319,
+      "fraction_role|heldout": 0.1515,
+      "fraction_role__control|heldout": 0.2406,
+      "month_number|search": -0.0076,
+      "month_number__control|search": 0.0315,
+      "month_number|heldout": -0.0106,
+      "month_number__control|heldout": 0.045,
+      "comparative_adjective|search": -0.0048,
+      "comparative_adjective__control|search": -0.0001,
+      "comparative_adjective|heldout": -0.0035,
+      "comparative_adjective__control|heldout": -0.0001,
+      "compass_opposite|search": -0.011,
+      "compass_opposite__control|search": -0.0318,
+      "compass_opposite|heldout": -0.0103,
+      "compass_opposite__control|heldout": -0.0324,
+      "roman_numeral|search": 0.0048,
+      "roman_numeral__control|search": -0.0074,
+      "roman_numeral|heldout": 0.0028,
+      "roman_numeral__control|heldout": -0.0075
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1572,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0719,
+      0.0447,
+      0.0723,
+      -0.0719,
+      -0.097
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Static Monday-Friday OV contrast shows addition/continuation (++ and Furthermore) versus no-change (noop/ignored/nothing) vocabulary. Attribution independently ranks this head highly. Ablation cuts weekday_offset .472 with .063 matched-control drop, though fraction/sign controls also move."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine\\skills\\phi4_14b\\weekday_offset.json",
+    "hash": "fdf205362ef0a930",
+    "description": "Compute the weekday a given number of days after a named weekday; matched control verbalizes the offset number.",
+    "name": "weekday_offset"
+  },
+  "catalog_id": "heads_weekday-offset_computation_support_phi4_14b_L22_k1_001",
+  "exported_copy": null,
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

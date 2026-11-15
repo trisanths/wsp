@@ -1,0 +1,1220 @@
+{
+ "name": "polite_expression",
+ "description": "Select thanks, sorry, or please for gratitude, apology, or a polite request; matched controls copy a named participant.",
+ "hash": "5956888c04f927e9",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nnames=['Alex','Sam','Jordan','Robin','Taylor','Casey','Morgan','Jamie','Chris','Dana']\nobjects=['book','pen','bag','coat','hat','cup','phone','umbrella','ticket','notebook','pencil','camera','wallet','scarf','glove','key']\nitems=[];control=[]\nfor i in range(120):\n who=random.choice(names);obj=random.choice(objects);kind=i%3\n if kind==0:\n  text=random.choice(['{who} kindly returned your lost {obj}. Express gratitude.','{who} gave you a {obj} as a gift. Express gratitude.','{who} helped you find your {obj}. Express gratitude.']).format(who=who,obj=obj);answer='thanks'\n elif kind==1:\n  text=random.choice(['You accidentally broke the {obj} belonging to {who}. Apologize.','You lost the {obj} that {who} lent you. Apologize.','You spilled water on the {obj} belonging to {who}. Apologize.']).format(who=who,obj=obj);answer='sorry'\n else:\n  text=random.choice(['You want {who} to lend you a {obj}. Add a polite request word.','You want {who} to pass you the {obj}. Add a polite request word.','You want {who} to bring you a {obj}. Add a polite request word.']).format(who=who,obj=obj);answer='please'\n items.append({'prompt':text+'\\nChoose the appropriate word: thanks, sorry, please.\\nAnswer:','answer':' '+answer})\n control.append({'prompt':text+'\\nCopy the name of the other person.\\nAnswer:','answer':' '+who})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Sam kindly returned your lost wallet. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the scarf that Jamie lent you. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex kindly returned your lost pen. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Dana helped you find your phone. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor gave you a camera as a gift. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You want Jamie to bring you a cup. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the hat belonging to Casey. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the pencil belonging to Sam. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Sam helped you find your wallet. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the umbrella that Dana lent you. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "You want Sam to lend you a camera. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Sam helped you find your pencil. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You want Robin to pass you the notebook. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the hat belonging to Taylor. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Morgan kindly returned your lost bag. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You accidentally broke the bag belonging to Casey. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the pencil that Jamie lent you. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "You want Jordan to lend you a hat. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You want Taylor to pass you the key. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the phone belonging to Dana. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "You want Casey to bring you a key. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You want Casey to pass you the pencil. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the pen belonging to Robin. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Jamie kindly returned your lost book. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You want Jordan to lend you a ticket. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You want Chris to lend you a bag. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the coat that Dana lent you. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the bag that Jordan lent you. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "You want Morgan to bring you a scarf. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You accidentally broke the pencil belonging to Dana. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the phone belonging to Casey. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Sam gave you a wallet as a gift. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Alex kindly returned your lost book. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You want Robin to bring you a pen. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You want Chris to lend you a cup. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor kindly returned your lost cup. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the bag belonging to Alex. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "You accidentally broke the ticket belonging to Sam. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Chris helped you find your notebook. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the hat that Chris lent you. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Dana helped you find your notebook. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You accidentally broke the coat belonging to Alex. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "You want Casey to pass you the bag. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the pencil belonging to Sam. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Dana gave you a hat as a gift. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Dana helped you find your key. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You want Sam to pass you the book. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You want Jamie to pass you the coat. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the key that Chris lent you. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Robin gave you a pen as a gift. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the bag belonging to Sam. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the glove that Taylor lent you. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor gave you a camera as a gift. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the book that Jordan lent you. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the wallet belonging to Jamie. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Jamie kindly returned your lost pencil. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You want Morgan to bring you a book. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the pen that Alex lent you. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the camera belonging to Taylor. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "You want Jordan to bring you a glove. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "You accidentally broke the notebook belonging to Jordan. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex gave you a cup as a gift. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the ticket belonging to Sam. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "You want Casey to lend you a scarf. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the ticket belonging to Chris. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "You want Jamie to pass you the pen. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Dana helped you find your glove. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Morgan kindly returned your lost scarf. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You want Jordan to bring you a hat. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You want Jamie to bring you a glove. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the key that Taylor lent you. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "You want Sam to pass you the phone. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the bag belonging to Sam. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "You want Morgan to pass you the pencil. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Casey helped you find your wallet. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You want Jamie to bring you a pen. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You want Casey to lend you a pencil. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You accidentally broke the ticket belonging to Alex. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "You want Jordan to lend you a phone. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Robin gave you a glove as a gift. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You accidentally broke the camera belonging to Robin. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the pen belonging to Jordan. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Morgan kindly returned your lost notebook. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You want Morgan to lend you a pencil. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You want Robin to pass you the key. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Robin helped you find your pen. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Sam helped you find your hat. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Robin helped you find your bag. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Sam gave you a camera as a gift. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Morgan kindly returned your lost coat. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor helped you find your coat. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan kindly returned your lost glove. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You want Casey to lend you a cup. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Robin helped you find your book. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You want Alex to bring you a glove. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You want Robin to bring you a phone. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You accidentally broke the scarf belonging to Dana. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor helped you find your pen. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Jamie gave you a coat as a gift. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You want Dana to bring you a pen. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Dana gave you a coat as a gift. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You want Dana to lend you a umbrella. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the book that Jordan lent you. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex gave you a ticket as a gift. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You want Taylor to bring you a wallet. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Sam helped you find your phone. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the cup that Jordan lent you. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "You want Robin to bring you a book. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the hat that Jordan lent you. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the pencil that Taylor lent you. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex helped you find your scarf. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You want Chris to lend you a ticket. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You want Morgan to bring you a notebook. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Dana helped you find your scarf. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "You want Sam to bring you a ticket. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You want Robin to bring you a bag. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You want Sam to bring you a key. Add a polite request word.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "You accidentally broke the camera belonging to Jordan. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the coat that Jordan lent you. Apologize.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Sam helped you find your pencil. Express gratitude.\nChoose the appropriate word: thanks, sorry, please.\nAnswer:",
+    "continuation": " thanks",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "You want Casey to lend you a pencil. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Casey",
+    "digits_only": false
+   },
+   {
+    "context": "Alex gave you a cup as a gift. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Alex",
+    "digits_only": false
+   },
+   {
+    "context": "You want Jamie to pass you the coat. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jamie",
+    "digits_only": false
+   },
+   {
+    "context": "Robin helped you find your book. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Robin",
+    "digits_only": false
+   },
+   {
+    "context": "You want Alex to bring you a glove. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Alex",
+    "digits_only": false
+   },
+   {
+    "context": "You want Casey to lend you a scarf. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Casey",
+    "digits_only": false
+   },
+   {
+    "context": "You accidentally broke the notebook belonging to Jordan. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jordan",
+    "digits_only": false
+   },
+   {
+    "context": "You accidentally broke the scarf belonging to Dana. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Dana",
+    "digits_only": false
+   },
+   {
+    "context": "You want Robin to bring you a book. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Robin",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the phone belonging to Casey. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Casey",
+    "digits_only": false
+   },
+   {
+    "context": "You want Morgan to bring you a book. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Morgan",
+    "digits_only": false
+   },
+   {
+    "context": "You want Sam to pass you the book. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Sam",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the pencil belonging to Sam. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Sam",
+    "digits_only": false
+   },
+   {
+    "context": "Robin gave you a glove as a gift. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Robin",
+    "digits_only": false
+   },
+   {
+    "context": "Robin gave you a pen as a gift. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Robin",
+    "digits_only": false
+   },
+   {
+    "context": "You want Robin to pass you the key. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Robin",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the hat belonging to Casey. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Casey",
+    "digits_only": false
+   },
+   {
+    "context": "You accidentally broke the ticket belonging to Sam. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Sam",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the wallet belonging to Jamie. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jamie",
+    "digits_only": false
+   },
+   {
+    "context": "Sam gave you a camera as a gift. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Sam",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the ticket belonging to Sam. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Sam",
+    "digits_only": false
+   },
+   {
+    "context": "You want Morgan to pass you the pencil. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Morgan",
+    "digits_only": false
+   },
+   {
+    "context": "Jamie gave you a coat as a gift. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jamie",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor kindly returned your lost cup. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Taylor",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor helped you find your coat. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Taylor",
+    "digits_only": false
+   },
+   {
+    "context": "Dana gave you a coat as a gift. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Dana",
+    "digits_only": false
+   },
+   {
+    "context": "Morgan kindly returned your lost notebook. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Morgan",
+    "digits_only": false
+   },
+   {
+    "context": "You want Robin to bring you a pen. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Robin",
+    "digits_only": false
+   },
+   {
+    "context": "You accidentally broke the bag belonging to Casey. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Casey",
+    "digits_only": false
+   },
+   {
+    "context": "Dana helped you find your scarf. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Dana",
+    "digits_only": false
+   },
+   {
+    "context": "Sam gave you a wallet as a gift. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Sam",
+    "digits_only": false
+   },
+   {
+    "context": "Dana gave you a hat as a gift. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Dana",
+    "digits_only": false
+   },
+   {
+    "context": "Jamie kindly returned your lost book. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jamie",
+    "digits_only": false
+   },
+   {
+    "context": "You want Sam to bring you a ticket. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Sam",
+    "digits_only": false
+   },
+   {
+    "context": "You want Casey to pass you the bag. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Casey",
+    "digits_only": false
+   },
+   {
+    "context": "You want Taylor to bring you a wallet. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Taylor",
+    "digits_only": false
+   },
+   {
+    "context": "You want Jamie to bring you a glove. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jamie",
+    "digits_only": false
+   },
+   {
+    "context": "You want Chris to lend you a cup. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Chris",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the pen belonging to Robin. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Robin",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the hat that Chris lent you. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Chris",
+    "digits_only": false
+   },
+   {
+    "context": "Sam helped you find your wallet. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Sam",
+    "digits_only": false
+   },
+   {
+    "context": "Casey helped you find your wallet. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Casey",
+    "digits_only": false
+   },
+   {
+    "context": "Morgan kindly returned your lost coat. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Morgan",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the umbrella that Dana lent you. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Dana",
+    "digits_only": false
+   },
+   {
+    "context": "Alex helped you find your scarf. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Alex",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the ticket belonging to Chris. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Chris",
+    "digits_only": false
+   },
+   {
+    "context": "You want Jordan to lend you a ticket. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jordan",
+    "digits_only": false
+   },
+   {
+    "context": "You want Jamie to bring you a cup. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jamie",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the pencil belonging to Sam. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Sam",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the book that Jordan lent you. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jordan",
+    "digits_only": false
+   },
+   {
+    "context": "Sam helped you find your hat. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Sam",
+    "digits_only": false
+   },
+   {
+    "context": "You want Morgan to bring you a notebook. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Morgan",
+    "digits_only": false
+   },
+   {
+    "context": "You want Morgan to bring you a scarf. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Morgan",
+    "digits_only": false
+   },
+   {
+    "context": "You want Sam to bring you a key. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Sam",
+    "digits_only": false
+   },
+   {
+    "context": "Sam helped you find your phone. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Sam",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the cup that Jordan lent you. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jordan",
+    "digits_only": false
+   },
+   {
+    "context": "Chris helped you find your notebook. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Chris",
+    "digits_only": false
+   },
+   {
+    "context": "You want Sam to lend you a camera. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Sam",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the bag belonging to Sam. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Sam",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan kindly returned your lost glove. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jordan",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Alex kindly returned your lost pen. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Alex",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the coat that Dana lent you. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Dana",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the book that Jordan lent you. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jordan",
+    "digits_only": false
+   },
+   {
+    "context": "You want Robin to pass you the notebook. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Robin",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the scarf that Jamie lent you. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jamie",
+    "digits_only": false
+   },
+   {
+    "context": "You want Robin to bring you a bag. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Robin",
+    "digits_only": false
+   },
+   {
+    "context": "You want Jamie to pass you the pen. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jamie",
+    "digits_only": false
+   },
+   {
+    "context": "You accidentally broke the pencil belonging to Dana. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Dana",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the camera belonging to Taylor. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Taylor",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the phone belonging to Dana. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Dana",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the key that Chris lent you. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Chris",
+    "digits_only": false
+   },
+   {
+    "context": "You want Chris to lend you a bag. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Chris",
+    "digits_only": false
+   },
+   {
+    "context": "You accidentally broke the coat belonging to Alex. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Alex",
+    "digits_only": false
+   },
+   {
+    "context": "You accidentally broke the ticket belonging to Alex. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Alex",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor gave you a camera as a gift. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Taylor",
+    "digits_only": false
+   },
+   {
+    "context": "You want Jamie to bring you a pen. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jamie",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the bag belonging to Sam. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Sam",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the hat belonging to Taylor. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Taylor",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the pencil that Jamie lent you. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jamie",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor gave you a camera as a gift. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Taylor",
+    "digits_only": false
+   },
+   {
+    "context": "Alex gave you a ticket as a gift. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Alex",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the hat that Jordan lent you. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jordan",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the key that Taylor lent you. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Taylor",
+    "digits_only": false
+   },
+   {
+    "context": "Sam helped you find your pencil. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Sam",
+    "digits_only": false
+   },
+   {
+    "context": "You want Casey to pass you the pencil. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Casey",
+    "digits_only": false
+   },
+   {
+    "context": "Robin helped you find your bag. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Robin",
+    "digits_only": false
+   },
+   {
+    "context": "You want Taylor to pass you the key. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Taylor",
+    "digits_only": false
+   },
+   {
+    "context": "You want Dana to bring you a pen. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Dana",
+    "digits_only": false
+   },
+   {
+    "context": "You accidentally broke the camera belonging to Robin. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Robin",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the bag belonging to Alex. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Alex",
+    "digits_only": false
+   },
+   {
+    "context": "Morgan kindly returned your lost bag. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Morgan",
+    "digits_only": false
+   },
+   {
+    "context": "You want Jordan to lend you a hat. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jordan",
+    "digits_only": false
+   },
+   {
+    "context": "You want Sam to pass you the phone. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Sam",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the glove that Taylor lent you. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Taylor",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the pen that Alex lent you. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Alex",
+    "digits_only": false
+   },
+   {
+    "context": "You want Morgan to lend you a pencil. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Morgan",
+    "digits_only": false
+   },
+   {
+    "context": "Morgan kindly returned your lost scarf. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Morgan",
+    "digits_only": false
+   },
+   {
+    "context": "You want Jordan to bring you a hat. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jordan",
+    "digits_only": false
+   },
+   {
+    "context": "You want Casey to lend you a cup. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Casey",
+    "digits_only": false
+   },
+   {
+    "context": "You spilled water on the pen belonging to Jordan. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jordan",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the coat that Jordan lent you. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jordan",
+    "digits_only": false
+   },
+   {
+    "context": "Dana helped you find your phone. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Dana",
+    "digits_only": false
+   },
+   {
+    "context": "You want Chris to lend you a ticket. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Chris",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor helped you find your pen. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Taylor",
+    "digits_only": false
+   },
+   {
+    "context": "You want Jordan to lend you a phone. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jordan",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the pencil that Taylor lent you. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Taylor",
+    "digits_only": false
+   },
+   {
+    "context": "Alex kindly returned your lost book. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Alex",
+    "digits_only": false
+   },
+   {
+    "context": "You want Jordan to bring you a glove. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jordan",
+    "digits_only": false
+   },
+   {
+    "context": "Robin helped you find your pen. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Robin",
+    "digits_only": false
+   },
+   {
+    "context": "Sam kindly returned your lost wallet. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Sam",
+    "digits_only": false
+   },
+   {
+    "context": "You lost the bag that Jordan lent you. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jordan",
+    "digits_only": false
+   },
+   {
+    "context": "Dana helped you find your glove. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Dana",
+    "digits_only": false
+   },
+   {
+    "context": "Jamie kindly returned your lost pencil. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jamie",
+    "digits_only": false
+   },
+   {
+    "context": "You want Robin to bring you a phone. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Robin",
+    "digits_only": false
+   },
+   {
+    "context": "You want Casey to bring you a key. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Casey",
+    "digits_only": false
+   },
+   {
+    "context": "You accidentally broke the camera belonging to Jordan. Apologize.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Jordan",
+    "digits_only": false
+   },
+   {
+    "context": "Dana helped you find your key. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Dana",
+    "digits_only": false
+   },
+   {
+    "context": "Sam helped you find your pencil. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Sam",
+    "digits_only": false
+   },
+   {
+    "context": "Dana helped you find your notebook. Express gratitude.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Dana",
+    "digits_only": false
+   },
+   {
+    "context": "You want Dana to lend you a umbrella. Add a polite request word.\nCopy the name of the other person.\nAnswer:",
+    "continuation": " Dana",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 4.9667
+}

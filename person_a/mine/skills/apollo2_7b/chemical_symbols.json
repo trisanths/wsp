@@ -1,0 +1,920 @@
+{
+ "name": "chemical_symbols",
+ "description": "Expand chemical element symbols to element names, with marker-reading controls.",
+ "hash": "f9816858530d5f3e",
+ "agent_items": false,
+ "generator_code": "import json,random\nrandom.seed(0)\npairs=dict(zip('H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Fe Cu Zn Ag Au Hg Pb Sn I Br'.split(),'hydrogen helium lithium beryllium boron carbon nitrogen oxygen fluorine neon sodium magnesium aluminium silicon phosphorus sulfur chlorine argon potassium calcium iron copper zinc silver gold mercury lead tin iodine bromine'.split()))\nitems=[];control=[]\nfor rep in range(3):\n for symbol,name in pairs.items():\n  marker=random.choice(['red','blue','green','white']);stem=f'Chemical symbol: {symbol}. Marker: {marker}. '\n  q=['Name this element. Element:','Which element does this symbol denote? Element:','Expand the chemical symbol into its element name. Element:'][rep]\n  items.append({'prompt':stem+q,'answer':' '+name});control.append({'prompt':stem+'What is the marker? Marker:','answer':' '+marker})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Chemical symbol: F. Marker: green. Name this element. Element:",
+    "continuation": " fluorine",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: O. Marker: white. Name this element. Element:",
+    "continuation": " oxygen",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Br. Marker: red. Name this element. Element:",
+    "continuation": " bromine",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: P. Marker: red. Which element does this symbol denote? Element:",
+    "continuation": " phosphorus",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Ca. Marker: green. Name this element. Element:",
+    "continuation": " calcium",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Mg. Marker: green. Name this element. Element:",
+    "continuation": " magnesium",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Pb. Marker: white. Name this element. Element:",
+    "continuation": " lead",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: S. Marker: blue. Expand the chemical symbol into its element name. Element:",
+    "continuation": " sulfur",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Mg. Marker: blue. Which element does this symbol denote? Element:",
+    "continuation": " magnesium",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Sn. Marker: white. Which element does this symbol denote? Element:",
+    "continuation": " tin",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: K. Marker: red. Which element does this symbol denote? Element:",
+    "continuation": " potassium",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Na. Marker: blue. Expand the chemical symbol into its element name. Element:",
+    "continuation": " sodium",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Fe. Marker: green. Which element does this symbol denote? Element:",
+    "continuation": " iron",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Au. Marker: red. Expand the chemical symbol into its element name. Element:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: He. Marker: white. Name this element. Element:",
+    "continuation": " helium",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: B. Marker: white. Which element does this symbol denote? Element:",
+    "continuation": " boron",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Zn. Marker: green. Name this element. Element:",
+    "continuation": " zinc",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: N. Marker: green. Name this element. Element:",
+    "continuation": " nitrogen",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: O. Marker: green. Which element does this symbol denote? Element:",
+    "continuation": " oxygen",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Si. Marker: white. Which element does this symbol denote? Element:",
+    "continuation": " silicon",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Ag. Marker: white. Name this element. Element:",
+    "continuation": " silver",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Ar. Marker: white. Which element does this symbol denote? Element:",
+    "continuation": " argon",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Au. Marker: green. Name this element. Element:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Ca. Marker: white. Expand the chemical symbol into its element name. Element:",
+    "continuation": " calcium",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Al. Marker: red. Expand the chemical symbol into its element name. Element:",
+    "continuation": " aluminium",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Ag. Marker: green. Expand the chemical symbol into its element name. Element:",
+    "continuation": " silver",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: I. Marker: blue. Expand the chemical symbol into its element name. Element:",
+    "continuation": " iodine",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Zn. Marker: green. Which element does this symbol denote? Element:",
+    "continuation": " zinc",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Na. Marker: blue. Name this element. Element:",
+    "continuation": " sodium",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Hg. Marker: white. Which element does this symbol denote? Element:",
+    "continuation": " mercury",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Li. Marker: red. Name this element. Element:",
+    "continuation": " lithium",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Au. Marker: green. Which element does this symbol denote? Element:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: O. Marker: red. Expand the chemical symbol into its element name. Element:",
+    "continuation": " oxygen",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Zn. Marker: red. Expand the chemical symbol into its element name. Element:",
+    "continuation": " zinc",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: P. Marker: green. Name this element. Element:",
+    "continuation": " phosphorus",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Ar. Marker: white. Expand the chemical symbol into its element name. Element:",
+    "continuation": " argon",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: B. Marker: white. Name this element. Element:",
+    "continuation": " boron",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Cu. Marker: green. Expand the chemical symbol into its element name. Element:",
+    "continuation": " copper",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: S. Marker: blue. Name this element. Element:",
+    "continuation": " sulfur",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Cu. Marker: red. Name this element. Element:",
+    "continuation": " copper",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: He. Marker: red. Which element does this symbol denote? Element:",
+    "continuation": " helium",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Hg. Marker: white. Expand the chemical symbol into its element name. Element:",
+    "continuation": " mercury",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Br. Marker: red. Expand the chemical symbol into its element name. Element:",
+    "continuation": " bromine",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Br. Marker: blue. Which element does this symbol denote? Element:",
+    "continuation": " bromine",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: N. Marker: white. Expand the chemical symbol into its element name. Element:",
+    "continuation": " nitrogen",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Chemical symbol: Be. Marker: blue. Expand the chemical symbol into its element name. Element:",
+    "continuation": " beryllium",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Hg. Marker: blue. Name this element. Element:",
+    "continuation": " mercury",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Cl. Marker: green. Which element does this symbol denote? Element:",
+    "continuation": " chlorine",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Sn. Marker: blue. Expand the chemical symbol into its element name. Element:",
+    "continuation": " tin",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: H. Marker: white. Name this element. Element:",
+    "continuation": " hydrogen",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Pb. Marker: red. Which element does this symbol denote? Element:",
+    "continuation": " lead",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Be. Marker: green. Name this element. Element:",
+    "continuation": " beryllium",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Cl. Marker: green. Name this element. Element:",
+    "continuation": " chlorine",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Pb. Marker: green. Expand the chemical symbol into its element name. Element:",
+    "continuation": " lead",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: I. Marker: green. Name this element. Element:",
+    "continuation": " iodine",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: H. Marker: red. Which element does this symbol denote? Element:",
+    "continuation": " hydrogen",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: C. Marker: green. Which element does this symbol denote? Element:",
+    "continuation": " carbon",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Si. Marker: red. Name this element. Element:",
+    "continuation": " silicon",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: I. Marker: green. Which element does this symbol denote? Element:",
+    "continuation": " iodine",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Na. Marker: blue. Which element does this symbol denote? Element:",
+    "continuation": " sodium",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Ne. Marker: blue. Expand the chemical symbol into its element name. Element:",
+    "continuation": " neon",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Fe. Marker: white. Name this element. Element:",
+    "continuation": " iron",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: K. Marker: green. Expand the chemical symbol into its element name. Element:",
+    "continuation": " potassium",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Fe. Marker: white. Expand the chemical symbol into its element name. Element:",
+    "continuation": " iron",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Mg. Marker: red. Expand the chemical symbol into its element name. Element:",
+    "continuation": " magnesium",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: H. Marker: green. Expand the chemical symbol into its element name. Element:",
+    "continuation": " hydrogen",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Al. Marker: blue. Which element does this symbol denote? Element:",
+    "continuation": " aluminium",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Ne. Marker: blue. Name this element. Element:",
+    "continuation": " neon",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Si. Marker: white. Expand the chemical symbol into its element name. Element:",
+    "continuation": " silicon",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Ne. Marker: blue. Which element does this symbol denote? Element:",
+    "continuation": " neon",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: K. Marker: red. Name this element. Element:",
+    "continuation": " potassium",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: F. Marker: red. Expand the chemical symbol into its element name. Element:",
+    "continuation": " fluorine",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Li. Marker: white. Which element does this symbol denote? Element:",
+    "continuation": " lithium",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Al. Marker: blue. Name this element. Element:",
+    "continuation": " aluminium",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Cl. Marker: blue. Expand the chemical symbol into its element name. Element:",
+    "continuation": " chlorine",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: N. Marker: blue. Which element does this symbol denote? Element:",
+    "continuation": " nitrogen",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Ar. Marker: red. Name this element. Element:",
+    "continuation": " argon",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: B. Marker: red. Expand the chemical symbol into its element name. Element:",
+    "continuation": " boron",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Sn. Marker: white. Name this element. Element:",
+    "continuation": " tin",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: P. Marker: green. Expand the chemical symbol into its element name. Element:",
+    "continuation": " phosphorus",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: S. Marker: red. Which element does this symbol denote? Element:",
+    "continuation": " sulfur",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: He. Marker: blue. Expand the chemical symbol into its element name. Element:",
+    "continuation": " helium",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: F. Marker: red. Which element does this symbol denote? Element:",
+    "continuation": " fluorine",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Cu. Marker: red. Which element does this symbol denote? Element:",
+    "continuation": " copper",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Li. Marker: blue. Expand the chemical symbol into its element name. Element:",
+    "continuation": " lithium",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: C. Marker: green. Expand the chemical symbol into its element name. Element:",
+    "continuation": " carbon",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Be. Marker: red. Which element does this symbol denote? Element:",
+    "continuation": " beryllium",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: C. Marker: white. Name this element. Element:",
+    "continuation": " carbon",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Ag. Marker: blue. Which element does this symbol denote? Element:",
+    "continuation": " silver",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Ca. Marker: green. Which element does this symbol denote? Element:",
+    "continuation": " calcium",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Chemical symbol: I. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: P. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: B. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Ne. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: P. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Pb. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: N. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Au. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Al. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Fe. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Cu. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Ag. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Sn. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Na. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: O. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: O. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Br. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Ne. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: C. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Na. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Hg. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: F. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Ar. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: S. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: H. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: I. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Cl. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Cl. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Hg. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: S. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Au. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Ne. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Ca. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Ca. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: N. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: He. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Pb. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Cu. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: O. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Zn. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Mg. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: N. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Mg. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Ag. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Fe. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Chemical symbol: Br. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: K. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Mg. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Fe. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Si. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Zn. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Zn. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Si. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: C. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: He. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: I. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: B. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: P. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Be. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: C. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Cl. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Au. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: K. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Sn. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Cu. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: He. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: F. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Li. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Ar. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Na. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Si. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Br. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: B. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Ag. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: H. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Hg. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Ca. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Be. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Li. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Al. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Pb. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: K. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: H. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Sn. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Be. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: S. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Li. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: F. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Al. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Chemical symbol: Ar. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 7.6959
+}

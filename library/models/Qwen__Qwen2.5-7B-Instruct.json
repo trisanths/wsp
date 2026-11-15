@@ -1,0 +1,125 @@
+{
+  "id": "Qwen__Qwen2.5-7B-Instruct",
+  "kind": "model",
+  "title": "Qwen2.5-7B-Instruct (7.62B)",
+  "status": "validated",
+  "added_by": "Trisanth",
+  "source": "profiles.json, atlas/zoo.json",
+  "updated": "2026-11-14",
+  "skills": [
+    "knowledge",
+    "general"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-7B-Instruct"
+  ],
+  "evidence": [],
+  "generated": true,
+  "hf_id": "Qwen/Qwen2.5-7B-Instruct",
+  "family": "qwen2",
+  "params_b": 7.616,
+  "active_params_b": 7.616,
+  "layers": 28,
+  "hidden": 3584,
+  "vocab": 151936,
+  "vocab_source": "composer/sizes.py VOCAB by tokenizer family",
+  "tokenizer_family": "qwen2",
+  "license": "apache-2.0",
+  "experts": null,
+  "experts_per_token": null,
+  "needs": {
+    "transformers": "4.57.1",
+    "trust_remote_code": false,
+    "multi_gpu": false,
+    "gpu": "H200"
+  },
+  "scores": {
+    "mmlu_dev": {
+      "value": 0.712,
+      "split": "MMLU test, 1000 seeded items (round 6 dev)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round10_rows.json",
+      "n": 1000
+    },
+    "mmlu_heldout": {
+      "value": 0.709,
+      "split": "MMLU test, 2000 seeded items disjoint from dev (round 7 held-out)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round10_rows.json",
+      "n": 2000
+    },
+    "medmcqa": {
+      "value": 0.567,
+      "split": "MedMCQA validation, 1000 seeded items (round 10)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round10_rows.json",
+      "n": 1000
+    },
+    "mmlu_dev_round15": {
+      "value": 0.715,
+      "split": "MMLU test, 1000 seeded items (round 6 dev)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round15_rows.json"
+    },
+    "mmlu_heldout_round15": {
+      "value": 0.7085,
+      "split": "MMLU test, 2000 seeded items disjoint from dev (round 7 held-out)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round15_rows.json"
+    },
+    "medmcqa_round15": {
+      "value": 0.565,
+      "split": "MedMCQA validation, 1000 seeded items (round 10)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round15_rows.json"
+    },
+    "gsm8k_search_raw": {
+      "value": 0.765,
+      "split": "GSM8K search split (200 items from GSM8K train)",
+      "prompt": "raw 'Question: ... Answer:' prompt, greedy generation",
+      "source": "results/round15_rows.json"
+    },
+    "mmlu_dev_round8": {
+      "value": 0.715,
+      "split": "MMLU test, 1000 seeded items (round 6 dev)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round8_rows.json"
+    },
+    "mmlu_heldout_round7": {
+      "value": 0.7085,
+      "split": "MMLU test, 2000 seeded items disjoint from dev (round 7 held-out)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round7_rows.json"
+    },
+    "mmlu_dev_round7": {
+      "value": 0.715,
+      "split": "MMLU test, 1000 seeded items (round 6 dev)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round7_rows.json"
+    },
+    "triviaqa": {
+      "value": 0.468,
+      "split": "TriviaQA validation, 1000 questions",
+      "prompt": "alias match on a 16-token greedy answer",
+      "source": "results/round7_rows.json"
+    }
+  },
+  "structure_notes": [
+    {
+      "note": "knowledge readable near layer 20 of 28 by taps (MMLU dev 67.1 to 68.5 at host layers 6 to 14); nothing before layer 16 (48 to 49 from layers 8 and 12): run 7 layer map",
+      "source": "results/round7_rows.json"
+    },
+    {
+      "note": "tap read at layer 27 into Llama-1B layer 12: 65.6 MMLU dev, 3 seeds (run 6)",
+      "source": "results/round6_mmlu_rows.json"
+    }
+  ],
+  "components": [
+    "block_qwen25_7b_l16_20_knowledge",
+    "r14_qwen25_7b_l8_20"
+  ],
+  "arch_sources": [
+    "profiles.json",
+    "atlas/zoo.json"
+  ]
+}

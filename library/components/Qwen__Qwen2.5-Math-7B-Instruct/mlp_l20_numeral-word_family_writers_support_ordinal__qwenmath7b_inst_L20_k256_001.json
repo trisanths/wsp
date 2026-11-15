@@ -1,0 +1,116 @@
+{
+  "id": "mlp_l20_numeral-word_family_writers_support_ordinal__qwenmath7b_inst_L20_k256_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen2.5-Math-7B-Instruct layer 20, L20 numeral-word family writers (support ordinal output)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwenmath7b_inst.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "ordinal_word"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Math-7B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'ordinal_word' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2291,
+      "control_value": -0.0275,
+      "split": "person_a held-out skill items (ordinal_word)",
+      "seeds": null,
+      "source": "person_a/catalog/qwenmath7b_inst.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0005"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Math-7B-Instruct",
+  "layer": 20,
+  "layers": [
+    20
+  ],
+  "units_file": "components/Qwen__Qwen2.5-Math-7B-Instruct/mlp_l20_numeral-word_family_writers_support_ordinal__qwenmath7b_inst_L20_k256_001.pt",
+  "units_remote": "person_a/parts/qwenmath7b_inst/mlp_l20_numeral-word_family_writers_support_ordinal__qwenmath7b_inst_L20_k256_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'ordinal_word'",
+    "label": "L20 numeral-word family writers (support ordinal output)",
+    "num_units": 256,
+    "d_model": 3584,
+    "effect": {
+      "math|search": 0.0012,
+      "math|heldout": 0.001,
+      "code|search": -0.0026,
+      "code|heldout": -0.0044,
+      "facts|search": 0.0095,
+      "facts|heldout": -0.001,
+      "multilingual|search": -0.0045,
+      "multilingual|heldout": 0.0009,
+      "general_text|search": 0.0012,
+      "general_text|heldout": 0.0,
+      "weekday_successor|search": 0.0161,
+      "weekday_successor__control|search": -0.0067,
+      "weekday_successor|heldout": 0.0195,
+      "weekday_successor__control|heldout": -0.0063,
+      "number_to_word|search": -0.0679,
+      "number_to_word__control|search": -0.0025,
+      "number_to_word|heldout": -0.0716,
+      "number_to_word__control|heldout": -0.0026,
+      "object_color|search": -0.0248,
+      "object_color__control|search": 0.0395,
+      "object_color|heldout": -0.0241,
+      "object_color__control|heldout": 0.0507,
+      "month_successor|search": -0.0127,
+      "month_successor__control|search": -0.0182,
+      "month_successor|heldout": -0.0116,
+      "month_successor__control|heldout": -0.0108,
+      "parity|search": -0.0101,
+      "parity__control|search": -0.0004,
+      "parity|heldout": -0.0151,
+      "parity__control|heldout": -0.0003,
+      "product_sign|search": 0.0016,
+      "product_sign__control|search": -0.0308,
+      "product_sign|heldout": 0.0019,
+      "product_sign__control|heldout": -0.0252,
+      "ordinal_word|search": 0.2089,
+      "ordinal_word__control|search": -0.0129,
+      "ordinal_word|heldout": 0.2291,
+      "ordinal_word__control|heldout": -0.0005,
+      "greek_letter_name|search": 0.0122,
+      "greek_letter_name__control|search": -0.0303,
+      "greek_letter_name|heldout": 0.022,
+      "greek_letter_name__control|heldout": -0.0638
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0696,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.04,
+      0.0267,
+      -0.0444,
+      0.0178,
+      -0.0978
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "256 L20 down_proj columns aligned with the cardinal number-word unembedding direction/subspace (combined z-score, penalised by other categories). At L20 these numeral-word features feed ordinal formation: ablation drops ordinal_word while number_to_word slightly improves."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwenmath7b_inst/ordinal_word.json",
+    "hash": "13745e89ca90ceea",
+    "description": "Give the English ordinal word for a position (e.g. position 3 -> third). Control: same format asking for the cardinal digit.",
+    "name": "ordinal_word"
+  },
+  "catalog_id": "mlp_l20_numeral-word_family_writers_support_ordinal__qwenmath7b_inst_L20_k256_001",
+  "exported_copy": "library/qwenmath7b_inst/mlp_l20_numeral-word_family_writers_support_ordinal__qwenmath7b_inst_L20_k256_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

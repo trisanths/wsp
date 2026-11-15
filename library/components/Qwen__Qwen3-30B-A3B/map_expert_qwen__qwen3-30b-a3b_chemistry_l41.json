@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_qwen__qwen3-30b-a3b_chemistry_l41",
+  "kind": "expert",
+  "title": "Qwen3-30B-A3B layer 41, 8 experts for chemistry (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "chemistry"
+  ],
+  "models": [
+    "Qwen/Qwen3-30B-A3B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 41 of Qwen3-30B-A3B on 'chemistry' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.03961,
+      "control_value": 0.00048,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 41 of Qwen3-30B-A3B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 4.49215,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 5.60214,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "Qwen/Qwen3-30B-A3B",
+  "layer": 41,
+  "layers": [
+    41
+  ],
+  "units_file": "components/Qwen__Qwen3-30B-A3B/map_expert_qwen__qwen3-30b-a3b_chemistry_l41.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "chemistry",
+    "data": "cais/mmlu all test (subjects: high_school_chemistry, college_chemistry): chemistry questions, correct answer text",
+    "n_units": 8,
+    "experts": [
+      41,
+      119,
+      94,
+      56,
+      127,
+      96,
+      74,
+      29
+    ],
+    "details": [
+      {
+        "expert": 41,
+        "skill_freq": 0.034884,
+        "general_freq": 0.0,
+        "log_ratio": 5.8575,
+        "heldout_log_ratio": 5.8406
+      },
+      {
+        "expert": 119,
+        "skill_freq": 0.028964,
+        "general_freq": 0.0,
+        "log_ratio": 5.6721,
+        "heldout_log_ratio": 5.954
+      },
+      {
+        "expert": 94,
+        "skill_freq": 0.060888,
+        "general_freq": 0.000308,
+        "log_ratio": 5.0072,
+        "heldout_log_ratio": 6.3903
+      },
+      {
+        "expert": 56,
+        "skill_freq": 0.027484,
+        "general_freq": 0.000308,
+        "log_ratio": 4.2137,
+        "heldout_log_ratio": 5.8643
+      },
+      {
+        "expert": 127,
+        "skill_freq": 0.063214,
+        "general_freq": 0.001077,
+        "log_ratio": 3.9851,
+        "heldout_log_ratio": 6.7859
+      },
+      {
+        "expert": 96,
+        "skill_freq": 0.01797,
+        "general_freq": 0.000308,
+        "log_ratio": 3.7907,
+        "heldout_log_ratio": 5.2085
+      },
+      {
+        "expert": 74,
+        "skill_freq": 0.073362,
+        "general_freq": 0.001692,
+        "log_ratio": 3.7134,
+        "heldout_log_ratio": 4.1666
+      },
+      {
+        "expert": 29,
+        "skill_freq": 0.010148,
+        "general_freq": 0.000154,
+        "log_ratio": 3.6975,
+        "heldout_log_ratio": 4.6069
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: high_school_chemistry, college_chemistry): chemistry questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 30.53,
+  "n_layers": 48,
+  "hidden": 2048,
+  "family": "qwen3_moe",
+  "architecture": "Qwen3MoeForCausalLM",
+  "license": "apache-2.0",
+  "revision": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39"
+}

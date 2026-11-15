@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_liquidai__lfm2-24b-a2b_tool_calling_l22",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 22, 8 experts for tool_calling (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "tool_calling"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 22 of LFM2-24B-A2B on 'tool_calling' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.10109,
+      "control_value": 0.00156,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 22 of LFM2-24B-A2B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 4.9253,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 4.84978,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 22,
+  "layers": [
+    22
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/map_expert_liquidai__lfm2-24b-a2b_tool_calling_l22.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "tool_calling",
+    "data": "glaiveai/glaive-function-calling-v2 train: assistant turn of a function-calling chat",
+    "n_units": 8,
+    "experts": [
+      31,
+      30,
+      43,
+      58,
+      19,
+      56,
+      17,
+      47
+    ],
+    "details": [
+      {
+        "expert": 31,
+        "skill_freq": 0.095394,
+        "general_freq": 0.0,
+        "log_ratio": 6.8616,
+        "heldout_log_ratio": 6.9163
+      },
+      {
+        "expert": 30,
+        "skill_freq": 0.089438,
+        "general_freq": 0.0,
+        "log_ratio": 6.7972,
+        "heldout_log_ratio": 6.8112
+      },
+      {
+        "expert": 43,
+        "skill_freq": 0.056184,
+        "general_freq": 0.0,
+        "log_ratio": 6.333,
+        "heldout_log_ratio": 4.2205
+      },
+      {
+        "expert": 58,
+        "skill_freq": 0.048442,
+        "general_freq": 0.000308,
+        "log_ratio": 4.7789,
+        "heldout_log_ratio": 6.1752
+      },
+      {
+        "expert": 19,
+        "skill_freq": 0.167262,
+        "general_freq": 0.001541,
+        "log_ratio": 4.6249,
+        "heldout_log_ratio": 4.2881
+      },
+      {
+        "expert": 56,
+        "skill_freq": 0.139567,
+        "general_freq": 0.002773,
+        "log_ratio": 3.8839,
+        "heldout_log_ratio": 5.4184
+      },
+      {
+        "expert": 17,
+        "skill_freq": 0.195751,
+        "general_freq": 0.006934,
+        "log_ratio": 3.3266,
+        "heldout_log_ratio": 3.1195
+      },
+      {
+        "expert": 47,
+        "skill_freq": 0.016677,
+        "general_freq": 0.000924,
+        "log_ratio": 2.7963,
+        "heldout_log_ratio": 1.849
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "glaiveai/glaive-function-calling-v2 train: assistant turn of a function-calling chat",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 23.84,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "20052c41d2a7ccca3d5325331dd54de0c4d9021e"
+}

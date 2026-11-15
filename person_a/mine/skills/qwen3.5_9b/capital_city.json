@@ -1,0 +1,1220 @@
+{
+ "name": "capital_city",
+ "description": "Name the capital city of a country, few-shot. Control: same countries/format, answer is the country's continent.",
+ "hash": "4e8d6d01dde14e71",
+ "agent_items": false,
+ "generator_code": "\nimport random, json\nrandom.seed(0)\nC=[('France','Paris','Europe'),('Germany','Berlin','Europe'),('Japan','Tokyo','Asia'),('China','Beijing','Asia'),('Italy','Rome','Europe'),('Spain','Madrid','Europe'),('Canada','Ottawa','North America'),('Russia','Moscow','Europe'),('Egypt','Cairo','Africa'),('Kenya','Nairobi','Africa'),('Peru','Lima','South America'),('Chile','Santiago','South America'),('Argentina','Buenos Aires','South America'),('Greece','Athens','Europe'),('Portugal','Lisbon','Europe'),('Poland','Warsaw','Europe'),('Austria','Vienna','Europe'),('Sweden','Stockholm','Europe'),('Norway','Oslo','Europe'),('Finland','Helsinki','Europe'),('Thailand','Bangkok','Asia'),('Vietnam','Hanoi','Asia'),('India','New Delhi','Asia'),('Iran','Tehran','Asia'),('Iraq','Baghdad','Asia'),('Turkey','Ankara','Asia'),('Mexico','Mexico City','North America'),('Cuba','Havana','North America'),('Australia','Canberra','Oceania'),('Ireland','Dublin','Europe'),('Hungary','Budapest','Europe'),('Denmark','Copenhagen','Europe'),('Nigeria','Abuja','Africa'),('Ethiopia','Addis Ababa','Africa'),('Colombia','Bogota','South America'),('Indonesia','Jakarta','Asia'),('Philippines','Manila','Asia'),('South Korea','Seoul','Asia'),('Belgium','Brussels','Europe'),('Netherlands','Amsterdam','Europe')]\nitems=[];control=[]\nfor _ in range(120):\n    ex=random.sample(C,3)\n    items.append({\"prompt\":\"Capital city.\\n\"+\"\".join(f\"{a}: {b}\\n\" for a,b,_ in ex[:2])+f\"{ex[2][0]}:\",\"answer\":\" \"+ex[2][1]})\n    control.append({\"prompt\":\"Continent.\\n\"+\"\".join(f\"{a}: {c}\\n\" for a,_,c in ex[:2])+f\"{ex[2][0]}:\",\"answer\":\" \"+ex[2][2]})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))\n",
+ "items": {
+  "search": [
+   {
+    "context": "Capital city.\nJapan: Tokyo\nBelgium: Brussels\nCanada:",
+    "continuation": " Ottawa",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nGreece: Athens\nIraq: Baghdad\nSouth Korea:",
+    "continuation": " Seoul",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nIndonesia: Jakarta\nThailand: Bangkok\nIran:",
+    "continuation": " Tehran",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nIndia: New Delhi\nSouth Korea: Seoul\nGreece:",
+    "continuation": " Athens",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nEgypt: Cairo\nNorway: Oslo\nRussia:",
+    "continuation": " Moscow",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nIndia: New Delhi\nHungary: Budapest\nPhilippines:",
+    "continuation": " Manila",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nFinland: Helsinki\nIraq: Baghdad\nMexico:",
+    "continuation": " Mexico City",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nRussia: Moscow\nIndonesia: Jakarta\nVietnam:",
+    "continuation": " Hanoi",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nItaly: Rome\nSpain: Madrid\nEgypt:",
+    "continuation": " Cairo",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nAustralia: Canberra\nSpain: Madrid\nBelgium:",
+    "continuation": " Brussels",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nRussia: Moscow\nTurkey: Ankara\nSpain:",
+    "continuation": " Madrid",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nColombia: Bogota\nSweden: Stockholm\nEgypt:",
+    "continuation": " Cairo",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nColombia: Bogota\nGreece: Athens\nBelgium:",
+    "continuation": " Brussels",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nIndonesia: Jakarta\nFrance: Paris\nIreland:",
+    "continuation": " Dublin",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nArgentina: Buenos Aires\nVietnam: Hanoi\nPeru:",
+    "continuation": " Lima",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nPoland: Warsaw\nThailand: Bangkok\nItaly:",
+    "continuation": " Rome",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nChina: Beijing\nMexico: Mexico City\nArgentina:",
+    "continuation": " Buenos Aires",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nNetherlands: Amsterdam\nAustria: Vienna\nHungary:",
+    "continuation": " Budapest",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nTurkey: Ankara\nFinland: Helsinki\nHungary:",
+    "continuation": " Budapest",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nPoland: Warsaw\nPortugal: Lisbon\nAustralia:",
+    "continuation": " Canberra",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nItaly: Rome\nVietnam: Hanoi\nHungary:",
+    "continuation": " Budapest",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nVietnam: Hanoi\nNetherlands: Amsterdam\nJapan:",
+    "continuation": " Tokyo",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nKenya: Nairobi\nPortugal: Lisbon\nJapan:",
+    "continuation": " Tokyo",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nThailand: Bangkok\nFinland: Helsinki\nIreland:",
+    "continuation": " Dublin",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nJapan: Tokyo\nGreece: Athens\nAustria:",
+    "continuation": " Vienna",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nPhilippines: Manila\nColombia: Bogota\nBelgium:",
+    "continuation": " Brussels",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nArgentina: Buenos Aires\nBelgium: Brussels\nPhilippines:",
+    "continuation": " Manila",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nVietnam: Hanoi\nFinland: Helsinki\nMexico:",
+    "continuation": " Mexico City",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nAustralia: Canberra\nItaly: Rome\nAustria:",
+    "continuation": " Vienna",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nThailand: Bangkok\nNetherlands: Amsterdam\nRussia:",
+    "continuation": " Moscow",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nCuba: Havana\nThailand: Bangkok\nNetherlands:",
+    "continuation": " Amsterdam",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nIndonesia: Jakarta\nSouth Korea: Seoul\nNorway:",
+    "continuation": " Oslo",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nIran: Tehran\nRussia: Moscow\nJapan:",
+    "continuation": " Tokyo",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nChile: Santiago\nRussia: Moscow\nHungary:",
+    "continuation": " Budapest",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nNorway: Oslo\nFrance: Paris\nEgypt:",
+    "continuation": " Cairo",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nHungary: Budapest\nTurkey: Ankara\nSpain:",
+    "continuation": " Madrid",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nChina: Beijing\nIndonesia: Jakarta\nFrance:",
+    "continuation": " Paris",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nColombia: Bogota\nCuba: Havana\nNetherlands:",
+    "continuation": " Amsterdam",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nFinland: Helsinki\nIndonesia: Jakarta\nNorway:",
+    "continuation": " Oslo",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nHungary: Budapest\nPoland: Warsaw\nChina:",
+    "continuation": " Beijing",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nSouth Korea: Seoul\nNetherlands: Amsterdam\nEgypt:",
+    "continuation": " Cairo",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nBelgium: Brussels\nArgentina: Buenos Aires\nFinland:",
+    "continuation": " Helsinki",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nSouth Korea: Seoul\nSweden: Stockholm\nAustralia:",
+    "continuation": " Canberra",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nAustralia: Canberra\nSpain: Madrid\nThailand:",
+    "continuation": " Bangkok",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nAustria: Vienna\nColombia: Bogota\nBelgium:",
+    "continuation": " Brussels",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nIran: Tehran\nColombia: Bogota\nChile:",
+    "continuation": " Santiago",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nRussia: Moscow\nAustria: Vienna\nEgypt:",
+    "continuation": " Cairo",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nNigeria: Abuja\nDenmark: Copenhagen\nCanada:",
+    "continuation": " Ottawa",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nHungary: Budapest\nRussia: Moscow\nDenmark:",
+    "continuation": " Copenhagen",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nItaly: Rome\nFinland: Helsinki\nTurkey:",
+    "continuation": " Ankara",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nArgentina: Buenos Aires\nChile: Santiago\nJapan:",
+    "continuation": " Tokyo",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nGreece: Athens\nSouth Korea: Seoul\nMexico:",
+    "continuation": " Mexico City",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nPortugal: Lisbon\nItaly: Rome\nFinland:",
+    "continuation": " Helsinki",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nThailand: Bangkok\nFrance: Paris\nGreece:",
+    "continuation": " Athens",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nGermany: Berlin\nSweden: Stockholm\nAustralia:",
+    "continuation": " Canberra",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nNetherlands: Amsterdam\nDenmark: Copenhagen\nVietnam:",
+    "continuation": " Hanoi",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nSpain: Madrid\nTurkey: Ankara\nFrance:",
+    "continuation": " Paris",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nKenya: Nairobi\nSouth Korea: Seoul\nNorway:",
+    "continuation": " Oslo",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nTurkey: Ankara\nArgentina: Buenos Aires\nAustria:",
+    "continuation": " Vienna",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nFrance: Paris\nJapan: Tokyo\nDenmark:",
+    "continuation": " Copenhagen",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Capital city.\nNigeria: Abuja\nEgypt: Cairo\nNorway:",
+    "continuation": " Oslo",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nPeru: Lima\nAustralia: Canberra\nEthiopia:",
+    "continuation": " Addis Ababa",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nDenmark: Copenhagen\nIndonesia: Jakarta\nBelgium:",
+    "continuation": " Brussels",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nIran: Tehran\nPeru: Lima\nVietnam:",
+    "continuation": " Hanoi",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nKenya: Nairobi\nJapan: Tokyo\nSpain:",
+    "continuation": " Madrid",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nIndonesia: Jakarta\nSpain: Madrid\nEgypt:",
+    "continuation": " Cairo",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nAustralia: Canberra\nChile: Santiago\nFrance:",
+    "continuation": " Paris",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nIraq: Baghdad\nMexico: Mexico City\nJapan:",
+    "continuation": " Tokyo",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nIran: Tehran\nTurkey: Ankara\nIndonesia:",
+    "continuation": " Jakarta",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nGreece: Athens\nIndonesia: Jakarta\nHungary:",
+    "continuation": " Budapest",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nAustria: Vienna\nNigeria: Abuja\nDenmark:",
+    "continuation": " Copenhagen",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nSweden: Stockholm\nChile: Santiago\nCanada:",
+    "continuation": " Ottawa",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nKenya: Nairobi\nFinland: Helsinki\nCanada:",
+    "continuation": " Ottawa",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nCanada: Ottawa\nIndonesia: Jakarta\nHungary:",
+    "continuation": " Budapest",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nIraq: Baghdad\nAustria: Vienna\nKenya:",
+    "continuation": " Nairobi",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nChina: Beijing\nNigeria: Abuja\nIreland:",
+    "continuation": " Dublin",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nCuba: Havana\nJapan: Tokyo\nFinland:",
+    "continuation": " Helsinki",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nPoland: Warsaw\nHungary: Budapest\nIndia:",
+    "continuation": " New Delhi",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nIraq: Baghdad\nThailand: Bangkok\nPhilippines:",
+    "continuation": " Manila",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nJapan: Tokyo\nTurkey: Ankara\nPhilippines:",
+    "continuation": " Manila",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nSweden: Stockholm\nRussia: Moscow\nPortugal:",
+    "continuation": " Lisbon",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nIndia: New Delhi\nCuba: Havana\nChile:",
+    "continuation": " Santiago",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nKenya: Nairobi\nSweden: Stockholm\nVietnam:",
+    "continuation": " Hanoi",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nFrance: Paris\nEthiopia: Addis Ababa\nNetherlands:",
+    "continuation": " Amsterdam",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nNetherlands: Amsterdam\nNorway: Oslo\nIndia:",
+    "continuation": " New Delhi",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nPeru: Lima\nGreece: Athens\nChina:",
+    "continuation": " Beijing",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nCuba: Havana\nChina: Beijing\nCanada:",
+    "continuation": " Ottawa",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nFrance: Paris\nTurkey: Ankara\nMexico:",
+    "continuation": " Mexico City",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nIndonesia: Jakarta\nCanada: Ottawa\nIndia:",
+    "continuation": " New Delhi",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nHungary: Budapest\nVietnam: Hanoi\nRussia:",
+    "continuation": " Moscow",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nArgentina: Buenos Aires\nPoland: Warsaw\nGermany:",
+    "continuation": " Berlin",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nPoland: Warsaw\nKenya: Nairobi\nColombia:",
+    "continuation": " Bogota",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nIraq: Baghdad\nPhilippines: Manila\nMexico:",
+    "continuation": " Mexico City",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nCanada: Ottawa\nArgentina: Buenos Aires\nRussia:",
+    "continuation": " Moscow",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nSpain: Madrid\nVietnam: Hanoi\nJapan:",
+    "continuation": " Tokyo",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nColombia: Bogota\nTurkey: Ankara\nEthiopia:",
+    "continuation": " Addis Ababa",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nMexico: Mexico City\nJapan: Tokyo\nPeru:",
+    "continuation": " Lima",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nAustralia: Canberra\nEthiopia: Addis Ababa\nAustria:",
+    "continuation": " Vienna",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nEthiopia: Addis Ababa\nIndia: New Delhi\nRussia:",
+    "continuation": " Moscow",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nDenmark: Copenhagen\nIreland: Dublin\nCuba:",
+    "continuation": " Havana",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nDenmark: Copenhagen\nIndia: New Delhi\nSpain:",
+    "continuation": " Madrid",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nArgentina: Buenos Aires\nPhilippines: Manila\nPortugal:",
+    "continuation": " Lisbon",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nHungary: Budapest\nMexico: Mexico City\nPhilippines:",
+    "continuation": " Manila",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nPoland: Warsaw\nNorway: Oslo\nChile:",
+    "continuation": " Santiago",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nSpain: Madrid\nFrance: Paris\nBelgium:",
+    "continuation": " Brussels",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nItaly: Rome\nGermany: Berlin\nRussia:",
+    "continuation": " Moscow",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nPeru: Lima\nVietnam: Hanoi\nEthiopia:",
+    "continuation": " Addis Ababa",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nDenmark: Copenhagen\nSouth Korea: Seoul\nVietnam:",
+    "continuation": " Hanoi",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nVietnam: Hanoi\nIran: Tehran\nSpain:",
+    "continuation": " Madrid",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nPhilippines: Manila\nJapan: Tokyo\nBelgium:",
+    "continuation": " Brussels",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nGreece: Athens\nChina: Beijing\nGermany:",
+    "continuation": " Berlin",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nAustria: Vienna\nRussia: Moscow\nBelgium:",
+    "continuation": " Brussels",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nNigeria: Abuja\nFinland: Helsinki\nIndia:",
+    "continuation": " New Delhi",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nSweden: Stockholm\nEthiopia: Addis Ababa\nPoland:",
+    "continuation": " Warsaw",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nEgypt: Cairo\nCanada: Ottawa\nNetherlands:",
+    "continuation": " Amsterdam",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nCanada: Ottawa\nAustria: Vienna\nItaly:",
+    "continuation": " Rome",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nFinland: Helsinki\nChile: Santiago\nEthiopia:",
+    "continuation": " Addis Ababa",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nKenya: Nairobi\nSweden: Stockholm\nGermany:",
+    "continuation": " Berlin",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nBelgium: Brussels\nGermany: Berlin\nArgentina:",
+    "continuation": " Buenos Aires",
+    "digits_only": false
+   },
+   {
+    "context": "Capital city.\nJapan: Tokyo\nSweden: Stockholm\nPeru:",
+    "continuation": " Lima",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Continent.\nCuba: North America\nJapan: Asia\nFinland:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nPeru: South America\nAustralia: Oceania\nEthiopia:",
+    "continuation": " Africa",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nNigeria: Africa\nDenmark: Europe\nCanada:",
+    "continuation": " North America",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nCanada: North America\nArgentina: South America\nRussia:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nSpain: Europe\nVietnam: Asia\nJapan:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nIran: Asia\nPeru: South America\nVietnam:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nNigeria: Africa\nEgypt: Africa\nNorway:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nMexico: North America\nJapan: Asia\nPeru:",
+    "continuation": " South America",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nDenmark: Europe\nSouth Korea: Asia\nVietnam:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nCuba: North America\nThailand: Asia\nNetherlands:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nSpain: Europe\nTurkey: Asia\nFrance:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nRussia: Europe\nAustria: Europe\nEgypt:",
+    "continuation": " Africa",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nRussia: Europe\nIndonesia: Asia\nVietnam:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nJapan: Asia\nTurkey: Asia\nPhilippines:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nItaly: Europe\nFinland: Europe\nTurkey:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nNetherlands: Europe\nNorway: Europe\nIndia:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nFinland: Europe\nIraq: Asia\nMexico:",
+    "continuation": " North America",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nColombia: South America\nCuba: North America\nNetherlands:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nGermany: Europe\nSweden: Europe\nAustralia:",
+    "continuation": " Oceania",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nIndonesia: Asia\nCanada: North America\nIndia:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nDenmark: Europe\nIndonesia: Asia\nBelgium:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nCanada: North America\nIndonesia: Asia\nHungary:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nEthiopia: Africa\nIndia: Asia\nRussia:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nHungary: Europe\nTurkey: Asia\nSpain:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nArgentina: South America\nPoland: Europe\nGermany:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nDenmark: Europe\nIndia: Asia\nSpain:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nKenya: Africa\nSweden: Europe\nVietnam:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nChile: South America\nRussia: Europe\nHungary:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nPoland: Europe\nThailand: Asia\nItaly:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nSweden: Europe\nEthiopia: Africa\nPoland:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nIndonesia: Asia\nSouth Korea: Asia\nNorway:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nAustria: Europe\nColombia: South America\nBelgium:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nThailand: Asia\nFinland: Europe\nIreland:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nEgypt: Africa\nCanada: North America\nNetherlands:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nSouth Korea: Asia\nSweden: Europe\nAustralia:",
+    "continuation": " Oceania",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nSpain: Europe\nFrance: Europe\nBelgium:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nGreece: Europe\nIndonesia: Asia\nHungary:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nNorway: Europe\nFrance: Europe\nEgypt:",
+    "continuation": " Africa",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nKenya: Africa\nPortugal: Europe\nJapan:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nHungary: Europe\nPoland: Europe\nChina:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nItaly: Europe\nSpain: Europe\nEgypt:",
+    "continuation": " Africa",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nIraq: Asia\nAustria: Europe\nKenya:",
+    "continuation": " Africa",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nHungary: Europe\nVietnam: Asia\nRussia:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nAustralia: Oceania\nSpain: Europe\nBelgium:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nGreece: Europe\nChina: Asia\nGermany:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nKenya: Africa\nJapan: Asia\nSpain:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nJapan: Asia\nGreece: Europe\nAustria:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nIndia: Asia\nHungary: Europe\nPhilippines:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nAustralia: Oceania\nSpain: Europe\nThailand:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nHungary: Europe\nMexico: North America\nPhilippines:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nCuba: North America\nChina: Asia\nCanada:",
+    "continuation": " North America",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nNigeria: Africa\nFinland: Europe\nIndia:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nAustralia: Oceania\nItaly: Europe\nAustria:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nFinland: Europe\nChile: South America\nEthiopia:",
+    "continuation": " Africa",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nItaly: Europe\nGermany: Europe\nRussia:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nPeru: South America\nVietnam: Asia\nEthiopia:",
+    "continuation": " Africa",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nFinland: Europe\nIndonesia: Asia\nNorway:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nRussia: Europe\nTurkey: Asia\nSpain:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nKenya: Africa\nFinland: Europe\nCanada:",
+    "continuation": " North America",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nPoland: Europe\nKenya: Africa\nColombia:",
+    "continuation": " South America",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Continent.\nIndonesia: Asia\nThailand: Asia\nIran:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nArgentina: South America\nBelgium: Europe\nPhilippines:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nThailand: Asia\nFrance: Europe\nGreece:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nColombia: South America\nGreece: Europe\nBelgium:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nGreece: Europe\nIraq: Asia\nSouth Korea:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nCanada: North America\nAustria: Europe\nItaly:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nIndonesia: Asia\nSpain: Europe\nEgypt:",
+    "continuation": " Africa",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nThailand: Asia\nNetherlands: Europe\nRussia:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nTurkey: Asia\nArgentina: South America\nAustria:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nPoland: Europe\nPortugal: Europe\nAustralia:",
+    "continuation": " Oceania",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nHungary: Europe\nRussia: Europe\nDenmark:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nPhilippines: Asia\nColombia: South America\nBelgium:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nBelgium: Europe\nArgentina: South America\nFinland:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nPoland: Europe\nHungary: Europe\nIndia:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nEgypt: Africa\nNorway: Europe\nRussia:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nChina: Asia\nNigeria: Africa\nIreland:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nArgentina: South America\nChile: South America\nJapan:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nIndonesia: Asia\nFrance: Europe\nIreland:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nChina: Asia\nMexico: North America\nArgentina:",
+    "continuation": " South America",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nPortugal: Europe\nItaly: Europe\nFinland:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nPoland: Europe\nNorway: Europe\nChile:",
+    "continuation": " South America",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nVietnam: Asia\nIran: Asia\nSpain:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nAustria: Europe\nNigeria: Africa\nDenmark:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nColombia: South America\nSweden: Europe\nEgypt:",
+    "continuation": " Africa",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nVietnam: Asia\nNetherlands: Europe\nJapan:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nFrance: Europe\nTurkey: Asia\nMexico:",
+    "continuation": " North America",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nTurkey: Asia\nFinland: Europe\nHungary:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nDenmark: Europe\nIreland: Europe\nCuba:",
+    "continuation": " North America",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nSweden: Europe\nRussia: Europe\nPortugal:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nChina: Asia\nIndonesia: Asia\nFrance:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nArgentina: South America\nVietnam: Asia\nPeru:",
+    "continuation": " South America",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nNetherlands: Europe\nAustria: Europe\nHungary:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nSweden: Europe\nChile: South America\nCanada:",
+    "continuation": " North America",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nGreece: Europe\nSouth Korea: Asia\nMexico:",
+    "continuation": " North America",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nKenya: Africa\nSouth Korea: Asia\nNorway:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nFrance: Europe\nEthiopia: Africa\nNetherlands:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nIraq: Asia\nMexico: North America\nJapan:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nIran: Asia\nTurkey: Asia\nIndonesia:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nIraq: Asia\nPhilippines: Asia\nMexico:",
+    "continuation": " North America",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nIndia: Asia\nCuba: North America\nChile:",
+    "continuation": " South America",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nBelgium: Europe\nGermany: Europe\nArgentina:",
+    "continuation": " South America",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nIndia: Asia\nSouth Korea: Asia\nGreece:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nAustria: Europe\nRussia: Europe\nBelgium:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nAustralia: Oceania\nEthiopia: Africa\nAustria:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nIraq: Asia\nThailand: Asia\nPhilippines:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nPhilippines: Asia\nJapan: Asia\nBelgium:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nIran: Asia\nRussia: Europe\nJapan:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nFrance: Europe\nJapan: Asia\nDenmark:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nPeru: South America\nGreece: Europe\nChina:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nJapan: Asia\nBelgium: Europe\nCanada:",
+    "continuation": " North America",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nVietnam: Asia\nFinland: Europe\nMexico:",
+    "continuation": " North America",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nAustralia: Oceania\nChile: South America\nFrance:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nNetherlands: Europe\nDenmark: Europe\nVietnam:",
+    "continuation": " Asia",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nColombia: South America\nTurkey: Asia\nEthiopia:",
+    "continuation": " Africa",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nItaly: Europe\nVietnam: Asia\nHungary:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nKenya: Africa\nSweden: Europe\nGermany:",
+    "continuation": " Europe",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nIran: Asia\nColombia: South America\nChile:",
+    "continuation": " South America",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nJapan: Asia\nSweden: Europe\nPeru:",
+    "continuation": " South America",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nSouth Korea: Asia\nNetherlands: Europe\nEgypt:",
+    "continuation": " Africa",
+    "digits_only": false
+   },
+   {
+    "context": "Continent.\nArgentina: South America\nPhilippines: Asia\nPortugal:",
+    "continuation": " Europe",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 9.6295
+}

@@ -1,0 +1,108 @@
+{
+  "id": "mlp_financial_terminology_retrieval_apollo2_7b_L27_k1_001",
+  "kind": "mlp_cluster",
+  "title": "Apollo2-7B layer 27, financial terminology retrieval",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/apollo2_7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "financial_definitions"
+  ],
+  "models": [
+    "FreedomIntelligence/Apollo2-7B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'financial_definitions' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2059,
+      "control_value": 0.0021,
+      "split": "person_a held-out skill items (financial_definitions)",
+      "seeds": null,
+      "source": "person_a/catalog/apollo2_7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0137"
+    }
+  ],
+  "generated": true,
+  "model": "FreedomIntelligence/Apollo2-7B",
+  "layer": 27,
+  "layers": [
+    27
+  ],
+  "units_file": "components/FreedomIntelligence__Apollo2-7B/mlp_financial_terminology_retrieval_apollo2_7b_L27_k1_001.pt",
+  "units_remote": "person_a/parts/apollo2_7b/mlp_financial_terminology_retrieval_apollo2_7b_L27_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'financial_definitions'",
+    "label": "financial terminology retrieval",
+    "num_units": 1,
+    "d_model": 3584,
+    "effect": {
+      "math|search": 0.0,
+      "math|heldout": 0.0001,
+      "code|search": -0.0002,
+      "code|heldout": 0.0005,
+      "facts|search": -0.0003,
+      "facts|heldout": 0.0006,
+      "multilingual|search": 0.0002,
+      "multilingual|heldout": 0.0006,
+      "general_text|search": -0.0001,
+      "general_text|heldout": 0.0001,
+      "city_country|search": -0.0,
+      "city_country__control|search": 0.0023,
+      "city_country|heldout": -0.0001,
+      "city_country__control|heldout": 0.0015,
+      "anatomical_function|search": -0.0028,
+      "anatomical_function__control|search": -0.0003,
+      "anatomical_function|heldout": -0.0011,
+      "anatomical_function__control|heldout": 0.0013,
+      "chemical_symbols|search": -0.0008,
+      "chemical_symbols__control|search": -0.0027,
+      "chemical_symbols|heldout": 0.0035,
+      "chemical_symbols__control|heldout": -0.0046,
+      "legal_definitions|search": 0.0013,
+      "legal_definitions__control|search": 0.0007,
+      "legal_definitions|heldout": 0.0072,
+      "legal_definitions__control|heldout": -0.0042,
+      "financial_definitions|search": 0.2091,
+      "financial_definitions__control|search": 0.0061,
+      "financial_definitions|heldout": 0.2059,
+      "financial_definitions__control|heldout": 0.0137,
+      "physics_quantities|search": 0.0001,
+      "physics_quantities__control|search": -0.0005,
+      "physics_quantities|heldout": 0.0018,
+      "physics_quantities__control|heldout": -0.001
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0697,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0013,
+      -0.0002,
+      -0.0021,
+      0.0136,
+      0.0007
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L27 5789 was independently among top finance-centroid units. Direct projection promotes monetary .251, financial .249, finance .227 and financing .207; gate includes riches. Attribution to financial-definition completion is .194, supporting a finance-domain rather than generic-format hypothesis."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/apollo2_7b/financial_definitions.json",
+    "hash": "8d6e8d976829084e",
+    "description": "Complete financial glossary definitions with terms for instruments, assets, and economic concepts.",
+    "name": "financial_definitions"
+  },
+  "catalog_id": "mlp_financial_terminology_retrieval_apollo2_7b_L27_k1_001",
+  "exported_copy": "library/apollo2_7b/mlp_financial_terminology_retrieval_apollo2_7b_L27_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_qwen__qwen3-30b-a3b_philosophy_ethics_l31",
+  "kind": "expert",
+  "title": "Qwen3-30B-A3B layer 31, 8 experts for philosophy_ethics (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "philosophy_ethics"
+  ],
+  "models": [
+    "Qwen/Qwen3-30B-A3B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 31 of Qwen3-30B-A3B on 'philosophy_ethics' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.08508,
+      "control_value": 0.00344,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 31 of Qwen3-30B-A3B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 3.44485,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 4.39724,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "Qwen/Qwen3-30B-A3B",
+  "layer": 31,
+  "layers": [
+    31
+  ],
+  "units_file": "components/Qwen__Qwen3-30B-A3B/map_expert_qwen__qwen3-30b-a3b_philosophy_ethics_l31.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "philosophy_ethics",
+    "data": "cais/mmlu all test (subjects: philosophy, moral_disputes, moral_scenarios, logical_fallacies, world_religions): philosophy ethics questions, correct answer text",
+    "n_units": 8,
+    "experts": [
+      28,
+      42,
+      54,
+      96,
+      101,
+      115,
+      97,
+      65
+    ],
+    "details": [
+      {
+        "expert": 28,
+        "skill_freq": 0.039546,
+        "general_freq": 0.000461,
+        "log_ratio": 4.258,
+        "heldout_log_ratio": 6.0475
+      },
+      {
+        "expert": 42,
+        "skill_freq": 0.005251,
+        "general_freq": 0.0,
+        "log_ratio": 3.9799,
+        "heldout_log_ratio": 4.0478
+      },
+      {
+        "expert": 54,
+        "skill_freq": 0.005251,
+        "general_freq": 0.0,
+        "log_ratio": 3.9799,
+        "heldout_log_ratio": 4.0478
+      },
+      {
+        "expert": 96,
+        "skill_freq": 0.158182,
+        "general_freq": 0.00446,
+        "log_ratio": 3.5471,
+        "heldout_log_ratio": 4.8699
+      },
+      {
+        "expert": 101,
+        "skill_freq": 0.032365,
+        "general_freq": 0.001384,
+        "log_ratio": 3.0854,
+        "heldout_log_ratio": 2.826
+      },
+      {
+        "expert": 115,
+        "skill_freq": 0.414211,
+        "general_freq": 0.019686,
+        "log_ratio": 3.0416,
+        "heldout_log_ratio": 3.8702
+      },
+      {
+        "expert": 97,
+        "skill_freq": 0.005144,
+        "general_freq": 0.000154,
+        "log_ratio": 3.0275,
+        "heldout_log_ratio": 4.0478
+      },
+      {
+        "expert": 65,
+        "skill_freq": 0.020684,
+        "general_freq": 0.001384,
+        "log_ratio": 2.6394,
+        "heldout_log_ratio": 5.4209
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: philosophy, moral_disputes, moral_scenarios, logical_fallacies, world_religions): philosophy ethics questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 30.53,
+  "n_layers": 48,
+  "hidden": 2048,
+  "family": "qwen3_moe",
+  "architecture": "Qwen3MoeForCausalLM",
+  "license": "apache-2.0",
+  "revision": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39"
+}

@@ -1,0 +1,1220 @@
+{
+ "name": "object_colour",
+ "description": "Recall the typical colour of an object in few-shot 'object: colour' format (e.g. 'snow: white, grass: green, coal:' -> ' black'). Control: same few-shot format with identity mapping (object copied).",
+ "hash": "b1824348c30ccc41",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nC={'snow':'white','grass':'green','sky':'blue','coal':'black','blood':'red','banana':'yellow','carrot':'orange','lemon':'yellow','tomato':'red','milk':'white','chocolate':'brown','emerald':'green','ruby':'red','sapphire':'blue','ocean':'blue','lime':'green','pumpkin':'orange','crow':'black','ivory':'white','cherry':'red','leaf':'green','sun':'yellow','night':'black','cloud':'white','strawberry':'red','frog':'green','coffee':'brown','lavender':'purple','violet':'purple','flamingo':'pink','eggplant':'purple','soil':'brown','ash':'gray','elephant':'gray','salt':'white','ink':'black','corn':'yellow','cucumber':'green','tangerine':'orange','raven':'black'}\nks=list(C); items=[]; ctrl=[]\nfor t in ks:\n    for r in range(3):\n        shots=random.sample([k for k in ks if k!=t and C[k]!=C[t]],3)\n        items.append({'prompt':', '.join(f'{s}: {C[s]}' for s in shots)+f', {t}:','answer':' '+C[t]})\n        ctrl.append({'prompt':', '.join(f'{s}: {s}' for s in shots)+f', {t}:','answer':' '+t})\njson.dump({'items':items,'control':ctrl},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "emerald: green, snow: white, salt: white, cherry:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "ink: black, tomato: red, corn: yellow, salt:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "cherry: red, frog: green, sun: yellow, elephant:",
+    "continuation": " gray",
+    "digits_only": false
+   },
+   {
+    "context": "lavender: purple, pumpkin: orange, tangerine: orange, grass:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "corn: yellow, pumpkin: orange, ash: gray, cucumber:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "raven: black, sun: yellow, chocolate: brown, cherry:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "lime: green, carrot: orange, chocolate: brown, strawberry:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "cloud: white, crow: black, leaf: green, lemon:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "salt: white, cloud: white, banana: yellow, chocolate:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "carrot: orange, chocolate: brown, emerald: green, tomato:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "ash: gray, sapphire: blue, blood: red, lime:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "ruby: red, ash: gray, tangerine: orange, cloud:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "sapphire: blue, ocean: blue, sky: blue, lemon:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "flamingo: pink, sky: blue, emerald: green, night:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "strawberry: red, snow: white, pumpkin: orange, frog:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "carrot: orange, cloud: white, ink: black, banana:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "tangerine: orange, leaf: green, cloud: white, violet:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "eggplant: purple, leaf: green, ash: gray, milk:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "flamingo: pink, night: black, ink: black, snow:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "snow: white, raven: black, lemon: yellow, frog:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "frog: green, eggplant: purple, cloud: white, sky:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "carrot: orange, sapphire: blue, lime: green, ink:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "pumpkin: orange, blood: red, grass: green, ocean:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "sky: blue, sapphire: blue, pumpkin: orange, violet:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "emerald: green, ink: black, blood: red, ash:",
+    "continuation": " gray",
+    "digits_only": false
+   },
+   {
+    "context": "cucumber: green, eggplant: purple, lemon: yellow, ocean:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "banana: yellow, cloud: white, lavender: purple, lime:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "blood: red, grass: green, ink: black, tangerine:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "grass: green, ivory: white, eggplant: purple, coffee:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "sky: blue, raven: black, banana: yellow, ruby:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "cucumber: green, ivory: white, blood: red, coal:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "leaf: green, ink: black, banana: yellow, tomato:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "salt: white, soil: brown, sky: blue, pumpkin:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "ivory: white, strawberry: red, ash: gray, pumpkin:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "soil: brown, coal: black, night: black, salt:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "sky: blue, ivory: white, emerald: green, soil:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "ivory: white, frog: green, banana: yellow, blood:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "emerald: green, strawberry: red, cucumber: green, crow:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "soil: brown, carrot: orange, lavender: purple, lemon:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "carrot: orange, violet: purple, crow: black, cucumber:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "salt: white, coal: black, soil: brown, strawberry:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "crow: black, sun: yellow, cloud: white, eggplant:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "coffee: brown, ash: gray, blood: red, emerald:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "cucumber: green, cloud: white, corn: yellow, carrot:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "lemon: yellow, banana: yellow, strawberry: red, sky:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "ink: black, frog: green, tomato: red, salt:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "lavender: purple, tangerine: orange, tomato: red, soil:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "ocean: blue, cucumber: green, leaf: green, carrot:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "ocean: blue, sky: blue, chocolate: brown, raven:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "sapphire: blue, strawberry: red, tomato: red, tangerine:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "tangerine: orange, crow: black, lime: green, milk:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "crow: black, violet: purple, ruby: red, emerald:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "sapphire: blue, grass: green, ink: black, ivory:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "ink: black, emerald: green, sapphire: blue, flamingo:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "milk: white, cherry: red, strawberry: red, soil:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "emerald: green, tangerine: orange, soil: brown, banana:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "lime: green, crow: black, ivory: white, blood:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "tomato: red, violet: purple, raven: black, corn:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "carrot: orange, coffee: brown, sky: blue, cherry:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "milk: white, crow: black, grass: green, lavender:",
+    "continuation": " purple",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "milk: white, night: black, lemon: yellow, grass:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "lemon: yellow, pumpkin: orange, tomato: red, lavender:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "corn: yellow, night: black, lemon: yellow, lavender:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "coal: black, grass: green, lime: green, sapphire:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "sun: yellow, lemon: yellow, salt: white, chocolate:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "raven: black, sky: blue, salt: white, violet:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "carrot: orange, snow: white, ocean: blue, sun:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "violet: purple, eggplant: purple, coal: black, snow:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "cucumber: green, leaf: green, soil: brown, corn:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "snow: white, carrot: orange, violet: purple, coal:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "cherry: red, cucumber: green, corn: yellow, snow:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "banana: yellow, sun: yellow, sky: blue, eggplant:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "elephant: gray, tangerine: orange, lemon: yellow, sky:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "eggplant: purple, sapphire: blue, tomato: red, tangerine:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "flamingo: pink, sky: blue, violet: purple, night:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "coffee: brown, violet: purple, cherry: red, ivory:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "lemon: yellow, sapphire: blue, ash: gray, raven:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "corn: yellow, grass: green, coal: black, cloud:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "sky: blue, carrot: orange, raven: black, tomato:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "ivory: white, ruby: red, carrot: orange, coffee:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "carrot: orange, coffee: brown, tomato: red, sapphire:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "eggplant: purple, cucumber: green, night: black, ivory:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "strawberry: red, chocolate: brown, emerald: green, ink:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "strawberry: red, tangerine: orange, ivory: white, flamingo:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "corn: yellow, strawberry: red, night: black, cloud:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "ivory: white, ink: black, lavender: purple, leaf:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "ruby: red, tomato: red, elephant: gray, ocean:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "eggplant: purple, lavender: purple, cloud: white, flamingo:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "ocean: blue, elephant: gray, soil: brown, coal:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "salt: white, violet: purple, ivory: white, raven:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "raven: black, tomato: red, violet: purple, sapphire:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "cucumber: green, leaf: green, tomato: red, carrot:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "ocean: blue, tomato: red, cloud: white, frog:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "snow: white, tomato: red, milk: white, eggplant:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "soil: brown, banana: yellow, ivory: white, night:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "night: black, sapphire: blue, pumpkin: orange, chocolate:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "elephant: gray, lavender: purple, banana: yellow, coffee:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "snow: white, corn: yellow, coffee: brown, blood:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "ivory: white, lemon: yellow, eggplant: purple, ash:",
+    "continuation": " gray",
+    "digits_only": false
+   },
+   {
+    "context": "carrot: orange, cucumber: green, eggplant: purple, elephant:",
+    "continuation": " gray",
+    "digits_only": false
+   },
+   {
+    "context": "lemon: yellow, emerald: green, crow: black, ruby:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "salt: white, tomato: red, night: black, banana:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "strawberry: red, ruby: red, crow: black, sun:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "flamingo: pink, tangerine: orange, leaf: green, milk:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "snow: white, eggplant: purple, soil: brown, strawberry:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "cherry: red, banana: yellow, crow: black, lime:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "night: black, lavender: purple, milk: white, leaf:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "grass: green, milk: white, lime: green, ruby:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "lavender: purple, carrot: orange, banana: yellow, ink:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "cherry: red, coffee: brown, carrot: orange, elephant:",
+    "continuation": " gray",
+    "digits_only": false
+   },
+   {
+    "context": "emerald: green, ocean: blue, blood: red, crow:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "cloud: white, flamingo: pink, soil: brown, leaf:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "pumpkin: orange, soil: brown, lavender: purple, sun:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "sky: blue, sun: yellow, tomato: red, emerald:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "cherry: red, chocolate: brown, cloud: white, grass:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "ivory: white, tomato: red, soil: brown, crow:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "cherry: red, ruby: red, ash: gray, cucumber:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "lime: green, coal: black, cherry: red, ash:",
+    "continuation": " gray",
+    "digits_only": false
+   },
+   {
+    "context": "lemon: yellow, lavender: purple, sapphire: blue, pumpkin:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "coal: black, lavender: purple, snow: white, corn:",
+    "continuation": " yellow",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "lemon: lemon, sapphire: sapphire, ash: ash, raven:",
+    "continuation": " raven",
+    "digits_only": false
+   },
+   {
+    "context": "lemon: lemon, pumpkin: pumpkin, tomato: tomato, lavender:",
+    "continuation": " lavender",
+    "digits_only": false
+   },
+   {
+    "context": "ocean: ocean, cucumber: cucumber, leaf: leaf, carrot:",
+    "continuation": " carrot",
+    "digits_only": false
+   },
+   {
+    "context": "snow: snow, tomato: tomato, milk: milk, eggplant:",
+    "continuation": " eggplant",
+    "digits_only": false
+   },
+   {
+    "context": "soil: soil, banana: banana, ivory: ivory, night:",
+    "continuation": " night",
+    "digits_only": false
+   },
+   {
+    "context": "coal: coal, grass: grass, lime: lime, sapphire:",
+    "continuation": " sapphire",
+    "digits_only": false
+   },
+   {
+    "context": "milk: milk, night: night, lemon: lemon, grass:",
+    "continuation": " grass",
+    "digits_only": false
+   },
+   {
+    "context": "elephant: elephant, lavender: lavender, banana: banana, coffee:",
+    "continuation": " coffee",
+    "digits_only": false
+   },
+   {
+    "context": "grass: grass, milk: milk, lime: lime, ruby:",
+    "continuation": " ruby",
+    "digits_only": false
+   },
+   {
+    "context": "cucumber: cucumber, ivory: ivory, blood: blood, coal:",
+    "continuation": " coal",
+    "digits_only": false
+   },
+   {
+    "context": "lime: lime, crow: crow, ivory: ivory, blood:",
+    "continuation": " blood",
+    "digits_only": false
+   },
+   {
+    "context": "lavender: lavender, tangerine: tangerine, tomato: tomato, soil:",
+    "continuation": " soil",
+    "digits_only": false
+   },
+   {
+    "context": "cloud: cloud, crow: crow, leaf: leaf, lemon:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "ivory: ivory, ruby: ruby, carrot: carrot, coffee:",
+    "continuation": " coffee",
+    "digits_only": false
+   },
+   {
+    "context": "sapphire: sapphire, strawberry: strawberry, tomato: tomato, tangerine:",
+    "continuation": " tangerine",
+    "digits_only": false
+   },
+   {
+    "context": "corn: corn, strawberry: strawberry, night: night, cloud:",
+    "continuation": " cloud",
+    "digits_only": false
+   },
+   {
+    "context": "lime: lime, carrot: carrot, chocolate: chocolate, strawberry:",
+    "continuation": " strawberry",
+    "digits_only": false
+   },
+   {
+    "context": "emerald: emerald, strawberry: strawberry, cucumber: cucumber, crow:",
+    "continuation": " crow",
+    "digits_only": false
+   },
+   {
+    "context": "milk: milk, cherry: cherry, strawberry: strawberry, soil:",
+    "continuation": " soil",
+    "digits_only": false
+   },
+   {
+    "context": "ocean: ocean, elephant: elephant, soil: soil, coal:",
+    "continuation": " coal",
+    "digits_only": false
+   },
+   {
+    "context": "corn: corn, night: night, lemon: lemon, lavender:",
+    "continuation": " lavender",
+    "digits_only": false
+   },
+   {
+    "context": "eggplant: eggplant, sapphire: sapphire, tomato: tomato, tangerine:",
+    "continuation": " tangerine",
+    "digits_only": false
+   },
+   {
+    "context": "ivory: ivory, lemon: lemon, eggplant: eggplant, ash:",
+    "continuation": " ash",
+    "digits_only": false
+   },
+   {
+    "context": "sky: sky, ivory: ivory, emerald: emerald, soil:",
+    "continuation": " soil",
+    "digits_only": false
+   },
+   {
+    "context": "raven: raven, tomato: tomato, violet: violet, sapphire:",
+    "continuation": " sapphire",
+    "digits_only": false
+   },
+   {
+    "context": "lemon: lemon, emerald: emerald, crow: crow, ruby:",
+    "continuation": " ruby",
+    "digits_only": false
+   },
+   {
+    "context": "strawberry: strawberry, chocolate: chocolate, emerald: emerald, ink:",
+    "continuation": " ink",
+    "digits_only": false
+   },
+   {
+    "context": "ivory: ivory, strawberry: strawberry, ash: ash, pumpkin:",
+    "continuation": " pumpkin",
+    "digits_only": false
+   },
+   {
+    "context": "carrot: carrot, cloud: cloud, ink: ink, banana:",
+    "continuation": " banana",
+    "digits_only": false
+   },
+   {
+    "context": "sky: sky, sun: sun, tomato: tomato, emerald:",
+    "continuation": " emerald",
+    "digits_only": false
+   },
+   {
+    "context": "leaf: leaf, ink: ink, banana: banana, tomato:",
+    "continuation": " tomato",
+    "digits_only": false
+   },
+   {
+    "context": "lemon: lemon, banana: banana, strawberry: strawberry, sky:",
+    "continuation": " sky",
+    "digits_only": false
+   },
+   {
+    "context": "sky: sky, sapphire: sapphire, pumpkin: pumpkin, violet:",
+    "continuation": " violet",
+    "digits_only": false
+   },
+   {
+    "context": "cherry: cherry, chocolate: chocolate, cloud: cloud, grass:",
+    "continuation": " grass",
+    "digits_only": false
+   },
+   {
+    "context": "coffee: coffee, ash: ash, blood: blood, emerald:",
+    "continuation": " emerald",
+    "digits_only": false
+   },
+   {
+    "context": "snow: snow, eggplant: eggplant, soil: soil, strawberry:",
+    "continuation": " strawberry",
+    "digits_only": false
+   },
+   {
+    "context": "snow: snow, carrot: carrot, violet: violet, coal:",
+    "continuation": " coal",
+    "digits_only": false
+   },
+   {
+    "context": "soil: soil, coal: coal, night: night, salt:",
+    "continuation": " salt",
+    "digits_only": false
+   },
+   {
+    "context": "pumpkin: pumpkin, blood: blood, grass: grass, ocean:",
+    "continuation": " ocean",
+    "digits_only": false
+   },
+   {
+    "context": "carrot: carrot, violet: violet, crow: crow, cucumber:",
+    "continuation": " cucumber",
+    "digits_only": false
+   },
+   {
+    "context": "salt: salt, cloud: cloud, banana: banana, chocolate:",
+    "continuation": " chocolate",
+    "digits_only": false
+   },
+   {
+    "context": "flamingo: flamingo, sky: sky, violet: violet, night:",
+    "continuation": " night",
+    "digits_only": false
+   },
+   {
+    "context": "salt: salt, violet: violet, ivory: ivory, raven:",
+    "continuation": " raven",
+    "digits_only": false
+   },
+   {
+    "context": "carrot: carrot, chocolate: chocolate, emerald: emerald, tomato:",
+    "continuation": " tomato",
+    "digits_only": false
+   },
+   {
+    "context": "emerald: emerald, ocean: ocean, blood: blood, crow:",
+    "continuation": " crow",
+    "digits_only": false
+   },
+   {
+    "context": "sun: sun, lemon: lemon, salt: salt, chocolate:",
+    "continuation": " chocolate",
+    "digits_only": false
+   },
+   {
+    "context": "emerald: emerald, ink: ink, blood: blood, ash:",
+    "continuation": " ash",
+    "digits_only": false
+   },
+   {
+    "context": "raven: raven, sun: sun, chocolate: chocolate, cherry:",
+    "continuation": " cherry",
+    "digits_only": false
+   },
+   {
+    "context": "cucumber: cucumber, cloud: cloud, corn: corn, carrot:",
+    "continuation": " carrot",
+    "digits_only": false
+   },
+   {
+    "context": "strawberry: strawberry, ruby: ruby, crow: crow, sun:",
+    "continuation": " sun",
+    "digits_only": false
+   },
+   {
+    "context": "ruby: ruby, tomato: tomato, elephant: elephant, ocean:",
+    "continuation": " ocean",
+    "digits_only": false
+   },
+   {
+    "context": "pumpkin: pumpkin, soil: soil, lavender: lavender, sun:",
+    "continuation": " sun",
+    "digits_only": false
+   },
+   {
+    "context": "grass: grass, ivory: ivory, eggplant: eggplant, coffee:",
+    "continuation": " coffee",
+    "digits_only": false
+   },
+   {
+    "context": "cherry: cherry, ruby: ruby, ash: ash, cucumber:",
+    "continuation": " cucumber",
+    "digits_only": false
+   },
+   {
+    "context": "cherry: cherry, banana: banana, crow: crow, lime:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "night: night, lavender: lavender, milk: milk, leaf:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "soil: soil, carrot: carrot, lavender: lavender, lemon:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "ash: ash, sapphire: sapphire, blood: blood, lime:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "elephant: elephant, tangerine: tangerine, lemon: lemon, sky:",
+    "continuation": " sky",
+    "digits_only": false
+   },
+   {
+    "context": "cucumber: cucumber, leaf: leaf, tomato: tomato, carrot:",
+    "continuation": " carrot",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "cherry: cherry, frog: frog, sun: sun, elephant:",
+    "continuation": " elephant",
+    "digits_only": false
+   },
+   {
+    "context": "banana: banana, cloud: cloud, lavender: lavender, lime:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "ink: ink, emerald: emerald, sapphire: sapphire, flamingo:",
+    "continuation": " flamingo",
+    "digits_only": false
+   },
+   {
+    "context": "sapphire: sapphire, ocean: ocean, sky: sky, lemon:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "ink: ink, tomato: tomato, corn: corn, salt:",
+    "continuation": " salt",
+    "digits_only": false
+   },
+   {
+    "context": "ivory: ivory, tomato: tomato, soil: soil, crow:",
+    "continuation": " crow",
+    "digits_only": false
+   },
+   {
+    "context": "raven: raven, sky: sky, salt: salt, violet:",
+    "continuation": " violet",
+    "digits_only": false
+   },
+   {
+    "context": "sky: sky, raven: raven, banana: banana, ruby:",
+    "continuation": " ruby",
+    "digits_only": false
+   },
+   {
+    "context": "carrot: carrot, coffee: coffee, sky: sky, cherry:",
+    "continuation": " cherry",
+    "digits_only": false
+   },
+   {
+    "context": "snow: snow, raven: raven, lemon: lemon, frog:",
+    "continuation": " frog",
+    "digits_only": false
+   },
+   {
+    "context": "ocean: ocean, sky: sky, chocolate: chocolate, raven:",
+    "continuation": " raven",
+    "digits_only": false
+   },
+   {
+    "context": "cucumber: cucumber, eggplant: eggplant, lemon: lemon, ocean:",
+    "continuation": " ocean",
+    "digits_only": false
+   },
+   {
+    "context": "crow: crow, sun: sun, cloud: cloud, eggplant:",
+    "continuation": " eggplant",
+    "digits_only": false
+   },
+   {
+    "context": "corn: corn, grass: grass, coal: coal, cloud:",
+    "continuation": " cloud",
+    "digits_only": false
+   },
+   {
+    "context": "corn: corn, pumpkin: pumpkin, ash: ash, cucumber:",
+    "continuation": " cucumber",
+    "digits_only": false
+   },
+   {
+    "context": "coffee: coffee, violet: violet, cherry: cherry, ivory:",
+    "continuation": " ivory",
+    "digits_only": false
+   },
+   {
+    "context": "tangerine: tangerine, crow: crow, lime: lime, milk:",
+    "continuation": " milk",
+    "digits_only": false
+   },
+   {
+    "context": "flamingo: flamingo, sky: sky, emerald: emerald, night:",
+    "continuation": " night",
+    "digits_only": false
+   },
+   {
+    "context": "tangerine: tangerine, leaf: leaf, cloud: cloud, violet:",
+    "continuation": " violet",
+    "digits_only": false
+   },
+   {
+    "context": "sapphire: sapphire, grass: grass, ink: ink, ivory:",
+    "continuation": " ivory",
+    "digits_only": false
+   },
+   {
+    "context": "flamingo: flamingo, tangerine: tangerine, leaf: leaf, milk:",
+    "continuation": " milk",
+    "digits_only": false
+   },
+   {
+    "context": "lavender: lavender, carrot: carrot, banana: banana, ink:",
+    "continuation": " ink",
+    "digits_only": false
+   },
+   {
+    "context": "cherry: cherry, cucumber: cucumber, corn: corn, snow:",
+    "continuation": " snow",
+    "digits_only": false
+   },
+   {
+    "context": "ruby: ruby, ash: ash, tangerine: tangerine, cloud:",
+    "continuation": " cloud",
+    "digits_only": false
+   },
+   {
+    "context": "carrot: carrot, sapphire: sapphire, lime: lime, ink:",
+    "continuation": " ink",
+    "digits_only": false
+   },
+   {
+    "context": "eggplant: eggplant, lavender: lavender, cloud: cloud, flamingo:",
+    "continuation": " flamingo",
+    "digits_only": false
+   },
+   {
+    "context": "flamingo: flamingo, night: night, ink: ink, snow:",
+    "continuation": " snow",
+    "digits_only": false
+   },
+   {
+    "context": "carrot: carrot, cucumber: cucumber, eggplant: eggplant, elephant:",
+    "continuation": " elephant",
+    "digits_only": false
+   },
+   {
+    "context": "carrot: carrot, coffee: coffee, tomato: tomato, sapphire:",
+    "continuation": " sapphire",
+    "digits_only": false
+   },
+   {
+    "context": "ivory: ivory, frog: frog, banana: banana, blood:",
+    "continuation": " blood",
+    "digits_only": false
+   },
+   {
+    "context": "strawberry: strawberry, snow: snow, pumpkin: pumpkin, frog:",
+    "continuation": " frog",
+    "digits_only": false
+   },
+   {
+    "context": "eggplant: eggplant, leaf: leaf, ash: ash, milk:",
+    "continuation": " milk",
+    "digits_only": false
+   },
+   {
+    "context": "banana: banana, sun: sun, sky: sky, eggplant:",
+    "continuation": " eggplant",
+    "digits_only": false
+   },
+   {
+    "context": "crow: crow, violet: violet, ruby: ruby, emerald:",
+    "continuation": " emerald",
+    "digits_only": false
+   },
+   {
+    "context": "tomato: tomato, violet: violet, raven: raven, corn:",
+    "continuation": " corn",
+    "digits_only": false
+   },
+   {
+    "context": "strawberry: strawberry, tangerine: tangerine, ivory: ivory, flamingo:",
+    "continuation": " flamingo",
+    "digits_only": false
+   },
+   {
+    "context": "violet: violet, eggplant: eggplant, coal: coal, snow:",
+    "continuation": " snow",
+    "digits_only": false
+   },
+   {
+    "context": "cucumber: cucumber, leaf: leaf, soil: soil, corn:",
+    "continuation": " corn",
+    "digits_only": false
+   },
+   {
+    "context": "ocean: ocean, tomato: tomato, cloud: cloud, frog:",
+    "continuation": " frog",
+    "digits_only": false
+   },
+   {
+    "context": "eggplant: eggplant, cucumber: cucumber, night: night, ivory:",
+    "continuation": " ivory",
+    "digits_only": false
+   },
+   {
+    "context": "lemon: lemon, lavender: lavender, sapphire: sapphire, pumpkin:",
+    "continuation": " pumpkin",
+    "digits_only": false
+   },
+   {
+    "context": "lavender: lavender, pumpkin: pumpkin, tangerine: tangerine, grass:",
+    "continuation": " grass",
+    "digits_only": false
+   },
+   {
+    "context": "cloud: cloud, flamingo: flamingo, soil: soil, leaf:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "snow: snow, corn: corn, coffee: coffee, blood:",
+    "continuation": " blood",
+    "digits_only": false
+   },
+   {
+    "context": "sky: sky, carrot: carrot, raven: raven, tomato:",
+    "continuation": " tomato",
+    "digits_only": false
+   },
+   {
+    "context": "cherry: cherry, coffee: coffee, carrot: carrot, elephant:",
+    "continuation": " elephant",
+    "digits_only": false
+   },
+   {
+    "context": "salt: salt, soil: soil, sky: sky, pumpkin:",
+    "continuation": " pumpkin",
+    "digits_only": false
+   },
+   {
+    "context": "milk: milk, crow: crow, grass: grass, lavender:",
+    "continuation": " lavender",
+    "digits_only": false
+   },
+   {
+    "context": "ivory: ivory, ink: ink, lavender: lavender, leaf:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "emerald: emerald, snow: snow, salt: salt, cherry:",
+    "continuation": " cherry",
+    "digits_only": false
+   },
+   {
+    "context": "blood: blood, grass: grass, ink: ink, tangerine:",
+    "continuation": " tangerine",
+    "digits_only": false
+   },
+   {
+    "context": "carrot: carrot, snow: snow, ocean: ocean, sun:",
+    "continuation": " sun",
+    "digits_only": false
+   },
+   {
+    "context": "emerald: emerald, tangerine: tangerine, soil: soil, banana:",
+    "continuation": " banana",
+    "digits_only": false
+   },
+   {
+    "context": "night: night, sapphire: sapphire, pumpkin: pumpkin, chocolate:",
+    "continuation": " chocolate",
+    "digits_only": false
+   },
+   {
+    "context": "frog: frog, eggplant: eggplant, cloud: cloud, sky:",
+    "continuation": " sky",
+    "digits_only": false
+   },
+   {
+    "context": "lime: lime, coal: coal, cherry: cherry, ash:",
+    "continuation": " ash",
+    "digits_only": false
+   },
+   {
+    "context": "ink: ink, frog: frog, tomato: tomato, salt:",
+    "continuation": " salt",
+    "digits_only": false
+   },
+   {
+    "context": "coal: coal, lavender: lavender, snow: snow, corn:",
+    "continuation": " corn",
+    "digits_only": false
+   },
+   {
+    "context": "salt: salt, coal: coal, soil: soil, strawberry:",
+    "continuation": " strawberry",
+    "digits_only": false
+   },
+   {
+    "context": "salt: salt, tomato: tomato, night: night, banana:",
+    "continuation": " banana",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 5.0729
+}
