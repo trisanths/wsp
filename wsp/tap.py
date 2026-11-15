@@ -30,8 +30,14 @@ decode each row's host ids back to text, run the donors on those texts,
 and build the visibility against the given ids (see auto_context). A
 manual prepare or set_tap_context takes priority until
 clear_tap_context. wsp.load sets the sources for a compiled model.
+
+Cached donors: a donors dict entry can be a CachedDonor in place of
+(donor_model, donor_tokenizer). It reads memories that a donor computed
+once for a fixed prompt set (see wsp.tap_cache and wsp.donor_extract), so
+taps on very large donors train and score with no donor model loaded.
 """
 
+import collections
 import contextlib
 import json
 import math
@@ -135,6 +141,181 @@ class _StopDonor(Exception):
     """Raised by a donor hook once the last needed layer has run."""
 
 
+class CachedDonor:
+    """A donor whose memories were computed once and stored with wsp.tap_cache.
+
+    Use it in a donors dict in place of (donor_model, donor_tokenizer):
+
+        donors = {"glm": CachedDonor("/vol/tap_cache/glm53flash", 31)}
+
+    It answers lookups by exact prompt text, with the outputs run_donor
+    gives: memory (batch, m, d) float32, memory_ends (batch, m) character
+    end offsets in the prompt text (-1 for specials and pads), and valid
+    (batch, m) bool. Rows are right padded to the longest row. A prompt
+    that is not in the cache raises a KeyError that names it.
+
+    layer: the one cached layer this donor gives, or None for any cached
+    layer. max_shards: how many shards (per layer) stay loaded, least
+    recently used first out; None keeps every shard loaded. A shard is
+    read on first use, and only the layers asked for. device: where lookup
+    puts its outputs by default (CPU when None).
+    """
+
+    def __init__(self, path, layer=None, max_shards=4, device=None):
+        from wsp.tap_cache import read_index, read_meta
+
+        self.path = path
+        self.meta = read_meta(path)
+        self.index = read_index(path)
+        self.layers = list(self.meta["layers"])
+        self.hidden_size = int(self.meta["hidden_size"])
+        self.donor_id = self.meta.get("donor_id")
+        self.layers_total = self.meta.get("layers_total")
+        if layer is not None and layer not in self.layers:
+            raise ValueError(f"layer {layer} is not in the cache at {path}; it holds layers {self.layers}")
+        self.layer = layer
+        self.max_shards = max_shards
+        self.device = device
+        # Least recently used caches: shard number -> row info, and (shard, layer) -> states.
+        self.row_cache = collections.OrderedDict()
+        self.layer_cache = collections.OrderedDict()
+        self.shard_reads = 0
+
+    def __repr__(self):
+        return f"CachedDonor({self.path!r}, layer={self.layer}, donor_id={self.donor_id!r})"
+
+    def check_layers(self, layers):
+        wanted = sorted(set(layers))
+        for layer in wanted:
+            if self.layer is not None and layer != self.layer:
+                raise ValueError(f"this CachedDonor gives layer {self.layer} only; a tap asked for layer {layer}")
+            if layer not in self.layers:
+                raise ValueError(f"layer {layer} is not in the cache at {self.path}; it holds layers {self.layers}")
+        return wanted
+
+    def remember(self, store, key, value):
+        store[key] = value
+        store.move_to_end(key)
+        if self.max_shards is not None:
+            while len(store) > self.max_shards:
+                store.popitem(last=False)
+
+    def shard_rows(self, number):
+        from wsp.tap_cache import read_shard_rows
+
+        if number in self.row_cache:
+            self.row_cache.move_to_end(number)
+            return self.row_cache[number]
+        rows = read_shard_rows(self.path, number)
+        self.remember(self.row_cache, number, rows)
+        return rows
+
+    def shard_layer(self, number, layer):
+        from wsp.tap_cache import read_shard_layer
+
+        key = (number, layer)
+        if key in self.layer_cache:
+            self.layer_cache.move_to_end(key)
+            return self.layer_cache[key]
+        states = read_shard_layer(self.path, number, layer)
+        self.shard_reads += 1
+        self.remember(self.layer_cache, key, states)
+        return states
+
+    def locate(self, prompt):
+        """Return (shard number, row) of a prompt, or raise a KeyError that names the prompt."""
+        from wsp.tap_cache import prompt_hash
+
+        found = self.index.get(prompt_hash(prompt))
+        if found is None:
+            raise KeyError(f"prompt not in the donor cache at {self.path}: {prompt[:200]!r}")
+        return int(found[0]), int(found[1])
+
+    def lookup(self, prompts, layers=None, device=None):
+        """Return (memories, ends, valid) like run_donor_layers: memories is a dict of layer -> (batch, m, d)."""
+        from wsp.tap_cache import prompt_hash
+
+        if layers is None:
+            if self.layer is None:
+                raise ValueError("this CachedDonor holds several layers; name the layers to look up")
+            layers = [self.layer]
+        wanted = self.check_layers(layers)
+        if device is None:
+            device = self.device
+        if device is None:
+            device = torch.device("cpu")
+        prompts = list(prompts)
+        places = []
+        for prompt in prompts:
+            places.append(self.locate(prompt))
+
+        # Visit each shard once, so a batch never loads a shard twice.
+        by_shard = collections.OrderedDict()
+        for position in range(len(prompts)):
+            number, row = places[position]
+            if number not in by_shard:
+                by_shard[number] = []
+            by_shard[number].append(position)
+
+        pieces = [None] * len(prompts)
+        for number in by_shard:
+            offsets, ends, valid, shard_prompts = self.shard_rows(number)
+            states = {}
+            for layer in wanted:
+                states[layer] = self.shard_layer(number, layer)
+            for position in by_shard[number]:
+                row = places[position][1]
+                if shard_prompts[row] != prompts[position]:
+                    raise KeyError(f"cache index points {prompt_hash(prompts[position])[:12]} at a different "
+                                   f"prompt in {self.path}: {prompts[position][:200]!r}")
+                start = int(offsets[row])
+                stop = int(offsets[row + 1])
+                row_states = {}
+                for layer in wanted:
+                    row_states[layer] = states[layer][start:stop]
+                pieces[position] = (row_states, ends[start:stop], valid[start:stop])
+
+        longest = 1
+        for row_states, row_ends, row_valid in pieces:
+            if row_ends.shape[0] > longest:
+                longest = row_ends.shape[0]
+        batch = len(prompts)
+        out_ends = torch.full((batch, longest), -1, dtype=torch.long)
+        out_valid = torch.zeros((batch, longest), dtype=torch.bool)
+        memories = {}
+        for layer in wanted:
+            memories[layer] = torch.zeros((batch, longest, self.hidden_size), dtype=torch.float32)
+        for position in range(batch):
+            row_states, row_ends, row_valid = pieces[position]
+            n = row_ends.shape[0]
+            out_ends[position, :n] = row_ends
+            out_valid[position, :n] = row_valid
+            for layer in wanted:
+                memories[layer][position, :n] = row_states[layer].to(torch.float32)
+        out_ends[~out_valid] = -1
+        for layer in wanted:
+            memories[layer] = memories[layer].to(device)
+        return memories, out_ends.to(device), out_valid.to(device)
+
+    def memory(self, prompts, layer=None, device=None):
+        """Return (memory, memory_ends, valid) for one layer, like run_donor."""
+        if layer is None:
+            layer = self.layer
+        memories, ends, valid = self.lookup(prompts, [layer], device=device)
+        return memories[layer], ends, valid
+
+
+def is_cached_donor(source):
+    return isinstance(source, CachedDonor)
+
+
+def donor_model_of(source):
+    """Return the donor model of a donors dict entry, or None for a CachedDonor."""
+    if is_cached_donor(source):
+        return None
+    return source[0]
+
+
 def run_donor_layers(donor_model, donor_tokenizer, prompts, layers):
     """Run the donor on prompts up to the deepest layer in layers, and stop there.
 
@@ -148,7 +329,12 @@ def run_donor_layers(donor_model, donor_tokenizer, prompts, layers):
     - ends: (batch, m) long tensor of character end offsets, -1 for
       special tokens and pads.
     - valid: (batch, m) bool tensor, True for real text tokens.
+
+    donor_model can also be a CachedDonor; then donor_tokenizer is not
+    used and the memories come from the cache.
     """
+    if is_cached_donor(donor_model):
+        return donor_model.lookup(prompts, layers)
     if donor_tokenizer.pad_token is None:
         donor_tokenizer.pad_token = donor_tokenizer.eos_token
     old_side = donor_tokenizer.padding_side
@@ -570,9 +756,11 @@ def donor_requests(host_model):
 def donor_memories(host_model, donors, prompts, derange=False):
     """Run each donor once on prompts and return, by tap index, (memory, ends, valid).
 
-    donors: dict of donor_id -> (donor_model, donor_tokenizer). Taps that
-    read the same donor share one run, up to the deepest layer any of them
-    needs. derange=True rolls each memory by one along the batch, so
+    donors: dict of donor_id -> (donor_model, donor_tokenizer), or
+    donor_id -> CachedDonor. Taps that read the same donor share one run,
+    up to the deepest layer any of them needs. A CachedDonor runs no
+    model: it looks the prompts up and puts the memories on the host
+    device. derange=True rolls each memory by one along the batch, so
     example i reads the memory of example i - 1 (the Draft-KV control).
     """
     requests = donor_requests(host_model)
@@ -590,7 +778,18 @@ def donor_memories(host_model, donors, prompts, derange=False):
     stats = host_model.wsp_tap_stats
     runs = {}
     for donor_id in layers_by_donor:
-        donor_model, donor_tokenizer = donors[donor_id]
+        source = donors[donor_id]
+        if is_cached_donor(source):
+            start = time.time()
+            memories, ends, valid = source.lookup(prompts, layers_by_donor[donor_id], device=host_device(host_model))
+            stats["donor_seconds"] += time.time() - start
+            stats["donor_runs"] += 1
+            stats["donor_tokens"] += int(valid.sum())
+            stats["donors"][donor_id] = {"layers_ran": max(layers_by_donor[donor_id]) + 1,
+                                         "layers_total": source.layers_total, "cached": True}
+            runs[donor_id] = (memories, ends, valid)
+            continue
+        donor_model, donor_tokenizer = source
         device = next(donor_model.parameters()).device
         if device.type == "cuda":
             torch.cuda.synchronize(device)
@@ -780,7 +979,9 @@ def tap_train(host_model, host_tokenizer, donors, pairs, params, steps=300, lr=1
     for param in host_model.parameters():
         param.requires_grad_(False)
     for donor_id in donors:
-        donor_model, _ = donors[donor_id]
+        donor_model = donor_model_of(donors[donor_id])
+        if donor_model is None:
+            continue
         donor_model.eval()
         for param in donor_model.parameters():
             param.requires_grad_(False)
@@ -895,15 +1096,26 @@ def donor_flops_note(host_model, donors):
     stats = host_model.wsp_tap_stats
     notes = []
     for donor_id in needed:
-        donor_model, _ = donors[donor_id]
-        _, layers = find_decoder_layers(donor_model, 0)
         ran = needed[donor_id] + 1
-        params_ran = 0
-        for index in range(ran):
-            for param in layers[index].parameters():
-                params_ran += param.numel()
-        notes.append({"donor_id": donor_id, "layers_ran": ran, "layers_total": len(layers),
-                      "params_ran": params_ran, "flops_per_token": 2 * params_ran,
+        source = donors[donor_id]
+        if is_cached_donor(source):
+            # The cache meta may give the parameter count of layers 0..L
+            # (params_ran_by_layer); without it the FLOPs are unknown.
+            by_layer = source.meta.get("params_ran_by_layer", {})
+            params_ran = by_layer.get(str(needed[donor_id]))
+            layers_total = source.layers_total
+        else:
+            _, layers = find_decoder_layers(source[0], 0)
+            layers_total = len(layers)
+            params_ran = 0
+            for index in range(ran):
+                for param in layers[index].parameters():
+                    params_ran += param.numel()
+        flops = None
+        if params_ran is not None:
+            flops = 2 * params_ran
+        notes.append({"donor_id": donor_id, "layers_ran": ran, "layers_total": layers_total,
+                      "params_ran": params_ran, "flops_per_token": flops,
                       "donor_seconds_so_far": round(stats["donor_seconds"], 4),
                       "donor_runs_so_far": stats["donor_runs"],
                       "donor_tokens_so_far": stats["donor_tokens"]})
@@ -976,8 +1188,10 @@ def tap_cost(host_model, donors=None, memory_tokens=128):
         return cost
     total_prefill = 0
     for note in donor_flops_note(host_model, donors):
-        per_prompt = note["flops_per_token"] * m
-        total_prefill += per_prompt
+        per_prompt = None
+        if note["flops_per_token"] is not None:
+            per_prompt = note["flops_per_token"] * m
+            total_prefill += per_prompt
         cost["donors"].append({"donor_id": note["donor_id"], "layers_ran": note["layers_ran"],
                                "layers_total": note["layers_total"], "params_ran": note["params_ran"],
                                "prefill_flops_per_donor_token": note["flops_per_token"],
