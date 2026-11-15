@@ -992,6 +992,28 @@ def quant_cell(cell, scheme="gptq", samples=256, smoke=False):
     return json.loads(json.dumps(row, default=str))
 
 
+@app.function(image=train_image, volumes={"/vol": volume}, timeout=1800, memory=16384)
+def inspect_dir(path):
+    """Shard sizes of a saved model, and the index names that no shard holds."""
+    from safetensors import safe_open
+
+    safe_reload()
+    names = sorted(os.listdir(path))
+    out = {"files": {n: os.path.getsize(os.path.join(path, n)) for n in names if n.endswith(".safetensors")}}
+    with open(os.path.join(path, "model.safetensors.index.json")) as f:
+        index = json.load(f)["weight_map"]
+    present = set()
+    for n in names:
+        if n.endswith(".safetensors"):
+            with safe_open(os.path.join(path, n), "pt") as g:
+                present.update(g.keys())
+    out["index_keys"] = len(index)
+    out["present_keys"] = len(present)
+    out["missing_in_shards"] = sorted(set(index) - present)[:10]
+    print("inspect", json.dumps(out), flush=True)
+    return out
+
+
 # ---------------------------------------------------------------- entrypoint
 
 
@@ -1001,6 +1023,10 @@ def main(stage: str, cells: str = "", smoke: bool = False, sample: bool = False,
     names = [name.strip() for name in cells.split(",") if name.strip()]
     if stage == "data":
         print(build_data.remote(smoke))
+        return
+    if stage == "inspect":
+        for name in names:
+            print(inspect_dir.remote(name))
         return
     if stage == "clinic_check":
         print(check_clinic_items.remote())
