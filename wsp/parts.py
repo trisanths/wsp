@@ -335,14 +335,27 @@ def mlp_width(config, layer):
     return _mlp_width(found["mlp"], _text_config(config))
 
 
-def _make_mlp(mlp_cls, config, n):
-    """Build the donor MLP class with a smaller intermediate size."""
+def _make_mlp(mlp_cls, config, n, layer):
+    """Build the donor MLP class of one layer with n neurons.
+
+    Most MLP classes take the config, some (Qwen MoE) an intermediate_size
+    too, and Gemma 4 the layer index.
+    """
     small = copy.deepcopy(config)
     set_mlp_width(small, n)
+    # Gemma 4 doubles the width on layers that reuse KV states. n is
+    # already the width we want.
+    if getattr(small, "use_double_wide_mlp", False):
+        small.use_double_wide_mlp = False
     try:
         return mlp_cls(small)
     except TypeError:
+        pass
+    try:
         return mlp_cls(small, intermediate_size=n)
+    except TypeError:
+        pass
+    return mlp_cls(small, layer)
 
 
 def _load_norm(meta_norm, prefix, tensors, dtype):
@@ -376,7 +389,7 @@ def build_mlp_cluster(config, layer, indices, tensors):
     first_name = _prefixed_keys(found["mlp"], mlp_prefix)[0]
     dtype = tensors[first_name].dtype
 
-    mlp = _make_mlp(type(found["mlp"]), text_config, n)
+    mlp = _make_mlp(type(found["mlp"]), text_config, n, layer)
     mlp = mlp.to(dtype)
     state = {}
     for key in found["mlp"].state_dict().keys():

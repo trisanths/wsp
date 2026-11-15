@@ -12,7 +12,15 @@ import torch
 transformers = pytest.importorskip("transformers")
 
 from wsp.graft import Graft, attach_grafts
-from wsp.parts import attn_tensor_names, block_tensor_names, build_attn_heads, build_block_part
+from wsp.parts import (
+    attn_tensor_names,
+    block_tensor_names,
+    build_attn_heads,
+    build_block_part,
+    build_mlp_cluster,
+    mlp_tensor_names,
+    mlp_width,
+)
 from tests.test_block import capture_block
 from tests.test_part_cache import SETTINGS, padded_prompts, tiny_host
 from tests.test_review_parts import layer_attention_io
@@ -127,3 +135,33 @@ def test_gemma4_features_a_part_cannot_run_raise_early():
     assert len(block_tensor_names(shared, 0, 1)) > 0
     with pytest.raises(NotImplementedError, match="shares KV states"):
         attn_tensor_names(gemma4_config(), 0)
+
+
+@pytest.mark.parametrize("shared", [False, True])
+def test_gemma4_mlp_cluster_matches_the_donor_mlp(shared):
+    # Gemma4TextMLP takes the layer index. With use_double_wide_mlp, the
+    # layers that reuse KV states have twice the MLP width.
+    if shared:
+        config = gemma4_config(
+            num_hidden_layers=6, num_kv_shared_layers=2, per_layer_config={}, use_double_wide_mlp=True,
+            layer_types=["sliding_attention", "full_attention"] * 3,
+        )
+        layer = 5
+    else:
+        config = gemma4_config()
+        layer = 1
+    torch.manual_seed(0)
+    donor = transformers.Gemma4ForCausalLM(config).eval()
+    width = mlp_width(config, layer)
+    if shared:
+        assert width == 2 * config.intermediate_size
+    state = donor.state_dict()
+    block = donor.model.layers[layer]
+    x = torch.randn(2, 6, config.hidden_size)
+    with torch.no_grad():
+        want = block.post_feedforward_layernorm(block.mlp(block.pre_feedforward_layernorm(x)))
+        whole = build_mlp_cluster(config, layer, torch.arange(width), state)
+        assert torch.allclose(whole(x), want, atol=1e-5)
+        first = build_mlp_cluster(config, layer, torch.arange(0, width, 2), state)
+        assert first.mlp.down_proj.weight.shape == (config.hidden_size, width // 2)
+    assert f"model.layers.{layer}.mlp.gate_proj.weight" in mlp_tensor_names(config, layer)
