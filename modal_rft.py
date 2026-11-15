@@ -307,8 +307,8 @@ def read_samples(sample_dir):
 
 @app.function(image=train_image, volumes={"/vol": volume}, gpu="H200", memory=262144, timeout=10 * 3600,
               single_use_containers=True)
-def train_round(base_dir, sft_path, out_dir, epochs=2, lr=1e-4, router_lr=1e-5, rank=64, max_tokens=8192,
-                max_seqs=8, accum=4, max_len=1536, max_steps=0, seed=0, train_routers=True, warmup=10):
+def train_round(base_dir, sft_path, out_dir, epochs=2, lr=1e-4, router_lr=1e-5, rank=64, max_tokens=16384,
+                max_seqs=48, accum=2, max_len=1536, max_steps=0, seed=0, train_routers=True, warmup=10):
     """LoRA SFT of a slim MoE on verified answers, merged and saved to out_dir. Loss on answer tokens only."""
     import torch
     import transformers
@@ -397,7 +397,12 @@ def train_round(base_dir, sft_path, out_dir, epochs=2, lr=1e-4, router_lr=1e-5, 
         restore()
     merge_lora(model)
     tmp = out_dir + ".tmp"
-    slim.save_slim(model, tmp, tokenizer)
+    import shutil
+
+    os.makedirs(tmp, exist_ok=True)
+    model.save_pretrained(tmp, max_shard_size="5GB")
+    tokenizer.save_pretrained(tmp)
+    shutil.copy(os.path.join(base, slim.MANIFEST), os.path.join(tmp, slim.MANIFEST))
     report = {"examples": len(examples), "skipped_long": skipped, "steps": steps, "epochs": epochs, "lr": lr,
               "router_lr": router_lr, "rank": rank, "accum": accum, "max_tokens": max_tokens,
               "train_routers": train_routers, "loss_first": sum(losses[:5]) / max(1, len(losses[:5])),
@@ -619,7 +624,7 @@ def drive(run="k64", rounds=3, shards=4, k=8, teacher_k=4, epochs=2, train_route
             entry["error"] = "no verified rows"
             save()
             break
-        rep = train_round.remote(base, rd + "/sft.jsonl", rd + "/model", epochs, 1e-4, 1e-5, 64, 8192, 8, 4, 1536,
+        rep = train_round.remote(base, rd + "/sft.jsonl", rd + "/model", epochs, 1e-4, 1e-5, 64, 16384, 48, 2, 1536,
                                  3 if smoke else 0, r, train_routers)
         entry["train"] = rep
         save()
