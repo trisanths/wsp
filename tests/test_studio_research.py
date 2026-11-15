@@ -39,9 +39,26 @@ def fake_search(provider="exa"):
     return search
 
 
+SCORE_URL = "https://example.org/law-results"
+SCORES = {"scores": [
+    {"benchmark": "MMLU professional law", "model": "SmolLM2-1.7B", "params_b": 1.7, "score": 28.4, "source_url": SCORE_URL,
+     "quote": "SmolLM2-1.7B reaches 28.4 on the law category"},
+    {"benchmark": "MMLU professional law", "model": "Made-Up-1B", "params_b": 1.0, "score": 0.61, "source_url": SCORE_URL,
+     "quote": "Made-Up-1B reaches 61.0 on the law category"},
+]}
+
+
+def fake_score_search(name, size_b):
+    return [{"title": "Law results", "url": SCORE_URL,
+             "text": "Table 2. SmolLM2-1.7B  reaches 28.4 on the law category. Other rows follow."}]
+
+
 def fake_llm(messages, schema, max_tokens=2500):
-    if "queries" in json.dumps(schema):
+    text = json.dumps(schema)
+    if "queries" in text:
         return json.dumps(PLAN)
+    if "scores" in text:
+        return json.dumps(SCORES)
     return json.dumps(SYNTH)
 
 
@@ -53,6 +70,7 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setenv("OPENAI_API_KEY", "test-key-not-used")
     monkeypatch.setattr(bench_research, "choose_provider", lambda: "exa")
     monkeypatch.setattr(bench_research, "search_exa", fake_search())
+    monkeypatch.setattr(bench_research, "search_exa_scores", fake_score_search)
     monkeypatch.setattr(bench_research, "ask_llm", fake_llm)
     bench_research._runs.clear()
     return TestClient(app)
@@ -96,7 +114,7 @@ def test_run_proposes_and_validates(client):
     ids = {item["id"]: item for item in stored["benchmarks"]}
     assert "mmlupro:law" in ids and ids["mmlupro:law"]["research"] is True
     assert ids["mmlupro:law"]["target"] == 0.35
-    assert len(ids["mmlupro:law"]["reference_scores"]) == 2
+    assert len(ids["mmlupro:law"]["reference_scores"]) == 4  # two from the first pass, two from the score pass
     assert "legalbench" not in ids
     assert ids["if_guard"]["kind"] == "guard"
     assert stored["limits"] == spec["limits"]
@@ -110,7 +128,7 @@ def test_reference_scores_survive_a_put(client):
     response = client.put("/api/spec/" + spec["id"], json=stored)
     assert response.status_code == 200
     kept = {item["id"]: item for item in response.json()["benchmarks"]}
-    assert len(kept["mmlupro:law"]["reference_scores"]) == 2
+    assert len(kept["mmlupro:law"]["reference_scores"]) == 4
     assert response.json()["benchmark_research"]["status"] == "done"
 
 
@@ -190,3 +208,22 @@ def test_timeout_records_error(client, monkeypatch):
     release.set()
     assert research["status"] == "error"
     assert "longer than" in research["error"]
+
+
+def test_second_pass_scores_need_a_quote_from_the_page(client):
+    spec = draft(client)
+    research = wait_research(client, spec["id"])
+    assert research["status"] == "done"
+    law = [p for p in research["proposals"] if p["runnable_id"] == "mmlupro:law"][0]
+    by_model = {entry["model"]: entry for entry in law["reference_scores"]}
+    # The quote is on the page (whitespace differs), so the score is sourced and keeps its quote.
+    assert by_model["SmolLM2-1.7B"]["sourced"] is True
+    assert by_model["SmolLM2-1.7B"]["score"] == 0.284
+    assert "28.4" in by_model["SmolLM2-1.7B"]["quote"]
+    # The page never says this, so the score is only an estimate.
+    assert by_model["Made-Up-1B"]["sourced"] is False
+    assert "quote" not in by_model["Made-Up-1B"]
+    urls = [source["url"] for source in research["sources"]]
+    assert SCORE_URL in urls
+    texts = [step["text"] for step in research["steps"]]
+    assert any(text.startswith("Searched for published scores on") for text in texts)

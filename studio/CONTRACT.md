@@ -98,6 +98,7 @@ When a spec is drafted (`POST /api/spec`) the server starts a research run in a 
 }
 ```
 
+- A reference score is `sourced: true` only when its `source_url` is a page the run read and that page's text shows the number (as a percentage or a fraction). Scores found by the second pass (with Exa, one search per picked target for its published results) also carry `quote`: the exact words from the page that show the model and the number. Anything else is `sourced: false`, an estimate. The check cannot tell which column of a table a number sits in, so the link is there for the reader to confirm.
 - `step.kind` is `think`, `search`, `read` or `pick`. `t` is seconds since the run started. `provider` is on search and read steps. `url` is on read steps.
 - `provider` is `exa` when `EXA_API_KEY` is set, else `openai_web` when `OPENAI_API_KEY` is set, else `none` (the model's own knowledge only).
 - `status` is `skipped` when `WSP_STUDIO_LLM` is `none` (the reason is in `error`; the rule-drafted benchmarks stay). A run that takes more than about 90 seconds ends as `error` with a plain message and keeps its steps.
