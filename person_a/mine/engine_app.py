@@ -30,7 +30,8 @@ volume = modal.Volume.from_name(VOLUME_NAME, create_if_missing=True)
 image = (
     modal.Image.debian_slim(python_version="3.12")
     .pip_install("torch==2.10.0", "transformers==5.23.0", "accelerate", "safetensors", "huggingface_hub",
-                 "hf_xet", "sentencepiece", "protobuf", "tiktoken", "einops", "flash-linear-attention")
+                 "hf_xet", "sentencepiece", "protobuf", "tiktoken", "einops", "flash-linear-attention",
+                 "kernels==0.18.2")  # kernels: transformers needs it to run fine-grained FP8 checkpoints
     .env({"HF_HOME": "/models/hf_cache"})
     .add_local_file(os.path.join(HERE, "adapter.py"), "/root/adapter.py")
     .add_local_file(os.path.join(HERE, "data", "builtin_skills.json"), "/root/builtin_skills.json")
@@ -300,6 +301,65 @@ class EngineBase:
         for key in abl:
             drops[key[0] + "|" + key[1]] = rel_drop(base[key]["score"], abl[key]["score"])
         return {"drops": drops, "ablated": self._as_dict(abl), "seconds": round(time.time() - start, 1)}
+
+    @modal.method()
+    def skill_maps(self, payload, routing_items=64):
+        # Model-level maps for the compiler, measured only on the payload's skill sets:
+        # - layer_lp: mean answer log-prob of each skill when one whole layer is skipped
+        # - expert_freq: for layers with fused experts, how often the router picks each expert
+        #   (picks per scored token) on each skill's text
+        import torch
+
+        start = time.time()
+        base = self._score(payload, None)
+        layer_lp = {}
+        for l in range(self.info["n_layers"]):
+            abl = self._score(payload, {"kind": "block", "layers": [l]})
+            for key in abl:
+                layer_lp.setdefault(key[0] + "|" + key[1], []).append(abl[key]["lp"])
+        exp_layers = []
+        for e in self.info["layers"]:
+            if "experts" in e and e["experts"].get("style") != "module_list":
+                exp_layers.append(e["layer"])
+        expert_freq = None
+        if exp_layers:
+            expert_freq = {}
+            sets = self._skill_sets(payload)
+            for key in sets:
+                rows = self._tokenized(sets[key][0], sets[key][1])[:routing_items]
+                sums = {}
+                state = {"mask": None}
+                handles = []
+                try:
+                    for l in exp_layers:
+                        handles.append(self._stat_hook("expert", l, sums, state))
+                    with torch.no_grad():
+                        for batch in self._batches(rows, 4.0e8):
+                            ids, mask = self._pad(rows, batch)
+                            m = mask.clone()
+                            m[:, 0] = 0
+                            state["mask"] = m
+                            state["count"] = float(m.sum())
+                            self.model(input_ids=ids, attention_mask=mask, use_cache=False)
+                finally:
+                    self.adapter.remove_all(handles)
+                per_layer = {}
+                for l in sums:
+                    freq = (sums[l]["sum"] / max(sums[l]["n"], 1.0)).float().cpu().tolist()
+                    per_layer[str(l)] = [round(float(x), 6) for x in freq]
+                expert_freq[key[0] + "|" + key[1]] = per_layer
+        base_out = {}
+        for key in base:
+            base_out[key[0] + "|" + key[1]] = {"lp": base[key]["lp"], "score": base[key]["score"]}
+        return {"base": base_out, "layer_lp": layer_lp, "expert_freq": expert_freq, "info": self.info_summary_local(),
+                "seconds": round(time.time() - start, 1)}
+
+    def info_summary_local(self):
+        s = self.adapter.summarize(self.info)
+        s["model_class"] = type(self.model).__name__
+        s["vocab"] = self.vocab
+        s["load_seconds"] = self.load_seconds
+        return s
 
     @modal.method()
     def random_drops(self, payload, part, target, n, seed):
