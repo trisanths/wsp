@@ -88,6 +88,7 @@ CELLS = {
     "keep_24": ("slim", "keep_24", 1),
     "keep_32": ("slim", "keep_32", 2),
     "keep_48": ("slim", "keep_48", 2),
+    "keep_48_tp4": ("slim", "keep_48", 4),
     "keep_64": ("slim", "keep_64", 4),
     "full_235b": ("hub", MODEL, 8),
 }
