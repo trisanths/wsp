@@ -579,7 +579,7 @@ def drive(run="k64", rounds=3, shards=4, k=8, teacher_k=4, epochs=2, train_route
 
     # Row 0: the start model, scored first. The full model is the reference.
     jobs = []
-    if not os.path.exists(f"{run_dir}/score_start.json"):
+    if not smoke and not os.path.exists(f"{run_dir}/score_start.json"):
         jobs.append(score_model.spawn(start, f"{run}_start", f"{run_dir}/score_start.json", False, suites, limit))
     if not os.path.exists(f"{run_dir}/score_full.json") and not smoke:
         jobs.append(score_model.spawn(BASE, f"{run}_full30b", f"{run_dir}/score_full.json", False, suites, limit))
@@ -631,8 +631,12 @@ def drive(run="k64", rounds=3, shards=4, k=8, teacher_k=4, epochs=2, train_route
 
     # Pick the round by the held-out train slice only.
     best = "start"
-    start_row = json.load(open(f"{run_dir}/score_start.json"))
-    best_value = start_row["scores"].get("heldout", 0.0)
+    start_path = f"{run_dir}/score_start.json"
+    if not os.path.exists(start_path):
+        summary["selected"] = None
+        save()
+        return summary
+    best_value = json.load(open(start_path))["scores"].get("heldout", 0.0)
     for key, entry in summary["rounds"].items():
         sc = entry.get("score") or {}
         value = (sc.get("scores") or {}).get("heldout")
