@@ -43,7 +43,7 @@ image = (
         "torch==2.7.1", "transformers==4.57.1", "accelerate", "huggingface_hub", "requests",
         "safetensors", "zstandard", "numpy", "datasets", "sentencepiece", "protobuf",
     )
-    .env({"HF_HOME": "/vol/hf"})
+    .env({"HF_HOME": "/vol/hf", "PYTORCH_CUDA_ALLOC_CONF": "expandable_segments:True"})
     .add_local_python_source("wsp")
     .add_local_file("modal_graft.py", "/root/modal_graft.py")
     .add_local_file("modal_round5.py", "/root/modal_round5.py")
@@ -530,6 +530,14 @@ def cell(config):
                   {"params": list(graft.token_gate.parameters())
                    + [p for eg in extras for p in eg.token_gate.parameters()], "lr": lr["gate"]},
                   {"params": enc, "lr": lr["enc2"]}]
+    if arm == "real" and c.get("with_lora"):
+        # Graft plus a LoRA of the same budget on the host (applied after alignment; LoRA starts at zero).
+        rank = rank_for_budget(base, budget)
+        extra_lora = apply_lora(base, rank, default_alpha(rank))
+        for p in extra_lora:
+            p.requires_grad_(True)
+        groups.append({"params": extra_lora, "lr": lr["lora"]})
+        row["lora_rank"] = rank
     row["trainable"] = pgraft.count([p for g in groups for p in g["params"]])
 
     skill_texts = []
@@ -571,7 +579,7 @@ def cell(config):
         mc = {"train": mc["train"][:32], "eval": mc["eval"][:16]}
         mc_evals = {n: v[:16] for n, v in mc_evals.items()}
     letters = letter_ids(tok)
-    mc_feed = pgraft._batches(mc["train"], 8, seed + 31)
+    mc_feed = pgraft._batches(mc["train"], c.get("mc_batch", 8), seed + 31)
     gen_feed = pgraft._batches(data["general"], 4, seed + 41)
     device = torch.device("cuda")
 
@@ -595,6 +603,12 @@ def cell(config):
         logs["kd"] = pgraft.train(base, groups, c["kd_steps"] + extra, kd_step, seed=seed, log_every=100)
         extra = 0
     if "mc" in c["objective"]:
+        # MC training without the alignment regularizer never calls the donor: park it on the CPU.
+        parked = c["align_reg"] <= 0
+        if parked:
+            donor.to("cpu")
+            gc.collect()
+            torch.cuda.empty_cache()
         logs["mc"] = pgraft.train(base, groups, c["task_steps"] + extra, mc_step, seed=seed + 1, log_every=100)
     for name, log in logs.items():
         row[name + "_first50"] = sum(r["loss"] for r in log[:50]) / len(log[:50])
@@ -604,6 +618,8 @@ def cell(config):
             if gates:
                 row[name + "_" + key + "_curve"] = gates
 
+    if "mc" in c["objective"] and parked:
+        donor.to("cuda")
     base.eval()
     row["kd_gap"] = pgraft.kd_report(base, tok, donor, dtok, data["domain_eval"], vmap, cfg)
     row["skills"] = score_skills(base, tok, skills)
@@ -840,7 +856,30 @@ def batch_h8():
     return out
 
 
-BATCHES = {"h1": batch_h1, "h2": batch_h2, "h3": batch_h3, "h4": batch_h4, "h5": batch_h5, "h6": batch_h6, "h7": batch_h7, "h8": batch_h8}
+def batch_h9():
+    """The 3B host, where h6's graft only tied LoRA: multi-layer reads, graft plus LoRA (against LoRA at twice
+    the budget), the 14B donor, and second seeds for the h6 cells."""
+    out = []
+    win = {"type": "block", "first": 4, "last": 20}
+    big = {"objective": "mc", "align_steps": 600, "task_steps": 1000, "enc_depth": 2, "part": win,
+           "domain": "knowledge", "mc_train": "general", "host": "unsloth/Llama-3.2-3B-Instruct", "arm": "real"}
+    out.append(dict(big, name="b3-read2.5.8-w8", host_layer=8, read_layers=[2, 5, 8]))
+    out.append(dict(big, name="b3-read1to8-w8", host_layer=8, read_layers=list(range(1, 9))))
+    out.append(dict(big, name="b3-read4.8.12-w12", host_layer=12, read_layers=[4, 8, 12]))
+    out.append(dict(big, name="b3-read2to14-w14", host_layer=14, read_layers=list(range(2, 15, 2))))
+    out.append(dict(big, name="b3-host8+lora", host_layer=8, with_lora=True))
+    out.append(dict(big, name="b3-read1to8-w8+lora", host_layer=8, read_layers=list(range(1, 9)), with_lora=True))
+    out.append(dict(big, name="b3-lora-2x", arm="lora", lora_budget_mult=2.0))
+    out.append(dict(big, name="b3-lora-s1", arm="lora", seed=1))
+    out.append(dict(big, name="b3-host8-s1", host_layer=8, seed=1))
+    out.append(dict(big, name="b3-q14-host8", domain="knowledge14", host_layer=8,
+                    part={"type": "block", "first": 7, "last": 34}))
+    out.append(dict(big, name="b3-q14-lora", domain="knowledge14", arm="lora",
+                    part={"type": "block", "first": 7, "last": 34}))
+    return out
+
+
+BATCHES = {"h1": batch_h1, "h2": batch_h2, "h3": batch_h3, "h4": batch_h4, "h5": batch_h5, "h6": batch_h6, "h7": batch_h7, "h8": batch_h8, "h9": batch_h9}
 
 
 @app.local_entrypoint()
