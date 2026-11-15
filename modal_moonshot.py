@@ -85,7 +85,9 @@ SPEED_BATCHES = (1, 32)
 # cell: (kind, directory name or Hub id, tensor parallel size)
 CELLS = {
     "keep_16": ("slim", "keep_16", 1),
+    "keep_24": ("slim", "keep_24", 1),
     "keep_32": ("slim", "keep_32", 2),
+    "keep_48": ("slim", "keep_48", 2),
     "keep_64": ("slim", "keep_64", 4),
     "full_235b": ("hub", MODEL, 8),
 }
@@ -635,7 +637,7 @@ def build(keeps: str = ""):
     src = snapshot_dir()
     log("build", f"stats {candidates[-1]}, keeps {wanted}, source {src}")
     os.makedirs(MODEL_DIR, exist_ok=True)
-    with open(os.path.join(MODEL_DIR, "kept.json"), "w") as f:
+    with open(os.path.join(MODEL_DIR, "kept_" + "_".join(str(k) for k in sorted(chosen)) + ".json"), "w") as f:
         json.dump({str(k): {str(l): ids for l, ids in v.items()} for k, v in chosen.items()}, f)
     extra = ["generation_config.json", "tokenizer.json", "tokenizer_config.json", "vocab.json", "merges.txt"]
     summary = slim_checkpoint(src, MODEL_DIR, chosen, workers=4, commit=safe_commit, copy_files=extra)
