@@ -4,7 +4,7 @@ import { go, toast, pct, pctS, sgn, bsize, clamp, clone, emptyProgram, normProgr
 import { storageKey, DEMO } from '../demo-flag.js';
 import { TopBar, Icon, Spinner, ErrorBox, Menu, BenchBar, BenchLegend, Ring, Tag, StubBadge } from '../components.js';
 import { PopNum, SlidingBar, SkelReveal, Matrix, SuccessCheck, useShake, shake, SwapText } from '../motion.js';
-import { ModelLogo } from '../logos.js';
+import { ModelLogo, SponsorMark, PoweredBy } from '../logos.js';
 import { Compare, StatusTag, groupByKind, lockOf, HealNote, usesHeal, healNoteOf, PartsList, Stages, VerdictTag, componentFor, filterItems, countItems, FilterRow, NO_FILTER, PAGE_SIZE, DELETION } from '../cmp.js';
 
 // Short labels for score statuses other than ok. Only "collapsed" means the model lost a skill.
@@ -450,7 +450,7 @@ export function BuilderScreen({ id, specId }) {
   };
 
   return html`<${TopBar} right=${html`<span class="pill hide-sm">evals left <b class="num">${budget ? budget.evals_total - budget.evals_used + ' / ' + budget.evals_total : '-'}</b></span>
-      <span class="pill hide-md" title=${budget && budget.compute_raised && !DEMO ? 'The spec says ' + budget.spec_compute_min + ' min. The stub backend raises the compute cap so the evals run out first.' : null}>compute <b class="num">${budget ? (budget.compute_used_s / 60).toFixed(budget.compute_used_s < 600 ? 1 : 0) + ' / ' + Math.round(budget.compute_total_s / 60) + ' min' : '-'}</b>${budget && budget.compute_raised ? html` <${StubBadge} small />` : null}</span>
+      <span class="pill hide-md" title=${budget && budget.compute_raised && !DEMO ? 'The spec says ' + budget.spec_compute_min + ' min. The stub backend raises the compute cap so the evals run out first.' : null}><${SponsorMark} who="modal" size=${12} title="GPUs on Modal" /> compute <b class="num">${budget ? (budget.compute_used_s / 60).toFixed(budget.compute_used_s < 600 ? 1 : 0) + ' / ' + Math.round(budget.compute_total_s / 60) + ' min' : '-'}</b>${budget && budget.compute_raised ? html` <${StubBadge} small />` : null}</span>
       <button class="btn ghost sm" disabled=${!undo.length} onClick=${doUndo} title="Undo (Ctrl or Cmd + Z)"><${Icon} n="undo" size=${14} /> Undo</button><button class="btn sm" disabled=${handing} onClick=${handoff}>${handing ? html`<${Spinner} size=${12} />` : null} Hand to agents</button>`}>
       <h1 class="page-title bt-title ell" title=${spec ? spec.title : 'Builder'}>${spec ? spec.title : 'Builder'}</h1><span class="tag">draft ${attempts.length + 1}</span>
     <//>
@@ -526,13 +526,14 @@ export function BuilderScreen({ id, specId }) {
         </div>`}
       </div>
       <div class="cv-actions" style=${view === 'code' ? { display: 'none' } : {}}>
-        ${job && html`<div class="jobline"><${Spinner} size=${13} /><span style="text-transform:capitalize">${job.action === 'compile' ? 'Checking fit' : job.action === 'heal' ? 'Healing' : job.action === 'train' ? 'Training' : 'Scoring'}${job.status === 'queued' ? ', queued' : ''}</span><div class="bigbar"><div class="fill" style=${{ width: jobPct + '%', transition: 'width 1s linear' }}></div></div></div>`}
+        ${job && html`<div class="jobline"><${Spinner} size=${13} /><${SponsorMark} who="modal" size=${13} title="Running on Modal GPUs" /><span style="text-transform:capitalize">${job.action === 'compile' ? 'Checking fit' : job.action === 'heal' ? 'Healing' : job.action === 'train' ? 'Training' : 'Scoring'}${job.status === 'queued' ? ', queued' : ''}</span><div class="bigbar"><div class="fill" style=${{ width: jobPct + '%', transition: 'width 1s linear' }}></div></div></div>`}
         <div class="row">
           <button class=${'btn' + (job && job.action === 'compile' ? ' is-busy' : '')} ref=${(el) => { btnRefs.current.compile = el; }} disabled=${!!job} onClick=${() => run('compile')}>${job && job.action === 'compile' ? html`<${Matrix} variant="scan" />` : html`<${Icon} n="gear" size=${14} />`} Compile <span class="k">free fit check</span></button>
           <button class=${'btn' + (job && job.action === 'heal' ? ' is-busy' : '')} ref=${(el) => { btnRefs.current.heal = el; }} disabled=${!!job} onClick=${() => run('heal')}>${job && job.action === 'heal' ? html`<${Matrix} variant="pulse" />` : html`<${Icon} n="heal" size=${14} />`} Heal <span class="k">${healLabel}</span></button>
           <button class=${'btn' + (job && job.action === 'train' ? ' is-busy' : '')} ref=${(el) => { btnRefs.current.train = el; }} disabled=${!!job} onClick=${() => run('train')}>${job && job.action === 'train' ? html`<${Matrix} variant="orbit" />` : html`<${Icon} n="up" size=${14} />`} Train <span class="k">LoRA r${program.lora ? program.lora.rank : 16}</span></button>
           <button class=${'btn primary' + (job && job.action === 'score' ? ' is-busy' : '')} ref=${(el) => { btnRefs.current.score = el; }} disabled=${!!job} onClick=${() => run('score')}>${job && job.action === 'score' ? html`<${Matrix} variant="twinkle" />` : flash === 'score' ? html`<${SuccessCheck} size=${14} />` : html`<${Icon} n="play" size=${13} />`} Score <span class="k" title=${scoreEvals === 2 ? 'One eval for this build and one for its random-part control' : null}>${scoreEvals} eval${scoreEvals === 1 ? '' : 's'}</span></button>
         </div>
+        ${!job && html`<div class="sp-note"><${PoweredBy} who="modal" label="GPUs on" /></div>`}
       </div>
     </section>
 
@@ -563,7 +564,7 @@ export function BuilderScreen({ id, specId }) {
       ${attempts.length > 0 && html`<div><div class="label" style="margin:2px 0 6px">Attempts this session <span class="faint">(average of targets)</span></div>
         ${[...attempts].reverse().slice(0, 8).map((a) => html`<div class="attempt" title="Load this program" tabindex="0" role="button" onKeyDown=${onKeyAct(() => { setProgram(clone(a.program)); setFits({}); })} onClick=${() => { setProgram(clone(a.program)); setFits({}); }}><span class="n">${a.n}</span><span class="d">${briefProgram(a.program, cat)}</span><span class=${'num ' + (a.status && a.status !== 'ok' ? 'down' : '')}>${a.status && a.status !== 'ok' ? statusLabel(a.status) : a.scores && avg(a) != null ? pctS(avg(a)) : pctS(a.combined)}</span></div>`)}</div>`}
 
-      <div style="display:flex;justify-content:space-between;align-items:center"><span class="label">Suggestions</span><button class="btn ghost sm" disabled=${sugBusy} onClick=${() => refreshSugs()}>${sugBusy ? html`<${Spinner} size=${11} />` : 'Refresh'}</button></div>
+      <div style="display:flex;justify-content:space-between;align-items:center"><span class="label" style="display:inline-flex;align-items:center;gap:8px">Suggestions<${PoweredBy} who="openai" label="Suggested with" /></span><button class="btn ghost sm" disabled=${sugBusy} onClick=${() => refreshSugs()}>${sugBusy ? html`<${Spinner} size=${11} />` : 'Refresh'}</button></div>
       ${sugBusy && !sugs && html`<div class="sugload"><${Spinner} size=${13} /> Thinking</div>`}
       ${(sugs || []).map((s) => html`<div class="sug"><b>${s.title}</b> <span class="dim">${s.detail}</span><div class="row"><${Tag} kind=${/likely/.test(s.tag) ? 'g' : /bigger/.test(s.tag) ? 'b' : ''}>${s.tag}<//><button class="btn sm" onClick=${() => { setProgram(clone(s.program)); setFits({}); toast('Applied. Undo with Ctrl or Cmd + Z.'); setSugs((x) => (x || []).filter((y) => y !== s)); }}>Apply</button></div></div>`)}
       ${sugs && !sugs.length && !sugBusy && html`<div class="faint">No suggestions right now.</div>`}

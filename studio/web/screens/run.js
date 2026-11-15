@@ -10,6 +10,7 @@ import { useCatalog, nameOf, AgentList, bestTarget, isEmptyEnd, runRecent } from
 import { ActivityPage } from './run-activity.js';
 import { AgentPage } from './run-agent.js';
 import { ResultsPage } from './run-results.js';
+import { PoweredBy } from '../logos.js';
 import { Logos, donorsOf, verdictOf, HealNote, usesHeal, healNoteOf, partsCount } from '../cmp.js';
 
 const TABS = [['overview', 'Overview', ''], ['activity', 'Activity', '/activity'], ['results', 'Results', '/results']];
@@ -48,7 +49,7 @@ function RunHead({ snap, justDone, note, onPause, onResume, onStop }) {
         <button class="btn sm" disabled=${s === 'stopping'} onClick=${onStop}>${s === 'stopping' ? 'Stopping' : 'Stop'}</button>
       </div>`}
     </div>
-    <div class="rh-status"><${StatusLine} snap=${snap} justDone=${justDone} /></div>
+    <div class="rh-status"><${StatusLine} snap=${snap} justDone=${justDone} /><${PoweredBy} who="modal" label="GPUs on" class="rstatchip" /></div>
     ${note && html`<div class="rh-note" role="status">${note}</div>`}
     <div class=${'rline' + (end === 'finished' ? ' ok' : end === 'stopped' ? ' stopped' : '')} aria-hidden="true"><i style=${{ width: (end === 'finished' ? 1 : frac) * 100 + '%' }}></i></div>
   </div></header>`;
@@ -107,7 +108,7 @@ function Overview({ snap, cat, id, done, busy, onBuild }) {
   return html`<div class="rpage"><div class="col">
     <${BestBlock} snap=${snap} cat=${cat} done=${done} busy=${busy} onBuild=${onBuild} />
     ${snap.refused > 0 && !/refused/.test(snap.empty_reason || '') && html`<div class="refused">${snap.refused} ${snap.refused === 1 ? 'proposal' : 'proposals'} refused for going over your limits</div>`}
-    <section class="rsec"><h2 class="rh2">Agents</h2><${AgentList} snap=${snap} /></section>
+    <section class="rsec"><div class="rsechead"><h2 class="rh2">Agents</h2><${PoweredBy} who="pastdev" label="Notes shared through" /></div><${AgentList} snap=${snap} /></section>
     <${TopPrograms} snap=${snap} cat=${cat} id=${id} />
   </div></div>`;
 }

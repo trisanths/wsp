@@ -3,7 +3,7 @@ import { api } from '../api.js';
 import { toast, clamp, pct, dur, addRecent, patchRecent, getRecent, useDebouncedCallback, benchName } from '../util.js';
 import { TopBar, Icon, ErrorBox, StubBadge } from '../components.js';
 import { SubtleNum, SkelReveal, Matrix, SuccessCheck, shake, AutoHeight } from '../motion.js';
-import { ModelLogo } from '../logos.js';
+import { ModelLogo, PoweredBy } from '../logos.js';
 import { Compare } from '../cmp.js';
 import { Slider } from './spec.js';
 import { MeasuredForPlan } from './measured.js';
@@ -45,7 +45,7 @@ function Result({ job, spec, plan }) {
   const src = r.source_scores || {};
   const ctl = (r.control && r.control.scores) || {};
   return html`<section class="rsect result" id="result">
-    <h2 class="sec"><span>Result</span>${r.stub && html`<${StubBadge} small />`}</h2>
+    <h2 class="sec"><span>Result</span><span class="sec-r">${r.stub && html`<${StubBadge} small />`}<${PoweredBy} who="modal" label="GPUs on" /></span></h2>
     <div class="figs">
       <${Figure} label="Stored" before=${fmtB(before, 2)} now=${fmtB(r.params_b, 2)} />
       <${Figure} label="Run per token" before=${fmtB(plan.source_active_params_b, 2)} now=${fmtB(r.active_params_b, 2)} />
@@ -232,6 +232,7 @@ export function ShrinkScreen({ id, specId }) {
         <button ref=${btn} class=${'btn primary big1' + (running ? ' is-busy' : '')} disabled=${running || busy || !plan.ok} onClick=${run}>${running ? html`<${Matrix} variant="scan" />` : done ? html`<${SuccessCheck} size=${14} />` : html`<${Icon} n="play" size=${13} />`} ${running ? 'Shrinking' : done ? 'Run it again' : 'Run the shrink'}</button>
         ${!plan.ok && reason && html`<span class="why">Cannot run yet. ${reason}</span>`}
         ${plan.ok && !running && !runErr && html`<span class="faint small">Nothing runs until you press this. The numbers above are estimates.</span>`}
+        <span class="grow"></span><${PoweredBy} who="modal" label="GPUs on" />
       </div>
       ${runErr && html`<div class="prob run-err" role="alert"><${Icon} n="warn" size=${14} /><span>${runErr}</span></div>`}
       ${running && html`<div class="jobline2"><span>${job.status === 'queued' ? 'Queued' : 'Running'}</span>${job.log && job.log.length > 0 && html`<${LogLines} lines=${job.log} />`}</div>`}

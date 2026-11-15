@@ -466,8 +466,14 @@ class RunState:
                     is_best = True
                 if agent is not None and (agent["best"] is None or target > agent["best"]):
                     agent["best"] = number(target)
+            program = row.get("program")
+            scores = {task: number(value) for task, value in (row.get("scores") or {}).items()
+                      if value is not None}
             self.curve.append({"eval": len(self.curve) + 1, "best": number(self.best_target),
-                               "score": number(target)})
+                               "score": number(target), "program_hash": key,
+                               "name": self.readable(program, row.get("describe")),
+                               "agent": agent_id, "status": row.get("status"),
+                               "scores": scores, "is_best": is_best})
         current = self.programs.get(key)
         if current is None or row["combined"] > current["row"]["combined"]:
             donors = self.donors_of(row.get("program"))

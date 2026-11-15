@@ -46,6 +46,7 @@ export function Icon({ n, size = 16, sw = 1.75 }) {
 }
 
 import { DEMO } from './demo-flag.js';
+import { SponsorMark, PoweredBy } from './logos.js';
 
 export function StubBadge({ small, title }) {
   if (DEMO) return null;
@@ -73,11 +74,12 @@ export function TopBar({ children, right }) {
   const label = health && health.llm_model ? health.llm_model + ' agents' : 'Sapien agents';
   return html`<header class="topbar">
     <div class="picker-wrap">
-      <button class="picker" onClick=${() => setOpen(!open)} aria-haspopup="menu" aria-expanded=${open}><span>${label}</span><${Icon} n="down" size=${14} /></button>
+      <button class="picker" onClick=${() => setOpen(!open)} aria-haspopup="menu" aria-expanded=${open}><${SponsorMark} who="openai" size=${14} title="OpenAI" /><span>${label}</span><${Icon} n="down" size=${14} /></button>
       <${Menu} open=${open} origin="top-left" onClose=${() => setOpen(false)} style=${{ top: '36px', left: 0, minWidth: '260px' }}>
         <div class="mrow"><span class="mk">Agent model</span><span class="mv">${(health && health.llm_model) || 'not set'}</span></div>
         <div class="mrow"><span class="mk">Agent provider</span><span class="mv">${(health && health.llm) || 'none'}</span></div>
         <div class="mrow"><span class="mk">Backend</span><span class="mv">${health ? (modal ? 'Modal GPU' : health.backend === 'stub' ? (DEMO ? 'Sample data' : 'Stub') : health.backend) : 'unknown'}</span></div>
+        <div class="mrow"><${PoweredBy} who="openai" label="Agents think with" /></div>
         <div class="mnote">Read only. The server sets these.</div>
       <//>
     </div>

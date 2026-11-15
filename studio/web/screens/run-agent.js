@@ -4,10 +4,12 @@ import { api } from '../api.js';
 import { toast, clock, pctS, primaryTarget, useInterval } from '../util.js';
 import { Dot, CodeView, Composer } from '../components.js';
 import { ThinkLine, StreamText, SubtleNum } from '../motion.js';
+import { PoweredBy, SponsorMark } from '../logos.js';
 import { openProgramInBuilder } from './shared.js';
 import { nameOf, progName, ACTIVE, agentDot, STATUS_WORD, isEmptyEnd } from './run-shared.js';
 
 const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
+const ONMODAL = /^(compile|heal|eval)\b/;
 const VERBS = { probe: 'Fit check', compile: 'Compile', heal: 'Heal', eval: 'Score', read_results: 'Read results', control: 'Random-part control' };
 // A tool call in plain words. The part names inside the call are dropped.
 function plainCall(call) {
@@ -70,7 +72,7 @@ export function AgentPage({ snap, id, agentId, cat }) {
         <h1 class="page-title">${a.name}</h1>
         <span class="astat"><${Dot} color=${agentDot(live.status, ended, isEmptyEnd(snap))} pulse=${active} />${ended && isEmptyEnd(snap) ? 'Ended' : STATUS_WORD[live.status] || live.status}</span>
       </div>
-      <div class="ameta">${bits.join(', ')}</div>
+      <div class="ameta">${bits.join(', ')}<${PoweredBy} who="modal" label="Sandbox on" class="ameta-chip" /></div>
       ${err && !d && html`<div class="down" style="margin-top:24px">${err.message}</div>`}
       ${!d && !err && html`<div class="skeleton" style="height:120px;margin-top:32px"></div>`}
       ${d && html`
@@ -82,9 +84,9 @@ export function AgentPage({ snap, id, agentId, cat }) {
           : html`<div class="faint">No program in flight right now.</div>`}
         </section>
         <section class="rsec"><h2 class="rh2">Recent steps</h2>
-          ${d.tools.length ? html`<div class="tlist">${d.tools.slice(-8).reverse().map((x, i) => html`<div class="trow" key=${x.ts + x.call + i}><span class="tc mono">${plainCall(x.call)}</span><span class=${'tr ' + (x.status === 'ok' ? 'up' : x.status === 'bad' ? 'down' : 'dim3')}>${x.result}</span></div>`)}</div>` : html`<div class="faint">None yet.</div>`}
+          ${d.tools.length ? html`<div class="tlist">${d.tools.slice(-8).reverse().map((x, i) => html`<div class="trow" key=${x.ts + x.call + i}><span class="tc mono">${ONMODAL.test(x.call || '') && html`<${SponsorMark} who="modal" size=${12} title="Runs on Modal" />`}${plainCall(x.call)}</span><span class=${'tr ' + (x.status === 'ok' ? 'up' : x.status === 'bad' ? 'down' : 'dim3')}>${x.result}</span></div>`)}</div>` : html`<div class="faint">None yet.</div>`}
         </section>
-        <section class="rsec"><h2 class="rh2">Reasoning</h2>
+        <section class="rsec"><h2 class="rh2 rh2-oai">Reasoning<${PoweredBy} who="openai" label="Thinking with" class="ameta-chip" /></h2>
           ${shown.length ? shown.map((x, i) => html`<div class="rline2" key=${x.ts + ':' + i}><span class="ts num">${clock(x.ts)}</span><${StreamText} class="rtxt" text=${x.text} play=${!!seen.current && !seen.current.has(x.ts)} /></div>`) : html`<div class="faint">Nothing yet.</div>`}
           ${thinking.length > 4 && html`<button class="linkbtn" onClick=${() => setMore(!more)}>${more ? 'Show less' : 'Show ' + (thinking.length - 4) + ' earlier'}</button>`}
         </section>

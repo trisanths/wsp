@@ -8,10 +8,39 @@ import { nameOf } from './run-shared.js';
 import { ModelLogo } from '../logos.js';
 import { Logos, donorsOf, Compare, HealNote, usesHeal, healNoteOf, PartsList } from '../cmp.js';
 
-// a thin line chart: the best score so far, the LoRA and target bars as dashed hairlines
-export function LineChart({ curve, bench, total }) {
+// the hover card of the chart: what one eval was, and where it stands against the bars
+function ChartCard({ c, bench, total, snap, fx, show }) {
+  const bs = (snap && snap.spec && snap.spec.benchmarks) || [];
+  const agent = c.agent && snap && snap.agents ? snap.agents.find((a) => a.id === c.agent) : null;
+  const gap = (v, ref) => (v == null || ref == null ? null : v - ref);
+  const gapRow = (label, ref) => {
+    const g = gap(c.score, ref);
+    return g == null ? null : html`<div class="lc-r"><span>${label}</span><span class=${'num ' + (g >= 0 ? 'up' : 'down')}>${sgn(g)} pts</span></div>`;
+  };
+  const others = c.scores ? bs.filter((b) => b.id !== bench.id && c.scores[b.id] != null) : [];
+  const pos = fx > 0.55 ? { right: 'calc(' + (1 - fx) * 100 + '% + 12px)', left: 'auto' } : { left: 'calc(' + fx * 100 + '% + 12px)' };
+  const sub = [c.name, agent ? agent.name : c.agent].filter(Boolean).join(' by ');
+  return html`<div class="lc-card" data-show=${show ? 'true' : 'false'} style=${{ ...pos, top: '6px' }} aria-live="polite">
+    <div class="lc-h"><span>Eval ${c.eval} of ${total}</span>${c.is_best && html`<span class="lc-new">New best</span>`}</div>
+    ${sub && html`<div class="lc-sub">${sub}</div>`}
+    <div class="lc-r"><span>${bench.name}</span><b class="num">${pct(c.score)}%</b></div>
+    <div class="lc-r"><span>Best so far</span><b class="num">${c.best != null ? pct(c.best) + '%' : '-'}</b></div>
+    ${(bench.base != null || bench.lora != null || bench.target != null) && c.score != null && html`<div class="lc-sep"></div>`}
+    ${gapRow('vs host start', bench.base)}${gapRow('vs LoRA', bench.lora)}${gapRow('vs target', bench.target)}
+    ${others.length > 0 && html`<div class="lc-sep"></div>`}
+    ${others.map((b) => { const v = c.scores[b.id]; const bad = b.kind === 'guard' && b.floor != null && v < b.floor; return html`<div class="lc-r" key=${b.id}><span>${b.name}</span><span class=${'num' + (bad ? ' down' : '')}>${pct(v)}%${bad ? ' (below floor)' : ''}</span></div>`; })}
+    ${c.status && c.status !== 'ok' && html`<div class="lc-r"><span>Status</span><span class="down">${String(c.status).replace(/_/g, ' ')}</span></div>`}
+  </div>`;
+}
+
+// a thin line chart: the best score so far, the LoRA and target bars as dashed hairlines; hover or arrow keys show one eval
+export function LineChart({ curve, bench, total, snap }) {
   const W = 760, H = 220, L = 40, R = 14, T = 14, B = 24;
   curve = (curve || []).filter((c) => c && c.eval != null);
+  const [hov, setHov] = useState(null);
+  const [tip, setTip] = useState(null);
+  const last = useRef(null);
+  const wrap = useRef(null);
   const scored = curve.filter((c) => c.best != null);
   const vals = [bench.base, bench.target, bench.lora, ...scored.map((c) => c.best), ...curve.map((c) => c.score)].filter((x) => x != null);
   if (!vals.length) vals.push(0.2, 0.6);
@@ -24,7 +53,35 @@ export function LineChart({ curve, bench, total }) {
   for (let i = 0; i <= 4; i++) ticks.push(lo + ((hi - lo) * i) / 4);
   const pts = scored.map((c) => [X(c.eval), Y(c.best)]);
   const line = pts.length ? 'M' + X(0) + ',' + Y(bench.base ?? scored[0].best) + ' ' + pts.map((p) => 'L' + p[0] + ',' + p[1]).join(' ') : '';
-  return html`<svg class="lchart" viewBox=${'0 0 ' + W + ' ' + H} style=${{ width: '100%', height: 'auto', display: 'block' }}>
+  const hoverable = curve.filter((c) => c.score != null);
+  const cur = hov != null ? hoverable[hov] || null : null;
+  if (cur) last.current = cur;
+  const shown = cur || last.current;
+  const nearest = (clientX) => {
+    const el = wrap.current;
+    if (!el || !hoverable.length) return null;
+    const r = el.getBoundingClientRect();
+    if (!r.width) return null;
+    const ux = ((clientX - r.left) / r.width) * W;
+    let best = -1, bd = Infinity;
+    hoverable.forEach((c, i) => { const d = Math.abs(X(c.eval) - ux); if (d <= bd) { bd = d; best = i; } });
+    return best < 0 ? null : best;
+  };
+  const onMove = (e) => { const c = nearest(e.clientX); setTip(null); setHov(c); };
+  const onKey = (e) => {
+    if (!hoverable.length) return;
+    if (e.key === 'Escape') { setHov(null); return; }
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    const idx = cur ? hov : -1;
+    const next = idx < 0 ? (e.key === 'ArrowLeft' ? hoverable.length - 1 : 0) : Math.max(0, Math.min(hoverable.length - 1, idx + (e.key === 'ArrowLeft' ? -1 : 1)));
+    setHov(next);
+  };
+  const refTip = (v, text) => ({ x: X(0) / W, fx: (W - R - 70) / W, y: Y(v) / H, text });
+  const label = 'Best ' + bench.name + ' per eval. ' + (scored.length ? 'Now ' + pct(scored[scored.length - 1].best) + '% after ' + curve.length + ' evals. ' : '') + 'Use the left and right arrow keys to read each eval.';
+  const hotBest = cur && cur.best != null ? cur : null;
+  return html`<div class="lcwrap" ref=${wrap} tabindex="0" role="group" aria-label=${label} onPointerMove=${onMove} onPointerDown=${onMove} onPointerLeave=${() => setHov(null)} onBlur=${() => setHov(null)} onKeyDown=${onKey}>
+    <svg class="lchart" viewBox=${'0 0 ' + W + ' ' + H} style=${{ width: '100%', height: 'auto', display: 'block' }}>
     ${ticks.map((t) => html`<g><line class="lc-grid" x1=${L} x2=${W - R} y1=${Y(t)} y2=${Y(t)}/><text class="lc-txt" x=${L - 6} y=${Y(t) + 3} font-size="10" text-anchor="end">${Math.round(t * 100)}%</text></g>`)}
     <text class="lc-txt" x=${L} y=${H - 6} font-size="10">0</text>
     <text class="lc-txt" x=${W - R} y=${H - 6} font-size="10" text-anchor="end">eval ${total}</text>
@@ -34,7 +91,14 @@ export function LineChart({ curve, bench, total }) {
     ${curve.filter((c) => c.score != null).map((c) => html`<circle class="lc-dot" cx=${X(c.eval)} cy=${Y(c.score)} r="1.8"/>`)}
     ${pts.length > 0 && html`<path class="lc-line" d=${line} fill="none" stroke-width="1.5" stroke-linejoin="round"/><circle class="lc-end" cx=${pts[pts.length - 1][0]} cy=${pts[pts.length - 1][1]} r="3.5"/>`}
     ${!pts.length && html`<text class="lc-txt" x=${W / 2} y=${H / 2} font-size="12" text-anchor="middle">Waiting for the first score</text>`}
-  </svg>`;
+    ${cur && html`<line class="lc-cross" x1=${X(cur.eval)} x2=${X(cur.eval)} y1=${T} y2=${H - B}/><circle class="lc-hot" cx=${X(cur.eval)} cy=${Y(cur.score)} r="4.5"/>${hotBest && html`<circle class="lc-hot-best" cx=${X(cur.eval)} cy=${Y(hotBest.best)} r="5"/>`}`}
+    <rect class="lc-hit" x=${L} y=${T} width=${W - L - R} height=${H - T - B}/>
+    ${bench.target != null && html`<line class="lc-ref-hit" onPointerMove=${(e) => e.stopPropagation()} x1=${L} x2=${W - R} y1=${Y(bench.target)} y2=${Y(bench.target)} onPointerEnter=${() => { setHov(null); setTip(refTip(bench.target, 'Target ' + pct(bench.target) + '%')); }} onPointerLeave=${() => setTip(null)}/>`}
+    ${bench.lora != null && html`<line class="lc-ref-hit" onPointerMove=${(e) => e.stopPropagation()} x1=${L} x2=${W - R} y1=${Y(bench.lora)} y2=${Y(bench.lora)} onPointerEnter=${() => { setHov(null); setTip(refTip(bench.lora, 'LoRA bar ' + pct(bench.lora) + '%')); }} onPointerLeave=${() => setTip(null)}/>`}
+    </svg>
+    ${shown && html`<${ChartCard} c=${shown} bench=${bench} total=${total} snap=${snap} fx=${X(shown.eval) / W} show=${!!cur} />`}
+    ${tip && html`<div class="lc-tip" style=${{ left: tip.fx * 100 + '%', top: tip.y * 100 + '%' }}>${tip.text}</div>`}
+  </div>`;
 }
 
 function Detail({ r, snap, cat, text, onBuild }) {
@@ -110,7 +174,7 @@ export function ResultsPage({ snap, id, cat, onBuild }) {
   const t = primaryTarget(snap.spec);
   return html`<div class="rpage"><div class="col wide">
     <section class="rsec"><h2 class="rh2">Leaderboard</h2><div class="lbsort">Sorted by ${snap.sort || 'target score'}</div><${Leaderboard} snap=${snap} cat=${cat} onBuild=${onBuild} /></section>
-    <section class="rsec"><h2 class="rh2">${t ? 'Best ' + t.name + ' per eval' : 'Best score per eval'}</h2>${t && html`<${LineChart} curve=${snap.curve} bench=${t} total=${snap.budget.evals_total} />`}</section>
+    <section class="rsec"><h2 class="rh2">${t ? 'Best ' + t.name + ' per eval' : 'Best score per eval'}</h2>${t && html`<${LineChart} curve=${snap.curve} bench=${t} total=${snap.budget.evals_total} snap=${snap} />`}</section>
     <section class="rsec"><h2 class="rh2">Benchmarks</h2><${Targets} snap=${snap} /></section>
     <section class="rsec"><h2 class="rh2">Source models</h2><${Sources} snap=${snap} /></section>
   </div></div>`;

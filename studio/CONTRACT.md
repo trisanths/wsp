@@ -152,7 +152,7 @@ The program dict is the one in `wsp/swarm/program_schema.py` (`host`, `seed`, `m
      "vs_control": 0.055, "params_b": 1.31, "program": {}}
   ],
   "activity": [{"ts": 1794707100.1, "agent": "analyst", "kind": "analyst_map", "status": "info", "text": "..."}],
-  "curve": [{"eval": 1, "best": 0.25, "score": 0.25}],
+  "curve": [{"eval": 1, "best": 0.25, "score": 0.25, "program_hash": "ab12cd34ef56ab12", "name": "Math block L8-19 at L6, heal 300", "agent": "planner-1", "status": "ok", "scores": {"gsm8k": 0.25, "if_guard": 0.41}, "is_best": true}],
   "sources": [{"model": "Qwen/Qwen2.5-Math-1.5B", "role": "donor", "uses": 9}]
 }
 ```
@@ -172,7 +172,7 @@ The program dict is the one in `wsp/swarm/program_schema.py` (`host`, `seed`, `m
   - `nudge_applied`: `{"nudge"}`.
   - `error`, `system`, `handoff`: null.
 - Agent `now` and leaderboard and agent history use readable program names where they describe a program (for example "Math block L8-19 at L6, heal 300").
-- `curve` has one point per scored eval in order: `best` is the best target score so far among valid (ok) programs, `score` is that eval's target score. A collapsed program adds a point but never raises `best`. `best` is `null` until the first valid program is scored.
+- `curve` has one point per scored eval in order: `best` is the best target score so far among valid (ok) programs, `score` is that eval's target score. A collapsed program adds a point but never raises `best`. The other fields describe that eval: `program_hash`, `name` (the readable program name, as on the leaderboard), `agent` (agent id), `status` (env status: `ok`, `collapsed`, ...), `scores` (every benchmark score of that eval, as fractions) and `is_best` (true when the point set a new best). Runs saved before these fields existed have only `eval`, `best` and `score`; pages show what is there. `best` is `null` until the first valid program is scored.
 - `base_scores` is read once when the run thread starts. It is `{}` until then (treat it as pending).
 - `stopped_early` is true when the person pressed Stop. The run still ends with status `done`. The held-out check and its controls are skipped, and the activity says so.
 - `outcome` is `null` while the run goes, then `"finished"`, `"empty"` (the run ended on its own and nothing was scored, so there is no `best`), `"stopped"` (the person pressed Stop) or `"error"`. When the run ends every agent has `status: "done"` and `now` is `"Finished"` (`"Ended, nothing scored"` for `"empty"`, `"Stopped"` after a stop or an error).

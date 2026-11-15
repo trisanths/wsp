@@ -2,6 +2,7 @@ import { html, useState, useEffect, useRef } from '../lib.js';
 import { DEMO, setDemo, demoSpeed, setDemoSpeed } from '../demo-flag.js';
 import { go, useTheme } from '../util.js';
 import { TopBar, Icon } from '../components.js';
+import { SponsorStrip } from '../logos.js';
 
 export const SCENES = [
   { id: 'home', section: 'Start', title: 'Home with the prompt typed out', line: 'The home screen types a sample request into the box, the way a first visit would.', hash: '#/?type=1' },
@@ -44,6 +45,7 @@ export function DemoScreen() {
     <main class="screen"><div class="doc wide demo-page">
       <h1 class="page-title">Demo tour</h1>
       <p class="demo-lede">Demo mode fills every screen with sample data and runs without a server, so you can show the whole product from start to finish.</p>
+      <div class="demo-sp"><${SponsorStrip} /></div>
       <div class="demo-cta"><button class="btn primary" onClick=${() => setDemo(true, '#/demo')}>Turn on demo mode</button></div>
       <p class="demo-note">A small Demo label stays in the top bar while it is on, so sample numbers are never read as measured results. You can also press Ctrl+Shift+D (Cmd+Shift+D on a Mac) on any screen.</p>
     </div></main>`;
@@ -52,6 +54,7 @@ export function DemoScreen() {
   <main class="screen"><div class="doc wide demo-page">
     <h1 class="page-title">Demo tour</h1>
     <p class="demo-lede">Every screen below runs on sample data. Start the tour to walk through them in order, or open any scene on its own. A small control at the bottom right moves between scenes.</p>
+      <div class="demo-sp"><${SponsorStrip} /></div>
     <div class="demo-cta">
       <button class="btn primary" onClick=${() => open(SCENES[0])}>Start the tour</button>
       <button class="btn" onClick=${() => setDemo(false, '#/')}>Turn off demo mode</button>

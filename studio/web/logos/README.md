@@ -4,6 +4,12 @@ The SVG files here come from `@lobehub/icons-static-svg` version 1.101.0 (https:
 
 Each mark belongs to its owner. Sapien shows a mark only next to a model that the owner itself published, to say who made the model. A fine-tune published by someone else (for example BioMistral, built on Mistral) gets a plain letter, not the base model maker's mark. `../logos.js` holds the mapping from model id to file.
 
+## Sponsor marks
+
+`exa.svg`, `modal.svg` and `pastdev.svg` are the marks of Exa, Modal and past.dev, taken from their own websites on 2026-11-15 (`exa.svg` is the "E" cut from Exa's wordmark at exa.ai/images/logo/exa-logo-blue.svg; `modal.svg` is modal.com/assets/favicon.svg; `pastdev.svg` is past.dev/icon.svg). They are not under the MIT License below. Each belongs to its owner, and Sapien shows them to credit the services it runs on: Exa for web search, Modal for GPUs and agent sandboxes, past.dev for agent memory. `../logos.js` (`SPONSORS`) maps them.
+
+`openai.svg` is OpenAI's mark from the same `@lobehub/icons-static-svg` 1.101.0 package as the model logos, copied unchanged. Sapien shows it where an OpenAI model does the work (spec drafts, agent thinking, suggestions). The mark belongs to OpenAI.
+
 ## MIT License
 
 Copyright (c) LobeHub

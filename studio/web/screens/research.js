@@ -1,5 +1,5 @@
 import { html, useState, useEffect, useRef } from '../lib.js';
-import { ModelLogo } from '../logos.js';
+import { ModelLogo, PoweredBy, SponsorMark } from '../logos.js';
 import { StreamText, ThinkLine, SuccessCheck, AutoHeight } from '../motion.js';
 import { Icon, Spinner } from '../components.js';
 import { benchName } from '../util.js';
@@ -43,9 +43,12 @@ function StepIcon({ kind }) {
   return html`<svg class="ic-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d=${STEP_ICON[kind] || STEP_ICON.think}/></svg>`;
 }
 
-function Steps({ steps, animateFrom = 0, offset = 0, clamp }) {
+// Exa did the step when it says so; steps with no provider (mock and demo) count too, on search and read
+const viaExa = (s, prov) => (s.kind === 'search' || s.kind === 'read') && (s.provider ? s.provider === 'exa' : prov !== 'openai_web' && prov !== 'none');
+
+function Steps({ steps, animateFrom = 0, offset = 0, clamp, prov }) {
   if (!steps.length) return null;
-  return html`<ol class=${'rs-steps' + (clamp ? ' clamp' : '')}>${steps.map((s, i) => html`<li key=${i + offset} class=${'rs-step k-' + s.kind}><span class="rs-ic"><${StepIcon} kind=${s.kind} /></span><${StreamText} tag="span" class="rs-tx" text=${s.kind === 'read' ? 'Read: ' + s.text : s.text} play=${i + offset >= animateFrom} /></li>`)}</ol>`;
+  return html`<ol class=${'rs-steps' + (clamp ? ' clamp' : '')}>${steps.map((s, i) => html`<li key=${i + offset} class=${'rs-step k-' + s.kind}><span class="rs-ic"><${StepIcon} kind=${s.kind} /></span>${s.kind === 'think' && html`<span class="rs-oai"><${SponsorMark} who="openai" size=${12} title="Reasoning by OpenAI" /></span>`}<${StreamText} tag="span" class="rs-tx" text=${s.kind === 'read' ? 'Read: ' + s.text : s.text} play=${i + offset >= animateFrom} />${viaExa(s, prov) && html`<span class="rs-exa"><${SponsorMark} who="exa" size=${12} title="Searched with Exa" /></span>`}</li>`)}</ol>`;
 }
 
 function Live({ r }) {
@@ -56,7 +59,7 @@ function Live({ r }) {
   const shown = steps.slice(before, -1);
   return html`<div class="rs-live">
     <div class="rs-now"><${ThinkLine} fluid=${true} text=${stepLine(last)} /><span class="tag rs-prov">${providerName(r.provider)}</span></div>
-    <${AutoHeight}>${before > 0 && html`<div class="rs-more">${before} earlier ${before === 1 ? 'step' : 'steps'}</div>`}<${Steps} steps=${shown} offset=${before} animateFrom=${first.current} clamp=${true} /><//>
+    <${AutoHeight}>${before > 0 && html`<div class="rs-more">${before} earlier ${before === 1 ? 'step' : 'steps'}</div>`}<${Steps} steps=${shown} offset=${before} animateFrom=${first.current} clamp=${true} prov=${r.provider} /><//>
   </div>`;
 }
 
@@ -75,7 +78,7 @@ function Done({ r }) {
     <div class="rs-sumrow"><${SuccessCheck} size=${16} /><span>${text}</span><button class="lnk" aria-expanded=${open} onClick=${() => setOpen(!open)}>${open ? 'Hide the work' : 'Show the work'}</button></div>
     <${AutoHeight}>${open && html`<div class="rs-work">
       ${r.reasoning && String(r.reasoning).split(/\n\s*\n/).map((p, i) => html`<p class="rs-reason" key=${i}>${p}</p>`)}
-      ${(r.steps || []).length > 0 && html`<div class="rs-sub">Steps</div><${Steps} steps=${r.steps} animateFrom=${1e9} />`}
+      ${(r.steps || []).length > 0 && html`<div class="rs-sub">Steps</div><${Steps} steps=${r.steps} animateFrom=${1e9} prov=${r.provider} />`}
       <${Sources} sources=${r.sources} />
     </div>`}<//>
   </div>`;
@@ -86,7 +89,7 @@ export function ResearchBlock({ r, starting, onStart }) {
   const btn = html`<button class="lnk" disabled=${running || starting} onClick=${onStart}>${starting ? html`<${Spinner} size=${11} /> ` : ''}${r ? 'Research again' : 'Research benchmarks'}</button>`;
   if (!r) return html`<div class="rs rs-bare">${btn}</div>`;
   return html`<section class="sect rs">
-    <h2 class="sec"><span>Benchmark research</span>${!running && btn}</h2>
+    <h2 class="sec"><span>Benchmark research</span><span class="rs-hd">${r.provider !== 'none' && html`<${PoweredBy} who="openai" label="Reasoning by" />`}${r.provider !== 'openai_web' && r.provider !== 'none' && html`<${PoweredBy} who="exa" label="Search by" />`}${!running && btn}</span></h2>
     ${running && html`<${Live} r=${r} />`}
     ${r.status === 'done' && html`<${Done} r=${r} />`}
     ${r.status === 'error' && html`<div class="rs-line err">${r.error || 'The research did not finish.'}</div>`}
@@ -104,7 +107,7 @@ export function RefList({ scores }) {
   if (!list.length) return null;
   return html`<ul class="refs">${list.map((s, i) => {
     const href = s.sourced ? safeUrl(s.source_url) : null;
-    return html`<li key=${i}><${ModelLogo} model=${logoId(s.model)} size=${14} /><span class="rf-nm">${s.model}</span>${s.params_b != null && html`<span class="rf-sz">${s.params_b}B</span>`}<span class="rf-sc">${score(s.score)}</span>${href ? html`<a class="rf-src" href=${href} target="_blank" rel="noopener noreferrer" data-tip=${s.quote ? String(s.quote).slice(0, 240) : null}>source</a>` : html`<span class="rf-est" data-tip="The agent could not link this number to a page it read">estimate</span>`}</li>`;
+    return html`<li key=${i}><${ModelLogo} model=${logoId(s.model)} size=${14} /><span class="rf-nm">${s.model}</span>${s.params_b != null && html`<span class="rf-sz">${s.params_b}B</span>`}<span class="rf-sc">${score(s.score)}</span>${href && html`<${SponsorMark} who="exa" size=${12} title="Sourced with Exa search" />`}${href ? html`<a class="rf-src" href=${href} target="_blank" rel="noopener noreferrer" data-tip=${s.quote ? String(s.quote).slice(0, 240) : null}>source</a>` : html`<span class="rf-est" data-tip="The agent could not link this number to a page it read">estimate</span>`}</li>`;
   })}</ul>`;
 }
 

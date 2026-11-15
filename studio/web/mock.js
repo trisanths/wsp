@@ -59,6 +59,9 @@ const FINDINGS = [
   { id: 'f_mock_graft_random', title: 'A cross-family MLP graft did not beat its random control', claim: 'A 512-neuron Qwen2.5-Math-1.5B layer 18 cluster grafted into Llama-1B at layer 10 scored 25.0 on GSM8K search; a random control scored 33.0.', setup: 'run 1: Llama-3.2-1B-Instruct host, 300 heal steps, 1 seed', numbers: { host: 25.0, graft: 25.0, random_control: 33.0 }, numbers_source: 'results/README.md', status: 'candidate', status_reason: null, source: 'results/graft_run1_s0.json', skills: ['math', 'graft'], evidence: 'graft vs random cluster', about: { parts: ['qmath_l18_contrast512'], models: [HOST, 'Qwen/Qwen2.5-Math-1.5B'] } },
   { id: 'f_mock_lora_bar', title: 'A rank-1 LoRA beats block grafts on Llama-1B', claim: 'On Llama-1B a rank-1 LoRA scores 43.5 on GSM8K search; the donor blocks score 35 to 36.', setup: 'run 3', numbers: { lora_r1: 43.5, blocks: [35.2, 36.3] }, numbers_source: 'results/README.md', status: 'validated', status_reason: null, source: 'results/round3_rows.json', skills: ['lora'], evidence: 'rank-1 LoRA vs block graft', about: { parts: [], models: [HOST] } },
 ];
+// demo specs read as drafted by the agent model, as a real draft with an LLM does
+const DEMO_DRAFTER = DEMO ? 'llm:openai_compat' : 'the planner';
+
 /* ---------- demo mode: the real parts library ---------- */
 // Demo mode shows the real library the server holds (GET /api/catalog and the library lists), not the
 // small list above. The server's made-up stub parts are left out, and every non-rejected part is
@@ -416,7 +419,7 @@ function makeSpec(prompt, files, id) {
 }
 function demoLook(spec, type) {
   const look = type === 'math' ? V.MATH_LOOK : type === 'legal' ? V.LEGAL_LOOK : null;
-  if (!look) { spec.drafted_by = 'the planner'; return spec; }
+  if (!look) { spec.drafted_by = DEMO_DRAFTER; return spec; }
   const yours = spec.benchmarks.filter((b) => b.id === 'yours');
   spec.title = look.title; spec.summary = look.summary;
   spec.budget = clone(look.budget); spec.size = clone(look.size); spec.limits = clone(look.limits);
@@ -425,7 +428,7 @@ function demoLook(spec, type) {
   for (const pid of look.extraIngredients.map(realId)) if (PART[pid] && !ids.includes(pid)) spec.ingredients.push({ part_id: pid, label: PART[pid].label, donor: PART[pid].donor, kind: PART[pid].kind });
   const used = new Set(spec.benchmarks.map((b) => b.id));
   spec.available_benchmarks = Object.values(BENCH_LIB).filter((b) => !used.has(b.id)).map((b) => { const c = clone(b); delete c.recommended; delete c.lora; return c; });
-  spec.drafted_by = 'the planner';
+  spec.drafted_by = DEMO_DRAFTER;
   return spec;
 }
 const specs = new Map();
@@ -709,7 +712,7 @@ function finishEval(run, a) {
   run.board.push(entry);
   const curBest = run.curve.length ? run.curve[run.curve.length - 1].best : null;
   const isBest = ev.status === 'ok' && ev.params_b <= spec.size.max_params_b && (!run.best || score > run.best.scores[tgt.id]);
-  run.curve.push({ eval: run.evals_used, best: isBest ? score : curBest, score });
+  run.curve.push({ eval: run.evals_used, best: isBest ? score : curBest, score, program_hash: h, name: entry.name, agent: a.id, status: ev.status, scores: { ...ev.scores }, is_best: isBest });
   const guardsOut = spec.benchmarks.filter((b) => b.kind === 'guard').map((g) => ({ id: g.id, name: g.name, score: ev.scores[g.id], floor: g.floor, ok: ev.scores[g.id] >= g.floor }));
   if (isBest) run.best = { program_hash: h, describe: entry.describe, name: entry.name, scores: ev.scores, combined: ev.combined, agent: a.id, program: clone(a.cur) };
   const data = { name: entry.name, program_hash: h, target: Math.round(score * 10000) / 10000, best: run.best ? run.best.scores[tgt.id] : null, is_best: isBest, guards: guardsOut, scores: ev.scores, result: ev.status };
@@ -1285,7 +1288,7 @@ function seedDoneRun(spec) {
     vclock = end + 3;
     // cap every earlier result below the winner
     r.board.forEach((e) => { if (e.scores[tg.id] > 0.668) e.scores[tg.id] = 0.668 - (hash(e.program_hash) % 40) / 4000; });
-    r.curve.forEach((c) => { if (c.best != null) c.best = Math.min(c.best, 0.668); if (c.score > 0.668) c.score = 0.668; });
+    r.curve.forEach((c) => { if (c.best != null) c.best = Math.min(c.best, 0.668); if (c.score > 0.668) { c.score = 0.668; if (c.scores) c.scores[tg.id] = 0.668; } });
     const prog = demoProg([demoGraft('qmath_l18_contrast512', 9), demoGraft('qmath_block_8_19', 6)], 600);
     const ev = evalProgram(spec, prog);
     ev.scores[tg.id] = 0.685;
@@ -1320,7 +1323,7 @@ function seedDoneRun(spec) {
     r.best = { program_hash: h, describe: entry.describe, name: entry.name, scores: ev.scores, combined: entry.combined, agent: 'planner-1', program: clone(prog) };
     const jump = r.curve.length ? r.curve[r.curve.length - 1].best : 0.66;
     r.evals_used = r.evals_total;
-    r.curve.push({ eval: r.evals_total, best: 0.685, score: 0.685 });
+    r.curve.push({ eval: r.evals_total, best: 0.685, score: 0.685, program_hash: h, name: entry.name, agent: 'planner-1', status: 'ok', scores: { ...ev.scores }, is_best: true });
     const guards = spec.benchmarks.filter((b) => b.kind === 'guard').map((g) => ({ id: g.id, name: g.name, score: ev.scores[g.id], floor: g.floor, ok: ev.scores[g.id] >= g.floor }));
     logAct(r, 'planner-1', 'eval', 'ok', V.evalLine({ name: entry.name, target: 0.685, isBest: true, prev: jump }), { name: entry.name, program_hash: h, target: 0.685, best: 0.685, is_best: true, guards, scores: ev.scores, result: 'ok' });
     const a1 = r.agents.find((x) => x.id === 'planner-1');
@@ -1419,7 +1422,7 @@ function seedDemo() {
   const C = V.CODE_SHRINK_SPEC;
   const code = makeShrinkSpec(C.prompt, R.specShrink);
   code.shrink = checkBlock({ keep_experts: C.keep_experts, heal_steps: C.heal_steps, rule: 'saliency' }, code.shrink);
-  code.title = C.title; code.summary = C.summary; code.prompt = C.prompt; code.task_type = 'code'; code.drafted_by = 'the planner';
+  code.title = C.title; code.summary = C.summary; code.prompt = C.prompt; code.task_type = 'code'; code.drafted_by = DEMO_DRAFTER;
   code.limits = clone(C.limits); code.size.max_params_b = C.limits.max_total_params_b;
   code.benchmarks = clone(C.benchmarks);
   specs.set(R.specShrink, code);
