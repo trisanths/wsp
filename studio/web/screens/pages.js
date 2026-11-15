@@ -78,8 +78,9 @@ function PartsTab({ cat, q, onFinding }) {
   const all = useMemo(() => [...cat.parts, ...cat.masks], [cat]);
   const isDel = f.kind === DELETION;
   const counts = useMemo(() => countItems(all, f), [all, isDel]);
-  const shown = useMemo(() => filterItems(all, f, q), [all, f, q]);
-  const inCat = isDel ? cat.masks.length : all.length - cat.masks.length;
+  // rejected parts stay out of the list unless the Rejected chip asks for them
+  const shown = useMemo(() => filterItems(all, f, q).filter((x) => f.status === 'rejected' || x.status !== 'rejected'), [all, f, q]);
+  const inCat = (isDel ? cat.masks : all.filter((x) => !cat.masks.includes(x))).filter((x) => f.status === 'rejected' || x.status !== 'rejected').length;
   useEffect(() => { setPage(1); }, [f, q]);
   const pages = Math.max(1, Math.ceil(shown.length / PAGE_SIZE));
   const at = Math.min(page, pages);

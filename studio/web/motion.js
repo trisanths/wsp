@@ -552,7 +552,8 @@ export function initTooltips() {
     cur = el;
     const side = el.getAttribute('data-tip-side') || 'top';
     const r = el.getBoundingClientRect();
-    tt.textContent = text;
+    // long evidence strings are cut to a readable tip; the full text stays on the part's page
+    tt.textContent = text.length > 160 ? text.slice(0, 160).replace(/\s+\S*$/, '') + '…' : text;
     tt.setAttribute('data-side', side);
     const x = side === 'right' ? r.right + 8 : r.left + r.width / 2;
     const y = side === 'right' ? r.top + r.height / 2 : side === 'bottom' ? r.bottom + 8 : r.top - 8;

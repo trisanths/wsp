@@ -23,15 +23,17 @@ export const STEPS = [
 
   { ch: 'Agents build it', hash: '#/run/run_demo_live', sel: 'h2.rh2', text: 'Best model so far', sec: true, say: 'The best program so far. It changes as each eval is scored.' },
   { ch: 'Agents build it', hash: '#/run/run_demo_live', sel: 'a.arow', text: 'Planner 1', click: true, say: 'Each agent has one job: the analyst reads results, planners propose programs, the judge runs the controls. Open one.' },
-  { ch: 'Agents build it', hash: '#/run/run_demo_live/agents/planner-1', sel: 'h2.rh2', text: 'Program', sec: true, say: 'The program this planner is writing, made of parts from the library, with its reasoning below.' },
-  { ch: 'Agents build it', hash: '#/run/run_demo_live/agents/planner-1', sel: 'a.tab', text: 'Activity', click: true, say: 'The activity feed shows every agent at once.' },
-  { ch: 'Agents build it', hash: '#/run/run_demo_live/activity', sel: 'a.tab', text: 'Results', click: true, hold: 1200, say: 'Every agent thinking, proposing and scoring, and a box to nudge them in plain words. Now the results of a finished run.' },
+  { ch: 'Agents build it', hash: '#/run/run_demo_live/agents/planner-1', sel: 'h2.rh2', text: 'Now', sec: true, say: 'What this planner is doing now: the attempt it is on, why it chose it, and the part being tested on the host.' },
+  { ch: 'Agents build it', hash: '#/run/run_demo_live/agents/planner-1', sel: 'a.tab', text: 'Activity', click: true, say: 'Open the activity feed.' },
+  { ch: 'Agents build it', hash: '#/run/run_demo_live/activity', sel: '.alog', hold: 1500, say: 'Every agent at once, round by round: what each one is thinking, the programs it proposes, and the scores that come back. New lines arrive live.' },
+  { ch: 'Agents build it', hash: '#/run/run_demo_live/activity', sel: '.adock', say: 'Nudge the agents in plain words. A planner reads the note before its next attempt.' },
+  { ch: 'Agents build it', hash: '#/run/run_demo_live/activity', sel: 'a.tab', text: 'Results', click: true, hold: 1200, say: 'Now the results of a finished run.' },
   { ch: 'Agents build it', hash: '#/run/run_demo_done/results', sel: 'h2.rh2', text: 'Leaderboard', sec: true, say: 'Ranked against the host, a LoRA, distillation and random parts of the same size. The winner has to beat all of them.' },
 
   { ch: 'Autoresearch', hash: '#/run/run_demo_live/pipeline', sel: '.pl-obj', say: 'The autoresearch view of a live run: the goal in one sentence, how close the best model is to the target, and how much of the budget is used.' },
   { ch: 'Autoresearch', hash: '#/run/run_demo_live/pipeline', sel: '.pl-sh h2', text: 'Now running', sec: true, hold: 2500, say: 'Each planner is testing one program. The 3D view shows the part docking into the host model, and the bar shows how far along the experiment is.' },
   { ch: 'Autoresearch', hash: '#/run/run_demo_live/pipeline', sel: '.pl-sh h2', text: 'Experiment log', sec: true, say: 'Every attempt so far: what changed, the score, and whether it was kept as the new best or thrown away.' },
-  { ch: 'Autoresearch', hash: '#/run/run_demo_live/agents', sel: 'h2.rh2', text: 'How the agents work together', sec: true, say: 'The agents hand work to each other: the analyst maps parts, planners propose programs, the judge runs the controls, and they share what they learn.' },
+  { ch: 'Autoresearch', hash: '#/run/run_demo_live/agents', sel: 'section.collab', say: 'The agents hand work to each other: the analyst maps parts, planners propose programs, the judge runs the controls, and they share what they learn.' },
   { ch: 'Autoresearch', hash: '#/run/run_demo_live/findings', sel: 'h2.rh2', text: 'What the agents found', sec: true, say: 'Everything the swarm has learned so far: parts that help, dead ends, and open questions, each with its evidence.' },
 
   { ch: 'Mine a model', hash: '#/mine', sel: '.mn-submit', say: 'Parts come from mining open models. Add any model by its Hugging Face id and Sapien queues it.' },
@@ -198,12 +200,19 @@ function TourLayer({ i, auto }) {
     const vw = window.innerWidth, vh = window.innerHeight;
     const w = t.offsetWidth, h = t.offsetHeight, gap = 14;
     const b = lost ? { x: vw / 2, y: vh / 2, w: 0, h: 0 } : box;
-    let y, below = true;
+    let x = Math.max(12, Math.min(vw - w - 12, b.x + b.w / 2 - w / 2)), y, below = true, clip = null;
     if (b.y + b.h + gap + h < vh - 12) y = b.y + b.h + gap;
     else if (b.y - gap - h > 12) { y = b.y - gap - h; below = false; }
-    else { y = Math.min(vh - h - 64, Math.max(12, b.y + b.h - h - 16)); }
-    const x = Math.max(12, Math.min(vw - w - 12, b.x + b.w / 2 - w / 2));
-    setTip({ x, y, below });
+    else if (vw - (b.x + b.w) - gap - 12 >= w || b.x - gap - 12 >= w) {
+      // a tall highlight leaves no room above or below: put the caption beside it
+      y = Math.min(vh - h - 64, Math.max(12, b.y + 12));
+      x = vw - (b.x + b.w) - gap - 12 >= w ? b.x + b.w + gap : b.x - gap - w;
+    } else {
+      // no room beside it either: end the highlight above the caption, so the caption never covers it
+      y = vh - h - 60;
+      clip = y - gap;
+    }
+    setTip({ x, y, below, clip });
   }, [box, lost, i, auto]);
 
   // clicks: on the highlight they move the tour on, elsewhere they are held so the tour stays put
@@ -255,7 +264,8 @@ function TourLayer({ i, auto }) {
   const chIdx = CHAPTERS.indexOf(step.ch);
   const pointer = step.click && !lost && !box.none;
   const hint = auto ? 'Playing · Space to pause' : step.click ? 'Click where the pointer shows' : 'Click the highlight or press →';
-  const spot = lost ? { x: window.innerWidth / 2 - 30, y: window.innerHeight / 2 - 30, w: 60, h: 60 } : box;
+  const spot = lost ? { x: window.innerWidth / 2 - 30, y: window.innerHeight / 2 - 30, w: 60, h: 60 }
+    : tip.clip != null && !box.none ? { ...box, h: Math.max(24, Math.min(box.h, tip.clip - box.y)) } : box;
   const radius = Math.min(14, spot.h / 2);
 
   return html`<div class="tour" role="dialog" aria-modal="false" aria-label="Guided tour">

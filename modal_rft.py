@@ -259,7 +259,7 @@ def sample_shard(model_ref, out_dir, shard, nshards, k=8, temperature=0.8, limit
               max_model_len=4096, enable_prefix_caching=True, max_num_seqs=256)
     log(tag, f"loaded {path} in {time.time() - started:.0f} s")
     params = SamplingParams(n=k, temperature=temperature, top_p=0.95, max_tokens=SAMPLE_TOKENS, seed=None)
-    task = rft.get_task("code")
+    task = None
     total = {"samples": 0, "passed": 0}
     for i in todo:
         chunk = chunks[i]
@@ -273,7 +273,7 @@ def sample_shard(model_ref, out_dir, shard, nshards, k=8, temperature=0.8, limit
                 flat_items.append(item)
                 flat_texts.append(o.text)
                 cut.append(o.finish_reason == "length")
-        rewards = task.rewards(flat_items, flat_texts, workers=16)
+        rewards = rft.rewards_for(flat_items, flat_texts, workers=16)
         rows, pos = [], 0
         for item, out in zip(chunk, outs):
             samples = []
@@ -333,7 +333,7 @@ def train_round(base_dir, sft_path, out_dir, epochs=2, lr=1e-4, router_lr=1e-5, 
         if enc is None:
             skipped += 1
         else:
-            examples.append(enc)
+            examples.append((enc[0], enc[1], float(row.get("weight", 1.0))))
     log(tag, f"{len(examples)} examples ({skipped} longer than {max_len} tokens skipped), "
              f"{sum(len(e[0]) for e in examples)} tokens")
     torch.manual_seed(seed)
@@ -385,7 +385,10 @@ def train_round(base_dir, sft_path, out_dir, epochs=2, lr=1e-4, router_lr=1e-5, 
                 hidden = model.model(input_ids=ids, attention_mask=att, use_cache=False).last_hidden_state
                 mask = lab[:, 1:] != -100
                 logits = model.lm_head(hidden[:, :-1][mask])
-            loss = torch.nn.functional.cross_entropy(logits.float(), lab[:, 1:][mask], reduction="sum") / total_tokens
+            token_loss = torch.nn.functional.cross_entropy(logits.float(), lab[:, 1:][mask], reduction="none")
+            weights = torch.tensor([examples[i][2] for i in b], dtype=torch.float32, device=ids.device)
+            weights = weights[:, None].expand(-1, longest - 1)[mask]
+            loss = (token_loss * weights).sum() / total_tokens
             loss.backward()
             step_loss += float(loss.detach())
         torch.nn.utils.clip_grad_norm_(lora_params + router_params, 1.0)
@@ -505,7 +508,7 @@ def score_model(model_ref, name, out_path, speed=False, suites="humaneval,mbpp,g
                 items = items[:limit]
             prompts = [skills_eval.render_prompt(tokenizer, it["user"]) for it in items]
             texts = greedy(prompts, HELDOUT_TOKENS)
-            rewards = rft.get_task("code").rewards(items, texts, workers=16)
+            rewards = rft.rewards_for(items, texts, workers=16)
             row["scores"]["heldout"] = sum(rewards) / len(rewards)
             row["scores"]["heldout_n"] = len(rewards)
             by_source = {}
@@ -663,6 +666,77 @@ def drive(run="k64", rounds=3, shards=4, k=8, teacher_k=4, epochs=2, train_route
     return summary
 
 
+# ---------------------------------------------------------------- GRPO-style iterations
+
+
+@app.function(image=cpu_image, volumes={"/vol": volume}, cpu=8, memory=32768, timeout=24 * 3600)
+def drive_pg(run="k64", from_model="", iterations=4, prompts_per_iter=1500, shards=3, k=8, lr=2e-5, max_prompts=600,
+             tag="pg", smoke=False):
+    """GRPO-style loop from a given model. Each iteration: sample k per prompt from the current policy, give each
+    answer the group advantage (r - mean) / std, take a policy-gradient pass (LoRA r64 on attention, routers
+    frozen, no KL, one epoch), merge, and score the held-out train slice. Not strictly on-policy after the
+    first optimizer step of an iteration (no ratio clipping), which the small learning rate tolerates.
+    Resumes from the volume; every iteration's rows are written there."""
+    safe_reload()
+    run_dir = f"{ROOT}/{run}_{tag}" + ("_smoke" if smoke else "")
+    items = read_jsonl(DATA + "/items_train.jsonl")
+    by_id = {i["id"]: i for i in items}
+    rng = random.Random(0)
+    order = list(range(len(items)))
+    rng.shuffle(order)
+    summary_path = run_dir + "/summary.json"
+    summary = json.load(open(summary_path)) if os.path.exists(summary_path) else {"iterations": {}}
+    current = from_model
+    for it in range(1, iterations + 1):
+        idir = f"{run_dir}/it{it}"
+        entry = summary["iterations"].setdefault(f"it{it}", {})
+        if os.path.exists(f"{idir}/model/config.json") and entry.get("score"):
+            current = f"{idir}/model"
+            continue
+        chosen = [items[j] for j in order[(it - 1) * prompts_per_iter:it * prompts_per_iter]]
+        if smoke:
+            chosen = chosen[:64]
+        write_jsonl(f"{idir}/items.jsonl", chosen)
+        commit()
+        sh = 1 if smoke else shards
+        jobs = [sample_shard.spawn(current, idir + "/samples", s, sh, k, 1.0, 0, f"{idir}/items.jsonl") for s in range(sh)]
+        for j in jobs:
+            j.get()
+        safe_reload()
+        samples = read_samples(idir + "/samples")
+        entry["policy"] = rft.pass_rate_stats({i: [s["reward"] for s in v] for i, v in samples.items()})
+        rows = rft.pg_rows([by_id[i] for i in samples], samples, max_prompts, it)
+        index = set(json.load(open(DATA + "/test_index.json")))
+        clean = [r for r in rows if not rft.shares_ngram(r["assistant"], index)]
+        entry["rows"] = len(clean)
+        entry["rows_dropped_overlap"] = len(rows) - len(clean)
+        write_jsonl(idir + "/pg.jsonl", clean)
+        save = lambda: (write_json(summary_path, summary), commit())
+        save()
+        log("drive_pg", f"it{it}: policy {entry['policy']}, {len(clean)} rows")
+        if not clean:
+            entry["error"] = "no mixed groups"
+            save()
+            break
+        rep = train_round.remote(current, idir + "/pg.jsonl", idir + "/model", 1, lr, 0.0, 64, 8192, 32, 4, 1536,
+                                 3 if smoke else 0, it, False)
+        entry["train"] = rep
+        sc = score_model.remote(idir + "/model", f"{run}_{tag}_it{it}", f"{idir}/score.json", False, "heldout", 64 if smoke else 0)
+        entry["score"] = sc
+        save()
+        log("drive_pg", f"it{it}: held-out {sc.get('scores')}")
+        current = idir + "/model"
+    best, best_value = None, -1.0
+    for key, entry in summary["iterations"].items():
+        value = ((entry.get("score") or {}).get("scores") or {}).get("heldout")
+        if value is not None and value > best_value:
+            best, best_value = key, value
+    summary["selected"] = {"iteration": best, "heldout": best_value}
+    write_json(summary_path, summary)
+    commit()
+    return summary
+
+
 # ---------------------------------------------------------------- entrypoint
 
 
@@ -682,14 +756,23 @@ def estimate(run, rounds, shards, k, teacher_k, smoke=False):
 
 @app.local_entrypoint()
 def main(stage: str = "estimate", run: str = "k64", rounds: int = 3, shards: int = 4, k: int = 8, teacher_k: int = 4,
-         smoke: bool = False, epochs: int = 2, first_round: int = 1, teacher_from: str = ""):
+         smoke: bool = False, epochs: int = 2, first_round: int = 1, teacher_from: str = "",
+         from_model: str = "", iterations: int = 4, tag: str = "pg", max_rows: int = 9000):
     if stage == "estimate":
         estimate(run, rounds, shards, k, teacher_k)
     elif stage == "data":
         print(json.dumps(build_data.remote(), indent=1))
     elif stage == "drive":
         estimate(run, rounds, shards, k, teacher_k)
-        print(json.dumps(drive.remote(run, rounds, shards, k, teacher_k, epochs, True, smoke, first_round, teacher_from), indent=1)[:4000])
+        print(json.dumps(drive.remote(run, rounds, shards, k, teacher_k, epochs, True, smoke, first_round, teacher_from, max_rows), indent=1)[:4000])
+    elif stage == "pg":
+        if not from_model:
+            raise SystemExit("--from-model is required for stage pg")
+        print(json.dumps(drive_pg.remote(run, from_model, iterations, 1500, shards, k, 2e-5, 600, tag, smoke), indent=1)[:4000])
+    elif stage == "score_model":
+        row = score_model.remote(from_model, f"{run}_{tag}", f"{ROOT}/{run}_{tag}_final/score.json", False,
+                                 "humaneval,mbpp,gsm8k,mmlu,heldout", 0)
+        print(json.dumps({k_: row[k_] for k_ in ("cell", "scores", "heldout_by_source", "error")}, indent=1))
     elif stage == "score":
         row = score_model.remote(STARTS[run], f"{run}_start", f"{ROOT}/{run}/score_start.json", False,
                                  "humaneval,mbpp,gsm8k,mmlu,heldout", 0)

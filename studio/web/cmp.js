@@ -70,8 +70,14 @@ export const KIND_NAMES = { block: 'Blocks', attn_heads: 'Attention heads', mlp_
 export const KIND_ORDER = ['block', 'attn_heads', 'mlp_cluster', 'expert', 'inserted_layer'];
 
 /** A part that cannot go in a program, with the reason to show. */
+// a short reason for a rejected part: the evidence string is a full protocol, too long for a tooltip,
+// and a raw mean can be higher than the control's even when the part failed on some seeds
+function rejectedWhy() {
+  return 'Rejected: it did not beat its control. The parts library shows the numbers.';
+}
+
 export function lockOf(p) {
-  if (p.status === 'rejected') return { why: 'Rejected. ' + (p.evidence || 'It lost to its control.'), rejected: true };
+  if (p.status === 'rejected') return { why: rejectedWhy(), rejected: true };
   if (p.locked) return { why: typeof p.locked === 'string' ? p.locked : p.usable_reason || 'Locked' };
   if (p.usable === false) return { why: p.usable_reason || 'Not usable yet' };
   return null;

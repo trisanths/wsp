@@ -1,0 +1,499 @@
+Sapien plan: xfam_knowledge
+base unsloth/Llama-3.2-1B-Instruct  1.236B total, 1.236B per token
+limits  total 5.5  active 5.5  heal minutes 150.0
+
+Stage rule: stages whose output is a plain Hugging Face model (weave, then slim) run first and each takes the previous output as its base. At most one seam stage (pgraft, synth, feedback, transplant, or delta) runs last on top. Two seam kinds are refused because each replaces the other's branches.
+
+add knowledge from Qwen/Qwen2.5-7B-Instruct
+  relation foreign  tokenizer same: False
+  ok pgraft: other tokenizer or family and a knowledge skill: a frozen slice of the donor runs as a parallel branch of the host (measured on one pair, see the warning)
+  ok synth: other tokenizer or family: components need translation in and out
+  chosen: pgraft
+
+Stages
+  1. pgraft (seam)  total 5.224B  per token 5.213B
+     settings: {"steps": 4000, "align_steps": 600, "batch": 16, "lora_rank": 16, "enc_depth": 2, "dec_rank": 256, "kd_w": 1.0, "preserve": 1.0, "align_reg": 1.0}
+     write Qwen/Qwen2.5-7B-Instruct into the host as one network. Host layer 7 (host layer = host layers // 2 - 1; donor span = donor layers // 7 to 5 * donor layers // 7)
+     donor span layers 4..20 of 28 (17 layers, 3.962B parameters, frozen)
+     Enc depth 2 (2048 to 3584, 13.77M)  Dec rank 256 (1.44M)  per-token gate (2049)  host LoRA rank 16 (11.27M)
+     data pool xfam_mc_v1: MMLU auxiliary_train, CommonsenseQA, OpenBookQA, QASC, LogiQA train (benchmark train splits); the donor's answer-letter distribution on every item, scored once and cached; 44155 items in the cached pool (donor accuracy 85.9 percent)
+     prompts removed: every prompt equal to a prompt of an eval set. Text: alignment texts (healdata prose, knowledge, medicine) and general texts (healdata general, prose) of round 22, plain text
+     scored on held-out items: mmlu_dev, mmlu_held, arc_c, obqa
+     steps: 600 alignment, 4000 task, batch 16; about 0.65 GPU hours on one H200 (measured)
+     params per token after the write-in: 5.213B (host 1.236B + donor slice 3.962B + glue 0.015B); the LoRA merges into the host. Stored total 5.224B
+     control identity: same Enc, Dec, gate, LoRA and data; the donor slice is skipped (Dec reads Enc's output). Run by the compiler (settings pgraft_controls)
+     control scrambled: same glue and data; the donor slice's weights rewritten by wsp/scramble.py (spectrum kept). Run by the compiler (settings pgraft_controls)
+     control lora_match: LoRA on the host with the same trainable count as the graft, same data and steps. Run by modal_wi_xfam.py preset lora_match_l (rows in results/wi_xfam, seeds 1 to 3)
+     control lora_big: LoRA rank 128 on the host, same data and steps. Run by modal_wi_xfam.py preset lora_big (rows in results/wi_xfam, seeds 1 to 3)
+     control fullft: full fine-tune of the host, same data and steps. Run by modal_wi_xfam.py preset fullft (rows in results/wi_xfam, seeds 1 to 3)
+
+Heal text, probe text, and practice sets: not used by pgraft. Its data pool and eval sets are in the stage above.
+Controls
+  pgraft: identity: same Enc, Dec, gate, LoRA and data; the donor slice is skipped (Dec reads Enc's output); scrambled: same glue and data; the donor slice's weights rewritten by wsp/scramble.py (spectrum kept); lora_match: LoRA on the host with the same trainable count as the graft, same data and steps; lora_big: LoRA rank 128 on the host, same data and steps; fullft: full fine-tune of the host, same data and steps
+Comparison arms
+  base: the host alone, scored first in the same run on the same items
+  donor: the donor alone, scored once on the same items (donor_acc.json of the cached pool)
+
+Native bar
+  native bar at 5.21B per token: Qwen/Qwen2.5-3B-Instruct scores mmlu_held 66.6 (tuned, results/wi_lean/rows/reference_0_ref_qwen3b.json, fullft_0_pilot_qwen3b_3e-6.json). The measured write-in scores 59.6, so it does not clear the bar; picking Qwen/Qwen2.5-3B-Instruct as the base gives more for less. A write-in is worth it only on a host that is already the best at its size, with a donor that knows what the host family lacks
+
+Warnings
+  - wsp/pgraft.py has one measured cross-family write-in: Llama-3.2-1B-Instruct host with a frozen Qwen2.5-7B-Instruct slice (layers 4..20), MMLU held-out 2000 59.6 +-0.8 over 3 seeds against base 44.6, identity 50.3, scrambled donor 50.3, matched LoRA 49.7, rank-128 LoRA 50.0, full fine-tune 51.1 (ARC-C test 85.3 against base 55.3), 2026-11-15, results/wi_xfam/table.md. No other host and donor pair has run. An earlier 1-seed run on a Llama-3.2-3B host only tied LoRA, and the plain 3B base beat the 1B host with the graft
+  - pgraft trains on benchmark train splits (MMLU auxiliary_train and four-option train sets, every eval prompt removed) and is scored on held-out test items nothing trained on; each claim needs 3 seeds, and a compile is one seed
+  - pgraft decodes through a hook-based path (27 to 36 tokens per second at batch 1 in the measured run against 103 for the host); the per-token cost is the host plus the donor slice
+  - pgraft: the measured write-in (59.6) does not clear the native bar: Qwen/Qwen2.5-3B-Instruct scores 66.6 at 3.09B per token (see Native bar)
+  - Qwen/Qwen2.5-7B-Instruct has another tokenizer: transfer cannot be measured by KL, so its verdict is limited
+
+feasible: True
+
+{
+  "name": "xfam_knowledge",
+  "base": {
+    "id": "unsloth/Llama-3.2-1B-Instruct",
+    "params": 1235814400,
+    "params_run": 1235814400,
+    "params_b": 1.2358,
+    "active_params_b": 1.2358,
+    "model_type": "llama",
+    "moe": false
+  },
+  "limits": {
+    "max_total_params_b": 5.5,
+    "max_active_params_b": 5.5,
+    "max_heal_minutes": 150.0
+  },
+  "reported": [
+    "cais/mmlu",
+    "allenai/ai2_arc",
+    "allenai/openbookqa"
+  ],
+  "seed": 1,
+  "keep": [],
+  "remove": [],
+  "rule": "stages whose output is a plain Hugging Face model (weave, then slim) run first and each takes the previous output as its base. At most one seam stage (pgraft, synth, feedback, transplant, or delta) runs last on top. Two seam kinds are refused because each replaces the other's branches.",
+  "sources": [
+    {
+      "skill": "knowledge",
+      "source": "Qwen/Qwen2.5-7B-Instruct",
+      "relation": "foreign",
+      "flags": {
+        "positional_base_differs": true,
+        "vocab_differs": true,
+        "tokenizer_same": false,
+        "template_same": false,
+        "added_tokens_same": false,
+        "tokenizer_strict_same": false,
+        "reserved_ids_reused": false,
+        "pretokenizer_same": false,
+        "teacher_usable_for_logit_kd": false,
+        "quantized": false,
+        "embeddings_mixable": false,
+        "same_family": false
+      },
+      "evidence": {
+        "base": {
+          "layers": 16,
+          "hidden": 2048,
+          "heads": 32,
+          "kv_heads": 8,
+          "head_dim": 64,
+          "mlp_size": 8192,
+          "experts": null,
+          "expert_size": null
+        },
+        "source": {
+          "layers": 28,
+          "hidden": 3584,
+          "heads": 28,
+          "kv_heads": 4,
+          "head_dim": 128,
+          "mlp_size": 18944,
+          "experts": null,
+          "expert_size": null
+        },
+        "base_family": "llama",
+        "source_family": "qwen2",
+        "rope_theta": [
+          500000.0,
+          1000000.0
+        ],
+        "added_tokens_same": false,
+        "special_tokens_same": false,
+        "source_license": "apache-2.0",
+        "card_links": {
+          "source_declares_base": false,
+          "base_declares_source": false,
+          "shared_ancestors": []
+        },
+        "reason": "different architecture family"
+      },
+      "subtract_reference": null,
+      "params_b": 7.6156,
+      "methods": [
+        {
+          "method": "pgraft",
+          "fits": true,
+          "reason": "other tokenizer or family and a knowledge skill: a frozen slice of the donor runs as a parallel branch of the host (measured on one pair, see the warning)",
+          "why_not": null,
+          "adds_total_b": 3.9884,
+          "needs": "donor layers 4..20 of 28 (3.962B frozen), Enc and Dec glue 15.2M, LoRA rank 16",
+          "runs_in_make": true
+        },
+        {
+          "method": "synth",
+          "fits": true,
+          "reason": "other tokenizer or family: components need translation in and out",
+          "why_not": null,
+          "adds_total_b": 0.9525,
+          "needs": "a block of 4 donor layers (4 layers wanted)",
+          "runs_in_make": true
+        }
+      ],
+      "chosen": "pgraft",
+      "components": null
+    }
+  ],
+  "stages": [
+    {
+      "order": 1,
+      "method": "pgraft",
+      "kind": "seam",
+      "module": "wsp/pgraft.py (wsp/xfam.py)",
+      "heal_minutes": 150.0,
+      "source": "Qwen/Qwen2.5-7B-Instruct",
+      "skill": "knowledge",
+      "host_layer": 7,
+      "donor_span": [
+        4,
+        20
+      ],
+      "donor_layers": 28,
+      "donor_slice_layers": 17,
+      "layer_rule": "host layer = host layers // 2 - 1; donor span = donor layers // 7 to 5 * donor layers // 7",
+      "enc": {
+        "depth": 2,
+        "d_host": 2048,
+        "d_donor": 3584,
+        "params": 13770625
+      },
+      "dec": {
+        "rank": 256,
+        "params": 1441792
+      },
+      "gate_params": 2049,
+      "lora_rank": 16,
+      "lora_params": 11272192,
+      "slice_params": 3961904128,
+      "glue_params": 15214466,
+      "params_stored_added": 3988390786,
+      "params_per_token_added": 3977118594,
+      "data": {
+        "pool": "xfam_mc_v1",
+        "dir": "/vol/wi_xfam/v1",
+        "train_items": "MMLU auxiliary_train, CommonsenseQA, OpenBookQA, QASC, LogiQA train (benchmark train splits)",
+        "soft_labels": "the donor's answer-letter distribution on every item, scored once and cached",
+        "removed": "every prompt equal to a prompt of an eval set",
+        "size": "44155 items in the cached pool (donor accuracy 85.9 percent)",
+        "text": "alignment texts (healdata prose, knowledge, medicine) and general texts (healdata general, prose) of round 22, plain text",
+        "scored_on": [
+          "mmlu_dev",
+          "mmlu_held",
+          "arc_c",
+          "obqa"
+        ]
+      },
+      "spec": {
+        "enc_depth": 2,
+        "dec_rank": 256,
+        "lora_rank": 16,
+        "steps": 4000,
+        "batch": 16,
+        "align_steps": 600,
+        "geo_steps": 100,
+        "kd_w": 1.0,
+        "preserve": 1.0,
+        "align_reg": 1.0,
+        "lora_lr": 0.0002,
+        "glue_lr": 0.0003,
+        "gate_lr": 0.0001,
+        "enc_lr": 0.0001,
+        "seq_len": 256,
+        "donor_seq_len": 320,
+        "align_batch": 4,
+        "host_layer": 7,
+        "first": 4,
+        "last": 20,
+        "d_host": 2048,
+        "d_donor": 3584
+      },
+      "controls": [
+        {
+          "name": "identity",
+          "what": "same Enc, Dec, gate, LoRA and data; the donor slice is skipped (Dec reads Enc's output)",
+          "same": "data, steps, optimizer, and last-step selection",
+          "run_by": "the compiler (settings pgraft_controls)"
+        },
+        {
+          "name": "scrambled",
+          "what": "same glue and data; the donor slice's weights rewritten by wsp/scramble.py (spectrum kept)",
+          "same": "data, steps, optimizer, and last-step selection",
+          "run_by": "the compiler (settings pgraft_controls)"
+        },
+        {
+          "name": "lora_match",
+          "what": "LoRA on the host with the same trainable count as the graft, same data and steps",
+          "same": "data, steps, optimizer, and last-step selection",
+          "run_by": "modal_wi_xfam.py preset lora_match_l (rows in results/wi_xfam, seeds 1 to 3)"
+        },
+        {
+          "name": "lora_big",
+          "what": "LoRA rank 128 on the host, same data and steps",
+          "same": "data, steps, optimizer, and last-step selection",
+          "run_by": "modal_wi_xfam.py preset lora_big (rows in results/wi_xfam, seeds 1 to 3)"
+        },
+        {
+          "name": "fullft",
+          "what": "full fine-tune of the host, same data and steps",
+          "same": "data, steps, optimizer, and last-step selection",
+          "run_by": "modal_wi_xfam.py preset fullft (rows in results/wi_xfam, seeds 1 to 3)"
+        }
+      ],
+      "estimate": {
+        "gpu": "H200",
+        "gpu_hours": 0.65,
+        "basis": "0.62 to 0.66 GPU hours per seed on one H200 in the wi_xfam rows (2026-11-15), more per control"
+      },
+      "settings": {
+        "steps": 4000,
+        "align_steps": 600,
+        "batch": 16,
+        "lora_rank": 16,
+        "enc_depth": 2,
+        "dec_rank": 256,
+        "kd_w": 1.0,
+        "preserve": 1.0,
+        "align_reg": 1.0
+      },
+      "components": [
+        {
+          "skill": "knowledge",
+          "source": "Qwen/Qwen2.5-7B-Instruct",
+          "method": "pgraft",
+          "adds_params": 3988390786
+        }
+      ],
+      "added_params": 3988390786,
+      "params_total_after": 5224205186,
+      "params_run_after": 5212932994,
+      "params_total_after_b": 5.2242,
+      "params_run_after_b": 5.2129,
+      "limit_problems": []
+    }
+  ],
+  "sizes": {
+    "base_b": 1.2358,
+    "after": [
+      {
+        "after": "pgraft",
+        "total_b": 5.2242,
+        "run_b": 5.2129
+      }
+    ],
+    "final_total_b": 5.2242,
+    "final_run_b": 5.2129
+  },
+  "heal_data": {
+    "knowledge": {
+      "pool": "knowledge",
+      "fallback": null,
+      "count": 400,
+      "seed": 1,
+      "skip": 0,
+      "sources": [
+        {
+          "id": "mandarjoshi/trivia_qa",
+          "config": "rc.nocontext",
+          "split": "train"
+        },
+        {
+          "id": "google-research-datasets/nq_open",
+          "config": "nq_open",
+          "split": "train"
+        },
+        {
+          "id": "rajpurkar/squad",
+          "config": "plain_text",
+          "split": "train"
+        },
+        {
+          "id": "microsoft/wiki_qa",
+          "config": null,
+          "split": "train"
+        }
+      ],
+      "excluded": []
+    },
+    "_general": {
+      "pool": "general",
+      "fallback": null,
+      "count": 200,
+      "seed": 1,
+      "skip": 0,
+      "sources": [
+        {
+          "id": "HuggingFaceH4/ultrachat_200k",
+          "config": null,
+          "split": "train_sft"
+        },
+        {
+          "id": "yahma/alpaca-cleaned",
+          "config": null,
+          "split": "train"
+        }
+      ],
+      "excluded": []
+    },
+    "_align": {
+      "pool": "prose",
+      "fallback": null,
+      "count": 150,
+      "seed": 4,
+      "skip": 0,
+      "sources": [
+        {
+          "id": "Salesforce/wikitext",
+          "config": "wikitext-103-raw-v1",
+          "split": "train"
+        }
+      ],
+      "excluded": []
+    }
+  },
+  "probe_texts": {
+    "knowledge": {
+      "pool": "knowledge",
+      "count": 96,
+      "seed": 1,
+      "skip": 2000,
+      "splits": [
+        "a",
+        "b",
+        "c"
+      ],
+      "max_length": 384
+    },
+    "_general": {
+      "pool": "general",
+      "count": 96,
+      "seed": 1,
+      "skip": 2000,
+      "splits": [
+        "a",
+        "b",
+        "c"
+      ],
+      "max_length": 384
+    }
+  },
+  "practice": {
+    "knowledge": {
+      "available": true,
+      "skill": "knowledge",
+      "sources": [
+        {
+          "id": "mandarjoshi/trivia_qa",
+          "config": "rc.nocontext",
+          "split": "validation"
+        }
+      ],
+      "excluded": [],
+      "reason": null
+    }
+  },
+  "controls": [
+    {
+      "stage": "pgraft",
+      "controls": [
+        "identity: same Enc, Dec, gate, LoRA and data; the donor slice is skipped (Dec reads Enc's output)",
+        "scrambled: same glue and data; the donor slice's weights rewritten by wsp/scramble.py (spectrum kept)",
+        "lora_match: LoRA on the host with the same trainable count as the graft, same data and steps",
+        "lora_big: LoRA rank 128 on the host, same data and steps",
+        "fullft: full fine-tune of the host, same data and steps"
+      ]
+    }
+  ],
+  "arms": [
+    {
+      "arm": "base",
+      "what": "the host alone, scored first in the same run on the same items"
+    },
+    {
+      "arm": "donor",
+      "what": "the donor alone, scored once on the same items (donor_acc.json of the cached pool)"
+    }
+  ],
+  "settings": {
+    "probe_texts": 96,
+    "probe_length": 384,
+    "probe_top_k": 64,
+    "probe_skip": 2000,
+    "heal_texts": 400,
+    "general_texts": 200,
+    "practice_items": 60,
+    "n_controls": 4,
+    "drift_tolerance": 0.05,
+    "min_transfer": 0.3,
+    "weave_buckets": 8,
+    "weave_population": 12,
+    "weave_generations": 8,
+    "block_layers": 4,
+    "lora_rank": 16,
+    "stage1_steps": 200,
+    "stage2_steps": 200,
+    "slim_steps": 100,
+    "transplant_k": 4,
+    "transplant_rank": 256,
+    "delta_rank": 64,
+    "batch_size": 4,
+    "seq_len": 256,
+    "synth_controls": [
+      "random",
+      "scrambled"
+    ],
+    "gpu_flops": 200000000000000.0,
+    "seam_threshold": 3,
+    "slim_keep": 0.5,
+    "pgraft_controls": [
+      "identity",
+      "scrambled"
+    ],
+    "tops_cut": 0.5
+  },
+  "warnings": [
+    "wsp/pgraft.py has one measured cross-family write-in: Llama-3.2-1B-Instruct host with a frozen Qwen2.5-7B-Instruct slice (layers 4..20), MMLU held-out 2000 59.6 +-0.8 over 3 seeds against base 44.6, identity 50.3, scrambled donor 50.3, matched LoRA 49.7, rank-128 LoRA 50.0, full fine-tune 51.1 (ARC-C test 85.3 against base 55.3), 2026-11-15, results/wi_xfam/table.md. No other host and donor pair has run. An earlier 1-seed run on a Llama-3.2-3B host only tied LoRA, and the plain 3B base beat the 1B host with the graft",
+    "pgraft trains on benchmark train splits (MMLU auxiliary_train and four-option train sets, every eval prompt removed) and is scored on held-out test items nothing trained on; each claim needs 3 seeds, and a compile is one seed",
+    "pgraft decodes through a hook-based path (27 to 36 tokens per second at batch 1 in the measured run against 103 for the host); the per-token cost is the host plus the donor slice",
+    "pgraft: the measured write-in (59.6) does not clear the native bar: Qwen/Qwen2.5-3B-Instruct scores 66.6 at 3.09B per token (see Native bar)",
+    "Qwen/Qwen2.5-7B-Instruct has another tokenizer: transfer cannot be measured by KL, so its verdict is limited"
+  ],
+  "refusals": [],
+  "feasible": true,
+  "native_bar": [
+    {
+      "metric": "mmlu_held",
+      "per_token_b": 5.213,
+      "bar": {
+        "model": "Qwen/Qwen2.5-3B-Instruct",
+        "params_per_token": 3085938688,
+        "plain": 65.95,
+        "tuned": 66.6,
+        "tuned_note": "seed 0, 1200 steps, lr 3e-6 picked on dev",
+        "source": "results/wi_lean/rows/reference_0_ref_qwen3b.json, fullft_0_pilot_qwen3b_3e-6.json"
+      },
+      "expected": 59.6,
+      "bar_score": 66.6,
+      "clears": false,
+      "text": "native bar at 5.21B per token: Qwen/Qwen2.5-3B-Instruct scores mmlu_held 66.6 (tuned, results/wi_lean/rows/reference_0_ref_qwen3b.json, fullft_0_pilot_qwen3b_3e-6.json). The measured write-in scores 59.6, so it does not clear the bar; picking Qwen/Qwen2.5-3B-Instruct as the base gives more for less. A write-in is worth it only on a host that is already the best at its size, with a donor that knows what the host family lacks"
+    }
+  ]
+}

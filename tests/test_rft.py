@@ -205,3 +205,22 @@ def test_cap_rows_prefers_hard_prompts_and_keeps_prompts_whole():
     assert {r["id"] for r in out} == {"teacher_only", "hard"}
     assert rft.cap_rows(rows, rates, 0) == rows
     assert len(rft.cap_rows(rows, rates, 10)) == 4
+
+
+def test_rewards_for_mixed_kinds_keeps_order():
+    items = [{"id": "m", "kind": "math", "gold": "4"},
+             {"id": "c", "kind": "asserts", "tests": ["assert f() == 1"]},
+             {"id": "q", "kind": "mcq", "gold": "C"}]
+    outs = ["\\boxed{4}", "```python\ndef f():\n    return 2\n```", "The answer is C"]
+    assert rft.rewards_for(items, outs) == [1.0, 0.0, 1.0]
+
+
+def test_group_advantages_and_pg_rows():
+    assert rft.group_advantages([1.0, 1.0]) == [0.0, 0.0]
+    adv = rft.group_advantages([1.0, 0.0, 0.0, 0.0])
+    assert adv[0] > 0 > adv[1] and abs(sum(adv)) < 1e-9
+    items = [{"id": "a", "user": "ua"}, {"id": "b", "user": "ub"}]
+    samples = {"a": [{"text": "x", "reward": 1.0}, {"text": "y", "reward": 0.0}],
+               "b": [{"text": "z", "reward": 1.0}, {"text": "w", "reward": 1.0}]}
+    rows = rft.pg_rows(items, samples)
+    assert [r["id"] for r in rows] == ["a", "a"] and rows[0]["weight"] > 0 > rows[1]["weight"]

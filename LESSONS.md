@@ -25,8 +25,11 @@ something fails. Each entry: what went wrong, then the rule.
 - Background processes started with `&` ignore SIGINT. Stop them with
   SIGTERM on their PIDs, then `modal app stop -y <id>`. In zsh, loop over
   PIDs with `while read`, not `for p in $VAR` (newlines stay in one word).
-- Only trisanth, trisanthsrini, and ztrisanth work. trisanths,
-  trisanthsrinivasan, and trisanthcollege were disabled by Modal.
+- Working workspaces (2026-11-15): trisanth, trisanths (re-enabled; a
+  T4 probe ran), ztrisanth, hanavm, rexheng-24542. trisanthsrini hit its
+  spend limit at about 06:30 PST on 2026-11-15. trisanthsrinivasan and
+  trisanthcollege fail authentication. okc3 and plva-friend-h200 are
+  other names for the trisanth workspace and add no capacity.
 
 ## Data
 
@@ -158,3 +161,24 @@ something fails. Each entry: what went wrong, then the rule.
   config names, so the run printed "0 cells" and exited, and I did not look
   for 50 minutes. Run `--estimate-only` with the same arguments before a
   launch, and make entrypoints exit with an error on zero cells.
+- vLLM 0.32 picks the "humming" MoE kernel for W4A16 checkpoints on H200 and
+  its NVRTC compile fails in the CUDA 12.8.1 devel image. The same checkpoint
+  ran on an A10G without a flag. Pass moe_backend="marlin" (modal_efficiency
+  part `marlin`) for every W4A16 MoE on Hopper, and smoke each checkpoint on
+  the GPU type it will run on, not only on a small one.
+- Time prefill after one warmup pass of the same size. The first full-size
+  prefill compiles MoE kernels, and the same config read 7k to 58k tokens per
+  second in modal_efficiency rows before the fix.
+- A shell chain `modal run --estimate-only ... && modal run --detach ... &`
+  started a second copy of the slim build after the estimate returned. Start
+  detached runs with one command each and check `modal app list` for
+  duplicates.
+- Greedy HumanEval on 164 items moves 2 points between configs with the same
+  weights (batch shape and kernels change float sums). Do not report a
+  one-point gap between two configs as a result.
+- A Modal workspace can be disabled mid-run. The trisanth workspace went down at step 4300 of 4600 of the
+  scrambled control inside one compile ("ConflictError: workspace is disabled"), and the 36 minutes of that arm
+  were lost. A compile that trains several arms in one container loses the running arm and keeps the earlier ones
+  only because wsp/pgraft_stage.py writes sapien_report.json and commits the volume after each arm. Keep that,
+  and run long controls as their own cells when the workspace is near its spend limit.
+- Two donor slices in one training step ran out of memory on a 140 GB H200 (clinic track, 2026-11-15): the MC loss, the drift loss, and one functional align loss per donor shared one backward, so every graph stayed alive. Call backward on each term (wsp/clinic.py train_accum, same gradient), and watch container logs 20 minutes after a launch, not only the rows on the volume. Three cells died at step 500 and sat dead for 45 minutes before I looked.
