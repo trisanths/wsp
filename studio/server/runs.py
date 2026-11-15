@@ -14,6 +14,7 @@ from studio.server import catalog as catalog_mod
 from studio.server import envs
 from studio.server import programs
 from studio.server import settings
+from studio.server import sizing
 from studio.server import specs as specs_mod
 from studio.server import tracking
 from studio.server.runstate import RunState
@@ -64,12 +65,19 @@ def start_run(spec, program=None):
         errors = space.validate(program, catalog, config)
         if len(errors) > 0:
             raise RunError("the program is not valid: " + "; ".join(errors))
-    analyst, planners, judge = factory.build_agents(config)
     host_params = catalog_mod.host_params_b(config["host"])
+    size_ctx = sizing.SizeContext(config, catalog, host_params)
+    if program is not None:
+        problems = sizing.forbidden_problems(program)
+        problems.extend(sizing.limit_problems(spec.get("limits"), sizing.estimate(program, size_ctx)))
+        if len(problems) > 0:
+            raise RunError(" ".join(problems))
+    analyst, planners, judge = factory.build_agents(config)
     state = RunState(config["run_id"], spec, config, parts["backend"].name, host_params, len(planners),
                      target_ids(spec))
     state.env = parts["env"]
     state.catalog = catalog
+    state.size_ctx = size_ctx
     controller = tracking.Controller(state, settings.pace_s(), program)
     analyst, planners, judge = tracking.wrap_agents(analyst, planners, judge, controller)
     swarm = tracking.StudioSwarm(config, parts["env"], analyst, planners, judge, parts["memory"],

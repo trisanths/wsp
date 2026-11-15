@@ -6,14 +6,14 @@ not run inside Modal):
     MODAL_PROFILE=trisanth modal deploy studio/modal_studio.py
 
 Each function runs one whole job in one container. It compiles the program,
-trains what the program asks for (taps, then LoRA or glue heal), and scores
+trains what the program asks for (a LoRA or glue heal), and scores
 the result with the eval harness (wsp_eval.harness, hf backend). The host
 and every candidate go through the same harness path, so their numbers
 compare. Weights are written to a scratch folder and deleted after the call.
 Only the Hugging Face cache lives on the wsp-models volume.
 
 Functions:
-    probe_remote(program, options)            compile with heal and tap training off
+    probe_remote(program, options)            compile with heal off
     score_remote(program, split, tasks, token, fidelity, options)
                                               compile with training, then evaluate
     base_remote(host, split, tasks)           the host's scores
@@ -89,65 +89,31 @@ def align_texts_for(program, options):
     return texts[:options["align_samples"]]
 
 
-def tap_param_count(entry):
-    """Parameters of one tap branch from its saved sizes."""
-    d_host = entry["d_host"]
-    d_donor = entry["d_donor"]
-    attn = entry["attn_dim"]
-    total = d_host + d_donor
-    total += attn * d_host
-    total += 2 * attn * d_donor
-    total += attn * d_host
-    return total + 1
-
-
 def report_entries(report):
-    """The per-graft and per-tap entries of a compile report, in the shape the backend interface wants."""
+    """The per-graft entries of a compile report, in the shape the backend interface wants."""
     entries = []
     for graft in report.get("grafts") or []:
         entries.append(graft)
-    taps = report.get("taps")
-    if taps is not None:
-        gates = taps.get("gates") or []
-        index = 0
-        for tap in taps.get("taps") or []:
-            gate = None
-            if index < len(gates):
-                gate = gates[index]
-            entries.append({"id": "tap:" + str(tap["donor_id"]), "host_layer": tap["host_layer"],
-                            "fit": "skipped", "fit_r2": None, "fit_pairs": 0,
-                            "part_params": tap_param_count(tap), "glue_params": 0,
-                            "donor": tap["donor_id"], "donor_layer": tap["donor_layer"],
-                            "control": None, "gate": gate})
-            index += 1
     return entries
-
-
-def mean_tail(values, count):
-    if len(values) == 0:
-        return None
-    tail = values[-count:]
-    return sum(tail) / len(tail)
 
 
 def build_model(program_dict, options, folder, training):
     """Compile a program into folder. Returns (compile_report, seconds).
 
-    training False is a probe: heal is dropped and the taps train for 0 steps.
+    training False is a probe: heal is dropped.
     """
     from wsp.program import Program
 
     data = json.loads(json.dumps(program_dict))
+    if len(data.get("taps") or []) > 0 or data.get("tap_train") is not None:
+        raise ValueError("a program with taps runs a second model at inference, which Sapien does not build")
     if not training:
         data["heal"] = None
-        if data.get("tap_train") is not None:
-            data["tap_train"]["steps"] = 0
     program = Program.from_dict(data)
     catalog = make_catalog(options)
     texts = align_texts_for(program, options)
     extra = {}
     if not training:
-        extra["tap_pairs"] = []
         extra["heal_pairs"] = []
     start = time.time()
     program.compile(folder, catalog, align_texts=texts, **extra)
@@ -158,11 +124,8 @@ def build_model(program_dict, options, folder, training):
 
 
 def phase_seconds(report, total):
-    """Split the build time: heal covers tap training and the heal pass, compile is the rest."""
+    """Split the build time: heal covers the heal pass, compile is the rest."""
     heal_s = 0.0
-    taps = report.get("taps")
-    if taps is not None:
-        heal_s += float(taps.get("seconds") or 0.0)
     heal = report.get("heal")
     if heal is not None:
         heal_s += float(heal.get("seconds") or 0.0)
@@ -172,13 +135,10 @@ def phase_seconds(report, total):
 
 
 def heal_losses(report):
-    """The heal pass losses, or the tap training losses when no heal ran."""
+    """The heal pass losses."""
     heal = report.get("heal")
     if heal is not None and len(heal.get("losses") or []) > 0:
         return list(heal["losses"])
-    taps = report.get("taps")
-    if taps is not None:
-        return list(taps.get("losses") or [])
     return []
 
 
@@ -300,7 +260,6 @@ def score_mmlu_logprob(model_path, split, fraction, batch_size=32):
     choice_ids = []
     for letter in MMLU_LETTERS:
         choice_ids.append(tokenizer(" " + letter, add_special_tokens=False).input_ids[-1])
-    has_taps = hasattr(model, "wsp_tap_donors")
     items = mmlu_items(split, fraction)
     correct = 0
     for start in range(0, len(items), batch_size):
@@ -309,14 +268,8 @@ def score_mmlu_logprob(model_path, split, fraction, batch_size=32):
         for prompt, answer in batch:
             prompts.append(prompt)
         encoded = tokenizer(prompts, return_tensors="pt", padding=True).to(model.device)
-        if has_taps:
-            from wsp.tap import auto_context
-            auto_context(model, encoded["input_ids"], encoded["attention_mask"])
         with torch.no_grad():
             logits = model(**encoded).logits[:, -1, :].float()
-        if has_taps:
-            from wsp.tap import clear_tap_context
-            clear_tap_context(model)
         for row in range(len(batch)):
             if int(logits[row, choice_ids].argmax()) == batch[row][1]:
                 correct += 1
@@ -347,7 +300,6 @@ SCORING_NOTE = "mmlu: log-prob of A to D (rounds 6 and 7 items); other tasks: ha
 
 
 DEFAULT_GEN_BATCH = "32"
-TAP_GEN_BATCH = "8"
 
 
 def free_gpu():
@@ -390,18 +342,12 @@ def score_body(program_dict, split, tasks, token, fidelity, options):
         report, build_s = build_model(program_dict, options, folder, True)
         seconds = phase_seconds(report, build_s)
         free_gpu()
-        if len(program_dict.get("taps") or []) > 0:
-            # Each prompt also runs the donor, so generation needs a smaller batch.
-            os.environ["WSP_HF_BATCH_SIZE"] = TAP_GEN_BATCH
-        else:
-            os.environ["WSP_HF_BATCH_SIZE"] = DEFAULT_GEN_BATCH
+        os.environ["WSP_HF_BATCH_SIZE"] = DEFAULT_GEN_BATCH
         eval_start = time.time()
         scores, counts = score_all(folder, split, tasks, fraction_of(fidelity), "studio " + str(token))
         seconds["eval"] = round(time.time() - eval_start, 1)
-        taps = report.get("taps") or {}
         return {"ok": True, "error": None, "graft_report": report_entries(report),
-                "heal_loss": heal_losses(report), "tap_loss_last10": mean_tail(taps.get("losses") or [], 10),
-                "gates": taps.get("gates"), "scores": scores, "items": counts, "seconds": seconds,
+                "heal_loss": heal_losses(report), "scores": scores, "items": counts, "seconds": seconds,
                 "token": token, "gpu": gpu_name(), "scoring": SCORING_NOTE}
     except Exception as error:
         seconds["failed_after"] = round(time.time() - start, 1)

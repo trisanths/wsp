@@ -5,7 +5,7 @@ Deploy the app first: MODAL_PROFILE=trisanth modal deploy studio/modal_studio.py
 The server looks the functions up with modal.Function.from_name, so it does
 not run inside Modal. A fit-only compile is a real GPU probe. A full compile
 is deferred: it returns a handle that holds the program, and evaluate() does
-compile, tap training, heal and eval in one container.
+compile, heal and eval in one container.
 """
 
 import json
@@ -47,10 +47,8 @@ def model_size_b(model_id):
 
 
 def donor_ids(program, catalog):
-    """Every donor model of a program: tap donors and the models of its grafted parts."""
+    """Every donor model of a program: the models of its grafted parts."""
     ids = []
-    for tap in program.get("taps") or []:
-        ids.append(tap["donor"])
     for graft in ps.grafts(program):
         record = catalog.records.get(ps.graft_id(graft))
         if record is not None and record.get("model") is not None:
@@ -121,10 +119,6 @@ class ModalCompileEval(CompileEval):
             entries.append({"id": ps.graft_id(graft), "host_layer": at, "fit": "skipped", "fit_r2": None,
                             "fit_pairs": 0, "part_params": None, "glue_params": None,
                             "control": ps.graft_control(graft)})
-        for tap in program.get("taps") or []:
-            entries.append({"id": "tap:" + str(tap["donor"]), "host_layer": tap["at"], "fit": "skipped",
-                            "fit_r2": None, "fit_pairs": 0, "part_params": None, "glue_params": None,
-                            "donor": tap["donor"], "donor_layer": tap["donor_layer"], "control": None})
         return entries
 
     # CompileEval interface.
@@ -171,7 +165,7 @@ class ModalCompileEval(CompileEval):
                 "heal_loss": result.get("heal_loss"), "gpu": result.get("gpu")}
 
     def report_for(self, program):
-        """The graft and tap report of the last score of this program (with real fit), or None."""
+        """The graft report of the last score of this program (with real fit), or None."""
         with self.lock:
             result = self.score_reports.get(space.program_hash(ps.normalize(program)))
         if result is None:

@@ -1,6 +1,6 @@
-# Sapien
+# Sapien studio
 
-Sapien (the code lives in `studio/`) is a web app on top of the wsp compiler and its agent swarm. A person describes a model, adjusts a drafted spec, and then lets the swarm build it or builds it on a canvas. `studio/CONTRACT.md` lists every route and JSON shape.
+The Sapien studio is a web app on top of the wsp compiler and its agent swarm. A person describes a model, adjusts a drafted spec, and then lets the swarm build it or builds it on a canvas. `studio/CONTRACT.md` lists every route and JSON shape.
 
 ## Run
 
@@ -23,7 +23,7 @@ Open http://localhost:8765. The server serves `studio/web/` at `/` and the API u
 
 The server reads `.env` the same way `wsp/swarm/config.py` does. `auto` uses OpenAI when `OPENAI_API_KEY` is set, Anthropic when `ANTHROPIC_API_KEY` is set, and no LLM otherwise. With no LLM, specs are drafted by rules and the agents are the scripted ones. With an LLM, the spec draft, the agents and one builder suggestion use it, and a failed LLM call falls back to the rules. `server/llm_openai.py` sends `max_completion_tokens` and the default temperature, which the GPT-5 and o-series models need.
 
-Every response from the stub backend carries `"stub": true`, and the web app shows a STUB badge on every number.
+Every response from the stub backend carries `"stub": true`, and the web app shows a STUB badge and a note on every page of stub numbers. The comparison rows made up by the stub are marked.
 
 ## Real GPUs (Modal)
 
@@ -32,9 +32,8 @@ Every response from the stub backend carries `"stub": true`, and the web app sho
 
 `studio/modal_studio.py` is the `wsp-studio` Modal app. Each call compiles one program, trains its taps, then its LoRA or heal, and scores it in one GPU container (L40S, or H100 when a donor is above about 10B parameters). Redeploy after a change to `wsp/`, `wsp_eval/` or `parts_extracted/`, since they are copied into the image.
 
-- MMLU is scored as in rounds 6 and 7: the log-prob of " A" to " D", on the round 6 dev items (search, 1000) and the round 7 held-out items (2000). Host check on Modal: 47.8 (logged: 47.5). A 500-step Qwen2.5-7B tap scored 64.7 in the studio (run 6 three-seed mean: 67.9). Other tasks use the eval harness.
-- The palette offers the taps measured in runs 6 to 8 and the extracted mlp and attn parts. A tap's size counts its donor, which stays in memory and runs on the prompt.
-- The swarm's agents propose catalog grafts only. Taps reach an agent run through a builder handoff.
+- MMLU is scored as in rounds 6 and 7: the log-prob of " A" to " D", on the round 6 dev items (search, 1000) and the round 7 held-out items (2000). Other tasks use the eval harness.
+- Taps are not in Sapien. The Modal functions refuse a program with taps.
 
 ## Files
 
@@ -44,7 +43,10 @@ Every response from the stub backend carries `"stub": true`, and the web app sho
 - `server/tracking.py`: pause and stop, agent proxies and the swarm subclass.
 - `server/runstate.py`: run state and the snapshot.
 - `server/builder.py`: builder sessions, jobs and suggestions.
-- `server/catalog.py`: the builder palette, including the measured taps.
+- `server/catalog.py`: the builder palette (compiler catalog, library and atlas parts with status and evidence).
+- `server/library.py`: reads `library/index.jsonl` and `atlas/entries/*.json` once at server start.
+- `server/sizing.py`: size and heal estimates and the limit checks.
+- `server/compare.py`: the comparison set (base, LoRA, distillation, random, best existing model) and the verdict.
 - `server/envs.py`: builds a run's env, with the Modal backend when it is chosen.
 - `server/modal_backend.py`: the backend that calls the `wsp-studio` Modal app.
 - `server/llm_openai.py`: the OpenAI client for GPT-5 models.
@@ -60,4 +62,6 @@ Run files go to `outputs/studio/`: `specs/<id>.json`, `uploads/<spec_id>/`, `run
 
 ## Tests
 
-    .venv/bin/pytest tests/test_studio_server.py -q
+    .venv/bin/pytest tests/test_studio_server.py tests/test_studio_sapien.py -q
+
+The server tests need fastapi, httpx and python-multipart, which the repo venv may lack.
