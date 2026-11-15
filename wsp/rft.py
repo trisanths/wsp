@@ -392,6 +392,29 @@ def build_sft(items, student_samples, teacher_samples=None, student_keep=2, teac
     return rows, stats
 
 
+def cap_rows(rows, pass_rates, max_rows, seed=0):
+    """At most max_rows SFT rows, hardest prompts first (lowest student pass rate), ties shuffled.
+
+    pass_rates maps item id to the student's pass rate on it (0 when unknown, which ranks first: a prompt
+    only the teacher solved is the most informative one). Rows of one prompt stay together.
+    """
+    if max_rows <= 0 or len(rows) <= max_rows:
+        return list(rows)
+    rng = random.Random(seed)
+    ids = sorted({r["id"] for r in rows})
+    rng.shuffle(ids)
+    ids.sort(key=lambda i: pass_rates.get(i, 0.0))
+    by_id = {}
+    for r in rows:
+        by_id.setdefault(r["id"], []).append(r)
+    out = []
+    for i in ids:
+        if len(out) + len(by_id[i]) > max_rows:
+            continue
+        out.extend(by_id[i])
+    return out
+
+
 def pass_rate_stats(rewards_by_id):
     """{"prompts", "mean_pass", "solved_any", "solved_all"} over lists of rewards per prompt id."""
     n = len(rewards_by_id)

@@ -307,8 +307,9 @@ def read_samples(sample_dir):
 
 @app.function(image=train_image, volumes={"/vol": volume}, gpu="H200", memory=262144, timeout=10 * 3600,
               single_use_containers=True)
-def train_round(base_dir, sft_path, out_dir, epochs=2, lr=1e-4, router_lr=1e-5, rank=64, max_tokens=16384,
-                max_seqs=48, accum=2, max_len=1536, max_steps=0, seed=0, train_routers=True, warmup=10):
+def train_round(base_dir, sft_path, out_dir, epochs=2, lr=1e-4, router_lr=1e-5, rank=64, max_tokens=8192,
+                max_seqs=32, accum=4, max_len=1536, max_steps=0, seed=0, train_routers=True, warmup=10,
+                grad_ckpt=False):
     """LoRA SFT of a slim MoE on verified answers, merged and saved to out_dir. Loss on answer tokens only."""
     import torch
     import transformers
@@ -349,7 +350,8 @@ def train_round(base_dir, sft_path, out_dir, epochs=2, lr=1e-4, router_lr=1e-5, 
         groups.append({"params": router_params, "lr": router_lr})
     optimizer = torch.optim.AdamW(groups, weight_decay=0.0)
     base_lrs = [g["lr"] for g in groups]
-    model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
+    if grad_ckpt:
+        model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
     model.train()
     batches = []
     for epoch in range(epochs):
@@ -549,8 +551,11 @@ def score_model(model_ref, name, out_path, speed=False, suites="humaneval,mbpp,g
 # ---------------------------------------------------------------- the driver
 
 
-def sft_for_round(items, student, teacher, index):
+def sft_for_round(items, student, teacher, index, max_rows=0, seed=0):
     rows, stats = rft.build_sft(items, student, teacher)
+    rates = {i: sum(s["reward"] for s in v) / max(1, len(v)) for i, v in student.items()}
+    stats["rows_before_cap"] = len(rows)
+    rows = rft.cap_rows(rows, rates, max_rows, seed)
     clean = []
     dropped = 0
     ok_text = rft.drop_sample_overlap([{"text": r["assistant"], "row": r} for r in rows], index)
@@ -562,7 +567,8 @@ def sft_for_round(items, student, teacher, index):
 
 
 @app.function(image=cpu_image, volumes={"/vol": volume}, cpu=8, memory=32768, timeout=24 * 3600)
-def drive(run="k64", rounds=3, shards=4, k=8, teacher_k=4, epochs=2, train_routers=True, smoke=False, first_round=1):
+def drive(run="k64", rounds=3, shards=4, k=8, teacher_k=4, epochs=2, train_routers=True, smoke=False, first_round=1,
+          teacher_from="", max_rows=9000):
     """Run baseline scoring, teacher sampling, and rounds of sample, train, score. Resumes from the volume."""
     safe_reload()
     start = STARTS[run]
@@ -586,12 +592,16 @@ def drive(run="k64", rounds=3, shards=4, k=8, teacher_k=4, epochs=2, train_route
     jobs = []
     if not smoke and not os.path.exists(f"{run_dir}/score_start.json"):
         jobs.append(score_model.spawn(start, f"{run}_start", f"{run_dir}/score_start.json", False, suites, limit))
-    if not os.path.exists(f"{run_dir}/score_full.json") and not smoke:
+    if not os.path.exists(f"{run_dir}/score_full.json") and not smoke and not teacher_from:
         jobs.append(score_model.spawn(BASE, f"{run}_full30b", f"{run_dir}/score_full.json", False, suites, limit))
-    teacher_dir = f"{run_dir}/teacher_samples"
+    teacher_dir = teacher_from or f"{run_dir}/teacher_samples"
     todo = [s for s in range(sh)]
-    t_jobs = [sample_shard.spawn(BASE, teacher_dir, s, sh, teacher_k, 0.8, limit) for s in todo] if not smoke else \
-        [sample_shard.spawn(BASE, teacher_dir, 0, 1, teacher_k, 0.8, 64)]
+    if teacher_from:
+        t_jobs = []
+    elif smoke:
+        t_jobs = [sample_shard.spawn(BASE, teacher_dir, 0, 1, teacher_k, 0.8, 64)]
+    else:
+        t_jobs = [sample_shard.spawn(BASE, teacher_dir, s, sh, teacher_k, 0.8, limit) for s in todo]
     for job in jobs + t_jobs:
         job.get()
     safe_reload()
@@ -614,7 +624,7 @@ def drive(run="k64", rounds=3, shards=4, k=8, teacher_k=4, epochs=2, train_route
         safe_reload()
         student = read_samples(rd + "/samples")
         entry["student"] = rft.pass_rate_stats({i: [s["reward"] for s in v] for i, v in student.items()})
-        rows, stats = sft_for_round([i for i in items if i["id"] in student], student, teacher, index)
+        rows, stats = sft_for_round([i for i in items if i["id"] in student], student, teacher, index, max_rows, r)
         write_jsonl(rd + "/sft.jsonl", rows)
         entry["sft"] = stats
         entry["sampled_from"] = current
@@ -624,7 +634,7 @@ def drive(run="k64", rounds=3, shards=4, k=8, teacher_k=4, epochs=2, train_route
             entry["error"] = "no verified rows"
             save()
             break
-        rep = train_round.remote(base, rd + "/sft.jsonl", rd + "/model", epochs, 1e-4, 1e-5, 64, 16384, 48, 2, 1536,
+        rep = train_round.remote(base, rd + "/sft.jsonl", rd + "/model", epochs, 1e-4, 1e-5, 64, 8192, 32, 4, 1536,
                                  3 if smoke else 0, r, train_routers)
         entry["train"] = rep
         save()
@@ -672,14 +682,14 @@ def estimate(run, rounds, shards, k, teacher_k, smoke=False):
 
 @app.local_entrypoint()
 def main(stage: str = "estimate", run: str = "k64", rounds: int = 3, shards: int = 4, k: int = 8, teacher_k: int = 4,
-         smoke: bool = False, epochs: int = 2, first_round: int = 1):
+         smoke: bool = False, epochs: int = 2, first_round: int = 1, teacher_from: str = ""):
     if stage == "estimate":
         estimate(run, rounds, shards, k, teacher_k)
     elif stage == "data":
         print(json.dumps(build_data.remote(), indent=1))
     elif stage == "drive":
         estimate(run, rounds, shards, k, teacher_k)
-        print(json.dumps(drive.remote(run, rounds, shards, k, teacher_k, epochs, True, smoke, first_round), indent=1)[:4000])
+        print(json.dumps(drive.remote(run, rounds, shards, k, teacher_k, epochs, True, smoke, first_round, teacher_from), indent=1)[:4000])
     elif stage == "score":
         row = score_model.remote(STARTS[run], f"{run}_start", f"{ROOT}/{run}/score_start.json", False,
                                  "humaneval,mbpp,gsm8k,mmlu,heldout", 0)

@@ -195,3 +195,13 @@ def test_number_runs_do_not_count_as_overlap():
     assert not rft.shares_ngram("x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13] and 0 0 0 0 0 0 0 0 0 0 0 0 0", index)
     text = "def has_close_elements numbers threshold check if in given list of numbers are any two closer"
     assert rft.shares_ngram(text, rft.ngram_index([text]))
+
+
+def test_cap_rows_prefers_hard_prompts_and_keeps_prompts_whole():
+    rows = [{"id": "easy", "assistant": "a"}, {"id": "easy", "assistant": "b"},
+            {"id": "hard", "assistant": "c"}, {"id": "teacher_only", "assistant": "d"}]
+    rates = {"easy": 1.0, "hard": 0.25}
+    out = rft.cap_rows(rows, rates, 2)
+    assert {r["id"] for r in out} == {"teacher_only", "hard"}
+    assert rft.cap_rows(rows, rates, 0) == rows
+    assert len(rft.cap_rows(rows, rates, 10)) == 4
