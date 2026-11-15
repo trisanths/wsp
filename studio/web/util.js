@@ -328,7 +328,9 @@ export function addRecent(item) {
   const old = list.find((x) => x.kind === item.kind && x.id === item.id);
   const next = { ...(old || {}), ...item, ts: old && !item.touch ? old.ts : Date.now() };
   delete next.touch;
-  const out = [next, ...list.filter((x) => !(x.kind === item.kind && x.id === item.id))].slice(0, 16);
+  // an item already in the list keeps its place, so opening it from the sidebar does not reorder the list;
+  // a new item goes on top
+  const out = old ? list.map((x) => (x === old ? next : x)) : [next, ...list].slice(0, 16);
   try { localStorage.setItem(storageKey('wsp.recent'), JSON.stringify(out)); } catch (e) { /* storage can be off */ }
   recentListeners.forEach((f) => f(out));
 }
