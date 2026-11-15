@@ -27,7 +27,7 @@ GPU_PRICE_PER_HOUR = {"EngineL4": 0.80, "EngineL40S": 1.95, "EngineH100": 3.95, 
 MAX_PYTHON_RUNS = 60
 CONTEXT_RESTART_TOKENS = 60000   # when one turn's input passes this, summarise and restart the conversation
 CACHED_PRICE_FRACTION = 1.0      # cost estimate treats cached input tokens at full price (conservative)
-UNLOCK_AFTER_PY = 5
+UNLOCK_AFTER_PY = 2  # weight-first: 2 weight-reading runs + 1 weight-justified proposal unlock the scans
 MAX_SCAN_UNITS = 4096
 
 PART_SCHEMA = {
@@ -128,7 +128,7 @@ def instructions(miner, use_notes):
         "generator that computes answers, plus a matched control.\n"
         "3. ablate to check cheaply, then screen the best parts with a label. Screens are cheap: try many candidates "
         "across many labels and layers rather than polishing one.\n"
-        "4. activation_scan / attribution_scan unlock after 5 run_python calls and one weight-justified proposal; use "
+        "4. activation_scan / attribution_scan unlock after 2 run_python calls and one weight-justified proposal; use "
         "them as a second, independent line of evidence, not as the main source.\n"
         "Never run the network in the sandbox. Prefer small, selective parts. Part kinds: mlp_cluster (columns of "
         "one layer's MLP down-projection input), attn_heads (heads of one layer), expert (routed experts of one MoE "
