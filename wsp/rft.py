@@ -52,8 +52,15 @@ def ngram_index(texts, n=NGRAM):
     for text in texts:
         toks = tokens_of(text)
         for i in range(len(toks) - n + 1):
-            index.add(hash_gram(toks[i:i + n]))
+            if informative(toks[i:i + n]):
+                index.add(hash_gram(toks[i:i + n]))
     return index
+
+
+def informative(gram):
+    """False for a 13-gram that cannot show copying: all numbers (0 0 0 ..., 1 2 3 ..., prime lists) or fewer than
+    5 distinct tokens. Without this rule 1544 of 2641 LeetCode train items matched HumanEval test lists (2026-11-15)."""
+    return len(set(gram)) >= 5 and any(not t.isdigit() for t in gram)
 
 
 def hash_gram(gram):
@@ -64,7 +71,8 @@ def shares_ngram(text, index, n=NGRAM):
     """True when the text has a 13-gram in the index."""
     toks = tokens_of(text)
     for i in range(len(toks) - n + 1):
-        if hash_gram(toks[i:i + n]) in index:
+        gram = toks[i:i + n]
+        if informative(gram) and hash_gram(gram) in index:
             return True
     return False
 

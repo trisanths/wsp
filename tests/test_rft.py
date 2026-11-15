@@ -188,3 +188,10 @@ def test_apps_item_survives_huge_integers():
     row = {"problem_id": 3, "question": "q", "difficulty": "d", "solutions": "[" + big + "]",
            "input_output": "{\"inputs\": [\"1\"], \"outputs\": [" + big + "]}"}
     assert rft.apps_item(row) is None
+
+
+def test_number_runs_do_not_count_as_overlap():
+    index = rft.ngram_index(["assert f([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]) == 0 0 0 0 0 0 0 0 0 0 0 0 0 0"])
+    assert not rft.shares_ngram("x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13] and 0 0 0 0 0 0 0 0 0 0 0 0 0", index)
+    text = "def has_close_elements numbers threshold check if in given list of numbers are any two closer"
+    assert rft.shares_ngram(text, rft.ngram_index([text]))
