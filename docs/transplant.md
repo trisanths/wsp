@@ -47,7 +47,7 @@ The selection texts must not come from the scoring sets. `modal_round18.py` uses
 
 ## Heal
 
-`heal` trains stitches, routers, gates, and an optional LoRA r16 on the base. The LoRA goes on before the banks are built, so the source experts get none. The loss is `kd_weight * KL(teacher || student) + lm_weight * LM`. The teacher is the source (same tokenizer). Experts, source norms, and base weights stay frozen (tested).
+`heal` trains stitches, routers, gates, and an optional LoRA r16 on the base. The LoRA goes on before the banks are built, so the source experts get none. The loss is `kd_weight * KL(teacher || student) + lm_weight * LM`. The donor is the source (same tokenizer). In round 18 the distillation arms use `lm_weight=0`: the donor reads the same pool tokens (teacher forcing), so a pool answer reaches the student only through the KL term. An optional preservation term (`anchor`, `anchor_weight`, `anchor_flags`) adds KL from a frozen base on the flagged (general) texts. Experts, source norms, and base weights stay frozen (tested).
 
 ## Parameter counts
 
@@ -63,7 +63,15 @@ The target of about 1.3x total and 1.15x active at K=4 is missed. The stitches a
 
 ## Round 18
 
-`modal_round18.py` has the arms, the heal data, the scoring, and the go and stop rule. Run it with `scripts/modal_fanout.py`. The verdict comes from `wsp.transplant.go_stop` (`modal run modal_round18.py --verdict 'results/round18_shard*.json'`).
+`modal_round18.py` has the cells, the heal data, the scoring, and the go and stop rule. Run it with `scripts/modal_fanout.py`. The verdict comes from `wsp.transplant.go_stop` (`modal run modal_round18.py --verdict 'results/round18_shard*.json'`).
+
+No benchmark data trains anything. Selection, stitch fit, router and gate training, and every heal read `wsp.healdata` pools only (math, code, medicine, general), checked with `healdata.check_sources`. The knowledge skill uses the medicine pool, which is narrower than MMLU. Ranges of each pool are disjoint: selection [0, 96), stitch fit [1000, 1064), heal [2000, 5000), held-out KL [5000, 5128). Rows record pool names, sources, and ranges. Benchmarks only score the finished model.
+
+Heal target: the donor's behaviour. Loss is KL(donor || student) on pool text, plus 0.5 * KL(frozen base || student) on the general texts. No LM loss in the distillation arms. `lora` and `transplant_k4_lm` use an LM loss on pool text. `kd_lora` gets the same donor signal, texts, and steps, and a LoRA rank from `matched_lora_rank`, so its trainable count is close to that of `transplant_k4` (`lora` uses the same rank).
+
+No-heal gate (`--stage gate`): `transplant_k4_noheal` and `transplant_k4_random_noheal` build the transplant with the ridge stitches, set every gate to a fixed value (`set_gates`; 0.05, 0.1, 0.25, headline 0.1, and 0 as the base reference), and report `measure_kl` from the donor logits to the student logits on held-out pool text. Lower is better. The real experts must show a lower donor KL than the random ones before money goes to heals.
+
+Benchmark-free signals for every trained arm: `donor_kl` (held-out pool text, all four pools) and `base_kl_general`.
 
 ## What is not known yet
 

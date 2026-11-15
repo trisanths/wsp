@@ -866,13 +866,22 @@ def lm_loss(logits, input_ids, mask):
 
 
 def heal(student, tokenizer, texts, groups, steps, batch_size, seq_len, seed, teacher=None, kd_weight=1.0,
-         lm_weight=1.0, autocast=None, log_every=100):
+         lm_weight=1.0, autocast=None, log_every=100, anchor=None, anchor_weight=0.0, anchor_flags=None):
     """Train the param groups on texts, one pass in a seeded order. Return a loss log.
 
     groups: a list of {"params": [...], "lr": value, ...} for AdamW. With a
     teacher and kd_weight > 0 the loss is kd_weight * KL + lm_weight * LM.
+    The teacher reads the same text as the student (teacher forcing), so the
+    donor signal on a pool answer comes through the KL term only. Set
+    lm_weight to 0 for a heal with no LM loss.
+    anchor: a frozen model (the base). With anchor_weight > 0 the loss gains
+    anchor_weight * KL(anchor || student) on the texts whose entry in
+    anchor_flags (one bool per text) is True. This is the preservation term.
     autocast: None, or a torch dtype such as torch.bfloat16 (CUDA only).
     """
+    use_anchor = anchor is not None and anchor_weight > 0
+    if use_anchor and (anchor_flags is None or len(anchor_flags) != len(texts)):
+        raise ValueError("anchor_flags needs one entry per text")
     device = next(student.parameters()).device
     tokenizer.padding_side = "right"
     if tokenizer.pad_token is None:
@@ -883,15 +892,17 @@ def heal(student, tokenizer, texts, groups, steps, batch_size, seq_len, seed, te
     optimizer = torch.optim.AdamW(groups, weight_decay=0.0)
     order = list(range(len(texts)))
     random.Random(seed).shuffle(order)
-    log = {"kd": [], "lm": []}
+    log = {"kd": [], "lm": [], "anchor": []}
     student.train()
     cursor = 0
     for step in range(steps):
         batch = []
+        rows = []
         while len(batch) < batch_size:
             if cursor >= len(order):
                 cursor = 0
             batch.append(texts[order[cursor]])
+            rows.append(order[cursor])
             cursor += 1
         encoded = tokenizer(batch, return_tensors="pt", padding=True, truncation=True, max_length=seq_len,
                             add_special_tokens=False)
@@ -917,18 +928,116 @@ def heal(student, tokenizer, texts, groups, steps, batch_size, seq_len, seed, te
             loss = loss + kd_weight * kd
             kd_value = float(kd.detach())
             del teacher_logits
+        anchor_value = 0.0
+        if use_anchor:
+            flags = torch.tensor([bool(anchor_flags[row]) for row in rows], device=device)
+            if bool(flags.any()):
+                with torch.no_grad():
+                    anchor_device = next(anchor.parameters()).device
+                    anchor_logits = anchor(input_ids=input_ids.to(anchor_device),
+                                           attention_mask=mask.to(anchor_device)).logits.float().to(device)
+                keep = mask * flags.unsqueeze(1).to(mask.dtype)
+                pres = distill_loss(logits, anchor_logits, keep)
+                loss = loss + anchor_weight * pres
+                anchor_value = float(pres.detach())
+                del anchor_logits
         optimizer.zero_grad()
         loss.backward()
         torch.nn.utils.clip_grad_norm_(params, 1.0)
         optimizer.step()
         log["kd"].append(kd_value)
         log["lm"].append(float(lm.detach()))
+        log["anchor"].append(anchor_value)
         if log_every and (step + 1) % log_every == 0:
             print(f"step {step + 1}/{steps} lm {log['lm'][-1]:.4f} kd {log['kd'][-1]:.4f}")
     student.eval()
     first = max(1, min(20, steps))
     return {"lm_first": sum(log["lm"][:first]) / first, "lm_last": sum(log["lm"][-first:]) / first,
-            "kd_first": sum(log["kd"][:first]) / first, "kd_last": sum(log["kd"][-first:]) / first}
+            "kd_first": sum(log["kd"][:first]) / first, "kd_last": sum(log["kd"][-first:]) / first,
+            "anchor_last": sum(log["anchor"][-first:]) / first}
+
+
+@torch.no_grad()
+def measure_kl(student, reference, tokenizer, texts, batch_size=4, seq_len=384, autocast=None):
+    """Mean per-token KL(reference || student) on texts, and the student's LM loss. Lower KL is closer.
+
+    No benchmark is read. The texts are held-out pool text. Both models read
+    the same tokens with teacher forcing. Returns {"kl", "lm", "tokens"}.
+    """
+    device = next(student.parameters()).device
+    was_training = student.training
+    student.eval()
+    tokenizer.padding_side = "right"
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+    kl_sum = 0.0
+    lm_sum = 0.0
+    kl_tokens = 0
+    lm_tokens = 0
+    for start in range(0, len(texts), batch_size):
+        encoded = tokenizer(texts[start:start + batch_size], return_tensors="pt", padding=True, truncation=True,
+                            max_length=seq_len, add_special_tokens=False)
+        input_ids = encoded["input_ids"].to(device)
+        mask = encoded["attention_mask"].to(device)
+        ref_device = next(reference.parameters()).device
+        ref_logits = reference(input_ids=input_ids.to(ref_device),
+                               attention_mask=mask.to(ref_device)).logits.float().to(device)
+        if autocast is not None:
+            with torch.autocast(device.type, dtype=autocast):
+                logits = student(input_ids=input_ids, attention_mask=mask).logits
+        else:
+            logits = student(input_ids=input_ids, attention_mask=mask).logits
+        logits = logits.float()
+        count = int(mask.sum())
+        kl_sum += float(distill_loss(logits, ref_logits, mask)) * count
+        kl_tokens += count
+        pairs = int(mask[:, 1:].sum())
+        lm_sum += float(lm_loss(logits, input_ids, mask)) * pairs
+        lm_tokens += pairs
+        del ref_logits, logits
+    if was_training:
+        student.train()
+    return {"kl": kl_sum / max(1, kl_tokens), "lm": lm_sum / max(1, lm_tokens), "tokens": kl_tokens}
+
+
+def set_gates(model, value):
+    """Set every bank gate to value (the fixed-gate no-heal mode). Return the number of banks."""
+    found = banks(model)
+    with torch.no_grad():
+        for bank in found:
+            bank.gate.fill_(float(value))
+    return len(found)
+
+
+def stitch_size(d_in, d_out, rank, bias):
+    """Parameter count of one Stitch (see the Stitch class for the rank rule)."""
+    if rank is None or rank >= min(d_in, d_out):
+        return d_in * d_out + (d_out if bias else 0)
+    return d_in * rank + rank * d_out + (d_out if bias else 0)
+
+
+def planned_trainable(model, d_source, k, stitch_rank, lora_rank):
+    """Trainable count of a transplant arm built from the plain base model, before any build.
+
+    Stitches, routers (weight and bias), gates, and a base LoRA of lora_rank.
+    Equals the count after build_transplant (tested).
+    """
+    from wsp.lora import params_per_rank
+
+    d_model = text_config(model).hidden_size
+    layers = len(decoder_layers(model))
+    bank = (stitch_size(d_model, d_source, stitch_rank, True) + stitch_size(d_source, d_model, stitch_rank, False)
+            + k * d_source + k + 1)
+    return layers * bank + int(lora_rank) * params_per_rank(model)
+
+
+def matched_lora_rank(model, d_source, k, stitch_rank, lora_rank):
+    """The LoRA rank whose parameter count is closest to the trainable count of the transplant arm."""
+    from wsp.lora import params_per_rank
+
+    target = planned_trainable(model, d_source, k, stitch_rank, lora_rank)
+    per_rank = params_per_rank(model)
+    return max(1, int(round(target / per_rank)))
 
 
 # ---------------------------------------------------------------- save and load

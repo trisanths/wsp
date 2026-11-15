@@ -12,7 +12,7 @@ import pytest
 from wsp import healdata
 
 # Every new round script that trains or fits anything must be listed here.
-SCRIPTS = ["modal_round16c.py", "modal_round16d.py", "modal_round19.py"]
+SCRIPTS = ["modal_round16c.py", "modal_round16d.py", "modal_round18.py", "modal_round19.py"]
 
 ROOT = Path(__file__).resolve().parent.parent
 

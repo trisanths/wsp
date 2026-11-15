@@ -11,6 +11,7 @@ from wsp.lora import lora_modules
 from wsp.skills_eval import model_params
 from wsp.transplant import (TransplantBank, banks, build_transplant, count_params, fetch_parts, fit_stitches, heal,
                             load_transplant, make_layer_map, parts_from_model, ridge_solve, routing_shares,
+                            measure_kl, set_gates,
                             save_transplant, select_experts, set_trainable, source_active_params, track_routing)
 
 D = 48
@@ -517,3 +518,67 @@ def test_shared_source_layer_gives_each_bank_its_own_experts():
             assert id(param) not in ids
             ids.add(id(param))
     assert count_params(model)["experts"] == 6 * 3 * EXPERT
+
+
+def test_set_gates_sets_every_bank_and_zero_restores_base():
+    model, reference, _, _ = make()
+    ids = torch.tensor([[1, 2, 3, 4, 5, 6]])
+    assert set_gates(model, 0.1) == 3
+    for bank in banks(model):
+        assert float(bank.gate) == pytest.approx(0.1)
+    assert not torch.equal(logits(model, ids), logits(reference, ids))
+    set_gates(model, 0.0)
+    assert torch.equal(logits(model, ids), logits(reference, ids))
+
+
+def test_measure_kl_is_zero_for_the_same_model_and_positive_otherwise():
+    model, reference, source, _ = make()
+    tok = tokenizer()
+    sample = texts(SKILL_WORDS + GENERAL_WORDS, 4, 10, seed=5)
+    same = measure_kl(model, reference, tok, sample, batch_size=2, seq_len=16)
+    assert same["kl"] == pytest.approx(0.0, abs=1e-6)
+    assert same["tokens"] > 0
+    assert same["lm"] > 0
+    randomize(model)
+    moved = measure_kl(model, reference, tok, sample, batch_size=2, seq_len=16)
+    assert moved["kl"] > 1e-6
+    far = measure_kl(model, source, tok, sample, batch_size=2, seq_len=16)
+    assert far["kl"] > 0
+
+
+def test_planned_trainable_matches_the_built_count():
+    for rank in (None, 8):
+        for lora in (4, 6):
+            base = tiny_base()
+            planned = transplant.planned_trainable(base, D, 4, rank, lora)
+            model, _, _, _ = make(lora_rank=lora, rank=rank, k=4)
+            built = sum(param.numel() for param in model.parameters() if param.requires_grad)
+            assert planned == built
+
+
+def test_matched_lora_rank_is_closest_to_the_transplant_count():
+    from wsp.lora import params_per_rank
+
+    base = tiny_base()
+    target = transplant.planned_trainable(base, D, 4, 8, 4)
+    rank = transplant.matched_lora_rank(base, D, 4, 8, 4)
+    per_rank = params_per_rank(base)
+    assert abs(rank * per_rank - target) <= per_rank / 2
+    assert rank > 4
+
+
+def test_heal_anchor_term_pulls_toward_the_frozen_base():
+    model, reference, source, _ = make(lora_rank=4)
+    randomize(model)
+    tok = tokenizer()
+    sample = texts(SKILL_WORDS + GENERAL_WORDS, 8, 10, seed=2)
+    flags = [index % 2 == 0 for index in range(len(sample))]
+    groups = set_trainable(model)
+    train_groups = [{"params": groups["gate"], "lr": 5e-2}, {"params": groups["lora"], "lr": 1e-3}]
+    log = heal(model, tok, sample, train_groups, steps=4, batch_size=4, seq_len=16, seed=0, teacher=source,
+               kd_weight=1.0, lm_weight=0.0, anchor=reference, anchor_weight=1.0, anchor_flags=flags, log_every=0)
+    assert log["anchor_last"] > 0
+    assert log["kd_first"] > 0
+    with pytest.raises(ValueError):
+        heal(model, tok, sample, train_groups, steps=1, batch_size=2, seq_len=16, seed=0, anchor=reference,
+             anchor_weight=1.0, log_every=0)
