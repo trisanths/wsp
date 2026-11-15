@@ -640,3 +640,44 @@ def test_modal_shards_cover_each_model_once():
         modal_atlas.shard_cells(normal, 3, 3)
     only, _, _ = modal_atlas.select(zoo, False, False, "Qwen/Qwen2.5-0.5B-Instruct,LiquidAI__LFM2-350M")
     assert sorted(model["id"] for model in only) == ["LiquidAI/LFM2-350M", "Qwen/Qwen2.5-0.5B-Instruct"]
+
+
+def test_modal_tf5_selects_only_models_that_need_5x():
+    pytest.importorskip("modal")
+    import sys
+
+    sys.path.insert(0, ROOT)
+    import modal_atlas
+
+    zoo = atlas.load_zoo(os.path.join(ROOT, "atlas", "zoo.json"))
+    normal, big, skipped = modal_atlas.select(zoo, giants=False, gated=False, only="", tf5=True)
+    assert big == []
+    assert len(normal) > 0
+    for zoo_model in normal:
+        assert zoo_model["needs"]["transformers"] == "5.x"
+        assert not zoo_model["needs"]["multi_gpu"]
+    for row in skipped:
+        assert "giant" in row["reason"] or "gated" in row["reason"] or "verified" in row["reason"]
+    needs_5 = [model for model in zoo["models"] if model["needs"]["transformers"] == "5.x"]
+    assert len(normal) + len(skipped) == len(needs_5)
+    # The giants stay out even when asked for.
+    normal, big, _ = modal_atlas.select(zoo, giants=True, gated=False, only="", tf5=True)
+    assert big == []
+    # The default run does not take the 5.x models.
+    default, _, _ = modal_atlas.select(zoo, giants=False, gated=False, only="")
+    for zoo_model in default:
+        assert zoo_model["needs"]["transformers"] == "4.57.1"
+
+
+def test_selected_experts_reads_logits_or_index_tuples():
+    logits = torch.tensor([[0.1, 0.9, 0.3, 0.2], [0.8, 0.1, 0.0, 0.7]])
+    picks = atlas.selected_experts(logits, 2, 4)
+    assert picks.tolist() == [[1, 2], [0, 3]]
+    # transformers 5.x routers return (logits, scores, indices).
+    indices = torch.tensor([[2, 1], [3, 0]])
+    scores = torch.tensor([[0.5, 0.5], [0.5, 0.5]])
+    assert atlas.selected_experts((logits, scores, indices), 2, 4).tolist() == [[2, 1], [3, 0]]
+    # A tuple of float tensors falls back to the logits.
+    assert atlas.selected_experts((logits, scores), 2, 4).tolist() == [[1, 2], [0, 3]]
+    with pytest.raises(NotImplementedError):
+        atlas.selected_experts(torch.zeros(2, 5), 2, 4)

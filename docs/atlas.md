@@ -35,7 +35,9 @@ transformers 4.57.1 (or the repo's own code was written for 4.x), else
 5.x. In the 4.57.1 image, 86 models run. These are skipped with a reason:
 LFM2 MoE models, LFM3 and the d1 models, Qwen3.5 and Qwen3.8, Gemma 4,
 K2-Horizon, and the four giants. The giants (more than 150B parameters)
-are marked `multi_gpu` and `expert_level_only`. DeepSeek-V4-Pro (about
+are marked `multi_gpu` and `expert_level_only`. The `--tf5` run (see Run)
+covers the 22 skipped models that are not giants, on a transformers 5.23.0
+image. DeepSeek-V4-Pro (about
 1.6T parameters) and Kimi-K3 (about 2.8T) do not fit on H200:8 in bf16.
 
 ## What each screen measures
@@ -141,6 +143,32 @@ ratio of the two frequencies ranks the experts. Each layer keeps up to 8
 experts with a positive ratio. The entry stores only those expert ids per
 layer.
 
+The router hook works with both transformers lines. In 4.x the router is
+a `gate` module that returns logits, and the experts are a ModuleList. In
+5.x the router returns `(logits, scores, indices)`, the experts are one
+fused module, and `top_k` and `num_experts` sit on the router or in the
+config. When the router output has an index tensor, the map uses it, so
+LFM2-MoE's expert bias is counted as the model applies it. In Gemma 4 the
+decoder layer holds `experts` and `router` itself, and the layer counts as
+the MoE module.
+
+## Transformers 4.x and 5.x
+
+Layer skipping is a forward hook on the decoder layer that returns the
+layer's input. Decoder layers return a tuple in 4.x and a plain tensor in
+5.x, and the hook keeps whichever shape the layer returned. The influence
+hooks read the output the same way. `layer_input` finds the input in
+`args[0]` or in `kwargs["hidden_states"]`. Because the layer still runs and
+only its output is replaced, layers that write shared state (the KV source
+layers in Gemma 4) keep working when skipped.
+
+`tests/test_atlas_tf5.py` builds tiny random models of LFM2, LFM2-MoE,
+Qwen3.5, Qwen3.5-MoE and Gemma 4 (dense and MoE) from configs. For each it
+checks that skipping a layer gives the same loss as deleting it, that the
+layer map runs, and that expert counts sum to top-k times the token count.
+A family is skipped when its config class is not in the installed
+transformers, so the file passes under both 4.57.1 and 5.23.0.
+
 ## Entries
 
 One JSON file per model:
@@ -181,8 +209,20 @@ parts, and a mined part is a finer cut inside an atlas block.
 
 ```bash
 MODAL_PROFILE=trisanth .venv/bin/modal run modal_atlas.py --only Qwen/Qwen2.5-0.5B-Instruct --scale 0.1
+MODAL_PROFILE=trisanth .venv/bin/modal run modal_atlas.py --tf5 --only Qwen/Qwen3.5-0.8B --scale 0.1
 python scripts/modal_fanout.py modal_atlas.py atlas --profiles trisanth,ztrisanth
 ```
+
+`--tf5` runs only the models whose zoo entry needs transformers 5.x, on a
+second image that pins transformers 5.23.0 (torch 2.7.1 as before). It
+takes no gated models and no giants (`--giants` is ignored with it), and it
+leaves the models that need 4.x out of the skipped file. Without `--tf5`
+the run is the 4.57.1 image as before. Under `--tf5` the loader tries
+`AutoModelForCausalLM`, then `AutoModelForImageTextToText`, then
+`AutoModel`, and loads a saved generic fast tokenizer as that class
+(transformers 5 otherwise rebuilds some tokenizers and ignores
+`tokenizer.json`). `--tf5` composes with `--shard`, `--nshards` and
+`--only`.
 
 Options: `--skills math,code`, `--scale` (fraction of each screen),
 `--map-texts` (texts per side for the maps, default 32), `--gen-tokens`,

@@ -1323,12 +1323,29 @@ def layer_skill_map(model, tokenizer, skill_texts, general_texts, max_length=256
 # Expert maps.
 
 
+def first_attr(names, *objects):
+    """First non-None attribute among names, looking at each object in order."""
+    for obj in objects:
+        if obj is None:
+            continue
+        for name in names:
+            value = getattr(obj, name, None)
+            if value is not None:
+                return value
+    return None
+
+
 def find_routers(model):
     """[(layer index, moe module, router module, top_k, num_experts)] for every MoE layer.
 
-    An MoE module is a child of a decoder layer with an `experts` attribute
-    and a `gate` router, as in Qwen3-MoE, Mixtral, OLMoE and the
-    wsp.parts.find_moe_block convention.
+    An MoE module has an `experts` attribute and a `gate` (or `router`)
+    router. It is a child of the decoder layer in Qwen3-MoE, Mixtral, OLMoE,
+    LFM2-MoE and Qwen3.5-MoE. In Gemma 4 the decoder layer itself holds
+    `experts` and `router`, so the layer counts as the MoE module there.
+
+    Transformers 4.x lists the experts as a ModuleList, so len() gives their
+    count. Transformers 5.x fuses them into one module, and top_k and
+    num_experts sit on the router, on the experts module or in the config.
     """
     _, layers = find_decoder_layers(model, 0)
     config = model.config
@@ -1336,7 +1353,14 @@ def find_routers(model):
         config = config.get_text_config()
     found = []
     for index in range(len(layers)):
-        for name, child in layers[index].named_children():
+        layer = layers[index]
+        holders = []
+        for name, child in layer.named_children():
+            holders.append(child)
+        holders.append(layer)
+        for child in holders:
+            if child is layer and "experts" not in layer._modules:
+                continue
             if not hasattr(child, "experts"):
                 continue
             router = getattr(child, "gate", None)
@@ -1344,27 +1368,42 @@ def find_routers(model):
                 router = getattr(child, "router", None)
             if router is None:
                 continue
-            top_k = getattr(child, "top_k", None)
+            top_k = first_attr(["top_k"], child, router, child.experts)
             if top_k is None:
-                top_k = getattr(config, "num_experts_per_tok", None)
-            num_experts = getattr(child, "num_experts", None)
+                top_k = first_attr(["num_experts_per_tok", "top_k_experts", "moe_top_k"], config)
+            num_experts = first_attr(["num_experts"], child, router, child.experts)
             if num_experts is None and hasattr(child.experts, "__len__"):
                 num_experts = len(child.experts)
+            if num_experts is None:
+                num_experts = first_attr(["num_experts", "num_local_experts", "n_routed_experts"], config)
             if top_k is None or num_experts is None:
-                # Unknown layout (for example fused experts); skip it rather
-                # than fail the whole measurement.
+                # Unknown layout; skip it rather than fail the whole measurement.
                 continue
             found.append((index, child, router, int(top_k), int(num_experts)))
+            break
     return found
 
 
 def selected_experts(output, top_k, num_experts):
-    """LongTensor (tokens, top_k) of the experts a router output picks."""
-    if isinstance(output, tuple):
-        first = output[0]
-        if not torch.is_floating_point(first):
-            return first.reshape(-1, first.shape[-1])
-        output = first
+    """LongTensor (tokens, top_k) of the experts a router output picks.
+
+    A router returns one of: logits (tokens, num_experts), as in
+    transformers 4.x Qwen3-MoE; or a tuple. A tuple may hold an integer
+    index tensor (tokens, top_k), as in 5.x routers that return
+    (logits, scores, indices). When it has one, that tensor is used, since
+    it applies any expert bias the router adds before picking. Otherwise
+    the first float tensor with num_experts columns is the logits.
+    """
+    if isinstance(output, (tuple, list)):
+        for part in output:
+            if torch.is_tensor(part) and not torch.is_floating_point(part) and part.shape[-1] == top_k:
+                return part.reshape(-1, top_k)
+        for part in output:
+            if torch.is_tensor(part) and torch.is_floating_point(part) and part.shape[-1] == num_experts:
+                output = part
+                break
+        else:
+            raise NotImplementedError(f"router output has no index tensor or logits of width {num_experts}")
     logits = output.detach().float().reshape(-1, output.shape[-1])
     if logits.shape[-1] != num_experts:
         raise NotImplementedError(f"router output has width {logits.shape[-1]}, expected {num_experts} experts")
