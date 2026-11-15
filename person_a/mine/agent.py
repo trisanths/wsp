@@ -450,6 +450,7 @@ def run(short, budget_usd=25.0, max_hours=3.0, max_screens=60, use_notes=True, e
             system_text = system_text + "\nShared memory from teammates' runs (past.dev):\n" + recalled + "\n"
     summary = None
     stop_reason = None
+    finish_refused = 0
     turns = 0
     print("[" + short + "] run", run_id, "GPU", miner.gpu, "revision", miner.revision[:10], "| shared memory",
           "on" if memory.enabled else "off")
@@ -471,7 +472,17 @@ def run(short, budget_usd=25.0, max_hours=3.0, max_screens=60, use_notes=True, e
                     args = json.loads(item.arguments or "{}")
                 except Exception:
                     args = {}
-                if item.name == "finish":
+                if item.name == "finish" and finish_refused < 6 and session.cost() < 0.85 * budget_usd \
+                        and session.screens < max_screens and time.time() < session.deadline - 600:
+                    # use the full budget: keep exploring instead of stopping early
+                    finish_refused += 1
+                    left = round(budget_usd - session.cost(), 2)
+                    result = {"error": "Not yet: $" + str(left) + " of the OpenAI budget and "
+                              + str(max_screens - session.screens) + " screens are left. Keep mining: try layers, "
+                              "part kinds and skills you have not covered yet (check recall_shared for what "
+                              "teammates already found, and avoid repeating it), define new skills from what the "
+                              "weights suggest, and screen more candidates."}
+                elif item.name == "finish":
                     summary = args.get("summary", "")
                     result = {"ok": True}
                 else:
