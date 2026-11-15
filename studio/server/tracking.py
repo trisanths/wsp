@@ -11,6 +11,10 @@ import time
 from wsp.swarm import space
 from wsp.swarm.swarm import Swarm
 
+from studio.server import sizing
+
+REFUSED_LOG_LIMIT = 40
+
 
 class Gate:
     """Pause, resume and stop flags that worker threads can wait on."""
@@ -57,6 +61,24 @@ class Controller:
         self.gate = Gate()
         self.pace_s = pace_s
         self.seed_program = seed_program
+
+    def admit(self, agent_name, program):
+        """True when a program may be scored. A program with taps, or one over a spec limit, is refused and logged."""
+        state = self.state
+        if state.size_ctx is None:
+            return True
+        problems = sizing.forbidden_problems(program)
+        if len(problems) == 0:
+            try:
+                estimate = sizing.estimate(program, state.size_ctx)
+                problems = sizing.limit_problems(state.spec.get("limits"), estimate)
+            except Exception as error:
+                # A size that cannot be estimated cannot be shown to fit, so the program is not scored.
+                problems = ["The size of this program could not be estimated (" + type(error).__name__ + ")."]
+        if len(problems) == 0:
+            return True
+        state.note_refused(state.agent_id_for(agent_name), space.describe(program), problems)
+        return False
 
     def think_pause(self, factor=1.0):
         """A short pause after an agent call, in stub mode only, so the UI can show it."""
@@ -156,6 +178,13 @@ class StudioSwarm(Swarm):
     def __init__(self, config, env, analyst, planners, judge, memory, literature, llm, controller):
         Swarm.__init__(self, config, env, analyst, planners, judge, memory, literature, llm)
         self.controller = controller
+
+    def screen(self, agent, proposal, seen):
+        """The swarm's own screen, after the limit check. A refused proposal costs nothing."""
+        program = proposal.get("program")
+        if isinstance(program, dict) and not self.controller.admit(agent, program):
+            return None
+        return Swarm.screen(self, agent, proposal, seen)
 
     def search_over(self):
         self.controller.gate.wait_if_paused()

@@ -1,6 +1,6 @@
 import { html, useState, useEffect, useLayoutEffect, useRef, useMemo } from '../lib.js';
 import { api } from '../api.js';
-import { go, toast, pct, pctS, sgn, bsize, clamp, clone, emptyProgram, normProgram, donorShort, maskIds, buildMask, donorColor, donorLetter, specProgress, primaryTarget, tokenizeLine, setLastBuild } from '../util.js';
+import { go, toast, pct, pctS, sgn, bsize, clamp, clone, emptyProgram, normProgram, hasTaps, donorShort, maskIds, buildMask, donorColor, donorLetter, specProgress, primaryTarget, tokenizeLine, setLastBuild } from '../util.js';
 import { TopBar, Icon, Spinner, ErrorBox, Menu, BenchBar, BenchLegend, Ring, Tag, StubBadge } from '../components.js';
 import { PopNum, SlidingBar, SkelReveal, Matrix, SuccessCheck, useShake, shake, SwapText } from '../motion.js';
 
@@ -17,14 +17,12 @@ const STATUS_MESSAGES = {
 function statusLabel(status) { return STATUS_LABELS[status] || status; }
 function statusMessage(status) { return STATUS_MESSAGES[status] || 'Score status: ' + status; }
 
+const TAP_TOAST = 'Removed taps from this program. Sapien builds one network, so a second model cannot run at inference.';
 const GLUE = [null, 4, 8, 16, 32, 64];
 const HEAL_STEPS = [0, 100, 200, 300, 400, 600, 800, 1000];
-const TAP_TRAIN_FALLBACK = { data: 'mmlu_aux', steps: 500, batch_size: 8, seq_len: 256, branch_lr: 0.0003, gate_lr: 0.03 };
-const TAP_STEP = 100, TAP_MIN = 100, TAP_MAX = 2000;
-const tapKey = (t) => 'tap:' + t.donor + '@' + t.at;
-// every graft and tap as one list of canvas nodes
+// every graft as one list of canvas nodes
 function nodesOf(p) {
-  return [...p.grafts.map((g, i) => ({ key: 'g' + i, t: 'g', i, at: g.at })), ...(p.taps || []).map((t, i) => ({ key: 't' + i, t: 't', i, at: t.at }))];
+  return p.grafts.map((g, i) => ({ key: 'g' + i, t: 'g', i, at: g.at }));
 }
 function measuredLine(m) {
   if (!m || m.score == null) return null;
@@ -56,7 +54,6 @@ function briefProgram(p, cat) {
   const bits = (p.grafts || []).map((g) => { const x = cat && cat.parts.find((q) => q.id === g.id); return (x ? x.label : g.id) + ' L' + g.at; });
   const ids = maskIds(p.masks);
   if (ids.length) bits.push('- ' + ids.length + ' mask' + (ids.length > 1 ? 's' : ''));
-  for (const t of p.taps || []) bits.push(donorShort(t.donor) + ' tap L' + t.at);
   if (p.lora) bits.push('LoRA r' + (p.lora.rank || 16));
   if (p.heal) bits.push('heal ' + p.heal.steps);
   return bits.length ? bits.join(' + ') : 'host only';
@@ -116,6 +113,7 @@ export function BuilderScreen({ id, specId }) {
       let p = null;
       try { p = JSON.parse(ls.get('wsp.prog.' + id)); } catch (e) { p = null; }
       if (!p) { try { p = JSON.parse(ls.get('wsp.seed.' + id)); } catch (e) { p = null; } }
+      if (hasTaps(p)) toast(TAP_TOAST);
       setProgramRaw(normProgram(p || emptyProgram(c.host.model)));
     } catch (e) { setErr(e); }
   };
@@ -125,6 +123,7 @@ export function BuilderScreen({ id, specId }) {
 
   /* ---- edit helpers ---- */
   const setProgram = (p, keepUndo) => {
+    if (hasTaps(p)) toast(TAP_TOAST);
     p = normProgram(p);
     if (!keepUndo) setUndo((u) => [...u.slice(-40), programRef.current]);
     programRef.current = p;
@@ -149,15 +148,6 @@ export function BuilderScreen({ id, specId }) {
 
   const healDefault = () => ({ steps: 300, data: spec && spec.task_type === 'math' ? 'gsm8k_train' : 'task_train', lr: 0.0003, batch_size: 8, seq_len: 384 });
   const addPart = (part, at) => { edit((p) => { p.grafts.push({ id: part.id, at: at ?? part.default_at ?? 6, control: null, control_seed: 0, glue_rank: null }); }); setSel(null); };
-  const addTap = (part, at) => {
-    edit((p) => {
-      p.taps.push({ donor: part.donor, donor_layer: part.donor_layer, at: at ?? part.default_at ?? 6, attn_dim: 256, heads: 8, tap_id: null });
-      if (!p.tap_train) p.tap_train = clone((cat && cat.tap_train_default) || TAP_TRAIN_FALLBACK);
-    });
-    setSel(null);
-  };
-  const addAny = (part, at) => (part.kind === 'tap' ? addTap(part, at) : addPart(part, at));
-  const removeTap = (i) => edit((p) => { p.taps.splice(i, 1); if (!p.taps.length) p.tap_train = null; });
   const addMask = (m) => edit((p) => { const ids = maskIds(p.masks); if (!ids.includes(m.id)) p.masks = buildMask([...ids, m.id]); });
   const addTrain = (t) => edit((p) => { if (t.id === 'lora' && !p.lora) p.lora = { rank: 16 }; if (t.id === 'heal' && !p.heal) p.heal = healDefault(); });
   const trainUsed = (t) => program && (t.id === 'lora' ? !!program.lora : !!program.heal);
@@ -206,8 +196,8 @@ export function BuilderScreen({ id, specId }) {
     const d = DRAG;
     const layer = layerAt(e);
     endDrag();
-    if (d.kind === 'part') { addAny(d.part, layer ?? undefined); if (layer == null) toast('Added at its default layer, L' + d.part.default_at + '. Drag the card to move it.'); }
-    else if (d.kind === 'node') { if (layer != null) edit((p) => { (d.t === 't' ? p.taps : p.grafts)[d.i].at = layer; }); }
+    if (d.kind === 'part') { addPart(d.part, layer ?? undefined); if (layer == null) toast('Added at its default layer, L' + d.part.default_at + '. Drag the card to move it.'); }
+    else if (d.kind === 'node') { if (layer != null) edit((p) => { p.grafts[d.i].at = layer; }); }
     else if (d.kind === 'mask') addMask(d.mask);
     else if (d.kind === 'train') addTrain(d.train);
   };
@@ -232,14 +222,10 @@ export function BuilderScreen({ id, specId }) {
       const top = Math.max(it.cy - 24, bottom + 12);
       y[it.n.key] = Math.round(top);
       bottom = top + it.h;
-      let color, tap = false;
-      if (it.n.t === 't') { color = 'var(--blue)'; tap = true; }
-      else {
-        const g = program.grafts[it.n.i];
-        const part = cat && cat.parts.find((p) => p.id === g.id);
-        color = donorColor(part && part.donor);
-      }
-      wires.push({ k: it.n.key, tap, x1: it.x1, y1: it.cy, x2: nodeX, y2: top + 24, color });
+      const g = program.grafts[it.n.i];
+      const part = cat && cat.parts.find((p) => p.id === g.id);
+      const color = donorColor(part && part.donor);
+      wires.push({ k: it.n.key, x1: it.x1, y1: it.cy, x2: nodeX, y2: top + 24, color });
     }
     const stackH = inner.querySelector('.stack') ? inner.querySelector('.stack').offsetHeight + 40 : 0;
     const next = { y, wires, h: Math.max(bottom + 160, stackH + 160) };
@@ -270,7 +256,8 @@ export function BuilderScreen({ id, specId }) {
         const r = await api.programParse(text);
         if (!alive.current || seq !== parseSeq.current) return;
         setCodeErr(null);
-        if (JSON.stringify(normProgram(r.program)) !== JSON.stringify(programRef.current)) { fromCode.current = true; setProgram(r.program); }
+        if (hasTaps(r.program)) setProgram(r.program, true);
+        else if (JSON.stringify(normProgram(r.program)) !== JSON.stringify(programRef.current)) { fromCode.current = true; setProgram(r.program); }
       } catch (e) {
         if (alive.current && seq === parseSeq.current) setCodeErr({ message: e.message, line: e.line });
       }
@@ -346,23 +333,16 @@ export function BuilderScreen({ id, specId }) {
   const prog = spec && lastOk ? specProgress(spec, lastOk.scores) : 0;
   const t1 = spec ? primaryTarget(spec) : null;
   const vsCtl = lastOk && lastOk.control && t1 ? lastOk.scores[t1.id] - lastOk.control.scores[t1.id] : null;
-  const tapPart = (t) => cat.parts.find((p) => p.kind === 'tap' && p.donor === t.donor && p.donor_layer === t.donor_layer) || cat.parts.find((p) => p.kind === 'tap' && p.donor === t.donor);
-  const tapParamsM = program.taps.reduce((s, t) => s + ((tapPart(t) || {}).params_m || 3), 0);
-  // A tap keeps its donor in memory and runs it on the prompt, so each distinct donor counts toward size.
-  const tapDonors = [...new Set(program.taps.map((t) => t.donor))];
-  const donorParamsB = tapDonors.reduce((s, d) => { const p = (cat.parts || []).find((x) => x.kind === 'tap' && x.donor === d); return s + ((p && p.donor_params_b) || 0); }, 0);
-  const estSize = cat.host.params_b + program.grafts.reduce((s, g) => s + ((partById(g.id) || {}).params_m || 0) / 1000, 0) + tapParamsM / 1000 + donorParamsB;
+  const estSize = cat.host.params_b + program.grafts.reduce((s, g) => s + ((partById(g.id) || {}).params_m || 0) / 1000, 0);
   const matches = (x) => !q || (x.label + ' ' + (x.donor || '') + ' ' + (x.summary || '') + ' ' + x.group).toLowerCase().includes(q.toLowerCase());
-  const tapParts = cat.parts.filter((x) => x.kind === 'tap' && matches(x)), addParts = cat.parts.filter((x) => x.kind !== 'tap' && matches(x)), rmParts = cat.masks.filter(matches), trParts = cat.train.filter(matches);
+  const addParts = cat.parts.filter((x) => matches(x)), rmParts = cat.masks.filter(matches), trParts = cat.train.filter(matches);
   const used = (pid) => program.grafts.some((g) => g.id === pid);
-  const tapUsed = (x) => program.taps.some((t) => t.donor === x.donor && t.donor_layer === x.donor_layer);
   const mIds = maskIds(program.masks);
   const healLabel = program.heal ? program.heal.steps + ' steps' : '300 steps';
   const cvClass = 'cv-body' + (view === 'split' ? ' split' : '');
   const showCanvas = view !== 'code';
   const showCode = view !== 'canvas';
   const hotAt = (l) => program.grafts.filter((g) => g.at === l);
-  const tapsAt = (l) => program.taps.filter((t) => t.at === l);
   const dropping = (s) => over && over !== 'tail' && DRAG && DRAG.kind !== 'mask' && DRAG.kind !== 'train' && +over.slice(1) >= s.first && +over.slice(1) < s.first + s.n;
   const jobPct = job ? Math.min(94, ((Date.now() - job.t0) / 2600) * 100) : 0;
   const codeLines = codeText.replace(/\n$/, '').split('\n');
@@ -371,11 +351,11 @@ export function BuilderScreen({ id, specId }) {
     const label = s.n === 1 ? 'L' + s.first : 'L' + s.first + ' to L' + (s.first + s.n - 1);
     const hint = s.first === 0 ? 'embed + early' : s.first + s.n === N ? 'late + head' : '';
     const dr = dropping(s);
-    const gs = hotAt(s.first), ts = tapsAt(s.first);
+    const gs = hotAt(s.first);
     const dl = dr ? +over.slice(1) : null;
     return html`<div class=${'slab' + (s.hot ? ' port' : '') + (dr ? ' drop' : '') + (s.n > 1 && dr ? ' tall' : '')} data-first=${s.first} data-n=${s.n} data-hot=${s.hot ? s.first : null} key=${'s' + s.first}>
       <span class="nm">${dr ? 'Drop here: L' + dl : label}</span>
-      ${s.hot && !dr ? html`<span class="reads">reads ${[...gs.map((g) => (partById(g.id) || { label: g.id }).label), ...ts.map((t) => donorShort(t.donor))].join(', ')}</span>` : dr ? html`<span class="faint">release to graft</span>` : html`<span class="faint">${hint}</span>`}
+      ${s.hot && !dr ? html`<span class="reads">reads ${gs.map((g) => (partById(g.id) || { label: g.id }).label).join(', ')}</span>` : dr ? html`<span class="faint">release to graft</span>` : html`<span class="faint">${hint}</span>`}
     </div>`;
   };
 
@@ -387,15 +367,13 @@ export function BuilderScreen({ id, specId }) {
   <${SkelReveal} fill ready=${true} skeleton=${null}><div class="builder">
     <aside class="palette">
       <div class="searchbox"><${Icon} n="search" size=${15} /><input placeholder="Search parts" value=${q} onInput=${(e) => setQ(e.target.value)} /></div>
-      ${tapParts.length > 0 && html`<div class="pgroup">Tap a bigger model</div>`}
-      ${tapParts.map((p) => html`<${Piece} key=${p.id} ic=${donorLetter(p.donor, p.label)} color="var(--blue)" t1=${donorShort(p.donor)} t2=${'reads layer ' + p.donor_layer} t3=${measuredLine(p.measured)} used=${tapUsed(p)} dragging=${dragId === p.id} onDragStart=${(e) => startDrag(e, { kind: 'part', part: p }, p.id)} onDragEnd=${endDrag} onClick=${() => addTap(p)} />`)}
       ${addParts.length > 0 && html`<div class="pgroup">Add a skill</div>`}
       ${addParts.map((p) => html`<${Piece} key=${p.id} ic=${donorLetter(p.donor, p.label)} color=${donorColor(p.donor)} t1=${p.label} t2=${p.donor.split('/').pop() + ' · ' + p.kind + ' · L' + p.layers[0] + (p.layers[1] !== p.layers[0] ? '-' + p.layers[1] : '')} used=${used(p.id)} dragging=${dragId === p.id} onDragStart=${(e) => startDrag(e, { kind: 'part', part: p }, p.id)} onDragEnd=${endDrag} onClick=${() => addPart(p)} />`)}
       ${rmParts.length > 0 && html`<div class="pgroup">Remove a skill</div>`}
       ${rmParts.map((m) => html`<${Piece} key=${m.id} ic="-" color="var(--red)" t1=${m.label} t2=${m.summary} used=${mIds.includes(m.id)} dragging=${dragId === m.id} onDragStart=${(e) => startDrag(e, { kind: 'mask', mask: m }, m.id)} onDragEnd=${endDrag} onClick=${() => addMask(m)} />`)}
       ${trParts.length > 0 && html`<div class="pgroup">Train</div>`}
       ${trParts.map((t) => html`<${Piece} key=${t.id} ic=${t.id === 'lora' ? 'R' : 'H'} color=${t.id === 'lora' ? 'var(--amber)' : 'var(--green)'} t1=${t.label} t2=${t.summary} used=${trainUsed(t)} dragging=${dragId === t.id} onDragStart=${(e) => startDrag(e, { kind: 'train', train: t }, t.id)} onDragEnd=${endDrag} onClick=${() => addTrain(t)} />`)}
-      ${!tapParts.length && !addParts.length && !rmParts.length && !trParts.length && html`<div class="faint" style="margin-top:20px">Nothing matches "${q}".</div>`}
+      ${!addParts.length && !rmParts.length && !trParts.length && html`<div class="faint" style="margin-top:20px">Nothing matches "${q}".</div>`}
     </aside>
 
     <section class="canvas">
@@ -408,13 +386,12 @@ export function BuilderScreen({ id, specId }) {
           <div class=${'cv-inner' + (compact ? ' compact' : '')} ref=${innerRef} style=${{ minHeight: geo.h + 'px' }}>
             <svg class="wires" width=${nodeX + 260} height=${Math.max(geo.h, 300)}>
               <defs>${geo.wires.map((w) => html`<linearGradient id=${'wg' + w.k} gradientUnits="userSpaceOnUse" x1=${w.x1} y1="0" x2=${w.x2} y2="0"><stop offset="0" style="stop-color:var(--text-3)"/><stop offset="1" style=${{ stopColor: w.color }}/></linearGradient>`)}</defs>
-              ${geo.wires.map((w) => { const dx = (w.x2 - w.x1) * 0.55; const d = 'M' + w.x1 + ',' + w.y1 + ' C' + (w.x1 + dx) + ',' + w.y1 + ' ' + (w.x2 - dx) + ',' + w.y2 + ' ' + w.x2 + ',' + w.y2; return html`<g key=${w.k} class=${newKeys.current.has(w.k) ? 'is-new' : null}><path d=${d} style=${{ d: "path('" + d + "')" }} stroke=${w.tap ? 'var(--blue)' : 'url(#wg' + w.k + ')'} stroke-dasharray=${w.tap ? '7 6' : null} /><circle cx=${w.x1} cy=${w.y1} r="4" style="fill:var(--text-3)"/><circle cx=${w.x2} cy=${w.y2} r="4" style=${{ fill: w.color }}/></g>`; })}
+              ${geo.wires.map((w) => { const dx = (w.x2 - w.x1) * 0.55; const d = 'M' + w.x1 + ',' + w.y1 + ' C' + (w.x1 + dx) + ',' + w.y1 + ' ' + (w.x2 - dx) + ',' + w.y2 + ' ' + w.x2 + ',' + w.y2; return html`<g key=${w.k} class=${newKeys.current.has(w.k) ? 'is-new' : null}><path d=${d} style=${{ d: "path('" + d + "')" }} stroke=${'url(#wg' + w.k + ')'} /><circle cx=${w.x1} cy=${w.y1} r="4" style="fill:var(--text-3)"/><circle cx=${w.x2} cy=${w.y2} r="4" style=${{ fill: w.color }}/></g>`; })}
             </svg>
             <div class="stack" style=${{ marginLeft: '0px' }}>
               <span class="label hostlabel">Host · ${cat.host.model.split('/').pop()}</span>
               ${slabs.map(slabEl)}
               ${mIds.map((mid) => html`<div class="slab mask" key=${mid}><span class="nm">- ${(maskById(mid) || { label: mid }).label} mask</span><span class="ctl"><span class="faint">all layers</span><button class="x" data-tip="Remove mask" aria-label="Remove mask" onClick=${(e) => { e.stopPropagation(); edit((p) => { p.masks = buildMask(maskIds(p.masks).filter((x) => x !== mid)); }); }}>×</button></span></div>`)}
-              ${program.tap_train && html`<div class="slab taptrain"><span class="nm">Tap training<span class="sub" title="Training data">data ${program.tap_train.data}</span></span><span class="ctl"><button data-tip="Fewer steps" aria-label="Fewer steps" disabled=${program.tap_train.steps <= TAP_MIN} onClick=${() => edit((p) => { p.tap_train.steps = clamp((p.tap_train.steps || 500) - TAP_STEP, TAP_MIN, TAP_MAX); })}>-</button><span class="num" style="min-width:56px;text-align:center">${program.tap_train.steps} steps</span><button data-tip="More steps" aria-label="More steps" disabled=${program.tap_train.steps >= TAP_MAX} onClick=${() => edit((p) => { p.tap_train.steps = clamp((p.tap_train.steps || 500) + TAP_STEP, TAP_MIN, TAP_MAX); })}>+</button></span></div>`}
               ${program.lora && html`<div class="slab lora"><span class="nm">LoRA</span><span class="ctl">rank <select value=${program.lora.rank || 16} onChange=${(e) => edit((p) => { p.lora.rank = +e.target.value; })}>${[1, 2, 4, 8, 16, 32, 64].map((r) => html`<option value=${r}>${r}</option>`)}</select><button class="x" data-tip="Remove LoRA" aria-label="Remove LoRA" onClick=${() => edit((p) => { p.lora = null; })}>×</button></span></div>`}
               ${program.heal && html`<div class="slab heal"><span class="nm">Heal</span><span class="ctl"><button data-tip="Fewer steps" aria-label="Fewer steps" onClick=${() => edit((p) => { const i = HEAL_STEPS.indexOf(p.heal.steps); p.heal.steps = HEAL_STEPS[Math.max(1, (i < 0 ? 3 : i) - 1)]; })}>-</button><span class="num" style="min-width:62px;text-align:center">${program.heal.steps} steps</span><button data-tip="More steps" aria-label="More steps" onClick=${() => edit((p) => { const i = HEAL_STEPS.indexOf(p.heal.steps); p.heal.steps = HEAL_STEPS[Math.min(HEAL_STEPS.length - 1, (i < 0 ? 3 : i) + 1)]; })}>+</button><button class="x" data-tip="Remove heal" aria-label="Remove heal" onClick=${() => edit((p) => { p.heal = null; })}>×</button></span></div>`}
               <div class=${'slab tail' + (over === 'tail' && DRAG ? ' drop' : '')}>${over === 'tail' && DRAG ? 'Release to add' : 'Drop a mask, heal or LoRA here'}</div>
@@ -434,22 +411,7 @@ export function BuilderScreen({ id, specId }) {
                 <div class="tags"><span class="tag">at L${g.at}</span><span class="tag">glue ${g.glue_rank ? 'r' + g.glue_rank : 'full'}</span>${part.layers && html`<span class="tag c">donor L${part.layers[0]}${part.layers[1] !== part.layers[0] ? '-' + part.layers[1] : ''}</span>`}</div>
                 <div class="nf"><span>+${((part.params_m || 0) / 1000).toFixed(2)}B params</span>${fit != null ? html`<span class=${'fitchip' + (fit < 0.45 ? ' low' : fit < 0.65 ? ' mid' : '')}>fit ${fit.toFixed(2)}</span>` : html`<span class="faint">not checked</span>`}</div>
               </div>`; })}
-            ${program.taps.map((t, i) => { const nk = 't' + i; const part = tapPart(t); const fit = fits[tapKey(t)]; const ml = part && part.donor_layer === t.donor_layer ? measuredLine(part.measured) : null;
-              return html`<div class=${'node tap' + (newKeys.current.has(nk) ? ' is-new' : '') + (dragId === nk ? ' dragging' : '') + (sel === nk ? ' sel' : '') + (menuAt === nk ? ' menu-open' : '')} key=${nk} ref=${(el) => { nodeRefs.current[nk] = el; }} style=${{ left: nodeX + 'px', top: (geo.y[nk] ?? 20) + 'px', zIndex: menuAt === nk ? 9 : 2 }} draggable="true"
-                onDragStart=${(e) => startDrag(e, { kind: 'node', t: 't', i }, nk)} onDragEnd=${endDrag} onClick=${(e) => { e.stopPropagation(); setSel(nk); }}>
-                <div class="nh"><div class="pic" style=${{ '--c': 'var(--blue)' }}>${donorLetter(t.donor)}</div><span class="t">Reads ${donorShort(t.donor)} L${t.donor_layer}</span>
-                  <button class="iconbtn" style="width:24px;height:24px" data-tip="Options" aria-label="Options" onClick=${(e) => { e.stopPropagation(); setMenuAt(menuAt === nk ? null : nk); }}><${Icon} n="more" size=${16} /></button></div>
-                <${Menu} open=${menuAt === nk} origin="top-right" onClose=${() => setMenuAt(null)} style=${{ top: '38px', right: '8px', minWidth: '190px' }}>
-                  <div class="mlabel">Donor layer</div>
-                  <div style="padding:2px 10px 6px"><input class="numin" type="number" min="0" max="200" step="1" value=${t.donor_layer} onChange=${(e) => { const v = Math.round(Number(e.target.value)); if (Number.isFinite(v) && v >= 0 && v <= 200 && v !== t.donor_layer) edit((p) => { p.taps[i].donor_layer = v; }); else e.target.value = t.donor_layer; }} /></div>
-                  <div class="msep"></div>
-                  <button class="mi" style="color:var(--red)" onClick=${() => { removeTap(i); setMenuAt(null); setSel(null); }}><span>Remove</span><${Icon} n="trash" size=${14} /></button>
-                <//>
-                <div class="ds">${ml || 'A small trained branch reads the donor hidden states.'}</div>
-                <div class="tags"><span class="taptag">TAP</span><span class="tag">at L${t.at}</span><span class="tag c">donor L${t.donor_layer}</span></div>
-                <div class="nf"><span>+${part && part.params_m != null ? part.params_m : 3}M trained</span>${typeof fit === 'number' ? html`<span class=${'fitchip' + (fit < 0.45 ? ' low' : fit < 0.65 ? ' mid' : '')}>fit ${fit.toFixed(2)}</span>` : html`<span class="faint">trains in Heal</span>`}</div>
-              </div>`; })}
-            ${!program.grafts.length && !program.taps.length && html`<div class="empty-hint" style=${{ left: nodeX - 60 + 'px' }}><b>Drag a skill onto a layer</b>It grafts a part of a donor model into the host at that layer. A tap reads a bigger model instead. A wire shows the link.</div>`}
+            ${!program.grafts.length && html`<div class="empty-hint" style=${{ left: nodeX - 60 + 'px' }}><b>Drag a skill onto a layer</b>It grafts a part of a donor model into the host at that layer. A wire shows the link.</div>`}
           </div>
         </div>`}
         ${showCode && html`<div class="codepane">
@@ -485,11 +447,10 @@ export function BuilderScreen({ id, specId }) {
         ${benches.map((b) => html`<div class="brow"><span class="nm" title=${b.name}>${b.name}</span><${BenchBar} b=${b} value=${lastOk ? lastOk.scores[b.id] : null} /><span class="num" style="text-align:right"><${PopNum} text=${lastOk && lastOk.scores[b.id] != null ? pct(lastOk.scores[b.id]) : '-'} /></span></div>`)}
         ${!benches.length && html`<div class="faint" style="margin:10px 0">Open the builder from a spec to see its benchmarks.</div>`}
         <div class="statgrid">
-          <div class="stat"><div class="l">SIZE</div><b><${PopNum} text=${bsize(program.taps.length > 0 ? estSize : (lastOk && lastOk.params_b ? lastOk.params_b : estSize))} /></b></div>
+          <div class="stat"><div class="l">SIZE</div><b><${PopNum} text=${bsize(lastOk && lastOk.params_b ? lastOk.params_b : estSize)} /></b></div>
           <div class="stat"><div class="l">SPEED</div><b class="faint">n/a</b></div>
           <div class="stat"><div class="l">VS RANDOM</div><b class=${vsCtl == null ? 'faint' : vsCtl > 0.02 ? 'up' : ''}><${PopNum} text=${vsCtl == null ? 'n/a' : sgn(vsCtl)} /></b></div>
         </div>
-        ${program.taps.length > 0 && html`<div class="infoline">Taps train first (+${tapParamsM.toFixed(1)}M trained params), then LoRA or heal. Size counts the donors (${donorParamsB.toFixed(1)}B): they run on the prompt only, so decoding stays near host speed (run 7: 88 to 121 tok/s with a 7B tap, host 97).</div>`}
       </div>
 
       ${attempts.length > 0 && html`<div><div class="label" style="margin:2px 0 6px">Attempts this session</div>

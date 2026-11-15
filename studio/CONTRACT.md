@@ -1,6 +1,6 @@
-# Sapien: API contract
+# Sapien studio: API contract
 
-Sapien (the code lives in `studio/`) is a web app for building models with wsp. A person describes a model in plain words, adjusts a drafted spec, and then either lets an agent swarm build the model or builds it on a drag-and-drop canvas.
+The Sapien studio is a web app for building models with wsp. A person describes a model in plain words, adjusts a drafted spec, and then either lets an agent swarm build the model or builds it on a drag-and-drop canvas.
 
 This file is the contract between the server (`studio/server/`) and the web app (`studio/web/`). Both sides build against it. If a side needs a change, change this file first.
 
@@ -12,6 +12,9 @@ studio/
   README.md            how to run
   server/              FastAPI app (Python), owner: server
     app.py             routes; serves studio/web/ as static files at /
+    library.py         reads library/ and atlas/entries/
+    sizing.py          size and heal estimates, limit checks
+    compare.py         the comparison set and verdict
     ...                any other modules the server needs
   web/                 the web app, no build step, owner: web
     index.html
@@ -19,6 +22,7 @@ studio/
     styles.css
     mock.js            fixture data for ?mock=1
 tests/test_studio_server.py   server tests (CPU, stub backend)
+tests/test_studio_sapien.py   library, limits, taps and comparison tests
 ```
 
 Run: `.venv/bin/uvicorn studio.server.app:app --port 8765`, then open http://localhost:8765.
@@ -183,7 +187,7 @@ All bodies are JSON unless marked.
 
 | Method | Path | Body | Returns |
 |---|---|---|---|
-| GET | `/api/health` | | `{"ok": true, "backend": "stub", "llm": "none", "stub": true}` |
+| GET | `/api/health` | | `{"ok": true, "product": "Sapien", "backend": "stub", "llm": "none", "llm_model": null, "stub": true, "heal_note": null}`. `heal_note` is a warning string on real backends while the heal recipe is being fixed; show it next to any result that used a heal (`heal`, `train`, or a program with a heal or LoRA). |
 | POST | `/api/spec` | multipart: `prompt` (text), `files` (0..n files) | Spec |
 | GET | `/api/spec/{id}` | | Spec |
 | PUT | `/api/spec/{id}` | Spec (edited) | Spec |
@@ -202,6 +206,7 @@ All bodies are JSON unless marked.
 | POST | `/api/builder` | `{"spec_id": "..."}` | `{"builder_id": "...", "budget": {...}}` (one budget per builder session) |
 | POST | `/api/builder/{id}/action` | `{"program": {}, "action": "compile" \| "heal" \| "train" \| "score"}` | `{"job_id": "..."}` |
 | GET | `/api/jobs/{job_id}` | | Builder job result |
+| POST | `/api/builder/{id}/size` | `{"program": {}}` | size estimate and limit problems (see Sapien changes) |
 | POST | `/api/builder/{id}/suggest` | `{"program": {}}` | `{"suggestions": [{"title": "...", "detail": "...", "tag": "likely +1 to 2", "program": {} }]}` |
 | POST | `/api/builder/{id}/handoff` | `{"program": {}}` | `{"run_id": "..."}` (starts a swarm run seeded with this program) |
 
@@ -214,28 +219,32 @@ Errors are `{"error": "message"}` with a 4xx or 5xx status.
 - `train`: add a LoRA to the program (rank 16 when the program has none), heal, then score.
 - `score`: compile and score the program as written, and run its random-part control when it has grafts.
 
-## Taps (added for the Modal backend)
+## Sapien changes
 
-A tap lets a host layer read a donor model's own hidden states through a small trained branch. Taps are the setup that beat fine-tuning on MMLU (results/README.md, runs 6 to 8). They need no catalog record, only a donor model id.
+The product is Sapien. A program builds one network that runs alone. Taps and anything that runs a second model at inference are not part of it: the palette has no taps, the agents never propose them, and the server refuses a program with `taps` or `tap_train` (400, "A tap runs a second model at inference...").
 
-Catalog: tap parts go in `parts` with `kind: "tap"`:
+### Limits
+
+The spec has `limits`: `{"max_total_params_b": 1.5, "max_run_params_b": 1.5, "max_heal_min": 20}`. `size.max_params_b` mirrors `max_total_params_b` for older pages. `size.max_b` is 32. The draft reads the limits from the request ("under 3B", "1.2B per token", "heal for 30 minutes"). Max run per token is at most the total and at least the host size.
+
+The server estimates a program (`server/sizing.py`): total parameters, parameters run per token, and heal minutes. The estimate is rough and says so (`"estimated": true`). `POST /api/builder/{id}/size` with `{"program": {}}` returns `{"estimate": {...}, "limits": {...}, "problems": [], "ok": true}`. A builder action, a handoff and a run with a seed program are refused with 400 and a plain message when over a limit. In a run, a proposal over a limit is dropped before it is scored; the snapshot counts them in `refused` and the activity has `refused` items. Growing the base is allowed while the limits hold.
+
+### Library palette
+
+`GET /api/catalog` returns `parts` from the compiler catalog and from `library/index.jsonl` (read when the server starts) and `atlas/entries/*.json` when that folder exists. Every part has `kind` (`block`, `attn_heads`, `mlp_cluster`, `expert`, `inserted_layer`), `status` (`candidate`, `validated`, `rejected`), `evidence` (one line), `source` (`stub`, `catalog`, `library`, `atlas`), `usable` and `usable_reason`. A part is usable when the compiler catalog has a record for it. Tap read points from the library are listed as not usable. The response also has `kinds` (name and count per kind), `library` (counts) and `product`. Masks have `status` and `evidence` too.
+
+### Comparison set
+
+The spec has `comparators`: `{"distill": {"gsm8k": 0.40}}`, scores a person measured for base + distillation at the same budget. A run snapshot has `comparison` (for the best build) and each leaderboard entry has one. A builder score result has `comparison` and `size`.
 
 ```json
-{"id": "tap:Qwen/Qwen2.5-7B-Instruct@20", "group": "add", "kind": "tap", "label": "Knowledge tap, Qwen2.5-7B",
- "donor": "Qwen/Qwen2.5-7B-Instruct", "donor_layer": 20, "layers": [20, 20], "params_m": 2.9, "default_at": 10,
- "summary": "reads donor layer 20", "measured": {"task": "mmlu", "score": 0.679, "lora": 0.503, "host": 0.475}}
+{"verdict": "failed", "headline": "Failed attempt. It does not beat ...", "margin": 0.02,
+ "result": {"label": "This build", "value": 0.393, "per_task": {}, "params_b": 1.3, "heldout": null},
+ "rows": [{"id": "base", "label": "Base", "split": "search", "per_task": {}, "value": 0.25, "measured": true,
+           "note": "...", "stub": true, "result_value": 0.393, "delta": 0.143, "beaten": true}],
+ "beaten": [], "not_beaten": [], "unmeasured": [], "best_model_shown": false, "stub": true}
 ```
 
-`measured` is null when no run measured that tap. The catalog response also has `"tap_train_default": {"data": "mmlu_aux", "steps": 500, "batch_size": 8, "seq_len": 256, "branch_lr": 0.0003, "gate_lr": 0.03}`.
+Row ids: `base`, `lora`, `distill`, `random`, and `best_model` (only when the total limit is at least twice the host size; it is the best library model within the limit). `verdict` is `failed` when a measured reference is not beaten by `margin` (a collapsed build or one over a limit also fails), `unproven` when nothing failed but a reference is not measured, `beats` when all are measured and beaten, `none` with no score. On real backends `distill` is not measured until the spec has it. On the stub backend `distill` is made up and its row says so (`stub: true`).
 
-Program: dropping a tap part on host layer L appends to `program.taps`:
-
-```json
-{"donor": "Qwen/Qwen2.5-7B-Instruct", "donor_layer": 20, "at": 10, "attn_dim": 256, "heads": 8, "tap_id": null}
-```
-
-and sets `program.tap_train` to `tap_train_default` when it is null. Removing the last tap sets `tap_train` back to null. The text syntax is `tap <donor> layer <N> at <M>` and `tap_train data ... steps ...`.
-
-Job result: a tap's fit key is `tap:<donor>@<at>`. Its value may be null (a tap has no ridge fit).
-
-Health: `/api/health` also returns `"llm_model"` (string or null).
+`/api/health` also returns `"product": "Sapien"`.

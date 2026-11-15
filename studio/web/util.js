@@ -77,12 +77,16 @@ export function specProgress(spec, scores) {
 
 /* ---------- program helpers ---------- */
 export function emptyProgram(host) {
-  return { host, seed: 0, masks: null, task_vectors: [], grafts: [], heal: null, lora: null, taps: [], tap_train: null };
+  return { host, seed: 0, masks: null, task_vectors: [], grafts: [], heal: null, lora: null };
 }
-// older saved programs and server replies may lack the tap fields
+// Sapien builds one network: drop any tap fields from saved programs and server replies
+export function hasTaps(p) {
+  return !!p && ((p.taps && p.taps.length > 0) || p.tap_train != null);
+}
 export function normProgram(p) {
   if (!p) return p;
-  return { ...p, taps: p.taps || [], tap_train: p.tap_train == null ? null : p.tap_train };
+  const { taps, tap_train, ...rest } = p;
+  return rest;
 }
 // "Qwen/Qwen2.5-7B-Instruct" -> "Qwen2.5-7B"
 export function donorShort(d) {
@@ -107,8 +111,8 @@ export function buildMask(ids) {
 export const clone = (x) => JSON.parse(JSON.stringify(x));
 
 /* ---------- wsp text highlight ---------- */
-const STATEMENTS = new Set(['host', 'seed', 'mask', 'tv', 'graft', 'lora', 'heal', 'tap', 'tap_train']);
-const OPTIONS = new Set(['at', 'rank', 'glue_rank', 'control', 'seed', 'steps', 'data', 'lr', 'batch_size', 'seq_len', 'weight', 'layers', 'modules', 'targets', 'budget', 'alpha', 'stitch', 'objective', 'sink', 'restrict', 'layer', 'attn_dim', 'heads', 'branch_lr', 'gate_lr']);
+const STATEMENTS = new Set(['host', 'seed', 'mask', 'tv', 'graft', 'lora', 'heal']);
+const OPTIONS = new Set(['at', 'rank', 'glue_rank', 'control', 'seed', 'steps', 'data', 'lr', 'batch_size', 'seq_len', 'weight', 'layers', 'modules', 'targets', 'budget', 'alpha', 'stitch', 'objective', 'sink', 'restrict']);
 export function tokenizeLine(line) {
   const ci = line.indexOf('#');
   const code = ci >= 0 ? line.slice(0, ci) : line;

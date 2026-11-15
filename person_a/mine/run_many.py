@@ -31,6 +31,7 @@ def main():
     ap.add_argument("--max-screens", type=int, default=60)
     ap.add_argument("--effort", default="high")
     ap.add_argument("--person", default=None)
+    ap.add_argument("--llm", default="openai", choices=["openai", "claude"])
     ap.add_argument("--agents", type=int, default=1, help="parallel agents per model (each gets a different focus)")
     args = ap.parse_args()
 
@@ -52,7 +53,7 @@ def main():
         for i in range(n_agents):
             cmd = [sys.executable, "-u", os.path.join(HERE, "run.py"), "--model", m,
                    "--budget-usd", str(args.budget_usd), "--max-hours", str(args.max_hours),
-                   "--max-screens", str(args.max_screens), "--effort", args.effort]
+                   "--max-screens", str(args.max_screens), "--effort", args.effort, "--llm", args.llm]
             if args.smoke:
                 cmd.append("--smoke")
             if args.person:

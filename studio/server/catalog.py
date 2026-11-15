@@ -14,48 +14,17 @@ from wsp.swarm import factory
 from wsp.swarm import space
 from wsp.swarm import stub
 
+from studio.server import library
 from studio.server import settings
+from studio.server import sizing
 
 HOST_PARAMS_B = {"unsloth/Llama-3.2-1B-Instruct": 1.24}
 DEFAULT_HOST_PARAMS_B = 1.24
 
-KIND_LABELS = {"block": "block", "mlp_cluster": "MLP cluster", "attn_heads": "attention heads",
-               "expert": "expert"}
+KIND_LABELS = {"block": "block", "mlp_cluster": "neuron cluster", "attn_heads": "attention heads",
+               "expert": "expert", "inserted_layer": "inserted layers"}
 
 _merge_lock = threading.Lock()
-
-HOST_HIDDEN_SIZE = 2048
-HOST_TAP_LAYER = 10
-HOST_MMLU_LORA = 0.503
-HOST_MMLU_BASE = 0.475
-
-TAP_TRAIN_DEFAULT = {"data": "mmlu_aux", "steps": 500, "batch_size": 8, "seq_len": 256, "branch_lr": 0.0003,
-                     "gate_lr": 0.03}
-
-# Donors measured in results/README.md runs 6 to 8 with Llama-3.2-1B-Instruct as the host, tap into host
-# layer 10, MMLU dev items scored by log-probability. Fields: donor, donor layer, donor hidden size, label,
-# tap score. Run 6 gives Qwen2.5-7B, run 7 the 1.5B and 3B donors, run 8 the rest.
-TAP_DONORS = [
-    ("unsloth/gemma-2-9b-it", 29, 3584, "Gemma-2-9B", 0.729),
-    ("Qwen/Qwen2.5-14B-Instruct", 34, 5120, "Qwen2.5-14B", 0.705),
-    ("Qwen/Qwen2.5-7B-Instruct", 20, 3584, "Qwen2.5-7B", 0.679),
-    ("microsoft/Phi-3.5-mini-instruct", 22, 3072, "Phi-3.5-mini", 0.663),
-    ("unsloth/Meta-Llama-3.1-8B-Instruct", 22, 4096, "Llama-3.1-8B", 0.536),
-    ("Qwen/Qwen2.5-3B-Instruct", 25, 2048, "Qwen2.5-3B", 0.579),
-    ("Qwen/Qwen2.5-1.5B-Instruct", 20, 1536, "Qwen2.5-1.5B", 0.582),
-]
-
-# Total parameters of each donor in billions (public model cards). A tap model
-# keeps its donor in memory and runs it on the prompt, so these count toward size.
-DONOR_PARAMS_B = {
-    "unsloth/gemma-2-9b-it": 9.2,
-    "Qwen/Qwen2.5-14B-Instruct": 14.8,
-    "Qwen/Qwen2.5-7B-Instruct": 7.6,
-    "microsoft/Phi-3.5-mini-instruct": 3.8,
-    "unsloth/Meta-Llama-3.1-8B-Instruct": 8.0,
-    "Qwen/Qwen2.5-3B-Instruct": 3.1,
-    "Qwen/Qwen2.5-1.5B-Instruct": 1.5,
-}
 
 
 def host_params_b(host):
@@ -246,76 +215,145 @@ def part_params_m(record, world):
     return round(world.part_params(part) / 1e6, 1)
 
 
-def tap_params_m(donor_size, attn_dim=256):
-    """Trainable parameters of one tap in millions, with the host hidden size of the Llama 1B host."""
-    total = HOST_HIDDEN_SIZE + donor_size
-    total += attn_dim * HOST_HIDDEN_SIZE * 2
-    total += attn_dim * donor_size * 2
-    total += 1
-    return round(total / 1e6, 1)
+def catalog_part(record, config, catalog, n_host, world, ctx, entries):
+    """One palette entry for a compiler catalog record, with the library status when the library has the part."""
+    entry = entries.get(record["id"])
+    params_m = part_params_m(record, world)
+    if params_m is None:
+        found = sizing.part_size_b(record["id"], ctx)
+        if found is not None:
+            params_m = round(found[0] * 1000.0, 1)
+    if world is not None:
+        status = "candidate"
+        evidence = "stub part with made-up effects, not a measurement"
+        source = "stub"
+    elif entry is not None:
+        status = entry["status"]
+        evidence = entry["evidence"]
+        source = "library"
+    else:
+        status = "candidate"
+        evidence = "in the compiler catalog, no library entry yet"
+        source = "catalog"
+    return {
+        "id": record["id"],
+        "group": "add",
+        "kind": record.get("type"),
+        "label": part_label(record),
+        "donor": record.get("model"),
+        "layers": layers_pair(record),
+        "params_m": params_m,
+        "default_at": space.default_at(record, config, n_host),
+        "summary": donor_short(record.get("model")) + " " + layers_text(record),
+        "status": status,
+        "evidence": evidence,
+        "source": source,
+        "usable": not (entry is not None and entry.get("tap_only")),
+        "usable_reason": library.TAP_ONLY_REASON if entry is not None and entry.get("tap_only") else None,
+    }
 
 
-def tap_parts():
-    """Tap palette entries for the donors measured in runs 6 to 8."""
-    parts = []
-    for donor, layer, hidden, name, score in TAP_DONORS:
-        parts.append({
-            "id": "tap:" + donor + "@" + str(layer),
-            "group": "add",
-            "kind": "tap",
-            "label": "Knowledge tap, " + name,
-            "donor": donor,
-            "donor_layer": layer,
-            "layers": [layer, layer],
-            "params_m": tap_params_m(hidden),
-            "donor_params_b": DONOR_PARAMS_B.get(donor),
-            "default_at": HOST_TAP_LAYER,
-            "summary": "reads donor layer " + str(layer),
-            "measured": {"task": "mmlu", "score": score, "lora": HOST_MMLU_LORA, "host": HOST_MMLU_BASE},
-        })
-    return parts
+NOT_IN_CATALOG = "Not in the compiler catalog yet. Mine it into a catalog record before a program can use it."
+
+
+def library_part(entry, config, n_host, ctx):
+    """One palette entry for a library or atlas component that the compiler catalog does not have."""
+    found = sizing.part_size_b(entry["catalog_id"], ctx)
+    params_m = None
+    if found is not None:
+        params_m = round(found[0] * 1000.0, 1)
+    elif entry.get("params_b"):
+        params_m = round(entry["params_b"] * 1000.0, 1)
+    label = KIND_LABELS.get(entry["kind"], entry["kind"])
+    pair = entry["layers"]
+    text = donor_topic(entry["model"]) + " " + label
+    if pair is not None:
+        if pair[0] == pair[1]:
+            text = text + " L" + str(pair[0])
+        else:
+            text = text + " L" + str(pair[0]) + "-" + str(pair[1])
+    summary = donor_short(entry["model"])
+    if pair is not None:
+        summary = summary + " " + layers_text({"layers": [pair[0]] if pair[0] == pair[1] else pair})
+    return {
+        "id": entry["catalog_id"],
+        "group": "add",
+        "kind": entry["kind"],
+        "label": text,
+        "donor": entry["model"],
+        "layers": pair,
+        "params_m": params_m,
+        "default_at": int(round(6 / 16.0 * n_host)),
+        "summary": summary,
+        "status": entry["status"],
+        "evidence": entry["evidence"],
+        "source": entry["source"],
+        "usable": False,
+        "usable_reason": library.TAP_ONLY_REASON if entry.get("tap_only") else NOT_IN_CATALOG,
+    }
 
 
 def build_palette(backend):
-    """Return the catalog response for the builder."""
+    """Return the catalog response for the builder.
+
+    Parts come from the compiler catalog (the stub world on the stub backend)
+    and from the library and the atlas. Every part has a status and an
+    evidence line. A part is usable when the compiler catalog has a record
+    for it.
+    """
     config, catalog = load_catalog(backend)
     n_host = space.host_layers(config, catalog)
     world = None
     if backend == "stub":
         world = stub.StubWorld(config["stub_seed"])
+    ctx = sizing.SizeContext(config, catalog, host_params_b(config["host"]))
+    entries = library.by_catalog_id()
     parts = []
+    seen = []
     for record in space.graftable_parts(catalog):
-        pair = layers_pair(record)
-        parts.append({
-            "id": record["id"],
-            "group": "add",
-            "kind": record.get("type"),
-            "label": part_label(record),
-            "donor": record.get("model"),
-            "layers": pair,
-            "params_m": part_params_m(record, world),
-            "default_at": space.default_at(record, config, n_host),
-            "summary": donor_short(record.get("model")) + " " + layers_text(record),
-        })
+        parts.append(catalog_part(record, config, catalog, n_host, world, ctx, entries))
+        seen.append(record["id"])
     parts.sort(key=part_sort_key)
-    if backend == "modal":
-        parts = tap_parts() + parts
+    extra = []
+    for entry in library.get()["parts"]:
+        if entry["catalog_id"] in seen:
+            continue
+        extra.append(library_part(entry, config, n_host, ctx))
+    extra.sort(key=lambda item: (str(item["kind"]), str(item["donor"]), item["layers"] or [0], item["id"]))
+    parts.extend(extra)
     masks = []
     for part_id in sorted(catalog.records):
         record = catalog.records[part_id]
         if record.get("type") != "deletion_mask":
             continue
+        entry = entries.get(part_id)
+        status = "candidate"
+        evidence = "no library entry yet"
+        if entry is not None:
+            status = entry["status"]
+            evidence = entry["evidence"]
         masks.append({"id": part_id, "group": "remove", "label": mask_label(part_id),
-                      "summary": "deletion mask: " + str(record.get("trained_on") or "task mask")})
+                      "summary": "deletion mask: " + str(record.get("trained_on") or "task mask"),
+                      "status": status, "evidence": evidence, "usable": True})
     train = [
         {"id": "lora", "group": "train", "label": "LoRA adapter", "summary": "rank 1 to 64"},
         {"id": "heal", "group": "train", "label": "Heal", "summary": "trains glue only"},
     ]
+    data = library.get()
+    kinds = []
+    for kind in ["block", "attn_heads", "mlp_cluster", "expert", "inserted_layer"]:
+        count = 0
+        for part in parts:
+            if part["kind"] == kind:
+                count += 1
+        kinds.append({"kind": kind, "name": library.KIND_NAMES[kind], "count": count})
     return {
+        "product": "Sapien",
         "stub": backend == "stub",
         "host": {"model": config["host"], "layers": n_host, "params_b": host_params_b(config["host"])},
         "parts": parts,
         "masks": masks,
         "train": train,
-        "tap_train_default": dict(TAP_TRAIN_DEFAULT),
+        "kinds": kinds,
+        "library": {"path": data["path"], "atlas": data["atlas"] is not None, "counts": library.status_counts()},
     }

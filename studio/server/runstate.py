@@ -11,13 +11,17 @@ import time
 from wsp.swarm import program_schema as ps
 from wsp.swarm import space
 
+from studio.server import compare
+from studio.server import library
 from studio.server import programs
+from studio.server import sizing
 
 ACTIVITY_LIMIT = 200
 THINKING_LIMIT = 100
 TOOLS_LIMIT = 100
 HISTORY_LIMIT = 60
 LEADERBOARD_LIMIT = 30
+REFUSED_LOG_LIMIT = 40
 
 PLANNER_BLURBS = ["refines the leading programs", "mixes new parts into the leaders", "explores untried parts"]
 FAILED_STATUSES = ["collapsed", "rejected_fit", "compile_error", "invalid", "infra_error"]
@@ -62,6 +66,8 @@ class RunState:
         self.targets = list(targets)
         self.env = None
         self.catalog = None
+        self.size_ctx = None
+        self.refused = 0           # proposals the studio dropped for a limit or a tap
         self.status = "starting"
         self.error = None
         self.started_at = time.time()
@@ -73,6 +79,7 @@ class RunState:
             blurb = PLANNER_BLURBS[index % len(PLANNER_BLURBS)]
             self.add_agent(new_agent("planner-" + str(index + 1), "Planner " + str(index + 1), "planner", blurb))
         self.add_agent(new_agent("judge", "Judge", "judge", "ranks results and retires weak patterns"))
+        self.models = library.get()["models"]
         self.pending = {}          # agent id -> program hashes sent to eval and not yet scored
         self.programs = {}         # program hash -> {"row": compact best row, "donors": [...]}
         self.heldout = {}          # program hash -> held-out scores
@@ -226,6 +233,17 @@ class RunState:
                                   "round": self.round_seen})
             del self.activity[:-ACTIVITY_LIMIT]
             self.touch()
+
+    def note_refused(self, agent_id, describe, problems):
+        """Count a proposal dropped for a limit or a tap, and log the first ones."""
+        with self.lock:
+            self.refused += 1
+            count = self.refused
+            self.touch()
+        if count <= REFUSED_LOG_LIMIT:
+            text = "Refused " + describe + ". " + " ".join(problems)
+            self.add_activity(agent_id, "refused", "bad", text)
+            self.add_tool(agent_id, "check_limits(" + describe + ")", problems[0], "bad")
 
     def set_run_status(self, status, error=None):
         with self.lock:
@@ -606,13 +624,30 @@ class RunState:
             key = entries[position][1]
             item = self.programs[key]
             row = item["row"]
-            out.append({"rank": position + 1, "program_hash": key, "describe": row["describe"],
-                        "name": self.readable(row.get("program"), row["describe"]),
-                        "agent": item["agent"], "scores": dict(row["scores"]),
-                        "combined": number(row["combined"]), "status": row["status"],
-                        "vs_control": self.vs_control_of(key), "params_b": self.params_b_of(row),
-                        "program": row.get("program")})
+            entry = {"rank": position + 1, "program_hash": key, "describe": row["describe"],
+                     "name": self.readable(row.get("program"), row["describe"]),
+                     "agent": item["agent"], "scores": dict(row["scores"]),
+                     "combined": number(row["combined"]), "status": row["status"],
+                     "vs_control": self.vs_control_of(key), "params_b": self.params_b_of(row),
+                     "program": row.get("program")}
+            entry["comparison"] = self.comparison_locked(entry)
+            out.append(entry)
         return out
+
+    def comparison_locked(self, entry):
+        """The comparison set for one leaderboard entry. The random reference is the held-out control."""
+        key = entry["program_hash"]
+        comparison = compare.build(self.spec, entry["scores"], entry["params_b"], self.heldout.get(key),
+                                   self.controls.get(key), "heldout", self.stub, self.models)
+        if entry["status"] != "ok":
+            comparison["verdict"] = "failed"
+            comparison["headline"] = "Failed attempt. The build ended with status " + str(entry["status"]) + "."
+            return comparison
+        over = sizing.measured_problems(self.spec.get("limits"), entry["params_b"])
+        if len(over) > 0:
+            comparison["verdict"] = "failed"
+            comparison["headline"] = "Failed attempt. " + " ".join(over)
+        return comparison
 
     def best_locked(self, leaderboard):
         for entry in leaderboard:
@@ -658,6 +693,12 @@ class RunState:
             for agent_id in self.order:
                 agents.append(self.agent_public(self.agents[agent_id]))
             leaderboard = self.leaderboard_locked()
+            best = self.best_locked(leaderboard)
+            comparison = None
+            if best is not None:
+                for entry in leaderboard:
+                    if entry["program_hash"] == best["program_hash"]:
+                        comparison = entry["comparison"]
             snapshot = {
                 "run_id": self.run_id,
                 "spec": self.spec,
@@ -668,7 +709,10 @@ class RunState:
                 "elapsed_s": round(end - self.started_at, 1),
                 "budget": budget,
                 "base_scores": base_scores,
-                "best": self.best_locked(leaderboard),
+                "best": best,
+                "limits": self.spec.get("limits"),
+                "comparison": comparison,
+                "refused": self.refused,
                 "agents": agents,
                 "leaderboard": leaderboard,
                 "activity": list(self.activity),

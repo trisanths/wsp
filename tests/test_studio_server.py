@@ -69,6 +69,15 @@ def math_part(client):
     raise AssertionError("no math block in the catalog")
 
 
+def tap_program():
+    program = ps.make_program(HOST)
+    program["taps"] = [{"donor": "Qwen/Qwen2.5-7B-Instruct", "donor_layer": 20, "at": 10, "attn_dim": 256,
+                        "heads": 8, "tap_id": None}]
+    program["tap_train"] = {"data": "mmlu_aux", "steps": 100, "batch_size": 8, "seq_len": 256, "branch_lr": 0.0003,
+                            "gate_lr": 0.03}
+    return ps.normalize(program)
+
+
 def good_program(client, heal=True):
     part = math_part(client)
     heal_dict = None
@@ -79,7 +88,8 @@ def good_program(client, heal=True):
 
 def test_health(client):
     body = client.get("/api/health").json()
-    assert body == {"ok": True, "backend": "stub", "llm": "none", "llm_model": None, "stub": True}
+    assert body == {"ok": True, "product": "Sapien", "backend": "stub", "llm": "none", "llm_model": None,
+                    "stub": True, "heal_note": None}
 
 
 def test_spec_from_prompt_and_upload(client):
@@ -93,6 +103,8 @@ def test_spec_from_prompt_and_upload(client):
     assert spec["host"] == HOST
     assert spec["title"] == "Laptop math tutor"
     assert spec["size"]["max_params_b"] == 1.5
+    assert spec["limits"] == {"max_total_params_b": 1.5, "max_run_params_b": 1.5, "max_heal_min": 20}
+    assert spec["comparators"] == {"distill": {}}
     assert spec["budget"]["evals"] == 30
     assert spec["budget"]["compute_min"] == 45
     assert spec["files"] == [{"name": "homework.csv", "rows": 9, "score_rows": 3, "heal_rows": 6}]
@@ -120,7 +132,9 @@ def test_spec_put_clamps_and_checks(client):
     response = client.put("/api/spec/" + spec["id"], json=spec)
     edited = response.json()
     assert edited["budget"]["evals"] == 120
-    assert edited["size"]["max_params_b"] == 8.0
+    assert edited["size"]["max_params_b"] == 32.0
+    assert edited["limits"]["max_total_params_b"] == 32.0
+    assert edited["limits"]["max_run_params_b"] == 1.5
     assert edited["title"] == "My tutor"
     edited["benchmarks"] = [{"id": "mmlupro:biology", "kind": "target"}]
     response = client.put("/api/spec/" + spec["id"], json=edited)
@@ -266,9 +280,11 @@ def test_catalog(client):
     palette = client.get("/api/catalog").json()
     assert palette["stub"] is True
     assert palette["host"]["layers"] == 16
-    assert len(palette["parts"]) == 40
+    stub_parts = [part for part in palette["parts"] if part["source"] == "stub"]
+    assert len(stub_parts) == 40
     part = palette["parts"][0]
-    for key in ["id", "group", "kind", "label", "donor", "layers", "params_m", "default_at", "summary"]:
+    for key in ["id", "group", "kind", "label", "donor", "layers", "params_m", "default_at", "summary", "status",
+                "evidence", "source", "usable"]:
         assert key in part
     assert part["group"] == "add"
     assert len(palette["masks"]) > 0
@@ -382,7 +398,15 @@ def test_run_rejects_bad_requests(client):
 
 # Modal backend tests. A fake function object stands in for every Modal function, so CI never calls Modal.
 
-TAP_DONOR = "Qwen/Qwen2.5-7B-Instruct"
+MODAL_PART = "mlp_cluster_qwen25math15b_l16_gsm8k"
+
+
+def fake_entries(program):
+    entries = []
+    for graft in program["grafts"]:
+        entries.append({"id": graft["id"], "host_layer": graft["at"], "fit": "ridge", "fit_r2": 0.8, "fit_pairs": 100,
+                        "part_params": 300000, "glue_params": 100000, "control": graft.get("control")})
+    return entries
 
 
 class FakeModalFunction:
@@ -395,25 +419,14 @@ class FakeModalFunction:
     def remote(self, *args):
         self.calls.append((self.name, args))
         if self.name.startswith("probe_remote"):
-            program = args[0]
-            entries = []
-            for tap in program["taps"]:
-                entries.append({"id": "tap:" + tap["donor"], "host_layer": tap["at"], "fit": "skipped",
-                                "fit_r2": None, "fit_pairs": 0, "part_params": 2889217, "glue_params": 0,
-                                "donor": tap["donor"], "donor_layer": tap["donor_layer"], "control": None})
-            return {"ok": True, "error": None, "graft_report": entries, "seconds": {"compile": 20.0},
+            return {"ok": True, "error": None, "graft_report": fake_entries(args[0]), "seconds": {"compile": 20.0},
                     "gpu": "NVIDIA L40S"}
         if self.name.startswith("score_remote"):
             program, split, tasks = args[0], args[1], args[2]
             scores = {}
             for task in tasks:
                 scores[task] = 0.5
-            entries = []
-            for tap in program["taps"]:
-                entries.append({"id": "tap:" + tap["donor"], "host_layer": tap["at"], "fit": "skipped",
-                                "fit_r2": None, "fit_pairs": 0, "part_params": 2889217, "glue_params": 0,
-                                "donor": tap["donor"], "donor_layer": tap["donor_layer"], "control": None})
-            return {"ok": True, "error": None, "graft_report": entries, "heal_loss": [1.0, 0.5],
+            return {"ok": True, "error": None, "graft_report": fake_entries(program), "heal_loss": [1.0, 0.5],
                     "scores": scores, "seconds": {"compile": 30.0, "heal": 15.0, "eval": 10.0},
                     "gpu": "NVIDIA L40S"}
         if self.name == "base_remote":
@@ -440,13 +453,9 @@ def modal_client(tmp_path, monkeypatch):
     return test_client
 
 
-def tap_program(steps=100):
-    program = ps.make_program(HOST)
-    program["taps"] = [{"donor": TAP_DONOR, "donor_layer": 20, "at": 10, "attn_dim": 256, "heads": 8,
-                        "tap_id": None}]
-    program["tap_train"] = {"data": "mmlu_aux", "steps": steps, "batch_size": 8, "seq_len": 256,
-                            "branch_lr": 0.0003, "gate_lr": 0.03}
-    return ps.normalize(program)
+def modal_program(steps=100):
+    graft = ps.make_graft(MODAL_PART, 6, glue_rank=64)
+    return ps.make_program(HOST, [graft], ps.make_heal(steps))
 
 
 def run_builder_job(client, builder_id, program, action):
@@ -460,71 +469,61 @@ def run_builder_job(client, builder_id, program, action):
 def test_modal_catalog_shape(modal_client):
     palette = modal_client.get("/api/catalog").json()
     assert palette["stub"] is False
-    assert palette["tap_train_default"] == {"data": "mmlu_aux", "steps": 500, "batch_size": 8, "seq_len": 256,
-                                            "branch_lr": 0.0003, "gate_lr": 0.03}
-    taps = []
+    assert "tap_train_default" not in palette
     for part in palette["parts"]:
-        if part["kind"] == "tap":
-            taps.append(part)
-    assert len(taps) == 7
+        assert part["kind"] in ("block", "attn_heads", "mlp_cluster", "expert", "inserted_layer")
+        assert part["status"] in ("candidate", "validated", "rejected")
     by_id = {}
-    for part in taps:
+    for part in palette["parts"]:
         by_id[part["id"]] = part
-        assert part["default_at"] == 10
-        assert part["group"] == "add"
-        assert part["layers"] == [part["donor_layer"], part["donor_layer"]]
-        assert part["measured"]["task"] == "mmlu"
-    seven = by_id["tap:" + TAP_DONOR + "@20"]
-    assert seven["params_m"] == 2.9
-    assert seven["measured"] == {"task": "mmlu", "score": 0.679, "lora": 0.503, "host": 0.475}
+    assert by_id[MODAL_PART]["usable"] is True
+    assert by_id[MODAL_PART]["source"] == "library"
     assert len(palette["masks"]) > 0
     assert os.path.exists(os.path.join(os.environ["WSP_STUDIO_OUT"], "catalog_modal.jsonl"))
 
 
-def test_modal_builder_scores_a_tap_program(modal_client):
+def test_modal_builder_scores_a_graft_program(modal_client):
     spec = make_spec(modal_client)
     builder_id = modal_client.post("/api/builder", json={"spec_id": spec["id"]}).json()["builder_id"]
-    program = tap_program()
+    program = modal_program()
 
     compiled = run_builder_job(modal_client, builder_id, program, "compile")
     assert compiled["status"] == "done", compiled
     assert compiled["stub"] is False
-    key = "tap:" + TAP_DONOR + "@10"
-    assert compiled["result"]["fit"] == {key: None}
+    key = MODAL_PART + "@6"
+    assert compiled["result"]["fit"] == {key: 0.8}
     assert compiled["budget"]["compute_used_s"] >= 20
     assert modal_client.modal_calls[0][0] == "probe_remote"
-    assert modal_client.modal_calls[0][1][0]["tap_train"]["steps"] == 100
 
     scored = run_builder_job(modal_client, builder_id, program, "score")
     assert scored["status"] == "done", scored
     assert scored["result"]["status"] == "ok"
-    assert scored["result"]["fit"] == {key: None}
     assert scored["result"]["scores"]["gsm8k"] == 0.5
     assert scored["result"]["compute_s"] == 55.0
-    assert scored["result"]["control"] is None
-    assert scored["result"]["program"]["taps"][0]["donor"] == TAP_DONOR
+    comparison = scored["result"]["comparison"]
+    assert comparison["stub"] is False
+    assert comparison["verdict"] in ("failed", "unproven")
     names = []
     for name, args in modal_client.modal_calls:
         names.append(name)
-    assert names == ["probe_remote", "score_remote"]
+    assert names[:2] == ["probe_remote", "score_remote"]
 
     trained = run_builder_job(modal_client, builder_id, program, "train")
     assert trained["status"] == "done", trained
     sent = modal_client.modal_calls[-1][1][0]
-    assert len(sent["taps"]) == 1
+    assert len(sent["grafts"]) == 1
     assert sent["lora"]["rank"] == 16
-    assert sent["heal"]["data"] in ("mmlu_aux", "gsm8k_train")
 
 
-def test_modal_builder_rejects_taps_without_training(modal_client):
+def test_modal_builder_refuses_taps(modal_client):
     spec = make_spec(modal_client)
     builder_id = modal_client.post("/api/builder", json={"spec_id": spec["id"]}).json()["builder_id"]
     program = tap_program()
-    program["tap_train"] = None
     response = modal_client.post("/api/builder/" + builder_id + "/action", json={"program": program,
                                                                                  "action": "score"})
     assert response.status_code == 400
-    assert "tap_train" in response.json()["error"]
+    assert "second model" in response.json()["error"]
+    assert len(modal_client.modal_calls) == 0
 
 
 def test_modal_big_donor_uses_the_h100_function(modal_client):
@@ -533,13 +532,6 @@ def test_modal_big_donor_uses_the_h100_function(modal_client):
     assert modal_backend.model_size_b("Qwen/Qwen2.5-14B-Instruct") == 14.0
     assert modal_backend.model_size_b("unsloth/gemma-2-9b-it") == 9.0
     assert modal_backend.model_size_b("microsoft/Phi-3.5-mini-instruct") == 0.0
-    spec = make_spec(modal_client)
-    builder_id = modal_client.post("/api/builder", json={"spec_id": spec["id"]}).json()["builder_id"]
-    program = tap_program()
-    program["taps"][0]["donor"] = "Qwen/Qwen2.5-14B-Instruct"
-    program["taps"][0]["donor_layer"] = 34
-    run_builder_job(modal_client, builder_id, program, "compile")
-    assert modal_client.modal_calls[0][0] == "probe_remote_h100"
 
 
 def test_modal_base_scores_are_cached(tmp_path, monkeypatch):

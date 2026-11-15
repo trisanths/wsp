@@ -47,7 +47,12 @@ const real = {
   stop: (id) => req('POST', '/api/runs/' + id + '/stop', {}),
   getAgent: (id, a) => req('GET', '/api/runs/' + id + '/agents/' + a),
   nudge: (id, a, text) => req('POST', '/api/runs/' + id + '/agents/' + a + '/nudge', { text }),
-  catalog: () => req('GET', '/api/catalog'),
+  // Sapien builds one network: tap parts from an older server never reach a screen
+  catalog: () => req('GET', '/api/catalog').then((c) => {
+    if (!c) return c;
+    const { tap_train_default, ...rest } = c;
+    return { ...rest, parts: (c.parts || []).filter((x) => x.kind !== 'tap') };
+  }),
   programText: (program) => req('POST', '/api/program/text', { program }),
   programParse: (text) => req('POST', '/api/program/parse', { text }),
   programValidate: (program) => req('POST', '/api/program/validate', { program }),

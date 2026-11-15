@@ -62,13 +62,18 @@ def main():
     ap.add_argument("--focus", default=None, help="what this agent should concentrate on (set by run_many --agents)")
     ap.add_argument("--effort", default="high", choices=["low", "medium", "high", "xhigh"],
                     help="Astra reasoning effort (high = the blog's setting; medium is cheaper)")
+    ap.add_argument("--llm", default="openai", choices=["openai", "claude"],
+                    help="agent LLM: openai (gpt-6-astra, API key) or claude (Claude Agent SDK, your Claude login)")
     args = ap.parse_args()
     if args.smoke:
         smoke(args.model)
         return
     import shutil
 
-    import agent
+    if args.llm == "claude":
+        import agent_claude as agent
+    else:
+        import agent
 
     # a new parallel lane starts from the model's main state (pinned revision, base scores, skipped skills)
     lane_state = common.state_path(args.model)

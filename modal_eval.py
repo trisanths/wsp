@@ -212,6 +212,14 @@ def exit_stitch_remote(arm, seed):
     return row
 
 
+@app.function(image=image, volumes={"/vol": volume}, gpu="H100", memory=131072, timeout=4 * 3600)
+def knowledge_graft_remote(arm, budget=None):
+    from wsp_eval import knowledge_graft
+    row = knowledge_graft.run_arm(arm, budget)
+    volume.commit()
+    return row
+
+
 @app.function(image=image, volumes={"/vol": volume}, cpu=8, memory=32768, timeout=3600)
 def mask_signatures_remote():
     from wsp_eval.signatures import structural_signatures
@@ -423,3 +431,32 @@ def exit_stitch(seed: int = 0):
         print(json.dumps(row))
         rows.append(row)
     _save("exit_stitch_s" + str(seed) + ".json", rows)
+
+
+@app.local_entrypoint()
+def knowledge_graft(arms: str = "host graft early_block"):
+    """Graft Qwen-7B's knowledge layers (12..20) into Qwen-0.5B vs an early block and a matched LoRA (MMLU dev)."""
+    rows = []
+    first = []
+    for arm in arms.split():
+        first.append((arm,))
+    for row in knowledge_graft_remote.starmap(first, return_exceptions=True):
+        if isinstance(row, Exception):
+            print("arm failed:", repr(row)[:600])
+            continue
+        print(json.dumps(row))
+        rows.append(row)
+    budget = None
+    for row in rows:
+        if row["arm"] == "graft":
+            budget = row["trainable"]
+    if budget is None:
+        print("arm skipped: lora (the graft did not finish)")
+    else:
+        try:
+            row = knowledge_graft_remote.remote("lora", budget)
+            print(json.dumps(row))
+            rows.append(row)
+        except Exception as error:
+            print("arm failed: lora", repr(error)[:600])
+    _save("knowledge_graft_s0_" + "_".join(arms.split()) + ".json", rows)
