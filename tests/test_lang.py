@@ -264,7 +264,7 @@ def test_docs_examples_parse():
     blocks = re.findall(r"```wsp\n(.*?)```", docs, re.DOTALL)
     assert len(blocks) >= 5
     for block in blocks:
-        if re.search(r"^(host|base) ", block, re.MULTILINE) is None:
+        if re.search(r"^(host|base|from|splice) ", block, re.MULTILINE) is None:
             block = "host " + HOST + "\n" + block
         round_trip(parse(block))
 

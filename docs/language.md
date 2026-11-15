@@ -225,6 +225,154 @@ its `data` names a pairs set in `wsp/pairs.py`.
 heal steps 300 data gsm8k_train lr 3e-4 batch_size 8 seq_len 384
 ```
 
+## Writing a model from parts
+
+A written program makes one standard model at the size you ask for, from
+the parts of existing models. No donor runs beside it at inference, it is
+never larger than the target, and the output directory is a plain Hugging
+Face model: `AutoModelForCausalLM.from_pretrained` and vLLM load it with
+no wsp code. The code is in `wsp/carve.py`.
+
+```wsp
+from Qwen/Qwen2.5-14B-Instruct
+carve target 7.6b select influence
+lora rank 64
+heal steps 1000 data mmlu_aux lr 1e-4 batch_size 8 seq_len 512
+```
+
+The compile runs these steps in order:
+
+1. Load the source model, or every splice source (bf16).
+2. `splice`: build one model from layer segments of the sources.
+3. `carve`: choose and keep layers, then cut the width of every layer.
+4. `lora` and `heal`: train a LoRA on the heal data, then merge it into
+   the weights.
+5. Save the model, its tokenizer, `program.json`, and
+   `compile_report.json`.
+
+A written program cannot have masks, task vectors, grafts, or taps. In a
+written program, `heal` needs a `lora`, since the LoRA is what it trains.
+
+### from
+
+The source model. The program's host is this model. A written program
+needs a `from` line or a `splice` line.
+
+```wsp
+from Qwen/Qwen2.5-32B-Instruct
+carve keep 27 select uniform
+```
+
+### carve
+
+Cut the model down. Give `keep N` (the layer count) or `target S` (a size
+in billions of parameters, written `7.6b` or `7.6`), not both. With a
+target, the compiler keeps the most layers that fit, after the width cut.
+It counts the largest layers first, so the result fits whichever layers
+are kept. Embeddings (tied or not) and norms count toward the size.
+
+| Option | JSON key | Meaning |
+|---|---|---|
+| `keep N` | `keep` | keep N decoder layers (2 or more) |
+| `target 7.6b` | `target_params_b` | keep the most layers that fit 7.6 billion parameters |
+| `select R` | `select` | `influence` (default), `uniform`, or `domain` |
+| `domain NAME` | `domain_data` | a pairs name (`wsp/pairs.py`) for the domain texts of `select domain` |
+| `weight W` | `domain_weight` | the domain weight for `select domain` (default 0.75) |
+| `width mlp F heads F` | `width` | keep the fraction F of MLP neurons and of query heads in every layer |
+
+Selection rules:
+
+- `influence`: score each layer by block influence, the mean of
+  1 - cosine(layer input, layer output) over the calibration tokens
+  (ShortGPT, 2024). Keep the first layer, the last layer, and the
+  highest-scoring layers between them.
+- `uniform`: keep evenly spaced layers from the first to the last.
+- `domain`: score each layer on the domain texts and on the general texts,
+  and rank by `weight * domain + (1 - weight) * general`. The first and
+  last layers stay.
+
+The calibration (general) texts are the `calib_texts` passed to the
+compile, or else the first 256 heal texts. The domain texts are the
+`domain_texts` passed to the compile, or else the `domain` pairs. The
+command line has no option for `calib_texts`, so there a carve without a
+`heal` needs `select uniform`.
+
+`width` slices the same fraction of MLP neurons and of query heads out of
+every layer, so the config stays plain (one `intermediate_size`, one head
+count). Grouped-query attention stays consistent: every kept KV head
+serves the same number of query heads (see `wsp/prune.py`). The units with
+the highest mean activation on the calibration texts stay. Without
+calibration texts, a weight-norm score picks them.
+
+```wsp
+from Qwen/Qwen2.5-14B-Instruct
+carve target 7.6b select domain domain gsm8k_train weight 0.9 width mlp 0.75 heads 0.75
+lora rank 32
+heal steps 500 data gsm8k_train
+```
+
+### splice
+
+Build one model from layer segments of several models with the same
+architecture and hidden size, for example the 7B Qwen2.5 Instruct, Math,
+and Coder models. Every planned layer must have the same parameter shapes
+as the base layers, or the compile stops with an error. The compile also
+stops when a source differs from the base in a config field that a layer
+copies when it is built (the head counts, `head_dim`, `hidden_act`,
+`rms_norm_eps`, `sliding_window`, and the like). The saved model rebuilds
+each layer from the base config, so such a layer would compute something
+else after the save.
+
+| Option | Meaning |
+|---|---|
+| `base KEY` | the source whose embeddings, final norm, head, tokenizer, and config the model keeps |
+| `sources KEY=MODEL,...` | the source models; a key uses letters, digits, and `_` |
+| `plan KEY:A..B, KEY:C` | the layers of the new model, in order; ranges include both ends |
+
+```wsp
+splice base q sources q=Qwen/Qwen2.5-7B-Instruct,m=Qwen/Qwen2.5-Math-7B-Instruct,c=Qwen/Qwen2.5-Coder-7B-Instruct plan q:0..9, m:10..18, c:19..27
+lora rank 16
+heal steps 300 data gsm8k_train
+```
+
+The host of a splice program is the base model. Every layer runs with the
+base config (for example its `rope_theta`), so the compile report lists
+the config fields where a source differs from the base. A splice and a
+carve can go in one program: the carve then works on the spliced model.
+
+### The compile report
+
+`compile_report.json` of a written program has `written: true`, the
+parameter count and layer count before and after, `splice` (the plan and
+the config differences), `carve` (the kept layers, the influence scores,
+and the width counts), `lora`, `heal` (the per-step losses), and
+`seconds` for each step. `wsp.load(path)` returns the plain model.
+
+In Python:
+
+```python
+from wsp import Program
+
+program = (
+    Program(base_source="Qwen/Qwen2.5-14B-Instruct")
+    .carve(target_params_b=7.6, select="influence")
+    .lora(rank=64)
+    .heal(steps=1000, data="mmlu_aux", lr=1e-4)
+)
+program.compile("outputs/q14_to_7b", None, calib_texts=texts)
+```
+
+The tools also work alone:
+
+```python
+from wsp.carve import carve_layers, carve_width, choose_layers, layer_influence, layers_for_budget, splice
+
+scores = layer_influence(model, tokenizer, texts)
+carve_layers(model, choose_layers(scores, layers_for_budget(model, 7.6e9), "influence"))
+carve_width(model, keep_mlp=0.75, keep_heads=0.75)
+model.save_pretrained(out_dir)
+```
+
 ## Text to JSON
 
 `parse(text).to_dict()` gives the JSON that agents send:
@@ -244,11 +392,16 @@ heal steps 300 data gsm8k_train lr 3e-4 batch_size 8 seq_len 384
 | `heal steps 300` | `"heal": {"steps": 300, "data": "gsm8k_train", "lr": 0.0003, "batch_size": 8, "seq_len": 384}` |
 | `tap d layer 20 at 10` | `"taps": [{"donor": "d", "donor_layer": 20, "at": 10, "attn_dim": 256, "heads": 8, "tap_id": null}]` |
 | `tap_train steps 500` | `"tap_train": {"data": "mmlu_aux", "steps": 500, "batch_size": 8, "seq_len": 256, "branch_lr": 0.0003, "gate_lr": 0.03}` |
+| `from X` | `"base_source": {"model": "X"}`, and `"host": "X"` |
+| `carve keep 22 select influence` | `"carve": {"keep": 22, "target_params_b": null, "select": "influence", "domain_data": null, "width": null}` |
+| `carve target 7.6b ... width mlp 0.75 heads 0.75` | `"target_params_b": 7.6`, `"width": {"keep_mlp": 0.75, "keep_heads": 0.75}` |
+| `splice base q sources q=X,m=Y plan q:0..1, m:2` | `"splice": {"sources": {"q": "X", "m": "Y"}, "base": "q", "plan": [["q", 0], ["q", 1], ["m", 2]]}` |
 
 A missing statement gives its JSON default: `"masks": null`, empty
-`task_vectors` and `grafts`, `"heal": null`, and no `lora`, `taps`, or
-`tap_train` key. So a program without taps has the same JSON (and the same
-hash) as before taps existed. `format_program` writes `seed` and every
+`task_vectors` and `grafts`, `"heal": null`, and no `lora`, `taps`,
+`tap_train`, `base_source`, `carve`, or `splice` key. So a program
+without these keys has the same JSON (and the same hash) as before they
+existed. `format_program` writes `seed` and every
 `heal` and `tap_train` field, and leaves out graft, tap, and tv options
 that hold their default.
 
@@ -259,6 +412,8 @@ that hold their default.
 .venv/bin/python -m wsp.lang format program.json  # print a JSON program as text
 .venv/bin/python -m wsp.lang compile math.wsp outputs/math --catalog catalog.jsonl
 ```
+
+A written program needs no `--catalog`.
 
 `check` exits with 1 and prints `file: line N: ...` on an error. A `.json`
 file with a key that `wsp.lang` does not know is an error too, so no

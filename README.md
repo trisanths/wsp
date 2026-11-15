@@ -8,6 +8,13 @@ Tuning are in [VERIFY.md](VERIFY.md).
 
 ## What works now
 
+- Written models (`wsp/carve.py`): one plain Hugging Face model at the
+  requested size, from the parts of existing models. `from` a source,
+  `splice` layer segments of same-shape models, `carve` layers (by block
+  influence, uniform, or domain influence) and width to a parameter
+  budget, then heal a LoRA and merge it. The output loads with
+  `AutoModelForCausalLM.from_pretrained` (and so vLLM) with no wsp code.
+  See "Writing a model from parts" in docs/language.md.
 - Grafts across model families. A part from any donor model runs inside a
   host at a chosen layer: `h = h + W_out(part(W_in(h)))`. `W_out` starts at
   zero, so a fresh graft leaves the host unchanged. Part types:
