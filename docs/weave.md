@@ -60,9 +60,110 @@ The exploratory cell (lfm2) never gets a go.
 
 `save` writes a plain Hugging Face directory with exactly the host's tensors, loadable with `AutoModelForCausalLM` and no wsp code, plus `weave.json` (genome, members, references, search summary).
 
+## Families (round 21 cells)
+
+Each cell is one host and its true fine-tunes. `modal_round21.py` holds the table (`FAMILIES`); `tests/test_weave.py` checks that every entry has its keys and that every member skill has a scorer, has a probe pool, or is marked unscored or exploratory.
+
+### Selection rule
+
+A member enters only when `python -m wsp.lineage relation HOST MEMBER` (Hub range reads, nothing downloaded) says fine_tune or fine_tune_of_ancestor, with mean cosine at least 0.97, the same rope_theta as the host, and mean relative L2 at least 0.01 (a smaller difference carries little) and at most 0.3 (the gate). A family needs two such members of different skills. A member whose card names a base other than the host is probed against that base too; it uses the base as its reference only when it is clearly closer to the base than to the host. The columns below are the probe's mean cosine and mean relative L2 over its sampled tensors (embeddings and norms included), then the mean relative L2 over the sampled attention and MLP matrices of layers. A member with a "ref" is judged against its reference.
+
+### Cells from the 2026-11-14 scout
+
+| Cell | Host | Members | Evidence |
+| --- | --- | --- | --- |
+| qwen15 | Qwen2.5-1.5B-Instruct | Coder-1.5B, Math-1.5B | cosine about 0.5 and 0.2: expected to fail the gate |
+| qwen7b | Qwen2.5-7B-Instruct | OpenThinker-7B, OpenCodeReasoning-Nemotron-7B | cosine 0.9996 and 0.988 (relative L2 not recorded) |
+| llama8b | Llama-3.1-8B-Instruct | OpenMath2, R1-Distill-Llama-8B, HuatuoGPT-o1-8B, Med42 | OpenMath2 cosine 0.973; the rest in the scout note |
+| gemma27 | Gemma-3-27B-it | MedGemma-27B-text, MeditronFO | MedGemma cosine 0.997, attention fails the gate |
+| gemma27_mlp | Gemma-3-27B-it | MedGemma-27B-text forced to MLP only, MeditronFO | MedGemma's MLP difference passes the gate; attention tensors are not read |
+| qwen32b | Qwen2.5-32B-Instruct | QwQ-32B, Baichuan-M2-32B, OCR-Nemotron-32B, OpenThinker-32B | cosine 0.9996, 0.998, 0.996, 0.9998 |
+| lfm2 | LFM2-1.2B | Tool, RAG, Extract | cosine 0.99 and above, relative L2 about 0.036 to 0.040 (exploratory) |
+| qwen3_8b | Qwen3-8B | II-Medical-8B, LegalEvolver-Qwen3-8B | see the scout note |
+
+`gemma27_mlp` needs per-member `mlp_only`. `wsp/weave.py` already has it (`Member.mlp_only`, `Member.covers`). `modal_round21.py` set it only when the config's positional base differed from the host. A member spec with `"mlp_only": True` now forces it and reads the member without attention tensors, so `gate_member` measures the MLP matrices alone.
+
+### Cells from the 2026-11-15 small-model scout
+
+Size is in billions of parameters. Expected minutes come from `make_plan` (probe objective, budget 10 hours; every cell fits). "Scorer" lists the skills the cell reports.
+
+| Cell | Host | Size | Scorers | Members | Expected minutes |
+| --- | --- | --- | --- | --- | --- |
+| gemma2_2b | gemma-2-2b-it | 2.6 | gsm8k, mbpp, mmlu, humaneval | math, coding | 268 |
+| llama3b | Llama-3.2-3B-Instruct | 3.2 | gsm8k, mmlu | math, hermes3 (ref: Llama-3.2-3B) | 274 |
+| llama1b | Llama-3.2-1B-Instruct | 1.2 | gsm8k, mbpp, mmlu, humaneval | math, coder | 207 |
+| qwen3_4b | Qwen3-4B | 4.0 | medmcqa, mmlu, gsm8k (transfer) | pythagoras, popit_medical | 309 |
+| qwen3_1p7b | Qwen3-1.7B | 1.7 | medmcqa, mmlu | medpsy, hito | 198 |
+| qwen25_3b | Qwen2.5-3B-Instruct | 3.1 | gsm8k, medmcqa, mmlu | smallthinker, medmath | 271 |
+| smollm3 | SmolLM3-3B | 3.1 | gsm8k, medmcqa, mmlu | medical, mopd_math (ref: SmolLM3-3B-Base) | 271 |
+| gemma3_4b | gemma-3-4b-it | 4.3 | medmcqa, mmlu | biomed, cypher, mamaylm | 396 |
+| gemma3_1b | gemma-3-1b-it | 1.0 | exploratory | borealis, swahili | 181 |
+| qwen25_15b | Qwen2.5-1.5B-Instruct | 1.5 | exploratory | vikhr, tooltuned, correction | 249 |
+| qwen25_05b | Qwen2.5-0.5B-Instruct | 0.5 | exploratory | hammer, vikhr | 160 |
+| lfm2_350m | LFM2-350M | 0.35 | exploratory | extract, luth, hala | 182 |
+| lfm2_700m | LFM2-700M | 0.74 | exploratory | luth, tashkeel, hala | 205 |
+| lfm2_2b | LFM2-2.6B | 2.6 | exploratory | transcript, longevity | 248 |
+
+Evidence per member (relation from the probe, mean cosine, mean relative L2, then attention and MLP layer matrices):
+
+| Cell | Member | Skill | Relation | Cosine | Rel L2 | Attn | MLP |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| gemma2_2b | MergeBench/gemma-2-2b-it_math | gsm8k | fine_tune | 0.9998 | 0.0203 | 0.0150 | 0.0301 |
+| gemma2_2b | MergeBench/gemma-2-2b-it_coding | mbpp | fine_tune | 0.9999 | 0.0128 | 0.0113 | 0.0174 |
+| llama3b | MergeBench/Llama-3.2-3B-Instruct_math | gsm8k | fine_tune | 0.9998 | 0.0187 | 0.0125 | 0.0165 |
+| llama3b | NousResearch/Hermes-3-Llama-3.2-3B (vs base) | chat | fine_tune | 0.9996 | 0.0269 | 0.0222 | 0.0330 |
+| llama1b | AryanK123/Llama-3.2-1B-Instruct_SFT_Math-220kv00.04 | gsm8k | fine_tune | 0.9998 | 0.0175 | 0.0140 | 0.0217 |
+| llama1b | MDDDDR/Llama-3.2-1B-Instruct-FFT-coder-python | mbpp | fine_tune | 0.9956 | 0.0850 | 0.0520 | 0.0883 |
+| qwen3_4b | Pythagoras-LM/Pythagoras-Prover-4B | math | fine_tune | 0.9923 | 0.1139 | 0.1477 | 0.1180 |
+| qwen3_4b | Hoshino-Yumetsuki/PopiT-Qwen3-4B-Medical-SFT-1128 | medmcqa | fine_tune | 0.9992 | 0.0362 | 0.0498 | 0.0348 |
+| qwen3_1p7b | qvac/MedPsy-1.7B | medmcqa | fine_tune | 0.9944 | 0.1042 | 0.1083 | 0.1119 |
+| qwen3_1p7b | hitonet/hito-1.7b | reasoning | fine_tune | 0.9968 | 0.0459 | 0.0196 | 0.0192 |
+| qwen25_3b | Tiiny/SmallThinker-3B-Preview | gsm8k | fine_tune | 0.9964 | 0.0843 | 0.0891 | 0.0824 |
+| qwen25_3b | calebking/qwen2.5-3b-instruct-medical-math-full | medmcqa | fine_tune | 0.9998 | 0.0168 | 0.0141 | 0.0217 |
+| smollm3 | vinayp27/smollm3-medical | medmcqa | fine_tune | 0.9998 | 0.0199 | 0.0162 | 0.0284 |
+| smollm3 | BytedTsinghua-SIA/Open-MOPD-SmolLM3-3B-RL-Math (vs base) | gsm8k | fine_tune_of_ancestor | 0.9978 | 0.0594 | 0.0474 | 0.0899 |
+| gemma3_4b | AdaptLLM/biomed-gemma-3-4b-it | medmcqa | fine_tune | 0.9994 | 0.0324 | 0.0230 | 0.0447 |
+| gemma3_4b | neo4j/text-to-cypher-Gemma-3-4B-Instruct-2025.04.0 | cypher | fine_tune | 0.9992 | 0.0351 | 0.0338 | 0.0480 |
+| gemma3_4b | INSAIT-Institute/MamayLM-Gemma-3-4B-IT-v1.0 | ukrainian | fine_tune | 0.9729 | 0.2451 | 0.2181 | 0.2785 |
+| gemma3_1b | NbAiLab/borealis-1b | norwegian | fine_tune | 0.9976 | 0.0640 | 0.0416 | 0.0914 |
+| gemma3_1b | CraneAILabs/swahili-gemma-1b | swahili | fine_tune | 0.9916 | 0.1077 | 0.0530 | 0.1781 |
+| qwen25_15b | Vikhrmodels/Vikhr-Qwen-2.5-1.5B-Instruct | russian | fine_tune | 0.9852 | 0.1592 | 0.2163 | 0.1551 |
+| qwen25_15b | asheeee24/tooltuned-qwen2.5-1.5b | tool | fine_tune | 0.9999 | 0.0111 | 0.0154 | 0.0105 |
+| qwen25_15b | shibing624/chinese-text-correction-1.5b | correction | fine_tune | 0.9999 | 0.0138 | 0.0175 | 0.0146 |
+| qwen25_05b | MadeAgents/Hammer2.0-0.5b | tool | fine_tune | 0.9999 | 0.0136 | 0.0211 | 0.0107 |
+| qwen25_05b | Vikhrmodels/Vikhr-Qwen-2.5-0.5b-Instruct | russian | fine_tune | 0.9789 | 0.1892 | 0.2600 | 0.1814 |
+| lfm2_350m | LiquidAI/LFM2-350M-Extract | extract | fine_tune | 0.9851 | 0.1724 | 0.1783 | 0.1609 |
+| lfm2_350m | kurakurai/Luth-LFM2-350M | french | fine_tune | 0.9996 | 0.0285 | 0.0295 | 0.0276 |
+| lfm2_350m | hammh0a/Hala-350M | arabic | fine_tune | 0.9897 | 0.1475 | 0.1589 | 0.1422 |
+| lfm2_700m | kurakurai/Luth-LFM2-700M | french | fine_tune | 0.9992 | 0.0411 | 0.0434 | 0.0394 |
+| lfm2_700m | Etherll/Tashkeel-700M | arabic_diacritics | fine_tune | 0.9995 | 0.0310 | 0.0370 | 0.0313 |
+| lfm2_700m | hammh0a/Hala-700M | arabic | fine_tune | 0.9903 | 0.1411 | 0.1520 | 0.1358 |
+| lfm2_2b | LiquidAI/LFM2-2.6B-Transcript | transcript | fine_tune | 0.9989 | 0.0465 | 0.0504 | 0.0458 |
+| lfm2_2b | LiquidAI/LFM2-2.6B-Longevity | longevity | fine_tune | 0.9796 | 0.2070 | 0.2248 | 0.2013 |
+
+Passing, not entered: MergeBench gemma-2-2b-it multilingual (0.9998, 0.0165) and instruction (0.9999, 0.0135); Vikhr-Llama-3.2-1B-Instruct (0.9995, 0.0260); LFM2-1.2B Longevity (0.9882, 0.1528) and Luth-1.2B (0.9995, 0.0308), which could join `lfm2`; the same Llama-3.2-3B and gemma-2-2b fine-tunes trained from the base (they need the base as reference). Their skills have no scorer or pool, so under the probe go rule they would be weak proxies.
+
+Held out:
+
+- Relative L2 below 0.01 (RL or LoRA-sized changes): MergeBench Llama-3.2-3B-Instruct coding, multilingual, instruction, safety; Jan-nano, Polaris-4B, Qwen3-4B-SafeRL; GooseReason-4B; Jan-v3-4B; Arch-Router-1.5B; medical_o1_verifier_3B; suayptalha DeepSeek-R1-Distill-Llama-3B; Qwen3-0.6B and 1.7B distills; granite-3.3-2b ethics (0.0098) and medicanite.
+- Not a fine-tune of the host: Qwen/Qwen3-4B-Instruct-2507 and Qwen3-4B (diverged, rope_theta 5e6 against 1e6); OpenThinker3-1.5B (cosine 0.87); LFM2-350M-Math (cosine 0.16); LFM2.5-1.2B-Thinking (cosine 0.91); sarvam-translate (0.84).
+- Parent is the base and the difference from the base is below 0.01: qwen3-1.7b-math-grpo (0.0001 from Qwen3-1.7B-Base), smollm3-3b-sft-math-merged (0.0047 from SmolLM3-3B-Base). Mixed against the host they would subtract the host's own post-training.
+- Cosine below 0.97 or relative L2 above 0.3: TinySwallow-1.5B (0.9693), medgemma-4b-it (0.960, 0.336), LEM-Gemma3-1B (relative L2 0.301), MedLlama.nl, LFM2.5-JP-202606.
+- One member only: Qwen3-0.6B, Qwen3-4B-Instruct-2507, Phi-4-mini, OLMo-2-1B, LFM2.5, granite-3.3-2b.
+
+The cards of the MergeBench models name no base. Their names and the weights (cosine 0.9998, relative L2 0.01 to 0.02 from the host) do.
+
+PopiT-Qwen3-4B-Medical's card names Qwen3-4B-Instruct-2507 as the base, but its weights are 0.036 from Qwen3-4B and 0.20 from Qwen3-4B-Instruct-2507, so it is a fine-tune of Qwen3-4B.
+
+### Launch
+
+    modal run --detach modal_round21.py --family gemma2_2b,llama1b --objective probe
+
+Run one cheap cell first (LESSONS.md): `--family qwen25_05b --plan-only`, then the same without `--plan-only`. `--family all` now runs 22 cells. Name the cells.
+
 ## The limit
 
-Same lineage only. A member that does not share the host's basis needs a translation layer; those paths are in `wsp/synth.py`. At 0.5B and 1.5B no ungated task specialist of the Qwen2.5 host passes the gate, so the smallest working cells are LFM2-1.2B (skills with no scorer here, exploratory) and the 7B to 8B families. Mixing cannot add a skill that no member has. The best case is the members' per-layer best parts together, which evolutionary model merging has shown can exceed each source.
+Same lineage only. A member that does not share the host's basis needs a translation layer; those paths are in `wsp/synth.py`. At 0.5B and 1.5B no task specialist of the Qwen2.5 Coder or Math line passes the gate. Small cells exist in other families: gemma2_2b, llama1b, llama3b, qwen3_1p7b, and the LFM2 cells (see Families). Mixing cannot add a skill that no member has. The best case is the members' per-layer best parts together, which evolutionary model merging has shown can exceed each source.
 
 ## Benchmarks and the control
 
