@@ -505,3 +505,41 @@ Reading:
   cannot reach the representations the block's skill lives in. This path
   stops here for small bases. Same-lineage experts (run 16b) and fusion
   into a same-width base (run 16) are the next tests.
+
+## Run 16b (2026-11-14): specialist MLPs as routed experts (skill MoE)
+
+Base Qwen2.5-1.5B-Instruct. In every layer the MLP becomes a router over
+the base MLP and the same layer's MLP from Qwen2.5-Math-1.5B-Instruct and
+Qwen2.5-Coder-1.5B-Instruct (wsp/skill_moe.py). The router starts on the
+base (bias 16) and trains in a 1000-step heal on mixed math, code, and
+chat text. GSM8K 300, MBPP 200, MMLU 1000, MedMCQA 1000. Raw rows:
+round16b_rows.json.
+
+| Arm | GSM8K | MBPP | MMLU | MedMCQA | Params per token |
+|---|---|---|---|---|---|
+| Base | 68.7 | 59.0 | 58.8 | 44.6 | 1.54B |
+| Math specialist | 81.7 | 36.5 | 36.9 | 32.1 | 1.54B |
+| Coder specialist | 59.7 | 66.0 | 46.2 | 37.9 | 1.54B |
+| Base + LoRA r16, same heal | 57.3, 57.7 | 61.5, 59.0 | 59.1, 59.1 | 45.4, 45.0 | 1.56B |
+| TIES merge | 0.3 | 0.0 | 24.7 | 26.0 | 1.54B |
+| Skill MoE, soft mix | 51.3, 71.0 | 60.5, 58.0 | 58.9, 58.4 | 44.3, 44.5 | 3.86B |
+| Skill MoE, top-1 | 64.0, 72.3 | 59.0, 59.5 | 58.7, 58.5 | 44.1, 44.6 | 1.54B |
+| Skill MoE, top-2 | 60.0, 66.3 | 57.0, 59.0 | 58.4, 59.0 | 44.9, 44.7 | 2.70B |
+| Skill MoE, top-2 + LoRA | 58.0, 56.3 | 59.0, 60.5 | 58.5, 58.0 | 46.0, 46.1 | 2.70B |
+
+Reading:
+- No arm beats the base on GSM8K (68.7); the top-1 MoE averages 68.2. The
+  Math specialist's 81.7 and the Coder's 66.0 did not carry over.
+- The router barely moved: its base bias ended near 16, and on GSM8K
+  prompts 92% of routing slots went to the base MLP. The MoE is close to
+  the base because it mostly is the base.
+- The LoRA heal hurts GSM8K by 11 points (57.5 vs 68.7). The heal data
+  mix damages a skill the base already has; arms with a LoRA inherit it.
+- GSM8K seed spread is large (64.0 vs 72.3, 51.3 vs 71.0), so one seed
+  proves nothing here.
+- The TIES merge collapsed; treat it as a broken baseline until checked
+  (Math has rope_theta 10000, the others 1e6).
+- Next (run 16c): forced-routing cells with no training (all Math MLPs,
+  all Coder MLPs, whole Math layers) to see whether an MLP-only expert
+  carries the specialist's skill at all, and a router started from a
+  ridge fit on domain labels instead of the base bias.
