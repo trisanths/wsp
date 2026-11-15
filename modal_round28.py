@@ -631,8 +631,9 @@ def check_data():
         print(f"data {request} rank {len(rank)} heal {len(heal)} {json.dumps(info)}", flush=True)
         for label, pairs in (("pool", pool_pairs(REQUESTS[request]["skill"])),
                              ("train", bench_pairs(REQUESTS[request]["skill"]))):
-            for user, assistant in pairs[:1] + pairs[1000:1001]:
-                print(f"data {request} {label} user {user[:300]!r} assistant {assistant[:300]!r}", flush=True)
+            for user, assistant in pairs[:2] + pairs[1000:1002]:
+                print(f"data {request} {label} user {user[:300]!r} assistant {(assistant or '')[:300]!r}",
+                      flush=True)
     volume.commit()
     return "ok"
 
