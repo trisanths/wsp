@@ -9,6 +9,8 @@
 
     MODAL_PROFILE=trisanth modal run modal_eval.py::interp --max-evals 80
 
+    MODAL_PROFILE=trisanth modal run modal_eval.py::gate --seeds "0 1 2"
+
     MODAL_PROFILE=trisanth modal run modal_eval.py::extract --model Qwen/Qwen2.5-Math-1.5B --validate 2
     MODAL_PROFILE=trisanth modal run modal_eval.py::extract --model Qwen/Qwen3-30B-A3B --gpu H100 --kinds expert
 
@@ -36,6 +38,7 @@ image = (
         "transformers==4.57.1",
         "accelerate",
         "huggingface_hub",
+        "requests",
         "datasets",
         "matplotlib",
         "safetensors",
@@ -147,6 +150,15 @@ def extract_h100(model, task, kinds, validate, top_layers):
     return _extract_body(model, task, kinds, validate, top_layers)
 
 
+@app.function(image=image, volumes={"/vol": volume}, gpu="L40S", memory=65536, timeout=4 * 3600)
+def gate_remote(seeds, donor_layer, neurons, heal_steps):
+    from wsp_eval.gate import run_gate
+    _prepare_catalog()
+    summary = run_gate(seeds=tuple(seeds), donor_layer=donor_layer, neurons=neurons, heal_steps=heal_steps)
+    volume.commit()
+    return json.loads(json.dumps(summary, default=str))
+
+
 def _save(name, data):
     os.makedirs("outputs", exist_ok=True)
     path = os.path.join("outputs", name)
@@ -205,3 +217,18 @@ def extract(model: str, task: str = "gsm8k", kinds: str = "", validate: int = 0,
         with open(os.path.join(out_dir, name), "wb") as f:
             f.write(content)
     print("index files and records.jsonl copied to", out_dir)
+
+
+@app.local_entrypoint()
+def gate(seeds: str = "0 1 2", donor_layer: int = 10, neurons: int = 512, heal_steps: int = 300):
+    """Hour-8 gate: host, donor, graft, random-part control, matched LoRA, scored by eval()."""
+    seed_list = []
+    for text in seeds.split():
+        seed_list.append(int(text))
+    summary = gate_remote.remote(seed_list, donor_layer, neurons, heal_steps)
+    for row in summary["rows"]:
+        print("%-7s seed %-4s score %.3f  fit %s  [%s]" % (row["arm"], row["seed"], row["score"],
+                                                          row["fit_r2"], row["label"]))
+    from wsp_eval import claims
+    print(claims.format_verdict(summary["verdict"]))
+    _save("gate_summary.json", summary)
