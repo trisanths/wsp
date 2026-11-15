@@ -1,7 +1,7 @@
 """Build the round 28 tables and the side-by-side samples from the per-cell JSON files.
 
-    modal volume get wsp-models results/round28 results/round28_cells   (with MODAL_PROFILE=trisanthsrini)
-    python scripts/round28_table.py results/round28_cells --out results/round28_rows.json \
+    modal volume get wsp-models /results/round28/ results/round28_cells   (with MODAL_PROFILE=trisanthsrini)
+    python scripts/round28_table.py results/round28_cells/round28 --out results/round28_rows.json \
         --tables demo/results_tables.md --samples demo/sample_outputs.json
 
 The cell files hold the scores, parameter counts, disk bytes, kept experts, and the greedy answers to the
@@ -52,10 +52,18 @@ def table(request, rows):
     names = ["full_30b"] + [f"{request}_{tail}" for tail in ORDER]
     for name in names:
         row = rows.get(name)
+        if name == "full_30b":
+            # The MCQ-only full cell repeats the full cell's multiple-choice scores and finishes first.
+            for candidate in ("full_30b", "full_30b_mcq"):
+                found = rows.get(candidate)
+                if found and found.get("scores") and all(b in found["scores"] for b in benches):
+                    row = found
+                    name = candidate
+                    break
         if row is None or row.get("scores") is None:
             lines.append(f"| {name} | missing | | " + " | ".join("" for _ in benches) + " | | |")
             continue
-        label = "full model" if name == "full_30b" else LABELS[name[len(request) + 1:]]
+        label = "full model" if name.startswith("full_30b") else LABELS[name[len(request) + 1:]]
         cells = [pct(row["scores"][b]) for b in benches]
         lines.append(f"| {label} | {params_b(row)} | {row['params_run_after'] / 1e9:.2f} | " + " | ".join(cells)
                      + f" | {row['disk_bytes'] / 1e9:.1f} | results/round28_rows.json cell {name} |")
