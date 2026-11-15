@@ -9,6 +9,8 @@ A program file has one statement per line, and # starts a comment:
     lora rank 16 targets q_proj,v_proj
     graft qmath_l18_contrast512 at 6 rank 64 control random seed 101
     graft qmath_block_8_19 at 5 rank 64 stitch mlp objective downstream steps 500
+    tap Qwen/Qwen2.5-7B-Instruct layer 20 at 10
+    tap_train data mmlu_aux steps 500 batch_size 8 seq_len 256 branch_lr 3e-4 gate_lr 3e-2
     heal steps 300 data gsm8k_train lr 3e-4
 
 parse(text) returns a wsp.program.Program, the same object agents send as
@@ -32,7 +34,7 @@ import re
 import sys
 
 from wsp.program import (STITCH_KINDS, Difference, GraftSpec, HealSpec, Intersect, LoraSpec, Program, Restrict,
-                         TaskVector, Union, Use)
+                         TapSpec, TapTrainSpec, TaskVector, Union, Use)
 
 # An id is a catalog id, a model name, a local path, a module name, or a
 # data name. It may start with . or / so a local path such as
@@ -41,7 +43,7 @@ ID_PATTERN = re.compile(r"^[A-Za-z0-9_./][A-Za-z0-9_./\-]*$")
 INT_PATTERN = re.compile(r"^-?[0-9]+$")
 FLOAT_PATTERN = re.compile(r"^-?([0-9]+\.[0-9]*|\.[0-9]+|[0-9]+)([eE][-+]?[0-9]+)?$")
 
-STATEMENTS = ["host", "seed", "mask", "tv", "graft", "lora", "heal"]
+STATEMENTS = ["host", "seed", "mask", "tv", "graft", "lora", "tap", "tap_train", "heal"]
 
 # Options for each statement: the written name, then the field it sets.
 # Some fields have a second, longer name that matches the JSON key.
@@ -66,6 +68,18 @@ LORA_OPTIONS = {
     "layers": "layers",
 }
 HEAL_OPTIONS = {"steps": "steps", "data": "data", "lr": "lr", "batch_size": "batch_size", "seq_len": "seq_len"}
+TAP_OPTIONS = {
+    "layer": "donor_layer",
+    "donor_layer": "donor_layer",
+    "at": "at",
+    "dim": "attn_dim",
+    "attn_dim": "attn_dim",
+    "heads": "heads",
+    "id": "tap_id",
+    "tap_id": "tap_id",
+}
+TAP_TRAIN_OPTIONS = {"data": "data", "steps": "steps", "batch_size": "batch_size", "seq_len": "seq_len",
+                     "branch_lr": "branch_lr", "gate_lr": "gate_lr"}
 
 # Mask operators, from loosest to tightest binding. This is Python's order.
 MASK_LEVELS = {"union": 1, "intersect": 2, "difference": 3}
@@ -442,6 +456,40 @@ def parse_heal(tokens, line):
     return HealSpec(**options)
 
 
+def parse_tap(tokens, line):
+    if len(tokens) == 0:
+        raise LangError(line, "tap needs a donor model, as in: tap Qwen/Qwen2.5-7B-Instruct layer 20 at 10")
+    donor = read_id(tokens[0], line, "a tap donor")
+    fields, rest = read_options(tokens[1:], line, "tap", TAP_OPTIONS)
+    if "donor_layer" not in fields:
+        raise LangError(line, "tap needs layer N, the donor layer it reads")
+    if "at" not in fields:
+        raise LangError(line, "tap needs at N, the host layer it writes")
+    options = {}
+    if "attn_dim" in fields:
+        options["attn_dim"] = read_int(fields["attn_dim"], line, "dim")
+    if "heads" in fields:
+        options["heads"] = read_int(fields["heads"], line, "heads")
+    if "tap_id" in fields:
+        options["tap_id"] = read_id(fields["tap_id"], line, "id")
+    return TapSpec(donor, read_int(fields["donor_layer"], line, "layer"), read_int(fields["at"], line, "at"),
+                   **options)
+
+
+def parse_tap_train(tokens, line):
+    fields, rest = read_options(tokens, line, "tap_train", TAP_TRAIN_OPTIONS)
+    options = {}
+    if "data" in fields:
+        options["data"] = read_id(fields["data"], line, "data")
+    for name in ["steps", "batch_size", "seq_len"]:
+        if name in fields:
+            options[name] = read_int(fields[name], line, name)
+    for name in ["branch_lr", "gate_lr"]:
+        if name in fields:
+            options[name] = read_number(fields[name], line, name)
+    return TapTrainSpec(**options)
+
+
 def parse(text):
     """Parse program text into a wsp.program.Program. Raise LangError on a problem."""
     host = None
@@ -451,6 +499,8 @@ def parse(text):
     grafts = []
     heal = None
     lora = None
+    taps = []
+    tap_train = None
     # The line where each single statement first appeared.
     first_line = {}
 
@@ -465,7 +515,7 @@ def parse(text):
         rest = tokens[1:]
         if head == "base":
             head = "host"
-        if head in ("host", "seed", "mask", "lora", "heal"):
+        if head in ("host", "seed", "mask", "lora", "heal", "tap_train"):
             if head in first_line:
                 raise LangError(line, f"{head} appears twice (first on line {first_line[head]})")
             first_line[head] = line
@@ -491,6 +541,10 @@ def parse(text):
                 lora = parse_lora(rest, line)
             elif head == "heal":
                 heal = parse_heal(rest, line)
+            elif head == "tap":
+                taps.append(parse_tap(rest, line))
+            elif head == "tap_train":
+                tap_train = parse_tap_train(rest, line)
             else:
                 raise LangError(line, f"unknown statement {head!r}; the statements are {', '.join(STATEMENTS)}")
         except LangError:
@@ -502,7 +556,7 @@ def parse(text):
     if host is None:
         raise LangError(None, "a program needs a host line, as in: host unsloth/Llama-3.2-1B-Instruct")
     return Program(host=host, masks=masks, task_vectors=task_vectors, seed=seed, grafts=grafts, heal=heal,
-                   lora=lora)
+                   lora=lora, taps=taps, tap_train=tap_train)
 
 
 def load_program(path):
@@ -516,11 +570,13 @@ def load_program(path):
 
 # The keys Program.from_dict reads. A key outside these lists would be
 # dropped without a word, so program_from_dict refuses it.
-PROGRAM_KEYS = ["host", "base", "seed", "masks", "task_vectors", "grafts", "heal", "lora"]
+PROGRAM_KEYS = ["host", "base", "seed", "masks", "task_vectors", "grafts", "heal", "lora", "taps", "tap_train"]
 TV_KEYS = ["id", "weight", "layers", "modules"]
 GRAFT_KEYS = ["id", "at", "control", "control_seed", "glue_rank", "stitch", "sink", "rms_match", "part_lora_rank"]
 LORA_KEYS = ["rank", "budget_params", "targets", "alpha", "layers"]
 HEAL_KEYS = ["steps", "data", "lr", "batch_size", "seq_len"]
+TAP_KEYS = ["donor", "donor_layer", "at", "attn_dim", "heads", "tap_id"]
+TAP_TRAIN_KEYS = ["data", "steps", "batch_size", "seq_len", "branch_lr", "gate_lr"]
 MASK_KEYS = {
     "use": ["op", "id"],
     "union": ["op", "a", "b"],
@@ -556,6 +612,10 @@ def program_from_dict(data):
         check_keys(data["lora"], LORA_KEYS, "lora")
     if data.get("heal") is not None:
         check_keys(data["heal"], HEAL_KEYS, "heal")
+    for tap in data.get("taps", []):
+        check_keys(tap, TAP_KEYS, "tap")
+    if data.get("tap_train") is not None:
+        check_keys(data["tap_train"], TAP_TRAIN_KEYS, "tap_train")
     try:
         return Program.from_dict(data)
     except KeyError as error:
@@ -768,12 +828,38 @@ def heal_text(data):
     return " ".join(words)
 
 
+def tap_text(data):
+    check_keys(data, TAP_KEYS, "tap")
+    words = ["tap", id_text(data["donor"], "tap donor"), "layer " + int_text(data["donor_layer"], "layer"),
+             "at " + int_text(data["at"], "at")]
+    if data.get("attn_dim", 256) != 256:
+        words.append("dim " + int_text(data["attn_dim"], "dim"))
+    if data.get("heads", 8) != 8:
+        words.append("heads " + int_text(data["heads"], "heads"))
+    if data.get("tap_id") is not None:
+        words.append("id " + id_text(data["tap_id"], "id"))
+    return " ".join(words)
+
+
+def tap_train_text(data):
+    check_keys(data, TAP_TRAIN_KEYS, "tap_train")
+    words = ["tap_train"]
+    words.append("data " + id_text(data["data"], "data"))
+    words.append("steps " + int_text(data["steps"], "steps"))
+    words.append("batch_size " + int_text(data["batch_size"], "batch_size"))
+    words.append("seq_len " + int_text(data["seq_len"], "seq_len"))
+    words.append("branch_lr " + number_text(data["branch_lr"], "branch_lr"))
+    words.append("gate_lr " + number_text(data["gate_lr"], "gate_lr"))
+    return " ".join(words)
+
+
 def format_program(program):
     """Write a Program (or its to_dict() form) as text, one statement per line."""
     if isinstance(program, dict):
         program = program_from_dict(program)
     data = program.to_dict()
-    check_keys(data, ["host", "seed", "masks", "task_vectors", "grafts", "heal", "lora"], "program")
+    check_keys(data, ["host", "seed", "masks", "task_vectors", "grafts", "heal", "lora", "taps", "tap_train"],
+               "program")
     lines = ["host " + id_text(data["host"], "host"), "seed " + int_text(data["seed"], "seed")]
     if data["masks"] is not None:
         lines.append("mask " + mask_text(data["masks"]))
@@ -783,6 +869,10 @@ def format_program(program):
         lines.append(lora_text(data["lora"]))
     for graft in data["grafts"]:
         lines.append(graft_text(graft))
+    for tap in data.get("taps", []):
+        lines.append(tap_text(tap))
+    if data.get("tap_train") is not None:
+        lines.append(tap_train_text(data["tap_train"]))
     if data["heal"] is not None:
         lines.append(heal_text(data["heal"]))
     return "\n".join(lines) + "\n"
@@ -803,7 +893,9 @@ def compile_file(program, out_dir, catalog_path, align, device):
         from wsp.data import task_texts
 
         name = "gsm8k_train"
-        if program.heal_spec is not None:
+        # With taps, heal data names a pairs set (such as mmlu_aux) that
+        # wsp.data does not know, so the align texts stay gsm8k_train.
+        if program.heal_spec is not None and len(program.taps) == 0:
             name = program.heal_spec.data
         texts = task_texts(name, seed=0)
         align_texts = texts[:align]

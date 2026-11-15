@@ -354,8 +354,12 @@ def test_huge_numbers_and_deep_masks_are_lang_errors():
 def test_json_with_unknown_keys_is_an_error(tmp_path):
     # Program.from_dict drops keys it does not read, so wsp.lang checks them first.
     data = full_program().to_dict()
+    data["probes"] = [{"id": "x"}]
+    with pytest.raises(ValueError, match="'probes'"):
+        format_program(data)
+    data = full_program().to_dict()
     data["taps"] = [{"id": "x"}]
-    with pytest.raises(ValueError, match="'taps'"):
+    with pytest.raises(ValueError, match="tap key 'id'"):
         format_program(data)
     data = full_program().to_dict()
     data["grafts"][0]["new_option"] = 1
@@ -374,7 +378,7 @@ def test_json_with_unknown_keys_is_an_error(tmp_path):
     # The base alias still loads.
     assert format_program({"base": HOST}) == format_program(Program(host=HOST))
 
-    path = write(tmp_path, "p.json", json.dumps({"host": HOST, "taps": []}))
+    path = write(tmp_path, "p.json", json.dumps({"host": HOST, "probes": []}))
     assert main(["check", path]) == 1
 
 

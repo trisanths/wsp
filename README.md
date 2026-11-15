@@ -47,6 +47,15 @@ Tuning are in [VERIFY.md](VERIFY.md).
 - A heal pass trains only the glue (and a part LoRA). `control="random"`
   swaps in a random part of the same size from the same donor layer, with
   the same options.
+- Taps: `.tap(donor, donor_layer, at)` lets host layer `at` read a frozen
+  donor's own layer states through a gated cross-attention branch. The
+  donor is any Hugging Face model and reads the prompt with its own
+  tokenizer. `.tap_train(data="mmlu_aux", ...)` trains the taps first on
+  (prompt, completion) pairs from `wsp/pairs.py`, then a LoRA or graft
+  heal trains with the taps frozen. `wsp.load` reloads the donors and
+  auto-prepares, so plain `model.generate(input_ids, attention_mask=...)`
+  works, also in the eval harness. `wsp.tap_cost(model)` estimates the
+  decode and donor prefill cost. See docs/language.md.
 - Mask algebra and task vectors on the host, as before.
 - `wsp.load(path)` returns `(model, tokenizer)` for any compiled directory.
 - Stub extractors: `top_activation_neurons` and `top_routed_experts`.

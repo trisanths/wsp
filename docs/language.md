@@ -15,6 +15,15 @@ graft qmath_block_8_19 at 5 rank 64 stitch mlp objective downstream steps 500
 heal steps 300 data gsm8k_train lr 3e-4
 ```
 
+A tap program (in run 6, a tap from Qwen2.5-7B-Instruct gained 20.4
+points on MMLU over the host, and a rank-16 LoRA gained 2.8):
+
+```wsp
+host unsloth/Llama-3.2-1B-Instruct
+tap Qwen/Qwen2.5-7B-Instruct layer 20 at 10
+tap_train data mmlu_aux steps 500 batch_size 8 seq_len 256 branch_lr 3e-4 gate_lr 3e-2
+```
+
 The code is in `wsp/lang.py`:
 
 ```python
@@ -36,9 +45,9 @@ text = format_program(program)          # parse(text).to_dict() == program.to_di
 - Layer lists use inclusive ranges and commas: `4..12`, `1,3,5..7`.
 - Name lists use commas: `q_proj,v_proj`. A space after a comma is fine.
 - Numbers keep their type: `1` is an integer and `1.0` or `3e-4` is a float.
-- Statements can come in any order. The order of `tv` lines and of
-  `graft` lines is kept. `host`, `seed`, `mask`, `lora`, and `heal` can
-  each appear once.
+- Statements can come in any order. The order of `tv`, `graft`, and `tap`
+  lines is kept. `host`, `seed`, `mask`, `lora`, `tap_train`, and `heal`
+  can each appear once.
 - An error names the line, for example `line 3: at needs an integer, got 'x'`.
 
 ## Statements
@@ -150,10 +159,67 @@ graft qmath_l18_top512 stitch multi offsets [-2, 0] objective mse lr 1e-3
 graft qmath_l18_top512 stitch lowrank rank 32
 ```
 
+### tap
+
+A tap: the donor reads the prompt with its own tokenizer and runs up to
+donor layer `layer`. At host layer `at`, a small gated cross-attention
+branch lets each host token read those donor states. The gate starts at
+0, so an untrained tap leaves the host unchanged. The donor is a Hugging
+Face id or a local model folder, from any model family. A program can
+have many `tap` lines.
+
+| Option | JSON key | Meaning |
+|---|---|---|
+| `layer N` | `donor_layer` | donor decoder layer the tap reads (required) |
+| `at N` | `at` | host decoder layer the branch writes (required) |
+| `dim N` | `attn_dim` | width of the branch attention (default 256) |
+| `heads N` | `heads` | attention heads; `dim` must be a multiple (default 8) |
+| `id NAME` | `tap_id` | a name for the tap in reports (default `tap0`, `tap1`, ...) |
+
+`donor_layer`, `attn_dim`, and `tap_id` also work as option names. Taps
+that read the same donor share one donor run per prompt. Taps that read
+the same donor and layer also share one memory.
+
+```wsp
+tap Qwen/Qwen2.5-7B-Instruct layer 20 at 10
+tap Qwen/Qwen2.5-7B-Instruct layer 27 at 12 dim 128 heads 4 id late
+tap LiquidAI/LFM2-350M-Math layer 8 at 8
+```
+
+### tap_train
+
+How the taps train. A program with `tap` lines needs a `tap_train` line,
+and a `tap_train` line needs a tap. Training uses (prompt, completion)
+pairs from `wsp/pairs.py`: `gsm8k_train`, `mmlu_aux`, or `trivia_train`.
+The donors read only the prompt, and the loss covers only the
+completion. The gates train at `gate_lr`, and the rest of each branch at
+`branch_lr`. `tap_train` alone uses the round 6 MMLU settings:
+`data mmlu_aux steps 500 batch_size 8 seq_len 256 branch_lr 0.0003 gate_lr 0.03`.
+
+```wsp
+tap Qwen/Qwen2.5-7B-Instruct layer 20 at 10
+tap_train data trivia_train steps 500 batch_size 8 seq_len 256 branch_lr 3e-4 gate_lr 3e-2
+```
+
+The taps train first. When the program also has a `lora` or grafts and a
+`heal` line, heal runs second with the taps frozen, on the pairs named by
+the heal `data`. Run 6 trained a tap and a LoRA together, and the LoRA
+took over while the gate stayed near 0, so the compiler always stages
+them.
+
+```wsp
+tap Qwen/Qwen2.5-7B-Instruct layer 20 at 10
+tap_train data mmlu_aux
+lora rank 16
+heal steps 500 data mmlu_aux lr 1e-4 batch_size 8 seq_len 256
+```
+
 ### heal
 
 The heal pass that trains the glue (and the LoRA). `heal` alone uses the
 defaults: `steps 300 data gsm8k_train lr 0.0003 batch_size 8 seq_len 384`.
+In a program with taps, heal trains after the taps (see `tap_train`), and
+its `data` names a pairs set in `wsp/pairs.py`.
 
 ```wsp
 heal steps 300 data gsm8k_train lr 3e-4 batch_size 8 seq_len 384
@@ -176,11 +242,15 @@ heal steps 300 data gsm8k_train lr 3e-4 batch_size 8 seq_len 384
 | `... stitch mlp steps 500` | `"stitch": {"kind": "mlp", "steps": 500}` in that graft |
 | `... sink off`, `rms_match on`, `part_lora_rank 4` | `"sink": false`, `"rms_match": true`, `"part_lora_rank": 4` |
 | `heal steps 300` | `"heal": {"steps": 300, "data": "gsm8k_train", "lr": 0.0003, "batch_size": 8, "seq_len": 384}` |
+| `tap d layer 20 at 10` | `"taps": [{"donor": "d", "donor_layer": 20, "at": 10, "attn_dim": 256, "heads": 8, "tap_id": null}]` |
+| `tap_train steps 500` | `"tap_train": {"data": "mmlu_aux", "steps": 500, "batch_size": 8, "seq_len": 256, "branch_lr": 0.0003, "gate_lr": 0.03}` |
 
 A missing statement gives its JSON default: `"masks": null`, empty
-`task_vectors` and `grafts`, `"heal": null`, and no `lora` key.
-`format_program` writes `seed` and every `heal` field, and leaves out graft
-and tv options that hold their default.
+`task_vectors` and `grafts`, `"heal": null`, and no `lora`, `taps`, or
+`tap_train` key. So a program without taps has the same JSON (and the same
+hash) as before taps existed. `format_program` writes `seed` and every
+`heal` and `tap_train` field, and leaves out graft, tap, and tv options
+that hold their default.
 
 ## Command line
 
@@ -207,12 +277,37 @@ grafts, default 200, 0 skips the fit) and `--device`.
 4. The LoRA, if any, wraps the chosen host linears.
 5. Each graft fetches its part's tensors from the donor, fits `W_in` on the
    align texts, trains the stitch if one is set, and attaches at its layer.
-6. The heal pass trains only the glue, part LoRAs, and host LoRA. The
-   output directory gets the model, `program.json`, `program.wsp`, and
-   `compile_report.json`. `wsp.load(path)` reads it back.
+6. Taps: the compiler loads each donor once (bf16), attaches the
+   branches, and trains only the taps on the `tap_train` pairs.
+7. The heal pass trains only the glue, part LoRAs, and host LoRA. With
+   taps, the taps are frozen first, and heal trains on pairs while the
+   taps read the donors. The output directory gets the model,
+   `program.json`, `program.wsp`, and `compile_report.json`.
+   `wsp.load(path)` reads it back.
 
-## Not in the syntax yet
+A tap program also saves `taps.json` (branch shapes, layers, final gates,
+and donor ids) and `tap_weights.safetensors`, plus `grafts.json` (an empty
+list when it has no grafts, so the eval harness loads it with
+`wsp.load`). `compile_report.json` has a `taps` entry: the spec, the
+per-step losses, the final gates, the trainable parameter count, the
+seconds, and `cost` from `wsp.tap_cost` (rough FLOPs per decoded token
+and donor prefill FLOPs per prompt, for 128 donor tokens).
 
-- TODO: taps (`wsp/tap.py`, a frozen host that reads a frozen donor's own
-  states through a small branch). `wsp.program.Program` has no tap field
-  yet. When it gets one, add a `tap` statement here and in `wsp/lang.py`.
+`wsp.load` loads each donor by its id on the same device and turns on
+auto-prepare, so plain `model(input_ids)` and
+`model.generate(input_ids, attention_mask=mask)` work. On a prefill call,
+the taps decode each row's host ids back to text, run the donors on those
+texts, and match the visibility to the given ids. When the ids do not
+encode back the same, a host token reads only donor tokens that end at
+or before its own end in the decoded text. `generate` builds the context
+once from its whole `input_ids` before the first forward call, so
+chunked prefill, `use_cache=False`, and beams all read the same context,
+and the donors run once per prompt. Outside `generate`, every call with
+an empty cache is a new prompt, and calls with a cache reuse the
+context. A manual `wsp.tap.prepare` takes priority until
+`wsp.tap.clear_tap_context`. The whole first input counts as the
+prompt: to score a completion as training does, prefill the prompt
+alone and then feed the completion with the cache from that prefill.
+Host special tokens (chat template markers, BOS) add no text, so the
+donors read the prompt without them; `prepare` passes the prompt string
+as it is, so for a chat-template prompt the two differ.
