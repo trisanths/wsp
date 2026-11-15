@@ -4,6 +4,8 @@ Examples:
     python scripts/run_baseline.py --method evolve --backend stub --eval-budget 60 --seed 0
     python scripts/run_baseline.py --method random_part --backend stub --eval-budget 60 --seed 0 --cascade
     python scripts/run_baseline.py --method lora --backend stub --eval-budget 60 --compute-budget-s 36000
+    python scripts/run_baseline.py --method evolve --backend modal --catalog data/pilot_catalog.jsonl \
+        --modal-scorer harness --eval-budget 24 --seed 0
 
 Methods: evolve, random, random_part, greedy, lora, full_ft (wsp/swarm/baselines).
 The summary is printed by run_swarm.py's print_summary, so it reads the same
@@ -39,6 +41,13 @@ def parse_args(argv=None):
     parser.add_argument("--run-id", default=None)
     parser.add_argument("--budget-kind", default="local", help="local | modal")
     parser.add_argument("--outputs-dir", default="outputs")
+    parser.add_argument("--catalog", default=None,
+                        help="catalog file (default: the stub catalog on stub, else catalog.jsonl); "
+                             "Modal runs use data/pilot_catalog.jsonl")
+    parser.add_argument("--task-type", default=None,
+                        help="an entry of config task_types (default math); Modal interim runs use math_interim")
+    parser.add_argument("--modal-scorer", default=None,
+                        help="modal backend: interim (gsm8k only, default) | harness (gsm8k + if_guard, no cascade)")
     return parser.parse_args(argv)
 
 
@@ -56,6 +65,12 @@ def build_config(args):
     }
     if args.compute_budget_s is not None:
         overrides["compute_budget_s"] = args.compute_budget_s
+    if args.catalog is not None:
+        overrides["catalog_path"] = args.catalog
+    if args.task_type is not None:
+        overrides["task_type"] = args.task_type
+    if args.modal_scorer is not None:
+        overrides["modal_scorer"] = args.modal_scorer
     return make_config(overrides)
 
 
