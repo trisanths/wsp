@@ -130,7 +130,7 @@ def letter_logits(model, tokenizer, prompts, letter_ids, batch_size=16, device=N
         enc = tokenizer([prompts[i] for i in chunk], return_tensors="pt", padding=True).to(device)
         with autocast(device):
             logits = model(input_ids=enc["input_ids"], attention_mask=enc["attention_mask"],
-                           use_cache=False).logits[:, -1, :].float()
+                           use_cache=False, logits_to_keep=1).logits[:, -1, :].float()
         out[torch.tensor(chunk)] = logits[:, letter_ids].cpu()
     tokenizer.padding_side = old
     return out

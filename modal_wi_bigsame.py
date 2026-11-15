@@ -62,7 +62,7 @@ DEFAULT = {
     "mc_batch": 16, "text_batch": 6, "seq_len": 256, "w_soft": 1.0, "w_text": 1.0, "w_align": 1.0,
     "lr_glue": 3e-4, "lr_gate": 1e-4, "lr_enc2": 1e-4, "lr_lora": 2e-4, "lr_lora128": 1e-4, "lr_full": 1e-5,
     "dev": False, "full_eval": True,
-    "write": None, "graft_lora_rank": 0, "micro": 1, "kd_stage": 0, "kd_lr_mult": 3.0, "out_frac": 0.0, "logit": False,
+    "write": None, "graft_lora_rank": 0, "micro": 1, "kd_stage": 0, "kd_lr_mult": 3.0, "out_frac": 0.0, "logit": False, "align_mc": 0, "gate_bias": 0.0,
 }
 SMOKE = {"steps": 4, "align_steps": 3}
 
@@ -93,12 +93,22 @@ def presets():
     out["l_b"] = ("scrambled", 0, dict(lg))
     out["l_c"] = ("graft", 0, dict(lg, host=20, first=24))
     out["l_d"] = ("identity", 0, dict(lg))
+    out["l_e"] = ("graft", 0, dict(lg, lr_enc2=5e-4))
+    out["l_f"] = ("graft", 0, dict(lg, lr_enc2=1e-3, align_mc=600))
+    out["l_g"] = ("graft", 0, dict(lg, lr_enc2=5e-4, align_mc=600, graft_lora_rank=16))
+    out["l_h"] = ("graft", 0, dict(lg, lr_enc2=5e-4, align_mc=600, enc_depth=3))
     out["s_c_lora"] = ("lora", 0, dict(dev, graft_lora_rank=16, dec_rank=1024))
     out["smoke_graft"] = ("graft", 0, {})
+    out["d_full_hi2"] = ("fullft", 0, dict(dev, lr_full=2e-5, micro=2))
+    out["l_i"] = ("graft", 0, dict(lg, lr_enc2=5e-4, align_mc=600, graft_lora_rank=16, host=8, first=8))
+    out["l_j"] = ("graft", 0, dict(lg, lr_enc2=5e-4, align_mc=600, graft_lora_rank=16, gate_bias=2.0, lr_gate=3e-3))
+    main = dict(logit=True, first=14, last=47, host=14, micro=2, lr_gate=1e-3, lr_enc2=5e-4, align_mc=600,
+                graft_lora_rank=16, steps=3000, align_steps=600, full_eval=True, lr_lora128=5e-5, lr_full=5e-6)
+    out["main_base"] = main
     for arm in ["graft", "identity", "scrambled", "lora", "lora128", "fullft"]:
         out["smoke_" + arm] = (arm, 0, {})
         for seed in (0, 1):
-            out[f"main_{arm}_s{seed}"] = (arm, seed, {})
+            out[f"main_{arm}_s{seed}"] = (arm, seed, dict(main))
     return out
 
 
@@ -252,7 +262,6 @@ def soft(smoke=False):
 
 def evaluate(name, model, tok, data, full, smoke, extra=None):
     """Score a model (plain or grafted). Prints a SCORE line per metric with the cell name."""
-    from modal_round6 import score_mmlu
     from modal_round7 import mmlu_split
     from wsp import skills_eval, wi
 
@@ -269,11 +278,14 @@ def evaluate(name, model, tok, data, full, smoke, extra=None):
     mc = [tuple(x) for x in data["eval_mc"]]
     if smoke:
         dev, held, mc = dev[:16], held[:16], mc[:16]
-    put("mmlu_dev", score_mmlu(model, tok, dev, batch_size=16))
+    def mmlu(items):
+        return wi.score_letters(model, tok, [(p, int(a), 4) for p, a in items], ids, 16)
+
+    put("mmlu_dev", mmlu(dev))
     put("mc_eval", wi.score_letters(model, tok, [(p, g, 4) for p, g in mc], ids, 16))
     if not full:
         return row
-    put("mmlu_heldout", score_mmlu(model, tok, held, batch_size=16))
+    put("mmlu_heldout", mmlu(held))
     arc = [tuple(x) for x in data["arc"]]
     trivia = data["trivia"]
     gsm = skills_eval.gsm8k_items(300)
@@ -347,7 +359,7 @@ def make_graft(base, donor, tok, cfg, control, texts, seed):
     graft = pgraft.build(base, donor, cfg["host"], cfg["first"], cfg["last"],
                          control=None if control == "scrambled" else control,
                          enc_depth=cfg["enc_depth"], dec_rank=cfg["dec_rank"], write_layer=cfg["write"],
-                         logit=cfg["logit"], tail=tail)
+                         logit=cfg["logit"], tail=tail, gate_bias=cfg["gate_bias"])
     if control == "scrambled":
         report = scramble.scramble_module(graft.part, 1000 + seed, mode="spectrum")
         print("scrambled slice", {k: report[k] for k in ("tensors_changed", "rel_fro_error", "mean_abs_cosine", "seconds")})
@@ -391,6 +403,9 @@ def train_cell(name, arm, seed, over, smoke=False):
     if smoke:
         data["train"] = data["train"][:512]
         soft_train = soft_train[:512] if len(soft_train) >= 512 else torch.zeros(512, 4)
+    if cfg["align_mc"] > 0:
+        extra_texts = [p + " " + wi.LETTERS[g] for p, g in data["train"][-cfg["align_mc"]:]]
+        data["texts"]["align"] = data["texts"]["align"] + extra_texts
     device = torch.device("cuda")
     tok = transformers.AutoTokenizer.from_pretrained(BASE)
     base_dtype = torch.float32 if arm == "fullft" else torch.bfloat16
@@ -613,10 +628,8 @@ def train_cell(name, arm, seed, over, smoke=False):
 
     def extra(r, put, held, ids_):
         if graft is not None:
-            from modal_round6 import score_mmlu
-
             with pgraft.grafts_off(base):
-                put("mmlu_heldout_graft_off", score_mmlu(base, tok, held, batch_size=16))
+                put("mmlu_heldout_graft_off", wi.score_letters(base, tok, [(p, int(a), 4) for p, a in held], ids_, 16))
 
     row.update(evaluate(name, base, tok, data, cfg["full_eval"], smoke, extra=extra if graft is not None else None))
     total, run = skills_eval.model_params(base)
