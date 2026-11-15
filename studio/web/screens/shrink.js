@@ -206,7 +206,7 @@ export function ShrinkScreen({ id, specId }) {
       </div>
       <${AutoHeight}>${probs.map((p) => html`<div class="prob" key=${p.m}><${Icon} n="warn" size=${14} /><span>${p.m}</span></div>`)}<//>
 
-      <div class="ctl">
+      <div class="sh-ctl">
         <div class="srow">
           <div class="top"><span class="nm">${moe ? 'Experts kept per layer' : 'Target size'}</span>
             <span class="val">${moe ? html`<${SubtleNum} text=${String(draft.keep_experts ?? plan.keep_experts)} /> of ${nExp}` : html`<${SubtleNum} text=${Number(draft.target_params_b ?? plan.target_params_b).toFixed(1)} />B stored`}</span></div>

@@ -408,7 +408,8 @@ function makeSpec(prompt, files, id) {
     budget: { evals: 30, compute_min: 45, min_evals: 5, max_evals: 120 },
     limits: { max_total_params_b: maxp, max_run_params_b: Math.min(maxp, 1.8), max_heal_min: 20 }, comparators: { distill: {} },
     benchmarks: bench, available_benchmarks: available,
-    ingredients: T.ing.map(realId).filter((pid) => PART[pid]).map((pid) => ({ part_id: pid, label: PART[pid].label, donor: PART[pid].donor, kind: PART[pid].kind })),
+    // with the real library, recommend only parts named for this task
+    ingredients: T.ing.map(realId).filter((pid) => PART[pid] && (!REAL || PART[pid].task === type)).map((pid) => ({ part_id: pid, label: PART[pid].label, donor: PART[pid].donor, kind: PART[pid].kind })),
     drafted_by: 'rules', stub: true,
   };
   return DEMO ? demoLook(out, type) : out;
@@ -1194,7 +1195,7 @@ export const mockApi = {
     const best = GRAFT_PARTS.filter((p) => p.task === spec.task_type).sort((x, y) => y.power - x.power)[0] || GRAFT_PARTS[0];
     if (!program.grafts.length) {
       const p = clonep(); p.grafts.push({ id: best.id, at: best.default_at, control: null, control_seed: 0, glue_rank: 16 });
-      out.push({ title: 'Add ' + best.label + ' at L' + best.default_at + '.', detail: 'It is the best-fitting ' + spec.task_type + ' part in the catalog. Free probe shows fit ' + fitOf(best, best.default_at).toFixed(2) + '.', tag: 'likely +8 to 14', program: p });
+      out.push({ title: 'Add ' + best.label + ' at L' + best.default_at + '.', detail: 'It is the best-fitting ' + spec.task_type + ' part in the catalog. Free probe shows fit ' + fitOf(best, best.default_at).toFixed(2) + '.', tag: 'likely +2 to 5', program: p });
     }
     program.grafts.forEach((g, i) => {
       const part = PART[g.id];

@@ -86,8 +86,8 @@ export function BuilderScreen({ id, specId }) {
     const shown = filterItems(palette, pf, q);
     if (!spec) return shown;
     const rec = new Set((spec.ingredients || []).map((g) => g.part_id));
-    const word = { math: 'math', code: 'code', legal: 'legal', medicine: 'medic' }[spec.task_type];
-    const rank = (x) => (rec.has(x.id) ? 0 : word && (x.label + ' ' + (x.donor || '')).toLowerCase().includes(word) ? 1 : 2);
+    const words = { math: /math|gsm8k/, code: /code|coder/, legal: /law|legal|saul|civil|contract|court/, medicine: /medic|health|clinic|bio/ }[spec.task_type];
+    const rank = (x) => (rec.has(x.id) ? 0 : words && words.test((x.label + ' ' + (x.donor || '')).toLowerCase()) ? 1 : 2);
     const locked = (x) => (lockOf(x) ? 1 : 0);
     return shown.map((x, i) => [x, i]).sort((a, b) => (locked(a[0]) - locked(b[0])) || (rank(a[0]) - rank(b[0])) || (a[1] - b[1])).map((p) => p[0]);
   }, [palette, pf, q, spec && spec.id]);

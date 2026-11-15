@@ -173,8 +173,7 @@ export function FilterRow({ counts, f, setF, compact, noKinds }) {
     ${!noKinds && html`<div class="frow2" role="group" aria-label="Kind">
       ${chip(!f.kind, 'All', kindTotal, () => setF({ ...f, kind: null }), 'all')}
       ${KIND_CHIPS.filter(([k]) => counts.kinds[k]).map(([k, name]) => chip(f.kind === k, name, counts.kinds[k], () => setF({ ...f, kind: f.kind === k ? null : k }), k))}
-      ${nDel > 0 && html`<span class="fsep" aria-hidden="true"></span>`}
-      ${nDel > 0 && chip(f.kind === DELETION, 'Deletions', nDel, () => setF({ ...f, kind: f.kind === DELETION ? null : DELETION }), DELETION)}
+      ${nDel > 0 && chip(f.kind === DELETION, html`<span class="fdel-mark" aria-hidden="true">-</span>Deletions`, nDel, () => setF({ ...f, kind: f.kind === DELETION ? null : DELETION }), DELETION)}
     </div>`}
     <div class="frow2" role="group" aria-label="Status">
       ${STATUS_CHIPS.map((s) => chip(f.status === s, s[0].toUpperCase() + s.slice(1), counts.status[s] || 0, () => setF({ ...f, status: f.status === s ? null : s }), s))}
