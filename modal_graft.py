@@ -24,7 +24,7 @@ volume = modal.Volume.from_name("wsp-models", create_if_missing=True)
 image = (
     modal.Image.debian_slim(python_version="3.12")
     .pip_install(
-        "torch==2.7.1", "transformers==4.57.1", "accelerate", "huggingface_hub", "requests",
+        "torch==2.7.1", "transformers==5.23.0", "accelerate", "huggingface_hub", "requests",
         "safetensors", "zstandard", "numpy", "datasets",
     )
     .env({"HF_HOME": "/vol/hf"})

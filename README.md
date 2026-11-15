@@ -77,6 +77,10 @@ compiler refuses a mixed-base program.
 
 ## Run
 
+wsp needs transformers 5.23.0 (the `compile` extra and the Modal images
+pin it). Expert parts read the fused 3D expert tensors of Transformers 5
+MoE classes, and LFM2, LFM2 MoE, and LFM3 donors work.
+
 CPU tests (toy tensors only, no model downloads):
 
 ```bash

@@ -135,3 +135,16 @@ def test_low_rank_fresh_graft_keeps_host_logits(tmp_path, monkeypatch):
     model, _ = load(out, dtype=torch.float32)
     host = LlamaForCausalLM.from_pretrained(host_dir, dtype=torch.float32)
     assert torch.equal(logits(model, "the cat sat"), logits(host, "the cat sat"))
+
+
+def test_load_tokenizer_keeps_the_saved_tokenizer_for_qwen2(tmp_path):
+    # For model type qwen2, AutoTokenizer in Transformers 5 builds a
+    # Qwen2Tokenizer from the vocabulary and drops the saved word-level
+    # pipeline. load_tokenizer keeps the saved one.
+    from wsp.load import load_tokenizer
+
+    path = str(tmp_path / "donor")
+    Qwen2Config(hidden_size=48, num_attention_heads=4, num_hidden_layers=1).save_pretrained(path)
+    tiny_tokenizer().save_pretrained(path)
+    text = "the cat sat on a mat"
+    assert load_tokenizer(path)(text).input_ids == tiny_tokenizer()(text).input_ids

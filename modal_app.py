@@ -18,7 +18,7 @@ image = (
     modal.Image.debian_slim(python_version="3.12")
     .pip_install(
         "torch==2.7.1",
-        "transformers==4.57.1",
+        "transformers==5.23.0",
         "accelerate",
         "huggingface_hub",
         "safetensors",
@@ -79,7 +79,7 @@ def verify_remote():
 
     # 1. An empty program reproduces the base exactly.
     empty_dir = Program(base=base).compile("/vol/compiled/verify_empty", catalog)
-    base_model = transformers.AutoModelForCausalLM.from_pretrained(base, torch_dtype=torch.bfloat16)
+    base_model = transformers.AutoModelForCausalLM.from_pretrained(base, dtype=torch.bfloat16)
     base_state = {}
     for name, param in base_model.named_parameters():
         base_state[name] = param.detach()
@@ -147,7 +147,7 @@ def verify_remote():
     for label, path in [("base", base), ("bio", None), ("bio_or_chem", union_dir)]:
         if label == "bio":
             path = Program(base=base, masks=use(bio_id)).compile("/vol/compiled/verify_bio", catalog)
-        model = transformers.AutoModelForCausalLM.from_pretrained(path, torch_dtype=torch.bfloat16).to("cuda")
+        model = transformers.AutoModelForCausalLM.from_pretrained(path, dtype=torch.bfloat16).to("cuda")
         model.eval()
         ids = tokenizer(text, return_tensors="pt").input_ids.to("cuda")
         with torch.no_grad():

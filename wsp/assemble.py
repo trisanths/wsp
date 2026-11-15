@@ -19,6 +19,7 @@ import torch
 from wsp.extract import random_neurons
 from wsp.fetch import fetch_config, fetch_tensors
 from wsp.graft import Graft
+from wsp.load import load_tokenizer
 from wsp.parts import (
     attn_tensor_names,
     block_layer_prefixes,
@@ -31,6 +32,8 @@ from wsp.parts import (
     find_layer_modules,
     find_moe_block,
     mlp_tensor_names,
+    mlp_width,
+    set_mlp_width,
     _text_config,
 )
 
@@ -89,7 +92,7 @@ def load_donor(donor_id, device):
         donor_model = transformers.AutoModelForImageTextToText.from_pretrained(donor_id, dtype=torch.bfloat16)
     donor_model.to(device)
     donor_model.eval()
-    donor_tokenizer = transformers.AutoTokenizer.from_pretrained(donor_id)
+    donor_tokenizer = load_tokenizer(donor_id)
     return donor_model, donor_tokenizer
 
 
@@ -238,7 +241,7 @@ def build_graft(spec, catalog, host_model, host_tokenizer, align_texts=None, dev
     units = read_units(catalog, spec.component_id)
     indices = units["indices"]
     if spec.control == "random":
-        indices = random_neurons(text_config.intermediate_size, len(indices), spec.control_seed)
+        indices = random_neurons(mlp_width(config, donor_layer), len(indices), spec.control_seed)
 
     tensors = fetch_tensors(donor_id, mlp_tensor_names(config, donor_layer), cache_dir=cache_dir)
     part = build_mlp_cluster(config, donor_layer, indices, tensors)
@@ -317,7 +320,7 @@ def rebuild_part_graft(meta, graft_state, index):
     config = copy.deepcopy(fetch_config(meta["donor"]))
     n = len(meta["indices"])
     text_config = _text_config(config)
-    text_config.intermediate_size = n
+    set_mlp_width(text_config, n)
     modules = find_layer_modules(config, meta["donor_layer"])
     tensors = {}
     prefix = f"{index}.part."

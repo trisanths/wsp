@@ -13,6 +13,29 @@ import os
 import torch
 
 
+# tokenizer_config.json names these for a plain fast tokenizer.
+GENERIC_TOKENIZERS = ("TokenizersBackend", "PreTrainedTokenizerFast")
+
+
+def load_tokenizer(source):
+    """Load the tokenizer of a folder or repo the way it was saved.
+
+    For some model types (qwen2 and phi3, for example) Transformers 5 uses
+    the family's own tokenizer class even when tokenizer_config.json names
+    the generic fast tokenizer. That class builds a new pipeline from the
+    vocabulary and ignores the saved tokenizer.json. When the saved class
+    is the generic one, we load it with that class, as Transformers 4 did.
+    Otherwise AutoTokenizer picks the class.
+    """
+    import transformers
+    from transformers.models.auto.tokenization_auto import get_tokenizer_config
+
+    saved = get_tokenizer_config(source).get("tokenizer_class")
+    if saved in GENERIC_TOKENIZERS:
+        return transformers.PreTrainedTokenizerFast.from_pretrained(source)
+    return transformers.AutoTokenizer.from_pretrained(source)
+
+
 def load(path, device="cpu", dtype=torch.bfloat16):
     import transformers
     from safetensors.torch import load_file
@@ -20,7 +43,7 @@ def load(path, device="cpu", dtype=torch.bfloat16):
     from wsp.assemble import rebuild_graft
     from wsp.graft import attach_grafts
 
-    tokenizer = transformers.AutoTokenizer.from_pretrained(path)
+    tokenizer = load_tokenizer(path)
     grafts_path = os.path.join(path, "grafts.json")
     if not os.path.exists(grafts_path):
         model = transformers.AutoModelForCausalLM.from_pretrained(path, dtype=dtype)

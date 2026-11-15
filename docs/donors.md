@@ -1,7 +1,7 @@
 # Donor pool notes
 
 Checked 2026-11-14 against Hugging Face configs. Our stack pins
-transformers 4.57.1.
+transformers 5.23.0.
 
 ## Liquid AI (https://www.liquid.ai/models)
 
@@ -13,7 +13,7 @@ License).
 
 | Repo | Type | Params | Layers (conv / attn) | Hidden | Vocab | Needs transformers |
 |---|---|---|---|---|---|---|
-| LiquidAI/LFM2.5-1.2B-Thinking | lfm2 | 1.2B | 16 (10 / 6) | 2048 | 65536 | 4.57 (works now) |
+| LiquidAI/LFM2.5-1.2B-Thinking | lfm2 | 1.2B | 16 (10 / 6) | 2048 | 65536 | 4.57 |
 | LiquidAI/LFM2.5-1.2B-Instruct | lfm2 | 1.2B | 16 | 2048 | 65536 | 4.57 |
 | LiquidAI/LFM2-350M-Math | lfm2 | 350M | 16 (10 / 6) | 1024 | 65536 | 4.55+ |
 | LiquidAI/LFM2.5-350M, LFM2.5-230M | lfm2 | 350M, 230M | | | | 4.57 |
@@ -28,13 +28,15 @@ How each fits the language:
   runs its own forward pass and the host reads its states. This is the
   natural route for LFM2.5-1.2B-Thinking (reasoning) and LFM2-350M-Math
   (a 350M math specialist, cheap to run beside a host).
-- **In-stream grafts:** `mlp_cluster` and `attn_heads` from LFM2 attention
-  layers should work. `block` parts that include conv layers need the conv
-  state cache (`Lfm2HybridConvCache`), which our part cache does not handle
-  yet; uncached blocks may work but are untested.
+- **In-stream grafts:** `mlp_cluster` works on any LFM2 or LFM3 layer
+  (conv or attention), and `attn_heads` on attention layers. `block` parts
+  can include conv layers: the part cache keeps a conv state for them, so
+  cached generate, beam search, and chunked prefill equal the uncached
+  path. Tested on tiny random lfm2 and lfm3 configs only.
 - **MoE experts:** LFM2.5-8B-A1B and 24B-A2B have 32 small experts per layer,
-  good `expert` parts, but they need transformers 5.x.
+  good `expert` parts. Tested on a tiny random lfm2_moe config.
 
-Open item: LFM2.5 MoE, LFM3, and likely the newest dense families (Qwen3.8,
-Gemma 4) need transformers 5.x. Porting wsp from 4.57 to 5.x is a separate
-task (meta builds, cache classes, and attention interfaces changed).
+Transformers 5.23.0 has the lfm2_moe, lfm3, and gemma4 model types. It
+has no qwen3_8 type; its newest Qwen types are qwen3_5, qwen3_5_moe,
+qwen3_next, and qwen4_exp. Of the new families only lfm2, lfm2_moe, and
+lfm3 have wsp tests so far.
