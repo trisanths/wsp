@@ -386,3 +386,35 @@ def test_logit_graft_generate_with_cache_matches_no_cache():
         seq = torch.cat([seq, nxt], dim=1)
         m = torch.cat([m, torch.ones_like(nxt)], dim=1)
     assert torch.equal(cached, seq)
+
+
+def test_graft_reads_a_mix_of_earlier_host_layers():
+    base = tiny_host()
+    for p in base.parameters():
+        p.requires_grad_(False)
+    donor = tiny_donor()
+    tok = tiny_tokenizer()
+    graft = pgraft.build(base, donor, host_layer=2, first=2, last=4, enc_depth=2, read_layers=[0, 1])
+    assert graft.enc.host_layers == [0, 1]
+    pgraft.attach(base, [graft])
+    pgraft.set_sink(graft, donor, tok, 2, TEXTS)
+    plain = tiny_host()
+    assert torch.allclose(logits(base, tok, TEXTS[:4]), logits(plain, tok, TEXTS[:4]), atol=1e-6)
+    cfg = {"align_steps": 30, "geo_steps": 5, "align_lr": 3e-3, "seq_len": 32, "donor_seq_len": 32}
+    before = pgraft.alignment_report(base, tok, donor, tok, graft, TEXTS[16:], cfg)
+    pgraft.align(base, tok, donor, tok, graft, TEXTS[:16], cfg, log_every=0)
+    after = pgraft.alignment_report(base, tok, donor, tok, graft, TEXTS[16:], cfg)
+    assert after["kl"] < before["kl"]
+    assert graft.enc.mix.grad is not None
+    pgraft.calibrate_scale(base, tok, graft, TEXTS)
+    vmap = pgraft.vocab_map(tok, tok)
+    pgraft.train(base, [{"params": pgraft.trainable([graft]), "lr": 1e-3}], 4,
+                 lambda s: pgraft.kd_loss(base, tok, donor, tok, TEXTS[:4], vmap, cfg), log_every=0)
+    assert graft.dec.up.weight.abs().sum() > 0
+    # Reading a later layer than the graft writes at is refused.
+    other = pgraft.build(tiny_host(), donor, host_layer=1, first=2, last=4, read_layers=[2])
+    with pytest.raises(ValueError):
+        pgraft.attach(tiny_host(), [other])
+    # Reading only the graft's own layer is the plain encoder.
+    same = pgraft.build(base, donor, host_layer=1, first=2, last=4, read_layers=[1])
+    assert getattr(same.enc, "host_layers", None) is None

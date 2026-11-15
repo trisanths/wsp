@@ -324,13 +324,278 @@ which is built from MedMCQA and MedQA questions. It is now in
 longer train on the benchmark they report. The h1 and h2 medicine rows
 used it and are not evidence.
 
-### h3: confirm and climb (running)
+### h3: confirm and climb
 
-Seeds 1 and 2 of the 4..20 block against seeded identity and LoRA;
-mutations (span 2..20 and 4..24, the stage-1 alignment loss kept as a
-stage-2 regularizer, host 5, LoRA for 2000 steps); and the same span on
-medicine (leak-free) and Qwen2.5-Math-7B-Instruct. Rows are saved on the
-Modal volume per cell, so a local disconnect no longer loses them.
+New seeds for the h2 winner, against controls run on the same seeds.
+Selection is on MMLU dev, and held-out is reported to confirm. Base
+Llama-3.2-1B-Instruct scores 48.0 on dev and 44.6 on held-out.
+
+**Knowledge** (Qwen2.5-7B-Instruct, block 4..20 at host layer 7,
+answer-letter training on CommonsenseQA, OpenBookQA, QASC, and LogiQA2.0):
+
+| cell | MMLU dev | MMLU held-out | in-dist. MC | law drift KL | survival |
+|---|---|---|---|---|---|
+| graft, seed 1 | 53.8 | 52.8 | 70.0 | 0.009 | 0.88 |
+| graft, seed 2 | 52.6 | **54.4** | 69.0 | 0.011 | 0.87 |
+| LoRA, seed 1 | 46.8 | 46.6 | 64.5 | 0.035 | |
+| LoRA, seed 2 | 46.6 | 46.4 | 65.2 | 0.038 | |
+| LoRA, 2000 steps | 44.0 | 46.0 | 65.2 | 0.048 | |
+| identity, seed 1 | 44.9 | 46.2 | 57.5 | 0.007 | |
+| identity, seed 2 | 47.1 | 46.2 | 59.0 | 0.007 | |
+| span 2..20 | 51.8 | 52.6 | 70.0 | 0.009 | 0.88 |
+| span 4..24 | 52.3 | 51.1 | 67.2 | 0.009 | 0.88 |
+| + alignment regularizer | 53.7 | 52.9 | 69.0 | 0.009 | 0.89 |
+| host layer 5 | 52.1 | 53.8 | 67.0 | 0.010 | 0.88 |
+
+The gain holds up on new seeds. The graft scores 8 to 10 points above the
+base on held-out MMLU and 6 to 8 points above a LoRA with the same
+trainable budget. It also drifts about a quarter as much on law text. On
+dev, LoRA and identity land below the untrained base, so answer-letter
+training alone does not lift MMLU; the donor's layers do. The other
+mutations sit within about a point of the winner.
+
+**Medicine** (Apollo2-7B, block 4..20; healdata without the MedMCQA leak):
+
+| cell | MedMCQA val (1000) | MMLU dev | MMLU held-out |
+|---|---|---|---|
+| graft, MC objective | **46.2** | 53.0 | 51.6 |
+| graft, distill then MC | 44.3 | 52.6 | 50.9 |
+| LoRA | 41.4 | 46.7 | 47.3 |
+| identity | 43.0 | 47.5 | 46.1 |
+| base | 41.4 | 48.0 | 44.6 |
+
+**Caveat on size.** The grafted network holds 16 frozen donor layers
+(about 3.5B parameters) beside the 1B host. The matched LoRA matches the
+trainable budget, not the total size. h6 adds Llama-3.2-3B-Instruct as a
+host, untrained, with LoRA, and grafted, to compare at a similar total size.
+
+### h4: fine-tuning across domains, and where the graft reads and writes
+
+Every cell now scores the same cross-domain panel:
+
+- The four in-distribution MC evals (400 each): general (CommonsenseQA,
+  OpenBookQA, QASC, LogiQA2.0), science (SciQ), math (AQuA-RAT), and
+  medicine (HEAD-QA).
+- MMLU by subject group. These items come from MMLU test after the dev and
+  held-out items, so they overlap neither.
+- MedMCQA val.
+
+Training sets come from train splits only, and `healdata.check_sources`
+passes them. One seed per cell. Base dev is 48.0.
+
+**Train on one domain, score all** (Qwen2.5-7B block 4..20 at host 7,
+budget-matched LoRA and identity):
+
+| train on | arm | MMLU dev | held-out | MMLU-med | MMLU-math | HEAD-QA | AQuA | MedMCQA |
+|---|---|---|---|---|---|---|---|---|
+| general | graft | **52.2** | **53.1** | **61.6** | 37.6 | **54.5** | 29.8 | **45.8** |
+| general | LoRA | 48.2 | 47.1 | 49.8 | 34.0 | 45.8 | 31.5 | 42.8 |
+| science | graft | **52.3** | **50.0** | **57.8** | 32.4 | 51.0 | 27.5 | **44.0** |
+| science | LoRA | 47.6 | 46.6 | 49.4 | 32.6 | 48.2 | 30.8 | 39.5 |
+| medicine | graft | 53.3 | **53.9** | **59.8** | 38.4 | 52.8 | 28.5 | 43.4 |
+| medicine | Apollo2 graft | **53.8** | 51.2 | 55.4 | 38.0 | **54.8** | 28.7 | **45.1** |
+| medicine | LoRA | 51.3 | 48.8 | 51.6 | 34.6 | 51.7 | 29.0 | 39.7 |
+| math | graft | 47.8 | 45.6 | 52.6 | 34.2 | 47.5 | 37.2 | 42.2 |
+| math | Math-7B graft | 47.8 | 46.9 | 49.8 | **45.2** | 46.5 | **52.0** | 37.9 |
+| math | LoRA | 42.6 | 43.5 | 47.0 | 34.6 | 42.8 | 34.5 | 36.5 |
+| all four | graft | **53.6** | **53.9** | **62.4** | 36.8 | **55.8** | 35.8 | **44.9** |
+| all four | LoRA | 51.0 | 48.6 | 52.2 | 32.6 | 51.0 | 41.5 | 41.5 |
+
+- The general-knowledge graft beats LoRA on MMLU whatever it trains on,
+  and the gain carries across domains. Trained only on commonsense and
+  logic items, it lifts MMLU medical subjects by 12 points over LoRA and
+  HEAD-QA by 9.
+- Specialist donors win in their own domain. Trained on AQuA-RAT, the
+  Math-7B graft scores 52.0 on AQuA (LoRA 34.5) and 45.2 on MMLU math
+  (LoRA 34.6). It does not help general MMLU.
+- Math answer-letter training lowers MMLU for every arm. With no
+  rationale, AQuA letters are mostly noise for a 1B model.
+
+**Projection layers** (general training; the encoder reads a learned
+softmax mix of RMS-normed host layers, and the graft writes after its own
+layer):
+
+| read layers | write after | MMLU dev | held-out | MMLU-med | MMLU-math | MedMCQA | gate |
+|---|---|---|---|---|---|---|---|
+| 7 | 7 | 52.2 | 53.1 | 61.6 | 37.6 | 45.8 | 0.14 |
+| 3 | 7 | 51.8 | 52.4 | 57.0 | 40.0 | 45.0 | 0.13 |
+| 3, 5, 7 | 7 | 54.2 | 53.6 | 59.0 | 41.8 | 45.5 | 0.14 |
+| 1..7 | 7 | 55.5 | **54.9** | 59.6 | 42.8 | **46.6** | 0.14 |
+| 5 | 9 | 53.6 | 54.2 | 60.6 | 44.0 | 46.4 | 0.21 |
+| 7 | 11 | 52.9 | 52.1 | 60.4 | 34.8 | 45.8 | 0.22 |
+| 3, 7, 11 | 11 | **57.0** | 54.8 | 60.8 | **44.0** | 46.4 | 0.25 |
+
+Reading several host layers beats reading one: +3 to +5 points on dev. The
+best two configurations are re-tested on new seeds in h8.
+
+### h6: a size control (Llama-3.2-3B-Instruct host)
+
+The grafted 1B network carries about 3.5B frozen donor parameters, so a
+fair question is whether a bigger plain model does better. One seed:
+
+| cell | MMLU dev | held-out | MMLU-med | MedMCQA |
+|---|---|---|---|---|
+| 1B base | 48.0 | 44.6 | 52.6 | 41.4 |
+| 3B base | 59.6 | 57.4 | 69.4 | 57.0 |
+| 3B + LoRA | 62.0 | **60.9** | 68.8 | 55.6 |
+| 3B + identity | 59.1 | 58.1 | 70.4 | 56.2 |
+| 3B + Qwen7B graft at host 12 | 59.6 | 59.1 | 70.4 | 54.7 |
+| 3B + Qwen7B graft at host 8 | **62.8** | 60.7 | 68.6 | 54.8 |
+
+On the 3B host, the 7B graft ties LoRA. h9 tries multi-layer reads,
+graft plus LoRA, and the 14B donor on this host.
+
+### h7: a stronger donor (Qwen2.5-14B-Instruct, 48 layers)
+
+| cell | MMLU dev | held-out | MMLU-med | MMLU-math | humanities | MedMCQA |
+|---|---|---|---|---|---|---|
+| block 7..34, seed 0 | 57.8 | **58.1** | 65.4 | 45.2 | 69.4 | 44.8 |
+| block 7..34, seed 1 | 57.6 | 57.0 | 63.6 | 47.6 | 67.0 | 46.6 |
+| block 7..34, all domains | **59.5** | 56.4 | 61.4 | 45.6 | 69.8 | **46.7** |
+| block 10..40 | 56.7 | 54.8 | 62.0 | 46.2 | 67.6 | 44.6 |
+| block 4..24 | 48.0 | 48.4 | 52.4 | 34.6 | 56.6 | 39.7 |
+| LoRA (14B budget) | 45.3 | 45.1 | 48.4 | 31.6 | 54.8 | 40.0 |
+| identity | 45.7 | 46.1 | 51.0 | 29.8 | 54.0 | 42.7 |
+
+The 1B host with a 14B block scores 58 on MMLU held-out, 13 points above
+the base and the matched LoRA. That is above the untrained 3B model
+(57.4) but below 3B + LoRA (60.9). The block has to reach the donor's
+deeper layers: 4..24 barely helps.
+
+### h8: multi-layer reads on new seeds
+
+| cell | MMLU dev | held-out |
+|---|---|---|
+| read 1..7, write 7, seed 1 | 53.6 | 53.8 |
+| read 1..7, write 7, seed 2 | 55.8 | 56.6 |
+| read 3,7,11, write 11, seed 1 | 55.1 | 56.2 |
+| read 3,7,11, write 11, seed 2 | 48.2 | 45.4 (collapsed) |
+| read 1..11, write 11 | 55.7 | **57.1** |
+| read 0..15, write 15 | 56.1 | 55.5 |
+| read 1,3,5,7,9, write 9 | 55.4 | 55.0 |
+| read 3,7,11, all domains | 54.6 | 53.8 |
+| LoRA, 2x budget, all domains | 45.4 | 47.9 |
+
+Against the single-read graft (52.8 and 54.4 on these seeds), dense
+reads add about 1 to 3 points. The sparse 3,7,11 read is unstable: one
+seed fell back to the base. Dense reads (1..7, 1..11) did not collapse.
+
+### h5: two donors in one network
+
+Trained on all four domains, Llama-1B host, one seed:
+
+| cell | MMLU dev | held-out | MMLU-med | MMLU-math | MedMCQA |
+|---|---|---|---|---|---|
+| Qwen7B (host 7) + Apollo2 (host 10) | **56.2** | **55.4** | **63.6** | 38.0 | 45.6 |
+| Qwen7B (host 7) + Math-7B (host 10) | 54.5 | 54.5 | 62.2 | **41.2** | **46.8** |
+| Qwen7B blocks 4..20 and 12..24 | 54.1 | 53.4 | 61.2 | 37.0 | 46.0 |
+| Qwen7B alone (h4) | 53.6 | 53.9 | 62.4 | 36.8 | 44.9 |
+| LoRA, 2x budget | 47.3 | 46.9 | 47.8 | 34.0 | 39.3 |
+| LoRA, 3x budget | 43.5 | 43.0 | 45.2 | 30.6 | 35.1 |
+
+A second, specialist donor adds 1 to 1.5 points on MMLU and moves its own
+domain. A second block of the same donor adds nothing. More LoRA budget
+makes the 1B host worse. The three-donor cell ran out of memory at MC
+batch 8 and is re-run at batch 4 in h11.
+
+### h9: the 3B host again
+
+| cell (Llama-3.2-3B host) | MMLU dev | held-out | MMLU-med | science | MedMCQA |
+|---|---|---|---|---|---|
+| base | 59.6 | 57.4 | 69.4 | 48.8 | 57.0 |
+| LoRA (7B budget), seeds 0 / 1 | 62.0 / 61.8 | 60.9 / 60.7 | 68.8 / 68.8 | 50.0 / 49.6 | 55.6 / 56.6 |
+| LoRA (14B budget) | 61.7 | 61.0 | 67.6 | 49.4 | 54.9 |
+| LoRA, 2x 7B budget | 59.6 | 59.9 | 66.2 | 51.0 | 54.2 |
+| Qwen7B at host 8, seeds 0 / 1 | 62.8 / 61.9 | 60.7 / 62.9 | 68.6 / 70.8 | 49.2 / 50.2 | 54.8 / 55.9 |
+| Qwen7B at host 8, + LoRA | 61.5 | 60.1 | 72.0 | 51.6 | 53.3 |
+| Qwen7B, read 1..8, + LoRA | 63.9 | 61.0 | 68.4 | 50.0 | 56.0 |
+| Qwen7B, read 2,5,8 | 62.2 | 62.0 | 68.8 | 51.4 | 53.1 |
+| **Qwen14B 7..34 at host 8** | **64.5** | **63.4** | **74.4** | **58.0** | **57.7** |
+
+On the 3B host, the 7B graft is about even with LoRA. The 14B graft
+beats every LoRA by 2.4 points or more on held-out, 5 to 7 on MMLU
+medical, and 8 on science. Adding a LoRA to the graft does not help, and
+neither do multi-layer reads here. h11 runs a second seed of the 14B
+cell.
+
+### h10: the 14B donor with multi-layer reads (Llama-1B host)
+
+| cell | MMLU dev | held-out | MMLU-med | MMLU-math | humanities |
+|---|---|---|---|---|---|
+| read 1..7, write 7, seed 0 | 61.1 | 58.9 | 64.2 | 49.6 | 69.2 |
+| read 1..7, write 7, seed 1 | **61.4** | **61.0** | **66.6** | **53.0** | 69.0 |
+| read 1..11, write 11, seed 0 | 60.9 | 59.8 | 62.4 | 50.4 | 70.0 |
+| read 1..11, write 11, seed 1 | 60.1 | 56.5 | 59.6 | 46.8 | 65.4 |
+| single read, host 5 | 61.7 | 57.9 | 63.8 | 47.0 | 70.8 |
+| block 4..34 | 58.1 | 56.9 | 62.2 | 46.4 | 66.2 |
+| block 7..40 | 57.1 | 57.5 | 63.4 | 44.0 | 69.6 |
+| decoder rank 512 | 56.4 | 55.5 | 64.6 | 45.0 | 66.0 |
+| single read at 7 (h7, 2 seeds) | 57.8 / 57.6 | 58.1 / 57.0 | | | |
+| LoRA, 2x 14B budget, all domains | 43.7 | 43.5 | 45.2 | 27.8 | 52.2 |
+| Qwen7B (read 1..7) + Math-7B (read 5,9,13 at 13), all domains | 58.1 | 56.0 | 62.4 | 44.2 | 67.0 |
+
+Llama-3.2-1B with a 14B block that reads host layers 1..7 averages 60.0
+on MMLU held-out over two seeds. That is 15 points above the base and the
+matched LoRA, above the untrained 3B model (57.4), and level with 3B +
+LoRA (60.9). The 14B + Apollo2 composition ran out of memory and is
+re-run at batch 4 in h13, along with a third seed.
+
+### h11: second seed on the 3B host, and Phi-4 as a donor
+
+| cell (Llama-3.2-3B host, Qwen14B 7..34) | MMLU dev | held-out | MMLU-med | MMLU-math | humanities |
+|---|---|---|---|---|---|
+| host 8, seed 0 (h9) | 64.5 | 63.4 | 74.4 | 47.4 | 73.0 |
+| host 8, seed 1 | 64.8 | **66.0** | **74.6** | **52.4** | **76.6** |
+| host 10 | 65.4 | 63.4 | 72.4 | 49.6 | 74.0 |
+| host 8, all domains | **65.6** | 63.6 | 72.6 | 45.4 | 74.8 |
+| block 7..40 | 64.3 | 63.7 | 72.2 | 51.4 | 74.2 |
+| LoRA (same budget), seeds 0 / 1 | 61.7 / 61.1 | 61.0 / 60.7 | 67.6 / 68.6 | 46.2 / 46.2 | 73.0 / 72.8 |
+| base | 59.6 | 57.4 | 69.4 | 37.4 | 70.6 |
+
+On the 3B host, the 14B graft averages 64.7 on held-out over two seeds,
+against 60.9 for LoRA, a gain of 3.8 points. An 8B size control (h14)
+is running.
+
+**Phi-4 does not transfer.** Grafted into Llama-1B (block 6..28 or 4..32,
+with or without dense reads), Phi-4 scores 46.9 to 48.6 on held-out,
+against 44.6 for the base. That is despite 0.90 functional survival and
+100,256 shared tokens. The functional alignment holds, but MC training
+does not draw knowledge out of this donor. It is open why the Qwen
+donors work and Phi-4 does not.
+
+The three-donor cell ran out of memory again at batch 4 and is dropped.
+
+### h12: Qwen2.5-32B-Instruct as the donor (H200)
+
+| cell | MMLU dev | held-out | MMLU-med | MMLU-math | science | MedMCQA |
+|---|---|---|---|---|---|---|
+| 1B host, block 9..45 | 61.3 | 60.4 | 63.6 | 50.6 | 49.8 | 46.8 |
+| 1B host, block 9..54 | **63.7** | **62.6** | 67.2 | 49.8 | 54.6 | 47.3 |
+| 3B host (layer 8), block 9..45 | **67.4** | **66.3** | 72.6 | 54.8 | 59.6 | 56.1 |
+| untrained Llama-3.1-8B-Instruct (h14) | 67.0 | 65.5 | 75.4 | 42.6 | 59.4 | 60.5 |
+
+With a 32B block, the 1B host reaches 62.6 on MMLU held-out (+18 over
+its base). The 3B host reaches 66.3, above an untrained 8B Llama. h15
+re-seeds these and runs the 8B host with LoRA and with grafts.
+
+### h13: pushing the 1B + 14B winner
+
+All cells read host layers 1..7 into the 14B block 7..34:
+
+| cell | MMLU dev | held-out | MMLU-med | MMLU-math | MedMCQA |
+|---|---|---|---|---|---|
+| seed 2 | 60.3 | 59.6 | 64.0 | 51.4 | 46.1 |
+| 1200 alignment steps | **62.7** | **61.0** | 66.0 | 51.8 | **50.3** |
+| 2000 task steps | 59.6 | 59.0 | 66.4 | 53.0 | 48.0 |
+| encoder depth 3 | 59.2 | 58.1 | 64.4 | 48.6 | 46.8 |
+| read 0..7 | 60.3 | 59.0 | 65.2 | 52.0 | 44.5 |
+| read 1..5, write 5 | 61.5 | 59.9 | 65.2 | 48.8 | 46.9 |
+| all domains | 63.3 | 59.4 | 65.0 | 50.8 | 47.2 |
+| LoRA, seed 2 | 47.0 | 46.0 | 50.4 | 30.6 | 38.8 |
+
+Over three seeds the winner averages 59.8 on held-out (58.9, 61.0, 59.6).
+LoRA averages 45.6 over two seeds. More alignment is the one mutation
+that helps on dev: 62.7, with MedMCQA up to 50.3.
 
 ## Also fixed
 
@@ -342,18 +607,44 @@ answer options, and 2 rows are not valid JSON. Those rows are now skipped.
 
 ## Summary so far
 
-- **Works:** functional alignment across tokenizers. A frozen slice of a
-  foreign 7B model keeps about 90% of its function inside a 1B model, the
-  base reads it, and per-token gates learn when to use it. Nothing earlier
-  in the repo got this far.
-- **Does not work yet:** turning that into knowledge the base cannot get
-  from fine-tuning. Under LM loss on dataset text, a LoRA at the same budget
-  matches or beats every graft arm. Graft + LoRA ties LoRA alone, and more
-  LoRA beats both. No graft arm here beats the base on MMLU.
-- **Now works, with a caveat:** with an answer-letter signal, the graft
-  beats the base (44.6) and the matched LoRA on MMLU held-out: 48.3 to 49.2
-  in round 23 (2 seeds), 50.3 for the wider 4..20 block in h2 (1 seed). The
-  selection used held-out, so h3 confirms with new seeds.
-- **Does not work:** library parts lifted out of their model. Fed a
-  translated input, they do not align. Fed native inputs from the donor's
-  own trunk, they are no better than random units.
+**Headline (MMLU held-out, 2000 items).** Configurations were chosen on
+MMLU dev; held-out confirms. Training data is answer letters from
+CommonsenseQA, OpenBookQA, QASC, and LogiQA2.0 train splits, plus KL to
+the frozen host. MMLU is never trained on.
+
+| host | arm | held-out | seeds |
+|---|---|---|---|
+| Llama-3.2-1B | base | 44.6 | |
+| Llama-3.2-1B | LoRA (matched trainable budget) | 45.1 to 47.1 | 4 |
+| Llama-3.2-1B | Qwen2.5-7B block 4..20 | 52.8 to 54.4 | 3 |
+| Llama-3.2-1B | Qwen2.5-14B block 7..34, reads host 1..7 | 58.9 / 61.0 / 59.6 | 3 |
+| Llama-3.2-1B | same, 1200 alignment steps | 61.0 | 1 |
+| Llama-3.2-1B | Qwen2.5-32B block 9..54 | 62.6 | 1 (h15 re-seeds) |
+| Llama-3.2-3B | base | 57.4 | |
+| Llama-3.2-3B | LoRA (matched) | 60.7 to 61.0 | 3 |
+| Llama-3.2-3B | Qwen2.5-14B block 7..34 | 63.4 / 66.0 | 2 |
+| Llama-3.2-3B | Qwen2.5-32B block 9..45 | 66.3 | 1 |
+| Llama-3.1-8B | base / LoRA | 65.5 / 66.8 | 1 |
+
+- **Works:** grafting a frozen slice of a larger model from another
+  family, trained on answer letters, adds 15 to 18 MMLU points to Llama-1B
+  and 6 to 9 to Llama-3B. A budget-matched LoRA adds 0 to 3. The gain
+  holds across subjects the training never covers: MMLU medical, math,
+  science, CS, and humanities, plus MedMCQA. It also drifts less from the
+  base on law text (KL 0.01 vs. 0.03 to 0.06 for LoRA).
+- **Specialists:** Apollo2 lifts MedMCQA (41.4 to 46.2, LoRA 41.4), and
+  Math-7B lifts AQuA (34.5 to 52.0 over LoRA). A second specialist in the
+  same network adds 1 to 1.5 MMLU points.
+- **Caveats:**
+  - The grafted network is bigger: about 3.5B (7B donor) to 14B (32B
+    donor) frozen parameters run beside the host. At similar total size,
+    the 1B + 14B graft (about 60) only matches 3B + LoRA (60.9).
+  - The grafts beat LoRA at the same *trainable* budget, not at the same
+    *total* size.
+  - Phi-4 does not transfer.
+  - Sparse multi-layer reads can collapse on some seeds.
+- **Earlier negatives:**
+  - Under LM loss on dataset text (round 22), LoRA matched every graft.
+  - Library parts lifted out of their model do not align. Fed native
+    inputs from the donor's own trunk, they are no better than random
+    units.
