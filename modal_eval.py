@@ -170,6 +170,26 @@ def part_gate_remote(donor, part_id, seeds, heal_steps):
     return summary
 
 
+@app.function(image=image, volumes={"/vol": volume}, gpu="L40S", memory=65536, timeout=5 * 3600)
+def final_arm_remote(donor, part_id, arm, seed):
+    from wsp_eval import final
+    root = final.arm_root(donor, arm, seed)
+    os.makedirs(root, exist_ok=True)
+    os.environ["WSP_ROOT"] = root
+    output = final.run_arm(donor, part_id, arm, seed)
+    volume.commit()
+    return output
+
+
+@app.function(image=image, volumes={"/vol": volume}, cpu=2, memory=8192, timeout=600)
+def final_merge_remote(donor):
+    from wsp_eval import final
+    volume.reload()
+    added = final.merge_ledgers(donor)
+    volume.commit()
+    return added
+
+
 @app.function(image=image, volumes={"/vol": volume}, cpu=8, memory=32768, timeout=3600)
 def mask_signatures_remote():
     from wsp_eval.signatures import structural_signatures
@@ -316,3 +336,26 @@ def part_gate(donor: str, part_id: str = "", seeds: str = "0 1 2", heal_steps: i
     for row in summary["rows"]:
         print(row["arm"], "seed", row["seed"], "score", row["score"])
     _save("part_gate_" + donor.replace("/", "__") + ".json", summary)
+
+
+@app.local_entrypoint()
+def final(donor: str = "microsoft/phi-4", part_id: str = "mlp_cluster_phi4_l16_gsm8k", seeds: str = "0 1 2"):
+    """End-of-run HELD-OUT table: graft, random-part control, matched LoRA, 3 seeds. Each model runs once."""
+    from wsp_eval import final as final_module
+    jobs = []
+    for value in seeds.split():
+        for arm in final_module.ARMS:
+            jobs.append((donor, part_id, arm, int(value)))
+    outputs = []
+    for output in final_arm_remote.starmap(jobs, return_exceptions=True):
+        if isinstance(output, Exception):
+            print("arm failed:", repr(output)[:500])
+            continue
+        print(output["row"])
+        outputs.append(output)
+    print("ledger entries merged:", final_merge_remote.remote(donor))
+    with open(os.path.join("results", "base_scores_heldout.json")) as f:
+        host = json.load(f)["heldout"]
+    summary = final_module.summarize(donor, part_id, outputs, host)
+    print(summary["verdict_text"])
+    _save("final_heldout_" + donor.replace("/", "__") + ".json", summary)
