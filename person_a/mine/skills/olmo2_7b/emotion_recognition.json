@@ -1,0 +1,1300 @@
+{
+ "name": "emotion_recognition",
+ "description": "Infer basic emotions from short situations, versus copying an explicit emotion reference.",
+ "hash": "c4e355de562dd2cd",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\ndata={'happy':['received a wonderful surprise gift','won a dream vacation','was reunited with a beloved friend','heard excellent news','achieved a lifelong dream','was praised warmly for hard work','celebrated a joyful wedding','received an exciting promotion'],'sad':['lost a beloved pet','was abandoned by a close friend','heard heartbreaking news','missed a loved one who moved away','had to say a painful goodbye','felt lonely and cried','was devastated by a breakup','mourned a family member'],'angry':['was insulted unfairly','was cheated out of money','had a treasured possession deliberately broken','was furious about being lied to','was treated disrespectfully','discovered a friend had betrayed a secret','was enraged by unfair treatment','had work stolen by a dishonest colleague'],'afraid':['heard footsteps while alone in a dark alley','saw a dangerous snake nearby','was threatened by a violent stranger','was trapped in a burning building','trembled while hiding from an attacker','was terrified during a violent storm','faced an aggressive barking dog','feared an immediate threat to life']}\nitems=[];control=[]\nfor i in range(128):\n label=list(data)[i%4]; event=data[label][(i//4)%8]; name=random.choice(['Alex','Sam','Jordan','Taylor']); ref=random.choice(list(data)); text=f'{name} {event}. Reference emotion: {ref}. '\n items.append({'prompt':text+f'Is {name} happy, sad, angry, or afraid? Answer with one word:','answer':' '+label})\n control.append({'prompt':text+'Copy the reference emotion. Answer with one word:','answer':' '+ref})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Taylor achieved a lifelong dream. Reference emotion: happy. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was threatened by a violent stranger. Reference emotion: sad. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Sam heard excellent news. Reference emotion: angry. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was reunited with a beloved friend. Reference emotion: angry. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan mourned a family member. Reference emotion: sad. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was furious about being lied to. Reference emotion: happy. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex discovered a friend had betrayed a secret. Reference emotion: angry. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was terrified during a violent storm. Reference emotion: afraid. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor received an exciting promotion. Reference emotion: angry. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor had work stolen by a dishonest colleague. Reference emotion: happy. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor had a treasured possession deliberately broken. Reference emotion: happy. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Sam heard excellent news. Reference emotion: happy. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan heard footsteps while alone in a dark alley. Reference emotion: afraid. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Alex had to say a painful goodbye. Reference emotion: sad. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan trembled while hiding from an attacker. Reference emotion: angry. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor was trapped in a burning building. Reference emotion: happy. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor achieved a lifelong dream. Reference emotion: happy. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan feared an immediate threat to life. Reference emotion: sad. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was threatened by a violent stranger. Reference emotion: happy. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was abandoned by a close friend. Reference emotion: happy. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Alex was furious about being lied to. Reference emotion: afraid. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex discovered a friend had betrayed a secret. Reference emotion: happy. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan won a dream vacation. Reference emotion: sad. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Sam had work stolen by a dishonest colleague. Reference emotion: angry. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was devastated by a breakup. Reference emotion: happy. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor was insulted unfairly. Reference emotion: afraid. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan heard excellent news. Reference emotion: angry. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor heard footsteps while alone in a dark alley. Reference emotion: sad. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was furious about being lied to. Reference emotion: angry. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex was praised warmly for hard work. Reference emotion: sad. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor was threatened by a violent stranger. Reference emotion: afraid. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan felt lonely and cried. Reference emotion: afraid. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was devastated by a breakup. Reference emotion: sad. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Alex achieved a lifelong dream. Reference emotion: angry. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor discovered a friend had betrayed a secret. Reference emotion: happy. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex was trapped in a burning building. Reference emotion: happy. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was devastated by a breakup. Reference emotion: happy. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was reunited with a beloved friend. Reference emotion: happy. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor was enraged by unfair treatment. Reference emotion: sad. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor faced an aggressive barking dog. Reference emotion: happy. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was treated disrespectfully. Reference emotion: happy. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was abandoned by a close friend. Reference emotion: sad. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was trapped in a burning building. Reference emotion: angry. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan trembled while hiding from an attacker. Reference emotion: happy. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor missed a loved one who moved away. Reference emotion: afraid. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was praised warmly for hard work. Reference emotion: sad. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Sam felt lonely and cried. Reference emotion: afraid. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan celebrated a joyful wedding. Reference emotion: happy. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan heard footsteps while alone in a dark alley. Reference emotion: afraid. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan celebrated a joyful wedding. Reference emotion: sad. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Alex discovered a friend had betrayed a secret. Reference emotion: sad. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Sam heard footsteps while alone in a dark alley. Reference emotion: happy. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Alex trembled while hiding from an attacker. Reference emotion: sad. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was cheated out of money. Reference emotion: happy. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor was abandoned by a close friend. Reference emotion: sad. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor saw a dangerous snake nearby. Reference emotion: afraid. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan achieved a lifelong dream. Reference emotion: happy. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was praised warmly for hard work. Reference emotion: sad. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Alex faced an aggressive barking dog. Reference emotion: happy. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Sam faced an aggressive barking dog. Reference emotion: sad. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor was devastated by a breakup. Reference emotion: afraid. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Alex was insulted unfairly. Reference emotion: sad. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex heard heartbreaking news. Reference emotion: afraid. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan feared an immediate threat to life. Reference emotion: angry. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Jordan had work stolen by a dishonest colleague. Reference emotion: sad. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex received an exciting promotion. Reference emotion: afraid. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Alex celebrated a joyful wedding. Reference emotion: angry. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was reunited with a beloved friend. Reference emotion: happy. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Alex heard heartbreaking news. Reference emotion: angry. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Sam feared an immediate threat to life. Reference emotion: sad. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor received an exciting promotion. Reference emotion: afraid. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan feared an immediate threat to life. Reference emotion: angry. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor received a wonderful surprise gift. Reference emotion: afraid. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was terrified during a violent storm. Reference emotion: angry. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was threatened by a violent stranger. Reference emotion: afraid. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Alex lost a beloved pet. Reference emotion: angry. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was treated disrespectfully. Reference emotion: afraid. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan saw a dangerous snake nearby. Reference emotion: sad. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor was enraged by unfair treatment. Reference emotion: angry. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex was insulted unfairly. Reference emotion: happy. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex celebrated a joyful wedding. Reference emotion: sad. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was treated disrespectfully. Reference emotion: sad. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was cheated out of money. Reference emotion: happy. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was enraged by unfair treatment. Reference emotion: sad. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan had to say a painful goodbye. Reference emotion: sad. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was furious about being lied to. Reference emotion: happy. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor was reunited with a beloved friend. Reference emotion: angry. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Alex was terrified during a violent storm. Reference emotion: happy. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Alex mourned a family member. Reference emotion: sad. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was praised warmly for hard work. Reference emotion: angry. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Sam saw a dangerous snake nearby. Reference emotion: sad. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor received an exciting promotion. Reference emotion: happy. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Alex had a treasured possession deliberately broken. Reference emotion: afraid. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex was terrified during a violent storm. Reference emotion: sad. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Alex heard heartbreaking news. Reference emotion: angry. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Alex mourned a family member. Reference emotion: sad. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Sam heard heartbreaking news. Reference emotion: happy. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan saw a dangerous snake nearby. Reference emotion: afraid. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was treated disrespectfully. Reference emotion: angry. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor missed a loved one who moved away. Reference emotion: angry. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor was enraged by unfair treatment. Reference emotion: afraid. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan won a dream vacation. Reference emotion: angry. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Alex received a wonderful surprise gift. Reference emotion: angry. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was cheated out of money. Reference emotion: happy. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor was trapped in a burning building. Reference emotion: happy. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan heard excellent news. Reference emotion: sad. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor received a wonderful surprise gift. Reference emotion: afraid. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan missed a loved one who moved away. Reference emotion: sad. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Alex won a dream vacation. Reference emotion: afraid. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor had to say a painful goodbye. Reference emotion: angry. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor received a wonderful surprise gift. Reference emotion: sad. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan faced an aggressive barking dog. Reference emotion: afraid. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Sam had a treasured possession deliberately broken. Reference emotion: happy. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan missed a loved one who moved away. Reference emotion: happy. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan mourned a family member. Reference emotion: happy. Is Jordan happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was cheated out of money. Reference emotion: afraid. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex had a treasured possession deliberately broken. Reference emotion: happy. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex won a dream vacation. Reference emotion: afraid. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Alex felt lonely and cried. Reference emotion: happy. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Alex trembled while hiding from an attacker. Reference emotion: happy. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Sam had work stolen by a dishonest colleague. Reference emotion: happy. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex lost a beloved pet. Reference emotion: afraid. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor lost a beloved pet. Reference emotion: happy. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was abandoned by a close friend. Reference emotion: angry. Is Sam happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Alex felt lonely and cried. Reference emotion: afraid. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor had to say a painful goodbye. Reference emotion: happy. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Alex lost a beloved pet. Reference emotion: happy. Is Alex happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor was insulted unfairly. Reference emotion: angry. Is Taylor happy, sad, angry, or afraid? Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Jordan was furious about being lied to. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was furious about being lied to. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Sam saw a dangerous snake nearby. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Alex won a dream vacation. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan feared an immediate threat to life. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor had to say a painful goodbye. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was praised warmly for hard work. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor had to say a painful goodbye. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan won a dream vacation. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Alex trembled while hiding from an attacker. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan heard footsteps while alone in a dark alley. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan heard excellent news. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor had work stolen by a dishonest colleague. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor was enraged by unfair treatment. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex was terrified during a violent storm. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan achieved a lifelong dream. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was cheated out of money. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor received an exciting promotion. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan saw a dangerous snake nearby. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor achieved a lifelong dream. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Sam felt lonely and cried. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Alex heard heartbreaking news. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was praised warmly for hard work. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor was trapped in a burning building. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Sam heard heartbreaking news. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan mourned a family member. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Alex was furious about being lied to. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor discovered a friend had betrayed a secret. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Alex discovered a friend had betrayed a secret. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Alex heard heartbreaking news. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan saw a dangerous snake nearby. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Alex was praised warmly for hard work. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan celebrated a joyful wedding. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Sam had a treasured possession deliberately broken. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was treated disrespectfully. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was threatened by a violent stranger. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor lost a beloved pet. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor had a treasured possession deliberately broken. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was cheated out of money. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Alex faced an aggressive barking dog. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor received a wonderful surprise gift. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was abandoned by a close friend. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan missed a loved one who moved away. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was threatened by a violent stranger. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Sam heard footsteps while alone in a dark alley. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was abandoned by a close friend. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was threatened by a violent stranger. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Alex was insulted unfairly. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Alex achieved a lifelong dream. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex mourned a family member. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was trapped in a burning building. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor was enraged by unfair treatment. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan had work stolen by a dishonest colleague. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Sam had work stolen by a dishonest colleague. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was praised warmly for hard work. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was devastated by a breakup. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor was devastated by a breakup. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Alex lost a beloved pet. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Sam feared an immediate threat to life. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan had to say a painful goodbye. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan won a dream vacation. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was treated disrespectfully. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex trembled while hiding from an attacker. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Alex celebrated a joyful wedding. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Jordan felt lonely and cried. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor received a wonderful surprise gift. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Alex had a treasured possession deliberately broken. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan celebrated a joyful wedding. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Alex heard heartbreaking news. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was terrified during a violent storm. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor was trapped in a burning building. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Alex felt lonely and cried. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor saw a dangerous snake nearby. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was abandoned by a close friend. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor was enraged by unfair treatment. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was treated disrespectfully. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was furious about being lied to. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Sam heard excellent news. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was reunited with a beloved friend. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was cheated out of money. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was terrified during a violent storm. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex celebrated a joyful wedding. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Alex received an exciting promotion. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor heard footsteps while alone in a dark alley. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor faced an aggressive barking dog. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Alex discovered a friend had betrayed a secret. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan faced an aggressive barking dog. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was treated disrespectfully. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Alex lost a beloved pet. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor was abandoned by a close friend. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan trembled while hiding from an attacker. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Alex mourned a family member. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor was insulted unfairly. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan missed a loved one who moved away. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor was reunited with a beloved friend. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor missed a loved one who moved away. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor was threatened by a violent stranger. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan mourned a family member. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor received an exciting promotion. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan feared an immediate threat to life. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex felt lonely and cried. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was devastated by a breakup. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor received a wonderful surprise gift. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor was insulted unfairly. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex discovered a friend had betrayed a secret. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor missed a loved one who moved away. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex was terrified during a violent storm. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Alex had to say a painful goodbye. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Alex had a treasured possession deliberately broken. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan heard footsteps while alone in a dark alley. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Sam had work stolen by a dishonest colleague. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan heard excellent news. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was enraged by unfair treatment. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Alex won a dream vacation. Reference emotion: afraid. Copy the reference emotion. Answer with one word:",
+    "continuation": " afraid",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor achieved a lifelong dream. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan trembled while hiding from an attacker. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Taylor received an exciting promotion. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was devastated by a breakup. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Sam faced an aggressive barking dog. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan feared an immediate threat to life. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex was trapped in a burning building. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Alex received a wonderful surprise gift. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was reunited with a beloved friend. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Alex lost a beloved pet. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Sam was cheated out of money. Reference emotion: happy. Copy the reference emotion. Answer with one word:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Sam heard excellent news. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Jordan was reunited with a beloved friend. Reference emotion: angry. Copy the reference emotion. Answer with one word:",
+    "continuation": " angry",
+    "digits_only": false
+   },
+   {
+    "context": "Alex was insulted unfairly. Reference emotion: sad. Copy the reference emotion. Answer with one word:",
+    "continuation": " sad",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 3.8051
+}
