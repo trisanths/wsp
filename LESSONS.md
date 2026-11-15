@@ -101,3 +101,14 @@ something fails. Each entry: what went wrong, then the rule.
   pool at 4168 pairs when round 22 asked for 5096, and every cell died. Its
   order also depended on the count, so two calls with different skip values
   were not disjoint. Pools now read round robin in a fixed order.
+- A zero-started output map is not safe by itself. In the first feedback
+  seam run the fresh model equalled the base, and ONE Adam step made the
+  written vector many times larger than the embedding it was added to (the
+  donor's states have huge outlier dimensions and nothing normalized them):
+  KD to the donor went from 0.64 to 7.9 in one step and the healed model
+  scored chance. Normalize what a component writes, tie its size to the
+  host's own scale, start the gate at 0, warm up, and halt a heal whose loss
+  jumps.
+- Check stage 1 before paying for stage 2. That run's input stitch left a
+  1.98-nat penalty (the stitch study reached 0.03) and stage 2 ran anyway.
+  A compile must refuse to heal on a bad stitch.
