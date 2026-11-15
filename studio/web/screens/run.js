@@ -13,6 +13,7 @@ import { AgentPage, AgentsBoard } from './run-agent.js';
 import { FindingsPage } from './run-findings.js';
 import { ResultsPage } from './run-results.js';
 import { PoweredBy } from '../logos.js';
+import { DEMO } from '../demo-flag.js';
 import { Logos, donorsOf, verdictOf, HealNote, usesHeal, healNoteOf, partsCount } from '../cmp.js';
 
 const TABS = [['overview', 'Overview', ''], ['pipeline', 'Pipeline', '/pipeline'], ['activity', 'Activity', '/activity'], ['agents', 'Agents', '/agents'], ['findings', 'Found so far', '/findings'], ['results', 'Results', '/results']];
@@ -108,8 +109,10 @@ function TopPrograms({ snap, cat, id }) {
 
 function Overview({ snap, cat, id, done, busy, onBuild }) {
   return html`<div class="rpage"><div class="col">
+    <div class=${DEMO ? 'ovtop-fixed' : null}>
     <${BestBlock} snap=${snap} cat=${cat} done=${done} busy=${busy} onBuild=${onBuild} />
     ${snap.refused > 0 && !/refused/.test(snap.empty_reason || '') && html`<div class="refused">${snap.refused} ${snap.refused === 1 ? 'proposal' : 'proposals'} refused for going over your limits</div>`}
+    </div>
     <section class="rsec"><div class="rsechead"><h2 class="rh2">Agents</h2><${PoweredBy} who="pastdev" label="Notes shared through" /></div><${AgentList} snap=${snap} /></section>
     <${TopPrograms} snap=${snap} cat=${cat} id=${id} />
   </div></div>`;

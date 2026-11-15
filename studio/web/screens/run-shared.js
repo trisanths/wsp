@@ -1,5 +1,5 @@
 // Helpers and small parts shared by the run pages.
-import { html, useState, useEffect } from '../lib.js';
+import { html, useState, useEffect, useRef } from '../lib.js';
 import { api } from '../api.js';
 import { pctS, primaryTarget, recentStatus } from '../util.js';
 import { Dot } from '../components.js';
@@ -71,10 +71,68 @@ export function bestTarget(snap) {
 
 /* ---------- agent list ---------- */
 // A plain list: dot, name, what it is doing, best score. No cards.
+// Dots that travel between the agents, drawn in a lane right after their names while a run is live.
+// Each dot leaves one agent and arrives at another along a curve, to show the agents passing notes.
+const SVGNS = 'http://www.w3.org/2000/svg';
+function AgentFlow({ list, count }) {
+  const svg = useRef(null);
+  useEffect(() => {
+    const el = svg.current, box = list.current;
+    if (!el || !box) return undefined;
+    let raf = 0, last = 0, rows = [], x0 = 0;
+    const flights = [];
+    const measure = () => {
+      const top = box.getBoundingClientRect();
+      const rs = [...box.querySelectorAll('.arow')];
+      rows = rs.map((r) => { const b = r.getBoundingClientRect(); return b.top - top.top + b.height / 2; });
+      x0 = Math.max(0, ...rs.map((r) => { const n = r.querySelector('.an'); if (!n) return 0; const g = document.createRange(); g.selectNodeContents(n); return g.getBoundingClientRect().right - top.left; })) + 8;
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(box);
+    const spawn = () => {
+      if (rows.length < 2) return;
+      const i = Math.floor(Math.random() * rows.length);
+      let j = Math.floor(Math.random() * (rows.length - 1));
+      if (j >= i) j += 1;
+      const y1 = rows[i], y2 = rows[j], bend = 10 + 7 * Math.abs(i - j);
+      const d = `M ${x0} ${y1} Q ${x0 + bend * 2} ${(y1 + y2) / 2} ${x0} ${y2}`;
+      const path = document.createElementNS(SVGNS, 'path');
+      path.setAttribute('d', d);
+      path.setAttribute('class', 'af-path');
+      const dot = document.createElementNS(SVGNS, 'circle');
+      dot.setAttribute('r', '2.6');
+      dot.setAttribute('class', 'af-dot');
+      el.append(path, dot);
+      flights.push({ path, dot, len: path.getTotalLength(), t0: performance.now(), dur: 900 + 160 * Math.abs(i - j) });
+    };
+    const tick = (now) => {
+      if (now - last > 420) { last = now; spawn(); }
+      for (let k = flights.length - 1; k >= 0; k--) {
+        const f = flights[k];
+        const u = (now - f.t0) / f.dur;
+        if (u >= 1) { f.path.remove(); f.dot.remove(); flights.splice(k, 1); continue; }
+        const e = u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2;
+        const p = f.path.getPointAtLength(e * f.len);
+        f.dot.setAttribute('cx', p.x);
+        f.dot.setAttribute('cy', p.y);
+        const fade = Math.min(1, u * 6, (1 - u) * 6);
+        f.dot.style.opacity = fade;
+        f.path.style.opacity = 0.35 * fade;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => { cancelAnimationFrame(raf); ro.disconnect(); flights.forEach((f) => { f.path.remove(); f.dot.remove(); }); };
+  }, [count]);
+  return html`<svg class="aflow" ref=${svg} aria-hidden="true"></svg>`;
+}
+
 export function AgentList({ snap }) {
   const ended = snap.status === 'done' || snap.status === 'error';
   const empty = isEmptyEnd(snap);
-  return html`<div class="alist">${snap.agents.map((a) => html`<a class="arow" key=${a.id} href=${'#/run/' + snap.run_id + '/agents/' + a.id}>
+  const list = useRef(null);
+  return html`<div class=${'alist' + (ended ? '' : ' flowing')} ref=${list}>${!ended && html`<${AgentFlow} list=${list} count=${snap.agents.length} />`}${snap.agents.map((a) => html`<a class="arow" key=${a.id} href=${'#/run/' + snap.run_id + '/agents/' + a.id}>
     <${Dot} color=${agentDot(a.status, ended, empty)} pulse=${!ended && !!ACTIVE[a.status]} />
     <span class="an">${a.name}</span>
     <span class="anow"><${ThinkLine} text=${a.now || STATUS_WORD[a.status] || a.status} still=${ended || !ACTIVE[a.status]} fluid /></span>
