@@ -226,7 +226,7 @@ V28 = "v28a"
 STATS_DIR = "/vol/slim/round28"
 
 
-@app.function(image=train_image, volumes={"/vol": volume}, gpu="H200", memory=262144, timeout=3 * 3600,
+@app.function(image=train_image, volumes={"/vol": volume}, cpu=16, memory=245760, timeout=3 * 3600,
               single_use_containers=True)
 def build_k48(keep=48):
     """Keep `keep` experts per layer of the full model, ranked by the round 28 clinic saliency stats (healdata
@@ -247,7 +247,7 @@ def build_k48(keep=48):
         raise SystemExit(f"expected one clinic stats file, found {files}")
     stats = slim.load_stats(files[0])
     tokenizer = transformers.AutoTokenizer.from_pretrained(BASE)
-    model = transformers.AutoModelForCausalLM.from_pretrained(BASE, dtype=torch.bfloat16, device_map="cuda").eval()
+    model = transformers.AutoModelForCausalLM.from_pretrained(BASE, dtype=torch.bfloat16, device_map="cpu").eval()
     student, report = slim.slim_moe(model, None, None, None, rule="saliency", keep=keep, mass=None, seed=0,
                                     skill_stats=stats, share_experts=True)
     os.makedirs(os.path.dirname(out), exist_ok=True)
