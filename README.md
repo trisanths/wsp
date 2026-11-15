@@ -9,7 +9,7 @@ Built at the SF AI Research Hackathon, hosted by Iterate at Wefunder, San Franci
 
 | <a href="https://exa.ai"><img src="docs/img/logos/exa.png" alt="Exa" height="48"></a> | <a href="https://past.dev"><img src="docs/img/logos/pastdev.png" alt="past.dev" height="48"></a> | <a href="https://modal.com"><img src="docs/img/logos/modal.png" alt="Modal" height="48"></a> |
 |:---:|:---:|:---:|
-| **Exa**: benchmark research and literature priors | **past.dev**: shared memory for every agent | **Modal**: all mining, compiling and serving |
+| **Exa**: benchmark research and literature priors | **past.dev**: memory for mining, parts discovery and compiling | **Modal**: all mining, compiling and serving |
 
 ## Results at a glance
 
