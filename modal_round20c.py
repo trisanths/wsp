@@ -290,11 +290,11 @@ def smoke_cells():
 
 
 def select_cells(cells, only=None):
-    """Keep the cells whose arm or config is in `only` (a list of names), or all of them."""
+    """Keep the cells whose full name, arm, or config is in `only` (a list of names), or all of them."""
     if not only:
         return list(cells)
     wanted = set(only)
-    return [c for c in cells if c[2] in wanted or c[1] in wanted]
+    return [c for c in cells if cell_name(*c) in wanted or c[2] in wanted or c[1] in wanted]
 
 
 def cell_steps(cell):
@@ -926,6 +926,8 @@ def main(shard: int = 0, nshards: int = 1, pairs: str = "", factors: str = "", o
         return
     mine = todo if smoke else shard_of(todo, shard, nshards)
     print(f"round20c shard {shard}/{nshards}: {len(mine)} cells", flush=True)
+    if not mine:
+        raise SystemExit("round20c: no cells match these arguments; check --only names with --estimate-only")
     needed = []
     for pair, config, arm, seed in mine:
         if pair == "ref":

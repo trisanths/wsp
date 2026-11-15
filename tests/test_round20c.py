@@ -290,3 +290,11 @@ def test_matched_kd_rank_on_a_tiny_host():
     assert big > rank
     everywhere, _ = r.kd_rank_for(host, r.config_of("lora_all"), 48, 1)
     assert everywhere > rank
+
+
+def test_select_cells_accepts_full_cell_names():
+    import modal_round20c as m
+    cells = m.star_cells(["R1"], None, None)
+    names = ["R1.default.real.s0", "R1.steps8000.real.s0", "R1.base.s0"]
+    picked = [m.cell_name(*c) for c in m.select_cells(cells, names)]
+    assert sorted(picked) == sorted(names)

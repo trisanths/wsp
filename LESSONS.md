@@ -148,3 +148,8 @@ something fails. Each entry: what went wrong, then the rule.
   saved on the volume and reported the old numbers as if they were new. Put
   a fit or format version in every artifact path and bump it when the fit
   changes.
+- A filter that matches nothing must fail loudly. Round 20c R1 was launched
+  with `--only` set to full cell names, but the filter matched only arm or
+  config names, so the run printed "0 cells" and exited, and I did not look
+  for 50 minutes. Run `--estimate-only` with the same arguments before a
+  launch, and make entrypoints exit with an error on zero cells.
