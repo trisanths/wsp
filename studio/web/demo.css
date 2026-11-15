@@ -7,6 +7,9 @@
 .demo-sec { margin-top: 32px; }
 .demo-h { font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-2); margin: 0 0 10px; }
 .demo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr)); gap: 10px; }
+button.demo-card { font: inherit; color: inherit; text-align: left; border: 0; cursor: pointer; }
+.demo-chapters { margin-top: 28px; }
+.demo-k { display: inline-block; min-width: 18px; color: var(--text-3); font-weight: 400; }
 .demo-card { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px 12px; transition: box-shadow .15s var(--page-fade-ease), transform .15s var(--page-fade-ease); }
 .demo-card:hover { box-shadow: var(--shadow-card), var(--shadow-float); transform: translateY(-1px); }
 .demo-ct { font-size: 14px; line-height: 20px; font-weight: 500; }
@@ -15,7 +18,7 @@
 .demo-open svg { transition: transform .15s var(--page-fade-ease); }
 .demo-open:hover svg { transform: translateX(2px); }
 
-.demo-ctl { position: fixed; right: 12px; bottom: 12px; z-index: 350; font-size: 13px; line-height: 18px; animation: demo-in var(--modal-open-dur) var(--modal-ease); }
+.demo-ctl { position: fixed; right: 12px; bottom: 12px; z-index: 450; font-size: 13px; line-height: 18px; animation: demo-in var(--modal-open-dur) var(--modal-ease); }
 @keyframes demo-in { from { opacity: 0; transform: translateY(6px) scale(.97); } to { opacity: 1; transform: none; } }
 .demo-bar { display: flex; align-items: center; gap: 2px; padding: 3px; background: var(--bg-raised); border: 1px solid var(--line-2); border-radius: 999px; box-shadow: var(--shadow-float); }
 .demo-b, .demo-title { border: 0; background: transparent; color: var(--text-1); cursor: pointer; font: inherit; border-radius: 999px; transition: background .12s, opacity .12s; }
@@ -50,6 +53,9 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .demo-ctl, .demo-pop { animation: none; }
+  .tour-spot, .tour-tip, .tour-hand { transition: opacity .15s !important; }
+  .tour-spot::after, .tour-ripple, .tour-cursor, .tour-dot, .tour-say { animation: none !important; }
+  .tour-prog i b { animation: none !important; transform: scaleX(1); opacity: .5; }
   .demo-card, .demo-open svg { transition: none; }
 }
 .demo-type .dock { position: sticky; bottom: 0; z-index: 5; background: var(--bg); padding-top: 12px; }
@@ -57,3 +63,58 @@
 body:has(.demo-ctl) .buildcard { bottom: 56px; }
 /* the builder side panel and palette scroll to their end above the control */
 body:has(.demo-ctl) .builder .side, body:has(.demo-ctl) .builder .palette { padding-bottom: 64px; }
+
+/* Guided tour: a white spotlight that glides between elements, a pointer that shows the click,
+   and a caption card that follows. The dim is the spotlight's own outer shadow, so the target
+   stays at full brightness and nothing covers it. */
+:root { --tour-dim: rgba(12, 12, 12, .62); --tour-glide: 620ms; --tour-ease: cubic-bezier(.22, 1, .36, 1); }
+:root.dark { --tour-dim: rgba(0, 0, 0, .66); }
+.tour { position: fixed; inset: 0; z-index: 400; pointer-events: none; }
+.tour-spot { position: fixed; left: 0; top: 0; pointer-events: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, .96), 0 0 0 7px rgba(255, 255, 255, .16), 0 0 34px 8px rgba(255, 255, 255, .30), 0 0 0 200vmax var(--tour-dim);
+  transition: transform var(--tour-glide) var(--tour-ease), width var(--tour-glide) var(--tour-ease), height var(--tour-glide) var(--tour-ease), border-radius var(--tour-glide) var(--tour-ease), box-shadow .3s ease;
+  will-change: transform, width, height; animation: tour-fade .35s ease both; }
+.tour-spot.start { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 0 0 200vmax rgba(0, 0, 0, 0); }
+.tour-spot::after { content: ''; position: absolute; inset: -2px; border-radius: inherit; border: 2px solid #fff; opacity: 0; animation: tour-breathe 2.4s ease-in-out infinite; }
+.tour-spot.flash { box-shadow: 0 0 0 3px #fff, 0 0 0 10px rgba(255, 255, 255, .28), 0 0 44px 14px rgba(255, 255, 255, .45), 0 0 0 200vmax var(--tour-dim); }
+@keyframes tour-breathe { 0%, 100% { opacity: 0; transform: scale(1); } 50% { opacity: .55; transform: scale(1.012); } }
+@keyframes tour-fade { from { opacity: 0; } to { opacity: 1; } }
+
+.tour-hand { position: fixed; left: 0; top: 0; width: 0; height: 0; opacity: 0; transition: transform 760ms var(--tour-ease), opacity .25s ease; }
+.tour-hand.on { opacity: 1; transition: transform 760ms var(--tour-ease), opacity .3s ease .35s; }
+.tour-cursor { position: absolute; left: -4px; top: -3px; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .35)); animation: tour-tap 2s var(--tour-ease) .6s infinite; transform-origin: 6px 4px; }
+.tour-ripple { position: absolute; left: -22px; top: -22px; width: 44px; height: 44px; border-radius: 50%; border: 2px solid #fff; background: rgba(255, 255, 255, .22); opacity: 0; animation: tour-ripple 2s ease-out .6s infinite; }
+@keyframes tour-tap {
+  0% { transform: translate(22px, 26px); }
+  38% { transform: translate(0, 0) scale(1); }
+  46% { transform: translate(0, 0) scale(.84); }
+  56% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes tour-ripple { 0%, 42% { opacity: 0; transform: scale(.3); } 48% { opacity: 1; } 100% { opacity: 0; transform: scale(1.6); } }
+
+.tour-tip { position: fixed; left: 0; top: 0; width: min(340px, calc(100vw - 24px)); pointer-events: auto; background: var(--bg-raised); color: var(--text-1); border-radius: 14px; padding: 14px 16px 12px; box-shadow: 0 0 0 1px var(--line-2), 0 18px 48px rgba(0, 0, 0, .28);
+  transition: transform var(--tour-glide) var(--tour-ease); will-change: transform; animation: tour-fade .3s ease both; }
+.tour-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.tour-ch { font-size: 12px; line-height: 16px; color: var(--text-3); }
+.tour-n { font-size: 12px; line-height: 16px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.tour-say { font-size: 15px; line-height: 22px; animation: tour-say .4s var(--tour-ease) both; }
+@keyframes tour-say { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.tour-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; }
+.tour-hint { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; line-height: 16px; color: var(--text-3); min-width: 0; }
+.tour-dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 0 0 var(--blue); animation: tour-dot 1.6s ease-out infinite; }
+@keyframes tour-dot { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--blue) 55%, transparent); } 100% { box-shadow: 0 0 0 7px transparent; } }
+.tour-btns { display: inline-flex; gap: 6px; flex: none; }
+.tour-btn { display: inline-flex; align-items: center; justify-content: center; height: 30px; min-width: 30px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line-2); background: transparent; color: var(--text-1); font: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: background .12s, opacity .12s; }
+.tour-btn:hover:not(:disabled) { background: var(--fill-2); }
+.tour-btn:disabled { opacity: .35; cursor: default; }
+.tour-btn.primary { background: var(--btn-bg); color: var(--btn-fg); border-color: transparent; padding: 0 14px; }
+.tour-btn.primary:hover { background: var(--btn-bg); opacity: .88; }
+.tour-btn:focus-visible { outline: 2px solid var(--line-focus); outline-offset: 1px; }
+.tour-prog { display: flex; gap: 4px; margin-top: 12px; }
+.tour-prog i { position: relative; overflow: hidden; flex: 1; height: 3px; border-radius: 2px; background: var(--fill-3); transition: background .3s ease; }
+.tour-prog i b { position: absolute; inset: 0; background: var(--blue); transform-origin: left; animation: tour-count linear both; }
+@keyframes tour-count { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.tour-prog i.done { background: var(--text-3); }
+.tour-prog i.on { background: var(--text-1); }
+.demo-start { font-weight: 500; }
