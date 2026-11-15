@@ -13,15 +13,15 @@ Built at the SF AI Research Hackathon, hosted by Iterate at Wefunder, San Franci
 
 ### Results at a glance
 
-| Request | Build | Result |
+| Result | Slice grafted | Number |
 |---|---|---|
-| "A 1B model with the knowledge of a much bigger one" | Llama-3.2-1B + Qwen2.5-14B layers 7-34 | MMLU **59.8** (base 44.6, LoRA 45.6) |
-| "A small model that solves math word problems" | Llama-3.2-1B + Qwen2.5-Math-7B layers 4-20 | AQuA **52.0** (LoRA 34.5) |
-| "A small model that answers exam questions in Spanish" | Llama-3.2-1B + Qwen2.5-14B layers 7-34, English training only | MMLU Spanish **52.8** (base 37.8, LoRA 38.0) |
-| "A small model for medical exam questions" | Llama-3.2-1B + Apollo2-7B layers 4-20 | HEAD-QA **54.8** (LoRA 51.7) |
-| "A coding model at half the memory" | Qwen3-30B-A3B, keep 64 of 128 experts per layer | HumanEval **88.4** at **29.9 GiB** (full: 90.2 at 56.9 GiB) |
-
-Behind these: **1,369 parts** mined from **76 models** (0.35B to 235B), and **42,338 memories** the agents shared on past.dev.
+| Llama-3.2-1B + grafted slice, MMLU held-out | Qwen2.5-14B L7-34 | **59.8** (base 44.6, LoRA 45.6) |
+| Math graft on AQuA, Llama-3.2-1B host | Qwen2.5-Math-7B L4-20 | **52.0** (LoRA 34.5) |
+| MMLU in Spanish after English-only training, Llama-3.2-1B host | Qwen2.5-14B L7-34 | **52.8** (base 37.8, LoRA 38.0) |
+| Cross-family part, share of its own skill kept inside Llama-3.2-1B | Qwen2.5-7B L10-20 | **89.6%** (1.1% before alignment) |
+| Qwen3-30B-A3B cut to 64 of 128 experts: HumanEval, weight memory | none (experts removed) | **88.4** at **29.9 GiB** (full: 90.2 at 56.9 GiB) |
+| Parts mined | | **1,369** from **76** models, 0.35B to 235B |
+| Shared memories written by the agents on past.dev | | **42,338** |
 
 ## Motivation
 
