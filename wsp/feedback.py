@@ -18,18 +18,32 @@ A branch has these parts:
     component      a range of the donor's own decoder layers (wsp.parts
                    BlockPart, with its own KV cache and rotary base),
                    or None
-    T_out          a bias-free linear map to the host width, starts at zero
-    gate           one trained scalar, starts at 1
+    T_out          a bias-free linear map to the host width, random or
+                   ridge-fitted start (never zero)
+    gate           g_max * tanh(raw), raw is one trained scalar that starts
+                   at 0, so a fresh seam equals the host exactly
 
-For position t the branch computes
+For position t the branch computes (u is the unit-RMS version of the
+branch output)
 
-    fb_t = gate * T_out(component(T_in(h_t^k)) - T_in(h_t^k))      component given
-    fb_t = gate * T_out(top_state_t)                               component None
+    u_t  = normalize(component(T_in(h_t^k)) - T_in(h_t^k))        component given
+    u_t  = normalize(top_state_t)                                 component None
+    fb_t = gate * embed_rms * y_t / |y_t|,   y_t = T_out(u_t)
 
 and the host input at position t+1 is embed(token_{t+1}) + sum of fb_t over
 the branches. Position 0 (the first real token of each row) gets nothing.
-With T_out at zero a fresh seam equals the host exactly. The gate starts at
-1, not 0, because with both at zero neither would get a gradient.
+embed_rms is the typical L2 norm of a row of the host's input embedding
+table. So the norm of the vector a branch writes is gate times the embedding's
+own norm, whatever the raw scale of the branch output or of T_out. The first
+real run (2026-11-14) used fb = gate * T_out(raw output) with T_out at zero
+and the gate at 1. Qwen residual states have huge outlier dimensions, and
+the first Adam step moved every T_out entry by the learning rate, so the
+vector added to the next input jumped to many times the embedding norm and
+destroyed the model. Adam moves each entry by about lr in the first step
+whatever the gradient size, so gradient clipping cannot stop that jump. The
+normalized form bounds it: one step changes the written vector by at most
+g_max * lr * embed_rms in norm through the gate, and T_out only rotates it.
+legacy=True keeps the old form for the regression test.
 
 Three ways to run it, which agree where they should:
 
@@ -53,14 +67,19 @@ Training (round 22):
   stage 1  fit_t_in: T_in trains on the component's own fidelity with the
            wsp.stitch donor_lm objective (the donor's LM loss with T_in's
            output at the block input), after a ridge start, with the sink.
-  stage 2  heal_distill: T_out, gates, and a host LoRA r16 train on
+  stage 2  heal_distill: T_out, gates, a host LoRA r16, and T_in (small lr,
+           with the stage-1 fidelity loss as a regularizer) train on
            KL(donor || seam) on skill pool text plus anchor_weight *
            KL(frozen base || seam) on general pool text. One pass with
-           probability 0.15, else two. No LM loss on gold answers.
+           probability 0.15, else two, or three with probability 0.3 after
+           the warmup, so the read layer sees fed-back inputs. No LM loss on
+           gold answers. The loop halts when the two-pass KD runs away.
+           warm_start_t_out fits T_out by ridge before stage 2.
 """
 
 import contextlib
 import json
+import math
 import os
 import random
 import time
@@ -74,7 +93,7 @@ from wsp.insert import add_base_lora, build_stitch_in, donor_block_tensors, dono
 from wsp.lora import apply_lora, load_lora_state, lora_modules, lora_state_dict
 from wsp.parts import _text_config, build_block_part, find_decoder_layers
 
-FORMAT = "wsp-feedback-1"
+FORMAT = "wsp-feedback-2"
 OUT_MODES = ("delta", "full")
 
 
@@ -136,36 +155,86 @@ def random_range(n_layers, first, last, seed):
 # ---------------------------------------------------------------- branch
 
 
-class Branch(nn.Module):
-    """One feedback branch. part None makes the plain latent feedback of the paper (the capacity control)."""
+def rms_normalize(x, eps=1e-6):
+    """Divide each vector by its root mean square over the last dim. A zero vector stays zero."""
+    return x * torch.rsqrt(x.pow(2).mean(dim=-1, keepdim=True) + eps)
 
-    def __init__(self, d_host, read_layer=None, t_in=None, part=None, d_comp=None, gate_init=1.0, sink=None,
-                 out_mode="delta", meta=None):
+
+def embed_rms_of(host, chunk=8192):
+    """Typical L2 norm of a row of the host's input embedding table: sqrt(mean of the squared row norms)."""
+    weight = host.get_input_embeddings().weight
+    total = 0.0
+    for first in range(0, weight.shape[0], chunk):
+        total += float(weight[first:first + chunk].detach().float().pow(2).sum())
+    return math.sqrt(total / weight.shape[0])
+
+
+def random_t_out(t_out, seed):
+    """Small random start for T_out: normal with std 1/sqrt(width), from a private generator (the global RNG is untouched)."""
+    generator = torch.Generator()
+    generator.manual_seed(int(seed))
+    width = t_out.weight.shape[1]
+    with torch.no_grad():
+        t_out.weight.copy_(torch.randn(t_out.weight.shape, generator=generator) / math.sqrt(width))
+
+
+class Branch(nn.Module):
+    """One feedback branch. part None makes the plain latent feedback of the paper (the capacity control).
+
+    legacy=False (default): the written vector has norm gate * embed_rms (see
+    the module docstring). The gate is g_max * tanh(gate_raw) and starts at 0
+    unless gate_init says otherwise (gate_init is a gate value, |gate_init| <
+    g_max). T_out starts random with std 1/sqrt(width).
+    legacy=True: the round 22 first-run form, fb = gate * T_out(raw output),
+    T_out at zero, gate at gate_init (default 1). Kept for the regression test.
+    """
+
+    def __init__(self, d_host, read_layer=None, t_in=None, part=None, d_comp=None, gate_init=None, sink=None,
+                 out_mode="delta", meta=None, g_max=0.5, embed_rms=1.0, legacy=False, init_seed=0):
         super().__init__()
         if out_mode not in OUT_MODES:
             raise ValueError(f"out_mode must be one of {OUT_MODES}, got {out_mode!r}")
         if part is not None and (t_in is None or read_layer is None or d_comp is None):
             raise ValueError("a branch with a component needs read_layer, t_in, and d_comp")
+        if g_max <= 0:
+            raise ValueError("g_max must be positive")
         self.read_layer = read_layer
         self.t_in = t_in
         self.part = part
         self.out_mode = out_mode
+        self.legacy = bool(legacy)
         self.meta = meta if meta is not None else {}
+        self.meta["legacy"] = self.legacy
+        self.meta["g_max"] = float(g_max)
+        self.meta["embed_rms"] = float(embed_rms)
         width = d_host if part is None else d_comp
         self.t_out = nn.Linear(width, d_host, bias=False)
-        nn.init.zeros_(self.t_out.weight)
-        self.gate = nn.Parameter(torch.tensor(float(gate_init), dtype=torch.float32))
+        self.register_buffer("g_max", torch.tensor(float(g_max), dtype=torch.float32))
+        self.register_buffer("embed_rms", torch.tensor(float(embed_rms), dtype=torch.float32))
+        if self.legacy:
+            nn.init.zeros_(self.t_out.weight)
+            raw = 1.0 if gate_init is None else float(gate_init)
+        else:
+            random_t_out(self.t_out, init_seed)
+            value = 0.0 if gate_init is None else float(gate_init)
+            if abs(value) >= g_max:
+                raise ValueError(f"gate_init {value} must be inside (-g_max, g_max) = (-{g_max}, {g_max})")
+            raw = math.atanh(value / g_max)
+        self.meta["t_out_init"] = "zeros" if self.legacy else "random"
+        self.gate_raw = nn.Parameter(torch.tensor(raw, dtype=torch.float32))
         self.register_buffer("sink", None)
         if sink is not None:
             self.sink = sink.detach().to(torch.float32).reshape(-1).clone()
 
-    def output(self, read, mask, past=0, cache_len=None):
-        """The feedback vectors for the positions in read, shape (batch, seq, d_host).
+    @property
+    def gate(self):
+        """The effective gate (a tensor with a graph to gate_raw)."""
+        if self.legacy:
+            return self.gate_raw
+        return self.g_max * torch.tanh(self.gate_raw)
 
-        read is the host state at read_layer (the top state for a plain
-        branch). mask is the full 2D mask (batch, past + seq). cache_len is
-        None for a whole-sequence call, else the number of cached tokens.
-        """
+    def pre(self, read, mask, past=0, cache_len=None):
+        """What T_out reads: the branch output, RMS-normalized per position (raw in legacy mode)."""
         if self.part is None:
             vec = read.float()
         else:
@@ -176,7 +245,26 @@ class Branch(nn.Module):
             vec = delta.float()
             if self.out_mode == "full":
                 vec = vec + x.float()
-        return self.gate * self.t_out(vec)
+        if self.legacy:
+            return vec
+        return rms_normalize(vec)
+
+    def write(self, vec):
+        """The vector added to the next input, from the normalized branch output."""
+        y = self.t_out(vec)
+        if self.legacy:
+            return self.gate * y
+        unit = y * torch.rsqrt(y.pow(2).sum(dim=-1, keepdim=True) + 1e-12)
+        return self.gate * self.embed_rms * unit
+
+    def output(self, read, mask, past=0, cache_len=None):
+        """The feedback vectors for the positions in read, shape (batch, seq, d_host).
+
+        read is the host state at read_layer (the top state for a plain
+        branch). mask is the full 2D mask (batch, past + seq). cache_len is
+        None for a whole-sequence call, else the number of cached tokens.
+        """
+        return self.write(self.pre(read, mask, past, cache_len))
 
 
 # ---------------------------------------------------------------- the seam
@@ -375,7 +463,7 @@ class FeedbackSeam(nn.Module):
             if branch.t_in is not None:
                 groups["t_in"] += list(branch.t_in.parameters())
             groups["t_out"] += list(branch.t_out.parameters())
-            groups["gate"].append(branch.gate)
+            groups["gate"].append(branch.gate_raw)
         for _, module in lora_modules(self.host):
             groups["lora"].append(module.lora_A)
             groups["lora"].append(module.lora_B)
@@ -468,17 +556,21 @@ class BaseView:
 # ---------------------------------------------------------------- building
 
 
-def make_plain_branch(host, gate_init=1.0):
+def make_plain_branch(host, gate_init=None, g_max=0.5, legacy=False, init_seed=0, embed_rms=None):
     """The paper's latent feedback: T_out applied to the host's top-layer state. The capacity control."""
     d_host = _text_config(host.config).hidden_size
-    branch = Branch(d_host, gate_init=gate_init, meta={"kind": "plain", "d_host": int(d_host)})
+    if embed_rms is None:
+        embed_rms = embed_rms_of(host)
+    branch = Branch(d_host, gate_init=gate_init, meta={"kind": "plain", "d_host": int(d_host)}, g_max=g_max,
+                    embed_rms=embed_rms, legacy=legacy, init_seed=init_seed)
     branch.to(host.get_input_embeddings().weight.device)
     return branch
 
 
 def make_block_branch(host, donor, donor_layers, read_layer, t_in=None, stitch_kind="linear", stitch_hidden=None,
-                      stitch_rank=None, donor_config=None, donor_id=None, sink=None, gate_init=1.0,
-                      out_mode="delta", control=None, control_seed=None, cache_dir=None):
+                      stitch_rank=None, donor_config=None, donor_id=None, sink=None, gate_init=None,
+                      out_mode="delta", control=None, control_seed=None, cache_dir=None, g_max=0.5, legacy=False,
+                      init_seed=0, embed_rms=None):
     """A branch with a donor block.
 
     donor: a loaded donor model, a dict of tensors (with donor_config), a
@@ -514,7 +606,10 @@ def make_block_branch(host, donor, donor_layers, read_layer, t_in=None, stitch_k
     meta = {"kind": "block", "read_layer": int(read_layer), "donor_id": donor_id, "donor_layers": [first, last],
             "d_host": int(d_host), "d_donor": int(d_donor), "stitch": stitch_config(t_in),
             "sink": sink is not None, "out_mode": out_mode, "control": control, "control_seed": control_seed}
-    branch = Branch(d_host, read_layer, t_in, part, d_donor, gate_init, sink, out_mode, meta)
+    if embed_rms is None:
+        embed_rms = embed_rms_of(host)
+    branch = Branch(d_host, read_layer, t_in, part, d_donor, gate_init, sink, out_mode, meta, g_max=g_max,
+                    embed_rms=embed_rms, legacy=legacy, init_seed=init_seed)
     branch.donor_config = config
     branch.to(host.get_input_embeddings().weight.device)
     return branch
@@ -578,17 +673,29 @@ def count_params(seam):
 # ---------------------------------------------------------------- stage 1
 
 
-def fit_t_in(host, host_tokenizer, read_layer, donor, donor_tokenizer, first, texts, kind="linear", hidden=None,
-             rank=None, ridge_texts=None, steps=500, lr=1e-3, batch_size=8, seq_len=256, seed=0, eval_texts=None,
-             sink=True, log_every=0):
+STAGE1_THRESHOLD = 0.3
+
+
+def fit_t_in(host, host_tokenizer, read_layer, donor, donor_tokenizer, first, texts, kind="mlp", hidden=None,
+             rank=None, ridge_texts=None, steps=1000, lr=3e-4, batch_size=8, seq_len=256, seed=0, eval_texts=None,
+             sink=True, log_every=0, threshold=STAGE1_THRESHOLD, extra_rounds=2, extra_steps=None):
     """Stage 1: train T_in on the component's own fidelity.
 
     T_in maps the output of host layer read_layer to the input of donor
     layer first. It starts from a ridge fit and trains on the donor's LM
     loss (wsp.stitch.train_stitch, objective donor_lm), with the donor's
     sink state at position 0. Host and donor stay frozen. host and donor
-    here are loaded models that share a tokenizer. Returns (t_in, sink,
-    report) where sink is a (d_donor,) tensor or None.
+    here are loaded models that share a tokenizer.
+
+    Defaults follow the stitch study (results/README.md), which reached a
+    0.03 nat penalty with 1000 steps on 2400 texts, lr 1e-3 for linear and
+    3e-4 for mlp. The first round 22 run used a linear stitch, 400 steps, and
+    256 texts, and ended 1.98 nats above the donor's native loss. When the
+    penalty after training is above threshold, up to extra_rounds more
+    rounds of extra_steps (default steps // 2) continue from the current
+    weights. Returns (t_in, sink, report). sink is a (d_donor,) tensor or
+    None. report has penalty_before, penalty_after, penalty (the last one),
+    threshold, ok (penalty <= threshold), and rounds.
     """
     from wsp import stitch as stitch_module
 
@@ -606,12 +713,33 @@ def fit_t_in(host, host_tokenizer, read_layer, donor, donor_tokenizer, first, te
     if sink:
         with torch.no_grad():
             sink_vector = stitch_module.resolve_sink(True, donor, donor_tokenizer, first, texts)
+    if extra_steps is None:
+        extra_steps = max(1, steps // 2)
+    use_sink = sink_vector if sink_vector is not None else False
     result = stitch_module.train_stitch(host, host_tokenizer, read_layer, donor, donor_tokenizer, first, t_in, texts,
                                         objective="donor_lm", steps=steps, lr=lr, batch_size=batch_size,
                                         seq_len=seq_len, seed=seed, eval_texts=eval_texts, log_every=log_every,
-                                        sink=sink_vector if sink_vector is not None else False)
-    report = {"ridge": ridge, "before": result["before"], "after": result["after"], "seconds": result["seconds"],
-              "penalty_before": result["before"]["penalty"], "penalty_after": result["after"]["penalty"]}
+                                        sink=use_sink)
+    penalty_before = result["before"]["penalty"]
+    penalty = result["after"]["penalty"]
+    seconds = result["seconds"]
+    rounds = [{"steps": steps, "penalty": penalty}]
+    for index in range(extra_rounds):
+        if penalty <= threshold:
+            break
+        more = stitch_module.train_stitch(host, host_tokenizer, read_layer, donor, donor_tokenizer, first, t_in,
+                                          texts, objective="donor_lm", steps=extra_steps, lr=lr,
+                                          batch_size=batch_size, seq_len=seq_len, seed=seed + 1 + index,
+                                          eval_texts=eval_texts, log_every=log_every, sink=use_sink)
+        result = more
+        penalty = more["after"]["penalty"]
+        seconds += more["seconds"]
+        rounds.append({"steps": extra_steps, "penalty": penalty})
+    report = {"ridge": ridge, "before": result["before"], "after": result["after"], "seconds": seconds,
+              "penalty_before": penalty_before, "penalty_after": penalty, "penalty": penalty,
+              "native_loss": result["after"].get("native_loss"), "stitched_loss": result["after"].get("stitched_loss"),
+              "threshold": threshold, "ok": bool(penalty <= threshold), "rounds": rounds, "kind": kind,
+              "steps": steps, "lr": lr, "train_texts": len(texts)}
     t_in.cpu()
     return t_in, sink_vector, report
 
@@ -628,28 +756,58 @@ def kd_kl(student_logits, teacher_logits, mask):
     return (kl * mask).sum() / mask.sum().clamp(min=1.0)
 
 
+def draw_passes(chooser, step, one_pass_prob, three_pass_prob, three_after):
+    """The pass count of one step. Two draws per step, always, so every arm keeps the same schedule."""
+    first = chooser.random()
+    second = chooser.random()
+    if first < one_pass_prob:
+        return 1
+    if step >= three_after and second < three_pass_prob:
+        return 3
+    return 2
+
+
 def heal_distill(forward, base_forward, groups, tokenizer, teacher, texts, general_flags, steps=1000, batch_size=8,
                  seq_len=384, seed=0, one_pass_prob=0.15, anchor_weight=0.5, autocast_dtype=None, warmup=50,
-                 log_every=100):
+                 log_every=100, three_pass_prob=0.3, three_pass_after=None, clip_norm=1.0, halt_ratio=3.0,
+                 halt_patience=20, halt_floor=0.05, gap_fn=None, gap_every=200, regularizer=None):
     """Stage 2 loop, the same for every trained arm of round 22.
 
     forward(ids, mask, passes) -> student logits. base_forward(ids, mask) ->
     logits of the frozen base. groups: AdamW parameter groups (dicts with
-    params and lr). The loss is KL(teacher || student) on the rows whose
-    general_flags entry is False (skill text), plus anchor_weight *
-    KL(frozen base || student) on the flagged rows (general text). There is
-    no LM loss on any text. The batch order depends only on seed, and the
-    pass count draws from its own generator, so every arm sees the same
-    texts in the same order. Returns {"kd": [...], "anchor": [...], "seconds": s}.
+    params and lr, and optionally warmup: steps of linear lr warmup for that
+    group, default the warmup argument). The loss is KL(teacher || student)
+    on the rows whose general_flags entry is False (skill text), plus
+    anchor_weight * KL(frozen base || student) on the flagged rows (general
+    text). There is no LM loss on any text. The batch order depends only on
+    seed, and the pass count draws from its own generator, so every arm sees
+    the same texts in the same order.
+
+    Passes: 1 with probability one_pass_prob, else 3 with probability
+    three_pass_prob once step >= three_pass_after (default warmup), else 2.
+    Gradients are clipped per group to clip_norm. regularizer(step) may
+    return an extra loss tensor (already weighted).
+
+    Halt: the first step with two or more passes and skill rows sets the
+    baseline KD. When the KD of that kind of step is above halt_ratio *
+    max(baseline, halt_floor), or not finite, for halt_patience such steps
+    in a row, the loop stops and log["halted"] is True. gap_fn() is called
+    every gap_every steps and its result goes to log["gap"] with the step.
+    Returns {"kd", "anchor", "passes", "gap", "halted", "halt_step",
+    "halt_reason", "seconds"}.
     """
     if len(general_flags) != len(texts):
         raise ValueError("general_flags needs one entry per text")
+    if three_pass_after is None:
+        three_pass_after = warmup
     params = []
     for group in groups:
         params += list(group["params"])
     base_lrs = []
+    warmups = []
     for group in groups:
         base_lrs.append(group["lr"])
+        warmups.append(group.get("warmup", warmup))
     optimizer = torch.optim.AdamW(groups, weight_decay=0.0)
     order = list(range(len(texts)))
     random.Random(seed).shuffle(order)
@@ -659,9 +817,12 @@ def heal_distill(forward, base_forward, groups, tokenizer, teacher, texts, gener
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
     device = params[0].device
-    log = {"kd": [], "anchor": [], "passes": []}
+    log = {"kd": [], "anchor": [], "passes": [], "gap": [], "reg": [], "halted": False, "halt_step": None,
+           "halt_reason": None}
     start = time.time()
     cursor = 0
+    baseline = None
+    streak = 0
     for step in range(steps):
         rows = []
         while len(rows) < batch_size:
@@ -679,12 +840,12 @@ def heal_distill(forward, base_forward, groups, tokenizer, teacher, texts, gener
         ids = encoded["input_ids"].to(device)
         mask = encoded["attention_mask"].to(device)
         flag = torch.tensor(flags, dtype=torch.bool, device=device)
-        passes = 1 if chooser.random() < one_pass_prob else 2
+        passes = draw_passes(chooser, step, one_pass_prob, three_pass_prob, three_pass_after)
         weight = mask.float()
         weight[:, 0] = 0.0
 
-        for group, lr in zip(optimizer.param_groups, base_lrs):
-            group["lr"] = lr * min(1.0, (step + 1) / max(1, warmup))
+        for group, lr, warm in zip(optimizer.param_groups, base_lrs, warmups):
+            group["lr"] = lr * min(1.0, (step + 1) / max(1, warm))
         optimizer.zero_grad()
         skill_rows = ~flag
         # The teacher and the frozen base run first. base_forward may switch off a gate in place, which must
@@ -717,6 +878,7 @@ def heal_distill(forward, base_forward, groups, tokenizer, teacher, texts, gener
         loss = logits.sum() * 0.0
         kd_value = 0.0
         anchor_value = 0.0
+        reg_value = 0.0
         if t_logits is not None:
             kd = kd_kl(logits[skill_rows], t_logits.to(device), weight[skill_rows])
             loss = loss + kd
@@ -725,34 +887,123 @@ def heal_distill(forward, base_forward, groups, tokenizer, teacher, texts, gener
             anchor = kd_kl(logits[flag], b_logits, weight[flag])
             loss = loss + anchor_weight * anchor
             anchor_value = float(anchor.detach())
+        if regularizer is not None:
+            extra = regularizer(step)
+            if extra is not None:
+                loss = loss + extra
+                reg_value = float(extra.detach())
         del t_logits, b_logits
         loss.backward()
-        torch.nn.utils.clip_grad_norm_(params, 1.0)
+        for group in groups:
+            torch.nn.utils.clip_grad_norm_(list(group["params"]), clip_norm)
         optimizer.step()
         log["kd"].append(kd_value)
         log["anchor"].append(anchor_value)
         log["passes"].append(passes)
+        log["reg"].append(reg_value)
         if log_every and (step + 1) % log_every == 0:
             print(f"heal step {step + 1}/{steps} kd {kd_value:.4f} anchor {anchor_value:.4f} passes {passes}")
+        if gap_fn is not None and gap_every and (step + 1) % gap_every == 0:
+            if autocast_dtype is not None:
+                with torch.autocast(device.type, dtype=autocast_dtype):
+                    found = gap_fn()
+            else:
+                found = gap_fn()
+            log["gap"].append({"step": step + 1, **found})
+            if log_every:
+                print(f"heal step {step + 1}/{steps} passes_gap kl {found['kl']:.4f} agree {found['agree']:.3f}")
+        # The runaway check: two or more passes, skill rows present.
+        if passes >= 2 and not bool(skill_rows.sum() == 0):
+            if not math.isfinite(kd_value) or not math.isfinite(anchor_value):
+                log["halted"] = True
+                log["halt_step"] = step + 1
+                log["halt_reason"] = "non-finite loss"
+                break
+            if baseline is None:
+                baseline = kd_value
+            limit = halt_ratio * max(baseline, halt_floor)
+            if kd_value > limit:
+                streak += 1
+            else:
+                streak = 0
+            if streak >= halt_patience:
+                log["halted"] = True
+                log["halt_step"] = step + 1
+                log["halt_reason"] = (f"two-pass KD above {halt_ratio}x its first value ({baseline:.3f}) "
+                                      f"for {halt_patience} steps in a row")
+                break
     tokenizer.padding_side = side
+    log["baseline_kd"] = baseline
     log["seconds"] = round(time.time() - start, 1)
     return log
 
 
-def stage2_groups(seam, lr_t_out=3e-4, lr_gate=1e-3, lr_lora=2e-4):
-    """Freeze all but T_out, the gates, and the host LoRA. Return AdamW groups."""
-    found = seam.set_trainable(("t_out", "gate", "lora"))
+def stage2_groups(seam, lr_t_out=3e-4, lr_gate=1e-3, lr_lora=2e-4, lr_t_in=1e-5, train_t_in=False, warmup_seam=100,
+                  warmup_lora=50):
+    """Freeze all but T_out, the gates, the host LoRA, and optionally T_in. Return AdamW groups.
+
+    Each group has its own lr and warmup. T_out and the gate warm up over
+    warmup_seam steps, the LoRA and T_in over warmup_lora. train_t_in is the
+    stage-2 fine-tune of T_in; heal_seam turns it on by default.
+    """
+    names = ["t_out", "gate", "lora"]
+    if train_t_in:
+        names.append("t_in")
+    found = seam.set_trainable(tuple(names))
     groups = []
-    for name, lr in (("t_out", lr_t_out), ("gate", lr_gate), ("lora", lr_lora)):
-        if len(found[name]) > 0:
-            groups.append({"params": found[name], "lr": lr, "name": name})
+    for name, lr, warm in (("t_out", lr_t_out, warmup_seam), ("gate", lr_gate, warmup_seam),
+                           ("t_in", lr_t_in, warmup_lora), ("lora", lr_lora, warmup_lora)):
+        if name in names and len(found[name]) > 0:
+            groups.append({"params": found[name], "lr": lr, "name": name, "warmup": warm})
     return groups
 
 
-def heal_seam(seam, tokenizer, teacher, texts, general_flags, lrs=None, **options):
-    """Stage 2 for a seam: heal_distill with the seam forward and the frozen-base anchor."""
+def t_in_regularizer(seam, tokenizer, donor, texts, weight=1.0, batch_size=2, seq_len=256, seed=0):
+    """regularizer(step) for heal_distill: the stage-1 fidelity loss (the donor's LM loss through T_in), times weight.
+
+    Keeps T_in a good feed for the donor block while it learns to read
+    states that carry feedback. It needs the donor model and tokenizer text
+    (same tokenizer as the host). Returns None when no branch has a T_in.
+    """
+    from wsp import stitch as stitch_module
+
+    branches = []
+    for branch in seam.branches:
+        if branch.t_in is not None:
+            branches.append(branch)
+    if len(branches) == 0:
+        return None
+    sampler = stitch_module.text_sampler(stitch_module.lm_texts(tokenizer, texts, seq_len), batch_size, seed)
+
+    def regularizer(step):
+        batch = sampler()
+        total = None
+        for branch in branches:
+            sink = branch.sink
+            loss = stitch_module.stitched_lm_loss(seam.host, tokenizer, [branch.read_layer], donor,
+                                                  branch.meta["donor_layers"][0], None, branch.t_in, batch, seq_len,
+                                                  sink)
+            total = loss if total is None else total + loss
+        return weight * total
+
+    return regularizer
+
+
+def heal_seam(seam, tokenizer, teacher, texts, general_flags, lrs=None, gap_texts=None, gap_every=200,
+              train_t_in=True, t_in_reg_weight=1.0, **options):
+    """Stage 2 for a seam: heal_distill with the seam forward and the frozen-base anchor.
+
+    lrs: keyword arguments of stage2_groups (lr_t_out, lr_gate, lr_lora,
+    lr_t_in). train_t_in (default on) also fine-tunes T_in at lr_t_in, with
+    the stage-1 fidelity loss times t_in_reg_weight as a regularizer (the
+    teacher is the donor, so it must be a model of the donor's family; the
+    regularizer is skipped when t_in_reg_weight is 0). gap_texts: held-out
+    texts for passes_gap every gap_every steps, logged under "gap".
+    options go to heal_distill (steps, batch_size, seq_len, seed,
+    one_pass_prob, three_pass_prob, halt_ratio, ...).
+    """
     lrs = lrs or {}
-    groups = stage2_groups(seam, **lrs)
+    groups = stage2_groups(seam, train_t_in=train_t_in, **lrs)
     seam.train()
 
     def forward(ids, mask, passes):
@@ -761,9 +1012,203 @@ def heal_seam(seam, tokenizer, teacher, texts, general_flags, lrs=None, **option
     def base_forward(ids, mask):
         return base_logits(seam, ids, mask)
 
-    log = heal_distill(forward, base_forward, groups, tokenizer, teacher, texts, general_flags, **options)
+    gap_fn = None
+    if gap_texts is not None and len(gap_texts) > 0:
+        def gap_fn():
+            seam.eval()
+            try:
+                return passes_gap(seam, tokenizer, gap_texts, passes=2, max_length=options.get("seq_len", 128))
+            finally:
+                seam.train()
+
+    regularizer = None
+    if train_t_in and t_in_reg_weight > 0:
+        regularizer = t_in_regularizer(seam, tokenizer, teacher, texts, weight=t_in_reg_weight,
+                                       seq_len=min(256, options.get("seq_len", 256)), seed=options.get("seed", 0))
+    log = heal_distill(forward, base_forward, groups, tokenizer, teacher, texts, general_flags,
+                       gap_fn=gap_fn, gap_every=gap_every, regularizer=regularizer, **options)
     seam.eval()
     return log
+
+
+@torch.no_grad()
+def warm_start_t_out(seam, tokenizer, teacher, texts, batch_size=4, seq_len=256, lam=1e-3, min_rows=64,
+                     holdout=0.2, init_scale=None):
+    """Fit T_out of every branch by ridge, so a fresh seam already points from the base toward the donor.
+
+    Needs a tokenizer the host and the teacher share (same vocabulary
+    ids). For each real position t whose feedback reaches position t + 1:
+
+      x_t = the branch's normalized output at t (what T_out reads)
+      y_t = E[top1 of the teacher] - E[top1 of the base]   (host input embeddings)
+
+    on rows where the two top-1 tokens differ. y is the direction in host
+    embedding space from what the base would say to what the donor says. Two
+    lags are tried: lag 0 takes both top-1 tokens from the logits at t, and
+    lag 1 from the logits at t + 1 (the prediction the position that
+    receives the feedback must make). The lag with the larger held-out mean
+    cosine between T_out(x) and y wins. The fit scales to the same size as a
+    random start (std 1/sqrt(width)), which costs nothing in the forward
+    pass because the written vector is normalized, and keeps one Adam step
+    small relative to the weights. The gate stays where it is (0 for a fresh
+    seam).
+
+    A branch keeps its random start when it has too few rows (min_rows) or
+    its held-out cosine is not above 0. Returns a list of reports, one per
+    branch: mode "ridge" or "random", rows, lag, cosines, and the cosine of
+    the random start on the same held-out rows.
+    """
+    if len(seam.branches) == 0:
+        return []
+    side = tokenizer.padding_side
+    tokenizer.padding_side = "right"
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+    device = next(seam.parameters()).device
+    teacher_device = next(teacher.parameters()).device
+    embed = seam.get_input_embeddings().weight.detach().float()
+    was_training = seam.training
+    seam.eval()
+    count = (len(texts) + batch_size - 1) // batch_size
+    cut = max(1, int(round(count * (1.0 - holdout)))) if count > 1 else 1
+    stats = []
+    for branch in seam.branches:
+        width = branch.t_out.weight.shape[1]
+        d_host = branch.t_out.weight.shape[0]
+        stats.append({"xtx": [torch.zeros(width, width, dtype=torch.float64, device=device) for _ in range(2)],
+                      "xty": [torch.zeros(width, d_host, dtype=torch.float64, device=device) for _ in range(2)],
+                      "rows": [0, 0], "val": [[], []]})
+    for index in range(count):
+        batch = texts[index * batch_size:(index + 1) * batch_size]
+        enc = tokenizer(batch, return_tensors="pt", padding=True, truncation=True, max_length=seq_len,
+                        add_special_tokens=False)
+        ids = enc["input_ids"].to(device)
+        mask = enc["attention_mask"].to(device)
+        if ids.shape[1] < 3:
+            continue
+        mask_p, pos = seam.prepare(ids, mask)
+        out = seam.host_pass(ids, mask_p, pos, None)
+        teacher_logits = teacher(input_ids=ids.to(teacher_device), attention_mask=mask.to(teacher_device)).logits
+        vocab = min(out.logits.shape[-1], teacher_logits.shape[-1], embed.shape[0])
+        base_top = out.logits[..., :vocab].argmax(-1)
+        donor_top = teacher_logits[..., :vocab].argmax(-1).to(device)
+        real = mask != 0
+        reads = seam.reads_of(out.hidden_states)
+        is_val = index >= cut
+        for branch, read, stat in zip(seam.branches, reads, stats):
+            x = branch.pre(read, mask_p).float()
+            # valid[t]: the feedback of t reaches a real position t + 1, and t + 1 has a prediction (lag 1).
+            valid = real[:, :-1] & real[:, 1:]
+            for lag in (0, 1):
+                if lag == 0:
+                    b1, d1 = base_top[:, :-1], donor_top[:, :-1]
+                else:
+                    b1, d1 = base_top[:, 1:], donor_top[:, 1:]
+                use = valid & (b1 != d1)
+                if not bool(use.any()):
+                    continue
+                rows_x = x[:, :-1][use].double()
+                rows_y = (embed[d1[use]] - embed[b1[use]]).double()
+                if is_val:
+                    stat["val"][lag].append((rows_x, rows_y))
+                else:
+                    stat["xty"][lag] += rows_x.T @ rows_y
+                    stat["rows"][lag] += rows_x.shape[0]
+                    stat["xtx"][lag] += rows_x.T @ rows_x
+
+    reports = []
+    for branch, stat in zip(seam.branches, stats):
+        width = branch.t_out.weight.shape[1]
+        report = {"mode": "random", "rows": max(stat["rows"]), "lag": None, "cosine": {}, "random_cosine": {}}
+        scale = init_scale if init_scale is not None else 1.0 / math.sqrt(width)
+        best = None
+        for lag in (0, 1):
+            if stat["rows"][lag] < min_rows:
+                continue
+            xtx = stat["xtx"][lag]
+            ridge = lam * float(torch.trace(xtx)) / width
+            eye = torch.eye(width, dtype=torch.float64, device=xtx.device)
+            weight = torch.linalg.solve(xtx + ridge * eye, stat["xty"][lag]).T.float()
+            cos = held_out_cosine(weight, stat["val"][lag])
+            rnd = held_out_cosine(branch.t_out.weight.detach().float().to(weight.device), stat["val"][lag])
+            report["cosine"][f"lag{lag}"] = cos
+            report["random_cosine"][f"lag{lag}"] = rnd
+            if cos is not None and cos > 0 and (best is None or cos > best[0]):
+                best = (cos, lag, weight)
+        if best is not None:
+            weight = best[2]
+            rms = float(weight.pow(2).mean().sqrt())
+            if rms > 0:
+                with torch.no_grad():
+                    branch.t_out.weight.copy_((weight * (scale / rms)).to(branch.t_out.weight.device))
+                report["mode"] = "ridge"
+                report["lag"] = best[1]
+        reports.append(report)
+    tokenizer.padding_side = side
+    seam.train(was_training)
+    return reports
+
+
+def held_out_cosine(weight, rows):
+    """Mean cosine between weight @ x and y over held-out (x, y) row blocks. None when there are none."""
+    total = 0.0
+    count = 0
+    for x, y in rows:
+        pred = x.float() @ weight.T.to(x.device)
+        sim = torch.nn.functional.cosine_similarity(pred, y.float(), dim=-1)
+        total += float(sim.sum())
+        count += sim.numel()
+    if count == 0:
+        return None
+    return total / count
+
+
+@torch.no_grad()
+def feedback_stats(seam, tokenizer, texts, max_length=128, batch_size=4):
+    """Per branch: the gate, embed_rms, and the mean norm of the written vector, as a ratio to embed_rms.
+
+    The reads come from a no-feedback pass. For a fresh seam the ratio is 0.
+    In general it equals the gate, whatever the raw scale of T_out. The
+    token_ratio is the same norm divided by the norm of the actual input
+    embedding of the token it is added to.
+    """
+    side = tokenizer.padding_side
+    tokenizer.padding_side = "right"
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+    device = next(seam.parameters()).device
+    totals = [0.0] * len(seam.branches)
+    token_totals = [0.0] * len(seam.branches)
+    count = 0.0
+    was_training = seam.training
+    seam.eval()
+    for first in range(0, len(texts), batch_size):
+        enc = tokenizer(texts[first:first + batch_size], return_tensors="pt", padding=True, truncation=True,
+                        max_length=max_length, add_special_tokens=False)
+        ids = enc["input_ids"].to(device)
+        mask = enc["attention_mask"].to(device)
+        mask, pos = seam.prepare(ids, mask)
+        out = seam.host_pass(ids, mask, pos, None)
+        embed = seam.get_input_embeddings()(ids).float()
+        valid = (mask != 0)
+        valid = valid[:, 1:] & valid[:, :-1]
+        reads = seam.reads_of(out.hidden_states)
+        for index, (branch, read) in enumerate(zip(seam.branches, reads)):
+            written = branch.output(read, mask).float()
+            norms = written[:, :-1].norm(dim=-1)
+            totals[index] += float((norms * valid).sum())
+            token_totals[index] += float(((norms / embed[:, 1:].norm(dim=-1).clamp(min=1e-6)) * valid).sum())
+        count += float(valid.sum())
+    tokenizer.padding_side = side
+    seam.train(was_training)
+    out = []
+    for index, branch in enumerate(seam.branches):
+        rms = float(branch.embed_rms)
+        mean_norm = totals[index] / count if count > 0 else 0.0
+        out.append({"gate": float(branch.gate.detach()), "embed_rms": rms, "written_norm": mean_norm,
+                    "ratio": mean_norm / rms if rms > 0 else None,
+                    "token_ratio": token_totals[index] / count if count > 0 else None})
+    return out
 
 
 @torch.no_grad()
@@ -831,6 +1276,7 @@ def save_seam(seam, out_dir, tokenizer=None, base_id=None, extra=None):
             os.makedirs(folder, exist_ok=True)
             branch.donor_config.save_pretrained(folder)
         meta["gate"] = float(branch.gate.detach())
+        meta["gate_raw"] = float(branch.gate_raw.detach())
         metas.append(meta)
     save_file(branch_state(seam), os.path.join(out_dir, "feedback_weights.safetensors"))
     lora = getattr(seam.host, "_wsp_base_lora", None)
@@ -870,7 +1316,8 @@ def load_seam(path, device="cpu", dtype=torch.bfloat16, cache_dir=None, host=Non
     branches = []
     for index, meta in enumerate(manifest["branches"]):
         if meta["kind"] == "plain":
-            branches.append(make_plain_branch(host, gate_init=meta["gate"]))
+            branches.append(make_plain_branch(host, g_max=meta.get("g_max", 0.5), legacy=meta.get("legacy", False),
+                                              embed_rms=meta.get("embed_rms")))
             continue
         config = transformers.AutoConfig.from_pretrained(os.path.join(path, "donors", str(index)))
         source = meta["donor_id"]
@@ -882,8 +1329,9 @@ def load_seam(path, device="cpu", dtype=torch.bfloat16, cache_dir=None, host=Non
         sink = torch.zeros(meta["d_donor"]) if meta.get("sink") else None
         branch = make_block_branch(host, source, meta["donor_layers"], meta["read_layer"], t_in=t_in,
                                    donor_config=config, donor_id=meta["donor_id"], sink=sink,
-                                   gate_init=meta["gate"], out_mode=meta.get("out_mode", "delta"),
-                                   cache_dir=cache_dir,
+                                   out_mode=meta.get("out_mode", "delta"), cache_dir=cache_dir,
+                                   g_max=meta.get("g_max", 0.5), legacy=meta.get("legacy", False),
+                                   embed_rms=meta.get("embed_rms"),
                                    control="scrambled" if meta.get("control") == "scrambled" else None,
                                    control_seed=meta.get("control_seed"))
         branch.meta["control"] = meta.get("control")
