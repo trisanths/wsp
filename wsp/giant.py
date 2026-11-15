@@ -77,8 +77,18 @@ def decode_bytes(data, dtype_name, shape):
         count *= size
     if count == 0:
         return torch.zeros(shape, dtype=dtype)
-    raw = torch.frombuffer(bytearray(data), dtype=torch.uint8)
-    return raw.view(dtype).reshape(shape).clone()
+    if not isinstance(data, (bytearray, memoryview)) or (isinstance(data, memoryview) and data.readonly):
+        data = bytearray(data)
+    # The tensor shares the buffer. Callers that read one big range keep it alive through the views.
+    raw = torch.frombuffer(data, dtype=torch.uint8)
+    return raw.view(dtype).reshape(shape)
+
+
+def slice_buffer(data, start, end):
+    """data[start:end] as a writable buffer. A view when it is aligned to 8 bytes, a copy otherwise."""
+    if isinstance(data, bytearray) and start % 8 == 0:
+        return memoryview(data)[start:end]
+    return bytearray(data[start:end])
 
 
 def entry_bytes(entry):
@@ -120,6 +130,7 @@ class Source:
         self.bytes_read = 0
         self.requests = 0
         self.gap = 1 << 20
+        self.max_request = 1 << 28
         self._prefetch = None
 
     def weight_map(self):
@@ -127,6 +138,10 @@ class Source:
 
     def range_reader(self, shard):
         raise NotImplementedError
+
+    def identity(self):
+        """A JSON-able value that changes when the weights change. Part of the resume key."""
+        return ["source", type(self).__name__]
 
     def reader(self, shard):
         with self._lock:
@@ -175,10 +190,31 @@ class Source:
         return self.entry(name)[1]["dtype"]
 
     def _read_span(self, shard, begin, end):
-        data = self.reader(shard)(begin, end - begin)
+        """Bytes of [begin, end) of one shard. Long spans go out as several requests of at most max_request bytes."""
+        reader = self.reader(shard)
+        size = end - begin
+        if size <= self.max_request:
+            data = reader(begin, size)
+            if len(data) != size:
+                raise RuntimeError(f"{shard}: asked for {size} bytes at {begin}, got {len(data)}")
+            requests = 1
+        else:
+            data = bytearray(size)
+            offsets = list(range(0, size, self.max_request))
+
+            def piece(offset):
+                length = min(self.max_request, size - offset)
+                part = reader(begin + offset, length)
+                if len(part) != length:
+                    raise RuntimeError(f"{shard}: asked for {length} bytes at {begin + offset}, got {len(part)}")
+                data[offset:offset + length] = part
+
+            with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+                list(pool.map(piece, offsets))
+            requests = len(offsets)
         with self._lock:
-            self.bytes_read += end - begin
-            self.requests += 1
+            self.bytes_read += size
+            self.requests += requests
         return data
 
     def read(self, names, workers=8, gap=None):
@@ -212,7 +248,7 @@ class Source:
             pieces = {}
             for begin, end, name in group[2]:
                 entry = self.entry(name)[1]
-                chunk = data[begin - group[0]:end - group[0]]
+                chunk = slice_buffer(data, begin - group[0], end - group[0])
                 pieces[name] = decode_bytes(chunk, entry["dtype"], entry["shape"])
             return pieces
 
@@ -243,7 +279,8 @@ class Source:
         for group in plan_ranges(spans, gap=gap):
             data = self._read_span(shard, group[0], group[1])
             for begin, end, row in group[2]:
-                pieces[row] = decode_bytes(data[begin - group[0]:end - group[0]], entry["dtype"], shape[1:])
+                chunk = slice_buffer(data, begin - group[0], end - group[0])
+                pieces[row] = decode_bytes(chunk, entry["dtype"], shape[1:])
         return torch.stack([pieces[row] for row in rows])
 
     def prefetch(self, names, workers=8):
@@ -289,6 +326,13 @@ class LocalSource(Source):
     def range_reader(self, shard):
         return fetch.local_range_reader(os.path.join(self.folder, shard))
 
+    def identity(self):
+        files = []
+        for shard in sorted(set(self._map.values())):
+            stat = os.stat(os.path.join(self.folder, shard))
+            files.append([shard, stat.st_size, stat.st_mtime_ns])
+        return ["local", os.path.abspath(self.folder), files]
+
 
 def with_retries(read_range, tries=6, wait=2.0, longest=60.0):
     """Retry a range read with doubling waits. The hub answers 429 when requests come too fast."""
@@ -333,6 +377,9 @@ class HubSource(Source):
                 with open(path) as f:
                     self._map = json.load(f)["weight_map"]
         return self._map
+
+    def identity(self):
+        return ["hub", self.repo_id, self.revision]
 
     def _token(self):
         if self.token is not None:
@@ -437,6 +484,8 @@ class Layout:
     fp32_names = ("e_score_correction_bias",)
     # Layer-relative keys that the loader may leave unset. Regexes.
     optional = ()
+    # Module keys that combine() builds from several checkpoint tensors. Regexes need not apply: exact keys.
+    combine_keys = ()
 
     def __init__(self, prefix="model.layers.{layer}.", embed="model.embed_tokens.weight"):
         self.prefix_format = prefix
@@ -454,7 +503,8 @@ class Layout:
     def layer_names(self, source, layer):
         """Every tensor name of one layer, from the weight map."""
         key = id(source)
-        if key not in self._by_layer:
+        # Keep the source in the entry: a freed source can hand its id to a new one.
+        if key not in self._by_layer or self._by_layer[key][0] is not source:
             head, tail = self.prefix_format.split("{layer}")
             pattern = re.compile("^" + re.escape(head) + r"(\d+)" + re.escape(tail))
             table = {}
@@ -462,8 +512,8 @@ class Layout:
                 match = pattern.match(name)
                 if match is not None:
                     table.setdefault(int(match.group(1)), []).append(name)
-            self._by_layer[key] = table
-        return sorted(self._by_layer[key].get(layer, []))
+            self._by_layer[key] = (source, table)
+        return sorted(self._by_layer[key][1].get(layer, []))
 
     def translate(self, name, layer):
         """Layer-relative key in the module state dict for a checkpoint name, or None to drop."""
@@ -656,6 +706,8 @@ class GlmLayout(FusedExpertLayout):
     def is_scale(self, name):
         return name.endswith(".weight_scale_inv")
 
+    combine_keys = ("self_attn.q_conv1d.weight", "self_attn.k_conv1d.weight", "self_attn.v_conv1d.weight")
+
     def combine(self, state):
         """The module has one conv1d for q, k and v. The checkpoint has three."""
         names = ["self_attn.q_conv1d.weight", "self_attn.k_conv1d.weight", "self_attn.v_conv1d.weight"]
@@ -774,6 +826,29 @@ def auto_prefix(weight_map):
     return best[1] + "layers.{layer}."
 
 
+def layout_from_name(name, source):
+    """The Layout of a zoo `stream.layout` name: deepseek_v4, glm5_next, kimi, or hf (plain, prefix found from the weights)."""
+    if name == "kimi":
+        return KimiLayout()
+    if name in LAYOUTS:
+        return LAYOUTS[name]()
+    if name != "hf":
+        raise ValueError(f"unknown layout {name}")
+    prefix = auto_prefix(source.weight_map())
+    head = prefix[:-len("layers.{layer}.")]
+    return Layout(prefix=prefix, embed=head + "embed_tokens.weight")
+
+
+def hub_layer_count(repo_id, revision="main"):
+    """num_hidden_layers of the text model, from config.json alone. Needs no transformers class, so it works for new families."""
+    from huggingface_hub import hf_hub_download
+
+    with open(hf_hub_download(repo_id, "config.json", revision=revision)) as f:
+        config = json.load(f)
+    text = config.get("text_config") or config
+    return int(text["num_hidden_layers"])
+
+
 def layout_for(config, source):
     """The Layout for a config and source. Unknown families get the plain Hugging Face layout."""
     names = [getattr(config, "model_type", None)]
@@ -889,26 +964,40 @@ def load_layer(layer, source, layout, index, device, dtype, expert_chunk=32, wor
         if scale is not None:
             wanted.append(scale)
     raw = source.read(wanted, workers=workers)
+    unexpected = []
+
+    def put(key, value):
+        if key not in target:
+            unexpected.append(key)
+            return
+        if tuple(target[key].shape) != tuple(value.shape):
+            raise ValueError(f"layer {index}: {key} has shape {tuple(value.shape)}, the module wants "
+                             f"{tuple(target[key].shape)}")
+        with torch.no_grad():
+            target[key].copy_(value)
+        written.add(key)
+
+    # Decode one tensor at a time and copy it into the layer at once, so a layer with big dense
+    # tensors never holds the stored, the decoded and the module copy together. Tensors that
+    # the layout merges (combine_keys) wait in `state`.
+    state = {}
     for name, scale in plain:
         if name in scale_names:
             continue
         key = layout.translate(name, index)
         if key is None:
             continue
-        state[key] = layout.decode(source, name, raw[name], raw[scale] if scale is not None else None, dtype, device)
+        value = layout.decode(source, name, raw.pop(name), raw.pop(scale) if scale is not None else None, dtype,
+                              device)
+        if key in layout.combine_keys:
+            state[key] = value
+        else:
+            put(key, value)
+        value = None
     raw = None
     state = layout.combine(state)
-    unexpected = []
-    with torch.no_grad():
-        for key, value in state.items():
-            if key not in target:
-                unexpected.append(key)
-                continue
-            if tuple(target[key].shape) != tuple(value.shape):
-                raise ValueError(f"layer {index}: {key} has shape {tuple(value.shape)}, the module wants "
-                                 f"{tuple(target[key].shape)}")
-            target[key].copy_(value)
-            written.add(key)
+    for key, value in state.items():
+        put(key, value)
     state = None
     if layout.expert_re is not None:
         loads, scales = layout.expert_loads(source, index)
@@ -1177,13 +1266,15 @@ def profile_streaming(source, config, tokenizer, skill_texts, general_texts, lay
     if max_layers is not None:
         last = min(total, first_layer + max_layers)
 
-    key = texts_key({name: groups[name] for name in names}, max_length, [getattr(config, "model_type", ""), total])
+    key = texts_key({name: groups[name] for name in names}, max_length,
+                    [getattr(config, "model_type", ""), total, source.identity(), layout.family, str(dtype)])
     counts = {}
     states = [None] * len(items)
     start = first_layer
     if state_dir is not None:
         os.makedirs(state_dir, exist_ok=True)
         start, counts, states = resume_state(state_dir, key, items, first_layer, last)
+        states = [to_device_state(state, device) for state in states]
         if start > first_layer:
             log(f"resumed at layer {start}")
 
@@ -1282,6 +1373,15 @@ def save_progress(state_dir, key, index, counts, states, checkpoint_every, last)
         torch.save({"key": key, "counts": None}, counts_path)
     if (index + 1) % checkpoint_every == 0 or index + 1 == last:
         torch.save({"key": key, "states": [to_cpu_state(state) for state in states]}, state_path)
+
+
+def to_device_state(state, device):
+    """Move a saved hidden state (a tensor, a tuple of them, or None) to the device of the layers."""
+    if isinstance(state, (tuple, list)):
+        return tuple(to_device_state(part, device) for part in state)
+    if state is None:
+        return None
+    return state.to(device)
 
 
 def to_cpu_state(state):

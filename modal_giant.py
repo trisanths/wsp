@@ -61,17 +61,21 @@ DEFAULT_SKILLS = ["knowledge", "medicine", "law", "math", "code", "science", "re
                   "multilingual_math", "decision"]
 
 
-def estimate(zoo_model, mbps, layer_seconds, max_layers=None):
-    """Bytes to read and hours, from the shard headers of the repo. Returns a dict."""
-    from wsp import giant
-    from transformers import AutoConfig
+def estimate(zoo_model, mbps, layer_seconds, max_layers=None, source=None, layer_count=None):
+    """Bytes to read and hours, from the shard headers of the repo. Returns a dict.
 
-    trust = zoo_model["needs"]["trust_remote_code"]
-    config = AutoConfig.from_pretrained(zoo_model["id"], trust_remote_code=trust)
-    source = giant.HubSource(zoo_model["id"])
-    layout = giant.layout_for(config, source)
-    text = config.get_text_config() if hasattr(config, "get_text_config") else config
-    count = text.num_hidden_layers
+    Runs on the machine that starts the job, whose transformers may be too old for the
+    family and must not run remote code. So it reads config.json as plain JSON and takes
+    the layout from the zoo row. `source` and `layer_count` are for tests.
+    """
+    from wsp import giant
+
+    if source is None:
+        source = giant.HubSource(zoo_model["id"])
+    layout = giant.layout_from_name(zoo_model["stream"]["layout"], source)
+    count = layer_count
+    if count is None:
+        count = giant.hub_layer_count(zoo_model["id"])
     layers = list(range(count))
     if max_layers is not None:
         layers = layers[:max_layers]
@@ -117,6 +121,44 @@ def run_profile(zoo_model, options):
     return {"entry": entry, "info": result["info"]}
 
 
+def merge_expert_maps(base, new_maps, info, zoo_model):
+    """Entry dict from an existing entry (or {}) and the compact expert maps of this run.
+
+    new_maps is {skill: {str(layer): [expert ids]}}. Layers of this run replace the same layers
+    of the old map; layers the run did not reach stay. So a smoke run with --max-layers cannot
+    erase a finished entry. The entry is partial only when this run was partial and the old
+    entry was not complete.
+    """
+    from wsp import atlas
+
+    entry = atlas.make_entry(zoo_model["id"], base.get("skills", {}), None, None, zoo_model.get("params_b"),
+                             zoo_model.get("layers"), zoo_model.get("hidden"), zoo_model.get("family"),
+                             base.get("skill_details", {}))
+    if base.get("layer_maps"):
+        entry["layer_maps"] = base["layer_maps"]
+    merged = {}
+    previous = base.get("expert_maps") or {}
+    for skill in previous:
+        merged[skill] = dict(previous[skill])
+    for skill in new_maps:
+        layers = dict(merged.get(skill, {}))
+        layers.update(new_maps[skill])
+        merged[skill] = layers
+    entry["expert_maps"] = merged
+    entry["zoo"] = {"key": zoo_model["key"], "kind": zoo_model["kind"], "maker": zoo_model["maker"],
+                    "listed_skills": zoo_model["skills"]}
+    run_partial = info["layers_done"] < info["layers_total"]
+    old_complete = bool(base.get("streamed")) and not base.get("partial")
+    if run_partial and old_complete:
+        entry["streamed"] = base["streamed"]
+    else:
+        entry["streamed"] = {"layers_done": info["layers_done"], "layers_total": info["layers_total"],
+                             "texts": info["texts"], "bytes_read": info["bytes_read"]}
+        if run_partial:
+            entry["partial"] = True
+    return entry
+
+
 def merge_entry(zoo_model, maps, info):
     from wsp import atlas
 
@@ -124,25 +166,10 @@ def merge_entry(zoo_model, maps, info):
     base = {}
     if os.path.exists(path):
         base = atlas.read_entry(path)
-    entry = atlas.make_entry(zoo_model["id"], base.get("skills", {}), None, maps, zoo_model.get("params_b"),
-                             zoo_model.get("layers"), zoo_model.get("hidden"), zoo_model.get("family"),
-                             base.get("skill_details", {}))
-    for key in ("layer_maps",):
-        if base.get(key):
-            entry[key] = base[key]
-    previous = base.get("expert_maps") or {}
-    merged = {}
-    for skill in previous:
-        merged[skill] = previous[skill]
+    compact = {}
     for skill in maps:
-        merged[skill] = atlas.top_experts(maps[skill])
-    entry["expert_maps"] = merged
-    entry["zoo"] = {"key": zoo_model["key"], "kind": zoo_model["kind"], "maker": zoo_model["maker"],
-                    "listed_skills": zoo_model["skills"]}
-    entry["streamed"] = {"layers_done": info["layers_done"], "layers_total": info["layers_total"],
-                         "texts": info["texts"], "bytes_read": info["bytes_read"]}
-    if info["layers_done"] < info["layers_total"]:
-        entry["partial"] = True
+        compact[skill] = atlas.top_experts(maps[skill])
+    entry = merge_expert_maps(base, compact, info, zoo_model)
     atlas.write_entry(entry, VOLUME_ENTRIES)
     volume.commit()
     return entry
@@ -222,7 +249,10 @@ def main(only: str = "", skills: str = "", texts: int = 32, max_layers: int = 0,
             with open(f"results/giant_{name}_failed.json", "w") as f:
                 json.dump({"model": zoo_model["id"], "error": repr(error)[:2000]}, f, indent=1)
             continue
-        atlas.write_entry(result["entry"], os.path.join("atlas", "entries"))
+        local = os.path.join("atlas", "entries")
+        local_path = os.path.join(local, atlas.entry_name(zoo_model["id"]))
+        base = atlas.read_entry(local_path) if os.path.exists(local_path) else {}
+        atlas.write_entry(merge_expert_maps(base, result["entry"]["expert_maps"], result["info"], zoo_model), local)
         with open(f"results/giant_{name}.json", "w") as f:
             json.dump({"model": zoo_model["id"], "info": result["info"], "entry": result["entry"]}, f)
         print(json.dumps({"model": zoo_model["id"], "layers_done": result["info"]["layers_done"],

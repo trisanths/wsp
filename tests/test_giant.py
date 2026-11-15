@@ -993,3 +993,191 @@ def test_zoo_stream_layouts_are_known():
         assert stream["layout"] in ("deepseek_v4", "glm5_next", "kimi", "hf")
         assert model["moe"]
         assert stream["api_total_gb"] > 100
+
+
+# ---------------------------------------------------------------------------
+# Regressions found in review.
+
+
+class MemorySource(giant.Source):
+    """One shard held in memory, with a log of the range requests."""
+
+    def __init__(self, tensors, cut=0):
+        giant.Source.__init__(self)
+        import io
+
+        blob = io.BytesIO()
+        from safetensors.torch import save as save_bytes
+
+        self.blob = save_bytes(tensors)
+        self.names = list(tensors)
+        self.log = []
+        self.cut = cut
+
+    def weight_map(self):
+        return {name: "m.safetensors" for name in self.names}
+
+    def range_reader(self, shard):
+        def read(offset, length):
+            self.log.append(length)
+            return self.blob[offset:offset + length - self.cut]
+
+        return read
+
+
+def test_long_read_is_split_into_requests_and_stays_exact():
+    table = torch.randn(64, 32)
+    source = MemorySource({"w": table, "v": torch.arange(5, dtype=torch.int64)})
+    source.header("m.safetensors")
+    source.log.clear()
+    source.max_request = 1000
+    got = source.read(["w"])["w"]
+    assert torch.equal(got, table)
+    assert len(source.log) == 9
+    assert max(source.log) <= 1000
+    assert source.bytes_read == table.numel() * 4
+
+
+def test_short_range_answer_is_an_error():
+    source = MemorySource({"w": torch.randn(8, 8)})
+    source.header("m.safetensors")
+    source.cut = 4
+    with pytest.raises(RuntimeError):
+        source.read(["w"])
+
+
+def test_unaligned_neighbours_decode_exactly():
+    tensors = {"a": torch.arange(3, dtype=torch.uint8), "b": torch.randn(5, 3), "c": torch.arange(7, dtype=torch.int8),
+               "d": torch.randn(4).to(torch.bfloat16)}
+    source = MemorySource(tensors)
+    got = source.read(list(tensors))
+    for name in tensors:
+        assert torch.equal(got[name], tensors[name])
+
+
+def test_resume_ignores_state_of_other_weights(tmp_path):
+    tok = tokenizer()
+    model, folder = saved(tmp_path / "one", "qwen3_moe")
+    state_dir = str(tmp_path / "state")
+    stream(folder, model, tok, max_layers=2, state_dir=state_dir, checkpoint_every=1)
+    other = tiny_model("qwen3_moe")
+    with torch.no_grad():
+        for parameter in other.parameters():
+            parameter.add_(torch.randn_like(parameter) * 0.05)
+    other_folder = str(tmp_path / "two")
+    other.save_pretrained(other_folder)
+    expected = reference_maps(other, tok)
+    result = stream(other_folder, other, tok, state_dir=state_dir, checkpoint_every=1)
+    assert len(result["info"]["layer_seconds"]) == 3
+    for skill in expected:
+        assert same_map(expected[skill], result["maps"][skill])
+
+
+def test_resumed_states_are_moved_to_the_layer_device(tmp_path, monkeypatch):
+    tok = tokenizer()
+    model, folder = saved(tmp_path, "qwen3_moe", layers=4)
+    state_dir = str(tmp_path / "state")
+    stream(folder, model, tok, max_layers=2, state_dir=state_dir, checkpoint_every=1)
+    seen = []
+    real = giant.to_device_state
+
+    def spy(state, device):
+        seen.append(device)
+        return real(state, device)
+
+    monkeypatch.setattr(giant, "to_device_state", spy)
+    stream(folder, model, tok, state_dir=state_dir, checkpoint_every=1)
+    assert len(seen) > 0 and set(seen) == {"cpu"}
+    pair = (torch.zeros(2), torch.ones(3))
+    moved = giant.to_device_state(pair, "meta")
+    assert isinstance(moved, tuple) and all(part.device.type == "meta" for part in moved)
+    assert giant.to_device_state(None, "meta") is None
+
+
+def test_layer_name_cache_does_not_confuse_sources(tmp_path):
+    save_file({"model.layers.0.w": torch.zeros(2)}, str(tmp_path / "model.safetensors"))
+    first = giant.LocalSource(str(tmp_path))
+    other = tmp_path / "b"
+    other.mkdir()
+    save_file({"model.layers.0.x": torch.zeros(2)}, str(other / "model.safetensors"))
+    second = giant.LocalSource(str(other))
+    layout = giant.Layout()
+    assert layout.layer_names(second, 0) == ["model.layers.0.x"]
+    # Another source that gets the id of a freed one must not see its names.
+    layout._by_layer[id(first)] = (second, {0: ["model.layers.0.x"]})
+    assert layout.layer_names(first, 0) != ["model.layers.0.x"]
+
+
+def test_glm_layout_lists_the_keys_it_combines():
+    state = {"self_attn.q_conv1d.weight": torch.zeros(2, 1, 4), "self_attn.k_conv1d.weight": torch.zeros(2, 1, 4),
+             "self_attn.v_conv1d.weight": torch.zeros(2, 1, 4)}
+    layout = giant.GlmLayout()
+    assert set(layout.combine_keys) == set(state)
+    assert list(layout.combine(state)) == ["self_attn.conv1d.weight"]
+
+
+def test_layout_from_name_covers_every_zoo_layout(tmp_path):
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    zoo = atlas.load_zoo(os.path.join(root, "atlas", "zoo.json"))
+    model, folder = saved(tmp_path, "mixtral")
+    source = giant.LocalSource(folder)
+    for entry in zoo["models"]:
+        stream_info = entry.get("stream")
+        if stream_info is not None:
+            assert giant.layout_from_name(stream_info["layout"], source).family
+    assert giant.layout_from_name("kimi", source).family == "kimi_k3"
+    with pytest.raises(ValueError):
+        giant.layout_from_name("nope", source)
+
+
+def test_estimate_runs_without_a_transformers_config(tmp_path, monkeypatch):
+    import modal_giant
+
+    def refuse(*args, **kwargs):
+        raise AssertionError("estimate must not load a transformers config")
+
+    monkeypatch.setattr(transformers.AutoConfig, "from_pretrained", refuse)
+    model, folder = saved(tmp_path, "mixtral")
+    source = giant.LocalSource(folder)
+    row = {"id": "tiny/mixtral", "stream": {"layout": "hf"}}
+    got = modal_giant.estimate(row, 300.0, 30.0, source=source, layer_count=3)
+    layout = giant.layout_from_name("hf", source)
+    sizes = giant.stream_bytes(source, layout, 3)
+    assert got["download_gb"] == round(sizes["total"] / 1e9, 1)
+    assert got["layers"] == 3
+    limited = modal_giant.estimate(row, 300.0, 30.0, max_layers=1, source=source, layer_count=3)
+    assert limited["layers"] == 1
+    assert limited["compute_hours"] < got["compute_hours"]
+
+
+def zoo_row():
+    return {"id": "org/giant", "key": "org__giant", "kind": "reasoning", "maker": "x", "skills": ["general"],
+            "params_b": 1.0, "layers": 4, "hidden": 8, "family": "f"}
+
+
+def test_smoke_run_keeps_the_layers_of_a_finished_entry():
+    import modal_giant
+
+    done = {"layers_done": 4, "layers_total": 4, "texts": 10, "bytes_read": 100}
+    full = modal_giant.merge_expert_maps({}, {"math": {"0": [1], "1": [2], "2": [3], "3": [4]}}, done, zoo_row())
+    assert "partial" not in full
+    smoke = {"layers_done": 1, "layers_total": 4, "texts": 2, "bytes_read": 5}
+    again = modal_giant.merge_expert_maps(full, {"math": {"0": [9]}}, smoke, zoo_row())
+    assert again["expert_maps"]["math"] == {"0": [9], "1": [2], "2": [3], "3": [4]}
+    assert "partial" not in again
+    assert again["streamed"] == done
+
+
+def test_partial_run_marks_the_entry_partial_and_a_full_run_clears_it():
+    import modal_giant
+
+    smoke = {"layers_done": 1, "layers_total": 4, "texts": 2, "bytes_read": 5}
+    first = modal_giant.merge_expert_maps({}, {"math": {"0": [9]}}, smoke, zoo_row())
+    assert first["partial"] is True
+    second = modal_giant.merge_expert_maps(first, {"code": {"0": [1]}}, smoke, zoo_row())
+    assert second["partial"] is True
+    assert sorted(second["expert_maps"]) == ["code", "math"]
+    done = {"layers_done": 4, "layers_total": 4, "texts": 10, "bytes_read": 100}
+    last = modal_giant.merge_expert_maps(second, {"math": {"0": [1], "1": [2], "2": [3], "3": [4]}}, done, zoo_row())
+    assert "partial" not in last
+    assert sorted(last["expert_maps"]["math"]) == ["0", "1", "2", "3"]
