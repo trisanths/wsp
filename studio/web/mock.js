@@ -23,11 +23,7 @@ const PARTS = [
   { id: 'lfm_experts_2', group: 'add', kind: 'experts', label: 'Fast recall', donor: 'LiquidAI/LFM2-8B-A1B', layers: [6, 9], params_m: 90, default_at: 10, summary: '2 experts, layers 6-9', task: 'general', power: 0.3, short: 'lfm.e2' },
   { id: 'qcoder_block_6_17', group: 'add', kind: 'block', label: 'Code block', donor: 'Qwen/Qwen2.5-Coder-1.5B', layers: [6, 17], params_m: 560, default_at: 5, summary: 'Qwen2.5-Coder layers 6-17', task: 'code', power: 0.6, short: 'qcode.l6-17' },
   { id: 'saul_block_4_13', group: 'add', kind: 'block', label: 'Legal reasoning', donor: 'Equall/Saul-1B', layers: [4, 13], params_m: 410, default_at: 4, summary: 'Saul layers 4-13', task: 'legal', power: 0.55, short: 'saul.l4-13' },
-  { id: 'tap:Qwen/Qwen2.5-7B-Instruct@20', group: 'add', kind: 'tap', label: 'Knowledge tap, Qwen2.5-7B', donor: 'Qwen/Qwen2.5-7B-Instruct', donor_layer: 20, layers: [20, 20], params_m: 2.9, default_at: 10, summary: 'reads donor layer 20', measured: { task: 'mmlu', score: 0.679, lora: 0.503, host: 0.475 }, task: 'knowledge', power: 0.5, short: 'qwen7b.tap20' },
-  { id: 'tap:google/gemma-2-9b-it@29', group: 'add', kind: 'tap', label: 'Knowledge tap, Gemma-2-9B', donor: 'google/gemma-2-9b-it', donor_layer: 29, layers: [29, 29], params_m: 2.9, default_at: 10, summary: 'reads donor layer 29', measured: null, task: 'knowledge', power: 0.55, short: 'gemma9b.tap29' },
-  { id: 'tap:Qwen/Qwen2.5-14B-Instruct@34', group: 'add', kind: 'tap', label: 'Knowledge tap, Qwen2.5-14B', donor: 'Qwen/Qwen2.5-14B-Instruct', donor_layer: 34, layers: [34, 34], params_m: 3.1, default_at: 10, summary: 'reads donor layer 34', measured: null, task: 'knowledge', power: 0.55, short: 'qwen14b.tap34' },
 ];
-const TAP_TRAIN_DEFAULT = { data: 'mmlu_aux', steps: 500, batch_size: 8, seq_len: 256, branch_lr: 0.0003, gate_lr: 0.03 };
 const MASKS = [
   { id: 'mask_mmlupro_chemistry_llama1b', group: 'remove', label: 'Chemistry', summary: 'deletion mask, 0.17% of weights' },
   { id: 'mask_mmlupro_law_llama1b', group: 'remove', label: 'Law', summary: 'deletion mask, 0.15% of weights' },
@@ -38,8 +34,7 @@ const TRAIN = [
   { id: 'heal', group: 'train', label: 'Heal', summary: 'trains glue only' },
 ];
 const PART = Object.fromEntries(PARTS.map((p) => [p.id, p]));
-const TAP_DONORS = new Set(PARTS.filter((p) => p.kind === 'tap').map((p) => p.donor));
-const GRAFT_PARTS = PARTS.filter((p) => p.kind !== 'tap');
+const GRAFT_PARTS = PARTS;
 const MASK_IDS = new Set(MASKS.map((m) => m.id));
 
 /* ---------- wsp text ---------- */
@@ -50,8 +45,6 @@ function programText(p) {
   const ids = [];
   (function walk(n) { if (!n) return; if (n.op === 'use') ids.push(n.id); else { walk(n.a); walk(n.b); } })(p.masks);
   if (ids.length) L.push('mask ' + ids.join(' | '));
-  for (const t of p.taps || []) L.push('tap ' + t.donor + ' layer ' + t.donor_layer + ' at ' + t.at);
-  if (p.tap_train) L.push('tap_train data ' + (p.tap_train.data || 'mmlu_aux') + ' steps ' + p.tap_train.steps);
   for (const g of p.grafts || []) {
     let s = 'graft ' + g.id + ' at ' + g.at;
     if (g.glue_rank) s += ' rank ' + g.glue_rank;
@@ -62,7 +55,7 @@ function programText(p) {
   return L.join('\n') + '\n';
 }
 function parseProgram(text) {
-  const prog = { host: null, seed: 0, masks: null, task_vectors: [], grafts: [], heal: null, lora: null, taps: [], tap_train: null };
+  const prog = { host: null, seed: 0, masks: null, task_vectors: [], grafts: [], heal: null, lora: null };
   const lines = text.split('\n');
   const fail = (line, msg) => { const e = new Error(msg); e.line = line; e.status = 400; throw e; };
   lines.forEach((raw, i) => {
@@ -98,17 +91,8 @@ function parseProgram(text) {
       if (o.at != null) { g.at = int(o.at, 'at'); if (g.at < 0 || g.at >= HOST_LAYERS) fail(ln, 'at must be 0 to ' + (HOST_LAYERS - 1)); }
       if (o.rank != null || o.glue_rank != null) g.glue_rank = int(o.rank ?? o.glue_rank, 'rank');
       prog.grafts.push(g);
-    } else if (kw === 'tap') {
-      if (!t[1]) fail(ln, 'tap needs a donor model');
-      const o = opts(2, ['layer', 'at', 'attn_dim', 'heads']);
-      if (o.layer == null) fail(ln, 'tap needs layer N');
-      if (o.at == null) fail(ln, 'tap needs at M');
-      const tp = { donor: t[1], donor_layer: int(o.layer, 'layer'), at: int(o.at, 'at'), attn_dim: o.attn_dim != null ? int(o.attn_dim, 'attn_dim') : 256, heads: o.heads != null ? int(o.heads, 'heads') : 8, tap_id: null };
-      if (tp.at < 0 || tp.at >= HOST_LAYERS) fail(ln, 'at must be 0 to ' + (HOST_LAYERS - 1));
-      prog.taps.push(tp);
-    } else if (kw === 'tap_train') {
-      const o = opts(1, ['data', 'steps', 'batch_size', 'seq_len', 'branch_lr', 'gate_lr']);
-      prog.tap_train = { ...TAP_TRAIN_DEFAULT, data: o.data || TAP_TRAIN_DEFAULT.data, steps: o.steps != null ? int(o.steps, 'steps') : TAP_TRAIN_DEFAULT.steps };
+    } else if (kw === 'tap' || kw === 'tap_train') {
+      fail(ln, 'taps are not allowed: Sapien builds one network');
     } else if (kw === 'lora') {
       const o = opts(1, ['rank', 'targets', 'alpha', 'layers', 'budget']);
       prog.lora = { rank: o.rank != null ? int(o.rank, 'rank') : 16 };
@@ -117,16 +101,11 @@ function parseProgram(text) {
       prog.heal = { steps: o.steps != null ? int(o.steps, 'steps') : 300, data: o.data || 'gsm8k_train', lr: 0.0003, batch_size: 8, seq_len: 384 };
     } else fail(ln, "unknown statement '" + kw + "'");
   });
-  if (prog.taps.length && !prog.tap_train) prog.tap_train = { ...TAP_TRAIN_DEFAULT };
   if (!prog.host) fail(1, 'a program needs a host line');
   return prog;
 }
 function validateProgram(p) {
   const errors = [];
-  (p.taps || []).forEach((t, i) => {
-    if (!TAP_DONORS.has(t.donor)) errors.push('tap ' + (i + 1) + ': unknown donor ' + t.donor);
-    if (t.at == null || t.at < 0 || t.at >= HOST_LAYERS) errors.push('tap ' + (i + 1) + ': at is out of range');
-  });
   (p.grafts || []).forEach((g, i) => {
     if (!PART[g.id]) errors.push('graft ' + (i + 1) + ': unknown part ' + g.id);
     if (g.at == null || g.at < 0 || g.at >= HOST_LAYERS) errors.push('graft ' + (i + 1) + ': at is out of range');
@@ -147,7 +126,6 @@ function fitOf(part, at) {
 function paramsOf(p) {
   let b = HOST_B;
   for (const g of p.grafts || []) b += (PART[g.id] ? PART[g.id].params_m : 0) / 1000;
-  for (const t of p.taps || []) b += 0.003;
   return Math.round(b * 100) / 100;
 }
 function evalProgram(spec, p) {
@@ -164,10 +142,6 @@ function evalProgram(spec, p) {
     gain += part.power * (f - 0.4) * relevance(spec, part) * glue;
     for (let j = 0; j < i; j++) if (Math.abs(gs[j].at - g.at) <= 2) penalty += 0.12;
   });
-  for (const t of p.taps || []) {
-    fit['tap:' + t.donor + '@' + t.at] = null;
-    gain += spec.task_type === 'math' ? 0.01 : 0.2 * (0.8 + noise(t.donor + t.at) * 0.3);
-  }
   if (gs.length >= 3) penalty += 0.1;
   const healBonus = p.heal ? 0.02 + 0.025 * Math.min(p.heal.steps, 900) / 300 : -0.03 * (gs.length ? 1 : 0);
   const loraBonus = p.lora ? 0.05 + 0.02 * Math.log2((p.lora.rank || 16) / 8) : 0;
@@ -263,7 +237,7 @@ const runs = new Map();
 const PHASES = [['thinking', 1], ['probing', 1], ['compiling', 1], ['scoring', 3]];
 const PLANNERS = [
   { id: 'planner-1', name: 'Planner 1', blurb: 'explores whole donor blocks', style: 'blocks' },
-  { id: 'planner-2', name: 'Planner 2', blurb: 'explores small parts and taps', style: 'small' },
+  { id: 'planner-2', name: 'Planner 2', blurb: 'explores small parts', style: 'small' },
   { id: 'planner-3', name: 'Planner 3', blurb: 'explores parts plus masks', style: 'masks' },
 ];
 function newAgent(a) {
@@ -543,7 +517,7 @@ export const mockApi = {
     logAct(run, 'you', 'nudge', 'info', text, { to: aid, to_name: a.name });
     return { ok: true };
   },
-  async catalog() { await lat(); return clone({ stub: true, host: { model: HOST, layers: HOST_LAYERS, params_b: HOST_B }, parts: PARTS.map(({ task, power, short, ...p }) => p), masks: MASKS, train: TRAIN, tap_train_default: TAP_TRAIN_DEFAULT }); },
+  async catalog() { await lat(); return clone({ stub: true, host: { model: HOST, layers: HOST_LAYERS, params_b: HOST_B }, parts: PARTS.map(({ task, power, short, ...p }) => p), masks: MASKS, train: TRAIN }); },
   async programText(program) { await sleep(60); return { text: programText(program) }; },
   async programParse(text) { await sleep(80); return { program: parseProgram(text) }; },
   async programValidate(program) { await sleep(60); return { errors: validateProgram(program) }; },

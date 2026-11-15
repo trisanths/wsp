@@ -28,7 +28,6 @@ export function progName(p, cat) {
   let masks = 0;
   (function walk(n) { if (!n) return; if (n.op === 'use') masks++; else if (n.op === 'restrict') walk(n.inner); else { walk(n.a); walk(n.b); } })(p.masks);
   if (masks) bits.push('remove ' + masks + (masks > 1 ? ' skills' : ' skill'));
-  for (const t of p.taps || []) bits.push('tap at L' + t.at);
   let s = bits.length ? bits.join(' + ') : 'Host only';
   if (p.lora) s += ', LoRA r' + (p.lora.rank || 16);
   if (p.heal) s += ', heal ' + p.heal.steps;
