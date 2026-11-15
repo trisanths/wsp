@@ -5,6 +5,7 @@
    - rebuild the analyst map in round 0 and every analyst_every rounds;
    - memory.flush();
    - each planner recalls lessons, then the planners propose in parallel;
+   - the literature calls made so far are logged as "exa" event rows;
    - drop invalid programs, duplicates (same program_hash), killed patterns
      and grafts whose known fit is below the gate; probe the proposals marked
      probe_first and drop those the fit gate would reject;
@@ -83,6 +84,7 @@ class Swarm:
         env.write_manifest({"literature": self.literature.mode, "priors_sha": priors.get("sha", ""),
                             "memory": self.config["memory"], "llm": self.config["llm"],
                             "planners": len(self.planners), "k": self.config["k"]})
+        self.drain_literature()
         observation, info = env.reset(self.config["seed"])
         cap_map = None
         stalls = 0
@@ -99,6 +101,7 @@ class Swarm:
                               extra={"pending": flushed.get("pending")})
             observation["frontier"] = list(self.frontier)
             proposals = self.propose_all(observation, cap_map, priors)
+            self.drain_literature()
             candidates = self.select(proposals, observation)
             if len(candidates) == 0:
                 stalls += 1
@@ -125,12 +128,39 @@ class Swarm:
             self.round_index += 1
             observation = env.observation()
 
+        self.drain_literature()
         env.end_search("swarm finished after " + str(self.round_index) + " rounds")
         heldout, controls = self.final_heldout()
         self.memory.end_run(cleanup=self.config["memory_cleanup"])
         summary = self.summary(heldout, controls)
         env.log.write_json("summary.json", summary)
         return summary
+
+    def drain_literature(self):
+        """Log the literature calls made since the last drain as "exa" event rows.
+
+        Only literature objects with drain_calls() report calls (NullLiterature
+        has none). The rows never touch the budget. A failing drain is logged
+        and the run goes on. Returns the number of rows written.
+        """
+        if not hasattr(self.literature, "drain_calls"):
+            return 0
+        try:
+            calls = self.literature.drain_calls()
+        except Exception as error:
+            self.env.log_event("exa_error", "literature drain failed: " + type(error).__name__ + ": " + str(error),
+                               round_index=self.round_index)
+            return 0
+        count = 0
+        for call in calls or []:
+            if not isinstance(call, dict):
+                call = {"call": str(call)}
+            agent = call.get("role") or call.get("agent")
+            text = ("exa " + str(call.get("endpoint") or call.get("kind") or "call") + " by " + str(agent) +
+                    ": " + str(call.get("query") or "") + " (cache hit " + str(call.get("cache_hit")) + ")")
+            self.env.log_event("exa", text, agent, self.round_index, extra=call)
+            count += 1
+        return count
 
     def share_judge_state(self):
         for ctx in self.planner_ctxs:

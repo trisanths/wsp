@@ -339,3 +339,30 @@ This section records what the core build delivered. Where it differs from sectio
   - 66 of 66 tests pass, Trisanth's included.
   - `run_swarm.py --backend stub --eval-budget 60 --seed 0` is identical across two runs, with best search score 0.3396 [SEARCH][STUB].
   - The cascade run with seed 1 stops on compute at 36,135 of 36,000 s, a 135 s logged overshoot, after 28.2 FEE.
+
+## 16. The deliverable: a compiled model you can test (Rex, 2026-11-14)
+
+Rex's end goal: one run of the environment ends with a compiled model he can test himself, here in this repo, and get information about. Wave C builds this.
+
+What "done" looks like:
+
+```bash
+python scripts/demo.py --backend modal --catalog data/pilot_catalog.jsonl --eval-budget 12 --seed 0
+python scripts/try_model.py --run <run_id> --question "A farmer has 3 fields of 12 rows ..."
+python scripts/model_card.py --run <run_id> --html
+```
+
+1. **`demo.py`** runs the swarm (and, with `--with-baseline`, the evolutionary baseline at the same budget), then `finalize`, then the model card. On `--backend stub` it runs in seconds with no model (the card says STUB). On `--backend modal` it uses the real compile, heal and eval.
+2. **`finalize(run_id)`**:
+   - recompiles the judge's best program and keeps it on the Modal volume at `/vol/final/<run_id>/best/`, together with its random-part control and its no-graft control;
+   - scores all three once on the held-out split (GSM8K test), from the held-out pool;
+   - writes `outputs/final/<run_id>/final.json`.
+   It refuses to run held-out twice for the same run.
+3. **`try_model.py`** sends your own questions, or a few items from the search split (never held-out items), to the compiled model on Modal through a remote `ask` function. It prints the host's answer next to the grafted model's answer. `--local` loads the model with `wsp.load` on this machine (CPU, slow) after `export_model.py` downloads the small compiled folder. Only part and glue weights are stored, and the host comes from Hugging Face.
+4. **`model_card.py`** explains the model in plain English:
+   - **what it is:** the host, each grafted part (donor, layer, kind, size), where it sits (`at`), the glue rank and the heal recipe;
+   - **how it was found:** which agent proposed it, the hypothesis, the lineage of edits, the lessons recalled from past.dev, and the papers cited via Exa;
+   - **how good it is:** the search curve, the held-out score next to the host and both controls (with the interim-eval label), `fit_r2` and heal loss;
+   - **what it cost:** evals and GPU-seconds against the budget.
+   It writes markdown, plus an HTML page with `--html`.
+5. **Labels:** every number on the card carries its labels (SEARCH or HELD-OUT, STUB or INTERIM or REAL EVAL). If the model doesn't beat its random-part control on held-out, the card says so in its first line.

@@ -54,13 +54,41 @@ def stub_combined(backend, program, config, split="search"):
     return value
 
 
+def stub_gsm8k(backend, program):
+    """The stub's noisy gsm8k search score for a program (no fit gate)."""
+    compiled = backend.compile(program)
+    return backend.evaluate(compiled["handle"], "search", ["gsm8k", "if_guard"], 0)["scores"]["gsm8k"]
+
+
+def expected_gsm8k(backend, program):
+    """The stub's noise-free gsm8k search score for a program (the calibration truth)."""
+    report = backend.world.graft_report(program, 16, backend.default_depth)
+    return backend.world.expected_scores(program, report, "search", ["gsm8k", "if_guard"], ["if_guard"])["gsm8k"]
+
+
+def part_ids(catalog, kinds):
+    """Stub part ids of the given kinds, sorted."""
+    found = []
+    for record in space.graftable_parts(catalog):
+        if record["type"] in kinds:
+            found.append(record["id"])
+    return found
+
+
+def one_graft(part_id, at, glue_rank=None, steps=300, control=None, control_seed=0):
+    graft = ps.make_graft(part_id, at, control, control_seed, glue_rank)
+    return ps.make_program(HOST, [graft], ps.make_heal(steps=steps))
+
+
 # Schema.
 
 def test_schema_round_trip_and_base_alias():
     program = math_program()
     assert ps.normalize(json.loads(json.dumps(program))) == program
     assert Program.from_dict(program).to_dict() == program
-    assert sorted(program["grafts"][0]) == ["at", "control", "control_seed", "id"]
+    # The locked schema (wsp/program.py) now writes glue_rank in every graft.
+    assert sorted(program["grafts"][0]) == ["at", "control", "control_seed", "glue_rank", "id"]
+    assert program["grafts"][0]["glue_rank"] is None
     assert program["heal"] == {"steps": 300, "data": "gsm8k_train", "lr": 3e-4, "batch_size": 8, "seq_len": 384}
 
     old = {"base": HOST, "seed": 0, "masks": None, "task_vectors": []}
@@ -90,6 +118,8 @@ def test_validation_errors():
         return " | ".join(space.validate(program, catalog, config))
 
     assert "unknown part id" in errors_for(ps.make_program(HOST, [ps.make_graft("nope", 3)]))
+    unhashable = {"host": HOST, "grafts": [{"id": [MATH_PART], "at": 8}], "heal": None}
+    assert "graft id must be a string" in errors_for(unhashable)
     assert "cannot be grafted" in errors_for(ps.make_program(HOST, [ps.make_graft("mask_x", 3)]))
     assert "outside 0..15" in errors_for(math_program(at=16))
     assert "must be an integer" in errors_for(math_program(at="3"))
@@ -108,6 +138,47 @@ def test_validation_errors():
     assert "cannot read program" in errors_for({"host": HOST, "masks": {"op": "bogus"}})
 
 
+def test_glue_rank_survives_every_graft_builder():
+    graft = ps.make_graft(MATH_PART, 8, glue_rank=64)
+    program = ps.make_program(HOST, [graft], ps.make_heal())
+    assert program["grafts"][0]["glue_rank"] == 64
+    assert ps.normalize(json.loads(json.dumps(program))) == program
+    assert Program.from_dict(program).to_dict() == program
+    assert ps.graft_glue_rank(ps.graft_with_at(graft, 6)) == 64
+    assert ps.graft_glue_rank(ps.graft_with_id(graft, "stub_qmath_l10_c0")) == 64
+    assert ps.graft_glue_rank(ps.as_random_control(graft, 3)) == 64
+    assert ps.graft_glue_rank(ps.graft_with_glue_rank(graft, None)) is None
+    assert space.program_hash(program) != space.program_hash(math_program())
+
+    control = space.random_glue_control(program, random.Random(0))
+    assert control["grafts"][0]["control"] == "random" and control["grafts"][0]["glue_rank"] == 64
+    assert space.describe(program) == "host + qmath.l14.c0@8/r64, heal 300 on gsm8k_train"
+    assert space.describe(math_program()) == "host + qmath.l14.c0@8, heal 300 on gsm8k_train"
+    assert "rand(qmath.l14.c0)@8/r64" in space.describe(control)
+
+
+def test_glue_rank_validation():
+    catalog = stub_catalog()
+    config = make_config()
+
+    def errors_for(rank, run_config=config):
+        program = ps.make_program(HOST, [ps.make_graft(MATH_PART, 8, glue_rank=rank)], ps.make_heal())
+        return " | ".join(space.validate(program, catalog, run_config))
+
+    assert space.glue_ranks(config) == [None, 64]
+    assert errors_for(None) == ""
+    assert errors_for(64) == ""
+    assert "glue_rank 32 not in [None, 64]" in errors_for(32)
+    assert "glue_rank must be None or an integer" in errors_for("64")
+    assert "glue_rank must be None or an integer" in errors_for(64.0)
+    assert "glue_rank must be None or an integer" in errors_for(True)
+    low_only = make_config({"glue_ranks": [64]})
+    assert "glue_rank None not in [64]" in errors_for(None, low_only)
+    assert errors_for(64, low_only) == ""
+    wider = make_config({"glue_ranks": [None, 16, 64]})
+    assert errors_for(16, wider) == ""
+
+
 def test_hash_stability():
     program = math_program()
     reordered = {}
@@ -118,7 +189,8 @@ def test_hash_stability():
     as_base["base"] = as_base.pop("host")
     assert space.program_hash(as_base) == space.program_hash(program)
     assert len(space.program_hash(program)) == 16
-    assert space.program_hash(program) == "a144bb43aff3c2dd"
+    # Changed from a144bb43aff3c2dd when the locked schema added glue_rank (None here) to every graft.
+    assert space.program_hash(program) == "f5b9686e11c36953"
     assert space.program_hash(math_program(steps=300)) == space.program_hash(math_program(steps=300))
     assert space.program_hash(math_program(steps=300)) != space.program_hash(math_program(steps=100))
     assert space.probe_hash(math_program(steps=300)) == space.probe_hash(math_program(steps=100))
@@ -139,6 +211,82 @@ def test_mutate_and_crossover_keep_programs_valid():
         assert space.validate(mixed, catalog, config) == []
         other = program
         program = child
+
+
+def test_glue_rank_move_and_rates():
+    names = []
+    total = 0.0
+    for name, rate in space.MOVE_RATES:
+        names.append(name)
+        total += rate
+    assert names == ["add", "drop", "swap", "move", "heal", "rank"]
+    assert abs(total - 1.0) < 1e-9
+    assert dict(space.MOVE_RATES)["rank"] == 0.10
+    rng = random.Random(0)
+    rank_picks = 0
+    for draw in range(20000):
+        if space.pick_move(rng) == "rank":
+            rank_picks += 1
+    assert 0.09 < rank_picks / 20000.0 < 0.11
+
+    catalog = stub_catalog()
+    config = make_config()
+    parent = ps.make_program(HOST, [ps.make_graft(MATH_PART, 8), ps.make_graft("stub_qmath_l10_c0", 6, glue_rank=64)],
+                             ps.make_heal())
+    rank_children = 0
+    for attempt in range(300):
+        child, note = space.mutate_with_note(parent, rng, catalog, config)
+        if not note.startswith("glue rank of "):
+            continue
+        rank_children += 1
+        assert child["heal"] == parent["heal"]
+        changed = 0
+        for index in range(2):
+            old = parent["grafts"][index]
+            new = child["grafts"][index]
+            assert new["id"] == old["id"] and new["at"] == old["at"]
+            if new["glue_rank"] != old["glue_rank"]:
+                changed += 1
+        assert changed == 1
+    assert rank_children > 10
+
+    seen = []
+    for draw in range(40):
+        for graft in space.random_program(rng, catalog, config)["grafts"]:
+            if graft["glue_rank"] not in seen:
+                seen.append(graft["glue_rank"])
+    assert len(seen) == 2 and None in seen and 64 in seen
+
+    low = one_graft(MATH_PART, 8, glue_rank=64)
+    swapped = None
+    while swapped is None:
+        swapped, note = space.apply_move("swap", low, rng, catalog, config)
+    assert swapped["grafts"][0]["id"] != MATH_PART and swapped["grafts"][0]["glue_rank"] == 64
+    full_only = make_config({"glue_ranks": [None]})
+    assert space.apply_move("rank", math_program(), rng, catalog, full_only) == (None, "")
+
+
+def test_crossover_keeps_each_grafts_glue_rank():
+    config = make_config()
+    a = ps.make_program(HOST, [ps.make_graft(MATH_PART, 8, glue_rank=64), ps.make_graft("stub_qmath_l10_c0", 6, glue_rank=64)],
+                        ps.make_heal())
+    b = ps.make_program(HOST, [ps.make_graft("stub_qcoder_l8_c0", 5), ps.make_graft("stub_llama3b_l14_c0", 8)],
+                        ps.make_heal(steps=100))
+    source = {}
+    for graft in a["grafts"] + b["grafts"]:
+        source[(graft["id"], graft["at"])] = graft["glue_rank"]
+    rng = random.Random(0)
+    mixed_ranks = 0
+    for attempt in range(50):
+        child = space.crossover(a, b, rng, config)
+        ranks = []
+        for graft in child["grafts"]:
+            assert graft["glue_rank"] == source[(graft["id"], graft["at"])]
+            if graft["glue_rank"] not in ranks:
+                ranks.append(graft["glue_rank"])
+        if len(ranks) == 2:
+            mixed_ranks += 1
+    assert mixed_ranks > 0
 
 
 # Budget.
@@ -219,7 +367,8 @@ def test_each_step_status(tmp_path):
     assert row["status"] == "ok" and row["token"] == 0 and reward == row["combined"]
     assert row["fit_r2"][MATH_PART + "@8"] > 0.3 and row["fit"][MATH_PART + "@8"] == "ridge"
     assert row["backend"] == "stub" and row["stub"] is True
-    assert row["compute_s"] == {"compile": 35.0, "heal": 150.0, "eval": 120.0}
+    # Stub compile is 10 s + 15 s per graft: 25 s for one graft, the round-2 median (was 35 s).
+    assert row["compute_s"] == {"compile": 25.0, "heal": 150.0, "eval": 120.0}
     assert terminated is False and truncated is False
     used = budget.compute_used()
 
@@ -229,7 +378,7 @@ def test_each_step_status(tmp_path):
 
     obs, reward, terminated, truncated, row = env.step(math_program(at=0), "t", "far from home")
     assert row["status"] == "rejected_fit" and row["token"] is None and reward is None
-    assert budget.eval_used() == 1 and budget.compute_used() == used + 35.0
+    assert budget.eval_used() == 1 and budget.compute_used() == used + 25.0
 
     weak = []
     for part_id, at in [("stub_qmath_l6_c0", 2), ("stub_qmath_l10_c0", 5), ("stub_qmath_l14_c0", 8),
@@ -258,7 +407,7 @@ def test_compile_error_infra_error_and_budget_exhausted(tmp_path):
 
     row = env.step(ps.make_program(HOST, [ps.make_graft("foreign_l14_c0", 8)], ps.make_heal()), "t", "x")[4]
     assert row["status"] == "compile_error" and row["token"] is None
-    assert budget.eval_used() == 0 and budget.compute_used() == 35.0
+    assert budget.eval_used() == 0 and budget.compute_used() == 25.0
 
     row = env.step(math_program(), "t", "eval fails")[4]
     assert row["status"] == "infra_error" and row["token"] == 0
@@ -294,17 +443,17 @@ def test_probe_charges_compute_and_no_token(tmp_path):
     result = env.probe(math_program(), "planner-1")
     assert result["status"] == "ok"
     assert result["fit_r2"][MATH_PART + "@8"] > 0.3
-    assert result["compute_s"] == 35.0
-    assert budget.eval_used() == 0 and budget.compute_used() == 35.0
+    assert result["compute_s"] == 25.0
+    assert budget.eval_used() == 0 and budget.compute_used() == 25.0
     again = env.probe(math_program(steps=600), "planner-2")
-    assert again["status"] == "cache_hit" and budget.compute_used() == 35.0
+    assert again["status"] == "cache_hit" and budget.compute_used() == 25.0
     rows = read_rows(env.log.path)
     probe_rows = []
     for row in rows:
         if row["type"] == "probe":
             probe_rows.append(row)
     assert len(probe_rows) == 2 and probe_rows[0]["program"]["heal"] is None
-    assert probe_rows[0]["compute_s"] == {"probe": 35.0} and probe_rows[0]["token"] is None
+    assert probe_rows[0]["compute_s"] == {"probe": 25.0} and probe_rows[0]["token"] is None
 
 
 def test_heldout_refused_before_search_budget_is_spent(tmp_path):
@@ -392,8 +541,120 @@ def test_stub_has_structure():
     unhealed = stub_combined(backend, math_program(steps=0), config)
     assert healed > unhealed
     assert stub_combined(backend, math_program(steps=None), config) == 0.0
-    control = ps.make_program(HOST, [ps.make_graft(MATH_PART, 8, "random", 3)], ps.make_heal(steps=300))
-    assert healed > stub_combined(backend, control, config)
+    # The part-beats-control check moved: the calibrated stub gives single-layer parts no content
+    # over their random control (round 2), see test_stub_single_layer_parts_match_their_random_control.
+
+
+# Stub calibration to Trisanth's round-2 sweep (results/README.md, GSM8K search split).
+
+def test_stub_placement_dominates():
+    """Round 2: host layer 6 gave 38 to 40%, host layers 10 and 14 gave 22 to 26%, whatever the part."""
+    config = make_config()
+    catalog = stub_catalog()
+    backend = StubCompileEval(config, catalog)
+    mlp_parts = part_ids(catalog, ["mlp_cluster"])
+    by_depth = {}
+    best_at = None
+    for at in range(16):
+        total = 0.0
+        for part_id in mlp_parts:
+            total += expected_gsm8k(backend, one_graft(part_id, at, glue_rank=64))
+        by_depth[at] = total / len(mlp_parts)
+        if best_at is None or by_depth[at] > by_depth[best_at]:
+            best_at = at
+    assert best_at == 6
+    assert abs(by_depth[6] - 0.39) < 0.02
+    assert abs(by_depth[10] - 0.25) < 0.02 and abs(by_depth[14] - 0.25) < 0.02
+    gap = by_depth[6] - (by_depth[10] + by_depth[14]) / 2.0
+    assert 0.11 < gap < 0.17
+
+    # With noise, on cells shaped like round 2's: a donor part at its default host depth 6, 10 or 14
+    # (the stub has no qmath layer 24, so depth 14 uses qcoder layer 24), part and random control,
+    # full and rank-64 glue, 3 seeds.
+    cells = {6: "stub_qmath_l10_c0", 10: "stub_qmath_l18_c0", 14: "stub_qcoder_l24_c0"}
+    means = {}
+    for at in sorted(cells):
+        scores = []
+        for seed in range(3):
+            for rank in [None, 64]:
+                for control in [None, "random"]:
+                    graft = ps.make_graft(cells[at], None, control, seed + 100, rank)
+                    program = ps.make_program(HOST, [graft], ps.make_heal(steps=300), seed=seed)
+                    assert backend.compile(program)["graft_report"][0]["host_layer"] == at
+                    scores.append(stub_gsm8k(backend, program))
+        means[at] = sum(scores) / len(scores)
+    assert means[6] - means[10] > 0.08 and means[6] - means[14] > 0.08
+
+
+def test_stub_single_layer_parts_match_their_random_control():
+    """Round 2: no part selection method beat the random control (pooled per-cell sd 2.3 points)."""
+    config = make_config()
+    catalog = stub_catalog()
+    backend = StubCompileEval(config, catalog)
+    total = 0.0
+    count = 0
+    for part_id in part_ids(catalog, ["mlp_cluster", "attn_heads", "expert"]):
+        for rank in [None, 64]:
+            part = expected_gsm8k(backend, one_graft(part_id, None, glue_rank=rank))
+            control = expected_gsm8k(backend, one_graft(part_id, None, glue_rank=rank, control="random",
+                                                        control_seed=7))
+            assert abs(part - control) < 0.015
+            total += part - control
+            count += 1
+    assert abs(total / count) < 0.005
+
+    noisy_total = 0.0
+    noisy_count = 0
+    for part_id in part_ids(catalog, ["mlp_cluster"]):
+        for seed in range(3):
+            chosen = ps.make_program(HOST, [ps.make_graft(part_id, None, None, 0, 64)], ps.make_heal(), seed=seed)
+            control = ps.make_program(HOST, [ps.make_graft(part_id, None, "random", seed + 100, 64)], ps.make_heal(),
+                                      seed=seed)
+            noisy_total += stub_gsm8k(backend, chosen) - stub_gsm8k(backend, control)
+            noisy_count += 1
+    assert abs(noisy_total / noisy_count) < 0.015
+
+    # STUB ASSUMPTION until round 3: math-donor blocks carry a small real content effect.
+    for part_id in ["stub_qmath_l10-12_blk", "stub_qmath_l16-18_blk"]:
+        block = expected_gsm8k(backend, one_graft(part_id, None, glue_rank=64))
+        control = expected_gsm8k(backend, one_graft(part_id, None, glue_rank=64, control="random", control_seed=7))
+        assert 0.01 < block - control < 0.05
+
+
+def test_stub_rank64_glue_matches_or_beats_full_glue():
+    """Round 2: rank-64 glue was as good as or better than full glue, at 7% of the parameters."""
+    config = make_config()
+    catalog = stub_catalog()
+    backend = StubCompileEval(config, catalog)
+    for part_id in part_ids(catalog, space.GRAFT_TYPES):
+        for at in range(16):
+            full = expected_gsm8k(backend, one_graft(part_id, at))
+            low = expected_gsm8k(backend, one_graft(part_id, at, glue_rank=64))
+            assert low >= full - 1e-9
+    full_six = expected_gsm8k(backend, one_graft("stub_qmath_l10_c0", 6))
+    low_six = expected_gsm8k(backend, one_graft("stub_qmath_l10_c0", 6, glue_rank=64))
+    assert 0.02 < low_six - full_six < 0.06       # round 2 at host layer 6: 39.0% vs 34.3%
+    full_fourteen = expected_gsm8k(backend, one_graft("stub_qcoder_l24_c0", 14))
+    low_fourteen = expected_gsm8k(backend, one_graft("stub_qcoder_l24_c0", 14, glue_rank=64))
+    assert abs(low_fourteen - full_fourteen) < 0.005
+
+    full_entry = backend.compile(one_graft("stub_qmath_l10_c0", 6))["graft_report"][0]
+    low_entry = backend.compile(one_graft("stub_qmath_l10_c0", 6, glue_rank=64))["graft_report"][0]
+    assert full_entry["glue_rank"] is None and full_entry["glue_params"] == 6291456   # the round-2 report
+    assert low_entry["glue_rank"] == 64 and low_entry["glue_params"] == 458752
+    assert full_entry["fit_r2"] == low_entry["fit_r2"]
+
+
+def test_stub_host_and_heal_only_gain():
+    config = make_config()
+    catalog = stub_catalog()
+    backend = StubCompileEval(config, catalog)
+    host = expected_gsm8k(backend, ps.make_program(HOST, [], None))
+    heal_only = expected_gsm8k(backend, ps.make_program(HOST, [], ps.make_heal(steps=300)))
+    assert host == 0.25                      # run 1: host, no heal, 25.0%
+    assert 0.0 < heal_only - host < 0.05     # STUB ASSUMPTION: round 2 had no heal-only arm
+    assert stub_gsm8k(backend, ps.make_program(HOST, [], None)) == 0.25
+    assert stub.compile_cost(one_graft(MATH_PART, 8)) == 25.0
 
 
 # Swarm, factory and helpers.
@@ -426,11 +687,13 @@ def test_scripted_swarm_end_to_end(tmp_path):
     assert again["best_search"]["combined"] == summary["best_search"]["combined"]
 
 
-def test_factory_names_missing_modules():
+def test_factory_names_missing_modules(monkeypatch):
+    # wsp/swarm/memory.py has landed (wave A), so point the choice at a module that cannot exist.
+    monkeypatch.setitem(factory.CHOICES["memory"], "past", ("wsp.swarm.not_built_yet", "PastMemory"))
     config = make_config({"memory": "past"})
     with pytest.raises(factory.FactoryError) as error:
         factory.build_memory(config)
-    assert "wsp/swarm/memory.py" in str(error.value) and "PastMemory" in str(error.value)
+    assert "wsp/swarm/not_built_yet.py" in str(error.value) and "PastMemory" in str(error.value)
     with pytest.raises(factory.FactoryError) as error:
         factory.load_class("backend", "cloud")
     assert "choose one of" in str(error.value)

@@ -67,3 +67,28 @@ Working rule from Rex: no branches, push straight to `main`. The orchestrator do
 - The cascade fidelity ladder (0.16, 0.34, 1.0 FEE) works. With seed 1 the cascade run stopped on compute, with 28.2 FEE used.
 - Spec section 15 records the as-built API for the next wave.
 - Wave A runs in parallel as a workflow: LLM clients plus vLLM on Modal, Modal infra plus the real compile and eval path with a pilot part set, past.dev memory, Exa literature. Each gets an independent review and a fix pass.
+
+## 2026-11-14, step 7: Exa key added and checked live
+
+- Rex supplied an Exa key, now in `.env` (still git-excluded).
+- A live smoke through `wsp.swarm.literature.ExaLiterature` in live mode, with the cache in a scratch folder: one search for "model stitching across language model families which layer to graft" returned 3 publication cites in 0.6 s for $0.004. Among them were "Transferring Linear Features Across Language Models With Model Stitching" (NeurIPS 2025) and "Cross-Model Stitching Transfers Answers, Not Computation".
+- The repeat query was a cache hit in 0.01 s at $0. `drain_calls()` logged both calls, and `known_url` recognized the cited URL.
+- Next: build the frozen priors pack over the pilot catalog once wave A lands (`scripts/build_priors.py`; the dry run estimates about $0.6).
+
+## 2026-11-14, step 8: wave B done; wave A LLM, memory and Exa done
+
+Both waves ran as workflows. Each builder got an independent reviewer and, when the review found high or medium issues, a fix pass.
+
+- **Wave B** (11 agents, no errors; 328 of 328 tests after integration):
+  - **Stub calibration** to Trisanth's round-2 sweep: placement peaks at host layer 6 (about 0.39 against about 0.25 at layers 10 and 14); single-layer parts score within noise of their random control; rank-64 glue is never below full glue; host base 0.25; eval noise 0.023, the real within-cell sd. `glue_rank` is now a search dimension.
+  - **Baselines:** regularized evolution (population 12, tournament 3), random, the random-part search arm, greedy, and LoRA and full fine-tuning stub runners, all through the same env and budget.
+  - **LLM agents:** analyst and planners with a repair retry, wired to past.dev recall and Exa citations. The memory listener, verdicts and capability maps feed into memory, and Exa calls are logged as events.
+  - **Outputs:** `compare.py`, Charts 1a, 1b and 2, the HTML agent log, `sync_log.py`.
+  - **The integrator's 3-seed stub comparison** at 60 FEE [SEARCH][STUB], not results: median picked-best was swarm (scripted) 0.243, evolve 0.276, random 0.227, random_part 0.218, greedy 0.177. Every arm had an equal budget and the ledgers match. The scripted swarm doesn't beat evolution on the stub; the LLM swarm is the real Claim B contender. Chart 2 Spearman 0.016, so the fit score carries no rank signal, as the papers research predicted.
+  - **Integrator fixes:** the training-stub seed, a crash on a non-string graft id, sync dedupe dropping a held-out row, and clearer labels.
+- **Wave A, done:**
+  - **LLM:** clients for mock, OpenAI-compatible, Modal vLLM and Anthropic. `modal_llm.py` serves Qwen2.5-7B-Instruct on an L40S in workspace `rexheng`; the first call took 256 s and a warm JSON call parsed.
+  - **past.dev memory:** run-scoped audiences, a cold-start guard and batched ingest. The live smoke passed all 9 checks for 15 credits, with 3.8 s from ingest to recall.
+  - **Exa literature:** off, replay and live modes with a two-tier cache.
+- **Wave A, still running:** the Modal infra and real compile path (fix pass).
+- Stub rows in the root `experiments.jsonl` stay out of git, via local exclude. Only real-run rows will be committed.

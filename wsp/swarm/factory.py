@@ -16,7 +16,8 @@ Constructor contracts (the integration agents build against these):
               "anthropic": wsp.swarm.llm.<Class>(config)
     agents    "scripted": ScriptedAnalyst(config), ScriptedPlanner(index, config), RuleJudge(config)
               "llm": wsp.swarm.agents.llm_agents.LLMAnalyst(config),
-                     LLMPlanner(index, config); the judge stays RuleJudge
+                     LLMPlanner(index, config, batch), where every planner shares
+                     one PlannerBatch(planners, llm_batch_wait_s); the judge stays RuleJudge
 """
 
 import hashlib
@@ -146,9 +147,20 @@ def build_agents(config):
     analyst_class = import_class(module_name, analyst_name, what)
     planner_class = import_class(module_name, planner_name, what)
     judge_class = import_class("wsp.swarm.agents.scripted", "RuleJudge", what)
+    batch = None
+    if choice == "llm":
+        # One shared batch, so a round of planners is one llm.complete_many call.
+        batch_class = import_class(module_name, "PlannerBatch", what)
+        wait_s = config.get("llm_batch_wait_s")
+        if wait_s is None:
+            wait_s = 30.0
+        batch = batch_class(config["planners"], wait_s)
     planners = []
     for index in range(config["planners"]):
-        planners.append(planner_class(index, config))
+        if batch is None:
+            planners.append(planner_class(index, config))
+        else:
+            planners.append(planner_class(index, config, batch))
     return analyst_class(config), planners, judge_class(config)
 
 

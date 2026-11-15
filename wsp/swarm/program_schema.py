@@ -4,7 +4,8 @@ The schema is locked in wsp/program.py. A program dict looks like this:
 
     {"host": "unsloth/Llama-3.2-1B-Instruct", "seed": 0,
      "masks": null, "task_vectors": [],
-     "grafts": [{"id": "qmath_l14_c3", "at": 9, "control": null, "control_seed": 0}],
+     "grafts": [{"id": "qmath_l14_c3", "at": 9, "control": null, "control_seed": 0,
+                 "glue_rank": null}],
      "heal": {"steps": 300, "data": "gsm8k_train", "lr": 0.0003,
               "batch_size": 8, "seq_len": 384}}
 
@@ -12,6 +13,11 @@ Everything else in wsp/swarm reads and writes programs through the functions
 here, so a schema change touches only this file. normalize() round-trips a
 dict through Trisanth's real class, Program.from_dict(d).to_dict(), so part 3
 never invents a field. Old mask-only dicts that use "base" still load.
+
+A graft's "glue_rank" is None for full-rank glue, or an int r for rank-r
+w_in and w_out. Every builder here that copies a graft keeps its glue rank,
+so a moved graft, a swapped part and a random-part control all keep the
+same glue.
 """
 
 from wsp.program import GraftSpec, HealSpec, Program, collect_ids, expr_from_dict
@@ -39,9 +45,9 @@ def to_program(program):
     return Program.from_dict(program)
 
 
-def make_graft(part_id, at=None, control=None, control_seed=0):
-    """Return one graft dict."""
-    return GraftSpec(part_id, at, control, control_seed).to_dict()
+def make_graft(part_id, at=None, control=None, control_seed=0, glue_rank=None):
+    """Return one graft dict. glue_rank None is full-rank glue."""
+    return GraftSpec(part_id, at, control, control_seed, glue_rank).to_dict()
 
 
 def make_heal(steps=300, data="gsm8k_train", lr=3e-4, batch_size=8, seq_len=384):
@@ -167,6 +173,11 @@ def graft_control_seed(graft):
     return graft.get("control_seed", 0)
 
 
+def graft_glue_rank(graft):
+    """Return None for full-rank glue, or the int rank of the glue."""
+    return graft.get("glue_rank")
+
+
 # Building changed copies. Each returns a new normalized dict.
 
 def with_grafts(program, new_grafts):
@@ -201,13 +212,20 @@ def with_heal_steps(program, steps, default_data="gsm8k_train"):
 
 
 def graft_with_at(graft, at):
-    return make_graft(graft_id(graft), at, graft_control(graft), graft_control_seed(graft))
+    return make_graft(graft_id(graft), at, graft_control(graft), graft_control_seed(graft),
+                      graft_glue_rank(graft))
 
 
 def graft_with_id(graft, part_id):
-    return make_graft(part_id, graft_at(graft), graft_control(graft), graft_control_seed(graft))
+    return make_graft(part_id, graft_at(graft), graft_control(graft), graft_control_seed(graft),
+                      graft_glue_rank(graft))
+
+
+def graft_with_glue_rank(graft, glue_rank):
+    return make_graft(graft_id(graft), graft_at(graft), graft_control(graft), graft_control_seed(graft),
+                      glue_rank)
 
 
 def as_random_control(graft, control_seed):
-    """The random-part control of a graft: same slot, random units of the same count."""
-    return make_graft(graft_id(graft), graft_at(graft), CONTROL_RANDOM, control_seed)
+    """The random-part control of a graft: same slot and glue rank, random units of the same count."""
+    return make_graft(graft_id(graft), graft_at(graft), CONTROL_RANDOM, control_seed, graft_glue_rank(graft))
