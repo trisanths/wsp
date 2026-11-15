@@ -122,7 +122,11 @@ because round 2 trained on those prompts; the held-out slice, which it did not t
 the group advantage (r - mean) / std, keeps up to 600 prompts with mixed rewards, takes one pass of
 weighted likelihood (LoRA r64, lr 2e-5, routers frozen, no KL, no ratio clipping), merges, and scores the
 held-out slice. It is not strictly on-policy after the first optimizer step of an iteration. It is not trl.
-PG_RESULTS_PLACEHOLDER
+
+Run once, from the keep-32 round 1 model, 3 iterations (`results/rft/k32_pg/summary.json`). Held-out train
+slice after each iteration: 77.6, 79.4, 78.3, against 78.9 for the start of the loop (545 prompts, standard error
+about 1.7 points). Best iteration is 3 items better than its start, which is noise, so GRPO is not kept and its
+models were not scored on HumanEval or MBPP. It was not tried on keep-64, where RFT itself gave no benchmark gain.
 
 ## Limits
 
