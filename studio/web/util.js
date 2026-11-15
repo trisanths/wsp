@@ -19,17 +19,18 @@ export function clock(ts) {
 export const sgn = (x, d = 1) => (x >= 0 ? '+' : '-') + Math.abs(x * 100).toFixed(d);
 
 /* ---------- colors ---------- */
-const PALETTE = ['#b38bff', '#4fd1ff', '#ffb547', '#3ddc97', '#ff8fb1', '#7c8cff', '#f2e35c', '#8bd3ff'];
+// Data colours come from the theme tokens, so they follow light and dark.
+const PALETTE = ['var(--purple)', 'var(--amber)', 'var(--green)', 'var(--red)', 'var(--text-3)'];
 function hash(s) {
   let x = 7;
   for (let i = 0; i < s.length; i++) x = (x * 31 + s.charCodeAt(i)) >>> 0;
   return x;
 }
 export function agentColor(id) {
-  if (id === 'analyst') return '#7c8cff';
-  if (id === 'judge') return '#ff6b7a';
+  if (id === 'analyst') return 'var(--blue)';
+  if (id === 'judge') return 'var(--red)';
   const m = /^planner-(\d+)$/.exec(id || '');
-  if (m) return ['#b38bff', '#4fd1ff', '#ffb547', '#3ddc97', '#ff8fb1', '#f2e35c'][(Number(m[1]) - 1) % 6];
+  if (m) return ['var(--purple)', 'var(--green)', 'var(--amber)', 'var(--blue)', 'var(--red)', 'var(--text-3)'][(Number(m[1]) - 1) % 6];
   return PALETTE[hash(id || '') % PALETTE.length];
 }
 export function agentInitials(a) {
@@ -40,7 +41,7 @@ export function agentInitials(a) {
   return name.slice(0, 2).replace(/^./, (c) => c.toUpperCase());
 }
 export function donorColor(donor) {
-  if (!donor) return '#8b93a7';
+  if (!donor) return 'var(--text-3)';
   return PALETTE[hash(donor.split('/').pop().toLowerCase().replace(/[^a-z]/g, '').slice(0, 5)) % PALETTE.length];
 }
 export function donorLetter(donor, label) {
@@ -48,8 +49,8 @@ export function donorLetter(donor, label) {
   return name.charAt(0).toUpperCase();
 }
 export const STATUS_COLOR = {
-  thinking: 'var(--cyan)', probing: 'var(--warn)', compiling: 'var(--warn)', scoring: 'var(--good)',
-  idle: 'var(--faint)', paused: 'var(--faint)', done: 'var(--faint)',
+  thinking: 'var(--blue)', probing: 'var(--amber)', compiling: 'var(--amber)', scoring: 'var(--green)',
+  idle: 'var(--text-4)', paused: 'var(--text-4)', done: 'var(--text-4)',
 };
 export const STATUS_ACTIVE = { thinking: 1, probing: 1, compiling: 1, scoring: 1 };
 
@@ -143,6 +144,8 @@ export function parseHash() {
     return { name: 'run', id: parts[1], q };
   }
   if (parts[0] === 'build' && parts[1]) return { name: 'build', id: parts[1], q };
+  if (parts[0] === 'runs') return { name: 'runs', q };
+  if (parts[0] === 'parts') return { name: 'parts', q };
   return { name: 'prompt', q };
 }
 export function go(path) { location.hash = '#' + path; }
@@ -222,3 +225,60 @@ export function usePrev(v) {
   useEffect(() => { r.current = v; });
   return r.current;
 }
+
+/* ---------- theme ---------- */
+const themeListeners = new Set();
+export function currentTheme() { return document.documentElement.classList.contains('dark') ? 'dark' : 'light'; }
+export function setTheme(t, save = true) {
+  const el = document.documentElement;
+  el.classList.remove('light', 'dark');
+  el.classList.add(t);
+  if (save) { try { localStorage.setItem('wsp.theme', t); } catch (e) { /* storage can be off */ } }
+  themeListeners.forEach((f) => f(t));
+}
+export function useTheme() {
+  const [t, setT] = useState(currentTheme());
+  useEffect(() => {
+    themeListeners.add(setT);
+    let mq = null, f = null;
+    let saved = null;
+    try { saved = localStorage.getItem('wsp.theme'); } catch (e) { /* ignore */ }
+    if (!saved && window.matchMedia) {
+      mq = window.matchMedia('(prefers-color-scheme: dark)');
+      f = (e) => setTheme(e.matches ? 'dark' : 'light', false);
+      if (mq.addEventListener) mq.addEventListener('change', f);
+    }
+    return () => { themeListeners.delete(setT); if (mq && f && mq.removeEventListener) mq.removeEventListener('change', f); };
+  }, []);
+  return [t, () => setTheme(currentTheme() === 'dark' ? 'light' : 'dark')];
+}
+
+/* ---------- recent specs, runs and the last builder ---------- */
+const recentListeners = new Set();
+export function getRecent() {
+  try { const a = JSON.parse(localStorage.getItem('wsp.recent') || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; }
+}
+export function addRecent(item) {
+  const list = getRecent();
+  const old = list.find((x) => x.kind === item.kind && x.id === item.id);
+  const next = { ...(old || {}), ...item, ts: old && !item.touch ? old.ts : Date.now() };
+  delete next.touch;
+  const out = [next, ...list.filter((x) => !(x.kind === item.kind && x.id === item.id))].slice(0, 16);
+  try { localStorage.setItem('wsp.recent', JSON.stringify(out)); } catch (e) { /* storage can be off */ }
+  recentListeners.forEach((f) => f(out));
+}
+export function patchRecent(kind, id, patch) {
+  const list = getRecent();
+  const i = list.findIndex((x) => x.kind === kind && x.id === id);
+  if (i < 0) return;
+  list[i] = { ...list[i], ...patch };
+  try { localStorage.setItem('wsp.recent', JSON.stringify(list)); } catch (e) { /* ignore */ }
+  recentListeners.forEach((f) => f(list));
+}
+export function useRecent() {
+  const [l, setL] = useState(getRecent());
+  useEffect(() => { recentListeners.add(setL); setL(getRecent()); return () => recentListeners.delete(setL); }, []);
+  return l;
+}
+export function getLastBuild() { try { return JSON.parse(localStorage.getItem('wsp.lastBuild')); } catch (e) { return null; } }
+export function setLastBuild(v) { try { localStorage.setItem('wsp.lastBuild', JSON.stringify(v)); } catch (e) { /* ignore */ } }

@@ -1,6 +1,6 @@
 import { html, useState, useEffect, useLayoutEffect, useRef, useMemo } from '../lib.js';
 import { api } from '../api.js';
-import { go, toast, pct, pctS, sgn, bsize, clamp, clone, emptyProgram, normProgram, donorShort, maskIds, buildMask, donorColor, donorLetter, specProgress, primaryTarget, tokenizeLine } from '../util.js';
+import { go, toast, pct, pctS, sgn, bsize, clamp, clone, emptyProgram, normProgram, donorShort, maskIds, buildMask, donorColor, donorLetter, specProgress, primaryTarget, tokenizeLine, setLastBuild } from '../util.js';
 import { TopBar, Icon, Spinner, ErrorBox, Menu, BenchBar, BenchLegend, Ring, Tag, StubBadge } from '../components.js';
 
 // Short labels for score statuses other than ok. Only "collapsed" means the model lost a skill.
@@ -39,7 +39,7 @@ const ls = {
 function dragImage(e) {
   const src = e.currentTarget;
   const g = src.cloneNode(true);
-  g.style.cssText = 'position:fixed;left:-1000px;top:0;width:' + src.offsetWidth + 'px;transform:rotate(-3deg);background:#151923;border:1px solid #7c8cff;border-radius:12px;box-shadow:0 18px 40px rgba(0,0,0,.55),0 0 0 4px rgba(124,140,255,.18);opacity:1;';
+  g.style.cssText = 'position:fixed;left:-1000px;top:0;width:' + src.offsetWidth + 'px;transform:rotate(-2deg);background:var(--bg-raised);border:1px solid var(--blue);border-radius:12px;box-shadow:var(--shadow-float);opacity:1;';
   document.body.appendChild(g);
   try { e.dataTransfer.setDragImage(g, 24, 20); } catch (x) { /* ignore */ }
   setTimeout(() => g.remove(), 0);
@@ -47,7 +47,7 @@ function dragImage(e) {
 
 function Piece({ ic, color, t1, t2, t3, used, dragging, onDragStart, onDragEnd, onClick }) {
   return html`<div class=${'piece' + (dragging ? ' dragging' : '') + (used ? ' used' : '')} draggable="true" onDragStart=${onDragStart} onDragEnd=${onDragEnd} onClick=${onClick} title="Drag onto the model, or click to add">
-    <div class="pic" style=${{ background: color }}>${ic}</div><div style="min-width:0"><div class="t1">${t1}</div><div class="t2">${t2}</div>${t3 && html`<div class="t3">${t3}</div>`}</div>
+    <div class="pic" style=${{ '--c': color }}>${ic}</div><div style="min-width:0"><div class="t1">${t1}</div><div class="t2">${t2}</div>${t3 && html`<div class="t3">${t3}</div>`}</div>
     <span class="add">${used ? html`<${Icon} n="check" size=${14} />` : html`<${Icon} n="plus" size=${14} />`}</span></div>`;
 }
 
@@ -112,7 +112,7 @@ export function BuilderScreen({ id, specId }) {
       setProgramRaw(normProgram(p || emptyProgram(c.host.model)));
     } catch (e) { setErr(e); }
   };
-  useEffect(() => { load(); }, [id]);
+  useEffect(() => { load(); setLastBuild({ id, specId }); }, [id]);
   useEffect(() => { if (program) ls.set('wsp.prog.' + id, JSON.stringify(program)); }, [program]);
   useEffect(() => { ls.set('wsp.att.' + id, JSON.stringify(attempts.map((a) => ({ ...a })))); }, [attempts]);
 
@@ -226,7 +226,7 @@ export function BuilderScreen({ id, specId }) {
       y[it.n.key] = Math.round(top);
       bottom = top + it.h;
       let color, tap = false;
-      if (it.n.t === 't') { color = '#2dd4bf'; tap = true; }
+      if (it.n.t === 't') { color = 'var(--blue)'; tap = true; }
       else {
         const g = program.grafts[it.n.i];
         const part = cat && cat.parts.find((p) => p.id === g.id);
@@ -358,26 +358,26 @@ export function BuilderScreen({ id, specId }) {
     const dl = dr ? +over.slice(1) : null;
     return html`<div class=${'slab' + (s.hot ? ' port' : '') + (dr ? ' drop' : '') + (s.n > 1 && dr ? ' tall' : '')} data-first=${s.first} data-n=${s.n} data-hot=${s.hot ? s.first : null} key=${'s' + s.first}>
       <span class="nm">${dr ? 'Drop here: L' + dl : label}</span>
-      ${s.hot && !dr ? html`<span style="color:var(--cyan);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">reads ${[...gs.map((g) => (partById(g.id) || { label: g.id }).label), ...ts.map((t) => donorShort(t.donor))].join(', ')}</span>` : dr ? html`<span class="faint">release to graft</span>` : html`<span class="faint">${hint}</span>`}
+      ${s.hot && !dr ? html`<span class="reads">reads ${[...gs.map((g) => (partById(g.id) || { label: g.id }).label), ...ts.map((t) => donorShort(t.donor))].join(', ')}</span>` : dr ? html`<span class="faint">release to graft</span>` : html`<span class="faint">${hint}</span>`}
     </div>`;
   };
 
-  return html`<${TopBar} crumb=${spec ? spec.title : 'Builder'} right=${html`<button class="btn ghost sm" disabled=${!undo.length} onClick=${doUndo} title="Undo (Ctrl or Cmd + Z)"><${Icon} n="undo" size=${14} /> Undo</button><button class="btn sm" disabled=${handing} onClick=${handoff}>${handing ? html`<${Spinner} size=${12} />` : null} Hand to agents</button>`}>
-      <span class="tag">draft ${attempts.length + 1}</span><span class="grow"></span>
-      <span class="pill hide-sm">evals left <b class="num">${budget ? budget.evals_total - budget.evals_used + ' / ' + budget.evals_total : '-'}</b></span>
-      <span class="pill hide-sm">compute <b class="num">${budget ? (budget.compute_used_s / 60).toFixed(budget.compute_used_s < 600 ? 1 : 0) + ' / ' + Math.round(budget.compute_total_s / 60) + ' min' : '-'}</b></span>
+  return html`<${TopBar} right=${html`<span class="pill hide-sm">evals left <b class="num">${budget ? budget.evals_total - budget.evals_used + ' / ' + budget.evals_total : '-'}</b></span>
+      <span class="pill hide-md">compute <b class="num">${budget ? (budget.compute_used_s / 60).toFixed(budget.compute_used_s < 600 ? 1 : 0) + ' / ' + Math.round(budget.compute_total_s / 60) + ' min' : '-'}</b></span>
+      <button class="btn ghost sm" disabled=${!undo.length} onClick=${doUndo} title="Undo (Ctrl or Cmd + Z)"><${Icon} n="undo" size=${14} /> Undo</button><button class="btn sm" disabled=${handing} onClick=${handoff}>${handing ? html`<${Spinner} size=${12} />` : null} Hand to agents</button>`}>
+      <h1 class="page-title bt-title ell" title=${spec ? spec.title : 'Builder'}>${spec ? spec.title : 'Builder'}</h1><span class="tag">draft ${attempts.length + 1}</span>
     <//>
   <div class="builder">
     <aside class="palette">
-      <div class="searchbox"><${Icon} n="search" size=${15} /><input placeholder="Search skills, models, parts" value=${q} onInput=${(e) => setQ(e.target.value)} /></div>
-      ${tapParts.length > 0 && html`<div class="pgroup label">Tap a bigger model</div>`}
-      ${tapParts.map((p) => html`<${Piece} key=${p.id} ic=${donorLetter(p.donor, p.label)} color="var(--cyan)" t1=${donorShort(p.donor)} t2=${'reads layer ' + p.donor_layer} t3=${measuredLine(p.measured)} used=${tapUsed(p)} dragging=${dragId === p.id} onDragStart=${(e) => startDrag(e, { kind: 'part', part: p }, p.id)} onDragEnd=${endDrag} onClick=${() => addTap(p)} />`)}
-      ${addParts.length > 0 && html`<div class="pgroup label">Add a skill</div>`}
+      <div class="searchbox"><${Icon} n="search" size=${15} /><input placeholder="Search parts" value=${q} onInput=${(e) => setQ(e.target.value)} /></div>
+      ${tapParts.length > 0 && html`<div class="pgroup">Tap a bigger model</div>`}
+      ${tapParts.map((p) => html`<${Piece} key=${p.id} ic=${donorLetter(p.donor, p.label)} color="var(--blue)" t1=${donorShort(p.donor)} t2=${'reads layer ' + p.donor_layer} t3=${measuredLine(p.measured)} used=${tapUsed(p)} dragging=${dragId === p.id} onDragStart=${(e) => startDrag(e, { kind: 'part', part: p }, p.id)} onDragEnd=${endDrag} onClick=${() => addTap(p)} />`)}
+      ${addParts.length > 0 && html`<div class="pgroup">Add a skill</div>`}
       ${addParts.map((p) => html`<${Piece} key=${p.id} ic=${donorLetter(p.donor, p.label)} color=${donorColor(p.donor)} t1=${p.label} t2=${p.donor.split('/').pop() + ' · ' + p.kind + ' · L' + p.layers[0] + (p.layers[1] !== p.layers[0] ? '-' + p.layers[1] : '')} used=${used(p.id)} dragging=${dragId === p.id} onDragStart=${(e) => startDrag(e, { kind: 'part', part: p }, p.id)} onDragEnd=${endDrag} onClick=${() => addPart(p)} />`)}
-      ${rmParts.length > 0 && html`<div class="pgroup label">Remove a skill</div>`}
-      ${rmParts.map((m) => html`<${Piece} key=${m.id} ic="-" color="var(--bad)" t1=${m.label} t2=${m.summary} used=${mIds.includes(m.id)} dragging=${dragId === m.id} onDragStart=${(e) => startDrag(e, { kind: 'mask', mask: m }, m.id)} onDragEnd=${endDrag} onClick=${() => addMask(m)} />`)}
-      ${trParts.length > 0 && html`<div class="pgroup label">Train</div>`}
-      ${trParts.map((t) => html`<${Piece} key=${t.id} ic=${t.id === 'lora' ? 'R' : 'H'} color=${t.id === 'lora' ? 'var(--warn)' : 'var(--good)'} t1=${t.label} t2=${t.summary} used=${trainUsed(t)} dragging=${dragId === t.id} onDragStart=${(e) => startDrag(e, { kind: 'train', train: t }, t.id)} onDragEnd=${endDrag} onClick=${() => addTrain(t)} />`)}
+      ${rmParts.length > 0 && html`<div class="pgroup">Remove a skill</div>`}
+      ${rmParts.map((m) => html`<${Piece} key=${m.id} ic="-" color="var(--red)" t1=${m.label} t2=${m.summary} used=${mIds.includes(m.id)} dragging=${dragId === m.id} onDragStart=${(e) => startDrag(e, { kind: 'mask', mask: m }, m.id)} onDragEnd=${endDrag} onClick=${() => addMask(m)} />`)}
+      ${trParts.length > 0 && html`<div class="pgroup">Train</div>`}
+      ${trParts.map((t) => html`<${Piece} key=${t.id} ic=${t.id === 'lora' ? 'R' : 'H'} color=${t.id === 'lora' ? 'var(--amber)' : 'var(--green)'} t1=${t.label} t2=${t.summary} used=${trainUsed(t)} dragging=${dragId === t.id} onDragStart=${(e) => startDrag(e, { kind: 'train', train: t }, t.id)} onDragEnd=${endDrag} onClick=${() => addTrain(t)} />`)}
       ${!tapParts.length && !addParts.length && !rmParts.length && !trParts.length && html`<div class="faint" style="margin-top:20px">Nothing matches "${q}".</div>`}
     </aside>
 
@@ -390,11 +390,11 @@ export function BuilderScreen({ id, specId }) {
         ${showCanvas && html`<div class="cv-scroll" ref=${scrollRef} onDragOver=${onDragOver} onDragLeave=${onDragLeave} onDrop=${onDrop} onClick=${() => { setSel(null); setMenuAt(null); }}>
           <div class=${'cv-inner' + (compact ? ' compact' : '')} ref=${innerRef} style=${{ minHeight: geo.h + 'px' }}>
             <svg class="wires" width=${nodeX + 260} height=${Math.max(geo.h, 300)}>
-              <defs>${geo.wires.map((w) => html`<linearGradient id=${'wg' + w.k} gradientUnits="userSpaceOnUse" x1=${w.x1} y1="0" x2=${w.x2} y2="0"><stop offset="0" stop-color="#4fd1ff"/><stop offset="1" stop-color=${w.color}/></linearGradient>`)}</defs>
-              ${geo.wires.map((w) => { const dx = (w.x2 - w.x1) * 0.55; const d = 'M' + w.x1 + ',' + w.y1 + ' C' + (w.x1 + dx) + ',' + w.y1 + ' ' + (w.x2 - dx) + ',' + w.y2 + ' ' + w.x2 + ',' + w.y2; return html`<g key=${w.k}><path d=${d} style=${{ d: "path('" + d + "')" }} stroke=${'url(#wg' + w.k + ')'} stroke-dasharray=${w.tap ? '7 6' : null} /><circle cx=${w.x1} cy=${w.y1} r="4.5" fill="#4fd1ff"/><circle cx=${w.x2} cy=${w.y2} r="4.5" fill=${w.color}/></g>`; })}
+              <defs>${geo.wires.map((w) => html`<linearGradient id=${'wg' + w.k} gradientUnits="userSpaceOnUse" x1=${w.x1} y1="0" x2=${w.x2} y2="0"><stop offset="0" style="stop-color:var(--text-3)"/><stop offset="1" style=${{ stopColor: w.color }}/></linearGradient>`)}</defs>
+              ${geo.wires.map((w) => { const dx = (w.x2 - w.x1) * 0.55; const d = 'M' + w.x1 + ',' + w.y1 + ' C' + (w.x1 + dx) + ',' + w.y1 + ' ' + (w.x2 - dx) + ',' + w.y2 + ' ' + w.x2 + ',' + w.y2; return html`<g key=${w.k}><path d=${d} style=${{ d: "path('" + d + "')" }} stroke=${w.tap ? 'var(--blue)' : 'url(#wg' + w.k + ')'} stroke-dasharray=${w.tap ? '7 6' : null} /><circle cx=${w.x1} cy=${w.y1} r="4" style="fill:var(--text-3)"/><circle cx=${w.x2} cy=${w.y2} r="4" style=${{ fill: w.color }}/></g>`; })}
             </svg>
             <div class="stack" style=${{ marginLeft: '0px' }}>
-              <span class="label">Host · ${cat.host.model.split('/').pop()}</span>
+              <span class="label hostlabel">Host · ${cat.host.model.split('/').pop()}</span>
               ${slabs.map(slabEl)}
               ${mIds.map((mid) => html`<div class="slab mask" key=${mid}><span class="nm">- ${(maskById(mid) || { label: mid }).label} mask</span><span class="ctl"><span class="faint">all layers</span><button class="x" title="Remove mask" onClick=${(e) => { e.stopPropagation(); edit((p) => { p.masks = buildMask(maskIds(p.masks).filter((x) => x !== mid)); }); }}>×</button></span></div>`)}
               ${program.tap_train && html`<div class="slab taptrain"><span class="nm">Tap training<span class="sub" title="Training data">data ${program.tap_train.data}</span></span><span class="ctl"><button title="Fewer steps" disabled=${program.tap_train.steps <= TAP_MIN} onClick=${() => edit((p) => { p.tap_train.steps = clamp((p.tap_train.steps || 500) - TAP_STEP, TAP_MIN, TAP_MAX); })}>-</button><span class="num" style="min-width:56px;text-align:center">${program.tap_train.steps} steps</span><button title="More steps" disabled=${program.tap_train.steps >= TAP_MAX} onClick=${() => edit((p) => { p.tap_train.steps = clamp((p.tap_train.steps || 500) + TAP_STEP, TAP_MIN, TAP_MAX); })}>+</button></span></div>`}
@@ -405,13 +405,13 @@ export function BuilderScreen({ id, specId }) {
             ${program.grafts.map((g, i) => { const part = partById(g.id) || { label: g.id, donor: '', kind: 'part', layers: [0, 0], params_m: 0 }; const fit = fits[g.id + '@' + g.at]; const col = donorColor(part.donor); const nk = 'g' + i;
               return html`<div class=${'node' + (dragId === nk ? ' dragging' : '') + (sel === nk ? ' sel' : '') + (menuAt === nk ? ' menu-open' : '')} key=${nk} ref=${(el) => { nodeRefs.current[nk] = el; }} style=${{ left: nodeX + 'px', top: (geo.y[nk] ?? 20) + 'px', zIndex: menuAt === nk ? 9 : 2 }} draggable="true"
                 onDragStart=${(e) => startDrag(e, { kind: 'node', t: 'g', i }, nk)} onDragEnd=${endDrag} onClick=${(e) => { e.stopPropagation(); setSel(nk); }}>
-                <div class="nh"><div class="pic" style=${{ background: col }}>${donorLetter(part.donor, part.label)}</div><span class="t">${part.label}</span>
+                <div class="nh"><div class="pic" style=${{ '--c': col }}>${donorLetter(part.donor, part.label)}</div><span class="t">${part.label}</span>
                   <button class="iconbtn" style="width:24px;height:24px" title="Options" onClick=${(e) => { e.stopPropagation(); setMenuAt(menuAt === nk ? null : nk); }}><${Icon} n="more" size=${16} /></button></div>
                 <${Menu} open=${menuAt === nk} onClose=${() => setMenuAt(null)} style=${{ top: '38px', right: '8px', minWidth: '170px' }}>
-                  <div class="label" style="padding:4px 10px">Glue rank</div>
+                  <div class="mlabel">Glue rank</div>
                   ${GLUE.map((r) => html`<button class=${'mi' + ((g.glue_rank || null) === r ? ' on' : '')} onClick=${() => { edit((p) => { p.grafts[i].glue_rank = r; }); setMenuAt(null); }}><span>${r == null ? 'Full rank' : 'Rank ' + r}</span>${(g.glue_rank || null) === r && html`<${Icon} n="check" size=${14} />`}</button>`)}
-                  <div style="height:1px;background:var(--line);margin:4px 0"></div>
-                  <button class="mi" style="color:var(--bad)" onClick=${() => { edit((p) => { p.grafts.splice(i, 1); }); setMenuAt(null); setSel(null); }}><span>Remove</span><${Icon} n="trash" size=${14} /></button>
+                  <div class="msep"></div>
+                  <button class="mi" style="color:var(--red)" onClick=${() => { edit((p) => { p.grafts.splice(i, 1); }); setMenuAt(null); setSel(null); }}><span>Remove</span><${Icon} n="trash" size=${14} /></button>
                 <//>
                 <div class="ds">${part.summary || part.donor}</div>
                 <div class="tags"><span class="tag">at L${g.at}</span><span class="tag">glue ${g.glue_rank ? 'r' + g.glue_rank : 'full'}</span>${part.layers && html`<span class="tag c">donor L${part.layers[0]}${part.layers[1] !== part.layers[0] ? '-' + part.layers[1] : ''}</span>`}</div>
@@ -420,13 +420,13 @@ export function BuilderScreen({ id, specId }) {
             ${program.taps.map((t, i) => { const nk = 't' + i; const part = tapPart(t); const fit = fits[tapKey(t)]; const ml = part && part.donor_layer === t.donor_layer ? measuredLine(part.measured) : null;
               return html`<div class=${'node tap' + (dragId === nk ? ' dragging' : '') + (sel === nk ? ' sel' : '') + (menuAt === nk ? ' menu-open' : '')} key=${nk} ref=${(el) => { nodeRefs.current[nk] = el; }} style=${{ left: nodeX + 'px', top: (geo.y[nk] ?? 20) + 'px', zIndex: menuAt === nk ? 9 : 2 }} draggable="true"
                 onDragStart=${(e) => startDrag(e, { kind: 'node', t: 't', i }, nk)} onDragEnd=${endDrag} onClick=${(e) => { e.stopPropagation(); setSel(nk); }}>
-                <div class="nh"><div class="pic" style=${{ background: 'var(--cyan)' }}>${donorLetter(t.donor)}</div><span class="t">Reads ${donorShort(t.donor)} L${t.donor_layer}</span>
+                <div class="nh"><div class="pic" style=${{ '--c': 'var(--blue)' }}>${donorLetter(t.donor)}</div><span class="t">Reads ${donorShort(t.donor)} L${t.donor_layer}</span>
                   <button class="iconbtn" style="width:24px;height:24px" title="Options" onClick=${(e) => { e.stopPropagation(); setMenuAt(menuAt === nk ? null : nk); }}><${Icon} n="more" size=${16} /></button></div>
                 <${Menu} open=${menuAt === nk} onClose=${() => setMenuAt(null)} style=${{ top: '38px', right: '8px', minWidth: '190px' }}>
-                  <div class="label" style="padding:4px 10px">Donor layer</div>
+                  <div class="mlabel">Donor layer</div>
                   <div style="padding:2px 10px 6px"><input class="numin" type="number" min="0" max="200" step="1" value=${t.donor_layer} onChange=${(e) => { const v = Math.round(Number(e.target.value)); if (Number.isFinite(v) && v >= 0 && v <= 200 && v !== t.donor_layer) edit((p) => { p.taps[i].donor_layer = v; }); else e.target.value = t.donor_layer; }} /></div>
-                  <div style="height:1px;background:var(--line);margin:4px 0"></div>
-                  <button class="mi" style="color:var(--bad)" onClick=${() => { removeTap(i); setMenuAt(null); setSel(null); }}><span>Remove</span><${Icon} n="trash" size=${14} /></button>
+                  <div class="msep"></div>
+                  <button class="mi" style="color:var(--red)" onClick=${() => { removeTap(i); setMenuAt(null); setSel(null); }}><span>Remove</span><${Icon} n="trash" size=${14} /></button>
                 <//>
                 <div class="ds">${ml || 'A small trained branch reads the donor hidden states.'}</div>
                 <div class="tags"><span class="taptag">TAP</span><span class="tag">at L${t.at}</span><span class="tag c">donor L${t.donor_layer}</span></div>
@@ -456,15 +456,15 @@ export function BuilderScreen({ id, specId }) {
     </section>
 
     <aside class="side">
-      <div class="card" style="padding:14px;display:flex;gap:14px;align-items:center">
+      <div class="card ringcard">
         <${Ring} value=${prog} />
         <div style="min-width:0"><div class="label">${lastOk ? 'Attempt ' + lastOk.n + ' · average' : 'No score yet'}</div>
-          <div style="font-size:24px;font-weight:700;margin-top:2px" class="num">${lastOk ? pctS(avg(lastOk)) : '-'}${lastOk && stubOf() && html`<${StubBadge} small />`}</div>
+          <div class="num bigv">${lastOk ? pctS(avg(lastOk)) : '-'}${lastOk && stubOf() && html`<${StubBadge} small />`}</div>
           <div class="dim" style="font-size:12px">${lastOk ? 'across ' + Object.keys(lastOk.scores).length + ' benchmarks' : 'Press Score to run one eval'}${prevOk ? html`<br /><span class=${avg(lastOk) >= avg(prevOk) ? 'up' : 'down'}>${sgn(avg(lastOk) - avg(prevOk))}</span> vs attempt ${prevOk.n}` : ''}</div></div>
       </div>
 
-      <div class="card" style="padding:12px 14px">
-        <div style="display:flex;justify-content:space-between;align-items:center"><span class="label">Benchmarks</span><${BenchLegend} guard /></div>
+      <div class="card benchcard">
+        <div class="bhead"><span class="label">Benchmarks</span><${BenchLegend} guard /></div>
         ${benches.map((b) => html`<div class="brow"><span class="nm" title=${b.name}>${b.name}</span><${BenchBar} b=${b} value=${lastOk ? lastOk.scores[b.id] : null} /><span class="num" style="text-align:right">${lastOk && lastOk.scores[b.id] != null ? pct(lastOk.scores[b.id]) : '-'}</span></div>`)}
         ${!benches.length && html`<div class="faint" style="margin:10px 0">Open the builder from a spec to see its benchmarks.</div>`}
         <div class="statgrid">
@@ -480,9 +480,9 @@ export function BuilderScreen({ id, specId }) {
 
       <div style="display:flex;justify-content:space-between;align-items:center"><span class="label">Suggestions</span><button class="btn ghost sm" disabled=${sugBusy} onClick=${() => refreshSugs()}>${sugBusy ? html`<${Spinner} size=${11} />` : 'Refresh'}</button></div>
       ${sugBusy && !sugs && html`<div class="sugload"><${Spinner} size=${13} /> Thinking</div>`}
-      ${(sugs || []).map((s) => html`<div class="sug"><b>${s.title}</b> <span class="dim">${s.detail}</span><div class="row"><${Tag} kind=${/likely/.test(s.tag) ? 'g' : /bigger/.test(s.tag) ? 'a' : ''}>${s.tag}<//><button class="btn sm" onClick=${() => { setProgram(clone(s.program)); setFits({}); toast('Applied. Undo with Ctrl or Cmd + Z.'); setSugs((x) => (x || []).filter((y) => y !== s)); }}>Apply</button></div></div>`)}
+      ${(sugs || []).map((s) => html`<div class="sug"><b>${s.title}</b> <span class="dim">${s.detail}</span><div class="row"><${Tag} kind=${/likely/.test(s.tag) ? 'g' : /bigger/.test(s.tag) ? 'b' : ''}>${s.tag}<//><button class="btn sm" onClick=${() => { setProgram(clone(s.program)); setFits({}); toast('Applied. Undo with Ctrl or Cmd + Z.'); setSugs((x) => (x || []).filter((y) => y !== s)); }}>Apply</button></div></div>`)}
       ${sugs && !sugs.length && !sugBusy && html`<div class="faint">No suggestions right now.</div>`}
-      <div class="sug"><b>Let the agents search from this draft.</b> <span class="dim">They start from your program and try many variations.</span><div class="row"><${Tag} kind="a">bigger change<//><button class="btn sm" disabled=${handing} onClick=${handoff}>Hand to agents</button></div></div>
+      <div class="sug"><b>Let the agents search from this draft.</b> <span class="dim">They start from your program and try many variations.</span><div class="row"><${Tag} kind="b">bigger change<//><button class="btn sm" disabled=${handing} onClick=${handoff}>Hand to agents</button></div></div>
     </aside>
   </div>`;
 
