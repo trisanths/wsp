@@ -224,3 +224,22 @@ def test_a_pgraft_plan_that_is_not_feasible_does_not_run(tmp_path):
     p["refusals"] = ["test"]
     with pytest.raises(auto.PlanError):
         auto.make(req, str(tmp_path), backend, plan_=p)
+
+
+# ---------------------------------------------------------------- language request
+
+
+def test_the_language_request_plans_pgraft_with_the_language_pool_and_make_refuses_it():
+    req = auto.load_request(os.path.join(REPO, "demo", "requests", "language.json"))
+    assert req["add"][0]["skill"] == "multilingual"
+    p = make_plan(req)
+    assert p["feasible"] and p["stages"][0]["method"] == "pgraft"
+    st = p["stages"][0]
+    assert st["data"]["pool"] == "lang_v1" and "Belebele" in " ".join(st["data"]["scored_on"])
+    assert all("modal_wi_lang.py" in c["run_by"] for c in st["controls"])
+    assert "multilingual skill" in p["sources"][0]["methods"][0]["reason"]
+    with pytest.raises(ValueError, match="modal_wi_lang"):
+        pgraft_stage.run_make(req, p, None, "/nonexistent", 0.0)
+    saved = os.path.join(REPO, "demo", "plans", "language.txt")
+    if os.path.exists(saved):
+        assert "pgraft" in open(saved).read()

@@ -16,7 +16,10 @@ from wsp import xfam
 
 # Skill pools whose items are four-option questions (knowledge style). The recipe trains on such items.
 POOLS = ("knowledge", "medicine", "law")
-CONTROLS_RUN = ("identity", "scrambled")   # default for settings["pgraft_controls"]; the others need a separate driver
+# The multilingual skill is planned as a write-in too. Its data, controls and runs live in modal_wi_lang.py
+# (docs/write_in_language.md); the compiler's make path does not run it.
+LANGUAGE_POOL = "multilingual"
+CONTROLS_RUN =("identity", "scrambled")   # default for settings["pgraft_controls"]; the others need a separate driver
 
 MEASURED = {
     "host": "unsloth/Llama-3.2-1B-Instruct",
@@ -38,7 +41,7 @@ def eligible(skill, rel, base_cfg, src_cfg):
     from wsp import auto
 
     pool = auto.SKILL_POOLS.get(skill)
-    if pool not in POOLS:
+    if pool not in POOLS and pool != LANGUAGE_POOL:
         return False, "skill %r is not a knowledge or multiple-choice skill (pools %s)" % (skill, ", ".join(POOLS))
     foreign = rel["kind"] == "foreign" or not rel["flags"].get("tokenizer_same", True)
     if not foreign:
@@ -52,8 +55,9 @@ def eligible(skill, rel, base_cfg, src_cfg):
             return False, "the config lacks layers or hidden size"
     if src_cfg["layers"] < 7:
         return False, "the donor has under 7 layers, too few to cut a slice"
-    reason = ("other tokenizer or family and a knowledge skill: a frozen slice of the donor runs as a parallel branch "
-              "of the host (measured on one pair, see the warning)")
+    kind = "multilingual" if pool == LANGUAGE_POOL else "knowledge"
+    reason = ("other tokenizer or family and a %s skill: a frozen slice of the donor runs as a parallel branch "
+              "of the host (measured on one pair, see the warning)" % kind)
     return True, reason
 
 
@@ -68,6 +72,23 @@ def sizes(base_cfg, src_cfg, s):
     lora = auto.lora_params(base_cfg, spec["lora_rank"], base_cfg["layers"])
     return {"spec": spec, "slice_layers": n_layers, "slice_params": slice_params, "glue_params": glue,
             "lora_params": lora, "add_total": slice_params + glue + lora, "add_run": slice_params + glue}
+
+
+LANGUAGE_DATA = {
+    "pool": "lang_v1", "dir": "/vol/wi_lang/v1",
+    "train_items": "MMMLU questions outside the held-out, dev and English xfam indexes (ar, ja, zh, ko, hi), XNLI train "
+                   "recast as three-option items (ar, zh, hi), and the English xfam pool",
+    "soft_labels": "the donor's answer-letter distribution on every item, scored once and cached",
+    "removed": "every prompt equal to a Belebele, MMMLU held-out, dev or English MMLU prompt, and repeats",
+    "size": "78457 items in the cached pool (results/wi_lang/prep_report.json)",
+    "text": "alignment texts from Wikipedia (en, ar, ja, zh, ko, hi), general texts from English Wikipedia, plain text",
+    "scored_on": ["Belebele test in 10 languages", "MMMLU held-out 1000 per language", "mmlu_held"],
+}
+
+
+def auto_pool(skill):
+    from wsp import auto
+    return auto.SKILL_POOLS.get(skill)
 
 
 def stage_info(x, base_cfg, s, controls_run):
@@ -86,6 +107,10 @@ def stage_info(x, base_cfg, s, controls_run):
             run_by = "modal_wi_xfam.py preset %s (rows in results/wi_xfam, seeds 1 to 3)" % presets[name]
         controls.append({"name": name, "what": what, "same": "data, steps, optimizer, and last-step selection",
                          "run_by": run_by})
+    language = auto_pool(x["skill"]) == LANGUAGE_POOL
+    if language:
+        for c in controls:
+            c["run_by"] = "modal_wi_lang.py (rows in results/wi_lang, docs/write_in_language.md)"
     return {
         "source": x["source"], "skill": x["skill"], "host_layer": spec["host_layer"],
         "donor_span": [spec["first"], spec["last"]], "donor_layers": x["facts"]["config"]["layers"],
@@ -96,7 +121,7 @@ def stage_info(x, base_cfg, s, controls_run):
         "gate_params": d_host + 1, "lora_rank": spec["lora_rank"], "lora_params": int(sz["lora_params"]),
         "slice_params": int(sz["slice_params"]), "glue_params": int(sz["glue_params"]),
         "params_stored_added": int(sz["add_total"]), "params_per_token_added": int(sz["add_run"]),
-        "data": {
+        "data": LANGUAGE_DATA if language else {
             "pool": "xfam_mc_%s" % xfam.DATA_VERSION, "dir": s.get("pgraft_data_dir") or xfam.DATA_DIR,
             "train_items": "MMLU auxiliary_train, CommonsenseQA, OpenBookQA, QASC, LogiQA train (benchmark train splits)",
             "soft_labels": "the donor's answer-letter distribution on every item, scored once and cached",
@@ -146,6 +171,8 @@ def run_make(req, plan_, backend, out_dir, started, atlas_entries=None, log=prin
 
     s = plan_["settings"]
     stage = plan_["stages"][0]
+    if auto_pool(stage["skill"]) == LANGUAGE_POOL:
+        raise ValueError("the language write-in is run by modal_wi_lang.py, not by the compiler (docs/write_in_language.md)")
     seed = req["seed"]
     spec = dict(stage["spec"])
     spec.update(s.get("pgraft_spec", {}))
