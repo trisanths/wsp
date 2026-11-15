@@ -433,6 +433,7 @@ def worker_main(job_path):
         llm.generate([{"prompt_token_ids": ids} for ids in id_lists], params, use_tqdm=False)
 
     generate(prompt_ids[:WARMUP_PROMPTS], 16)
+    generate(prompt_ids, 1)  # the first full-size prefill compiles MoE kernels; time the second
     result["prefill_tps"] = measure_prefill(generate, prompt_ids)
     print(f"[{cell}] prefill {result['prefill_tps']} tokens/s", flush=True)
     for batch in batches:
@@ -823,6 +824,13 @@ def quantize_l4(source, name, scheme, smoke=False):
     return quantize_job(source, name, scheme, smoke)
 
 
+@app.function(image=image, timeout=600)
+def shell(command):
+    """Run a shell command in the vLLM image (to read the installed vLLM source)."""
+    out = subprocess.run(command, shell=True, capture_output=True, text=True)
+    return out.stdout + out.stderr
+
+
 @app.function(image=cpu_image, volumes={"/vol": volume}, timeout=1800)
 def collect_rows(name):
     safe_reload()
@@ -863,7 +871,10 @@ def summary_line(row):
 def main(model: str = "hub:" + BASE_MODEL, name: str = "full", configs: str = "base", gpu: str = "H200",
          tokenizer: str = BASE_MODEL, smoke: bool = False, shards: int = 1, estimate_only: bool = False,
          collect: bool = False, build_slim_model: bool = False, util: float = GPU_UTILIZATION,
-         quantize: str = "", quant_name: str = ""):
+         quantize: str = "", quant_name: str = "", shell_command: str = ""):
+    if shell_command:
+        print(shell.remote(shell_command))
+        return
     if collect:
         rows = collect_rows.remote(name)
         merged = merge_rows(os.path.join(LOCAL_DIR, f"efficiency_{name}.json"), rows)
