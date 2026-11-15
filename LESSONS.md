@@ -25,8 +25,11 @@ something fails. Each entry: what went wrong, then the rule.
 - Background processes started with `&` ignore SIGINT. Stop them with
   SIGTERM on their PIDs, then `modal app stop -y <id>`. In zsh, loop over
   PIDs with `while read`, not `for p in $VAR` (newlines stay in one word).
-- Only trisanth, trisanthsrini, and ztrisanth work. trisanths,
-  trisanthsrinivasan, and trisanthcollege were disabled by Modal.
+- Working workspaces (2026-11-15): trisanth, trisanths (re-enabled; a
+  T4 probe ran), ztrisanth, hanavm, rexheng-24542. trisanthsrini hit its
+  spend limit at about 06:30 PST on 2026-11-15. trisanthsrinivasan and
+  trisanthcollege fail authentication. okc3 and plva-friend-h200 are
+  other names for the trisanth workspace and add no capacity.
 
 ## Data
 
