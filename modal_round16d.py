@@ -78,13 +78,21 @@ import modal
 app = modal.App("wsp-round16d")
 volume = modal.Volume.from_name("wsp-models", create_if_missing=True)
 
+
+def safe_reload():
+    """Reload the volume to see other shards' files. Open files (HF logs, caches) block a reload; then skip it."""
+    try:
+        volume.reload()
+    except Exception as error:
+        print("volume reload skipped:", repr(error)[:200])
+
 image = (
     modal.Image.debian_slim(python_version="3.12")
     .pip_install(
         "torch==2.7.1", "transformers==4.57.1", "accelerate", "huggingface_hub", "requests",
         "safetensors", "zstandard", "numpy", "datasets", "sentencepiece", "protobuf",
     )
-    .env({"HF_HOME": "/vol/hf"})
+    .env({"HF_HOME": "/vol/hf", "HF_HUB_DISABLE_XET": "1"})
     .add_local_python_source("wsp")
 )
 
@@ -274,7 +282,7 @@ def cache_path(pair, expert):
 def mined_delta(pair, expert):
     import torch
 
-    volume.reload()
+    safe_reload()
     return torch.load(cache_path(pair, expert), weights_only=False)
 
 
@@ -306,7 +314,7 @@ def prepare(pair):
     start = time.time()
     spec = PAIRS[pair]
     os.makedirs(f"{CACHE}/{pair}", exist_ok=True)
-    volume.reload()
+    safe_reload()
     for expert in spec["experts"]:
         path = cache_path(pair, expert)
         if os.path.exists(path):
@@ -461,7 +469,7 @@ def run_cell(pair, cell):
         row["gsm8k_prompt_sample"] = ev.render_prompt(tokenizer, ev.user_text("gsm8k", first))
         choice = {}
         if forced is None:
-            volume.reload()
+            safe_reload()
             saved = torch.load(f"{CACHE}/{pair}/router.pt", weights_only=False)
             net.router = saved["router"]
             row["router_report"] = saved["report"]

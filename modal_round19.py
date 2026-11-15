@@ -112,13 +112,21 @@ import modal
 app = modal.App("wsp-round19")
 volume = modal.Volume.from_name("wsp-models", create_if_missing=True)
 
+
+def safe_reload():
+    """Reload the volume to see other shards' files. Open files (HF logs, caches) block a reload; then skip it."""
+    try:
+        volume.reload()
+    except Exception as error:
+        print("volume reload skipped:", repr(error)[:200])
+
 image = (
     modal.Image.debian_slim(python_version="3.12")
     .pip_install(
         "torch==2.7.1", "transformers==4.57.1", "accelerate", "huggingface_hub", "requests",
         "safetensors", "zstandard", "numpy", "datasets", "sentencepiece", "protobuf",
     )
-    .env({"HF_HOME": "/vol/hf"})
+    .env({"HF_HOME": "/vol/hf", "HF_HUB_DISABLE_XET": "1"})
     .add_local_python_source("wsp")
 )
 
@@ -287,7 +295,7 @@ def cached_stats(slim, key, compute):
     """Ranking statistics from the volume, or computed and stored."""
     path = f"{STATS_DIR}/{key}.pt"
     try:
-        volume.reload()
+        safe_reload()
         if os.path.exists(path):
             return slim.load_stats(path)
     except Exception as error:
