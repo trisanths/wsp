@@ -18,6 +18,55 @@ export function clock(ts) {
 }
 export const sgn = (x, d = 1) => (x >= 0 ? '+' : '-') + Math.abs(x * 100).toFixed(d);
 
+// "5 min ago", from a time in milliseconds
+export function ago(ts) {
+  const s = Math.max(0, Math.round((Date.now() - ts) / 1000));
+  if (s < 60) return 'just now';
+  if (s < 3600) return Math.round(s / 60) + ' min ago';
+  if (s < 86400) return Math.round(s / 3600) + ' h ago';
+  return Math.round(s / 86400) + ' d ago';
+}
+// A quiet suffix for rows that share a title: the kind and when it was opened, like "run, 5 min ago".
+export function rowSuffixes(rows) {
+  const count = {};
+  rows.forEach((r) => { const k = (r.title || r.id) + ''; count[k] = (count[k] || 0) + 1; });
+  const out = {};
+  rows.forEach((r) => { if (count[(r.title || r.id) + ''] > 1) out[r.kind + r.id] = r.kind + ', ' + ago(r.ts || Date.now()); });
+  return out;
+}
+// the pool name the heal data comes from, by the kind of task
+export function healPool(spec) {
+  const t = spec && spec.task_type;
+  if (t === 'math') return 'math';
+  if (t === 'knowledge') return 'general';
+  if (t === 'code') return 'code';
+  return 'general';
+}
+// A readable name for a benchmark id, used only when the server sends no label.
+const BENCH_NAMES = {
+  gsm8k: 'GSM8K', humaneval: 'HumanEval', mbpp: 'MBPP', mmlu: 'MMLU', mmlu_guard: 'MMLU', ifeval: 'IFEval', if_guard: 'IFEval',
+  arc: 'ARC Challenge', hellaswag: 'HellaSwag', truthfulqa: 'TruthfulQA', winogrande: 'WinoGrande', math: 'MATH', bbh: 'BIG-Bench Hard', gpqa: 'GPQA',
+};
+export function benchName(id) {
+  const k = String(id || '');
+  if (BENCH_NAMES[k]) return BENCH_NAMES[k];
+  const m = /^mmlupro:(.+)$/.exec(k);
+  if (m) return 'MMLU-Pro ' + m[1].replace(/_/g, ' ');
+  return k.replace(/[_:]+/g, ' ').replace(/^./, (c) => c.toUpperCase());
+}
+// how a run ended: running, finished, stopped or error. A stopped run still has status "done".
+export function runEnd(snap) {
+  const s = snap.status;
+  if (s === 'error' || (s === 'done' && snap.outcome === 'error')) return 'error';
+  if (s === 'done') return snap.outcome === 'stopped' || (snap.outcome == null && snap.stopped_early === true) ? 'stopped' : 'finished';
+  return 'running';
+}
+// the status word kept in Recent: a stopped run shows as "stopped", not "done"
+export function recentStatus(snap) {
+  const e = runEnd(snap);
+  return e === 'stopped' ? 'stopped' : snap.status;
+}
+
 /* ---------- colors ---------- */
 // Data colours come from the theme tokens, so they follow light and dark.
 const PALETTE = ['var(--purple)', 'var(--amber)', 'var(--green)', 'var(--red)', 'var(--text-3)'];

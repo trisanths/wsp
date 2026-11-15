@@ -1,26 +1,19 @@
 import { html, useState, useEffect } from '../lib.js';
 import { api } from '../api.js';
-import { pct, donorColor, donorLetter, donorShort, useRecent, patchRecent, dur } from '../util.js';
+import { pct, donorColor, donorLetter, donorShort, useRecent, patchRecent, dur, ago, rowSuffixes, recentStatus } from '../util.js';
 import { TopBar, Icon, Spinner, ErrorBox, Dot, StubBadge } from '../components.js';
 import { SkelReveal } from '../motion.js';
 import { ModelLogo } from '../logos.js';
 import { StatusTag, groupByKind, lockOf } from '../cmp.js';
 
-const RUN_LABEL = { planned: 'Planned', starting: 'Starting', running: 'Running', paused: 'Paused', stopping: 'Stopping', done: 'Finished', error: 'Error', gone: 'Not on the server' };
-const RUN_COLOR = { planned: 'var(--text-4)', starting: 'var(--blue)', running: 'var(--blue)', paused: 'var(--amber)', stopping: 'var(--amber)', done: 'var(--green)', error: 'var(--red)', gone: 'var(--text-4)' };
+const RUN_LABEL = { planned: 'Planned', starting: 'Starting', running: 'Running', paused: 'Paused', stopping: 'Stopping', done: 'Finished', stopped: 'Stopped', error: 'Error', gone: 'Not on the server' };
+const RUN_COLOR = { planned: 'var(--text-4)', starting: 'var(--blue)', running: 'var(--blue)', paused: 'var(--amber)', stopping: 'var(--amber)', done: 'var(--green)', stopped: 'var(--text-3)', error: 'var(--red)', gone: 'var(--text-4)' };
 const LIVE = { starting: 1, running: 1, paused: 1, stopping: 1 };
-
-function ago(ts) {
-  const s = Math.max(0, Math.round((Date.now() - ts) / 1000));
-  if (s < 60) return 'just now';
-  if (s < 3600) return Math.round(s / 60) + ' min ago';
-  if (s < 86400) return Math.round(s / 3600) + ' h ago';
-  return Math.round(s / 86400) + ' d ago';
-}
 
 export function RunsScreen() {
   const recent = useRecent();
   const runs = recent.filter((r) => r.kind === 'run' || r.kind === 'shrink');
+  const suffix = rowSuffixes(runs);
   const ids = runs.map((r) => r.id + (r.status || '')).join(',');
   // refresh the status of runs that were still live the last time we saw them
   useEffect(() => {
@@ -29,7 +22,7 @@ export function RunsScreen() {
       api.getJob(r.job).then((j) => { if (!dead && j && (j.status === 'done' || j.status === 'error')) patchRecent('shrink', r.id, { status: j.status }); }).catch((e) => { if (!dead && e.status === 404) patchRecent('shrink', r.id, { status: 'gone' }); });
     });
     runs.filter((r) => r.kind === 'run' && (!r.status || LIVE[r.status])).forEach((r) => {
-      api.getRun(r.id).then((s) => { if (!dead && s) patchRecent('run', r.id, { status: s.status, evals: s.budget && s.budget.evals_used, total: s.budget && s.budget.evals_total }); }).catch((e) => { if (!dead && e.status === 404) patchRecent('run', r.id, { status: 'gone' }); });
+      api.getRun(r.id).then((s) => { if (!dead && s) patchRecent('run', r.id, { status: recentStatus(s), evals: s.budget && s.budget.evals_used, total: s.budget && s.budget.evals_total }); }).catch((e) => { if (!dead && e.status === 404) patchRecent('run', r.id, { status: 'gone' }); });
     });
     return () => { dead = true; };
   }, [ids]);
@@ -41,7 +34,7 @@ export function RunsScreen() {
       ? html`<div class="card emptycard"><div class="emptyt">No runs yet</div><div class="faint">Draft a spec and let the agents build it. The run shows up here.</div><a class="btn primary" href="#/">New model</a></div>`
       : html`<div class="card list">${runs.map((r) => html`<a class="lrow" key=${r.kind + r.id} href=${r.kind === 'shrink' ? '#/shrink/' + r.id + (r.spec ? '?spec=' + r.spec : '') : '#/run/' + r.id}>
           <${Icon} n=${r.kind === 'shrink' ? 'shrink' : 'runs'} size=${18} />
-          <div class="lmain"><div class="ltitle ell">${r.title || r.id}</div><div class="faint lsub"><span class="mono">${r.id}</span>${r.kind === 'shrink' ? ' · shrink' : ''}${r.total ? ' · ' + r.evals + ' of ' + r.total + ' evals' : ''} · opened ${ago(r.ts)}</div></div>
+          <div class="lmain"><div class="ltitle ell">${r.title || r.id}${suffix[r.kind + r.id] && html` <span class="sb-sfx">${suffix[r.kind + r.id]}</span>`}</div><div class="faint lsub"><span class="mono">${r.id}</span>${r.kind === 'shrink' ? ' · shrink' : ''}${r.total ? ' · ' + r.evals + ' of ' + r.total + ' evals' : ''} · opened ${ago(r.ts)}</div></div>
           <span class="pill"><${Dot} color=${RUN_COLOR[r.status] || 'var(--text-4)'} pulse=${r.status === 'running'} />${RUN_LABEL[r.status] || 'Unknown'}</span>
           <${Icon} n="chevron" size=${16} />
         </a>`)}</div>`}

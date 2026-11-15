@@ -1,6 +1,6 @@
 import { html, useState, useEffect, useRef } from '../lib.js';
 import { api } from '../api.js';
-import { toast, clamp, pct, dur, addRecent, patchRecent, getRecent, useDebouncedCallback } from '../util.js';
+import { toast, clamp, pct, dur, addRecent, patchRecent, getRecent, useDebouncedCallback, benchName } from '../util.js';
 import { TopBar, Icon, ErrorBox, StubBadge } from '../components.js';
 import { SubtleNum, SkelReveal, Matrix, SuccessCheck, shake, AutoHeight } from '../motion.js';
 import { ModelLogo } from '../logos.js';
@@ -55,11 +55,12 @@ function Result({ job, spec, plan }) {
     <${Removed} r=${r.removed} />
     <h3 class="sub">Scores</h3>
     <div class="scs">${tasks.map((t) => html`<div class="sc" key=${t}>
-      <span class="sc-n">${names[t] || t.toUpperCase()}</span>
+      <span class="sc-n">${names[t] || benchName(t)}</span>
       <span class="sc-v num">${pct(r.scores[t])}%</span>
       <span class="faint small sc-o">${src[t] != null ? 'original ' + pct(src[t]) + '%' : 'original not scored'}${ctl[t] != null ? ', random removal ' + pct(ctl[t]) + '%' : ''}</span>
     </div>`)}</div>
     <${Compare} c=${r.comparison} heal=${healed} />
+    ${(r.limit_problems || []).filter((m) => !(r.comparison && r.comparison.headline && String(r.comparison.headline).includes(m))).map((m, i) => html`<div class="limprob" key=${i}>${m}</div>`)}
     ${healed && kindText && html`<div class="healline">${kindText}.</div>`}
     ${r.log && r.log.length > 0 && html`<h3 class="sub">Log</h3><${LogLines} lines=${r.log} />`}
   </section>`;

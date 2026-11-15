@@ -183,7 +183,7 @@ def test_shrink_session_plan_and_edit(client):
     plan = body["plan"]
     assert body["shrink_id"].startswith("sh_")
     assert plan["estimate"]["estimated"] is True
-    assert plan["summary"].startswith("Keep 32 of 128 experts per layer by saliency on math text.")
+    assert plan["summary"].startswith("Keep 32 of 128 experts per layer by how much the skill text uses them.")
     assert "(estimated)" in plan["summary"]
     assert plan["ok"] is True
     edited = client.post("/api/shrink/" + body["shrink_id"] + "/plan", json={"keep_experts": 16}).json()
@@ -314,7 +314,8 @@ def shrink_spec_for(benchmarks):
     return {"benchmarks": benchmarks, "shrink": {"source_model": "Qwen/Qwen2.5-14B-Instruct"}}
 
 
-def test_comparison_verdicts():
+def test_comparison_verdicts(monkeypatch):
+    monkeypatch.setitem(compare.SEARCH_KEYS, "gsm8k", ["gsm8k_search_raw"])
     spec = shrink_spec_for([{"id": "gsm8k", "kind": "target", "base": 0.3}])
     models = {"m/near-1.5B": {"params_b": 1.5, "scores": {"gsm8k_search_raw": {"value": 0.50, "split": "search"}}}}
     good = compare.build_shrink(spec, {"gsm8k": 0.60}, 1.5, {"gsm8k": 0.80}, {"gsm8k": 0.20}, None, True, models)
@@ -407,3 +408,23 @@ def test_remote_failure_becomes_a_job_error(client, monkeypatch):
     sid = client.post("/api/shrink", json={"spec_id": spec["id"]}).json()["shrink_id"]
     job = wait_job(client, client.post("/api/shrink/" + sid + "/run", json={}).json()["job_id"])
     assert job["status"] == "error" and "boom" in job["error"]
+
+
+def test_stub_shrunk_scores_never_pass_the_source():
+    from studio.server import shrink
+
+    plan = {"heal_steps": 600}
+    for removed_total in [0.999, 0.99, 0.9, 0.5]:
+        estimate = {"total_params_b": removed_total, "source_params_b": 1.0}
+        for benchmarks in ([{"id": "gsm8k", "base": 0.58}], [{"id": "gsm8k"}]):
+            source, skill, random_, general = shrink.stub_scores({"benchmarks": benchmarks}, plan, estimate, ["gsm8k"])
+            assert skill["gsm8k"] <= source["gsm8k"]
+            assert random_["gsm8k"] <= source["gsm8k"]
+            assert general["gsm8k"] <= source["gsm8k"]
+
+
+def test_shrink_is_unproven_while_gsm8k_library_scores_wait_for_rescoring():
+    spec = shrink_spec_for([{"id": "gsm8k", "kind": "target", "base": 0.3}])
+    models = {"m/near-1.5B": {"params_b": 1.5, "scores": {"gsm8k_search_raw": {"value": 0.50, "split": "search"}}}}
+    result = compare.build_shrink(spec, {"gsm8k": 0.60}, 1.5, {"gsm8k": 0.80}, {"gsm8k": 0.20}, None, True, models)
+    assert result["verdict"] == "unproven" and "best_model" in result["unmeasured"]

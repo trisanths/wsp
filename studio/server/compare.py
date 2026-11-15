@@ -32,8 +32,10 @@ LABELS = {
 
 # Library score keys per task. They all use the search-split items. The scorers differ a little (harness
 # or raw answers, round 7 or round 15 runs), so the best model is the highest score over every key.
+# GSM8K has no keys: the library scores were cut at 256 tokens by the old scorer, while the host and the
+# builds use the team protocol. Add keys back once the library models are re-scored with skills_eval.
 SEARCH_KEYS = {
-    "gsm8k": ["gsm8k_search_harness", "gsm8k_search_raw"],
+    "gsm8k": [],
     "mmlu": ["mmlu_dev_round15", "mmlu_dev_round8", "mmlu_dev_round7", "mmlu_dev"],
 }
 
@@ -93,15 +95,24 @@ def best_model_row(spec, limit_b, models):
     targets = targets_of(spec)
     per_task = {}
     notes = []
+    awaiting = []
     for task in targets:
         found = best_model_for(task, limit_b, models)
         if found is None:
+            if len(SEARCH_KEYS.get(task, [])) == 0 and task == "gsm8k":
+                awaiting.append(task)
             continue
         per_task[task] = found[0]
         notes.append(task + ": " + found[1] + " (" + library.short_number(found[0]) + ", " + found[2] + ")")
     note = "; ".join(notes)
     if len(notes) == 0:
         note = "no library model with a score on this benchmark fits the limit"
+    if len(awaiting) > 0:
+        text = "GSM8K library scores are awaiting re-scoring with the current scorer"
+        if len(notes) == 0:
+            note = text
+        else:
+            note = note + "; " + text
     return per_task, note
 
 
@@ -130,7 +141,7 @@ def make_row(row_id, per_task, targets, split, note, stub):
     value = mean_over(targets, per_task)
     return {"id": row_id, "label": LABELS[row_id], "split": split, "per_task": dict(per_task or {}),
             "value": value, "measured": value is not None, "note": note, "stub": stub, "result_value": None,
-            "delta": None, "beaten": None}
+            "delta": None, "beaten": None, "within_margin": None}
 
 
 def result_on(split, scores, heldout, targets):
@@ -166,6 +177,39 @@ def points(value):
     return "%.1f" % (value * 100.0)
 
 
+def mark_margin(row):
+    """Set within_margin: true when the result is above the reference but by less than the margin."""
+    if row["delta"] is None or row["beaten"] is None:
+        row["within_margin"] = None
+    else:
+        row["within_margin"] = row["delta"] > 0 and not row["beaten"]
+
+
+def margin_points():
+    return "%g" % round(CLEAR_MARGIN * 100.0, 2)
+
+
+def failed_text(rows_by_id, not_beaten, random_reason):
+    """The failed sentence, true to the numbers: within the margin, level, or below, for each reference."""
+    parts = []
+    for row_id in not_beaten:
+        row = rows_by_id[row_id]
+        numbers = " (" + points(row["result_value"]) + " against " + points(row["value"]) + ")"
+        if row["within_margin"]:
+            parts.append("is within " + margin_points() + " points of " + row["label"] + numbers)
+        elif row["delta"] is not None and row["delta"] == 0:
+            parts.append("only ties " + row["label"] + numbers)
+        else:
+            parts.append("is below " + row["label"] + numbers)
+    text = "Failed attempt. It " + " and ".join(parts)
+    within = [row_id for row_id in not_beaten if rows_by_id[row_id]["within_margin"]]
+    if "random" in within:
+        text += ", so " + random_reason + " not shown to matter"
+    elif len(within) > 0:
+        text += ", so it is not shown to be better"
+    return text + "."
+
+
 def headline(verdict, rows, beaten, not_beaten, unmeasured):
     by_id = {}
     for row in rows:
@@ -173,11 +217,7 @@ def headline(verdict, rows, beaten, not_beaten, unmeasured):
     if verdict == "none":
         return "No score yet."
     if verdict == "failed":
-        parts = []
-        for row_id in not_beaten:
-            row = by_id[row_id]
-            parts.append(row["label"] + " (" + points(row["result_value"]) + " against " + points(row["value"]) + ")")
-        return "Failed attempt. It does not beat " + "; ".join(parts) + "."
+        return failed_text(by_id, not_beaten, "the parts are")
     if verdict == "unproven":
         names = [by_id[row_id]["label"] for row_id in unmeasured]
         text = "Not proven. "
@@ -187,12 +227,54 @@ def headline(verdict, rows, beaten, not_beaten, unmeasured):
     return "Beats every reference by at least " + points(CLEAR_MARGIN) + " points."
 
 
+BAD_COMPONENT_VERDICTS = ["no better than random", "harmful"]
+
+
+def no_component_contributes(components):
+    """True when some component rests on a practice score and every such component is no better than random
+    or harmful. A verdict from held-out text loss alone says nothing about the task, so it is not counted."""
+    found = False
+    for item in components or []:
+        if item.get("evidence") != "practice":
+            continue
+        found = True
+        if item.get("verdict") not in BAD_COMPONENT_VERDICTS:
+            return False
+    return found
+
+
+def components_sentence(components):
+    """One plain sentence that names each component and its verdict."""
+    parts = []
+    components = [item for item in components if item.get("evidence") == "practice"]
+    for item in components:
+        parts.append(str(item.get("label") or item.get("id")) + " is " + str(item["verdict"]))
+    if len(parts) == 1:
+        return "Its only component " + parts[0] + "."
+    return "No component contributes: " + ", ".join(parts) + "."
+
+
+def apply_component_rule(verdict, headline_text, components):
+    """A result whose components are all no better than random or harmful cannot be a success.
+
+    Returns (verdict, headline). A verdict of none stays none. A failed verdict keeps its headline and gains
+    the sentence about the components.
+    """
+    if verdict == "none" or not no_component_contributes(components):
+        return verdict, headline_text
+    sentence = components_sentence(components)
+    if verdict == "failed":
+        return verdict, headline_text + " " + sentence
+    return "failed", "Failed attempt. " + sentence + " The score gain is not shown to come from the parts."
+
+
 def build(spec, scores, params_b=None, heldout=None, control=None, control_split="search", stub=False,
-          models=None):
+          models=None, components=None):
     """The comparison of a result with the reference set.
 
     scores: the result's search-split scores {task: value}. heldout: its held-out scores, or None. control: the
-    scores of the random-components control, on control_split ("search" or "heldout"), or None.
+    scores of the random-components control, on control_split ("search" or "heldout"), or None. components: the
+    per-component verdicts of the synthesis pipeline (each with "verdict" and "label"), or None.
     """
     targets = targets_of(spec)
     if models is None:
@@ -233,18 +315,22 @@ def build(spec, scores, params_b=None, heldout=None, control=None, control_split
         if row["measured"] and row["result_value"] is not None:
             row["delta"] = round(row["result_value"] - row["value"], 4)
             row["beaten"] = row["result_value"] > row["value"] + CLEAR_MARGIN
+        mark_margin(row)
     verdict, beaten, not_beaten, unmeasured = verdict_of(rows, result_value)
-    return {"verdict": verdict, "headline": headline(verdict, rows, beaten, not_beaten, unmeasured),
+    text = headline(verdict, rows, beaten, not_beaten, unmeasured)
+    verdict, text = apply_component_rule(verdict, text, components)
+    return {"verdict": verdict, "headline": text,
             "margin": CLEAR_MARGIN, "result": {"label": "This build", "value": result_value,
                                               "per_task": dict(scores or {}), "params_b": params_b,
                                               "heldout": mean_over(targets, heldout)},
             "rows": rows, "beaten": beaten, "not_beaten": not_beaten, "unmeasured": unmeasured,
-            "best_model_shown": far, "stub": bool(stub)}
+            "best_model_shown": far, "stub": bool(stub), "no_component_contributes": no_component_contributes(components)}
 
 
-def verdict_only(spec, scores, heldout=None, control=None, control_split="search", stub=False, models=None):
+def verdict_only(spec, scores, heldout=None, control=None, control_split="search", stub=False, models=None,
+                 components=None):
     """The verdict string alone, for lists."""
-    return build(spec, scores, None, heldout, control, control_split, stub, models)["verdict"]
+    return build(spec, scores, None, heldout, control, control_split, stub, models, components)["verdict"]
 
 
 # Shrink comparison. A shrunk model is checked against the same slim with random units removed (the random
@@ -323,11 +409,7 @@ def shrink_headline(verdict, rows, beaten, not_beaten, unmeasured, result_value)
     if verdict == "none":
         return "No score yet."
     if verdict == "failed":
-        parts = []
-        for row_id in not_beaten:
-            row = by_id[row_id]
-            parts.append(row["label"] + " (" + points(row["result_value"]) + " against " + points(row["value"]) + ")")
-        return "Failed attempt. It does not beat " + "; ".join(parts) + "." + kept
+        return failed_text(by_id, not_beaten, "the choice of units to remove is") + kept
     if verdict == "unproven":
         names = [by_id[row_id]["label"] for row_id in unmeasured]
         text = "Not proven. "
@@ -382,6 +464,7 @@ def build_shrink(spec, scores, params_b=None, source_scores=None, random_scores=
                 row["beaten"] = result_value >= row["value"]
             elif row["id"] == "general":
                 row["beaten"] = result_value > row["value"] + CLEAR_MARGIN
+        mark_margin(row)
     verdict, beaten, not_beaten, unmeasured = shrink_verdict(rows, result_value)
     return {"verdict": verdict, "request_type": "shrink",
             "headline": shrink_headline(verdict, rows, beaten, not_beaten, unmeasured, result_value),

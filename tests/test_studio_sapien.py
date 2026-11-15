@@ -180,7 +180,7 @@ def test_spec_limits_come_from_the_request(client):
     assert spec["limits"] == {"max_total_params_b": 3.0, "max_run_params_b": 1.24, "max_heal_min": 30}
     assert spec["size"]["max_params_b"] == 3.0
     other = client.post("/api/spec", data={"prompt": "a math model, heal one hour"}).json()
-    assert other["limits"]["max_total_params_b"] == 1.5
+    assert other["limits"]["max_total_params_b"] == 1.9
 
 
 def test_spec_limits_can_be_edited(client):
@@ -241,7 +241,7 @@ def test_per_token_and_heal_limits(client):
     builder_id = client.post("/api/builder", json={"spec_id": spec["id"]}).json()["builder_id"]
     part = math_part(client)
     long_heal = ps.make_program(HOST, [ps.make_graft(part["id"], part["default_at"], glue_rank=64)],
-                                ps.make_heal(3000))
+                                ps.make_heal(3000, data="math"))
     report = client.post("/api/builder/" + builder_id + "/size", json={"program": long_heal}).json()
     assert report["ok"] is False
     assert "heal time limit" in report["problems"][0]
@@ -313,7 +313,8 @@ def test_comparison_needs_every_reference_measured_to_succeed():
     assert "lora" in close["not_beaten"]
 
 
-def test_comparison_shows_the_best_model_only_when_the_limit_is_far_above_the_base(small_library):
+def test_comparison_shows_the_best_model_only_when_the_limit_is_far_above_the_base(small_library, monkeypatch):
+    monkeypatch.setitem(compare.SEARCH_KEYS, "gsm8k", ["gsm8k_search_harness", "gsm8k_search_raw"])
     spec = make_spec_dict(total=1.5)
     assert "best_model" not in row_ids(compare.build(spec, {"gsm8k": 0.6}, 1.3))
     spec = make_spec_dict(total=8.0)
@@ -397,7 +398,8 @@ def test_library_reads_once_and_reloads_on_request(tmp_path, monkeypatch):
 
 # Regression tests from the verification pass.
 
-def test_best_model_is_the_highest_score_over_every_score_key(small_library):
+def test_best_model_is_the_highest_score_over_every_score_key(small_library, monkeypatch):
+    monkeypatch.setitem(compare.SEARCH_KEYS, "gsm8k", ["gsm8k_search_harness", "gsm8k_search_raw"])
     models = library.get()["models"]
     models["Small/harness"] = {"hf_id": "Small/harness", "params_b": 1.5, "hidden": 1024, "layers": 16,
                                "scores": {"gsm8k_search_harness": {"value": 0.45, "split": "s"}}}
@@ -515,3 +517,13 @@ def test_a_per_token_size_is_not_read_as_the_total_limit():
 def test_programs_with_taps_have_no_readable_tap_name():
     from studio.server import programs
     assert "tap" not in programs.readable(tap_program())
+
+
+def test_gsm8k_library_scores_are_not_used_until_rescored(small_library):
+    models = library.get()["models"]
+    assert compare.SEARCH_KEYS["gsm8k"] == []
+    assert compare.best_model_for("gsm8k", 8.0, models) is None
+    spec = make_spec_dict(total=8.0)
+    row = compare.build(spec, {"gsm8k": 0.6}, 7.0)["rows"][-1]
+    assert row["measured"] is False
+    assert "awaiting re-scoring" in row["note"]

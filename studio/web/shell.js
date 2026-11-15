@@ -1,10 +1,10 @@
 import { html, useState, useEffect, useRef } from './lib.js';
 import { api } from './api.js';
-import { go, toast, useRoute, useRecent, useTheme, useHealth, useStubFlag, getLastBuild } from './util.js';
+import { go, toast, useRoute, useRecent, useTheme, useHealth, useStubFlag, getLastBuild, rowSuffixes } from './util.js';
 import { Icon, Mark, StubBadge, Dot } from './components.js';
 import { IconSwap, SwapText } from './motion.js';
 
-const RUN_COLOR = { planned: 'var(--text-4)', running: 'var(--blue)', starting: 'var(--blue)', paused: 'var(--amber)', stopping: 'var(--amber)', done: 'var(--green)', error: 'var(--red)' };
+const RUN_COLOR = { planned: 'var(--text-4)', stopped: 'var(--text-3)', running: 'var(--blue)', starting: 'var(--blue)', paused: 'var(--amber)', stopping: 'var(--amber)', done: 'var(--green)', error: 'var(--red)' };
 
 function Row({ icon, label, href, onClick, on, rail, badge }) {
   const inner = html`<${Icon} n=${icon} size=${18} /><span class="sb-text">${label}</span>${badge}`;
@@ -31,6 +31,8 @@ export function Sidebar({ rail, onToggle, route }) {
     } catch (e) { toast('Could not open the builder: ' + e.message, 'err'); }
   };
   const isRecent = (r) => (r.kind === 'spec' && route.name === 'spec' && route.id === r.id) || (r.kind === 'run' && route.name === 'run' && route.id === r.id) || (r.kind === 'shrink' && route.name === 'shrink' && route.id === r.id);
+  const shownRecent = recent.slice(0, 12);
+  const suffix = rowSuffixes(shownRecent);
   const hrefOf = (r) => '#/' + r.kind + '/' + r.id + (r.kind === 'shrink' && r.spec ? '?spec=' + r.spec : '');
   return html`<aside class=${'sidebar' + (rail ? ' rail' : '')} aria-label="Sidebar">
     <div class="sb-head">
@@ -46,8 +48,8 @@ export function Sidebar({ rail, onToggle, route }) {
     <div class="sb-label sb-text">Recent</div>
     <div class="sb-recent sb-text">
       ${recent.length === 0 && html`<div class="sb-empty">Specs and runs you open show up here.</div>`}
-      ${recent.slice(0, 12).map((r) => html`<a class=${'sb-row sub' + (isRecent(r) ? ' on' : '')} key=${r.kind + r.id} href=${hrefOf(r)} title=${r.title}>
-        <${Icon} n=${r.kind === 'run' ? 'runs' : r.kind === 'shrink' ? 'shrink' : 'file'} size=${16} /><span class="sb-title">${r.title || r.id}</span>
+      ${shownRecent.map((r) => html`<a class=${'sb-row sub' + (isRecent(r) ? ' on' : '')} key=${r.kind + r.id} href=${hrefOf(r)} title=${r.title}>
+        <${Icon} n=${r.kind === 'run' ? 'runs' : r.kind === 'shrink' ? 'shrink' : 'file'} size=${16} /><span class="sb-title">${r.title || r.id}${suffix[r.kind + r.id] && html` <span class="sb-sfx">${suffix[r.kind + r.id]}</span>`}</span>
         ${(r.kind === 'run' || r.kind === 'shrink') && r.status && html`<${Dot} color=${RUN_COLOR[r.status] || 'var(--text-4)'} />`}</a>`)}
     </div>
     <div class="sb-foot">

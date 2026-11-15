@@ -82,7 +82,7 @@ def good_program(client, heal=True):
     part = math_part(client)
     heal_dict = None
     if heal:
-        heal_dict = ps.make_heal(300)
+        heal_dict = ps.make_heal(300, data="math")
     return ps.make_program(HOST, [ps.make_graft(part["id"], part["default_at"], glue_rank=64)], heal_dict)
 
 
@@ -112,8 +112,8 @@ def test_spec_from_prompt_and_upload(client):
     for item in spec["benchmarks"]:
         by_id[item["id"]] = item
     assert by_id["gsm8k"]["kind"] == "target"
-    assert by_id["gsm8k"]["lora"] == 0.467
-    assert by_id["gsm8k"]["target"] == 0.5
+    assert by_id["gsm8k"]["lora"] is None  # no LoRA bar has been measured under the current GSM8K scorer
+    assert by_id["gsm8k"]["target"] == 0.35  # base 0.25 plus 0.10
     assert by_id["gsm8k"]["base"] == 0.25  # the stub world's own base
     assert by_id["if_guard"]["kind"] == "guard"
     assert "floor" in by_id["if_guard"]
@@ -154,7 +154,7 @@ def test_count_rows():
     assert specs_mod.count_rows("a.txt", b"x\n\ny\nz\n") == 3
     assert specs_mod.split_rows(1) == (1, 0)
     assert specs_mod.split_rows(9) == (3, 6)
-    assert specs_mod.size_from_prompt("fits on a phone", 1.24) == 1.3
+    assert specs_mod.size_from_prompt("fits on a phone", 1.24) == 1.44
     assert specs_mod.size_from_prompt("under 2B please", 1.24) == 2.0
 
 
@@ -316,7 +316,7 @@ def test_builder_actions_and_suggestions(client):
     spec = make_spec(client)
     created = client.post("/api/builder", json={"spec_id": spec["id"]}).json()
     builder_id = created["builder_id"]
-    assert created["budget"]["evals_total"] == 12
+    assert created["budget"]["evals_total"] == spec["budget"]["evals"]
     program = good_program(client)
 
     def run_job(action, body_program):
@@ -409,6 +409,31 @@ def fake_entries(program):
     return entries
 
 
+def fake_synth_result(program, tasks):
+    """What synth_remote returns, in the contract shape, with one component per graft."""
+    scores = {}
+    for task in tasks:
+        scores[task] = 0.5
+    rows = []
+    verdicts = ["contributes", "no better than random", "harmful"]
+    for index, graft in enumerate(program["grafts"]):
+        rows.append({"id": graft["id"], "part_id": graft["id"], "kind": "mlp_cluster", "donor": "Qwen/Qwen2.5-Math-1.5B",
+                     "skill": "gsm8k", "host_layer": graft["at"], "verdict": verdicts[index % 3], "closed": False,
+                     "contribution": 0.04, "text_gain": 0.03, "content_gain": 0.02, "fit_error": 0.2,
+                     "gate_domain": 0.7, "gate_general": 0.2, "transfer": 0.4, "part_params": 300000})
+    stages = []
+    for name in ["place", "translate in", "translate out", "heal 1", "heal 2", "verify"]:
+        stages.append({"name": name, "seconds": 5.0, "practice_before": {"gsm8k": 0.5},
+                       "practice_after": {"gsm8k": 0.5}, "rolled_back": False, "detail": name})
+    return {"ok": True, "error": None, "pipeline": "synth", "scores": scores, "items": {}, "components": rows,
+            "stages": stages, "drift": {"base_kl": 0.01, "agree": 0.95, "tokens": 900, "text": "general pool, held out"},
+            "sizes": {"total": 1300000000, "per_token": 1100000000, "parts": 300000, "glue": 100000, "gates": 10,
+                      "lora": 0},
+            "seconds": {"prepare": 5.0, "synthesize": 90.0, "compile": 30.0, "heal": 60.0, "probe": 10.0, "eval": 10.0,
+                        "total": 115.0},
+            "graft_report": fake_entries(program), "heal_loss": [1.0, 0.5], "gpu": "NVIDIA L40S"}
+
+
 class FakeModalFunction:
     """Records the arguments of every call and returns a canned result."""
 
@@ -421,6 +446,8 @@ class FakeModalFunction:
         if self.name.startswith("probe_remote"):
             return {"ok": True, "error": None, "graft_report": fake_entries(args[0]), "seconds": {"compile": 20.0},
                     "gpu": "NVIDIA L40S"}
+        if self.name.startswith("synth_remote"):
+            return fake_synth_result(args[0], args[2])
         if self.name.startswith("score_remote"):
             program, split, tasks = args[0], args[1], args[2]
             scores = {}
@@ -455,7 +482,7 @@ def modal_client(tmp_path, monkeypatch):
 
 def modal_program(steps=100):
     graft = ps.make_graft(MODAL_PART, 6, glue_rank=64)
-    return ps.make_program(HOST, [graft], ps.make_heal(steps))
+    return ps.make_program(HOST, [graft], ps.make_heal(steps, data="math"))
 
 
 def run_builder_job(client, builder_id, program, action):
@@ -499,14 +526,15 @@ def test_modal_builder_scores_a_graft_program(modal_client):
     assert scored["status"] == "done", scored
     assert scored["result"]["status"] == "ok"
     assert scored["result"]["scores"]["gsm8k"] == 0.5
-    assert scored["result"]["compute_s"] == 55.0
+    assert scored["result"]["compute_s"] == 115.0
+    assert scored["result"]["pipeline"] == "synth"
     comparison = scored["result"]["comparison"]
     assert comparison["stub"] is False
     assert comparison["verdict"] in ("failed", "unproven")
     names = []
     for name, args in modal_client.modal_calls:
         names.append(name)
-    assert names[:2] == ["probe_remote", "score_remote"]
+    assert names[:2] == ["probe_remote", "synth_remote"]
 
     trained = run_builder_job(modal_client, builder_id, program, "train")
     assert trained["status"] == "done", trained

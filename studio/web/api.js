@@ -36,12 +36,19 @@ const real = {
   startResearch: (id) => req('POST', '/api/spec/' + id + '/research', {}),
   createRun: (spec_id, program = null) => req('POST', '/api/runs', { spec_id, program }),
   getRun: (id) => req('GET', '/api/runs/' + id),
-  openStream(id, onSnap, onErr) {
+  openStream(id, onSnap, onErr, onNote) {
     const es = new EventSource('/api/runs/' + id + '/stream');
     es.addEventListener('snapshot', (e) => {
       try { const s = JSON.parse(e.data); if (s && s.stub) markStub(true); onSnap(s); } catch (x) { /* skip bad frame */ }
     });
-    es.onerror = () => { es.close(); onErr(); };
+    // "event: error" with {"error": "..."} is a server message. A bare error is a dropped connection.
+    es.addEventListener('error', (e) => {
+      if (!e || typeof e.data !== 'string') { es.close(); onErr(); return; }
+      let msg = 'stream error';
+      try { const d = JSON.parse(e.data); if (d && d.error) msg = String(d.error); } catch (x) { /* keep the default */ }
+      if (onNote) onNote(msg);
+      onErr();
+    });
     return () => es.close();
   },
   pause: (id) => req('POST', '/api/runs/' + id + '/pause', {}),

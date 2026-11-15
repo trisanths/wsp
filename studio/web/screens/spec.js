@@ -64,6 +64,7 @@ export function SpecScreen({ id }) {
       patchRecent('spec', id, { title: latest.current.title });
       // the server checks a shrink edit and may change other fields (experts from a size, defaults for a new source)
       if (saved && saved.request_type === 'shrink' && !dirty.current && latest.current) { latest.current = { ...latest.current, shrink: saved.shrink, host: saved.host, size: saved.size, limits: saved.limits || latest.current.limits }; setSpec(latest.current); }
+      else if (saved && saved.limits && !dirty.current && latest.current) { latest.current = { ...latest.current, size: saved.size || latest.current.size, limits: saved.limits }; setSpec(latest.current); }
       setSave(dirty.current ? 'dirty' : 'saved');
     } catch (e) { setSave('error'); toast('Could not save: ' + e.message, 'err'); dirty.current = true; }
   };
@@ -193,12 +194,18 @@ export function SpecScreen({ id }) {
   const lim = { max_total_params_b: spec.size.max_params_b, max_run_params_b: spec.size.max_params_b, max_heal_min: 20, ...(spec.limits || {}) };
   const isShrink = spec.request_type === 'shrink';
   const sizeMin = isShrink ? 0.1 : Math.max(spec.size.min_b, hostB || 0);
-  const totMax = isShrink ? Math.max(Math.ceil(hostB || 1), Math.ceil(lim.max_total_params_b)) : Math.min(spec.size.max_b, Math.max(8, Math.ceil(lim.max_total_params_b * 2)));
+  const totMax0 = isShrink ? Math.max(Math.ceil(hostB || 1), Math.ceil(lim.max_total_params_b)) : Math.min(spec.size.max_b, Math.max(8, Math.ceil(lim.max_total_params_b * 2)));
+  const totMax = Math.max(totMax0, sizeMin + 0.1);
   const healMax = Math.max(120, lim.max_heal_min * 2);
   const setLimit = (patch) => edit((s) => {
     s.limits = { ...lim, ...(s.limits || {}), ...patch };
     if (patch.max_total_params_b != null) { s.size.max_params_b = patch.max_total_params_b; s.limits.max_run_params_b = Math.min(s.limits.max_run_params_b, patch.max_total_params_b); }
   });
+  // limits show up to two decimals ("1.24B"), and the same number comes back after a save
+  const n2 = (x) => String(Math.round(Number(x) * 100) / 100);
+  const runMin = Math.max(0.1, Math.min(isShrink ? 0.1 : (hostB || 0.5), lim.max_total_params_b - 0.1));
+  const runMax = Math.max(lim.max_total_params_b, runMin + 0.1);
+  const room = Math.round((lim.max_total_params_b - (hostB || 0)) * 100) / 100;
   const sizeTicks = hostB != null ? [{ v: hostB, kind: 'host', label: (isShrink ? 'source ' : 'host ') + hostB.toFixed(2) + 'B' }] : [];
   const b = spec.budget;
   const compMax = Math.max(240, b.compute_min * 3);
@@ -214,14 +221,15 @@ export function SpecScreen({ id }) {
     ${isShrink && html`<${ShrinkSection} spec=${spec} edit=${edit} onChangeSource=${changeSource} />`}
 
     <section class="sect"><h2 class="sec">Limits</h2>
+      ${!isShrink && room < 0.2 && html`<div class="limwarn">No room for parts. Raise the total size.</div>`}
       <div class="srow">
-        <div class="top"><span class="nm">Total size</span><span class="val">up to <${SubtleNum} text=${lim.max_total_params_b.toFixed(1)} />B parameters</span></div>
-        <${Slider} value=${lim.max_total_params_b} min=${sizeMin} max=${totMax} step=${0.1} ticks=${sizeTicks} ariaLabel="Maximum total parameters" onChange=${(v) => setLimit({ max_total_params_b: Math.round(v * 10) / 10 })} />
-        <div class="note"><span>${isShrink ? 'The shrunk model has to stay under this. The source has ' + (hostB || 0).toFixed(2) + 'B.' : lim.max_total_params_b < (hostB || 0) ? 'Below the host size. Only deletion masks can get there.' : 'Room for ' + Math.max(0, lim.max_total_params_b - (hostB || 0)).toFixed(2) + 'B of grafted parts.'}</span><span>${sizeMin}B to ${totMax}B</span></div>
+        <div class="top"><span class="nm">Total size</span><span class="val">up to <${SubtleNum} text=${n2(lim.max_total_params_b)} />B parameters</span></div>
+        <${Slider} value=${lim.max_total_params_b} min=${sizeMin} max=${totMax} step=${0.01} ticks=${sizeTicks} ariaLabel="Maximum total parameters" onChange=${(v) => setLimit({ max_total_params_b: Math.round(v * 100) / 100 })} />
+        <div class="note"><span>${isShrink ? 'The shrunk model has to stay under this. The source has ' + (hostB || 0).toFixed(2) + 'B.' : lim.max_total_params_b < (hostB || 0) ? 'Below the host size. Only deletion masks can get there.' : 'Room for ' + Math.max(0, room).toFixed(2) + 'B of grafted parts.'}</span><span>${n2(sizeMin)}B to ${n2(totMax)}B</span></div>
       </div>
       <div class="srow">
-        <div class="top"><span class="nm">Run per token</span><span class="val">up to <${SubtleNum} text=${lim.max_run_params_b.toFixed(1)} />B parameters</span></div>
-        <${Slider} value=${Math.min(lim.max_run_params_b, lim.max_total_params_b)} min=${isShrink ? Math.min(0.1, lim.max_total_params_b) : Math.min(hostB || 0.5, lim.max_total_params_b)} max=${lim.max_total_params_b} step=${0.1} ticks=${sizeTicks} ariaLabel="Maximum parameters run per token" onChange=${(v) => setLimit({ max_run_params_b: Math.round(v * 10) / 10 })} />
+        <div class="top"><span class="nm">Run per token</span><span class="val">up to <${SubtleNum} text=${n2(Math.min(lim.max_run_params_b, lim.max_total_params_b))} />B parameters</span></div>
+        <${Slider} value=${clamp(Math.min(lim.max_run_params_b, lim.max_total_params_b), runMin, runMax)} min=${runMin} max=${runMax} step=${0.01} ticks=${sizeTicks} ariaLabel="Maximum parameters run per token" onChange=${(v) => setLimit({ max_run_params_b: Math.round(v * 100) / 100 })} />
         <div class="note"><span>The parameters a single token passes through. It sets speed and energy.</span><span>up to the total size</span></div>
       </div>
       <div class="srow">

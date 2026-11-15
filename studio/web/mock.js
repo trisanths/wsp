@@ -1,6 +1,8 @@
 // Fixture data and a simulated server, shaped like studio/CONTRACT.md.
 // Used when the page is opened with ?mock=1. Nothing here talks to a network.
 
+import { healPool } from './util.js';
+
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const lat = () => sleep(120 + Math.random() * 200);
 const now = () => Date.now() / 1000;
@@ -59,7 +61,7 @@ function programText(p) {
     L.push(s);
   }
   if (p.lora) L.push('lora rank ' + (p.lora.rank || 16));
-  if (p.heal) L.push('heal steps ' + p.heal.steps + ' data ' + (p.heal.data || 'gsm8k_train'));
+  if (p.heal) L.push('heal steps ' + p.heal.steps + ' data ' + (p.heal.data || 'math'));
   return L.join('\n') + '\n';
 }
 function parseProgram(text) {
@@ -106,7 +108,7 @@ function parseProgram(text) {
       prog.lora = { rank: o.rank != null ? int(o.rank, 'rank') : 16 };
     } else if (kw === 'heal') {
       const o = opts(1, ['steps', 'data', 'lr', 'batch_size', 'seq_len']);
-      prog.heal = { steps: o.steps != null ? int(o.steps, 'steps') : 300, data: o.data || 'gsm8k_train', lr: 0.0003, batch_size: 8, seq_len: 384 };
+      prog.heal = { steps: o.steps != null ? int(o.steps, 'steps') : 300, data: o.data || 'math', lr: 0.0003, batch_size: 8, seq_len: 384 };
     } else fail(ln, "unknown statement '" + kw + "'");
   });
   if (!prog.host) fail(1, 'a program needs a host line');
@@ -208,12 +210,61 @@ function limitProblems(lim, e) {
   if (e.heal_min > lim.max_heal_min + 1e-6) out.push('Over the heal time limit. The heal and stitch training is estimated at ' + f2(e.heal_min) + ' minutes. The limit is ' + lim.max_heal_min + ' minutes.');
   return out;
 }
+/* ---------- component verdicts (made up, labeled stub, same part always gets the same verdict) ---------- */
+const VERDICTS = ['contributes', 'no better than random', 'harmful'];
+const STAGE_NAMES = ['place', 'translate in', 'translate out', 'heal 1', 'heal 2', 'verify'];
+function pipelineOf(p) { return (p.grafts || []).some((g) => PART[g.id]) ? 'synth' : 'classic'; }
+function componentsFor(spec, p) {
+  const gs = (p.grafts || []).filter((g) => PART[g.id]);
+  if (!gs.length) return null;
+  return gs.map((g) => {
+    const part = PART[g.id];
+    const verdict = VERDICTS[PARTS.indexOf(part) % 3];
+    const h = hash(g.id) % 100 / 1000;
+    const contribution = verdict === 'contributes' ? 0.02 + h * 0.5 : verdict === 'harmful' ? -0.02 - h * 0.4 : (h - 0.05) * 0.1;
+    const sameTok = !/Qwen|deepseek/.test(part.donor);
+    const r3 = (x) => Math.round(x * 1000) / 1000;
+    return { id: g.id, label: part.label + (part.layers[0] === part.layers[1] ? ' L' + part.layers[0] : ' L' + part.layers[0] + '-' + part.layers[1]), kind: part.kind, donor: part.donor, host_layer: g.at, verdict, stub: true,
+      detail: { skill: spec.benchmarks.find((b) => b.kind === 'target').id, contribution: r3(contribution), text_gain: r3(verdict === 'contributes' ? 0.02 + h : -h * 0.2), content_gain: r3(verdict === 'contributes' ? 0.03 + h * 0.6 : verdict === 'harmful' ? -0.04 : 0.004),
+        transfer: sameTok ? r3(verdict === 'contributes' ? 0.3 + h * 4 : verdict === 'harmful' ? -0.1 : 0.04) : null, fit_r2: r3(0.5 + h * 3), gate_domain: 0.8, gate_general: 0.1, part_params: part.params_m * 1e6, closed: false } };
+  });
+}
+function stagesFor(spec, p, comps) {
+  if (!comps) return null;
+  const tid = spec.benchmarks.find((b) => b.kind === 'target').id;
+  const t0 = spec.benchmarks.find((b) => b.id === tid).base;
+  const gain = comps.reduce((a, c) => a + c.detail.contribution, 0);
+  const harmful = comps.some((c) => c.verdict === 'harmful');
+  const pr = (x) => ({ [tid]: Math.round(clamp(x, 0.01, 0.98) * 1000) / 1000 });
+  const v = [t0, t0 + gain * 0.4, t0 + gain * 0.5, t0 + gain * 0.8];
+  const rows = [
+    ['place', null, null, pr(v[0])], ['translate in', 12.7, pr(v[0]), pr(v[1])], ['translate out', 0.3, pr(v[1]), pr(v[2])],
+    ['heal 1', 10.3, pr(v[2]), pr(v[2] - 0.04)], ['heal 2', 11.1, pr(v[2] - 0.04), harmful ? pr(v[2] - 0.08) : pr(v[3])], ['verify', 144.4, null, null],
+  ];
+  return rows.map(([name, seconds, before, after], i) => ({ name, seconds, practice_before: before, practice_after: after, rolled_back: name === 'heal 2' && harmful, detail: name === 'verify' ? 'Scores the saved network and runs the random control compile.' : '', stub: true }));
+}
+function driftFor(p, comps) {
+  if (!comps) return null;
+  return { base_kl: Math.round((0.01 + (hash(JSON.stringify(p.grafts)) % 90) / 1000) * 1000) / 1000, agree: Math.round((0.95 - (hash(JSON.stringify(p.grafts)) % 20) / 100) * 1000) / 1000, tokens: 2400, text: 'stub, not measured' };
+}
+function withSynth(spec, p, ev) {
+  const comps = componentsFor(spec, p);
+  ev.pipeline = comps ? 'synth' : 'classic';
+  ev.components = comps;
+  ev.stages = stagesFor(spec, p, comps);
+  ev.drift = driftFor(p, comps);
+  ev.sizes = null;
+  const healed = !!(p.heal || p.lora);
+  const heal = new URLSearchParams(location.search).get('heal') === '1';
+  ev.heal_note = !comps && healed && heal ? 'The heal recipe is being fixed. Healing on dataset text currently damages the base model, so scores after a heal are not reliable yet.' : null;
+  return ev;
+}
 function mockComparison(spec, ev, p) {
   const ts = spec.benchmarks.filter((b) => b.kind === 'target');
   const mean = (f) => { const v = ts.map(f); return v.some((x) => x == null) ? null : v.reduce((a, b) => a + b, 0) / v.length; };
   const result = mean((b) => ev.scores[b.id]);
   const rows = [];
-  const add = (id, label, value, note, stub) => rows.push({ id, label, split: 'search', per_task: {}, value, measured: value != null, note, stub: !!stub, result_value: result, delta: value == null ? null : Math.round((result - value) * 1000) / 1000, beaten: value == null ? null : result - value > 0.01 });
+  const add = (id, label, value, note, stub) => rows.push({ id, label, split: 'search', per_task: {}, value, measured: value != null, note, stub: !!stub, result_value: result, delta: value == null ? null : Math.round((result - value) * 1000) / 1000, beaten: value == null ? null : result - value > 0.02, within_margin: value == null ? null : result - value > 0 && result - value <= 0.02 });
   add('base', 'Base', mean((b) => b.base), 'the host alone, same items and same scorer', true);
   add('lora', 'Base + LoRA', mean((b) => b.lora), ts.every((b) => b.lora != null) ? 'a rank-16 LoRA on the same data' : 'not measured for every target', false);
   add('distill', 'Base + distillation', mean((b) => b.base + ((b.lora != null ? b.lora : b.base + 0.1) - b.base) * 0.8), 'stub data, not a measurement', true);
@@ -226,8 +277,16 @@ function mockComparison(spec, ev, p) {
   const open = rows.filter((r) => !r.measured);
   let verdict = 'success';
   if (bad || failedRows.length) verdict = 'failed'; else if (open.length) verdict = 'unproven';
-  const headline = verdict === 'failed' ? 'Failed attempt. ' + (bad ? 'The build collapsed or went over a limit.' : 'It does not beat ' + failedRows.map((r) => r.label).join(', ') + '.') : verdict === 'unproven' ? 'Not proven yet: ' + open.map((r) => r.label).join(', ') + ' not measured.' : 'Beats every reference by more than 1 point.';
-  return { verdict, headline, margin: 0.01, result: { label: 'This build', value: result, per_task: {}, params_b: ev.params_b, heldout: null }, rows, beaten: rows.filter((r) => r.beaten).map((r) => r.id), not_beaten: failedRows.map((r) => r.id), unmeasured: open.map((r) => r.id), best_model_shown: !!far, stub: true };
+  const headline = verdict === 'failed' ? 'Failed attempt. ' + (bad ? 'The build collapsed or went over a limit.' : 'It does not beat ' + failedRows.map((r) => r.label).join(', ') + '.') : verdict === 'unproven' ? 'Not proven yet: ' + open.map((r) => r.label).join(', ') + ' not measured.' : 'Beats every reference by more than 2 points.';
+  const comps = ev.components || null;
+  const noComp = !!(comps && comps.length && comps.every((c) => c.verdict !== 'contributes'));
+  let head = headline;
+  if (noComp) {
+    verdict = 'failed';
+    const why = 'No component contributes: ' + comps.map((c) => c.label + ' is ' + c.verdict.replace('no better than random', 'no better than random')).join(', ') + '. The score gain is not shown to come from the parts.';
+    head = headline.startsWith('Failed attempt.') ? headline + ' ' + why : 'Failed attempt. ' + why;
+  }
+  return { verdict, headline: head, no_component_contributes: noComp, margin: 0.02, result: { label: 'This build', value: result, per_task: {}, params_b: ev.params_b, heldout: null }, rows, beaten: rows.filter((r) => r.beaten).map((r) => r.id), not_beaten: failedRows.map((r) => r.id), unmeasured: open.map((r) => r.id), best_model_shown: !!far, stub: true };
 }
 
 /* ---------- specs ---------- */
@@ -305,7 +364,7 @@ function researchPlan(spec) {
       reference_scores: [sc('Qwen3-1.7B', 1.7, 0.62, true, 'https://arxiv.org/abs/2505.09388'), sc('Llama-3.2-3B', 3, 0.44, true, 'https://huggingface.co/meta-llama/Llama-3.2-3B'), sc('Gemma-3-1B', 1, 0.38, false), sc('Phi-4-mini', 3.8, 0.8, true, 'https://huggingface.co/microsoft/Phi-4-mini-instruct')] },
     { name: extra.name, measures: 'Grade-school science questions that need a short chain of reasoning.', why: 'Small models trade general reasoning for a narrow skill. This shows if that happened.', runnable_id: extra.id, kind: 'target', suggested_target: 0.5, in_spec: true,
       reference_scores: [sc('Qwen3-1.7B', 1.7, 0.55, true, 'https://arxiv.org/abs/2505.09388'), sc('SmolLM3-3B', 3, 0.5, false), sc('Mistral-7B-v0.3', 7, 0.6, false)] },
-    { name: ref[0], measures: ref[1], why: 'Used in most papers on this skill, but Sapien has no runner for it.', runnable_id: null, kind: 'target', suggested_target: null, in_spec: false,
+    { name: ref[0].toLowerCase().replace(/[^a-z0-9]+/g, '_'), label: ref[0], measures: ref[1], why: 'Used in most papers on this skill, but Sapien has no runner for it.', runnable_id: null, kind: 'target', suggested_target: null, in_spec: false,
       reference_scores: [sc('Qwen3-1.7B', 1.7, 0.4, true, 'https://arxiv.org/abs/2505.09388'), sc('DeepSeek-R1-Distill-Qwen-1.5B', 1.5, 0.83, false)] },
   ];
   const sources = steps.filter((x) => x.kind === 'read').map((x) => ({ title: x.text, url: x.url }));
@@ -420,7 +479,7 @@ function genProgram(run, a) {
     const m = pick(MASKS);
     prog.masks = { op: 'use', id: m.id };
   }
-  if (Math.random() < 0.85) prog.heal = { steps: pick([100, 300, 300, 600]), data: spec.task_type === 'math' ? 'gsm8k_train' : 'task_train', lr: 0.0003, batch_size: 8, seq_len: 384 };
+  if (Math.random() < 0.85) prog.heal = { steps: pick([100, 300, 300, 600]), data: healPool(spec), lr: 0.0003, batch_size: 8, seq_len: 384 };
   if (Math.random() < 0.2) prog.lora = { rank: pick([8, 16, 32]) };
   return prog;
 }
@@ -492,9 +551,11 @@ function finishEval(run, a) {
   if (a.best == null || (ev.status === 'ok' && score > a.best)) a.best = ev.status === 'ok' ? score : a.best;
   for (const g of a.cur.grafts) { const d = PART[g.id] && PART[g.id].donor; if (d) run.uses[d] = (run.uses[d] || 0) + 1; }
   run.uses[HOST] = (run.uses[HOST] || 0) + 1;
-  const entry = { rank: 0, program_hash: h, describe: describe(a.cur), name: readable(a.cur), agent: a.id, scores: ev.scores, combined: ev.combined, status: ev.status, vs_control: null, params_b: ev.params_b, program: clone(a.cur), _pending: ev.vs_control, _age: 0 };
+  const syn = withSynth(spec, a.cur, {});
+  ev.components = syn.components;
+  const entry = { pipeline: syn.pipeline, components: syn.components, drift: syn.drift, rank: 0, program_hash: h, describe: describe(a.cur), name: readable(a.cur), agent: a.id, scores: ev.scores, combined: ev.combined, status: ev.status, vs_control: null, params_b: ev.params_b, program: clone(a.cur), _pending: ev.vs_control, _age: 0 };
   run.board.push(entry);
-  const curBest = run.curve.length ? run.curve[run.curve.length - 1].best : tgt.base;
+  const curBest = run.curve.length ? run.curve[run.curve.length - 1].best : null;
   const isBest = ev.status === 'ok' && ev.params_b <= spec.size.max_params_b && (!run.best || score > run.best.scores[tgt.id]);
   run.curve.push({ eval: run.evals_used, best: isBest ? score : curBest, score });
   const guardsOut = spec.benchmarks.filter((b) => b.kind === 'guard').map((g) => ({ id: g.id, name: g.name, score: ev.scores[g.id], floor: g.floor, ok: ev.scores[g.id] >= g.floor }));
@@ -505,7 +566,9 @@ function finishEval(run, a) {
     logAct(run, a.id, 'eval', 'bad', 'Scored ' + entry.name + ' and it collapsed. The lesson is saved.', data);
     think(a, 'That collapsed. Guards fell below their floor, so I will move the graft away from its neighbour and try again.');
   } else logAct(run, a.id, 'eval', 'info', 'Scored ' + entry.name + ' at ' + (score * 100).toFixed(1) + '% on ' + tgt.name + '.', data);
-  run.board.sort((x, y) => (y.status === 'ok') - (x.status === 'ok') || y.combined - x.combined);
+  const tmean = (e) => { const t = spec.benchmarks.filter((b) => b.kind === 'target'); return t.reduce((acc, b) => acc + (e.scores[b.id] || 0), 0) / Math.max(1, t.length); };
+  const tier = (e) => (e.status === 'ok' ? 0 : e.status === 'collapsed' ? 2 : 1);
+  run.board.sort((x, y) => tier(x) - tier(y) || tmean(y) - tmean(x));
   run.board = run.board.slice(0, 14);
   run.board.forEach((e, i) => { e.rank = i + 1; });
 }
@@ -514,7 +577,8 @@ function tickRun(run) {
   if (run.status === 'paused' || run.status === 'done' || run.status === 'error') return;
   if (run.status === 'stopping') {
     run.status = 'done';
-    run.agents.forEach((a) => { a.status = 'done'; a.now = 'Stopped. Best program kept.'; });
+    run.outcome = 'stopped';
+    run.agents.forEach((a) => { a.status = 'done'; a.now = 'Stopped'; });
     logAct(run, 'judge', 'milestone', 'info', 'Search stopped. The best program is kept.');
     return;
   }
@@ -553,7 +617,8 @@ function tickRun(run) {
   } else if (ju.status === 'scoring') ju.status = 'idle';
   if (run.evals_used >= run.evals_total || run.compute_used >= run.compute_total) {
     run.status = 'done';
-    run.agents.forEach((a) => { a.status = 'done'; a.now = 'Budget used. Finished.'; });
+    run.outcome = 'finished';
+    run.agents.forEach((a) => { a.status = 'done'; a.now = 'Finished'; });
     const tg = run.spec.benchmarks.find((b) => b.kind === 'target');
     run.board.slice(0, 3).forEach((e) => logAct(run, 'judge', 'heldout', 'info', 'Held-out check of ' + e.name, { name: e.name, program_hash: e.program_hash, target: Math.max(0, e.scores[tg.id] - 0.02), scores: e.scores }));
     logAct(run, 'judge', 'milestone', 'ok', 'Search finished. The best program is ready to open in the builder.');
@@ -567,17 +632,40 @@ function snapshot(run) {
   const s = {
     run_id: run.id, spec, status: run.status, stub: true, backend: 'stub', started_at: run.started, elapsed_s: run.elapsed,
     budget: { evals_used: run.evals_used, evals_total: run.evals_total, compute_used_s: run.compute_used, compute_total_s: run.compute_total },
-    base_scores: run.base_scores, best: run.best,
+    base_scores: run.tickN < 1 ? {} : run.base_scores, best: run.best, outcome: run.outcome || null, stopped_early: run.outcome === 'stopped', empty_reason: run.empty_reason || null, sort: 'target score',
     agents: run.agents.map((a) => ({ id: a.id, name: a.name, role: a.role, blurb: a.blurb, status: run.status === 'paused' ? 'paused' : a.status, now: a.now, best: a.best, attempts: a.attempts, collapses: a.collapses, lessons: a.lessons, nudges_pending: a.nudges_pending })),
     refused: run.refused || 0, limits: spec.limits, comparison: null,
-    leaderboard: run.board.map((e) => { const c = { ...e }; delete c._pending; delete c._age; c.comparison = mockComparison(spec, { scores: e.scores, status: e.status, params_b: e.params_b, control: null, ...(e.vs_control != null ? { control: { scores: { [spec.benchmarks.find((b) => b.kind === 'target').id]: e.scores[spec.benchmarks.find((b) => b.kind === 'target').id] - e.vs_control } } } : {}) }, e.program); return c; }),
+    leaderboard: run.board.map((e) => { const c = { ...e }; delete c._pending; delete c._age; c.comparison = mockComparison(spec, { components: e.components, scores: e.scores, status: e.status, params_b: e.params_b, control: null, ...(e.vs_control != null ? { control: { scores: { [spec.benchmarks.find((b) => b.kind === 'target').id]: e.scores[spec.benchmarks.find((b) => b.kind === 'target').id] - e.vs_control } } } : {}) }, e.program); return c; }),
     activity: run.activity, curve: run.curve, sources: srcs,
   };
+  if (run.demoMargin) s.leaderboard.forEach((e) => { const r = e.comparison && (e.comparison.rows || []).find((x) => x.id === 'lora'); if (r && r.measured) { r.beaten = false; r.within_margin = true; r.delta = 0.011; } });
   if (s.best) { const e = s.leaderboard.find((x) => x.program_hash === s.best.program_hash); s.comparison = e ? e.comparison : null; }
   return clone(s);
 }
+// Demo runs for the odd cases: open #/run/demo-empty, demo-stopped, demo-margin or demo-stream.
+function demoRun(id) {
+  const r = newRun(getSpec('sp_demo'));
+  runs.delete(r.id); r.id = id; runs.set(id, r);
+  const spin = (n) => { for (let i = 0; i < n; i++) tickRun(r); };
+  if (id.startsWith('demo-empty')) {
+    r.status = 'done'; r.outcome = 'finished'; r.elapsed = 38; r.empty_reason = 'Every proposal went over the size limit, so nothing was scored.';
+    r.refused = 6;
+    r.agents.forEach((a) => { a.status = 'done'; a.now = 'Finished'; });
+    logAct(r, 'judge', 'milestone', 'info', 'Search finished. Nothing was scored.');
+  } else if (id.startsWith('demo-stopped')) {
+    spin(16);
+    r.status = 'stopping';
+    tickRun(r);
+    r.elapsed = 12;
+  } else if (id.startsWith('demo-margin')) {
+    r.demoMargin = true;
+    spin(22);
+  } else spin(3);
+  return r;
+}
 function getRunObj(id) {
   if (!runs.has(id)) {
+    if (/^demo-/.test(id)) return demoRun(id);
     const r = newRun(getSpec('sp_demo'));
     runs.delete(r.id); r.id = id; runs.set(id, r);
   }
@@ -719,6 +807,7 @@ function shrinkResult(sess, plan) {
     { ...row('random', 'Random removal', rnd[t0], true, true, 'The same slim with random units removed, same heal steps.'), delta: Math.round((scores[t0] - rnd[t0]) * 1000) / 1000 },
     { ...row('best_model', 'Best existing model at this size', best, scores[t0] >= best, true, 'The best library model within the size window of the result.'), delta: Math.round((scores[t0] - best) * 1000) / 1000 },
   ];
+  rows.forEach((r) => { if (r.required) { r.beaten = r.delta > 0.02; r.within_margin = !r.beaten && r.delta > 0; } });
   const beaten = rows.filter((r) => r.required && r.beaten).map((r) => r.id);
   const notBeaten = rows.filter((r) => r.required && !r.beaten).map((r) => r.id);
   const verdict = notBeaten.length ? 'failed' : 'success';
@@ -804,11 +893,13 @@ export const mockApi = {
   },
   async createRun(spec_id, program) { await lat(); const r = newRun(getSpec(spec_id), program); return { run_id: r.id }; },
   async getRun(id) { await lat(); return snapshot(getRunObj(id)); },
-  openStream(id, onSnap) {
+  openStream(id, onSnap, onErr, onNote) {
     const run = getRunObj(id);
     onSnap(snapshot(run));
     const t = setInterval(() => onSnap(snapshot(run)), 1000);
-    return () => clearInterval(t);
+    let n = null;
+    if (/^demo-stream/.test(id) && onNote) n = setTimeout(() => { onNote('the worker lost its connection'); clearInterval(t); }, 1500);
+    return () => { clearInterval(t); clearTimeout(n); };
   },
   async pause(id) { await lat(); const r = getRunObj(id); if (r.status === 'running') r.status = 'paused'; return { ok: true }; },
   async resume(id) { await lat(); const r = getRunObj(id); if (r.status === 'paused') r.status = 'running'; return { ok: true }; },
@@ -870,9 +961,9 @@ export const mockApi = {
     if (!j.done) {
       const b = getBuilder(j.bid);
       let p = clone(j.program);
-      if (j.action === 'heal' && !p.heal) p.heal = { steps: 300, data: 'gsm8k_train', lr: 0.0003, batch_size: 8, seq_len: 384 };
-      if (j.action === 'train') { if (!p.lora) p.lora = { rank: 16 }; if (!p.heal) p.heal = { steps: 300, data: 'gsm8k_train', lr: 0.0003, batch_size: 8, seq_len: 384 }; }
-      const ev = evalProgram(j.spec, p);
+      if (j.action === 'heal' && !p.heal) p.heal = { steps: 300, data: 'math', lr: 0.0003, batch_size: 8, seq_len: 384 };
+      if (j.action === 'train') { if (!p.lora) p.lora = { rank: 16 }; if (!p.heal) p.heal = { steps: 300, data: 'math', lr: 0.0003, batch_size: 8, seq_len: 384 }; }
+      const ev = withSynth(j.spec, p, evalProgram(j.spec, p));
       let result;
       if (j.action === 'compile') {
         result = { fit: ev.fit, params_b: ev.params_b, compute_s: 25 };
@@ -880,7 +971,7 @@ export const mockApi = {
       } else {
         if (b.budget.evals_used >= b.budget.evals_total) { j.done = { ...base, status: 'error', result: null, budget: clone(b.budget), error: 'No evals left in this session.' }; return j.done; }
         const cs = 90 + Math.floor(Math.random() * 120);
-        result = { fit: ev.fit, scores: ev.scores, combined: ev.combined, control: ev.control, params_b: ev.params_b, compute_s: cs, status: ev.status, program: p, size: estimateOf(p), limit_problems: [], comparison: mockComparison(j.spec, ev, p) };
+        result = { fit: ev.fit, scores: ev.scores, combined: ev.combined, control: ev.control, params_b: ev.params_b, compute_s: cs, status: ev.status, program: p, size: estimateOf(p), limit_problems: [], comparison: mockComparison(j.spec, ev, p), pipeline: ev.pipeline, heal_note: ev.heal_note, components: ev.components, stages: ev.stages, drift: ev.drift, sizes: ev.sizes };
         b.budget.evals_used++; b.budget.compute_used_s += cs;
       }
       j.done = { ...base, status: 'done', result, budget: clone(b.budget) };
@@ -913,12 +1004,12 @@ export const mockApi = {
       }
     });
     if (program.grafts.length && !program.heal) {
-      const p = clonep(); p.heal = { steps: 300, data: 'gsm8k_train', lr: 0.0003, batch_size: 8, seq_len: 384 };
+      const p = clonep(); p.heal = { steps: 300, data: 'math', lr: 0.0003, batch_size: 8, seq_len: 384 };
       out.push({ title: 'Add a heal pass of 300 steps.', detail: 'Grafts without a heal usually lose a few points. Heal trains only the glue.', tag: 'likely +2 to 3', program: p });
     }
     if (program.grafts.length && !program.lora) {
       const p = clonep(); p.lora = { rank: 16 };
-      if (!p.heal) p.heal = { steps: 300, data: 'gsm8k_train', lr: 0.0003, batch_size: 8, seq_len: 384 };
+      if (!p.heal) p.heal = { steps: 300, data: 'math', lr: 0.0003, batch_size: 8, seq_len: 384 };
       out.push({ title: 'Add a rank 16 LoRA on top.', detail: 'It closes part of the gap to the fine-tuning bar.', tag: 'bigger change', program: p });
     }
     if (program.masks) {

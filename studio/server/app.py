@@ -342,6 +342,7 @@ async def program_validate(request: Request):
     if problem is not None:
         return problem
     config, catalog = catalog_mod.load_catalog(settings.backend())
+    specs_mod.add_task_types(config)
     try:
         clean = programs.normalize(body.get("program"))
     except programs.ProgramError as error:

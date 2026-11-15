@@ -16,6 +16,7 @@ Open http://localhost:8765. The server serves `studio/web/` at `/` and the API u
 | Variable | Default | Values |
 |---|---|---|
 | `WSP_STUDIO_BACKEND` | `stub` | `stub`, `local`, `modal` |
+| `WSP_STUDIO_PIPELINE` | `synth` | `synth` compiles programs with grafts or inserted layers with `wsp/synth.py`; `classic` uses the older compile |
 | `WSP_STUDIO_LLM` | `auto` | `auto`, `none`, `openai_compat`, `anthropic`, `modal_vllm` |
 | `WSP_STUDIO_OPENAI_MODEL` | `gpt-5.4-mini` | any OpenAI chat model |
 | `EXA_API_KEY` | unset | enables Exa web search for benchmark research (read by `exa_py`, never printed) |
@@ -33,7 +34,7 @@ Every response from the stub backend carries `"stub": true`, and the web app sho
     MODAL_PROFILE=trisanth .venv/bin/modal deploy studio/modal_studio.py
     MODAL_PROFILE=trisanth WSP_STUDIO_BACKEND=modal .venv/bin/uvicorn studio.server.app:app --port 8771
 
-`studio/modal_studio.py` is the `wsp-studio` Modal app. Each call compiles one program, trains its taps, then its LoRA or heal, and scores it in one GPU container (L40S, or H100 when a donor is above about 10B parameters). Redeploy after a change to `wsp/`, `wsp_eval/` or `parts_extracted/`, since they are copied into the image.
+`studio/modal_studio.py` is the `wsp-studio` Modal app. Each call compiles one program, trains its taps, then its LoRA or heal, and scores it in one GPU container (L40S, or H100 when a donor is above about 10B parameters). A program with grafts or inserted layers goes through `synth_remote`, which compiles with `wsp/synth.py`, scores the one saved network, and returns a verdict per component (contributes, no better than random, or harmful), stage summaries, drift from the host and measured sizes. The older path stays behind `WSP_STUDIO_PIPELINE=classic`. Redeploy after a change to `wsp/`, `wsp_eval/` or `parts_extracted/`, since they are copied into the image.
 
 - MMLU is scored as in rounds 6 and 7: the log-prob of " A" to " D", on the round 6 dev items (search, 1000) and the round 7 held-out items (2000). Other tasks use the eval harness.
 - Taps are not in Sapien. The Modal functions refuse a program with taps.
@@ -60,6 +61,7 @@ Backends: `stub` returns a made-up result (marked stub). `modal` calls `shrink_r
 - `server/compare.py`: the comparison set (base, LoRA, distillation, random, best existing model) and the verdict.
 - `server/envs.py`: builds a run's env, with the Modal backend when it is chosen.
 - `server/modal_backend.py`: the backend that calls the `wsp-studio` Modal app.
+- `server/synth_report.py`: which pipeline a program uses, what the synthesis pipeline refuses, the stub verdicts and the shape of component results.
 - `server/llm_openai.py`: the OpenAI client for GPT-5 models.
 - `server/programs.py`: program text render, parse and validate.
 

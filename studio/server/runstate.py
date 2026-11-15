@@ -15,6 +15,7 @@ from studio.server import compare
 from studio.server import library
 from studio.server import programs
 from studio.server import sizing
+from studio.server import synth_report
 
 ACTIVITY_LIMIT = 200
 THINKING_LIMIT = 100
@@ -254,7 +255,48 @@ class RunState:
                 self.error = error
             if status in ("done", "error"):
                 self.ended_at = time.time()
+                self.finish_agents_locked()
             self.touch()
+
+    def finish_agents_locked(self):
+        """When a run ends, no agent is still working: mark every agent done."""
+        line = self.end_line()
+        for agent_id in self.order:
+            agent = self.agents[agent_id]
+            agent["status"] = "done"
+            agent["now"] = line
+
+    def end_line(self):
+        """The now line of every agent after the run ends."""
+        if self.stopped_early or self.status == "error":
+            return "Stopped"
+        return "Finished"
+
+    def outcome_locked(self):
+        """"finished", "stopped" or "error" once the run has ended, else None."""
+        if self.status == "error":
+            return "error"
+        if self.status == "done":
+            if self.stopped_early:
+                return "stopped"
+            return "finished"
+        return None
+
+    def empty_reason_locked(self, best):
+        """Why a run that ended has no best model, in plain words. None while it runs or when there is a best."""
+        if self.status not in ("done", "error") or best is not None:
+            return None
+        if len(self.programs) > 0:
+            return ("Every build that was scored failed (it collapsed or did not hold up). "
+                    "Try other parts or a longer search.")
+        if self.refused > 0:
+            return ("Every proposal was refused for going over your limits (" + str(self.refused) +
+                    " refused). Raise the size limits on the spec.")
+        if self.status == "error":
+            return "The run ended with an error before anything was scored."
+        if self.stopped_early:
+            return "The run was stopped before anything was scored."
+        return "The search ended before any build was scored. Raise the eval budget on the spec."
 
     # Nudges.
 
@@ -418,8 +460,29 @@ class RunState:
         current = self.programs.get(key)
         if current is None or row["combined"] > current["row"]["combined"]:
             donors = self.donors_of(row.get("program"))
-            self.programs[key] = {"row": row, "donors": donors, "agent": agent_id}
+            self.programs[key] = {"row": row, "donors": donors, "agent": agent_id,
+                                  "synth": self.synth_for(row.get("program"))}
         return is_best
+
+    def synth_for(self, program):
+        """The synth part of a scored program (components, stages, drift) from the backend, or None.
+
+        The stub backend gets made-up verdicts, labeled stub. A classic result has none.
+        """
+        if program is None:
+            return None
+        backend = None
+        if self.env is not None:
+            backend = getattr(self.env, "backend", None)
+        finder = getattr(backend, "synth_for", None)
+        if finder is not None:
+            try:
+                return finder(program)
+            except Exception:
+                return None
+        if self.stub and self.catalog is not None:
+            return synth_report.stub_public(program, self.catalog, self.targets)
+        return None
 
     def add_eval_tools(self, row, agent_id, describe, scores, status, is_best=False):
         """Tool calls and the activity line for an eval row. Takes the lock inside the helpers."""
@@ -621,12 +684,24 @@ class RunState:
             return None
         return number(real - control)
 
+    def sort_key(self, row):
+        """Leaderboard order: ok programs first, collapsed last, then the higher mean target score first."""
+        group = 1
+        if row["status"] == "ok":
+            group = 0
+        if row["status"] == "collapsed":
+            group = 2
+        target = self.target_score(row["scores"])
+        if target is None:
+            target = -1.0
+        return (group, -target, -row["combined"])
+
     def leaderboard_locked(self):
         entries = []
         for key in self.programs:
             item = self.programs[key]
             row = item["row"]
-            entries.append((-row["combined"], key))
+            entries.append((self.sort_key(row), key))
         entries.sort()
         out = []
         for position in range(min(len(entries), LEADERBOARD_LIMIT)):
@@ -637,8 +712,18 @@ class RunState:
                      "name": self.readable(row.get("program"), row["describe"]),
                      "agent": item["agent"], "scores": dict(row["scores"]),
                      "combined": number(row["combined"]), "status": row["status"],
+                     "target_score": number(self.target_score(row["scores"])),
                      "vs_control": self.vs_control_of(key), "params_b": self.params_b_of(row),
                      "program": row.get("program")}
+            info = item.get("synth")
+            entry["pipeline"] = synth_report.pipeline_for(row.get("program") or {})
+            entry["components"] = None
+            entry["drift"] = None
+            if info is not None:
+                entry["components"] = info["components"]
+                entry["drift"] = info["drift"]
+                if info.get("sizes") is not None:
+                    entry["params_b"] = number(info["sizes"]["total"] / 1e9)
             entry["comparison"] = self.comparison_locked(entry)
             out.append(entry)
         return out
@@ -647,7 +732,8 @@ class RunState:
         """The comparison set for one leaderboard entry. The random reference is the held-out control."""
         key = entry["program_hash"]
         comparison = compare.build(self.spec, entry["scores"], entry["params_b"], self.heldout.get(key),
-                                   self.controls.get(key), "heldout", self.stub, self.models)
+                                   self.controls.get(key), "heldout", self.stub, self.models,
+                                   components=entry.get("components"))
         if entry["status"] != "ok":
             comparison["verdict"] = "failed"
             comparison["headline"] = "Failed attempt. The build ended with status " + str(entry["status"]) + "."
@@ -679,12 +765,14 @@ class RunState:
 
     def agent_public(self, agent):
         status = agent["status"]
+        now = agent["now"]
         if self.status == "paused" and status not in ("done",):
             status = "paused"
         if self.status in ("done", "error"):
             status = "done"
+            now = self.end_line()
         return {"id": agent["id"], "name": agent["name"], "role": agent["role"], "blurb": agent["blurb"],
-                "status": status, "now": agent["now"], "best": agent["best"], "attempts": agent["attempts"],
+                "status": status, "now": now, "best": agent["best"], "attempts": agent["attempts"],
                 "collapses": agent["collapses"], "lessons": agent["lessons"],
                 "nudges_pending": agent["nudges_pending"]}
 
@@ -734,6 +822,9 @@ class RunState:
                 "comparison": comparison,
                 "refused": self.refused,
                 "stopped_early": self.stopped_early,
+                "outcome": self.outcome_locked(),
+                "empty_reason": self.empty_reason_locked(best),
+                "sort": "target score",
                 "agents": agents,
                 "leaderboard": leaderboard,
                 "activity": list(self.activity),

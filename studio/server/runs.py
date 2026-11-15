@@ -63,7 +63,7 @@ def start_run(spec, program=None):
             program = programs.normalize(program)
         except programs.ProgramError as error:
             raise RunError("the program is not valid: " + error.message)
-        errors = space.validate(program, catalog, config)
+        errors = programs.validate(program, catalog, config)
         if len(errors) > 0:
             raise RunError("the program is not valid: " + "; ".join(errors))
     host_params = catalog_mod.host_params_b(config["host"])

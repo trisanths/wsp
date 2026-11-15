@@ -419,6 +419,13 @@ def clean_reference_scores(value, returned_keys, page_text=None):
     return out[:8]
 
 
+def label_of(runnable_id):
+    """The readable benchmark name for a runnable id, or None."""
+    if runnable_id is None:
+        return None
+    return specs_mod.benchmark_name(runnable_id)
+
+
 def clean_proposals(raw, runnable_ids, returned_urls, page_text=None):
     """Validate the LLM's benchmark list. Returns the proposals, at most MAX_PROPOSALS."""
     keys = []
@@ -450,7 +457,7 @@ def clean_proposals(raw, runnable_ids, returned_urls, page_text=None):
         if runnable_id is not None:
             taken_ids.append(runnable_id)
         out.append({"name": name, "measures": clip(item.get("measures"), 300), "why": clip(item.get("why"), 400),
-                    "runnable_id": runnable_id, "kind": kind,
+                    "runnable_id": runnable_id, "label": label_of(runnable_id), "kind": kind,
                     "reference_scores": clean_reference_scores(item.get("reference_scores"), keys, page_text),
                     "suggested_target": target, "in_spec": False})
         if len(out) >= MAX_PROPOSALS:

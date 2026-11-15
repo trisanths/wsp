@@ -20,6 +20,7 @@ from wsp.swarm.backends import CompileEval
 from wsp.swarm.config import fidelity_cost
 
 from studio.server import settings
+from studio.server import synth_report
 
 APP_NAME = "wsp-studio"
 BIG_DONOR_B = 10.0
@@ -81,6 +82,8 @@ def donor_ids(program, catalog):
         record = catalog.records.get(ps.graft_id(graft))
         if record is not None and record.get("model") is not None:
             ids.append(record["model"])
+    for item in program.get("inserts") or []:
+        ids.append(item["donor"])
     return ids
 
 
@@ -118,6 +121,41 @@ def run_shrink(plan, split, tasks, fidelity, options):
     return result
 
 
+def resolve_indices(record):
+    """A copy of a part record with its unit indices read from the local file, when the file is here.
+
+    The container has parts_extracted but not the library, so the server reads the indices and sends them.
+    A record whose file is not here goes as it is.
+    """
+    if record.get("indices") is not None or not isinstance(record.get("units"), str):
+        return record
+    path = record["units"]
+    if not os.path.isabs(path):
+        path = os.path.join(REPO_ROOT, path)
+    if not os.path.exists(path):
+        return record
+    try:
+        import torch
+
+        indices = torch.load(path)["indices"]
+        copy = dict(record)
+        copy["indices"] = [int(value) for value in torch.as_tensor(indices).reshape(-1).tolist()]
+        return copy
+    except Exception:
+        return record
+
+
+def compute_phases(seconds):
+    """The phases the env charges: compile (with data and probes), heal and eval. Totals are not charged twice."""
+    seconds = dict(seconds)
+    if "synthesize" not in seconds:
+        return seconds
+    out = {"compile": 0.0, "heal": float(seconds.get("heal") or 0.0), "eval": float(seconds.get("eval") or 0.0)}
+    for key in ["prepare", "compile", "probe"]:
+        out["compile"] += float(seconds.get(key) or 0.0)
+    return out
+
+
 def used_component_ids(program):
     ids = []
     for graft in ps.grafts(program):
@@ -136,6 +174,7 @@ class ModalCompileEval(CompileEval):
         self.config = config
         self.catalog = catalog
         self.score_reports = {}
+        self.synth_results = {}
         self.lock = threading.Lock()
 
     # Remote calls.
@@ -143,14 +182,27 @@ class ModalCompileEval(CompileEval):
     def options_for(self, program):
         """What the container needs besides the program: catalog records and the ridge fit texts."""
         records = []
+        pipeline = self.pipeline_of(program)
         for part_id in used_component_ids(program):
             if part_id in self.catalog.records:
-                records.append(self.catalog.records[part_id])
+                record = self.catalog.records[part_id]
+                if pipeline == "synth":
+                    record = resolve_indices(record)
+                records.append(record)
+        setup = self.config["task_types"][self.config["task_type"]]
         data_name = ps.heal_data(program)
         if data_name is None:
-            data_name = self.config["task_types"][self.config["task_type"]]["heal_data"][0]
+            data_name = setup["heal_data"][0]
+        limits = self.config.get("studio_limits") or {}
         return {"catalog_records": records, "align_data": data_name,
-                "align_samples": self.config["align_samples"], "max_heal_min": self.config.get("max_heal_min")}
+                "align_samples": self.config["align_samples"], "max_heal_min": self.config.get("max_heal_min"),
+                "pipeline": pipeline, "pool": setup["heal_data"][0], "guards": list(setup.get("guards") or []),
+                "max_total_params_b": limits.get("max_total_params_b"),
+                "max_run_params_b": limits.get("max_run_params_b")}
+
+    def pipeline_of(self, program):
+        """"synth" or "classic" for this program (see synth_report.pipeline_for)."""
+        return synth_report.pipeline_for(program)
 
     def function(self, base, program):
         return lookup(base + gpu_suffix(program, self.catalog))
@@ -172,6 +224,10 @@ class ModalCompileEval(CompileEval):
     def compile(self, program, fit_only=False):
         program = ps.normalize(program)
         if not fit_only:
+            problems = synth_report.refusal_problems(program, self.catalog)
+            if len(problems) > 0:
+                return {"ok": False, "error": " ".join(problems), "handle": None, "graft_report": [],
+                        "compute_s": {}}
             handle = {"program": program}
             return {"ok": True, "error": None, "handle": handle, "graft_report": self.deferred_report(program),
                     "compute_s": {"compile": 0.0}}
@@ -201,19 +257,41 @@ class ModalCompileEval(CompileEval):
     def evaluate(self, handle, split, tasks, token, fidelity="full"):
         program = handle["program"]
         fraction = fidelity_cost(self.config, fidelity)
+        options = self.options_for(program)
+        key = space.program_hash(handle.get("origin") or program)
         try:
-            result = self.function("score_remote", program).remote(program, split, list(tasks), token, fraction,
-                                                                    self.options_for(program))
+            if options.get("pipeline") == "synth":
+                options["token"] = token
+                result = self.function("synth_remote", program).remote(program, split, list(tasks), fraction,
+                                                                       options)
+            else:
+                result = self.function("score_remote", program).remote(program, split, list(tasks), token,
+                                                                       fraction, options)
         except Exception as error:
             return {"ok": False, "error": type(error).__name__ + ": " + str(error), "scores": {},
                     "compute_s": {}}
-        seconds = dict(result.get("seconds") or {})
+        seconds = compute_phases(result.get("seconds") or {})
         if not result.get("ok"):
             return {"ok": False, "error": result.get("error"), "scores": {}, "compute_s": seconds}
         with self.lock:
-            self.score_reports[space.program_hash(handle.get("origin") or program)] = result
+            self.score_reports[key] = result
+            if options.get("pipeline") == "synth":
+                self.synth_results[key] = result
+            else:
+                self.synth_results.pop(key, None)
         return {"ok": True, "error": None, "scores": result["scores"], "compute_s": seconds,
                 "heal_loss": result.get("heal_loss"), "gpu": result.get("gpu")}
+
+    def synth_for(self, program):
+        """The synth part of the last score of this program (components, stages, drift, sizes), or None.
+
+        None means the program was scored by the classic pipeline, or has not been scored.
+        """
+        with self.lock:
+            raw = self.synth_results.get(space.program_hash(ps.normalize(program)))
+        if raw is None:
+            return None
+        return synth_report.public(raw, self.catalog)
 
     def report_for(self, program):
         """The graft report of the last score of this program (with real fit), or None."""

@@ -274,7 +274,7 @@ def check_block(incoming, old):
     block["source_params_b"] = round(facts["params_b"], 4)
     block["source_active_params_b"] = round(models_mod.run_params_b(facts), 4)
     block["family"] = facts["kind"]
-    if changed_source or "candidates" not in block:
+    if changed_source or skill != old.get("keep_skill") or "candidates" not in block:
         target_hint = None
         if method == "dense":
             target_hint = block["target_params_b"]
@@ -287,15 +287,14 @@ def check_block(incoming, old):
 
 def plan_summary(block, estimate):
     """One or two sentences that say what the plan does and its estimated size."""
-    label = label_of(block["keep_skill"])
-    rule = block["rule"]
+    rule = models_mod.rule_phrase(block["rule"])
     if block["method"] == "experts":
         text = ("Keep " + str(block["keep_experts"]) + " of " + str(estimate["experts_before"]) +
-                " experts per layer by " + rule + " on " + label + ".")
+                " experts per layer " + rule + ".")
     else:
         kept = int(round(estimate["keep_width"] * 100))
         text = ("Remove " + str(estimate["layers_dropped"]) + " of " + str(estimate["layers_before"]) +
-                " layers and keep about " + str(kept) + "% of the width by " + rule + " on " + label + ".")
+                " layers and keep about " + str(kept) + "% of the width " + rule + ".")
     text += (" About " + sizing.fmt_b(round(estimate["total_params_b"], 1)) + "B stored, " +
              sizing.fmt_b(round(estimate["run_params_b"], 1)) + "B run per token (estimated).")
     return text

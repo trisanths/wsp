@@ -51,8 +51,30 @@ def normalize(program):
         raise ProgramError(str(error))
 
 
+def heal_data_problem(program):
+    """A plain message when the program heals on a benchmark train set or an unknown name, else None."""
+    from wsp import data as wdata
+
+    name = ps.heal_data(program)
+    if name is None:
+        return None
+    try:
+        if wdata.is_pool_data(name):
+            return None
+    except ValueError as error:
+        return str(error)
+    source = wdata.benchmark_source(name)
+    if source is not None:
+        return ("Heal data " + name + " is the train set of the benchmark " + source + ". Heal and fit text may not "
+                "come from a benchmark. Use a pool: " + ", ".join(wdata.POOL_NAMES + ["mix"]) + ".")
+    return "Heal data " + str(name) + " is not an approved pool. Use one of: " + ", ".join(wdata.POOL_NAMES + ["mix"]) + "."
+
+
 def validate(program, catalog, config):
     """Return a list of error strings. An empty list means the program is valid."""
+    problem = heal_data_problem(program)
+    if problem is not None:
+        return [problem]
     return space.validate(program, catalog, config)
 
 

@@ -225,11 +225,12 @@ def test_heal_sends_the_shortened_program(monkeypatch):
     backend = object.__new__(modal_backend.ModalCompileEval)
     backend.lock = threading.RLock()
     backend.score_reports = {}
+    backend.synth_results = {}
     backend.config = {"fidelity_cost": {}, "max_heal_min": None}
     backend.options_for = lambda program: {}
     backend.function = lambda base, program: Fake()
     monkeypatch.setattr(modal_backend, "fidelity_cost", lambda config, fidelity: 0.34)
-    full = ps.make_program("h", [], ps.make_heal(300))
+    full = ps.make_program("h", [], ps.make_heal(300, data="math"))
     short = ps.with_heal_steps(full, 50)
     handle = {"program": ps.normalize(full)}
     healed = backend.heal(handle, short)

@@ -19,10 +19,9 @@ from studio.server import programs
 from studio.server import settings
 from studio.server import sizing
 from studio.server import specs as specs_mod
+from studio.server import synth_report
 from studio.server.runstate import number
 
-BUILDER_EVALS = 12
-BUILDER_COMPUTE_MIN = 45
 DEFAULT_HEAL_STEPS = 300
 DEFAULT_LORA_RANK = 16
 BEST_DEPTH_FRACTION = 6 / 16.0
@@ -91,8 +90,6 @@ def create_session(spec):
     """Start a builder session for a spec. Returns the session."""
     builder_id = "b_" + uuid.uuid4().hex[:8]
     overrides = specs_mod.run_overrides(spec, settings.backend(), "none")
-    overrides["eval_budget"] = BUILDER_EVALS
-    overrides["compute_budget_s"] = specs_mod.compute_budget_s(BUILDER_EVALS, BUILDER_COMPUTE_MIN)
     overrides["method"] = "builder"
     config = config_mod.make_config(overrides)
     config["run_id"] = builder_id + "-" + str(int(time.time() * 1000))
@@ -157,9 +154,12 @@ def check_program(session, program, enforce_limits=True):
     forbidden = sizing.forbidden_problems(clean)
     if len(forbidden) > 0:
         raise BuilderError(" ".join(forbidden))
-    errors = space.validate(clean, session.catalog, session.config)
+    errors = programs.validate(clean, session.catalog, session.config)
     if len(errors) > 0:
         raise BuilderError("the program is not valid: " + "; ".join(errors))
+    unsupported = synth_report.refusal_problems(clean, session.catalog)
+    if len(unsupported) > 0:
+        raise BuilderError(" ".join(unsupported))
     if enforce_limits:
         check_limits(session, clean)
     return clean
@@ -277,6 +277,7 @@ def compile_result(session, program):
     result = {"fit": fit_dict(report), "scores": None, "combined": None, "control": None,
               "params_b": params_b_of(session, report), "compute_s": number(probe["compute_s"]), "status": "ok",
               "program": program, "comparison": None}
+    add_synth(session, result, None)
     add_size(session, result)
     return result
 
@@ -298,6 +299,11 @@ def score_result(session, program):
     result = {"fit": fit_dict(report), "scores": None, "combined": None, "control": None,
               "params_b": params_b_of(session, report), "compute_s": number(row_compute_s(row)),
               "status": status, "program": program, "comparison": None}
+    info = synth_info(session, program)
+    add_synth(session, result, info)
+    if info is not None and info.get("sizes") is not None:
+        result["params_b"] = number(info["sizes"]["total"] / 1e9)
+        result["run_params_b"] = number(info["sizes"]["per_token"] / 1e9)
     add_size(session, result)
     if row.get("scores"):
         result["scores"] = dict(row["scores"])
@@ -309,6 +315,38 @@ def score_result(session, program):
         result["control"] = control_result(session, program)
     result["comparison"] = comparison_for(session, result)
     return result
+
+
+def synth_info(session, program):
+    """The synth part of the last score of a program: from the backend, or made up on the stub. None for classic."""
+    finder = getattr(session.env.backend, "synth_for", None)
+    if finder is not None:
+        return finder(program)
+    if session.env.is_stub():
+        return synth_report.stub_public(program, session.catalog, session.target_ids())
+    return None
+
+
+def add_synth(session, result, info):
+    """Put pipeline, components, stages, drift, sizes and heal_note on a result.
+
+    The heal warning belongs to the classic pipeline only: the synth pipeline heals by distillation with a
+    guard and rollback, so its results carry heal_note null.
+    """
+    program = result["program"]
+    pipeline = synth_report.pipeline_for(program)
+    healed = ps.heal(program) is not None or program.get("lora") is not None
+    result["pipeline"] = pipeline
+    result["components"] = None
+    result["stages"] = None
+    result["drift"] = None
+    result["sizes"] = None
+    if info is not None:
+        result["components"] = info["components"]
+        result["stages"] = info["stages"]
+        result["drift"] = info["drift"]
+        result["sizes"] = info["sizes"]
+    result["heal_note"] = settings.heal_note_for(pipeline, healed)
 
 
 def add_size(session, result):
@@ -326,7 +364,7 @@ def comparison_for(session, result):
     if result.get("control") is not None:
         control = result["control"].get("scores")
     comparison = compare.build(session.spec, scores, result.get("params_b"), None, control, "search",
-                               session.env.is_stub())
+                               session.env.is_stub(), components=result.get("components"))
     if result["status"] != "ok":
         comparison["verdict"] = "failed"
         comparison["headline"] = "Failed attempt. The build ended with status " + str(result["status"]) + "."
@@ -386,7 +424,7 @@ def suggest(session, program):
         suggestions.extend(llm_suggestions(session, program))
     out = []
     for item in suggestions:
-        if len(space.validate(item["program"], session.catalog, session.config)) != 0:
+        if len(programs.validate(item["program"], session.catalog, session.config)) != 0:
             continue
         item["size"] = size_report(session, item["program"])
         if not item["size"]["ok"]:

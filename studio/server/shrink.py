@@ -232,11 +232,19 @@ def stub_scores(spec, plan, estimate, tasks):
     random_ = {}
     general = {}
     for task in tasks:
-        top = min(0.95, bases.get(task, 0.4) + 0.25)
-        source[task] = clip01(top + jitter(plan, task, "source"))
+        if task in bases:
+            top = bases[task]
+            source[task] = clip01(top)
+        else:
+            top = min(0.95, 0.4 + 0.25)
+            source[task] = clip01(top + jitter(plan, task, "source"))
         skill[task] = clip01(top * (1.0 - 0.55 * removed ** 2) + heal + jitter(plan, task, "skill"))
         random_[task] = clip01(top * (1.0 - 0.95 * removed ** 0.7) + heal + jitter(plan, task, "random"))
         general[task] = clip01(top * (1.0 - 0.8 * removed) + heal + jitter(plan, task, "general"))
+        # A shrunk model never scores above its source in the stub.
+        skill[task] = min(skill[task], source[task])
+        random_[task] = min(random_[task], source[task])
+        general[task] = min(general[task], source[task])
     return source, skill, random_, general
 
 

@@ -15,6 +15,7 @@ studio/
     library.py         reads library/ and atlas/entries/
     sizing.py          size and heal estimates, limit checks
     compare.py         the comparison set and verdict (build and shrink)
+    synth_report.py    pipeline choice, refusals, stub verdicts, component result shape
     shrink.py          shrink sessions, jobs, the stub result
     shrink_spec.py     shrink detection, the drafted plan, checks for an edited plan
     shrink_models.py   model facts and the choice of a source model
@@ -27,6 +28,7 @@ studio/
 tests/test_studio_server.py   server tests (CPU, stub backend)
 tests/test_studio_sapien.py   library, limits, taps and comparison tests
 tests/test_studio_shrink.py   shrink request type tests (stub backend, fake Modal function)
+tests/test_studio_synth.py    synthesis pipeline tests (fake Modal function, stub verdicts, compare rule)
 ```
 
 Run: `.venv/bin/uvicorn studio.server.app:app --port 8765`, then open http://localhost:8765.
@@ -94,7 +96,7 @@ When a spec is drafted (`POST /api/spec`) the server starts a research run in a 
   ],
   "reasoning": "plain paragraphs on which benchmarks fit and why",
   "proposals": [
-    {"name": "MMLU-Pro law", "measures": "...", "why": "...", "runnable_id": "mmlupro:law",
+    {"name": "MMLU-Pro law", "measures": "...", "why": "...", "runnable_id": "mmlupro:law", "label": "MMLU-Pro law",
      "kind": "target", "suggested_target": 0.45, "in_spec": true,
      "reference_scores": [{"model": "Qwen3-1.7B", "params_b": 1.7, "score": 0.7,
                            "source_url": "https://...", "sourced": true}]}
@@ -109,6 +111,7 @@ When a spec is drafted (`POST /api/spec`) the server starts a research run in a 
 - `step.kind` is `think`, `search`, `read` or `pick`. `t` is seconds since the run started. `provider` is on search and read steps. `url` is on read steps.
 - `provider` is `exa` when `EXA_API_KEY` is set, else `openai_web` when `OPENAI_API_KEY` is set, else `none` (the model's own knowledge only).
 - `status` is `skipped` when `WSP_STUDIO_LLM` is `none` (the reason is in `error`; the rule-drafted benchmarks stay). A run that takes more than about 90 seconds ends as `error` with a plain message and keeps its steps.
+- `label` is the readable name of `runnable_id` ("IFEval" for `if_guard`, "MMLU" for `mmlu`, "MMLU-Pro law" for `mmlupro:law`), or null when `runnable_id` is null.
 - `runnable_id` is an id Sapien can run, else null (a reference-only benchmark that stays in `proposals`). `in_spec` is true when the proposal is now in `spec.benchmarks`.
 - `reference_scores[].score` is a fraction in 0..1. `sourced` is true only when `source_url` was one of the urls the search returned. When it is false the page must label the score as an estimate.
 - When a run finishes, each proposal with a `runnable_id` is added to `spec.benchmarks` (at most 4 targets in total). A benchmark entry made by research has `"research": true` and `"reference_scores": [...]` next to its normal fields. Benchmarks already on the spec stay unchanged, and a matching proposal only adds `reference_scores` and `research` to them. `PUT /api/spec/{id}` keeps both fields.
@@ -131,6 +134,9 @@ The program dict is the one in `wsp/swarm/program_schema.py` (`host`, `seed`, `m
   "budget": {"evals_used": 18, "evals_total": 30, "compute_used_s": 1620, "compute_total_s": 2700},
   "base_scores": {"gsm8k": 0.23, "if_guard": 0.42},
   "stopped_early": false,
+  "outcome": null,
+  "empty_reason": null,
+  "sort": "target score",
   "best": {"program_hash": "ab12cd34ef56ab12", "describe": "host + qmath.l8-19@6, heal 300", "scores": {"gsm8k": 0.43, "if_guard": 0.41}, "combined": 0.26, "agent": "planner-2", "program": {}},
   "agents": [
     {"id": "planner-2", "name": "Planner 2", "role": "planner", "blurb": "explores donor blocks",
@@ -139,7 +145,7 @@ The program dict is the one in `wsp/swarm/program_schema.py` (`host`, `seed`, `m
   ],
   "leaderboard": [
     {"rank": 1, "program_hash": "ab12cd34ef56ab12", "describe": "...", "agent": "planner-2",
-     "scores": {"gsm8k": 0.43, "if_guard": 0.41}, "combined": 0.26, "status": "ok",
+     "scores": {"gsm8k": 0.43, "if_guard": 0.41}, "combined": 0.26, "status": "ok", "target_score": 0.43,
      "vs_control": 0.055, "params_b": 1.31, "program": {}}
   ],
   "activity": [{"ts": 1794707100.1, "agent": "analyst", "kind": "analyst_map", "status": "info", "text": "..."}],
@@ -166,6 +172,9 @@ The program dict is the one in `wsp/swarm/program_schema.py` (`host`, `seed`, `m
 - `curve` has one point per scored eval in order: `best` is the best target score so far among valid (ok) programs, `score` is that eval's target score. A collapsed program adds a point but never raises `best`. `best` is `null` until the first valid program is scored.
 - `base_scores` is read once when the run thread starts. It is `{}` until then (treat it as pending).
 - `stopped_early` is true when the person pressed Stop. The run still ends with status `done`. The held-out check and its controls are skipped, and the activity says so.
+- `outcome` is `null` while the run goes, then `"finished"`, `"stopped"` (the person pressed Stop) or `"error"`. When the run ends every agent has `status: "done"` and `now` is `"Finished"` (`"Stopped"` after a stop or an error).
+- `empty_reason` is `null` while the run goes and when there is a `best`. When a run ended with no best model it is one plain sentence, for example "Every proposal was refused for going over your limits (195 refused). Raise the size limits on the spec." Other texts: every scored build failed, the run ended with an error, the run was stopped, or the search ended before any build was scored.
+- `sort` is `"target score"`: `leaderboard` is ordered by the mean target score, best first. Builds with status `ok` come first, other failed statuses next and `collapsed` last. `rank` follows this order. `target_score` is that mean (null when no target was scored).
 - `vs_control` is the target score minus its random-part control, or null when no control ran.
 
 ### Agent detail
@@ -217,14 +226,74 @@ The program dict is the one in `wsp/swarm/program_schema.py` (`host`, `seed`, `m
     "control": {"scores": {"gsm8k": 0.375}},
     "params_b": 1.31,
     "compute_s": 210,
-    "status": "ok"
+    "status": "ok",
+    "pipeline": "synth",
+    "heal_note": null,
+    "components": [],
+    "stages": [],
+    "drift": null,
+    "sizes": null
   },
   "budget": {"evals_used": 3, "evals_total": 12, "compute_used_s": 840, "compute_total_s": 2700},
   "error": null
 }
 ```
 
-`status` is `queued`, `running`, `done`, or `error`. For `compile`, only `fit` and `params_b` are filled.
+`status` is `queued`, `running`, `done`, or `error`. For `compile`, only `fit` and `params_b` are filled. The synth fields are described in "Synthesis pipeline" below.
+
+## Synthesis pipeline
+
+A program with grafts or inserted layers compiles with `wsp/synth.py` (`result.pipeline` is `"synth"`). A program with no grafts and no inserts (masks, task vectors, a LoRA only) uses the classic compile (`"classic"`). `WSP_STUDIO_PIPELINE=classic` forces the classic compile for every program. Score, Heal and Train all mean "score with the synthesis heal": the heal steps of the program (300 when it has none) are split in two halves, heal 1 (translations and gates) and heal 2 (a LoRA after the first seam, with a KL term to the frozen host). A heal limit on the spec shortens the steps. Heal and selection text come from the `wsp/healdata.py` pool of the spec's task type. The practice sets that guard the heal and decide the verdicts never receive gradient, and they come from `wsp/healdata.py` practice sources that are not scored in the request (GSM8K from SVAMP, ASDiv and AQuA, MMLU from TriviaQA, MBPP from APPS, MedMCQA from PubMedQA). A scored task with no such source runs without practice, and a spec guard with no practice set (such as `if_guard`) is not enforced at compile time. `result.notes` says so, and the practice skills are guarded instead.
+
+`wsp/synth.py` places four kinds: `block`, `attn_heads`, `mlp_cluster` and `expert`. Inserted layers become blocks. A deletion mask, task vector, routed experts, carve, splice or tap in the same program is refused with 400 and a plain message ("The synthesis pipeline cannot build with a deletion mask yet. Remove it, or run the classic pipeline."), and so is a part of any other kind. The stub backend does not refuse.
+
+### Builder job result: synth fields
+
+`result` (score, heal and train jobs) adds:
+
+```json
+{
+  "pipeline": "synth",
+  "heal_note": null,
+  "components": [
+    {"id": "mlp_cluster_qwen25math15b_l16_gsm8k", "label": "Math neuron cluster L16", "kind": "mlp_cluster",
+     "donor": "Qwen/Qwen2.5-Math-1.5B", "host_layer": 9, "verdict": "contributes", "evidence": "practice", "stub": false,
+     "detail": {"skill": "gsm8k", "contribution": 0.031, "text_gain": 0.02, "content_gain": 0.03,
+                "transfer": 0.41, "donor_kl_base": 1.2, "donor_kl_written": 0.7,
+                "heldout_loss_on": 1.01, "heldout_loss_off": 1.04, "gate_domain": 0.8, "gate_general": 0.1,
+                "fit_error": 0.3, "fit_r2": 0.71, "part_params": 1048576, "closed": false, "scores_without": {"gsm8k": 0.49}}}
+  ],
+  "stages": [
+    {"name": "heal 2", "seconds": 70.0, "practice_before": {"gsm8k": 0.52}, "practice_after": {"gsm8k": 0.4},
+     "rolled_back": true, "detail": "100 steps with a LoRA after the first seam, KL to the frozen host.", "stub": false}
+  ],
+  "drift": {"base_kl": 0.012, "agree": 0.93, "tokens": 2400, "text": "general pool, held out"},
+  "sizes": {"total": 1301000000, "per_token": 1105000000, "parts": 1048576, "glue": 524288, "gates": 4096, "lora": 0},
+  "run_params_b": 1.1
+}
+```
+
+- `evidence` is `"practice"` when the verdict rests on a practice score (`detail.contribution` is not null) and `"text"` when it rests on held-out text loss alone (the part's skill has no practice set in this request). A `"text"` verdict makes no claim about the scored task: show it as "not tested on the task" and keep `detail.text_gain` as a detail.
+- `verdict` is `"contributes"`, `"no better than random"` or `"harmful"` (`"not tested"` when the component test was switched off). Color all of them the same way as the comparison rows: only `contributes` is good.
+- `detail` numbers can be null. `contribution` is the practice score of the whole model minus the model with this part switched off. `text_gain` is the loss on held-out skill text without the part minus with it. `content_gain` is the real part minus a random part of the same size, from the control compile inside the pipeline. `transfer` is the share of the host-to-donor gap on held-out skill text that the build closes (0 is the host, 1 is the donor), null when the donor has another tokenizer. `gate_domain` and `gate_general` are the mean token gate on skill text and on general text. `fit_error` is the relative error of the input translation after its output matching (null when the donor has another tokenizer: only the ridge fit runs then). `fit_r2` is the R squared of the ridge fit of the input translation. `scores_without` is the practice score with the part off.
+- `stages` has six rows in order: `place`, `translate in`, `translate out`, `heal 1`, `heal 2`, `verify`. `seconds` is null for `place`. `practice_before` and `practice_after` are practice scores `{task: value}` (null when no practice set exists for the scored tasks). `rolled_back` is true when the guard failed and heal 2 was undone. The `verify` seconds include the random control compile.
+- `drift` is the KL from the frozen host to the build on held-out general text (0 means the host's behavior is kept), with the top-1 agreement. It is null when the probe failed.
+- `sizes` are measured on the saved model (null on the stub and on classic results). `params_b` is `sizes.total / 1e9` and `run_params_b` is `sizes.per_token / 1e9` for synth results, so the limit check uses the measured size.
+- Every row of `components` and `stages` has `stub: true` on the stub backend: the verdicts there are made up, deterministic per part (the same part always gets the same verdict, a random-part graft is always "no better than random"), and `drift.text` reads "stub, not measured".
+- `heal_note` is the heal warning string for a healed classic result on a real backend, else null. It is always null for `pipeline: "synth"`.
+- `pipeline: "classic"` results have `components`, `stages`, `drift` and `sizes` all null.
+
+### Comparison and component verdicts
+
+`comparison` (builder result and leaderboard entries) has `no_component_contributes`: true when the result has components with `evidence: "practice"` and every one of those is `"no better than random"` or `"harmful"`. Then `verdict` is `"failed"` and the headline says so, for example "Failed attempt. No component contributes: Math neuron cluster L16 is harmful, Code block L14-23 is no better than random. The score gain is not shown to come from the parts." A result that was already failed keeps its reason and gets the sentence added. One contributing component leaves the verdict as it was.
+
+### Run snapshot: leaderboard entries
+
+Each `leaderboard` entry adds `pipeline` (`"synth"` or `"classic"`), `components` (the list above, or null for classic) and `drift` (or null). `params_b` is the measured total when the backend measured it. `comparison` follows the rule above.
+
+### Modal functions
+
+`synth_remote(program, split, tasks, fidelity, options)` and `synth_remote_h100` (a donor above about 10B). `options`: `catalog_records`, `pipeline` (`"synth"` or `"classic"`; `"classic"` runs the old compile and score), `pool` (the healdata pool of the spec's task type), `guards` (task ids kept within tolerance of the host), `max_total_params_b`, `max_run_params_b`, `max_heal_min`, `control_run` (default true), `probes` (default true), `synth_settings` (overrides), `token`. It returns `{"ok", "pipeline", "refused", "scores", "items", "components", "stages", "drift", "sizes", "seconds": {"prepare", "compile", "heal", "probe", "eval", "total"}, "graft_report", "heal_loss", "heal_steps", "texts", "control_run", "practice", "guard", "notes", "gpu", "scoring"}`. A refusal or a budget error returns `{"ok": false, "refused": true, "error": "..."}`. Compute charged to a budget is `compile` (prepare, compile and probe), `heal` and `eval`.
 
 ## Routes
 
@@ -232,7 +301,7 @@ All bodies are JSON unless marked.
 
 | Method | Path | Body | Returns |
 |---|---|---|---|
-| GET | `/api/health` | | `{"ok": true, "product": "Sapien", "backend": "stub", "llm": "none", "llm_model": null, "stub": true, "heal_note": null}`. `heal_note` is a warning string on real backends while the heal recipe is being fixed; show it next to any result that used a heal (`heal`, `train`, or a program with a heal or LoRA). |
+| GET | `/api/health` | | `{"ok": true, "product": "Sapien", "backend": "stub", "llm": "none", "llm_model": null, "stub": true, "heal_note": null}`. `heal_note` is a warning string on real backends. It applies to results from the classic pipeline only: read `result.heal_note` on a result (null for every synth result) instead of showing the health note next to it. |
 | POST | `/api/spec` | multipart: `prompt` (text), `files` (0..n files) | Spec |
 | GET | `/api/spec/{id}` | | Spec |
 | PUT | `/api/spec/{id}` | Spec (edited) | Spec |
@@ -250,7 +319,7 @@ All bodies are JSON unless marked.
 | POST | `/api/program/text` | `{"program": {}}` | `{"text": "..."}` |
 | POST | `/api/program/parse` | `{"text": "..."}` | `{"program": {}}` or 400 `{"error": "...", "line": 3}` |
 | POST | `/api/program/validate` | `{"program": {}}` | `{"errors": []}` |
-| POST | `/api/builder` | `{"spec_id": "..."}` | `{"builder_id": "...", "budget": {...}}` (one budget per builder session) |
+| POST | `/api/builder` | `{"spec_id": "..."}` | `{"builder_id": "...", "budget": {...}}` (one budget per builder session; it is the spec's `budget`: its evals and compute minutes, with the stub compute floor of 450 s per eval) |
 | POST | `/api/builder/{id}/action` | `{"program": {}, "action": "compile" \| "heal" \| "train" \| "score"}` | `{"job_id": "..."}` |
 | GET | `/api/jobs/{job_id}` | | Builder job result |
 | POST | `/api/builder/{id}/size` | `{"program": {}}` | size estimate and limit problems (see Sapien changes) |
@@ -266,15 +335,25 @@ Errors are `{"error": "message"}` with a 4xx or 5xx status.
 - `train`: add a LoRA to the program (rank 16 when the program has none), heal, then score.
 - `score`: compile and score the program as written, and run its random-part control when it has grafts.
 
+With the synth pipeline (the default for programs with grafts or inserts) `heal`, `train` and `score` all run the synthesis heal; see "Synthesis pipeline".
+
 ## Sapien changes
 
 The product is Sapien. A program builds one network that runs alone. Taps and anything that runs a second model at inference are not part of it: the palette has no taps, the agents never propose them, and the server refuses a program with `taps` or `tap_train` (400, "A tap runs a second model at inference...").
 
 ### Limits
 
-The spec has `limits`: `{"max_total_params_b": 1.5, "max_run_params_b": 1.5, "max_heal_min": 20}`. `size.max_params_b` mirrors `max_total_params_b` for older pages. `size.max_b` is 32. The draft reads the limits from the request ("under 3B", "1.2B per token", "heal for 30 minutes"). Max run per token is at most the total and at least the host size.
+The spec has `limits`: `{"max_total_params_b": 1.9, "max_run_params_b": 1.9, "max_heal_min": 20}`. `size.max_params_b` mirrors `max_total_params_b` for older pages. `size.max_b` is 32. The draft reads the limits from the request ("under 3B", "1.2B per token", "heal for 30 minutes"). Max run per token is at most the total and at least the host size. A build spec leaves room: with no size in the request the total is the host size times 1.5 (rounded to 0.1B) and the run limit is the same; with a size ("under 2B") the total and the run limit are that size; a build total is never below the host size plus 0.2B. A shrink spec keeps its own rule.
 
 The server estimates a program (`server/sizing.py`): total parameters, parameters run per token, and heal minutes. The estimate is rough and says so (`"estimated": true`). `POST /api/builder/{id}/size` with `{"program": {}}` returns `{"estimate": {...}, "limits": {...}, "problems": [], "ok": true}`. A builder action, a handoff and a run with a seed program are refused with 400 and a plain message when over a limit. In a run, a proposal over a limit is dropped before it is scored; the snapshot counts them in `refused` and the activity has `refused` items. Growing the base is allowed while the limits hold.
+
+### Heal data
+
+Heal, fit and selection text comes from the `wsp/healdata.py` pools, never from a benchmark. The studio names heal data with pool names only: the default for a math task is `math`, knowledge is `general`, code is `code`, medicine is `medicine`, anything else `general`. A program may use any of `general`, `math`, `code`, `medicine`, `prose`, `mix`. `program.heal.data` is one of these. A benchmark name such as `gsm8k_train` or `mmlu_aux` is refused with a plain message ("Heal data gsm8k_train is the train set of the benchmark openai/gsm8k. Heal and fit text may not come from a benchmark. Use a pool: ...") by `POST /api/program/validate` (in `errors`), the builder routes and a run with a seed program. The builder's default heal uses the pool of the spec's task type.
+
+### Shrink plan sentence
+
+`plan.summary` of a shrink names the rule in plain words: saliency "by how much the skill text uses them", freq "by how often the skill text routes to them", selective and specific "by how specific they are to the skill", skill "by how much the skill text uses them", skill_cost "by their cost on the skill text", random "at random (control)", general "by use on general text (control)". Example: "Keep 32 of 128 experts per layer by how much the skill text uses them." Candidate `why` text is rebuilt when `keep_skill` changes and names the kept skill ("tagged for medicine") when the model is tagged with it. A stub shrink result has `source_scores` equal to the spec's `base` for a benchmark that has one.
 
 ### Library palette
 
@@ -288,11 +367,13 @@ The spec has `comparators`: `{"distill": {"gsm8k": 0.40}}`, scores a person meas
 {"verdict": "failed", "headline": "Failed attempt. It does not beat ...", "margin": 0.02,
  "result": {"label": "This build", "value": 0.393, "per_task": {}, "params_b": 1.3, "heldout": null},
  "rows": [{"id": "base", "label": "Base", "split": "search", "per_task": {}, "value": 0.25, "measured": true,
-           "note": "...", "stub": true, "result_value": 0.393, "delta": 0.143, "beaten": true}],
+           "note": "...", "stub": true, "result_value": 0.393, "delta": 0.143, "beaten": true, "within_margin": false}],
  "beaten": [], "not_beaten": [], "unmeasured": [], "best_model_shown": false, "stub": true}
 ```
 
 Row ids: `base`, `lora`, `distill`, `random`, and `best_model` (only when the total limit is at least twice the host size; it is the best library model within the limit). `verdict` is `failed` when a measured reference is not beaten by `margin` (a collapsed build or one over a limit also fails), `unproven` when nothing failed but a reference is not measured, `beats` when all are measured and beaten, `none` with no score. On real backends `distill` is not measured until the spec has it. On the stub backend `distill` is made up and its row says so (`stub: true`).
+
+`within_margin` on a row is true when the result is above that reference but by less than `margin`, false when it is a clear win, level or below, and null when the row is not measured. The headline follows the numbers: "Failed attempt. It is within 2 points of Random components (same size) (40.6 against 39.5), so the parts are not shown to matter." A result below a reference reads "is below ...", a tie reads "only ties ...". Shrink comparisons use the same rows and wording. The verdict logic did not change.
 
 `/api/health` also returns `"product": "Sapien"`.
 
@@ -410,3 +491,8 @@ Each row has `id, label, split, per_task, value, measured, note, stub, result_va
 ### Shrink result limit check
 
 On a real (not stub) shrink, the server checks the measured parameters against the spec limits. Over a limit, `result.comparison.verdict` is `failed`, its `headline` starts with "Failed attempt." and lists the problems, and `result.limit_problems` is the list of messages. The result has no `limit_problems` key when it fits. A shrink run checks the heal limit against the heal time of every model it heals (the shrunk model and each control). `POST /api/shrink/{id}/plan` and `/run` read the current spec, so edits made with `PUT /api/spec/{id}` apply at once.
+
+
+### Best existing model for GSM8K
+
+The library GSM8K scores were measured with the old scorer (256 new tokens), so the best-model reference ignores them until the library models are re-scored with `skills_eval`. The `best_model` row for GSM8K reads "not measured" with the note "GSM8K library scores are awaiting re-scoring with the current scorer". A shrink scored on GSM8K is then `"unproven"`.

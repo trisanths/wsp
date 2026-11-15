@@ -41,9 +41,11 @@ export function nameOf(row, cat) {
 
 /* ---------- status ---------- */
 export const ACTIVE = { thinking: 1, probing: 1, compiling: 1, scoring: 1 };
-export function agentDot(status) {
+// Once the run has ended, every agent gets the same grey dot.
+export function agentDot(status, ended) {
+  if (ended) return 'var(--text-3)';
   if (ACTIVE[status]) return 'var(--blue)';
-  if (status === 'done') return 'var(--green)';
+  if (status === 'done') return 'var(--text-3)';
   return 'var(--text-4)';
 }
 export const STATUS_WORD = { thinking: 'Thinking', probing: 'Checking fit', compiling: 'Compiling', scoring: 'Scoring', idle: 'Idle', paused: 'Paused', done: 'Done' };
@@ -59,10 +61,11 @@ export function bestTarget(snap) {
 /* ---------- agent list ---------- */
 // A plain list: dot, name, what it is doing, best score. No cards.
 export function AgentList({ snap }) {
+  const ended = snap.status === 'done' || snap.status === 'error';
   return html`<div class="alist">${snap.agents.map((a) => html`<a class="arow" key=${a.id} href=${'#/run/' + snap.run_id + '/agents/' + a.id}>
-    <${Dot} color=${agentDot(a.status)} pulse=${!!ACTIVE[a.status]} />
+    <${Dot} color=${agentDot(a.status, ended)} pulse=${!ended && !!ACTIVE[a.status]} />
     <span class="an">${a.name}</span>
-    <span class="anow"><${ThinkLine} text=${a.now || STATUS_WORD[a.status] || a.status} still=${!ACTIVE[a.status]} fluid /></span>
+    <span class="anow"><${ThinkLine} text=${a.now || STATUS_WORD[a.status] || a.status} still=${ended || !ACTIVE[a.status]} fluid /></span>
     <span class="asc num">${a.best != null ? html`<${SubtleNum} text=${pctS(a.best)} />` : '-'}</span>
   </a>`)}</div>`;
 }
