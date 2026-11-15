@@ -38,7 +38,11 @@ def logs_dir(short):
 
 
 def state_path(short):
-    return os.path.join(logs_dir(short), "state.json")
+    # WSP_LANE is set by run_many --agents N: each parallel agent on a model keeps its own state file.
+    lane = os.environ.get("WSP_LANE", "")
+    if lane == "":
+        return os.path.join(logs_dir(short), "state.json")
+    return os.path.join(logs_dir(short), "state.lane" + lane + ".json")
 
 
 def load_donors():

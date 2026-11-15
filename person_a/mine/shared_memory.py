@@ -117,7 +117,8 @@ class SharedMemory:
         if not self.enabled:
             return
         self.count = self.count + 1
-        point_id = clean_id("mine-" + self.run_id + "-" + kind + "-" + str(self.count))
+        # person + model + run in the id: run_many starts several models in the same second
+        point_id = clean_id("mine-" + self.person + "-" + self.model + "-" + self.run_id + "-" + kind + "-" + str(self.count))
         header = "[" + self.person + " | " + self.model + " | " + kind + "] "
         body = header + str(text).replace("\x00", " ").strip()
         if len(body) > MAX_CHARS:
@@ -134,7 +135,7 @@ class SharedMemory:
             "content": body,
             "metadata": metadata,
         })
-        if len(self.buffer) >= 10:
+        if len(self.buffer) >= 3:  # small batches so teammates see results within a minute
             self.flush()
 
     def flush(self):
@@ -146,7 +147,7 @@ class SharedMemory:
             if item.get("audience") != AUDIENCE:
                 raise ValueError("refusing to send a data point outside the " + AUDIENCE + " audience")
         self.batches = self.batches + 1
-        key = "mine-" + self.run_id + "-b" + str(self.batches) + "-" + \
+        key = "mine-" + self.person + "-" + self.model + "-" + self.run_id + "-b" + str(self.batches) + "-" + \
               hashlib.sha256(json.dumps(items, sort_keys=True).encode()).hexdigest()[:10]
         r = self._call("POST", "/ingest/batch", {"idempotencyKey": key, "items": items})
         if r is None:
@@ -227,10 +228,10 @@ def check():
     print("ingested:", ok)
     found = False
     for item in mem.recall("shared mining memory round-trip setup check", limit=10):
-        if item["source"].startswith("mine-" + mem.run_id):
+        if item["source"].startswith("mine-" + mem.person + "-" + mem.model + "-" + mem.run_id):
             found = True
     print("recalled own test point:", found)
-    deleted = mem.delete(["mine-" + mem.run_id + "-note-1"])
+    deleted = mem.delete(["mine-" + mem.person + "-" + mem.model + "-" + mem.run_id + "-note-1"])
     print("test point deleted:", deleted)
     print("RESULT:", "OK" if (ok and found and deleted) else "PROBLEM (see above)")
 

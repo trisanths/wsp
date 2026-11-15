@@ -25,8 +25,8 @@ Parts that pass go to `catalog/<model>.jsonl`, with an index file in `parts/<mod
 
 | Person | Models (short names from `registry/donors.csv`) |
 |---|---|
-| Hanav | `qwenmath1.5b`, `k2horizon7b`, `qwen3.6_35b_a3b`, `nanbeige33b` |
-| Rex | `qwen3.8_27b`, `gemma4_31b`, `phi4_14b` |
+| Hanav (Person A) | `qwenmath1.5b`, `k2horizon7b`, `qwen3.6_35b_a3b`, `nanbeige33b` |
+| Person B | `qwen3.8_27b`, `gemma4_31b`, `phi4_14b` |
 | Trisanth | `lfm2.5_8b_a1b`, `lfm2_24b_a2b`, `g9v3_39a5b` |
 | Arjun | `k2mova36b`, `lfm2.5_24b_a2b`, `llama1b_host` |
 
@@ -86,6 +86,9 @@ All your models in parallel:
 .venv/bin/python mine/run_many.py --models <a>,<b>,<c> --budget-usd 25 --max-hours 3 --person <your name>
 ```
 - `--budget-usd` caps OpenAI spend **per model**. Modal GPU time is extra; the run log prints both.
+- `--agents 3` runs 3 agents on each model at once, each with a different focus (attention heads, early MLP
+  neurons, late MLP neurons, experts/blocks). They share findings through the memory. This is faster, and each agent
+  has its own `--budget-usd`, so lower that (e.g. `--agents 3 --budget-usd 10`).
 - `--person` labels your entries in the shared memory, so other agents can see who tried what.
 - To cut OpenAI cost, add `--effort medium`. OpenAI is most of the cost: about $8 for a high-effort run
   on the small model, against about $1 of Modal.

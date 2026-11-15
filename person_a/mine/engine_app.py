@@ -618,11 +618,11 @@ class EngineL40S(EngineBase):
     pass
 
 
-@app.cls(gpu=["H100", "H200"], **COMMON)
+@app.cls(gpu=["H100", "H200", "A100-80GB"], **COMMON)
 class EngineH100(EngineBase):
     pass
 
 
-@app.cls(gpu=["H200", "B200"], **COMMON)
+@app.cls(gpu=["H200", "B200", "H100"], **COMMON)
 class EngineH200(EngineBase):
     pass

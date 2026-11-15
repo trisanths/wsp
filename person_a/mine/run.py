@@ -59,16 +59,24 @@ def main():
     ap.add_argument("--max-screens", type=int, default=60)
     ap.add_argument("--no-notes", action="store_true")
     ap.add_argument("--person", default=None, help="your name for the shared memory (else env WSP_PERSON)")
+    ap.add_argument("--focus", default=None, help="what this agent should concentrate on (set by run_many --agents)")
     ap.add_argument("--effort", default="high", choices=["low", "medium", "high", "xhigh"],
                     help="Astra reasoning effort (high = the blog's setting; medium is cheaper)")
     args = ap.parse_args()
     if args.smoke:
         smoke(args.model)
         return
+    import shutil
+
     import agent
 
+    # a new parallel lane starts from the model's main state (pinned revision, base scores, skipped skills)
+    lane_state = common.state_path(args.model)
+    main_state = os.path.join(common.logs_dir(args.model), "state.json")
+    if lane_state != main_state and not os.path.exists(lane_state) and os.path.exists(main_state):
+        shutil.copyfile(main_state, lane_state)
     agent.run(args.model, budget_usd=args.budget_usd, max_hours=args.max_hours, max_screens=args.max_screens,
-              use_notes=not args.no_notes, effort=args.effort, person=args.person)
+              use_notes=not args.no_notes, effort=args.effort, person=args.person, focus=args.focus)
 
 
 if __name__ == "__main__":
