@@ -1118,6 +1118,13 @@ class Skeleton:
     def __init__(self, config, source, layout, device, dtype, trust_remote_code=False):
         import transformers
 
+        # Load torch._dynamo before any device context is active. transformers 5.x model modules import
+        # it, and its first import inside `with torch.device("meta")` fails with a circular import
+        # ("partially initialized module 'torch._dynamo' has no attribute 'disable'"), which
+        # transformers reports as "Could not import module <class>". Seen on GLM-5.3-Flash and
+        # DeepSeek-V4 with torch 2.7.1 and transformers 5.23.0.
+        import torch._dynamo  # noqa: F401
+
         self.config = config
         self.text_config = text_config_of(config)
         self.layout = layout
