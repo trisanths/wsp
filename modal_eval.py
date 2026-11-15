@@ -201,6 +201,17 @@ def stitch_graft_remote(arm, seed, budget=None):
     return row
 
 
+@app.function(image=image, volumes={"/vol": volume}, gpu="H100", memory=131072, timeout=4 * 3600)
+def exit_stitch_remote(arm, seed):
+    from wsp_eval import exit_stitch
+    root = exit_stitch.arm_root(arm)
+    os.makedirs(root, exist_ok=True)
+    os.environ["WSP_ROOT"] = root
+    row = exit_stitch.run_arm(arm, seed)
+    volume.commit()
+    return row
+
+
 @app.function(image=image, volumes={"/vol": volume}, cpu=8, memory=32768, timeout=3600)
 def mask_signatures_remote():
     from wsp_eval.signatures import structural_signatures
@@ -398,3 +409,17 @@ def stitch_graft(seed: int = 0):
     except Exception as error:
         print("arm failed: lora", repr(error)[:600])
     _save("stitch_graft_s" + str(seed) + ".json", rows)
+
+
+@app.local_entrypoint()
+def exit_stitch(seed: int = 0):
+    """Distill the donor's predictions through each stitch_graft arm's glue (or a LoRA), then score (search split)."""
+    jobs = [("graft", seed), ("random", seed), ("lora", seed)]
+    rows = []
+    for row in exit_stitch_remote.starmap(jobs, return_exceptions=True):
+        if isinstance(row, Exception):
+            print("arm failed:", repr(row)[:600])
+            continue
+        print(json.dumps(row))
+        rows.append(row)
+    _save("exit_stitch_s" + str(seed) + ".json", rows)
