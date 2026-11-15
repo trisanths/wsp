@@ -1,0 +1,1220 @@
+{
+ "name": "integer_comparison",
+ "description": "Evaluate integer inequality as Python True or False; matched control copies the first operand in the same few-shot template.",
+ "hash": "4b48c88ebdc19331",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nitems=[];control=[]\nfor i in range(120):\n a=random.randrange(-30,31);b=random.randrange(-30,31);op=random.choice(['<','>'])\n ans=(a<b) if op=='<' else (a>b)\n pre='Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; '\n items.append({'prompt':pre+f'{a} {op} {b} =','answer':' '+str(ans)})\n control.append({'prompt':pre+f'First operand of {a} {op} {b} =','answer':' '+str(a)})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 23 < -23 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -18 < 5 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 28 < 5 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 0 < -8 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 14 < -19 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -19 < 15 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 24 > -20 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -15 < 21 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -2 > -25 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 26 > 2 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -29 > 16 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -14 > -8 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 21 > 4 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -28 < 8 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 8 > 28 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -25 > 16 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -15 > 18 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 21 > 8 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -5 > 28 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 12 < -19 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -11 < -24 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -30 < 15 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 1 > 12 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 4 < -13 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -2 > 3 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -25 < -10 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 24 < -18 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 21 < 20 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 23 > 12 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 26 < -21 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 0 < 5 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -25 > -25 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -23 < 15 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -9 < -3 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 23 < 16 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -6 > 15 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 5 > 0 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 24 < 14 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -18 < 28 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 0 > 24 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 19 < -27 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 14 < -9 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 0 < -26 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -15 > 16 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 9 > 21 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -27 > 21 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 19 < 12 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 15 < 25 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -23 < 25 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -13 > 28 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 22 < 29 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 9 > 12 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -29 < -23 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 15 > -11 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -28 > -5 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -27 < 21 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 25 > 3 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -18 < -23 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 8 < -29 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -9 < 17 =",
+    "continuation": " True",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 2 > -22 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -21 < 5 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -1 < 17 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 24 > -17 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -10 < 6 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -8 > 9 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 23 < -14 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 24 > -6 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 25 > -11 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -8 > -3 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -28 > -14 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -15 > -16 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 28 < 4 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 25 < -14 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -27 > 2 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -5 > -25 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -13 < 24 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 23 < 27 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -24 > -11 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 27 > 6 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 3 < 21 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 8 < 23 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -30 > -5 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 17 < -4 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 14 < 13 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 0 < -17 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 7 > -13 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 13 < -8 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 27 > 24 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 11 > 3 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 23 > 15 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 9 > 1 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 0 > 13 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -30 < 8 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 14 < -5 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -12 < -19 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 11 > -8 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 9 < 10 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -20 < -2 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -10 > -11 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 13 < 18 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 15 < 22 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -16 > -26 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 15 > -23 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 3 < -14 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 1 > 7 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 29 < 13 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 23 > -25 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -10 < -30 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 26 > -28 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -24 < 20 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 4 < -3 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -8 < -3 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 22 < -19 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -22 < 18 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -28 < 22 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 10 < -25 =",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -14 < 14 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; -7 < 20 =",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; 22 < 13 =",
+    "continuation": " False",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -13 < 24 =",
+    "continuation": " -13",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -21 < 5 =",
+    "continuation": " -21",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 15 < 25 =",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -30 < 8 =",
+    "continuation": " -30",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 14 < -5 =",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 24 > -17 =",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 2 > -22 =",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 11 > -8 =",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 23 > -25 =",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 0 < 5 =",
+    "continuation": " 0",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 25 > 3 =",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 19 < 12 =",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -15 < 21 =",
+    "continuation": " -15",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 27 > 6 =",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -13 > 28 =",
+    "continuation": " -13",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 14 < 13 =",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 24 > -20 =",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 24 < 14 =",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -28 > -5 =",
+    "continuation": " -28",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 27 > 24 =",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -1 < 17 =",
+    "continuation": " -1",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 25 < -14 =",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -20 < -2 =",
+    "continuation": " -20",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -6 > 15 =",
+    "continuation": " -6",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 23 > 15 =",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 13 < 18 =",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -30 > -5 =",
+    "continuation": " -30",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -9 < -3 =",
+    "continuation": " -9",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -25 > 16 =",
+    "continuation": " -25",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 22 < -19 =",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -25 > -25 =",
+    "continuation": " -25",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 9 > 21 =",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 4 < -13 =",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -22 < 18 =",
+    "continuation": " -22",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 0 < -26 =",
+    "continuation": " 0",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 3 < -14 =",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -8 > -3 =",
+    "continuation": " -8",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 23 < 16 =",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 1 > 12 =",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 0 > 24 =",
+    "continuation": " 0",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -2 > -25 =",
+    "continuation": " -2",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -27 > 2 =",
+    "continuation": " -27",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 11 > 3 =",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 26 > 2 =",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -24 < 20 =",
+    "continuation": " -24",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -10 < 6 =",
+    "continuation": " -10",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -2 > 3 =",
+    "continuation": " -2",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -19 < 15 =",
+    "continuation": " -19",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -15 > 16 =",
+    "continuation": " -15",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -16 > -26 =",
+    "continuation": " -16",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 7 > -13 =",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -8 < -3 =",
+    "continuation": " -8",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 23 > 12 =",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 10 < -25 =",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 1 > 7 =",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 29 < 13 =",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -18 < 28 =",
+    "continuation": " -18",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -29 > 16 =",
+    "continuation": " -29",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 28 < 4 =",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 9 > 1 =",
+    "continuation": " 9",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 28 < 5 =",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 24 < -18 =",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 15 > -11 =",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 21 > 4 =",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -18 < 5 =",
+    "continuation": " -18",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -28 < 22 =",
+    "continuation": " -28",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -8 > 9 =",
+    "continuation": " -8",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 26 < -21 =",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 8 < -29 =",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 12 < -19 =",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -23 < 25 =",
+    "continuation": " -23",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -25 < -10 =",
+    "continuation": " -25",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 14 < -9 =",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 23 < 27 =",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 14 < -19 =",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -5 > -25 =",
+    "continuation": " -5",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 22 < 29 =",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -28 < 8 =",
+    "continuation": " -28",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -15 > 18 =",
+    "continuation": " -15",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -29 < -23 =",
+    "continuation": " -29",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 15 > -23 =",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -10 < -30 =",
+    "continuation": " -10",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -28 > -14 =",
+    "continuation": " -28",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -14 > -8 =",
+    "continuation": " -14",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -30 < 15 =",
+    "continuation": " -30",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 13 < -8 =",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -5 > 28 =",
+    "continuation": " -5",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -10 > -11 =",
+    "continuation": " -10",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 3 < 21 =",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 5 > 0 =",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 8 > 28 =",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 21 > 8 =",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -15 > -16 =",
+    "continuation": " -15",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 9 > 12 =",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -18 < -23 =",
+    "continuation": " -18",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 17 < -4 =",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 24 > -6 =",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 25 > -11 =",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 0 > 13 =",
+    "continuation": " 0",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 8 < 23 =",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -7 < 20 =",
+    "continuation": " -7",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 0 < -8 =",
+    "continuation": " 0",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 4 < -3 =",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 9 < 10 =",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -24 > -11 =",
+    "continuation": " -24",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 26 > -28 =",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -23 < 15 =",
+    "continuation": " -23",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -9 < 17 =",
+    "continuation": " -9",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 0 < -17 =",
+    "continuation": " 0",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 23 < -23 =",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 21 < 20 =",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 23 < -14 =",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -27 < 21 =",
+    "continuation": " -27",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -12 < -19 =",
+    "continuation": " -12",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -11 < -24 =",
+    "continuation": " -11",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -14 < 14 =",
+    "continuation": " -14",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of -27 > 21 =",
+    "continuation": " -27",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 22 < 13 =",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 19 < -27 =",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Python comparisons: 2 < 3 = True; 3 < 2 = False; 4 > 1 = True; 1 > 4 = False; First operand of 15 < 22 =",
+    "continuation": " 15",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 2.449
+}
