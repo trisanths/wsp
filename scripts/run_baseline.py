@@ -48,6 +48,8 @@ def parse_args(argv=None):
                         help="an entry of config task_types (default math); Modal interim runs use math_interim")
     parser.add_argument("--modal-scorer", default=None,
                         help="modal backend: interim (gsm8k only, default) | harness (gsm8k + if_guard, no cascade)")
+    parser.add_argument("--heldout-top", type=int, default=None,
+                        help="programs scored on held-out at the end, each with 2 controls (default 3; 0 skips it)")
     return parser.parse_args(argv)
 
 
@@ -71,6 +73,8 @@ def build_config(args):
         overrides["task_type"] = args.task_type
     if args.modal_scorer is not None:
         overrides["modal_scorer"] = args.modal_scorer
+    if args.heldout_top is not None:
+        overrides["heldout_top"] = args.heldout_top
     return make_config(overrides)
 
 
