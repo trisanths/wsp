@@ -738,6 +738,91 @@ def build_slim(manifest, out_dir=SLIM_DIR):
     return out_dir
 
 
+QUANT_SCHEMES = {"w4a16": "W4A16", "fp8": "FP8_DYNAMIC"}
+CALIB_SAMPLES = 512
+CALIB_LENGTH = 2048
+
+
+def calibration_texts(tokenizer, count, log=print):
+    """Code TRAIN text for calibration: chat-rendered pairs of the healdata "code" pool (default reported set, so no
+    HumanEval or MBPP derived source), minus any text that shares a 13-gram with a HumanEval or MBPP test item."""
+    from wsp import healdata
+
+    pairs = healdata.pairs("code", count * 2, seed=3)
+    texts = [tokenizer.apply_chat_template([{"role": "user", "content": u[:PROMPT_CHARS]},
+                                            {"role": "assistant", "content": a}], tokenize=False)
+             for u, a in pairs]
+    kept, dropped = drop_13gram(texts, test_text_pool())
+    log(f"calibration: {len(pairs)} pairs, {dropped} dropped by the 13-gram test check, {len(kept)} left")
+    if len(kept) < count:
+        raise ValueError(f"only {len(kept)} calibration texts after decontamination, need {count}")
+    return kept[:count], {"pairs": len(pairs), "dropped_13gram": dropped, "used": count}
+
+
+def quantize_model(source, out_dir, scheme, samples=CALIB_SAMPLES):
+    """Write a compressed-tensors checkpoint of the model at `source` (path or Hub id). w4a16 is GPTQ calibrated on
+    code TRAIN text, fp8 is data-free FP8_DYNAMIC. The router (mlp.gate) and lm_head stay in bf16."""
+    import shutil
+
+    import torch
+    from llmcompressor import oneshot
+    from llmcompressor.modifiers.quantization import GPTQModifier, QuantizationModifier
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+
+    ignore = ["lm_head", "re:.*mlp.gate$"]
+    tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL)
+    model = AutoModelForCausalLM.from_pretrained(source, dtype=torch.bfloat16, device_map="auto")
+    info = {"scheme": scheme, "source": source}
+    if scheme == "fp8":
+        recipe = QuantizationModifier(targets="Linear", scheme="FP8_DYNAMIC", ignore=ignore)
+        oneshot(model=model, recipe=recipe)
+    else:
+        from datasets import Dataset
+
+        texts, stats = calibration_texts(tokenizer, samples)
+        info.update(stats)
+        dataset = Dataset.from_dict({"text": texts})
+        dataset = dataset.map(lambda row: tokenizer(row["text"], max_length=CALIB_LENGTH, truncation=True,
+                                                    add_special_tokens=False), remove_columns=["text"])
+        recipe = GPTQModifier(targets="Linear", scheme="W4A16", ignore=ignore)
+        oneshot(model=model, dataset=dataset, recipe=recipe, max_seq_length=CALIB_LENGTH,
+                num_calibration_samples=len(texts), moe_calibrate_all_experts=True)
+    model.save_pretrained(out_dir, save_compressed=True)
+    tokenizer.save_pretrained(out_dir)
+    with open(os.path.join(out_dir, "quant_info.json"), "w") as f:
+        json.dump(info, f)
+    return info
+
+
+def quantize_job(source, name, scheme, smoke=False):
+    safe_reload()
+    out_dir = os.path.join("/vol/quant", name)
+    if os.path.exists(os.path.join(out_dir, "quant_info.json")):
+        print("already quantized", out_dir)
+        return out_dir
+    if source.startswith("hub:"):
+        local = source[4:]
+    else:
+        local = os.path.join("/vol", source[4:])
+    start = time.time()
+    info = quantize_model(local, out_dir, scheme, samples=16 if smoke else CALIB_SAMPLES)
+    volume.commit()
+    print(f"quantized {name} {scheme} in {time.time() - start:.0f} s", info, "disk GiB", round(dir_gib(out_dir), 2), flush=True)
+    return out_dir
+
+
+@app.function(image=quant_image, volumes={"/vol": volume}, gpu="H200", memory=262144, timeout=6 * 3600,
+              single_use_containers=True)
+def quantize_h200(source, name, scheme, smoke=False):
+    return quantize_job(source, name, scheme, smoke)
+
+
+@app.function(image=quant_image, volumes={"/vol": volume}, gpu="L4", memory=65536, timeout=3600,
+              single_use_containers=True)
+def quantize_l4(source, name, scheme, smoke=False):
+    return quantize_job(source, name, scheme, smoke)
+
+
 @app.function(image=cpu_image, volumes={"/vol": volume}, timeout=1800)
 def collect_rows(name):
     safe_reload()
@@ -777,7 +862,8 @@ def summary_line(row):
 @app.local_entrypoint()
 def main(model: str = "hub:" + BASE_MODEL, name: str = "full", configs: str = "base", gpu: str = "H200",
          tokenizer: str = BASE_MODEL, smoke: bool = False, shards: int = 1, estimate_only: bool = False,
-         collect: bool = False, build_slim_model: bool = False, util: float = GPU_UTILIZATION):
+         collect: bool = False, build_slim_model: bool = False, util: float = GPU_UTILIZATION,
+         quantize: str = "", quant_name: str = ""):
     if collect:
         rows = collect_rows.remote(name)
         merged = merge_rows(os.path.join(LOCAL_DIR, f"efficiency_{name}.json"), rows)
@@ -789,6 +875,13 @@ def main(model: str = "hub:" + BASE_MODEL, name: str = "full", configs: str = "b
         with open(MANIFEST) as f:
             manifest = json.load(f)
         print(build_slim.remote(manifest))
+        return
+    if quantize:
+        if quantize not in QUANT_SCHEMES or not quant_name:
+            raise SystemExit("--quantize is w4a16 or fp8 and needs --quant-name")
+        model_ref(model)
+        runner = quantize_l4 if gpu == "L4" else quantize_h200
+        print(runner.remote(model, quant_name, quantize, smoke))
         return
     if gpu not in RUNNERS:
         raise SystemExit(f"--gpu must be one of {', '.join(RUNNERS)}")
