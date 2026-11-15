@@ -496,7 +496,7 @@ def test_compare_on_stub(tmp_path, monkeypatch, capsys):
     assert manifest["seeds"] == [0, 1] and manifest["backend"] == "stub" and manifest["stub"] is True
     assert manifest["budgets"]["eval_budget"] == 6.0 and manifest["budgets"]["compute_budget_s"] == 20000.0
     assert "git_commit" in manifest and manifest["budget_check"]["equal"] is True
-    assert manifest["shared_settings"]["k"] == 4 and manifest["shared_settings"]["glue_ranks"] is None
+    assert manifest["shared_settings"]["k"] == 4 and manifest["shared_settings"]["glue_ranks"] == [None, 64]
     assert len(manifest["runs"]) == 2 * len(ran)
     for record in manifest["runs"]:
         assert os.path.exists(record["log_path"])

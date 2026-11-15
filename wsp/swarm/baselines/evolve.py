@@ -26,8 +26,12 @@ for a budget of about 60 to 150 evals:
    are scored at "low" and the top third goes on to "full", the swarm's
    rule. Each scored child (ok or collapsed) joins the population once, in
    batch order. Its fitness is its full-fidelity combined score when it
-   reached full, else its low-fidelity score. When the population is over
-   12, the oldest member dies, whatever its fitness.
+   reached full, else its low-fidelity score, and members compare by the
+   fidelity rule the swarm's judge uses (scoring.standing): a member scored
+   at full always beats a low-only member in a tournament, and low-only
+   members compare by their low scores among themselves. Without the
+   cascade every member is at full, so fitness alone decides. When the
+   population is over 12, the oldest member dies, whatever its fitness.
 5. Repeat until either budget axis is spent.
 
 Fit is used only by the gate, never as fitness (fit ranks placements, not
@@ -50,7 +54,8 @@ class Population:
     """The population of regularized evolution: at most `size` members, oldest first.
 
     A member is a dict with program, program_hash, describe, fitness,
-    fidelity and round.
+    fidelity, standing and round. Members compare by standing (fidelity
+    level, then fitness; scoring.standing), never by fitness alone.
     """
 
     def __init__(self, size):
@@ -72,14 +77,14 @@ class Population:
         best = None
         for index in rng.sample(range(len(self.members)), count):
             member = self.members[index]
-            if best is None or member["fitness"] > best["fitness"]:
+            if best is None or member["standing"] > best["standing"]:
                 best = member
         return best
 
     def best(self):
         best = None
         for member in self.members:
-            if best is None or member["fitness"] > best["fitness"]:
+            if best is None or member["standing"] > best["standing"]:
                 best = member
         return best
 
@@ -190,7 +195,7 @@ class EvolveArm(SearchArm):
                 continue
             member = {"program": candidate["program"], "program_hash": candidate["program_hash"],
                       "describe": space.describe(candidate["program"]), "fitness": result["combined"],
-                      "fidelity": result["fidelity"], "round": candidate["round"]}
+                      "fidelity": result["fidelity"], "standing": result["standing"], "round": candidate["round"]}
             gone = self.population.add(member)
             if gone is not None:
                 removed.append(gone["program_hash"])

@@ -4,10 +4,13 @@
    default host depth with full-rank glue and heal 300, in a seeded random
    order and in batches of k, until greedy_single_share (half) of the eval
    budget is used. The remaining singles wait for step 4.
-2. Add if better. Rank the scored singles best first. Start from the best
-   single that reached full fidelity. Try adding each next single's graft to
-   the current best program, one at a time; keep the bigger program only if
-   its full-fidelity search score is higher. Programs over the graft limit
+2. Add if better. Rank the scored singles best first by the fidelity rule
+   the swarm's judge uses (scoring.standing): singles that reached full
+   fidelity first, by their full scores, then low-only singles by their low
+   scores. Start from the best single that reached full fidelity. Try
+   adding each next single's graft to the current best program, one at a
+   time; keep the bigger program only if its full-fidelity search score is
+   higher. Programs over the graft limit
    are invalid and skipped for free. This step stops once greedy_add_share
    (three quarters) of the eval budget is used; untried adds wait for step 4.
 3. Shifts. Move each graft of the current best by -1, +1, -2 and +2 host
@@ -106,18 +109,23 @@ class GreedyArm(SearchArm):
                 self.singles.append({"part": candidate["extra"]["part"], "graft": ps.grafts(candidate["program"])[0],
                                      "program": candidate["program"], "hash": candidate["program_hash"],
                                      "combined": result["combined"], "fidelity": result["fidelity"],
-                                     "status": result["status"]})
+                                     "status": result["status"], "standing": result["standing"]})
 
     def ranked_singles(self):
-        """Scored singles, best first (score at the highest fidelity reached; ties by part id)."""
+        """Scored singles, best first by the fidelity rule (scoring.standing); ties by part id.
+
+        Singles that reached full come first, by their full scores; low-only
+        singles follow, by their low scores.
+        """
         pairs = []
         for index in range(len(self.singles)):
             entry = self.singles[index]
-            pairs.append((-entry["combined"], entry["part"], index))
+            level, combined = entry["standing"]
+            pairs.append((-level, -combined, entry["part"], index))
         pairs.sort()
         ranked = []
         for pair in pairs:
-            ranked.append(self.singles[pair[2]])
+            ranked.append(self.singles[pair[3]])
         return ranked
 
     # Steps 2 and 3.

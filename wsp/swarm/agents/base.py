@@ -47,8 +47,9 @@ class Judge:
         frontier: the previous frontier (log rows, best first). rows: this
         round's log rows. Returns {"frontier": [rows, best first],
         "killed": [patterns], "retired": [program hashes], "text": str}.
-        A pattern is "<part id>|<early|middle|late>|<heal|noheal>"
-        (space.graft_pattern).
+        A pattern is "<part id>|<early|middle|late>|<heal|noheal>|<full|r<rank>>",
+        the last field being the graft's glue rank, for example
+        "stub_qmath_l14_c0|middle|heal|r64" (space.graft_pattern).
         """
         raise NotImplementedError
 

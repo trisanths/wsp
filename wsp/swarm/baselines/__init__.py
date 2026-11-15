@@ -21,10 +21,18 @@ program with an untested slot (the scripted planner asks for a probe in
 exactly that case). The swarm's screen also drops the judge's killed
 patterns; baselines have no judge, so that step is the swarm's own.
 SearchArm.evaluate is Swarm.evaluate: with config "cascade", a batch is
-scored at "low" and the top third goes on to "full". The final pick uses
-the swarm judge's ranking (agents.scripted.rank_rows: best full-fidelity
-search score, ties within tie_margin go to fewer parameters); the top
-heldout_top programs go to held-out once, each with its two controls.
+scored at "low" and the top third (swarm.promotion_picks) goes on to
+"full". The final pick uses the swarm judge's ranking
+(agents.scripted.rank_rows: best full-fidelity search score, ties within
+tie_margin go to fewer parameters); the top heldout_top programs go to
+held-out once, each with its two controls.
+
+Every comparison an arm makes follows the fidelity rule the judge follows
+(scoring.standing): scores compare only at the same fidelity. Fitness
+(evolve) and the order of the singles (greedy) rank a program on its
+full-fidelity score when it reached full; a low-only program ranks by its
+low score against other low-only programs and never above a full-scored
+one. best_scores gives each program's standing for that comparison.
 
 Baselines use no memory, literature or LLM, so run_baseline refuses a
 config that switches one on (anti-goal: no arm may get memory the others
@@ -45,11 +53,11 @@ from wsp.swarm import program_schema as ps
 from wsp.swarm import space
 from wsp.swarm.agents.scripted import rank_rows
 from wsp.swarm.config import fidelity_cost, public_config
-from wsp.swarm.swarm import short_row
+from wsp.swarm.scoring import best_standings, standing
+from wsp.swarm.swarm import promotion_picks, short_row
 
 METHODS = ["evolve", "random", "random_part", "greedy", "lora", "full_ft"]
 TRAINING_METHODS = ["lora", "full_ft"]
-SCORED = ["ok", "collapsed"]
 
 
 def setting(config, name, default):
@@ -288,21 +296,11 @@ class SearchArm:
     # Scoring.
 
     def evaluate(self, candidates):
-        """Step the candidates (one round). With the cascade, promote the top third to full, as the swarm does."""
+        """Step the candidates (one round). With the cascade, promote the top third to full (swarm.promotion_picks)."""
         rows = self.env.step_many(candidates)
         self.remember(rows)
         if self.config["cascade"]:
-            scored = []
-            for index in range(len(rows)):
-                if rows[index]["status"] == "ok":
-                    scored.append((-rows[index]["combined"], index))
-            scored.sort()
-            promote_count = int(math.ceil(len(rows) / 3.0))
-            promoted = []
-            for pair in scored[:promote_count]:
-                candidate = dict(candidates[pair[1]])
-                candidate["fidelity"] = "full"
-                promoted.append(candidate)
+            promoted = promotion_picks(candidates, rows, self.config)
             if len(promoted) > 0:
                 more = self.env.step_many(promoted)
                 self.remember(more)
@@ -318,16 +316,19 @@ class SearchArm:
                 self.tried.add(row["program_hash"])
 
     def best_scores(self, rows):
-        """For each scored program hash in rows: {"combined", "fidelity", "status"} at the highest fidelity reached."""
+        """For each scored program hash in rows: {"combined", "fidelity", "status", "standing"}.
+
+        The score is the one the program ranks on under the fidelity rule
+        (scoring.standing): its full-fidelity score when it reached full,
+        else its low score. Compare two results by "standing", never by
+        "combined" alone, so a low-only program never outranks a full one.
+        """
         out = {}
-        for row in rows:
-            if row["status"] not in SCORED:
-                continue
-            current = out.get(row["program_hash"])
-            cost = fidelity_cost(self.config, row["fidelity"])
-            if current is None or cost > fidelity_cost(self.config, current["fidelity"]):
-                out[row["program_hash"]] = {"combined": row["combined"], "fidelity": row["fidelity"],
-                                            "status": row["status"]}
+        best = best_standings(rows, self.config)
+        for program_hash in best:
+            row = best[program_hash]
+            out[program_hash] = {"combined": row["combined"], "fidelity": row["fidelity"], "status": row["status"],
+                                 "standing": standing(row, self.config)}
         return out
 
     def full_score(self, program_hash, rows):
@@ -343,7 +344,7 @@ class SearchArm:
         for row in self.rows:
             if row["status"] == "ok" and row["fidelity"] == "full" and row["split"] == "search":
                 candidates.append(row)
-        return rank_rows(candidates, self.config["frontier_size"], self.config["tie_margin"])
+        return rank_rows(candidates, self.config["frontier_size"], self.config["tie_margin"], self.config)
 
     # The whole run.
 

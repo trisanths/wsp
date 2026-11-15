@@ -1,4 +1,4 @@
-"""Normalized and combined scores, and the collapse rule (spec 4.2)."""
+"""Normalized and combined scores, the collapse rule (spec 4.2), and the fidelity rule for comparing scores."""
 
 
 def normalized(score, base):
@@ -54,3 +54,40 @@ def score_with_config(scores, base_scores, config):
                      config["guard_drop"], config["guard_penalty"])
     collapsed = is_collapse(scores, base_scores, config["collapse_fraction"])
     return value, collapsed
+
+
+def standing(row, config):
+    """How a scored row compares with another: (level, combined), where higher is better.
+
+    The fidelity rule (design section 15). The swarm's judge, the cascade
+    promotion and every baseline compare scores through this one function.
+    Scores compare only at the same fidelity: a low-fidelity score uses a
+    third of the questions and a short heal (config low_fidelity_heal_steps,
+    50 by default), so it measures a different model from the full score.
+    level is the fidelity's FEE cost; the levels are nested, so a higher
+    cost is a higher level. Comparing two standings with > therefore puts
+    every full-fidelity score above every low-fidelity one, however high the
+    low score, and compares combined scores only within one level. A
+    low-only program ranks by its low score against other low-only programs
+    and never above a program scored at full. With the cascade off every
+    score is at full, so standings order exactly as combined scores do.
+    """
+    from wsp.swarm.config import fidelity_cost
+
+    return (fidelity_cost(config, row["fidelity"]), row["combined"])
+
+
+def best_standings(rows, config):
+    """For each scored program hash in rows (status ok or collapsed), the row with its best standing.
+
+    A program that reached full fidelity ranks on its full row, never on a
+    higher low-fidelity score. Returns {program_hash: row}.
+    """
+    best = {}
+    for row in rows:
+        if row["status"] not in ("ok", "collapsed"):
+            continue
+        current = best.get(row["program_hash"])
+        if current is None or standing(row, config) > standing(current, config):
+            best[row["program_hash"]] = row
+    return best

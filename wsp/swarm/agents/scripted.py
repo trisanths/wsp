@@ -10,13 +10,19 @@
   tie_margin go to fewer parameters), kills patterns after kill_after
   collapses or fit rejections, and retires parents after retire_after failed
   children.
+
+The fidelity rule (scoring.standing) holds for the judge as for every
+baseline: scores compare only at the same fidelity. The frontier holds
+full-fidelity rows only and rank_rows ranks by standing; a child counts as
+better than its parent only when its full score beats the parent's full
+score, so a low-only child is never compared with a full-scored parent.
 """
 
 from wsp.swarm import program_schema as ps
 from wsp.swarm import space
 from wsp.swarm.agents.base import Analyst, Judge, Planner
 from wsp.swarm.env import rank_key
-from wsp.swarm.scoring import normalized
+from wsp.swarm.scoring import best_standings, normalized, standing
 
 EXPLOIT_RATES = [0.7, 0.5, 0.3]  # planner 1 exploits most, planner 3 explores most
 HEAL_CHOICES = [300, 300, 300, 100, 600]
@@ -277,7 +283,7 @@ class RuleJudge(Judge):
             if counts["failed"] >= config["retire_after"] and counts["better"] == 0:
                 retired.append(parent)
 
-        new_frontier = rank_rows(candidates, config["frontier_size"], config["tie_margin"])
+        new_frontier = rank_rows(candidates, config["frontier_size"], config["tie_margin"], config)
         text = verdict_text(new_frontier, killed, retired)
         return {"frontier": new_frontier, "killed": killed, "retired": retired, "text": text}
 
@@ -292,6 +298,7 @@ class RuleJudge(Judge):
         return patterns
 
     def track_child(self, row):
+        """Count a child as better or failed. An ok child counts only at full, against its parent's full score."""
         parent = row["extra"].get("parent")
         if parent is None or row["status"] in ("invalid", "budget_exhausted", "cache_hit", "infra_error"):
             return
@@ -306,23 +313,30 @@ class RuleJudge(Judge):
             self.children[parent]["failed"] += 1
 
 
-def rank_rows(rows, size, tie_margin):
-    """Best first, one row per program. Within tie_margin, fewer parameters go first."""
-    best = {}
-    for row in rows:
-        current = best.get(row["program_hash"])
-        if current is None or row["combined"] > current["combined"]:
-            best[row["program_hash"]] = row
+def rank_order(row, config):
+    """Sort key, best first: the higher fidelity level (scoring.standing), then rank_key."""
+    level = standing(row, config)[0]
+    return (-level,) + rank_key(row)
+
+
+def rank_rows(rows, size, tie_margin, config):
+    """Best first by the fidelity rule (scoring.standing), one row per scored program.
+
+    A row at a higher fidelity level always ranks above one at a lower
+    level. Within one level and within tie_margin, fewer parameters go first.
+    """
+    best = best_standings(rows, config)
     ranked = list(best.values())
-    ranked.sort(key=rank_key)
+    ranked.sort(key=lambda row: rank_order(row, config))
     changed = True
     while changed:
         changed = False
         for i in range(1, len(ranked)):
             above = ranked[i - 1]
             below = ranked[i]
+            same_level = standing(above, config)[0] == standing(below, config)[0]
             close = above["combined"] - below["combined"] <= tie_margin
-            if close and params_of(below) < params_of(above):
+            if same_level and close and params_of(below) < params_of(above):
                 ranked[i - 1] = below
                 ranked[i] = above
                 changed = True

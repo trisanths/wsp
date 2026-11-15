@@ -58,13 +58,17 @@ NAME_PATTERN = re.compile(r"^[A-Za-z0-9._-]+$")
 # keys, named by these prefixes or names, and never a key in DEFAULTS.
 LLM_CONFIG_PREFIXES = ["llm_", "openai_", "anthropic_", "modal_llm_", "mock_", "memory_", "past_", "exa_"]
 LLM_CONFIG_NAMES = ["priors_path"]
-# Keys every arm shares that are not in DEFAULTS (space.validate reads glue_ranks).
+# Program-space keys every arm shares (space.validate reads glue_ranks).
+# glue_ranks is in DEFAULTS now (default [None, 64]), so the DEFAULTS check
+# already refuses it; naming it here keeps it refused if it ever leaves DEFAULTS.
 SHARED_SPACE_KEYS = ["glue_ranks"]
 
 # Settings besides the four budget caps that every run must share. The
 # manifest records them and budget_check compares each run's own manifest.
 SHARED_SETTINGS = ["fidelities", "fit_threshold", "k", "cascade", "glue_ranks", "stub_seed"]
-# A run manifest may leave these out; missing means the space default.
+# Every run built by make_config records glue_ranks, since DEFAULTS sets it.
+# A manifest written before that default existed may leave it out; budget_check
+# reads a missing value as null, so such a run mismatches a comparison at [None, 64].
 OPTIONAL_SETTINGS = ["glue_ranks"]
 
 

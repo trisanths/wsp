@@ -167,7 +167,7 @@ def test_summary_matches_the_swarm_and_the_cli_prints_it(tmp_path, capsys, monke
 
 def member(index, fitness):
     return {"program": {}, "program_hash": "h" + str(index), "describe": "m" + str(index), "fitness": fitness,
-            "fidelity": "full", "round": index}
+            "fidelity": "full", "standing": (1.0, fitness), "round": index}
 
 
 def test_population_keeps_its_size_and_the_oldest_dies():
@@ -273,9 +273,17 @@ def test_cascade_promotes_the_top_third_like_the_swarm(tmp_path):
             if row["token"] is not None:
                 paid += row["extra"]["eval_cost"]
     assert abs(paid - summary["eval_used"]) < 1e-6
+    # Promotion pricing (env.py): a promotion pays only the FEE difference when the low level scored the
+    # same model, meaning the same heal steps. A program that heals for more than the short heal
+    # (config low_fidelity_heal_steps, 50) heals again at full, scores a new model and pays the whole level.
+    short = baseline_config(tmp_path, "evolve")["low_fidelity_heal_steps"]
     for row in search_rows(summary):
         if row["fidelity"] == "full" and row["token"] is not None:
-            assert row["extra"]["eval_cost"] == round(1.0 - 0.34, 3)
+            steps = row["heal_steps_used"]
+            if steps is None or steps <= short:
+                assert row["extra"]["eval_cost"] == round(1.0 - 0.34, 3)
+            else:
+                assert row["extra"]["eval_cost"] == 1.0
 
 
 # The random-part arm.

@@ -16,8 +16,9 @@
    two controls.
 
 With config cascade=True, candidates are first scored at fidelity "low" and
-the top third is promoted to "full" in the same round. The judge ranks
-full-fidelity scores only.
+the top third (promotion_picks) is promoted to "full" in the same round. The
+judge ranks full-fidelity scores only. Promotion and judge follow the
+fidelity rule (scoring.standing): scores compare only at the same fidelity.
 """
 
 import concurrent.futures
@@ -29,6 +30,7 @@ from wsp.swarm import space
 from wsp.swarm.agents.base import make_ctx
 from wsp.swarm.config import fidelity_cost, public_config
 from wsp.swarm.interfaces import make_memory_listener
+from wsp.swarm.scoring import standing
 
 
 class Swarm:
@@ -292,17 +294,7 @@ class Swarm:
                 self.tried.add(row["program_hash"])
         if not self.config["cascade"]:
             return rows
-        scored = []
-        for index in range(len(rows)):
-            if rows[index]["status"] == "ok":
-                scored.append((-rows[index]["combined"], index))
-        scored.sort()
-        promote_count = int(math.ceil(len(rows) / 3.0))
-        promoted = []
-        for pair in scored[:promote_count]:
-            candidate = dict(candidates[pair[1]])
-            candidate["fidelity"] = "full"
-            promoted.append(candidate)
+        promoted = promotion_picks(candidates, rows, self.config)
         if len(promoted) == 0:
             return rows
         return rows + self.env.step_many(promoted)
@@ -353,6 +345,31 @@ class Swarm:
             "log_path": self.env.log.path,
             "config": public_config(self.config),
         }
+
+
+def promotion_picks(candidates, rows, config):
+    """The cascade promotion: the top third of a batch, as copies of their candidates set to "full".
+
+    rows are the batch's rows in candidate order, all at the batch's first
+    fidelity, and only ok rows can be promoted. They rank by the fidelity
+    rule (scoring.standing); every row of the batch is at one level, so low
+    scores are compared only with low scores. Ties go to the earlier
+    candidate. The swarm and every baseline promote through this function.
+    """
+    keyed = []
+    for index in range(len(rows)):
+        row = rows[index]
+        if row["status"] == "ok":
+            level, combined = standing(row, config)
+            keyed.append((-level, -combined, index))
+    keyed.sort()
+    promote_count = int(math.ceil(len(rows) / 3.0))
+    promoted = []
+    for item in keyed[:promote_count]:
+        candidate = dict(candidates[item[2]])
+        candidate["fidelity"] = "full"
+        promoted.append(candidate)
+    return promoted
 
 
 def short_row(row):

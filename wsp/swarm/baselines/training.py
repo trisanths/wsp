@@ -423,7 +423,7 @@ class TrainingArm:
         for row in self.rows:
             if row["status"] == "ok":
                 candidates.append(row)
-        return rank_rows(candidates, self.config["frontier_size"], self.config["tie_margin"])
+        return rank_rows(candidates, self.config["frontier_size"], self.config["tie_margin"], self.config)
 
     def final_heldout(self):
         """Score the best checkpoint once on held-out, from the held-out pool (rule 7)."""
