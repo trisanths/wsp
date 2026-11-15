@@ -50,6 +50,8 @@ def parse_args(argv=None):
                         help="modal backend: interim (gsm8k only, default) | harness (gsm8k + if_guard, no cascade)")
     parser.add_argument("--heldout-top", type=int, default=None,
                         help="programs scored on held-out at the end, each with 2 controls (default 3; 0 skips it)")
+    parser.add_argument("--lora", default=None,
+                        help="lora_grid with one setting, rank:lr:steps, for example 64:5e-5:300 (a single LoRA run)")
     return parser.parse_args(argv)
 
 
@@ -75,6 +77,11 @@ def build_config(args):
         overrides["modal_scorer"] = args.modal_scorer
     if args.heldout_top is not None:
         overrides["heldout_top"] = args.heldout_top
+    if args.lora is not None:
+        pieces = args.lora.split(":")
+        if len(pieces) != 3:
+            raise SystemExit("--lora takes rank:lr:steps, for example 64:5e-5:300; got " + args.lora)
+        overrides["lora_grid"] = {"ranks": [int(pieces[0])], "lrs": [float(pieces[1])], "steps": [int(pieces[2])]}
     return make_config(overrides)
 
 
