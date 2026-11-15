@@ -47,7 +47,7 @@ Commands (always smoke first; LESSONS.md):
     modal run modal_round28.py --check                 # CPU only: reads the pools and train splits, prints counts
     modal run modal_round28.py --estimate-only         # lists the cells, fails on zero
     modal run --detach modal_round28.py --smoke        # law keep 64 plus a 4-step heal, 40 items, small ranking
-    modal run --detach modal_round28.py                # all 13 cells, one container per request plus the full model
+    modal run --detach modal_round28.py --spawn        # all 13 cells, one container per request plus the full model
     modal run --detach modal_round28.py --only clinic_sal64,clinic_sal48 --tag redo
 
 Rows go to /vol/results/round28/<cell>.json (written by the GPU function) and to results/round28_<tag>.json
@@ -613,6 +613,13 @@ def run_chunk(names, smoke=False):
         yield row
 
 
+@app.function(image=image, volumes={"/vol": volume}, gpu=GPU, memory=262144, timeout=20 * 3600)
+def run_chunk_job(names, smoke=False):
+    """The same as run_chunk, but returns the rows as a list, so it can be spawned. A detached app keeps every
+    spawned call alive; a detached local entrypoint keeps only the last function it called."""
+    return list(run_chunk_rows(names, smoke=smoke))
+
+
 @app.function(image=image, volumes={"/vol": volume}, memory=32768, timeout=3 * 3600)
 def check_data():
     """CPU only: read every pool and train split at full size, print counts and samples, and cache the pairs."""
@@ -658,7 +665,7 @@ def short_row(row):
 
 @app.local_entrypoint()
 def main(only: str = "", requests: str = "", smoke: bool = False, estimate_only: bool = False,
-         check: bool = False, tag: str = "main"):
+         check: bool = False, tag: str = "main", spawn: bool = False):
     if check:
         print(check_data.remote(), flush=True)
         return
@@ -674,10 +681,20 @@ def main(only: str = "", requests: str = "", smoke: bool = False, estimate_only:
     rows = []
     lock = threading.Lock()
 
+    def rows_of(chunk):
+        if spawn:
+            call = run_chunk_job.spawn(chunk, smoke)
+            print(f"spawned {chunk[0]}.. call {call.object_id}", flush=True)
+            for row in call.get():
+                yield row
+        else:
+            for row in RUNNER.remote_gen(chunk, smoke):
+                yield row
+
     def work(chunk):
         seen = set()
         try:
-            for row in RUNNER.remote_gen(chunk, smoke):
+            for row in rows_of(chunk):
                 seen.add(row["cell"])
                 with lock:
                     rows.append(row)
