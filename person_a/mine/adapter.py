@@ -152,6 +152,45 @@ def summarize(info):
     return {"n_layers": info["n_layers"], "d_model": info["d_model"], "layers_with": counts, "example": first}
 
 
+def top_units(mine, ref, top_n, how):
+    # Ranking of the units of ONE layer, for the engine methods attribution_units and activation_units
+    # (used by mine/sweep.py). `mine` and `ref` are 1-D tensors with one value per unit: the statistic on
+    # the skill text and on the reference text (general_text). `ref` may be None.
+    #   how "selective" (attribution): score = mine - max(ref, 0), the rule the engine's _rank uses for
+    #     attribution. A unit is skill-specific when its score is above 0.
+    #   how "ratio" (activation): score = smoothed mine / ref, the rule _rank uses for activations.
+    #     A unit is skill-specific when its score is above 1.
+    # Returns the top_n units, best first. Equal scores keep the lower index first, so the order does
+    # not depend on the device. Units with a non-finite value are left out.
+    mine = mine.detach().float().cpu().reshape(-1)
+    if ref is None:
+        ref = torch.zeros_like(mine)
+    else:
+        ref = ref.detach().float().cpu().reshape(-1)
+    if ref.numel() != mine.numel():
+        raise AdapterError("skill and reference have different unit counts: " + str(mine.numel()) + " and "
+                           + str(ref.numel()))
+    if how == "ratio":
+        # the small floor stops near-zero references (rare experts, dead units) from giving huge ratios
+        eps = 0.05 * float(ref.mean()) + 1e-6
+        score = (mine + eps) / (ref + eps)
+        floor = 1.0
+    elif how == "selective":
+        score = mine - torch.clamp(ref, min=0)
+        floor = 0.0
+    else:
+        raise AdapterError("how must be selective or ratio")
+    ok = torch.isfinite(score) & torch.isfinite(mine) & torch.isfinite(ref)
+    key = torch.where(ok, score, torch.full_like(score, float("-inf")))
+    order = torch.argsort(key, descending=True, stable=True)
+    k = max(0, min(int(top_n), int(ok.sum())))
+    order = order[:k]
+    out = {"width": int(mine.numel()), "floor": floor, "units": [int(i) for i in order.tolist()]}
+    for name, values in [("skill", mine), ("general", ref), ("score", score)]:
+        out[name] = [float("%.5g" % v) for v in values[order].tolist()]
+    return out
+
+
 def check_part(info, part):
     kind = part.get("kind")
     n = info["n_layers"]

@@ -632,6 +632,139 @@ class EngineBase:
             flat = flat.reshape(entry["n_heads"], entry["head_dim"]).sum(dim=-1)
         return flat
 
+    # ---------------- per-layer unit rankings (mine/sweep.py) ----------------
+    # attribution_scan and activation_scan return a short global list for an agent to read. The sweep
+    # miner builds parts of 64 to 1024 units, so it needs the best units of EVERY layer. These methods
+    # return that, for one skill, next to the same statistic on general_text.
+
+    def _unit_layers(self, kind, layers):
+        # the probe and stat hooks read the fused experts call (hidden, top_k_index, top_k_weights);
+        # experts kept as a ModuleList have no such call, so those layers cannot be ranked here
+        out = []
+        for l in self._layer_list(kind, layers):
+            if kind == "expert" and self.info["layers"][l]["experts"].get("style") == "module_list":
+                continue
+            out.append(l)
+        return out
+
+    def _attribution_effects(self, payload, kind, skill, layer_list, n_items, token_budget):
+        # One tensor per layer: the estimated rise in the skill's mean answer NLL (nats per scored token)
+        # when a unit is zeroed. The first-order estimate of attribution_scan, with one difference: the
+        # loss is summed over the scored tokens and divided by their count at the end, so every token has
+        # the same weight (attribution_scan averages the batch means).
+        import torch
+
+        rows = self._scan_rows(payload, skill, n_items)
+        acc = {}
+        n_tokens = 0
+        for batch in self._batches(rows, token_budget * self.vocab):
+            ids, mask = self._pad(rows, batch)
+            probes = {}
+            handles = []
+            try:
+                for l in layer_list:
+                    handles.append(self._probe_hook(kind, l, probes))
+                with torch.enable_grad():
+                    logits = self.model(input_ids=ids, attention_mask=mask, use_cache=False).logits.to(ids.device)
+                    pj, pp, tgt = self._targets(rows, batch, ids)
+                    if len(tgt) == 0:
+                        continue
+                    lp = torch.log_softmax(logits[pj, pp].float(), dim=-1).gather(1, tgt[:, None])
+                    loss = -lp.sum()
+                    hooked = list(probes.keys())
+                    leaves = []
+                    for l in hooked:
+                        leaves.append(probes[l]["probe"])
+                    grads = torch.autograd.grad(loss, leaves, allow_unused=True)
+                for (l, g) in zip(hooked, grads):
+                    if g is None:
+                        continue
+                    eff = self._effect(kind, l, probes[l], g).float().cpu()
+                    if l not in acc:
+                        acc[l] = torch.zeros_like(eff)
+                    acc[l] += eff
+                n_tokens += int(len(tgt))
+            finally:
+                self.adapter.remove_all(handles)
+                del probes
+        out = {}
+        for l in acc:
+            out[l] = acc[l] / max(n_tokens, 1)
+        return out, n_tokens
+
+    def _activation_means(self, payload, kind, skill, layer_list, n_items):
+        # One tensor per layer: mean |activation| per unit (experts: router picks per token) on the
+        # skill's search items. Same statistic as activation_scan.
+        import torch
+
+        rows = self._scan_rows(payload, skill, n_items)
+        sums = {}
+        state = {"mask": None}
+        handles = []
+        n_tokens = 0
+        try:
+            for l in layer_list:
+                handles.append(self._stat_hook(kind, l, sums, state))
+            with torch.no_grad():
+                for batch in self._batches(rows, 4.0e8):
+                    ids, mask = self._pad(rows, batch)
+                    m = mask.clone()
+                    m[:, 0] = 0
+                    state["mask"] = m
+                    n_tokens += int(m.sum())
+                    self.model(input_ids=ids, attention_mask=mask, use_cache=False)
+        finally:
+            self.adapter.remove_all(handles)
+        out = {}
+        for l in sums:
+            out[l] = (sums[l]["sum"] / max(sums[l]["n"], 1.0)).float().cpu()
+        return out, n_tokens
+
+    def _unit_ranking(self, payload, method, kind, skill, layers, top_n, n_items, token_budget):
+        start = time.time()
+        reference = "general_text"
+        sets = self._skill_sets(payload)
+        for name in [skill, reference]:
+            if (name, "search") not in sets:
+                raise ValueError("skill '" + name + "' is not in the payload")
+        layer_list = self._unit_layers(kind, layers)
+
+        def measure(name):
+            if method == "attribution":
+                return self._attribution_effects(payload, kind, name, layer_list, n_items, token_budget)
+            return self._activation_means(payload, kind, name, layer_list, n_items)
+
+        # the reference does not depend on the skill: keep it for the next skills of the same sweep
+        cache = self.__dict__.setdefault("unit_ref_cache", {})
+        ref_key = (method, kind, tuple(layer_list), n_items, token_budget, sets[(reference, "search")][0])
+        if ref_key not in cache:
+            cache[ref_key] = measure(reference)
+        ref, ref_tokens = cache[ref_key]
+        mine, n_tokens = measure(skill)
+        how = "selective" if method == "attribution" else "ratio"
+        per_layer = {}
+        for l in layer_list:
+            if l in mine:
+                per_layer[str(l)] = self.adapter.top_units(mine[l], ref.get(l), top_n, how)
+        return {"method": method, "kind": kind, "skill": skill, "reference": reference, "how": how,
+                "n_items": n_items, "n_tokens": n_tokens, "reference_tokens": ref_tokens, "top_n": top_n,
+                "layers": per_layer, "seconds": round(time.time() - start, 1)}
+
+    @modal.method()
+    def attribution_units(self, payload, kind, skill, layers, top_n=1024, n_items=24, token_budget=2048):
+        # For every requested layer (empty list = all): the top_n units by attribution on `skill` minus
+        # attribution on general_text, with both values. Format: adapter.top_units, keyed by layer.
+        if getattr(self.model.config, "quantization_config", None) is not None and self.model_key not in DEQUANTIZE:
+            raise RuntimeError("attribution_units needs bf16 weights, but this model is loaded quantized (FP8); "
+                               "use activation_units instead")
+        return self._unit_ranking(payload, "attribution", kind, skill, layers, top_n, n_items, token_budget)
+
+    @modal.method()
+    def activation_units(self, payload, kind, skill, layers, top_n=1024, n_items=32):
+        # The same per-layer ranking from forward passes only (mean |activation|, or router pick rate for
+        # experts, as a ratio to general_text). For quantized models, where attribution_units refuses.
+        return self._unit_ranking(payload, "activation", kind, skill, layers, top_n, n_items, None)
+
     # ---------------- optional confirmation ----------------
 
     @modal.method()
