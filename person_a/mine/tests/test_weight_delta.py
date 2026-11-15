@@ -802,18 +802,24 @@ def test_families_file():
     by_name = {fam["name"]: fam for fam in families}
     assert by_name["llama8b"]["host"] == "unsloth/Meta-Llama-3.1-8B-Instruct"
     with_ancestor = sorted(row["id"] for row in by_name["llama8b"]["members"] if row.get("ancestor"))
-    assert with_ancestor == ["NousResearch/Hermes-3-Llama-3.1-8B", "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
-                             "nvidia/OpenMath2-Llama3.1-8B"]
+    # Tulu-3 and Foundation-Sec were measured closer to the pretrained base than to the Instruct host,
+    # and Med42 is a Llama 3 fine-tune (see the notes in families.json).
+    assert with_ancestor == ["NousResearch/Hermes-3-Llama-3.1-8B", "allenai/Llama-3.1-Tulu-3-8B-SFT",
+                             "deepseek-ai/DeepSeek-R1-Distill-Llama-8B", "fdtn-ai/Foundation-Sec-8B",
+                             "m42-health/Llama3-Med42-8B", "nvidia/OpenMath2-Llama3.1-8B"]
     for row in by_name["llama8b"]["members"]:
-        assert row.get("ancestor") in [None, "unsloth/Meta-Llama-3.1-8B"]
+        expected = [None, "unsloth/Meta-Llama-3.1-8B"]
+        if row["id"] == "m42-health/Llama3-Med42-8B":
+            expected = ["unsloth/llama-3-8b-Instruct"]
+        assert row.get("ancestor") in expected, row
     sizes = {fam["name"]: len(fam["members"]) for fam in families}
     assert sizes == {"qwen7b": 2, "llama8b": 7, "gemma27": 1, "qwen32b": 6, "lfm2": 3, "qwen3_8b": 1}
 
-    # 20 members against their host, 3 more against the ancestor.
+    # 20 members against their host, 6 more against the ancestor.
     pairs = wd.select_pairs(families, everything=True)
-    assert len(pairs) == 23
-    assert len([p for p in pairs if p["relation"] == "ancestor"]) == 3
-    assert len(set((p["member"], p["reference"]) for p in pairs)) == 23
+    assert len(pairs) == 26
+    assert len([p for p in pairs if p["relation"] == "ancestor"]) == 6
+    assert len(set((p["member"], p["reference"]) for p in pairs)) == 26
 
     lfm2 = wd.select_pairs(families, family="lfm2")
     assert [p["member"] for p in lfm2] == ["LiquidAI/LFM2-1.2B-Tool", "LiquidAI/LFM2-1.2B-RAG",

@@ -190,7 +190,7 @@ A pair also fails, with a message and no file, in these cases:
 Commands (from `person_a/`, in the Modal workspace that has the volume `swarmy-models`):
 ```bash
 .venv/bin/modal run mine/weight_delta.py --family lfm2          # one family
-.venv/bin/modal run mine/weight_delta.py --all --jobs 4         # all 23 pairs, 4 at a time
+.venv/bin/modal run mine/weight_delta.py --all --jobs 4         # all 26 pairs, 4 at a time
 .venv/bin/modal run mine/weight_delta.py --member LiquidAI/LFM2-1.2B-Tool --reference LiquidAI/LFM2-1.2B
 .venv/bin/python mine/tests/test_weight_delta.py                # local tests, must print "ok"
 ```
