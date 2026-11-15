@@ -45,6 +45,8 @@ def run_job(spec):
     xf.volume = volume
     overrides = dict(spec.get("overrides") or {})
     overrides.setdefault("decode", False)
+    overrides["host"] = xf.HOST  # the row config records them, because the row is written inside _cell
+    overrides["keep"] = spec.get("keep")
     original = pgraft.build
     keep = spec.get("keep")
     if keep:
