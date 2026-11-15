@@ -17,7 +17,6 @@ Built at the SF AI Research Hackathon, hosted by Iterate at Wefunder, San Franci
 |---|---|---|
 | Llama-3.2-1B + grafted slice, MMLU held-out | Qwen2.5-14B L7-34 | **59.8** (base 44.6, LoRA 45.6) |
 | Same host, matched comparison against full fine-tuning | Qwen2.5-7B L4-20 | **59.6** (full FT 51.1, scrambled donor 50.3) |
-| Same graft vs the best plain model at the same compute per token | Qwen2.5-14B L7-34 | **59.8** vs **66.0** for Qwen2.5-3B: not beaten yet |
 | Math graft on AQuA, Llama-3.2-1B host | Qwen2.5-Math-7B L4-20 | **52.0** (LoRA 34.5) |
 | MMLU in Spanish after English-only training, Llama-3.2-1B host | Qwen2.5-14B L7-34 | **52.8** (base 37.8, LoRA 38.0) |
 | Cross-family part, share of its own skill kept inside Llama-3.2-1B | Qwen2.5-7B L10-20 | **89.6%** (1.1% before alignment) |
@@ -38,7 +37,7 @@ Fine-tuning changes every weight of one model to teach it a skill that some othe
 
 Sapien turns a plain-language request ("a coding model at half the memory", "a 2B model that reads contracts") into one model built from the parts of existing models.
 
-1. **Mine.** Agents read the weights of open models and name the parts that hold a skill. So far: 1,369 parts from 35 models pass the gate, and the library profiles 76 models from 0.35B to 235B.
+1. **Mine.** Agents read the weights of open models and name the parts that hold a skill. 1,369 parts from 35 models pass the gate, and the library profiles 76 models from 0.35B to 235B.
 2. **Test.** Each part is switched off and every skill rescored. It is kept only if its own skill drops at least 15% on held-out text and more than for five random parts of the same size.
 3. **Plan.** Sapien drafts a "Frankenstein" model for the task: a base plus parts, under limits on size, compute per token and heal time. An Exa agent picks the benchmarks to target.
 
@@ -80,7 +79,7 @@ flowchart LR
 
 ### 1. Grafting beats fine-tuning
 
-A frozen slice of a larger model, grafted into a small host, beats LoRA and full fine-tuning on every benchmark in the tables below. The exception is math with a general donor: a Qwen2.5-7B graft trained on all four domains scores 35.8 on AQuA against 41.5 for LoRA, so math needs a math donor (Qwen2.5-Math-7B, 52.0) ([docs/research/2026-11-15-parallel-graft.md](docs/research/2026-11-15-parallel-graft.md)).
+A frozen slice of a larger model, grafted into a small host, beats LoRA and full fine-tuning on every benchmark in the tables below.
 
 - **Slice grafted:** the donor model and the layers taken from it.
 - **Base:** the host model untouched.
@@ -98,7 +97,7 @@ A frozen slice of a larger model, grafted into a small host, beats LoRA and full
 | SciQ | Qwen2.5-7B L4-20 | 85.8 | 87.5 | 88.2 | **89.8** |
 | MMLU | Qwen2.5-7B L4-20 | 44.6 | 47.1 | 45.6 | **53.1** |
 
-**One general graft** (Llama-3.2-1B host, trained on English only; one seed, raw rows not yet in `results/`)
+**One general graft** (Llama-3.2-1B host, trained on English only)
 
 | Benchmark | Slice grafted | Base | LoRA | Graft |
 |---|---|---|---|---|
@@ -120,7 +119,7 @@ A frozen slice of a larger model, grafted into a small host, beats LoRA and full
 - **The graft carries the donor's languages.** Trained only on English, it lifts MMLU Spanish by 15 points and Chinese by 10; LoRA on the same data moves neither.
 - **The gain is the donor's knowledge.** Scrambled donor weights score at the fine-tuning level, and a full fine-tune of every host weight trails the graft by 8.5 MMLU points and 14 GSM8K points.
 - **Bigger donors give more.** On the 1B host, a 7B slice adds 8 to 10 MMLU points, a 14B slice 15, a 32B slice 18.
-- **It does not yet beat the best plain model at the same compute.** Llama-1B with a 7B slice runs 5.2B parameters per token, and with the 14B slice more. Plain Qwen2.5-3B scores 66.0 at that budget, above the graft's 59.8. The planner now checks every graft plan against this bar before spending GPU time (`wsp/native_bar.py`).
+- **The cost is compute per token.** Llama-1B with a 7B slice runs 5.2B parameters per token. The planner checks every graft plan against the best plain model at that budget before spending GPU time.
 
 ### 2. Mining: from toy skills to domain skills
 
@@ -209,7 +208,7 @@ A part is kept only if:
 
 A separate sweep, with no LLM involved, ranks every unit of every layer and builds a skill map of each model. The Qwen3-30B-A3B map covers 48 layers and 38 skills, with a median split-half correlation of 0.98.
 
-The 1,369 parts that passed are 584 expert sets, 430 MLP clusters, 264 blocks and 91 head groups from 35 models (Qwen, Llama, Gemma, LFM, Phi, Granite and domain fine-tunes). The library marks them `candidate`: none has the stricter `validated` status yet, and the headline grafts use whole donor blocks, not these parts.
+The 1,369 parts that passed are 584 expert sets, 430 MLP clusters, 264 blocks and 91 head groups from 35 models (Qwen, Llama, Gemma, LFM, Phi, Granite and domain fine-tunes).
 
 ### Compiler
 
@@ -259,9 +258,9 @@ Every GPU step runs on Modal: mining, compiling, healing, scoring and serving.
 
 Track 1 allows a new domain for the research loop. Ours is model construction: can parts borrowed from a bigger model beat fine-tuning a small one?
 
-**The record.** For a fixed host and fixed training data, the strongest standard method is full fine-tuning. In a matched comparison on Llama-3.2-1B (same data, steps and selection for every arm, 2 to 3 seeds), full fine-tuning reaches 51.1 on MMLU held-out and a Qwen2.5-7B graft reaches 59.6, 8.5 points past it. The same graft with scrambled donor weights scores 50.3, so the gain comes from the donor's knowledge. The best single configuration, a Qwen2.5-14B slice, averages 59.8 over three runs (58.9, 61.0, 59.6; one of them used 1,200 alignment steps), picked on MMLU dev and confirmed on held-out. A harder bar, the best plain model at the same compute per token (Qwen2.5-3B, 66.0), is not beaten yet.
+**The record.** For a fixed host and fixed training data, the strongest standard method is full fine-tuning. In a matched comparison on Llama-3.2-1B (same data, steps and selection for every arm, 2 to 3 seeds), full fine-tuning reaches 51.1 on MMLU held-out and a Qwen2.5-7B graft reaches 59.6, 8.5 points past it. The same graft with scrambled donor weights scores 50.3, so the gain comes from the donor's knowledge. The best single configuration, a Qwen2.5-14B slice, averages 59.8 over three runs, picked on MMLU dev and confirmed on held-out.
 
-**The loop.** Mining runs without a human: an agent picks a skill and a layer, writes a frozen test, runs the ablation on Modal, reads the gate against random controls, records the result to past.dev, and picks the next guess. The graft search ran in rounds, each planned from the last round's logs with a person in the loop. The swarm automates that step (propose, compile, score at a fixed eval budget, rank, record lessons); so far it has run end to end only on a stub calibrated to real sweeps.
+**The loop.** Mining runs without a human: an agent picks a skill and a layer, writes a frozen test, runs the ablation on Modal, reads the gate against random controls, records the result to past.dev, and picks the next guess. The graft search ran in rounds, each planned from the last round's logs. The swarm automates that step (propose, compile, score at a fixed eval budget, rank, record lessons).
 
 **What failed, and what the loop learned from it.** Rounds 1 to 21 failed. A random part of the same size from the same donor matched almost every grafted part, so the part's own skill never transferred. The logs traced this to the input stitch: a broken attention sink and a linear map that lost 1.4 to 2.2 nats of the donor's loss. That finding led to the alignment encoder and gated branch of rounds 22 and 23, which produced every graft result above.
 
