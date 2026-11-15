@@ -1,0 +1,158 @@
+{
+  "donor": "microsoft/phi-4",
+  "part": "mlp_cluster_phi4_l16_gsm8k",
+  "split": "heldout",
+  "host": {
+    "gsm8k": 0.20090978013646701,
+    "if_guard": 0.4878048780487805
+  },
+  "rows": [
+    {
+      "arm": "graft",
+      "seed": 0,
+      "model": "/vol/compiled/part_gate/microsoft__phi-4/mlp_cluster_phi4_l16_gsm8k/graft_s0",
+      "label": "HELD-OUT",
+      "gsm8k": 0.3100833965125095,
+      "gsm8k_n": 1319,
+      "if_guard": 0.44634146341463415,
+      "if_guard_n": 410
+    },
+    {
+      "arm": "random",
+      "seed": 0,
+      "model": "/vol/compiled/part_gate/microsoft__phi-4/mlp_cluster_phi4_l16_gsm8k/random_s0",
+      "label": "HELD-OUT",
+      "gsm8k": 0.3032600454890068,
+      "gsm8k_n": 1319,
+      "if_guard": 0.45365853658536587,
+      "if_guard_n": 410
+    },
+    {
+      "arm": "lora",
+      "seed": 0,
+      "model": "/vol/compiled/part_gate/microsoft__phi-4/mlp_cluster_phi4_l16_gsm8k/lora_s0",
+      "label": "HELD-OUT",
+      "gsm8k": 0.378316906747536,
+      "gsm8k_n": 1319,
+      "if_guard": 0.44146341463414634,
+      "if_guard_n": 410
+    },
+    {
+      "arm": "graft",
+      "seed": 1,
+      "model": "/vol/compiled/part_gate/microsoft__phi-4/mlp_cluster_phi4_l16_gsm8k/graft_s1",
+      "label": "HELD-OUT",
+      "gsm8k": 0.32752084912812734,
+      "gsm8k_n": 1319,
+      "if_guard": 0.44634146341463415,
+      "if_guard_n": 410
+    },
+    {
+      "arm": "random",
+      "seed": 1,
+      "model": "/vol/compiled/part_gate/microsoft__phi-4/mlp_cluster_phi4_l16_gsm8k/random_s1",
+      "label": "HELD-OUT",
+      "gsm8k": 0.34040940106141016,
+      "gsm8k_n": 1319,
+      "if_guard": 0.47804878048780486,
+      "if_guard_n": 410
+    },
+    {
+      "arm": "lora",
+      "seed": 1,
+      "model": "/vol/compiled/part_gate/microsoft__phi-4/mlp_cluster_phi4_l16_gsm8k/lora_s1",
+      "label": "HELD-OUT",
+      "gsm8k": 0.36315390447308565,
+      "gsm8k_n": 1319,
+      "if_guard": 0.47804878048780486,
+      "if_guard_n": 410
+    },
+    {
+      "arm": "graft",
+      "seed": 2,
+      "model": "/vol/compiled/part_gate/microsoft__phi-4/mlp_cluster_phi4_l16_gsm8k/graft_s2",
+      "label": "HELD-OUT",
+      "gsm8k": 0.30401819560272936,
+      "gsm8k_n": 1319,
+      "if_guard": 0.45365853658536587,
+      "if_guard_n": 410
+    },
+    {
+      "arm": "random",
+      "seed": 2,
+      "model": "/vol/compiled/part_gate/microsoft__phi-4/mlp_cluster_phi4_l16_gsm8k/random_s2",
+      "label": "HELD-OUT",
+      "gsm8k": 0.3161485974222896,
+      "gsm8k_n": 1319,
+      "if_guard": 0.44390243902439025,
+      "if_guard_n": 410
+    },
+    {
+      "arm": "lora",
+      "seed": 2,
+      "model": "/vol/compiled/part_gate/microsoft__phi-4/mlp_cluster_phi4_l16_gsm8k/lora_s2",
+      "label": "HELD-OUT",
+      "gsm8k": 0.37149355572403336,
+      "gsm8k_n": 1319,
+      "if_guard": 0.47317073170731705,
+      "if_guard_n": 410
+    }
+  ],
+  "verdict": {
+    "task": "gsm8k",
+    "label": "HELD-OUT",
+    "graft": {
+      "mean": 0.3138741470811221,
+      "std": 0.012201271371820357,
+      "n_seeds": 3,
+      "by_seed": {
+        "0": 0.3100833965125095,
+        "1": 0.32752084912812734,
+        "2": 0.30401819560272936
+      },
+      "split": "heldout"
+    },
+    "main_control": {
+      "mean": 0.31993934799090223,
+      "std": 0.018862555427785793,
+      "n_seeds": 3,
+      "by_seed": {
+        "0": 0.3032600454890068,
+        "1": 0.34040940106141016,
+        "2": 0.3161485974222896
+      },
+      "split": "heldout"
+    },
+    "paired_seeds": [
+      0,
+      1,
+      2
+    ],
+    "gain_by_seed": {
+      "0": 0.006823351023502677,
+      "1": -0.01288855193328281,
+      "2": -0.012130401819560266
+    },
+    "mean_gain": -0.006065200909780133,
+    "std_gain": 0.011168248569110127,
+    "beats_main_control": false,
+    "why_not": [
+      "mean gain over the random-cluster control is not positive",
+      "graft lost to or tied the control on 2 seed(s)"
+    ],
+    "lora_control": {
+      "mean": 0.370988122314885,
+      "std": 0.007594126460104479,
+      "n_seeds": 3,
+      "by_seed": {
+        "0": 0.378316906747536,
+        "1": 0.36315390447308565,
+        "2": 0.37149355572403336
+      },
+      "split": "heldout"
+    },
+    "gain_over_lora": -0.05711397523376288,
+    "host": 0.20090978013646701
+  },
+  "verdict_text": "gsm8k [HELD-OUT]\n  graft          mean 0.314 over 3 seeds\n  random control mean 0.320 over 3 seeds\n  LoRA control   mean 0.371 over 3 seeds\n  gain over random control: -0.006\n  DOES NOT COUNT: mean gain over the random-cluster control is not positive; graft lost to or tied the control on 2 seed(s)"
+}

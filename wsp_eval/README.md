@@ -151,3 +151,24 @@ Reading: Phi-4 passes the rule, but two of its three wins are 0.005 (one item of
 seed 2. It is a candidate for the held-out run, not a finding. Nanbeige is unstable (graft 0.30 to 0.17)
 and falls below the host on seed 2. No part arm beats the hour-8 matched LoRA (0.445). Held-out host:
 GSM8K 0.201 (n=1319), if_guard 0.488 (n=410), `results/base_scores_heldout.json`.
+
+## Final table: HELD-OUT, run once (2026-11-15)
+
+The one part that passed the search-split gate (`mlp_cluster_phi4_l16_gsm8k`, 64 neurons from Phi-4 layer 16,
+host layer 6, rank-64 glue, 300 heal steps) was scored once on held-out, with its random-part control and a host
+LoRA matched to glue + part params, all on the same heal. GSM8K test (n=1319) and the if_guard guard (n=410).
+`modal run modal_eval.py::final`; raw: `results/final_heldout_microsoft__phi-4.json`. Each model's held-out
+entries are in the main ledger, so none of them can be rerun.
+
+| Arm | GSM8K s0 / s1 / s2 | mean | if_guard mean |
+|---|---|---|---|
+| Host (Llama-3.2-1B-Instruct) | 0.201 | 0.201 | 0.488 |
+| Graft (Phi-4 L16 part) | 0.310 / 0.328 / 0.304 | 0.314 | 0.449 |
+| Random-part control | 0.303 / 0.340 / 0.316 | 0.320 | 0.459 |
+| Matched host LoRA | 0.378 / 0.363 / 0.371 | 0.371 | 0.464 |
+
+Verdict (`claims.compare`): DOES NOT COUNT. The graft beats the random part on seed 0 only and is 0.006 below it on
+average. The search-split pass (+0.028) did not replicate on held-out. Both graft arms gain over the host (about
++0.11 on GSM8K) but the matched LoRA gains more (+0.17), and every trained arm loses 0.02 to 0.04 on if_guard.
+Conclusion for this round: across 3 donors, a single-layer MLP cluster selected by activation contrast carries no
+GSM8K skill beyond what the glue and heal give a random part of the same size.
