@@ -232,6 +232,22 @@ def get_task(name):
     return TASKS[name]
 
 
+KIND_TASK = {"asserts": "code", "check": "code", "stdin": "code", "math": "math", "mcq": "mcq"}
+
+
+def rewards_for(items, outputs, workers=8):
+    """Rewards for items of mixed kinds: each kind goes to its task, results come back in input order."""
+    groups = {}
+    for pos, item in enumerate(items):
+        groups.setdefault(KIND_TASK[item["kind"]], []).append(pos)
+    out = [0.0] * len(items)
+    for name, positions in groups.items():
+        part = get_task(name).rewards([items[p] for p in positions], [outputs[p] for p in positions], workers=workers)
+        for p, value in zip(positions, part):
+            out[p] = value
+    return out
+
+
 register_task("code", user_of_item, code_rewards)
 register_task("math", user_of_item, math_rewards)
 register_task("mcq", user_of_item, mcq_rewards)

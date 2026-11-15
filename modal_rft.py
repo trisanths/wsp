@@ -259,7 +259,7 @@ def sample_shard(model_ref, out_dir, shard, nshards, k=8, temperature=0.8, limit
               max_model_len=4096, enable_prefix_caching=True, max_num_seqs=256)
     log(tag, f"loaded {path} in {time.time() - started:.0f} s")
     params = SamplingParams(n=k, temperature=temperature, top_p=0.95, max_tokens=SAMPLE_TOKENS, seed=None)
-    task = rft.get_task("code")
+    task = None
     total = {"samples": 0, "passed": 0}
     for i in todo:
         chunk = chunks[i]
@@ -273,7 +273,7 @@ def sample_shard(model_ref, out_dir, shard, nshards, k=8, temperature=0.8, limit
                 flat_items.append(item)
                 flat_texts.append(o.text)
                 cut.append(o.finish_reason == "length")
-        rewards = task.rewards(flat_items, flat_texts, workers=16)
+        rewards = rft.rewards_for(flat_items, flat_texts, workers=16)
         rows, pos = [], 0
         for item, out in zip(chunk, outs):
             samples = []
@@ -508,7 +508,7 @@ def score_model(model_ref, name, out_path, speed=False, suites="humaneval,mbpp,g
                 items = items[:limit]
             prompts = [skills_eval.render_prompt(tokenizer, it["user"]) for it in items]
             texts = greedy(prompts, HELDOUT_TOKENS)
-            rewards = rft.get_task("code").rewards(items, texts, workers=16)
+            rewards = rft.rewards_for(items, texts, workers=16)
             row["scores"]["heldout"] = sum(rewards) / len(rewards)
             row["scores"]["heldout_n"] = len(rewards)
             by_source = {}
