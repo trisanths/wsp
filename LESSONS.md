@@ -158,3 +158,18 @@ something fails. Each entry: what went wrong, then the rule.
   config names, so the run printed "0 cells" and exited, and I did not look
   for 50 minutes. Run `--estimate-only` with the same arguments before a
   launch, and make entrypoints exit with an error on zero cells.
+- vLLM 0.32 picks the "humming" MoE kernel for W4A16 checkpoints on H200 and
+  its NVRTC compile fails in the CUDA 12.8.1 devel image. The same checkpoint
+  ran on an A10G without a flag. Pass moe_backend="marlin" (modal_efficiency
+  part `marlin`) for every W4A16 MoE on Hopper, and smoke each checkpoint on
+  the GPU type it will run on, not only on a small one.
+- Time prefill after one warmup pass of the same size. The first full-size
+  prefill compiles MoE kernels, and the same config read 7k to 58k tokens per
+  second in modal_efficiency rows before the fix.
+- A shell chain `modal run --estimate-only ... && modal run --detach ... &`
+  started a second copy of the slim build after the estimate returned. Start
+  detached runs with one command each and check `modal app list` for
+  duplicates.
+- Greedy HumanEval on 164 items moves 2 points between configs with the same
+  weights (batch shape and kernels change float sums). Do not report a
+  one-point gap between two configs as a result.
