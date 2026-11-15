@@ -13,8 +13,11 @@ const param = new URLSearchParams(location.search).get('demo');
 if (param === '1') write(KEY, '1');
 if (param === '0') write(KEY, null);
 
+/** True on the hosted site (sapien.trisanth.com). It has no server, so demo mode is always on there. */
+export const HOSTED = typeof window !== 'undefined' && window.SAPIEN_HOSTED === true;
+
 /** True when demo mode is on for this page load. Switching it reloads the page. */
-export const DEMO = read(KEY) === '1';
+export const DEMO = HOSTED || read(KEY) === '1';
 
 /** Turn demo mode on or off. Reloads the page at the same screen, or at `hash` when given. */
 export function setDemo(on, hash) {

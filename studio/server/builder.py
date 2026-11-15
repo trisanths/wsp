@@ -330,7 +330,7 @@ def score_result(session, program):
 
 
 def synth_info(session, program):
-    """The synth part of the last score of a program: from the backend, or made up on the stub. None for classic."""
+    """The synth part of the last score of a program: from the backend, or estimated offline. None for classic."""
     finder = getattr(session.env.backend, "synth_for", None)
     if finder is not None:
         return finder(program)

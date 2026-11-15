@@ -296,4 +296,5 @@ def test_library_parts_stay_locked_on_the_stub_backend(stub_client):
     for part in palette["parts"]:
         if part["source"] in ("library", "atlas") and not part["usable"]:
             assert part["usable_reason"]
-            assert part["from_library"] is False
+            if part["usable_reason"] != catalog_mod.UNSIZED_REASON:
+                assert part["from_library"] is False

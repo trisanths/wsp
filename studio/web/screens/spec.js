@@ -309,10 +309,10 @@ export function SpecScreen({ id }) {
     <${CompilerPlan} spec=${spec} />
 
     ${isShrink ? html`<div class="buildcard shrinkcard">
-      <div class="bc-head"><span class="bc-title">Ready to plan the shrink?</span><span class="faint bc-meta"><${DraftedBy} by=${spec.drafted_by} />${showStub(spec) ? ' Stub numbers are not real results.' : ''}</span></div>
+      <div class="bc-head"><span class="bc-title">Ready to plan the shrink?</span><span class="faint bc-meta"><${DraftedBy} by=${spec.drafted_by} />${showStub(spec) ? ' Scores are offline estimates. The parts are real.' : ''}</span></div>
       <div class="bc-row one"><button class="btn primary big" disabled=${!!busy} onClick=${startShrink}><span class="bt"><b>Plan the shrink</b><small>See the size and cost before anything runs</small></span>${busy === 'shrink' ? html`<${Spinner} />` : html`<${Icon} n="arrow" />`}</button></div>
     </div>` : html`<div class="buildcard">
-      <div class="bc-head"><span class="bc-title">How do you want to build it?</span><span class="faint bc-meta"><${DraftedBy} by=${spec.drafted_by} />${showStub(spec) ? ' Stub numbers are not real results.' : ''}</span></div>
+      <div class="bc-head"><span class="bc-title">How do you want to build it?</span><span class="faint bc-meta"><${DraftedBy} by=${spec.drafted_by} />${showStub(spec) ? ' Scores are offline estimates. The parts are real.' : ''}</span></div>
       <div class="bc-row">
         <button class="btn primary big" disabled=${!!busy} onClick=${startRun}><span class="bt"><b>Let agents build it</b><small>A swarm searches and you watch</small></span>${busy === 'run' ? html`<${Spinner} />` : html`<${Icon} n="arrow" />`}</button>
         <button class="btn big" disabled=${!!busy} onClick=${startBuilder}><span class="bt"><b>Build it myself</b><small>Drag parts onto the host model</small></span>${busy === 'build' ? html`<${Spinner} />` : html`<${Icon} n="arrow" />`}</button>

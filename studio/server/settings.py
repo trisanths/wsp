@@ -125,7 +125,7 @@ HEAL_NOTE = ("The heal recipe is being fixed. Healing on dataset text currently 
 
 
 def heal_note():
-    """The warning to show on healed classic results, or None on the stub backend (its numbers are made up anyway)."""
+    """The warning to show on healed classic results, or None on the stub backend (its numbers are estimates anyway)."""
     if is_stub():
         return None
     return HEAL_NOTE

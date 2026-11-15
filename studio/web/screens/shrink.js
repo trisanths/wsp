@@ -1,6 +1,6 @@
 import { html, useState, useEffect, useRef } from '../lib.js';
 import { api } from '../api.js';
-import { toast, clamp, pct, dur, addRecent, patchRecent, getRecent, useDebouncedCallback, benchName } from '../util.js';
+import { toast, clamp, pct, dur, addRecent, patchRecent, getRecent, useDebouncedCallback, benchName, useModalChip } from '../util.js';
 import { TopBar, Icon, ErrorBox, StubBadge } from '../components.js';
 import { SubtleNum, SkelReveal, Matrix, SuccessCheck, shake, AutoHeight } from '../motion.js';
 import { ModelLogo, PoweredBy } from '../logos.js';
@@ -35,6 +35,7 @@ function Removed({ r }) {
 }
 
 function Result({ job, spec, plan }) {
+  const modalChip = useModalChip();
   const r = job.result;
   if (!r) return null;
   const healed = r.heal && r.heal.kind !== 'none' && r.heal.steps > 0;
@@ -45,7 +46,7 @@ function Result({ job, spec, plan }) {
   const src = r.source_scores || {};
   const ctl = (r.control && r.control.scores) || {};
   return html`<section class="rsect result" id="result">
-    <h2 class="sec"><span>Result</span><span class="sec-r">${r.stub && html`<${StubBadge} small />`}<${PoweredBy} who="modal" label="GPUs on" /></span></h2>
+    <h2 class="sec"><span>Result</span><span class="sec-r">${r.stub && html`<${StubBadge} small />`}${modalChip && html`<${PoweredBy} who="modal" label="GPUs on" />`}</span></h2>
     <div class="figs">
       <${Figure} label="Stored" before=${fmtB(before, 2)} now=${fmtB(r.params_b, 2)} />
       <${Figure} label="Run per token" before=${fmtB(plan.source_active_params_b, 2)} now=${fmtB(r.active_params_b, 2)} />
@@ -72,6 +73,7 @@ function LogLines({ lines }) {
 }
 
 export function ShrinkScreen({ id, specId }) {
+  const modalChip = useModalChip();
   const [plan, setPlan] = useState(null);
   const [spec, setSpec] = useState(null);
   const [err, setErr] = useState(null);
@@ -232,7 +234,7 @@ export function ShrinkScreen({ id, specId }) {
         <button ref=${btn} class=${'btn primary big1' + (running ? ' is-busy' : '')} disabled=${running || busy || !plan.ok} onClick=${run}>${running ? html`<${Matrix} variant="scan" />` : done ? html`<${SuccessCheck} size=${14} />` : html`<${Icon} n="play" size=${13} />`} ${running ? 'Shrinking' : done ? 'Run it again' : 'Run the shrink'}</button>
         ${!plan.ok && reason && html`<span class="why">Cannot run yet. ${reason}</span>`}
         ${plan.ok && !running && !runErr && html`<span class="faint small">Nothing runs until you press this. The numbers above are estimates.</span>`}
-        <span class="grow"></span><${PoweredBy} who="modal" label="GPUs on" />
+        <span class="grow"></span>${modalChip && html`<${PoweredBy} who="modal" label="GPUs on" />`}
       </div>
       ${runErr && html`<div class="prob run-err" role="alert"><${Icon} n="warn" size=${14} /><span>${runErr}</span></div>`}
       ${running && html`<div class="jobline2"><span>${job.status === 'queued' ? 'Queued' : 'Running'}</span>${job.log && job.log.length > 0 && html`<${LogLines} lines=${job.log} />`}</div>`}

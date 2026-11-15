@@ -64,9 +64,10 @@ def wait_done(client, run_id, timeout=60.0):
 def math_part(client):
     palette = client.get("/api/catalog").json()
     for part in palette["parts"]:
-        if part["kind"] == "block" and "Math" in part["label"]:
+        if (part["kind"] in ("block", "inserted_layer") and part["usable"] and "math" in part["skills"]
+                and part["donor"] == "Qwen/Qwen2.5-Math-1.5B" and part["params_m"] and part["params_m"] < 200):
             return part
-    raise AssertionError("no math block in the catalog")
+    raise AssertionError("no placeable math block in the catalog")
 
 
 def tap_program():
@@ -280,8 +281,8 @@ def test_catalog(client):
     palette = client.get("/api/catalog").json()
     assert palette["stub"] is True
     assert palette["host"]["layers"] == 16
-    stub_parts = [part for part in palette["parts"] if part["source"] == "stub"]
-    assert len(stub_parts) == 40
+    assert not [part for part in palette["parts"] if part["source"] == "stub"]
+    assert sum(1 for part in palette["parts"] if part["usable"]) > 1000
     part = palette["parts"][0]
     for key in ["id", "group", "kind", "label", "donor", "layers", "params_m", "default_at", "summary", "status",
                 "evidence", "source", "usable"]:

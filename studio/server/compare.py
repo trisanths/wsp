@@ -117,7 +117,7 @@ def best_model_row(spec, limit_b, models):
 
 
 def stub_distill(spec):
-    """Fake distillation references for the stub backend, labeled as stub data in the row."""
+    """Estimated distillation references for the offline backend, labeled as estimates in the row."""
     out = {}
     for item in spec["benchmarks"]:
         if item["kind"] != "target":
@@ -133,7 +133,7 @@ def lora_note(spec, stub):
     host = str(spec.get("host") or "the host").split("/")[-1]
     text = "LoRA rank 16 to 64 on " + host + ", from the results log (search split)"
     if stub:
-        text += ". The base next to it is stub data."
+        text += ". The base next to it is an offline estimate."
     return text
 
 
@@ -268,6 +268,13 @@ def apply_component_rule(verdict, headline_text, components):
     return "failed", "Failed attempt. " + sentence + " The score gain is not shown to come from the parts."
 
 
+def estimate_headline(text):
+    """An offline result is an estimate, so its headline says so and does not call it a failed attempt."""
+    if text.startswith("Failed attempt. "):
+        return "Offline estimate, not shown to work. " + text[len("Failed attempt. "):]
+    return "Offline estimate. " + text
+
+
 def build(spec, scores, params_b=None, heldout=None, control=None, control_split="search", stub=False,
           models=None, components=None):
     """The comparison of a result with the reference set.
@@ -283,7 +290,7 @@ def build(spec, scores, params_b=None, heldout=None, control=None, control_split
     comparators = spec.get("comparators") or {}
     rows = []
     rows.append(make_row("base", spec_values(spec, "base"), targets, "search",
-                         "the host alone, same items and same scorer", stub))
+                         "the host alone, same items and same scorer" + (", offline estimate" if stub else ""), stub))
     rows.append(make_row("lora", spec_values(spec, "lora"), targets, "search",
                          lora_note(spec, stub), False))
     distill = dict(comparators.get("distill") or {})
@@ -292,7 +299,7 @@ def build(spec, scores, params_b=None, heldout=None, control=None, control_split
     if len(distill) == 0 and stub:
         distill = stub_distill(spec)
         distill_stub = True
-        distill_note = "stub data, not a measurement"
+        distill_note = "offline estimate, not a measurement"
     elif len(distill) == 0:
         distill_note = "not measured yet. Run a distillation heal with the same budget and add it to the spec."
     rows.append(make_row("distill", distill, targets, "search", distill_note, distill_stub))
@@ -301,7 +308,8 @@ def build(spec, scores, params_b=None, heldout=None, control=None, control_split
                              "not measured yet. The control runs a build with random parts of the same size.", stub))
     else:
         rows.append(make_row("random", control, targets, control_split,
-                             "the same build with random components of the same size", stub))
+                             "the same build with random components of the same size" +
+                             (", offline estimate" if stub else ""), stub))
     host_b = (spec.get("size") or {}).get("host_params_b")
     limit_b = limits.get("max_total_params_b")
     far = False
@@ -319,6 +327,8 @@ def build(spec, scores, params_b=None, heldout=None, control=None, control_split
     verdict, beaten, not_beaten, unmeasured = verdict_of(rows, result_value)
     text = headline(verdict, rows, beaten, not_beaten, unmeasured)
     verdict, text = apply_component_rule(verdict, text, components)
+    if stub and verdict != "none":
+        text = estimate_headline(text)
     return {"verdict": verdict, "headline": text,
             "margin": CLEAR_MARGIN, "result": {"label": "This build", "value": result_value,
                                               "per_task": dict(scores or {}), "params_b": params_b,

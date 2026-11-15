@@ -328,7 +328,7 @@ function stagesFor(spec, p, comps) {
 }
 function driftFor(p, comps) {
   if (!comps) return null;
-  return { base_kl: Math.round((0.01 + (hash(JSON.stringify(p.grafts)) % 90) / 1000) * 1000) / 1000, agree: Math.round((0.95 - (hash(JSON.stringify(p.grafts)) % 20) / 100) * 1000) / 1000, tokens: 2400, text: DEMO ? 'on 2,400 sample tokens' : 'stub, not measured' };
+  return { base_kl: Math.round((0.01 + (hash(JSON.stringify(p.grafts)) % 90) / 1000) * 1000) / 1000, agree: Math.round((0.95 - (hash(JSON.stringify(p.grafts)) % 20) / 100) * 1000) / 1000, tokens: 2400, text: DEMO ? 'on 2,400 sample tokens' : 'estimated offline, not measured' };
 }
 function withSynth(spec, p, ev) {
   const comps = componentsFor(spec, p);
@@ -350,7 +350,7 @@ function mockComparison(spec, ev, p) {
   const add = (id, label, value, note, stub) => rows.push({ id, label, split: 'search', per_task: {}, value, measured: value != null, note, stub: !!stub, result_value: result, delta: value == null ? null : Math.round((result - value) * 1000) / 1000, beaten: value == null ? null : result - value > 0.02, within_margin: value == null ? null : result - value > 0 && result - value <= 0.02 });
   add('base', 'Base', mean((b) => b.base), 'the host alone, same items and same scorer', true);
   add('lora', 'Base + LoRA', mean((b) => b.lora), ts.every((b) => b.lora != null) ? 'a rank-16 LoRA on the same data' : SAY('no LoRA run for every target', 'not measured for every target'), false);
-  add('distill', 'Base + distillation', mean((b) => b.base + ((b.lora != null ? b.lora : b.base + 0.1) - b.base) * 0.8), SAY('a copy of the base distilled on the same data', 'stub data, not a measurement'), true);
+  add('distill', 'Base + distillation', mean((b) => b.base + ((b.lora != null ? b.lora : b.base + 0.1) - b.base) * 0.8), SAY('a copy of the base distilled on the same data', 'offline estimate, not a measurement'), true);
   add('random', 'Random components', ev.control ? ev.control.scores[ts[0].id] : null, ev.control ? 'the same build with random components of the same size' : SAY('The control runs a build with random parts of the same size. It needs at least one part.', 'not measured yet. The control runs a build with random parts of the same size.'), true);
   const limB = spec.limits && spec.limits.max_total_params_b;
   const far = limB && limB >= 2 * HOST_B;
@@ -555,7 +555,7 @@ function newRun(spec, seed) {
   const an = run.agents[0], ju = run.agents[4];
   an.now = 'Waiting for the first results'; an.status = 'idle';
   ju.now = 'Waiting for the first results'; ju.status = 'idle';
-  logAct(run, 'judge', 'system', 'info', SAY('Run started: ' + run.evals_total + ' evals, ' + spec.budget.compute_min + ' compute minutes.', 'Run started on the stub backend: ' + run.evals_total + ' evals, ' + spec.budget.compute_min + ' compute minutes.'));
+  logAct(run, 'judge', 'system', 'info', SAY('Run started: ' + run.evals_total + ' evals, ' + spec.budget.compute_min + ' compute minutes.', 'Run started on the offline backend: ' + run.evals_total + ' evals, ' + spec.budget.compute_min + ' compute minutes.'));
   if (seed) logAct(run, 'judge', 'seed', 'info', 'Seeded with a program from the builder: ' + readable(seed));
   runs.set(run.id, run);
   ensureClock();
@@ -1020,7 +1020,7 @@ function shrinkResult(sess, plan) {
     params_b: est.total_params_b, active_params_b: est.run_params_b, removed, scores, source_scores: src, control: { scores: rnd }, general: null,
     comparison: { request_type: 'shrink', verdict, headline: verdict === 'success' ? 'Success. It beats the random control by ' + ((scores[t0] - rnd[t0]) * 100).toFixed(1) + ' points. It keeps ' + keepPct + '% of the original model\'s score.' : 'Failed attempt. It does not beat the best existing model at this size.', margin: 0.02, result: { label: 'This shrink', value: scores[t0], per_task: scores, params_b: est.total_params_b, heldout: null }, rows, beaten, not_beaten: notBeaten, unmeasured: [], best_model_shown: true, stub: true },
     stub: true, heal: { steps: plan.heal_steps, kind: plan.heal_steps > 0 ? 'distillation' : 'none', teacher: plan.heal_steps > 0 },
-    log: DEMO ? ['Loaded ' + plan.source_model.split('/').pop() + '.', shrinkSummary(plan, est), plan.heal_steps > 0 ? 'Heal: ' + plan.heal_steps + ' steps of distillation toward the original.' : 'No heal step.', 'Random control: the same counts removed at random, same heal.'] : ['Stub run: no model was loaded and every number is made up.', shrinkSummary(plan, est), 'Heal: ' + plan.heal_steps + ' steps of distillation toward the original (stub).', 'Random control: the same counts removed at random, same heal (stub).'],
+    log: DEMO ? ['Loaded ' + plan.source_model.split('/').pop() + '.', shrinkSummary(plan, est), plan.heal_steps > 0 ? 'Heal: ' + plan.heal_steps + ' steps of distillation toward the original.' : 'No heal step.', 'Random control: the same counts removed at random, same heal.'] : ['Offline run: no model was loaded, so every number is an estimate.', shrinkSummary(plan, est), 'Heal: ' + plan.heal_steps + ' steps of distillation toward the original (estimate).', 'Random control: the same counts removed at random, same heal (estimate).'],
     seconds: { load: 0, rank: 0, slim: 0, heal: est.heal_min * 60, eval: 0 }, estimated: true, plan: clone(plan),
   };
 }

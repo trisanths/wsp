@@ -1,12 +1,14 @@
 import { html, useState, useEffect, useLayoutEffect, useRef, useMemo } from '../lib.js';
 import { api } from '../api.js';
-import { go, toast, pct, pctS, sgn, bsize, clamp, clone, emptyProgram, normProgram, hasTaps, donorShort, maskIds, buildMask, donorColor, donorLetter, benchProgress, primaryTarget, tokenizeLine, setLastBuild, healPool, parseHash } from '../util.js';
+import { go, toast, pct, pctS, sgn, bsize, clamp, clone, emptyProgram, normProgram, hasTaps, donorShort, maskIds, buildMask, donorColor, donorLetter, benchProgress, primaryTarget, tokenizeLine, setLastBuild, healPool, parseHash, useModalChip } from '../util.js';
 import { storageKey, DEMO } from '../demo-flag.js';
 import { TopBar, Icon, Spinner, ErrorBox, Menu, BenchBar, BenchLegend, Ring, Tag, StubBadge } from '../components.js';
 import { PopNum, SlidingBar, SkelReveal, Matrix, SuccessCheck, useShake, shake, SwapText } from '../motion.js';
 import { ModelLogo, SponsorMark, PoweredBy } from '../logos.js';
 import { Brain3D } from '../brain3d.js';
 import { openPart } from './part-detail.js';
+import { SimpleBuilder } from './builder-simple.js';
+import { plainName, pickMode } from './builder-simple-logic.js';
 import { Compare, StatusTag, groupByKind, lockOf, HealNote, usesHeal, healNoteOf, PartsList, Stages, VerdictTag, componentFor, filterItems, countItems, FilterRow, NO_FILTER, PAGE_SIZE, DELETION } from '../cmp.js';
 
 // Short labels for score statuses other than ok. Only "collapsed" means the model lost a skill.
@@ -71,7 +73,24 @@ function briefProgram(p, cat) {
   return bits.length ? bits.join(' + ') : 'host only';
 }
 
+const MODE_KEY = 'wsp.builder.mode';
+const savedMode = () => { try { return localStorage.getItem(storageKey(MODE_KEY)); } catch (e) { return null; } };
+
 export function BuilderScreen({ id, specId }) {
+  const [mode, setModeRaw] = useState(() => pickMode(parseHash().q.get('mode'), savedMode()));
+  // a person's choice is remembered; a ?mode= in the address only decides the first view
+  const setMode = (m) => {
+    setModeRaw(m);
+    try { localStorage.setItem(storageKey(MODE_KEY), m); } catch (e) { /* storage can be off */ }
+    try { if (parseHash().q.has('mode')) history.replaceState(null, '', location.hash.replace(/([?&])mode=[^&]*/, '$1mode=' + m)); } catch (e) { /* ignore */ }
+  };
+  // opening the same builder with a new ?mode= in the address switches the view
+  useEffect(() => {
+    const f = () => { const m = parseHash().q.get('mode'); if (m === 'simple' || m === 'advanced') setModeRaw(m); };
+    window.addEventListener('hashchange', f);
+    return () => window.removeEventListener('hashchange', f);
+  }, []);
+  const modalChip = useModalChip();
   const [cat, setCat] = useState(null);
   const [spec, setSpec] = useState(null);
   const [err, setErr] = useState(null);
@@ -116,6 +135,8 @@ export function BuilderScreen({ id, specId }) {
   const [cw, setCw] = useState(1000);
   const [flash, setFlash] = useState(null);
   const [sizeInfo, setSizeInfo] = useState(null);
+  const [gone, setGone] = useState(false);
+  const earlierN = useRef(attempts.length);
   const [palActive, setPalActive] = useState(null);
   const canvasRef = useRef();
   const flashTimer = useRef(0);
@@ -155,7 +176,7 @@ export function BuilderScreen({ id, specId }) {
   useEffect(() => {
     if (!program) return;
     let dead = false;
-    const t = setTimeout(() => { api.builderSize(id, program).then((r) => { if (!dead) setSizeInfo(r); }).catch(() => { if (!dead) setSizeInfo(null); }); }, 250);
+    const t = setTimeout(() => { api.builderSize(id, program).then((r) => { if (!dead) setSizeInfo(r); }).catch((e) => { if (!dead) { setSizeInfo(null); if (e && e.status === 404) setGone(true); } }); }, 250);
     return () => { dead = true; clearTimeout(t); };
   }, [JSON.stringify(program)]);
   useEffect(() => { ls.set('wsp.att.' + id, JSON.stringify(attempts.map((a) => ({ ...a })))); }, [attempts]);
@@ -187,8 +208,18 @@ export function BuilderScreen({ id, specId }) {
 
   const healDefault = () => ({ steps: 300, data: healPool(spec), lr: 0.0003, batch_size: 8, seq_len: 384 });
   const addPart = (part, at) => { edit((p) => { p.grafts.push({ id: part.id, at: at ?? part.default_at ?? 6, control: null, control_seed: 0, glue_rank: null }); }); setSel(null); };
+  // Simple mode: the first skill also turns on the heal ("Smooth the joins"), since a new part only helps once its joins are trained
+  const simpleAdd = (part) => {
+    const first = !programRef.current.grafts.length && !programRef.current.heal;
+    edit((p) => { p.grafts.push({ id: part.id, at: part.default_at ?? 6, control: null, control_seed: 0, glue_rank: null }); if (first) p.heal = healDefault(); });
+    setSel(null);
+    if (first) toast('Turned on Smooth the joins. New skills only help after it runs.');
+  };
   const addMask = (m) => edit((p) => { const ids = maskIds(p.masks); if (!ids.includes(m.id)) p.masks = buildMask([...ids, m.id]); });
   const addTrain = (t) => edit((p) => { if (t.id === 'lora' && !p.lora) p.lora = { rank: 16 }; if (t.id === 'heal' && !p.heal) p.heal = healDefault(); });
+  const removePart = (pid) => edit((p) => { p.grafts = p.grafts.filter((g) => g.id !== pid); });
+  const toggleMask = (m) => edit((p) => { const ids = maskIds(p.masks); p.masks = buildMask(ids.includes(m.id) ? ids.filter((x) => x !== m.id) : [...ids, m.id]); });
+  const setPolish = (on) => edit((p) => { p.heal = on ? (p.heal || healDefault()) : null; });
   const trainUsed = (t) => program && (t.id === 'lora' ? !!program.lora : !!program.heal);
 
   /* ---- layers ---- */
@@ -349,7 +380,7 @@ export function BuilderScreen({ id, specId }) {
         else if (action === 'score') { setFlash(action); clearTimeout(flashTimer.current); flashTimer.current = setTimeout(() => setFlash(null), 1900); }
         refreshSugs(p);
       }
-    } catch (e) { toast(e.message, 'err'); shake(btnRefs.current[action]); }
+    } catch (e) { if (e && e.status === 404) setGone(true); toast(e.message, 'err'); shake(btnRefs.current[action]); }
     if (alive.current) setJob(null);
   };
 
@@ -390,7 +421,7 @@ export function BuilderScreen({ id, specId }) {
   const hostName = (cat.host.model || '').split('/').pop();
   const lastScored = [...attempts].reverse().find((a) => a.scores && (!a.status || a.status === 'ok'));
   const brainResult = lastScored ? readoutOf(lastScored.scores, lastScored.comparison, lastScored.comparison ? lastScored.comparison.verdict !== 'failed' : null) : null;
-  const brainEl = (h, cls) => html`<${Brain3D} class=${cls} height=${h} layers=${N} parts=${brainParts} cuts=${brainCuts} pulse=${pulse} title=${hostName} model=${cat.host.model} size=${cat.host.params_b ? bsize(cat.host.params_b).replace('B', 'B parameters') : null} label=${N + ' layers'} result=${brainResult} idle=${brainParts.length || brainCuts.length ? null : 'The host model. Add a part from the left and press Compile to watch it splice in.'} onPick=${(pid) => { const g = program.grafts[+String(pid).slice(1)]; if (g) openPart(g.id); }} />`;
+  const brainEl = (h, cls, simple) => html`<${Brain3D} class=${cls} height=${h} layers=${N} parts=${simple ? brainParts.map((bp, i) => { const pp = partById(program.grafts[i].id); return { ...bp, label: pp ? plainName(pp, spec) : bp.label, size: '' }; }) : brainParts} cuts=${brainCuts} pulse=${pulse} title=${hostName} model=${cat.host.model} size=${cat.host.params_b ? bsize(cat.host.params_b).replace('B', 'B parameters') : null} label=${simple ? null : N + ' layers'} steps=${simple ? false : undefined} result=${brainResult} idle=${brainParts.length || brainCuts.length ? null : 'The host model. Add a part from the left and press Compile to watch it splice in.'} onPick=${(pid) => { const g = program.grafts[+String(pid).slice(1)]; if (g) openPart(g.id); }} />`;
   const lastOk = [...attempts].reverse().find((a) => a.scores);
   const prevOk = lastOk ? [...attempts].slice(0, attempts.indexOf(lastOk)).reverse().find((a) => a.scores) : null;
   const benches = spec ? spec.benchmarks : [];
@@ -482,8 +513,16 @@ export function BuilderScreen({ id, specId }) {
     </div>`;
   };
 
-  return html`<${TopBar} right=${html`<span class="pill hide-sm">evals left <b class="num">${budget ? budget.evals_total - budget.evals_used + ' / ' + budget.evals_total : '-'}</b></span>
-      <span class="pill hide-md" title=${budget && budget.compute_raised && !DEMO ? 'The spec says ' + budget.spec_compute_min + ' min. The stub backend raises the compute cap so the evals run out first.' : null}><${SponsorMark} who="modal" size=${12} title="GPUs on Modal" /> compute <b class="num">${budget ? (budget.compute_used_s / 60).toFixed(budget.compute_used_s < 600 ? 1 : 0) + ' / ' + Math.round(budget.compute_total_s / 60) + ' min' : '-'}</b>${budget && budget.compute_raised ? html` <${StubBadge} small />` : null}</span>
+  const modeSwitch = html`<${SlidingBar} class="seg2 bmode" role="group" aria-label="Builder mode">${[['simple', 'Simple'], ['advanced', 'Advanced']].map(([k, l]) => html`<button type="button" class=${mode === k ? 'on' : ''} aria-pressed=${mode === k ? 'true' : 'false'} onClick=${() => setMode(k)}>${l}</button>`)}<//>`;
+  if (mode === 'simple') {
+    return html`<${TopBar} right=${html`${modeSwitch}<span class="pill hide-sm">tests left <b class="num">${budget ? budget.evals_total - budget.evals_used + ' / ' + budget.evals_total : '-'}</b></span><button class="btn ghost sm" disabled=${!undo.length} onClick=${doUndo} title="Undo (Ctrl or Cmd + Z)"><${Icon} n="undo" size=${14} /> Undo</button>`}>
+        <h1 class="page-title bt-title ell" title=${spec ? spec.title : 'Builder'}>${spec ? spec.title : 'Builder'}</h1>
+      <//>
+      <${SimpleBuilder} cat=${cat} spec=${spec} program=${program} brain=${brainEl(260, 'b3d-simple', true)} gone=${gone} earlierN=${earlierN.current} est=${est} totalB=${totalB} runB=${runB} lim=${lim} attempts=${attempts} job=${job} flash=${flash} stub=${stubOf()} handing=${handing}
+        onAdd=${simpleAdd} onRemove=${removePart} onToggleMask=${toggleMask} onPolish=${setPolish} onScore=${() => run('score')} onHandoff=${handoff} onAdvanced=${() => setMode('advanced')} />`;
+  }
+  return html`<${TopBar} right=${html`${modeSwitch}<span class="pill hide-sm">evals left <b class="num">${budget ? budget.evals_total - budget.evals_used + ' / ' + budget.evals_total : '-'}</b></span>
+      <span class="pill hide-md" title=${budget && budget.compute_raised && !DEMO ? 'The spec says ' + budget.spec_compute_min + ' min. The offline backend raises the compute cap so the evals run out first.' : null}>${modalChip && html`<${SponsorMark} who="modal" size=${12} title="GPUs on Modal" />`} compute <b class="num">${budget ? (budget.compute_used_s / 60).toFixed(budget.compute_used_s < 600 ? 1 : 0) + ' / ' + Math.round(budget.compute_total_s / 60) + ' min' : '-'}</b>${budget && budget.compute_raised ? html` <${StubBadge} small />` : null}</span>
       <button class="btn ghost sm" disabled=${!undo.length} onClick=${doUndo} title="Undo (Ctrl or Cmd + Z)"><${Icon} n="undo" size=${14} /> Undo</button><button class="btn sm" disabled=${handing} onClick=${handoff}>${handing ? html`<${Spinner} size=${12} />` : null} Hand to agents</button>`}>
       <h1 class="page-title bt-title ell" title=${spec ? spec.title : 'Builder'}>${spec ? spec.title : 'Builder'}</h1><span class="tag">draft ${attempts.length + 1}</span>
     <//>
@@ -560,14 +599,14 @@ export function BuilderScreen({ id, specId }) {
         </div>`}
       </div>
       <div class="cv-actions" style=${view === 'code' ? { display: 'none' } : {}}>
-        ${job && html`<div class="jobline"><${Spinner} size=${13} /><${SponsorMark} who="modal" size=${13} title="Running on Modal GPUs" /><span style="text-transform:capitalize">${job.action === 'compile' ? 'Checking fit' : job.action === 'heal' ? 'Healing' : job.action === 'train' ? 'Training' : 'Scoring'}${job.status === 'queued' ? ', queued' : ''}</span><div class="bigbar"><div class="fill" style=${{ width: jobPct + '%', transition: 'width 1s linear' }}></div></div></div>`}
+        ${job && html`<div class="jobline"><${Spinner} size=${13} />${modalChip && html`<${SponsorMark} who="modal" size=${13} title="Running on Modal GPUs" />`}<span style="text-transform:capitalize">${job.action === 'compile' ? 'Checking fit' : job.action === 'heal' ? 'Healing' : job.action === 'train' ? 'Training' : 'Scoring'}${job.status === 'queued' ? ', queued' : ''}</span><div class="bigbar"><div class="fill" style=${{ width: jobPct + '%', transition: 'width 1s linear' }}></div></div></div>`}
         <div class="row">
           <button class=${'btn' + (job && job.action === 'compile' ? ' is-busy' : '')} ref=${(el) => { btnRefs.current.compile = el; }} disabled=${!!job} onClick=${() => run('compile')}>${job && job.action === 'compile' ? html`<${Matrix} variant="scan" />` : html`<${Icon} n="gear" size=${14} />`} Compile <span class="k">free fit check</span></button>
           <button class=${'btn' + (job && job.action === 'heal' ? ' is-busy' : '')} ref=${(el) => { btnRefs.current.heal = el; }} disabled=${!!job} onClick=${() => run('heal')}>${job && job.action === 'heal' ? html`<${Matrix} variant="pulse" />` : html`<${Icon} n="heal" size=${14} />`} Heal <span class="k">${healLabel}</span></button>
           <button class=${'btn' + (job && job.action === 'train' ? ' is-busy' : '')} ref=${(el) => { btnRefs.current.train = el; }} disabled=${!!job} onClick=${() => run('train')}>${job && job.action === 'train' ? html`<${Matrix} variant="orbit" />` : html`<${Icon} n="up" size=${14} />`} Train <span class="k">LoRA r${program.lora ? program.lora.rank : 16}</span></button>
           <button class=${'btn primary' + (job && job.action === 'score' ? ' is-busy' : '')} ref=${(el) => { btnRefs.current.score = el; }} disabled=${!!job} onClick=${() => run('score')}>${job && job.action === 'score' ? html`<${Matrix} variant="twinkle" />` : flash === 'score' ? html`<${SuccessCheck} size=${14} />` : html`<${Icon} n="play" size=${13} />`} Score <span class="k" title=${scoreEvals === 2 ? 'One eval for this build and one for its random-part control' : null}>${scoreEvals} eval${scoreEvals === 1 ? '' : 's'}</span></button>
         </div>
-        ${!job && html`<div class="sp-note"><${PoweredBy} who="modal" label="GPUs on" /></div>`}
+        ${!job && modalChip && html`<div class="sp-note"><${PoweredBy} who="modal" label="GPUs on" /></div>`}
       </div>
     </section>
 
