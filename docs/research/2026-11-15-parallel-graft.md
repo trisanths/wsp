@@ -480,14 +480,45 @@ Against the single-read graft (52.8 and 54.4 on these seeds), dense
 reads add about 1 to 3 points. The sparse 3,7,11 read is unstable: one
 seed fell back to the base. Dense reads (1..7, 1..11) did not collapse.
 
-### h5: two donors in one network (partial)
+### h5: two donors in one network
 
-Qwen2.5-7B at host 7 plus Apollo2-7B at host 10, trained on all four
-domains: MMLU dev 56.2, held-out 55.4, MMLU-med 63.6, MedMCQA 45.6. That
-is above the single Qwen7B graft on all domains (53.9 held-out). The
-other composition cells are still running.
+Trained on all four domains, Llama-1B host, one seed:
 
-## Also fixed
+| cell | MMLU dev | held-out | MMLU-med | MMLU-math | MedMCQA |
+|---|---|---|---|---|---|
+| Qwen7B (host 7) + Apollo2 (host 10) | **56.2** | **55.4** | **63.6** | 38.0 | 45.6 |
+| Qwen7B (host 7) + Math-7B (host 10) | 54.5 | 54.5 | 62.2 | **41.2** | **46.8** |
+| Qwen7B blocks 4..20 and 12..24 | 54.1 | 53.4 | 61.2 | 37.0 | 46.0 |
+| Qwen7B alone (h4) | 53.6 | 53.9 | 62.4 | 36.8 | 44.9 |
+| LoRA, 2x budget | 47.3 | 46.9 | 47.8 | 34.0 | 39.3 |
+| LoRA, 3x budget | 43.5 | 43.0 | 45.2 | 30.6 | 35.1 |
+
+A second, specialist donor adds 1 to 1.5 points on MMLU and moves its own
+domain. A second block of the same donor adds nothing. More LoRA budget
+makes the 1B host worse. The three-donor cell ran out of memory at MC
+batch 8 and is re-run at batch 4 in h11.
+
+### h9: the 3B host again
+
+| cell (Llama-3.2-3B host) | MMLU dev | held-out | MMLU-med | science | MedMCQA |
+|---|---|---|---|---|---|
+| base | 59.6 | 57.4 | 69.4 | 48.8 | 57.0 |
+| LoRA (7B budget), seeds 0 / 1 | 62.0 / 61.8 | 60.9 / 60.7 | 68.8 / 68.8 | 50.0 / 49.6 | 55.6 / 56.6 |
+| LoRA (14B budget) | 61.7 | 61.0 | 67.6 | 49.4 | 54.9 |
+| LoRA, 2x 7B budget | 59.6 | 59.9 | 66.2 | 51.0 | 54.2 |
+| Qwen7B at host 8, seeds 0 / 1 | 62.8 / 61.9 | 60.7 / 62.9 | 68.6 / 70.8 | 49.2 / 50.2 | 54.8 / 55.9 |
+| Qwen7B at host 8, + LoRA | 61.5 | 60.1 | 72.0 | 51.6 | 53.3 |
+| Qwen7B, read 1..8, + LoRA | 63.9 | 61.0 | 68.4 | 50.0 | 56.0 |
+| Qwen7B, read 2,5,8 | 62.2 | 62.0 | 68.8 | 51.4 | 53.1 |
+| **Qwen14B 7..34 at host 8** | **64.5** | **63.4** | **74.4** | **58.0** | **57.7** |
+
+On the 3B host, the 7B graft is about even with LoRA. The 14B graft
+beats every LoRA by 2.4 points or more on held-out, 5 to 7 on MMLU
+medical, and 8 on science. Adding a LoRA to the graft does not help, and
+neither do multi-layer reads here. h11 runs a second seed of the 14B
+cell.
+
+## Also fixed## Also fixed
 
 `wsp/healdata.py`: the `reasoning` pool crashed on LogiQA2.0. In that
 dataset, 38,398 of 63,718 rows are premise and hypothesis items with no

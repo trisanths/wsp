@@ -64,6 +64,10 @@ DOMAINS = {
     "math7b": {"donor": "Qwen/Qwen2.5-Math-7B-Instruct", "skills": "qwenmath7b_inst", "pools": ["math"]},
     "knowledge14": {"donor": "Qwen/Qwen2.5-14B-Instruct", "skills": None, "pools": ["knowledge"],
                     "align_pools": ["prose", "knowledge", "medicine"]},
+    "phi4": {"donor": "microsoft/phi-4", "skills": None, "pools": ["knowledge"],
+             "align_pools": ["prose", "knowledge", "medicine"]},
+    "knowledge32": {"donor": "Qwen/Qwen2.5-32B-Instruct", "skills": None, "pools": ["knowledge"],
+                    "align_pools": ["prose", "knowledge", "medicine"]},
 }
 DEFAULT = {
     "host_layer": HOST_LAYER, "enc_depth": 3, "dec_rank": 256, "dec_depth": 1,
@@ -905,7 +909,51 @@ def batch_h10():
     return out
 
 
-BATCHES = {"h1": batch_h1, "h2": batch_h2, "h3": batch_h3, "h4": batch_h4, "h5": batch_h5, "h6": batch_h6, "h7": batch_h7, "h8": batch_h8, "h9": batch_h9, "h10": batch_h10}
+def batch_h11():
+    """Phi-4 (another family, 40 layers, width 5120) as a donor; the 14B graft on the 3B host with a second seed,
+    a dense read and a longer block; and the three-donor cell at MC batch 4 (it ran out of memory at 8)."""
+    out = []
+    k = {"objective": "mc", "align_steps": 600, "task_steps": 1000, "enc_depth": 2, "mc_train": "general",
+         "arm": "real"}
+    out.append(dict(k, name="phi4-span6-28", domain="phi4", part={"type": "block", "first": 6, "last": 28}))
+    out.append(dict(k, name="phi4-span4-32", domain="phi4", part={"type": "block", "first": 4, "last": 32}))
+    out.append(dict(k, name="phi4-span6-28-read1to7", domain="phi4", part={"type": "block", "first": 6, "last": 28},
+                    read_layers=list(range(1, 8))))
+    big = dict(k, domain="knowledge14", host="unsloth/Llama-3.2-3B-Instruct", host_layer=8,
+               part={"type": "block", "first": 7, "last": 34})
+    out.append(dict(big, name="b3-q14-host8-s1", seed=1))
+    out.append(dict(big, name="b3-q14-lora-s1", arm="lora", seed=1))
+    out.append(dict(big, name="b3-q14-span7-40", part={"type": "block", "first": 7, "last": 40}))
+    out.append(dict(big, name="b3-q14-host10", host_layer=10))
+    out.append(dict(big, name="b3-q14-host8-all", mc_train="all"))
+    win = {"type": "block", "first": 4, "last": 20}
+    med = {"domain": "medicine", "host_layer": 10, "first": 4, "last": 20}
+    math = {"domain": "math7b", "host_layer": 12, "first": 4, "last": 20}
+    out.append(dict(k, name="c-qwen7b+apollo+math7b-b4", domain="knowledge", part=win, mc_train="all", mc_batch=4,
+                    extra_grafts=[med, math]))
+    out.append(dict(k, name="c-lora-3x-b4", domain="knowledge", part=win, mc_train="all", mc_batch=4, arm="lora",
+                    lora_budget_mult=3.0))
+    return out
+
+
+def batch_h12():
+    """Qwen2.5-32B-Instruct (64 layers) as the donor, on an H200: into the 1B and the 3B host."""
+    out = []
+    k = {"objective": "mc", "align_steps": 600, "task_steps": 1000, "enc_depth": 2, "mc_train": "general",
+         "arm": "real", "domain": "knowledge32", "big": True, "part": {"type": "block", "first": 9, "last": 45}}
+    out.append(dict(k, name="q32-span9-45"))
+    out.append(dict(k, name="q32-span9-54", part={"type": "block", "first": 9, "last": 54}))
+    out.append(dict(k, name="b3-q32-host8", host="unsloth/Llama-3.2-3B-Instruct", host_layer=8))
+    return out
+
+
+BATCHES = {"h1": batch_h1, "h2": batch_h2, "h3": batch_h3, "h4": batch_h4, "h5": batch_h5, "h6": batch_h6, "h7": batch_h7, "h8": batch_h8, "h9": batch_h9, "h10": batch_h10, "h11": batch_h11, "h12": batch_h12}
+
+
+@app.function(image=image, volumes={"/vol": volume}, gpu="H200", memory=262144, timeout=5 * 3600)
+def cell_big(config):
+    """The same cell on an H200, for donors too large for an H100 (Qwen2.5-32B)."""
+    return cell.local(config)
 
 
 @app.local_entrypoint()
@@ -922,7 +970,8 @@ def main(batch: str = "h1", only: str = "", smoke: bool = False, extra: str = ""
     configs = [dict(c, batch=batch + ("_smoke" if smoke else "")) for c in configs]
     print(f"{len(configs)} cells:", [c["name"] for c in configs])
     rows = []
-    for row in cell.map(configs, return_exceptions=True):
+    fn = cell_big if any(c.get("big") for c in configs) else cell
+    for row in fn.map(configs, return_exceptions=True):
         if isinstance(row, Exception):
             print("cell failed:", repr(row)[:1000])
             continue
