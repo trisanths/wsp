@@ -30,6 +30,13 @@ it is the input of decoder layer donor_layer. With donor_norm_prefix (the
 module name of that layer's pre-MLP norm), it is the input of that norm,
 which is the residual stream after attention. That is where mlp_cluster
 and expert parts read.
+
+The sink option (sink=True, the default) feeds the donor its own mean
+state at position 0 in place of the stitch output there, as a graft with
+a sink does. Position 0 is the donor's attention sink: the BOS, or the
+first text token when the donor adds no BOS. Its state is huge and does
+not depend on the input, and the fit leaves it out, so a mapped vector
+there breaks attention for every later token.
 """
 
 import contextlib
@@ -39,7 +46,7 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from wsp.align import alignment_tokens, layer_input_capture, match_offsets, mlp_input_capture, ridge_fit
+from wsp.align import RIDGE_LAM, alignment_tokens, layer_input_capture, match_offsets, mlp_input_capture, ridge_fit
 from wsp.graft import LowRankLinear, replace_hidden
 from wsp.parts import find_decoder_layers
 
@@ -340,6 +347,58 @@ def donor_capture_for(donor_model, donor_layer, donor_norm_prefix):
     return mlp_input_capture(donor_model.get_submodule(donor_norm_prefix))
 
 
+def donor_sink(donor_model, donor_tokenizer, donor_layer, texts, donor_norm_prefix=None, max_texts=256):
+    """Return the donor's mean state at the donor point at position 0, over texts.
+
+    Each text is tokenized as alignment_tokens does, so position 0 is the
+    BOS when the donor tokenizer adds one, else the first text token. The
+    result is a float32 CPU tensor of shape (d_donor,).
+    """
+    capture = donor_capture_for(donor_model, donor_layer, donor_norm_prefix)
+    donor_device = device_of(donor_model)
+    total = None
+    count = 0
+    for text in texts[:max_texts]:
+        ids, _, _ = alignment_tokens(donor_tokenizer, text)
+        if ids.shape[1] == 0:
+            continue
+        state = capture(donor_model, ids.to(donor_device))[0].float().cpu()
+        if total is None:
+            total = state.clone()
+        else:
+            total += state
+        count += 1
+    if count == 0:
+        raise ValueError("no text has a token to measure the sink on")
+    return total / count
+
+
+def resolve_sink(sink, donor_model, donor_tokenizer, donor_layer, texts, donor_norm_prefix=None):
+    """Turn a sink option into a tensor or None.
+
+    True measures the sink on texts with donor_sink. False or None turns it
+    off. A tensor is used as given.
+    """
+    if sink is None or sink is False:
+        return None
+    if sink is True:
+        return donor_sink(donor_model, donor_tokenizer, donor_layer, texts, donor_norm_prefix)
+    return sink.detach().float().reshape(-1)
+
+
+def with_sink(mapped, sink):
+    """Put sink at position 0 of every row of mapped, shape (batch, seq, d_donor).
+
+    encode pads on the right, so position 0 is the first real token of
+    every row. Gradients still reach the other positions.
+    """
+    if sink is None:
+        return mapped
+    batch = mapped.shape[0]
+    first = sink.to(device=mapped.device, dtype=mapped.dtype).view(1, 1, -1).expand(batch, 1, -1)
+    return torch.cat([first, mapped[:, 1:]], dim=1)
+
+
 def collect_rows(host_model, host_tokenizer, host_layers, donor_model, donor_tokenizer, donor_capture, texts,
                  max_rows=20000):
     """Stack offset-matched (host, donor) rows, like align.collect_pairs.
@@ -414,7 +473,7 @@ def dim_std(y):
 
 
 def ridge_init(stitch, host_model, host_tokenizer, host_layer, donor_model, donor_tokenizer, donor_layer, texts,
-               donor_norm_prefix=None, lam=1e-2):
+               donor_norm_prefix=None, lam=RIDGE_LAM):
     """Fit a ridge map on matched rows and start the stitch from it. Return {r2, r2_dim, pairs}.
 
     A multi stitch is fit on the concatenation of its host layers.
@@ -428,11 +487,16 @@ def ridge_init(stitch, host_model, host_tokenizer, host_layer, donor_model, dono
 
 
 def stitched_lm_loss(host_model, tokenizer, host_layers, donor_model, donor_layer, donor_norm_prefix, stitch,
-                     texts, seq_len=None):
-    """The donor's next-token loss on texts with the stitch output at the donor point."""
+                     texts, seq_len=None, sink=None):
+    """The donor's next-token loss on texts with the stitch output at the donor point.
+
+    sink: None, or a (d_donor,) tensor that replaces the stitch output at
+    position 0.
+    """
     donor_device = device_of(donor_model)
     input_ids, attention_mask, _, _ = encode(tokenizer, texts, seq_len)
     mapped = map_host(host_model, host_layers, stitch, input_ids, attention_mask)
+    mapped = with_sink(mapped, sink)
     labels = input_ids.clone()
     labels[attention_mask == 0] = -100
     holder = {"x": mapped}
@@ -458,16 +522,21 @@ def native_lm_loss(donor_model, tokenizer, texts, seq_len=None):
 
 
 def stitch_penalty(host_model, tokenizer, host_layer, donor_model, donor_layer, stitch, texts,
-                   donor_norm_prefix=None, max_len=None):
+                   donor_norm_prefix=None, max_len=None, sink=True):
     """Donor native loss, stitched loss, and their difference, for a same-tokenizer pair.
 
     Each text runs on its own. Its loss counts once per predicted token
     (length - 1), so the result is a token-weighted mean, as in
     modal_round4.stitch_penalty. The stitch replaces the donor state at
-    every position. Also returns the stitch's pooled and per-dim r2 on the
-    offset-matched rows of texts (r2, r2_dim, pairs).
+    every position, except position 0 when the sink is on: there the donor
+    gets its own mean sink state. sink is True (measure the sink on texts),
+    False, or a (d_donor,) tensor. Also returns the stitch's pooled and
+    per-dim r2 on the offset-matched rows of texts (r2, r2_dim, pairs), and
+    "sink", True when the sink was on.
     """
     host_layers = stitch_host_layers(stitch, host_layer)
+    with torch.no_grad():
+        sink = resolve_sink(sink, donor_model, tokenizer, donor_layer, texts, donor_norm_prefix)
     native_total = 0.0
     stitched_total = 0.0
     count = 0
@@ -479,7 +548,7 @@ def stitch_penalty(host_model, tokenizer, host_layer, donor_model, donor_layer, 
                 continue
             native = native_lm_loss(donor_model, tokenizer, [text], max_len)
             stitched = stitched_lm_loss(host_model, tokenizer, host_layers, donor_model, donor_layer,
-                                        donor_norm_prefix, stitch, [text], max_len)
+                                        donor_norm_prefix, stitch, [text], max_len, sink)
             native_total += float(native) * n
             stitched_total += float(stitched) * n
             count += n
@@ -494,17 +563,19 @@ def stitch_penalty(host_model, tokenizer, host_layer, donor_model, donor_layer, 
         pred = run_stitch(stitch, split_rows(x.to(device_of(stitch)), len(host_layers))).cpu()
     r2, r2_dim = r2_scores(pred, y)
     return {"native_loss": native_loss, "stitched_loss": stitched_loss, "penalty": stitched_loss - native_loss,
-            "r2": r2, "r2_dim": r2_dim, "pairs": int(x.shape[0])}
+            "r2": r2, "r2_dim": r2_dim, "pairs": int(x.shape[0]), "sink": sink is not None}
 
 
 def downstream_batch(host_model, host_tokenizer, host_layers, donor_model, donor_tokenizer, donor_layer,
-                     donor_norm_prefix, stitch, texts, seq_len, end_layer, std):
+                     donor_norm_prefix, stitch, texts, seq_len, end_layer, std, sink=None):
     """Standardized MSE between stitched and native donor states at end_layer. Return (loss, rows).
 
     The stitched run feeds the donor pad tokens on the host's sequence
     length and replaces the donor state at the donor point, so only the
-    stitch output reaches layers donor_layer..end_layer. loss is None when
-    no tokens match.
+    stitch output reaches layers donor_layer..end_layer. sink, a (d_donor,)
+    tensor or None, replaces the stitch output at position 0 (the host's
+    first token), where the graft puts it. loss is None when no tokens
+    match.
     """
     donor_device = device_of(donor_model)
     host_ids, host_mask, host_positions, host_ends = encode(host_tokenizer, texts, seq_len)
@@ -520,6 +591,7 @@ def downstream_batch(host_model, host_tokenizer, host_layers, donor_model, donor
     target = native[batch_rows.to(donor_device), donor_rows.to(donor_device)].float()
 
     mapped = map_host(host_model, host_layers, stitch, host_ids, host_mask)
+    mapped = with_sink(mapped, sink)
     holder = {"x": mapped.to(donor_device)}
     handles = feed_hooks(donor_model, donor_layer, donor_norm_prefix, holder)
     filler = torch.zeros_like(host_ids).to(donor_device)
@@ -624,7 +696,7 @@ def optimize(stitch, steps, lr, next_loss, log_every=0, name="stitch"):
 
 def train_stitch(host_model, host_tokenizer, host_layer, donor_model, donor_tokenizer, donor_layer, stitch, texts,
                  objective="donor_lm", steps=500, lr=1e-3, batch_size=8, seq_len=256, seed=0, end_layer=None,
-                 eval_texts=None, donor_norm_prefix=None, log_every=0):
+                 eval_texts=None, donor_norm_prefix=None, log_every=0, sink=True):
     """Train the stitch on texts. Return a dict with per-step losses and before and after metrics.
 
     Host and donor stay frozen; only the stitch trains. The stitch moves to
@@ -636,6 +708,12 @@ def train_stitch(host_model, host_tokenizer, host_layer, donor_model, donor_toke
       downstream  loss (standardized MSE at end_layer).
     For mse, each step uses batch_size * seq_len random matched rows.
     end_layer (downstream only) defaults to min(donor_layer + 4, last layer).
+
+    sink: True (measure the donor's mean sink state on texts), False, or a
+    (d_donor,) tensor. When on, donor_lm and downstream feed the donor the
+    sink at position 0 in training and in the metrics, and donor_lm
+    metrics also hold penalty_no_sink, the penalty without it. mse fits
+    only rows past position 0, so the sink does not change it.
     """
     if objective not in OBJECTIVES:
         raise ValueError(f"unknown stitch objective: {objective!r}")
@@ -657,6 +735,13 @@ def train_stitch(host_model, host_tokenizer, host_layer, donor_model, donor_toke
 
     flags = freeze_models([host_model, donor_model])
     try:
+        with torch.no_grad():
+            sink = resolve_sink(sink, donor_model, donor_tokenizer, donor_layer, texts, donor_norm_prefix)
+        result["sink"] = sink is not None
+        result["sink_norm"] = None
+        if sink is not None:
+            sink = sink.to(donor_device)
+            result["sink_norm"] = float(sink.norm())
         if objective == "mse":
             capture = donor_capture_for(donor_model, donor_layer, donor_norm_prefix)
             x, y = collect_rows(host_model, host_tokenizer, host_layers, donor_model, donor_tokenizer, capture, texts)
@@ -695,14 +780,23 @@ def train_stitch(host_model, host_tokenizer, host_layer, donor_model, donor_toke
             next_batch = text_sampler(texts, batch_size, seed)
 
             def lm_metrics():
+                use_sink = False
+                if sink is not None:
+                    use_sink = sink
                 found = stitch_penalty(host_model, host_tokenizer, host_layer, donor_model, donor_layer, stitch,
-                                       eval_texts, donor_norm_prefix=donor_norm_prefix, max_len=seq_len)
+                                       eval_texts, donor_norm_prefix=donor_norm_prefix, max_len=seq_len,
+                                       sink=use_sink)
                 found["loss"] = found["stitched_loss"]
+                if sink is not None:
+                    plain = stitch_penalty(host_model, host_tokenizer, host_layer, donor_model, donor_layer, stitch,
+                                           eval_texts, donor_norm_prefix=donor_norm_prefix, max_len=seq_len,
+                                           sink=False)
+                    found["penalty_no_sink"] = plain["penalty"]
                 return found
 
             def next_loss():
                 return stitched_lm_loss(host_model, host_tokenizer, host_layers, donor_model, donor_layer,
-                                        donor_norm_prefix, stitch, next_batch(), seq_len)
+                                        donor_norm_prefix, stitch, next_batch(), seq_len, sink)
 
             result["before"] = lm_metrics()
             result["losses"] = optimize(stitch, steps, lr, next_loss, log_every)
@@ -726,7 +820,7 @@ def train_stitch(host_model, host_tokenizer, host_layer, donor_model, donor_toke
                         batch = eval_texts[first:first + batch_size]
                         loss, rows = downstream_batch(host_model, host_tokenizer, host_layers, donor_model,
                                                       donor_tokenizer, donor_layer, donor_norm_prefix, stitch,
-                                                      batch, seq_len, end_layer, std)
+                                                      batch, seq_len, end_layer, std, sink)
                         if loss is None:
                             continue
                         total += float(loss) * rows
@@ -740,7 +834,7 @@ def train_stitch(host_model, host_tokenizer, host_layer, donor_model, donor_toke
                 for _ in range(100):
                     loss, _ = downstream_batch(host_model, host_tokenizer, host_layers, donor_model,
                                                donor_tokenizer, donor_layer, donor_norm_prefix, stitch,
-                                               next_batch(), seq_len, end_layer, std)
+                                               next_batch(), seq_len, end_layer, std, sink)
                     if loss is not None:
                         return loss
                 raise ValueError("no matching tokens found in 100 training batches")
