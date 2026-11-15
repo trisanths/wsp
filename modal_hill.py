@@ -971,7 +971,20 @@ def batch_h13():
     return out
 
 
-BATCHES = {"h1": batch_h1, "h2": batch_h2, "h3": batch_h3, "h4": batch_h4, "h5": batch_h5, "h6": batch_h6, "h7": batch_h7, "h8": batch_h8, "h9": batch_h9, "h10": batch_h10, "h11": batch_h11, "h12": batch_h12, "h13": batch_h13}
+def batch_h14():
+    """Size control at 8B: Llama-3.1-8B-Instruct (32 layers) untrained, with LoRA, and with the 14B graft."""
+    out = []
+    k = {"objective": "mc", "align_steps": 600, "task_steps": 1000, "enc_depth": 2, "mc_train": "general",
+         "domain": "knowledge14", "part": {"type": "block", "first": 7, "last": 34},
+         "host": "unsloth/Meta-Llama-3.1-8B-Instruct"}
+    out.append(dict(k, name="b8-base", arm="none"))
+    out.append(dict(k, name="b8-lora", arm="lora"))
+    out.append(dict(k, name="b8-q14-host10", arm="real", host_layer=10))
+    out.append(dict(k, name="b8-q14-host14", arm="real", host_layer=14))
+    return out
+
+
+BATCHES = {"h1": batch_h1, "h2": batch_h2, "h3": batch_h3, "h4": batch_h4, "h5": batch_h5, "h6": batch_h6, "h7": batch_h7, "h8": batch_h8, "h9": batch_h9, "h10": batch_h10, "h11": batch_h11, "h12": batch_h12, "h13": batch_h13, "h14": batch_h14}
 
 
 @app.function(image=image, volumes={"/vol": volume}, gpu="H200", memory=262144, timeout=5 * 3600)

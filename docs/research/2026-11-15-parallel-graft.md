@@ -540,6 +540,31 @@ matched LoRA, above the untrained 3B model (57.4), and level with 3B +
 LoRA (60.9). The 14B + Apollo2 composition ran out of memory and is
 re-run at batch 4 in h13, along with a third seed.
 
+### h11: second seed on the 3B host, and Phi-4 as a donor
+
+| cell (Llama-3.2-3B host, Qwen14B 7..34) | MMLU dev | held-out | MMLU-med | MMLU-math | humanities |
+|---|---|---|---|---|---|
+| host 8, seed 0 (h9) | 64.5 | 63.4 | 74.4 | 47.4 | 73.0 |
+| host 8, seed 1 | 64.8 | **66.0** | **74.6** | **52.4** | **76.6** |
+| host 10 | 65.4 | 63.4 | 72.4 | 49.6 | 74.0 |
+| host 8, all domains | **65.6** | 63.6 | 72.6 | 45.4 | 74.8 |
+| block 7..40 | 64.3 | 63.7 | 72.2 | 51.4 | 74.2 |
+| LoRA (same budget), seeds 0 / 1 | 61.7 / 61.1 | 61.0 / 60.7 | 67.6 / 68.6 | 46.2 / 46.2 | 73.0 / 72.8 |
+| base | 59.6 | 57.4 | 69.4 | 37.4 | 70.6 |
+
+On the 3B host, the 14B graft averages 64.7 on held-out over two seeds,
+against 60.9 for LoRA, a gain of 3.8 points. An 8B size control (h14)
+is running.
+
+**Phi-4 does not transfer.** Grafted into Llama-1B (block 6..28 or 4..32,
+with or without dense reads), Phi-4 scores 46.9 to 48.6 on held-out,
+against 44.6 for the base. That is despite 0.90 functional survival and
+100,256 shared tokens. The functional alignment holds, but MC training
+does not draw knowledge out of this donor. It is open why the Qwen
+donors work and Phi-4 does not.
+
+The three-donor cell ran out of memory again at batch 4 and is dropped.
+
 ## Also fixed
 
 `wsp/healdata.py`: the `reasoning` pool crashed on LogiQA2.0. In that
