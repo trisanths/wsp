@@ -153,6 +153,107 @@ def summarize(info):
     return {"n_layers": info["n_layers"], "d_model": info["d_model"], "layers_with": counts, "example": first}
 
 
+def expert_count_layers(info, layers=None):
+    # Splits the wanted layers (all layers when `layers` is empty) into those whose router picks a
+    # pre-hook can count, and those it cannot, with the reason. Fused experts get the router's top-k
+    # indices as a call argument. The "module_list" style gives them to no module this adapter knows,
+    # so those layers are reported and never counted.
+    counted = []
+    unsupported = {}
+    wanted = [int(l) for l in (layers or [])]
+    for l in wanted:
+        if l < 0 or l >= info["n_layers"]:
+            unsupported[str(l)] = "layer out of range"
+    for e in info["layers"]:
+        if wanted and e["layer"] not in wanted:
+            continue
+        if "experts" not in e:
+            if wanted:
+                unsupported[str(e["layer"])] = "layer has no experts module this adapter supports"
+            continue
+        if e["experts"].get("style") == "module_list":
+            unsupported[str(e["layer"])] = "module_list experts: the router's picks are not visible to a hook"
+            continue
+        counted.append(e["layer"])
+    return counted, unsupported
+
+
+def router_picks(idx, mask, n_exp):
+    # idx: the router's top-k expert indices as the experts module gets them for one batch: one row
+    # per token, (tokens, k), or unflattened, (batch, seq, k); a top-1 router may give (tokens,).
+    # mask: 1 for each token to count, in batch order. Returns (picks per expert, tokens counted, k),
+    # or None when idx does not hold one row of indices for each token of the mask.
+    # The mask is built on the input device. With the layers spread over several GPUs the indices
+    # of a layer are on that layer's GPU, so the mask is moved there before it is used.
+    flat = mask.reshape(-1).bool().to(idx.device)
+    tokens = int(flat.numel())
+    if tokens == 0:
+        return None
+    if idx.dim() >= 2 and idx.numel() == tokens * int(idx.shape[-1]):
+        k = int(idx.shape[-1])
+    elif idx.dim() == 1 and idx.numel() == tokens:
+        k = 1
+    else:
+        return None
+    sel = idx.reshape(tokens, k)[flat]
+    counts = torch.bincount(sel.reshape(-1), minlength=n_exp)[:n_exp].float()
+    return counts, float(sel.shape[0]), k
+
+
+def install_pick_counter(info, layers, layer, sums, state, bad, handles):
+    # Counts the router's picks of one fused-experts layer. sums[layer] gets {"sum", "n", "top_k"};
+    # state["mask"] is the mask of the batch that runs. A layer whose indices cannot be counted gets
+    # its reason in bad[layer] and no counts.
+    entry = info["layers"][layer]
+    mod = get_module(layers[layer], entry["experts"]["path"])
+    n_exp = entry["experts"]["n_experts"]
+
+    def pre(module, args, kwargs):
+        idx = args[1] if len(args) >= 3 else kwargs.get("top_k_index")
+        if not isinstance(idx, torch.Tensor):
+            bad[layer] = "the experts module was called without top-k indices"
+            return
+        got = router_picks(idx, state["mask"], n_exp)
+        if got is None:
+            bad[layer] = ("router indices of shape " + str(list(idx.shape)) + " do not fit the "
+                          + str(int(state["mask"].numel())) + " tokens of the batch")
+            return
+        counts, n, k = got
+        if layer not in sums:
+            sums[layer] = {"sum": torch.zeros(n_exp, device=counts.device), "n": 0.0, "top_k": k}
+        sums[layer]["sum"] += counts
+        sums[layer]["n"] += n
+    handles.append(mod.register_forward_pre_hook(pre, with_kwargs=True))
+
+
+def pick_rates(sums):
+    # sums: {layer: {"sum": picks per expert (tensor), "n": tokens counted, "top_k": k or absent}}, as
+    # the routing hook fills it. Returns per layer the picks per counted token for each expert, so the
+    # rates of one layer add up to the router's top-k. A layer with no counted token gives None.
+    out = {}
+    for l in sums:
+        n = float(sums[l]["n"])
+        if n <= 0:
+            out[str(l)] = None
+            continue
+        freq = (sums[l]["sum"].float() / n).cpu().tolist()
+        out[str(l)] = {"rates": [round(float(x), 6) for x in freq], "tokens": int(n)}
+        if "top_k" in sums[l]:
+            out[str(l)]["top_k"] = int(sums[l]["top_k"])
+    return out
+
+
+def drop_uncounted(rates, counted, unsupported, bad):
+    # After the passes: a layer whose indices did not fit on one batch or more (bad) leaves every
+    # rate table and moves from the counted list to "unsupported" with its reason.
+    for key in rates:
+        for l in bad:
+            rates[key]["layers"].pop(str(l), None)
+    for l in bad:
+        unsupported[str(l)] = bad[l]
+    return [l for l in counted if l not in bad]
+
+
 def check_part(info, part):
     kind = part.get("kind")
     n = info["n_layers"]

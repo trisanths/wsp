@@ -674,6 +674,72 @@ class EngineBase:
             flat = flat.reshape(entry["n_heads"], entry["head_dim"]).sum(dim=-1)
         return flat
 
+    # ---------------- evidence for catalog rows ----------------
+
+    @modal.method()
+    def builtin_info(self):
+        # What the built-in skill sets of THIS deployment are. The image holds the built-in file from
+        # deploy time, which can be older than the caller's local file, so a catalog row asks here to
+        # name the data it was selected on.
+        import hashlib
+
+        out = {}
+        for name in self.builtin:
+            spec = self.builtin[name]
+            digest = hashlib.sha256(json.dumps(spec["items"], sort_keys=True).encode()).hexdigest()[:16]
+            out[name] = {"description": spec.get("description"), "dataset": spec.get("dataset"),
+                         "n_search": len(spec["items"]["search"]), "n_heldout": len(spec["items"]["heldout"]),
+                         "items_sha": digest}
+        return out
+
+    @modal.method()
+    def expert_pick_rates(self, payload, names, layers, n_items=64):
+        # For expert parts: how often the router picks each expert of the given layers on the text of
+        # each named skill, for the search half and the held-out half. A rate is picks per counted
+        # token (padding and the first position are left out), so the rates of one layer add up to the
+        # router's top-k, which comes back as "top_k" next to the rates. Only fused experts can be
+        # counted; other layers come back in "unsupported" with the reason (see
+        # adapter.expert_count_layers), and so does a layer whose router indices do not fit the batch.
+        # The hook is adapter.install_pick_counter, not _stat_hook: it moves the mask to the device of
+        # the indices (a large model has its layers on several GPUs and the mask is on the first),
+        # and it reads indices that a model passes unflattened.
+        import torch
+
+        start = time.time()
+        counted, unsupported = self.adapter.expert_count_layers(self.info, layers)
+        sets = self._skill_sets(payload)
+        rates = {}
+        missing = []
+        bad = {}
+        for name in names:
+            for split in ["search", "heldout"]:
+                key = (name, split)
+                if key not in sets:
+                    missing.append(name + "|" + split)
+                    continue
+                if not counted:
+                    continue
+                rows = self._tokenized(sets[key][0], sets[key][1])[:n_items]
+                sums = {}
+                state = {"mask": None}
+                handles = []
+                try:
+                    for l in counted:
+                        self.adapter.install_pick_counter(self.info, self.layers, l, sums, state, bad, handles)
+                    with torch.no_grad():
+                        for batch in self._batches(rows, 4.0e8):
+                            ids, mask = self._pad(rows, batch)
+                            m = mask.clone()
+                            m[:, 0] = 0
+                            state["mask"] = m
+                            self.model(input_ids=ids, attention_mask=mask, use_cache=False)
+                finally:
+                    self.adapter.remove_all(handles)
+                rates[name + "|" + split] = {"n_items": len(rows), "layers": self.adapter.pick_rates(sums)}
+        counted = self.adapter.drop_uncounted(rates, counted, unsupported, bad)
+        return {"rates": rates, "counted_layers": counted, "unsupported": unsupported, "missing": missing,
+                "seconds": round(time.time() - start, 1)}
+
     # ---------------- optional confirmation ----------------
 
     @modal.method()
