@@ -13,6 +13,7 @@ import os
 import random
 
 import common
+import evidence
 
 MIN_ITEMS = 40
 MAX_ITEMS = 160
@@ -48,11 +49,23 @@ def split_half(rows, seed):
     return {"search": rows[:half], "heldout": rows[half:]}
 
 
+def pool_names():
+    try:
+        return list(evidence.local_pool().keys())
+    except (OSError, ValueError, AttributeError):
+        return []  # no readable pool file: no name is taken
+
+
 def define(miner, sandbox_getter, name, description, generator_code=None, items=None, control_items=None):
     name = common.clean_name(name)
     existing = miner.agent_skills()
     if name in existing or name in common.BUILTIN_TARGETS + common.CONTROL_ONLY:
         return {"error": "skill '" + name + "' already exists"}
+    if name in pool_names():
+        # a sweep (mine/sweep.py) writes rows for the pool skills of mine/data/pool_skills.json into the
+        # same catalog: one name must not mean two different tests there
+        return {"error": "'" + name + "' is the name of a pool skill of the sweep miner; give your skill another "
+                         "name, for example '" + name + "_terms'"}
     if len(existing) >= miner.state.get("max_agent_skills", 8):
         return {"error": "agent-defined skill cap reached"}
 

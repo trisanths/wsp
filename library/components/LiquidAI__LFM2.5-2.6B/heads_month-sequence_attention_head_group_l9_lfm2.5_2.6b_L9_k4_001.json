@@ -1,0 +1,116 @@
+{
+  "id": "heads_month-sequence_attention_head_group_l9_lfm2.5_2.6b_L9_k4_001",
+  "kind": "attn_heads",
+  "title": "LFM2.5-2.6B layer 9, month-sequence attention head group (L9)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_2.6b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "month_successor"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-2.6B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'month_successor' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.4723,
+      "control_value": 0.2107,
+      "split": "person_a held-out skill items (month_successor)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_2.6b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0065"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-2.6B",
+  "layer": 9,
+  "layers": [
+    9
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-2.6B/heads_month-sequence_attention_head_group_l9_lfm2.5_2.6b_L9_k4_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_2.6b/heads_month-sequence_attention_head_group_l9_lfm2.5_2.6b_L9_k4_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'month_successor'",
+    "label": "month-sequence attention head group (L9)",
+    "num_units": 4,
+    "d_model": 2048,
+    "effect": {
+      "math|search": -0.0005,
+      "math|heldout": 0.0049,
+      "code|search": -0.001,
+      "code|heldout": -0.0092,
+      "facts|search": 0.0787,
+      "facts|heldout": 0.1233,
+      "multilingual|search": 0.0479,
+      "multilingual|heldout": 0.045,
+      "general_text|search": -0.0681,
+      "general_text|heldout": -0.0321,
+      "month_successor|search": 0.5541,
+      "month_successor__control|search": 0.008,
+      "month_successor|heldout": 0.4723,
+      "month_successor__control|heldout": 0.0065,
+      "weekday_successor|search": 0.1695,
+      "weekday_successor__control|search": 0.0386,
+      "weekday_successor|heldout": 0.3637,
+      "weekday_successor__control|heldout": 0.004,
+      "roman_numerals|search": 0.0243,
+      "roman_numerals__control|search": 0.0126,
+      "roman_numerals|heldout": 0.0089,
+      "roman_numerals__control|heldout": 0.0082,
+      "object_color|search": -0.015,
+      "object_color__control|search": 0.0117,
+      "object_color|heldout": -0.0642,
+      "object_color__control|heldout": 0.0155,
+      "antonym|search": 0.034,
+      "antonym__control|search": 0.0131,
+      "antonym|heldout": 0.0105,
+      "antonym__control|heldout": 0.0157,
+      "ordinal_word|search": 0.0102,
+      "ordinal_word__control|search": 0.0089,
+      "ordinal_word|heldout": 0.0006,
+      "ordinal_word__control|heldout": 0.0028,
+      "capital_city|search": 0.0049,
+      "capital_city__control|search": 0.0015,
+      "capital_city|heldout": -0.003,
+      "capital_city__control|heldout": 0.0014,
+      "past_tense|search": -0.0593,
+      "past_tense__control|search": 0.0076,
+      "past_tense|heldout": -0.0287,
+      "past_tense__control|heldout": 0.001
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1847,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.2185,
+      0.1106,
+      0.1526,
+      0.3971,
+      0.1746
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "These are the four L9 heads with the largest month attribution (15: .129, 31: .115, 13: .111, 30: .103). Head 4, which is also weekday-attributed, and the generic copy heads 7/12/16 (OV self-copy z 2.6\u20133.1) were excluded. The group drops month .55 vs weekday .17."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_2.6b/month_successor.json",
+    "hash": "daacbf190d5d8adf",
+    "description": "Name the month that is k (1-3) months after a given month, few-shot. Control: same arrow format with integer successor (+k).",
+    "name": "month_successor"
+  },
+  "catalog_id": "heads_month-sequence_attention_head_group_l9_lfm2.5_2.6b_L9_k4_001",
+  "exported_copy": "library/lfm2.5_2.6b/heads_month-sequence_attention_head_group_l9_lfm2.5_2.6b_L9_k4_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

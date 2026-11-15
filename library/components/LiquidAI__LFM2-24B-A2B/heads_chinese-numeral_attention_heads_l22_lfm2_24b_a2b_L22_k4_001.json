@@ -1,0 +1,116 @@
+{
+  "id": "heads_chinese-numeral_attention_heads_l22_lfm2_24b_a2b_L22_k4_001",
+  "kind": "attn_heads",
+  "title": "LFM2-24B-A2B layer 22, Chinese-numeral attention heads (L22)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "chinese_numeral"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'chinese_numeral' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.8119,
+      "control_value": -0.4618,
+      "split": "person_a held-out skill items (chinese_numeral)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.12"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 22,
+  "layers": [
+    22
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/heads_chinese-numeral_attention_heads_l22_lfm2_24b_a2b_L22_k4_001.pt",
+  "units_remote": "person_a/parts/lfm2_24b_a2b/heads_chinese-numeral_attention_heads_l22_lfm2_24b_a2b_L22_k4_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'chinese_numeral'",
+    "label": "Chinese-numeral attention heads (L22)",
+    "num_units": 4,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0114,
+      "math|heldout": -0.0143,
+      "code|search": -0.0474,
+      "code|heldout": -0.0522,
+      "facts|search": -0.0254,
+      "facts|heldout": 0.0172,
+      "multilingual|search": 0.0207,
+      "multilingual|heldout": -0.0051,
+      "general_text|search": -0.027,
+      "general_text|heldout": -0.0288,
+      "month_successor|search": -0.0804,
+      "month_successor__control|search": -0.0952,
+      "month_successor|heldout": -0.2268,
+      "month_successor__control|heldout": -0.0254,
+      "weekday_successor|search": -0.1199,
+      "weekday_successor__control|search": -0.4453,
+      "weekday_successor|heldout": -0.0171,
+      "weekday_successor__control|heldout": -0.15,
+      "roman_numeral|search": -0.04,
+      "roman_numeral__control|search": -0.1869,
+      "roman_numeral|heldout": -0.0445,
+      "roman_numeral__control|heldout": -0.1583,
+      "antonym|search": 0.012,
+      "antonym__control|search": -0.1249,
+      "antonym|heldout": -0.0158,
+      "antonym__control|heldout": 0.0747,
+      "chinese_numeral|search": 0.7642,
+      "chinese_numeral__control|search": -0.2169,
+      "chinese_numeral|heldout": 0.8119,
+      "chinese_numeral__control|heldout": -0.12,
+      "a_an_article|search": -1.2107,
+      "a_an_article__control|search": -0.4379,
+      "a_an_article|heldout": -1.4709,
+      "a_an_article__control|heldout": -0.1344,
+      "subject_verb_agreement|search": 0.0797,
+      "subject_verb_agreement__control|search": -0.7993,
+      "subject_verb_agreement|heldout": 0.0644,
+      "subject_verb_agreement__control|heldout": -0.3389,
+      "en_fr_translation|search": 0.0138,
+      "en_fr_translation__control|search": -0.0134,
+      "en_fr_translation|heldout": 0.0123,
+      "en_fr_translation__control|heldout": 0.0299
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.2547,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0775,
+      0.6885,
+      -0.0835,
+      -0.0772,
+      -2.7594
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L22 heads with the highest chinese_numeral attribution: h26 (.477), h18 (.417), h17 (.414), h24 (.325). Excludes h21 and h8, which are shared with month (.337/.101). Ablation: chinese .764, control -.217, other skills \u2264 .08."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2_24b_a2b/chinese_numeral.json",
+    "hash": "047a2d1f6c35d912",
+    "description": "Write a digit 1-10 as a Chinese numeral character. Control: copy the Arabic digit in the same frame.",
+    "name": "chinese_numeral"
+  },
+  "catalog_id": "heads_chinese-numeral_attention_heads_l22_lfm2_24b_a2b_L22_k4_001",
+  "exported_copy": "library/lfm2_24b_a2b/heads_chinese-numeral_attention_heads_l22_lfm2_24b_a2b_L22_k4_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

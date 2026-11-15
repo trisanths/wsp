@@ -1,0 +1,104 @@
+{
+  "id": "mlp_english_evaluative_sentiment_cues_olmo2_7b_L8_k4_001",
+  "kind": "mlp_cluster",
+  "title": "OLMo-2-1124-7B-Instruct layer 8, English evaluative sentiment cues",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/olmo2_7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "sentiment_polarity"
+  ],
+  "models": [
+    "allenai/OLMo-2-1124-7B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'sentiment_polarity' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1871,
+      "control_value": 0.0032,
+      "split": "person_a held-out skill items (sentiment_polarity)",
+      "seeds": null,
+      "source": "person_a/catalog/olmo2_7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0089"
+    }
+  ],
+  "generated": true,
+  "model": "allenai/OLMo-2-1124-7B-Instruct",
+  "layer": 8,
+  "layers": [
+    8
+  ],
+  "units_file": "components/allenai__OLMo-2-1124-7B-Instruct/mlp_english_evaluative_sentiment_cues_olmo2_7b_L8_k4_001.pt",
+  "units_remote": "person_a/parts/olmo2_7b/mlp_english_evaluative_sentiment_cues_olmo2_7b_L8_k4_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'sentiment_polarity'",
+    "label": "English evaluative sentiment cues",
+    "num_units": 4,
+    "d_model": 4096,
+    "effect": {
+      "math|search": -0.0002,
+      "math|heldout": -0.0001,
+      "code|search": -0.0003,
+      "code|heldout": -0.0011,
+      "facts|search": 0.0016,
+      "facts|heldout": 0.0015,
+      "multilingual|search": 0.0017,
+      "multilingual|heldout": -0.0018,
+      "general_text|search": 0.0004,
+      "general_text|heldout": -0.0004,
+      "past_tense|search": -0.1902,
+      "past_tense__control|search": -0.0415,
+      "past_tense|heldout": -0.1728,
+      "past_tense__control|heldout": -0.041,
+      "sentiment_polarity|search": 0.1524,
+      "sentiment_polarity__control|search": 0.0048,
+      "sentiment_polarity|heldout": 0.1871,
+      "sentiment_polarity__control|heldout": -0.0089,
+      "language_identification|search": -0.0592,
+      "language_identification__control|search": 0.0435,
+      "language_identification|heldout": -0.0227,
+      "language_identification__control|heldout": 0.0,
+      "emotion_recognition|search": 0.0346,
+      "emotion_recognition__control|search": 0.0077,
+      "emotion_recognition|heldout": 0.0642,
+      "emotion_recognition__control|heldout": 0.0073,
+      "polite_formula|search": -0.007,
+      "polite_formula__control|search": 0.0,
+      "polite_formula|heldout": -0.0129,
+      "polite_formula__control|heldout": 0.0
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0508,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0029,
+      0.0069,
+      -0.0059,
+      -0.0045,
+      0.0165
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Seed 3996 gate aligns with sad/ugly (.082), crappy/dreaded (.079/.078); 8821 reads trash/doesn; 1985 critical/falta; 4033 promotes proudly and book/review-like lexical tokens. Independent attribution supports all four. Excludes 4320 whose incremental ablation caused reference-copy leakage; 3-unit seed already drops sentiment .115 with control -.012."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/olmo2_7b/sentiment_polarity.json",
+    "hash": "0e78dfc17b5fea13",
+    "description": "Classify affective English descriptions as positive or negative; matched control repeats an explicitly supplied polarity label.",
+    "name": "sentiment_polarity"
+  },
+  "catalog_id": "mlp_english_evaluative_sentiment_cues_olmo2_7b_L8_k4_001",
+  "exported_copy": "library/olmo2_7b/mlp_english_evaluative_sentiment_cues_olmo2_7b_L8_k4_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

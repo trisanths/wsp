@@ -1,0 +1,116 @@
+{
+  "id": "mlp_ordinal-word_writer_512-unit_l31_cluster_calenda_qwen3.5_9b_L31_k512_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen3.5-9B layer 31, ordinal-word writer (512-unit L31 cluster, calendar-excluded)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwen3.5_9b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "ordinal_words"
+  ],
+  "models": [
+    "Qwen/Qwen3.5-9B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'ordinal_words' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.3978,
+      "control_value": -0.0358,
+      "split": "person_a held-out skill items (ordinal_words)",
+      "seeds": null,
+      "source": "person_a/catalog/qwen3.5_9b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0936"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen3.5-9B",
+  "layer": 31,
+  "layers": [
+    31
+  ],
+  "units_file": "components/Qwen__Qwen3.5-9B/mlp_ordinal-word_writer_512-unit_l31_cluster_calenda_qwen3.5_9b_L31_k512_001.pt",
+  "units_remote": "person_a/parts/qwen3.5_9b/mlp_ordinal-word_writer_512-unit_l31_cluster_calenda_qwen3.5_9b_L31_k512_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'ordinal_words'",
+    "label": "ordinal-word writer (512-unit L31 cluster, calendar-excluded)",
+    "num_units": 512,
+    "d_model": 4096,
+    "effect": {
+      "math|search": -0.0006,
+      "math|heldout": 0.0001,
+      "code|search": 0.0024,
+      "code|heldout": 0.0034,
+      "facts|search": 0.0087,
+      "facts|heldout": 0.0111,
+      "multilingual|search": 0.0055,
+      "multilingual|heldout": 0.0026,
+      "general_text|search": 0.0046,
+      "general_text|heldout": 0.0039,
+      "roman_numeral|search": 0.0027,
+      "roman_numeral__control|search": 0.0017,
+      "roman_numeral|heldout": 0.0013,
+      "roman_numeral__control|heldout": 0.0024,
+      "weekday_successor|search": 0.0831,
+      "weekday_successor__control|search": 0.0015,
+      "weekday_successor|heldout": 0.0678,
+      "weekday_successor__control|heldout": 0.0009,
+      "month_successor|search": 0.0335,
+      "month_successor__control|search": 0.0014,
+      "month_successor|heldout": 0.0303,
+      "month_successor__control|heldout": 0.0013,
+      "ordinal_words|search": 0.3903,
+      "ordinal_words__control|search": 0.0961,
+      "ordinal_words|heldout": 0.3978,
+      "ordinal_words__control|heldout": 0.0936,
+      "color_naming|search": 0.0225,
+      "color_naming__control|search": 0.0535,
+      "color_naming|heldout": 0.0194,
+      "color_naming__control|heldout": 0.0449,
+      "past_tense|search": 0.0562,
+      "past_tense__control|search": 0.0917,
+      "past_tense|heldout": 0.05,
+      "past_tense__control|heldout": 0.0979,
+      "plural_nouns|search": 0.0058,
+      "plural_nouns__control|search": 0.0504,
+      "plural_nouns|heldout": 0.0073,
+      "plural_nouns__control|heldout": 0.041,
+      "capital_city|search": 0.0012,
+      "capital_city__control|search": -0.0002,
+      "capital_city|heldout": -0.0003,
+      "capital_city__control|heldout": 0.001
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1301,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.025,
+      0.0207,
+      -0.1232,
+      -0.0849,
+      0.0332
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "The same calendar-excluded L31 ordinal seed-subspace growth extended to 512 units."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwen3.5_9b/ordinal_words.json",
+    "hash": "8a38baaad71ded46",
+    "description": "Write the ordinal word for a number (3 -> third), few-shot. Control: same format but write the cardinal number word (3 -> three).",
+    "name": "ordinal_words"
+  },
+  "catalog_id": "mlp_ordinal-word_writer_512-unit_l31_cluster_calenda_qwen3.5_9b_L31_k512_001",
+  "exported_copy": "library/qwen3.5_9b/mlp_ordinal-word_writer_512-unit_l31_cluster_calenda_qwen3.5_9b_L31_k512_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

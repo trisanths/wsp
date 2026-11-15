@@ -1,0 +1,116 @@
+{
+  "id": "expert_german_translation_output_expert_set_l22_lfm2.5_8b_a1b_L22_k2_001",
+  "kind": "expert",
+  "title": "LFM2.5-8B-A1B layer 22, German translation output expert set (L22)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "en_to_de_noun"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-8B-A1B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'en_to_de_noun' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.7333,
+      "control_value": -0.065,
+      "split": "person_a held-out skill items (en_to_de_noun)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0409"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-8B-A1B",
+  "layer": 22,
+  "layers": [
+    22
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-8B-A1B/expert_german_translation_output_expert_set_l22_lfm2.5_8b_a1b_L22_k2_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_8b_a1b/expert_german_translation_output_expert_set_l22_lfm2.5_8b_a1b_L22_k2_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'en_to_de_noun'",
+    "label": "German translation output expert set (L22)",
+    "num_units": 2,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0002,
+      "math|heldout": 0.0005,
+      "code|search": -0.0024,
+      "code|heldout": -0.0024,
+      "facts|search": -0.0244,
+      "facts|heldout": 0.0,
+      "multilingual|search": 0.1056,
+      "multilingual|heldout": 0.1781,
+      "general_text|search": -0.0266,
+      "general_text|heldout": -0.0228,
+      "en_to_fr_noun|search": 0.1356,
+      "en_to_fr_noun__control|search": -0.037,
+      "en_to_fr_noun|heldout": 0.0754,
+      "en_to_fr_noun__control|heldout": -0.0487,
+      "two_digit_addition|search": -0.0109,
+      "two_digit_addition__control|search": -0.0053,
+      "two_digit_addition|heldout": 0.0,
+      "two_digit_addition__control|heldout": -0.0066,
+      "en_to_de_noun|search": 0.7,
+      "en_to_de_noun__control|search": -0.0601,
+      "en_to_de_noun|heldout": 0.7333,
+      "en_to_de_noun__control|heldout": -0.0409,
+      "en_to_es_noun|search": 0.0215,
+      "en_to_es_noun__control|search": -0.0544,
+      "en_to_es_noun|heldout": -0.0673,
+      "en_to_es_noun__control|heldout": -0.0746,
+      "en_to_ru_word|search": 0.199,
+      "en_to_ru_word__control|search": -0.1222,
+      "en_to_ru_word|heldout": 0.1327,
+      "en_to_ru_word__control|heldout": -0.0448,
+      "en_to_zh_word|search": -0.0065,
+      "en_to_zh_word__control|search": 0.006,
+      "en_to_zh_word|heldout": -0.0021,
+      "en_to_zh_word__control|heldout": -0.0013,
+      "en_to_it_word|search": -0.0543,
+      "en_to_it_word__control|search": 0.0017,
+      "en_to_it_word|heldout": -0.1019,
+      "en_to_it_word__control|heldout": 0.0103,
+      "en_to_ja_word|search": 0.0004,
+      "en_to_ja_word__control|search": -0.0133,
+      "en_to_ja_word|heldout": 0.0001,
+      "en_to_ja_word__control|heldout": 0.0332
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.2333,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.175,
+      -0.025,
+      -0.025,
+      -0.1,
+      0.0
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L22 e21 has German attribution .79 and e4 is the top German-routed L22 expert (3.2). Neither is shared with the L22 Spanish (14, 19) or French (7, 23) experts. Ablation: de .70, ru .199, fr .136, multilingual .106, control -.06."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_8b_a1b/en_to_de_noun.json",
+    "hash": "4377338c94e879c2",
+    "description": "Translate short English sentence into German; answer is German noun after the article. Control: reverse direction (German->English), English noun.",
+    "name": "en_to_de_noun"
+  },
+  "catalog_id": "expert_german_translation_output_expert_set_l22_lfm2.5_8b_a1b_L22_k2_001",
+  "exported_copy": "library/lfm2.5_8b_a1b/expert_german_translation_output_expert_set_l22_lfm2.5_8b_a1b_L22_k2_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

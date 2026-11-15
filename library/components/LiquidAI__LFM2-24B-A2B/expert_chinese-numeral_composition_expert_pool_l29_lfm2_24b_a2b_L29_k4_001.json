@@ -1,0 +1,116 @@
+{
+  "id": "expert_chinese-numeral_composition_expert_pool_l29_lfm2_24b_a2b_L29_k4_001",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 29, Chinese-numeral composition expert pool (L29)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "chinese_numeral"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'chinese_numeral' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.7114,
+      "control_value": 0.0348,
+      "split": "person_a held-out skill items (chinese_numeral)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.2519"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 29,
+  "layers": [
+    29
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/expert_chinese-numeral_composition_expert_pool_l29_lfm2_24b_a2b_L29_k4_001.pt",
+  "units_remote": "person_a/parts/lfm2_24b_a2b/expert_chinese-numeral_composition_expert_pool_l29_lfm2_24b_a2b_L29_k4_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'chinese_numeral'",
+    "label": "Chinese-numeral composition expert pool (L29)",
+    "num_units": 4,
+    "d_model": 2048,
+    "effect": {
+      "math|search": -0.0093,
+      "math|heldout": -0.0013,
+      "code|search": 0.0021,
+      "code|heldout": -0.0037,
+      "facts|search": 0.0963,
+      "facts|heldout": 0.0708,
+      "multilingual|search": 0.0121,
+      "multilingual|heldout": 0.0086,
+      "general_text|search": 0.019,
+      "general_text|heldout": 0.0068,
+      "month_successor|search": -0.0426,
+      "month_successor__control|search": -0.0037,
+      "month_successor|heldout": 0.0201,
+      "month_successor__control|heldout": -0.0015,
+      "weekday_successor|search": -0.1412,
+      "weekday_successor__control|search": -0.408,
+      "weekday_successor|heldout": -0.043,
+      "weekday_successor__control|heldout": -0.3,
+      "roman_numeral|search": -0.007,
+      "roman_numeral__control|search": 0.0268,
+      "roman_numeral|heldout": -0.0112,
+      "roman_numeral__control|heldout": 0.0844,
+      "antonym|search": -0.0059,
+      "antonym__control|search": 0.0897,
+      "antonym|heldout": 0.0225,
+      "antonym__control|heldout": 0.0177,
+      "chinese_numeral|search": 0.7384,
+      "chinese_numeral__control|search": 0.1085,
+      "chinese_numeral|heldout": 0.7114,
+      "chinese_numeral__control|heldout": 0.2519,
+      "a_an_article|search": 0.0816,
+      "a_an_article__control|search": -0.1093,
+      "a_an_article|heldout": -0.1398,
+      "a_an_article__control|heldout": -0.0851,
+      "subject_verb_agreement|search": 0.0168,
+      "subject_verb_agreement__control|search": 0.0625,
+      "subject_verb_agreement|heldout": 0.0228,
+      "subject_verb_agreement__control|heldout": 0.0794,
+      "en_fr_translation|search": 0.0085,
+      "en_fr_translation__control|search": 0.0107,
+      "en_fr_translation|heldout": 0.0009,
+      "en_fr_translation__control|heldout": 0.0134
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.2461,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0,
+      0.0,
+      0.2166,
+      -0.0096,
+      -0.033
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L29 block ablation drops chinese_numeral .725; attribution concentrates it in e39 (.413), e1 (.176), e61 (.137), e29 (.116). The pool excludes the L29 month/weekday expert e16 and the SVA experts e42/e60/e5. Ablation: chinese .738, control .108, facts .096, everything else \u2264 .08."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2_24b_a2b/chinese_numeral.json",
+    "hash": "047a2d1f6c35d912",
+    "description": "Write a digit 1-10 as a Chinese numeral character. Control: copy the Arabic digit in the same frame.",
+    "name": "chinese_numeral"
+  },
+  "catalog_id": "expert_chinese-numeral_composition_expert_pool_l29_lfm2_24b_a2b_L29_k4_001",
+  "exported_copy": "library/lfm2_24b_a2b/expert_chinese-numeral_composition_expert_pool_l29_lfm2_24b_a2b_L29_k4_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

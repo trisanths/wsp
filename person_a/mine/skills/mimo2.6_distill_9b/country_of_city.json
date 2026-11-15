@@ -1,0 +1,980 @@
+{
+ "name": "country_of_city",
+ "description": "Name the country a famous city is in (Paris -> France). Control copies the city name.",
+ "hash": "67aad542e6cfa462",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nP=[('Paris','France'),('Lyon','France'),('Berlin','Germany'),('Munich','Germany'),('Tokyo','Japan'),('Osaka','Japan'),('Beijing','China'),('Shanghai','China'),('Rome','Italy'),('Milan','Italy'),('Madrid','Spain'),('Barcelona','Spain'),('Moscow','Russia'),('Toronto','Canada'),('Vancouver','Canada'),('Mumbai','India'),('Delhi','India'),('Sydney','Australia'),('Melbourne','Australia'),('Cairo','Egypt'),('Lisbon','Portugal'),('Athens','Greece'),('Dublin','Ireland'),('Vienna','Austria'),('Warsaw','Poland'),('Stockholm','Sweden'),('Oslo','Norway'),('Seoul','Korea'),('Bangkok','Thailand'),('Istanbul','Turkey'),('Amsterdam','Netherlands'),('Brussels','Belgium')]\nitems=[];control=[]\nfor i in range(96):\n    c,k=P[i%len(P)]\n    fr=random.choice(['Geography.','Travel note.','Quick fact.'])\n    items.append({\"prompt\":f\"{fr} The city of {c} is located in the country of\",\"answer\":\" \"+k})\n    control.append({\"prompt\":f\"{fr} The city of {c} is located in a country. The city named here is\",\"answer\":\" \"+c})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Travel note. The city of Vienna is located in the country of",
+    "continuation": " Austria",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Rome is located in the country of",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Barcelona is located in the country of",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Shanghai is located in the country of",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Delhi is located in the country of",
+    "continuation": " India",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Toronto is located in the country of",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Lyon is located in the country of",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Warsaw is located in the country of",
+    "continuation": " Poland",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Seoul is located in the country of",
+    "continuation": " Korea",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Dublin is located in the country of",
+    "continuation": " Ireland",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Delhi is located in the country of",
+    "continuation": " India",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Brussels is located in the country of",
+    "continuation": " Belgium",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Lisbon is located in the country of",
+    "continuation": " Portugal",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Milan is located in the country of",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Vancouver is located in the country of",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Berlin is located in the country of",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Mumbai is located in the country of",
+    "continuation": " India",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Lisbon is located in the country of",
+    "continuation": " Portugal",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Moscow is located in the country of",
+    "continuation": " Russia",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Berlin is located in the country of",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Cairo is located in the country of",
+    "continuation": " Egypt",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Beijing is located in the country of",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Warsaw is located in the country of",
+    "continuation": " Poland",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Madrid is located in the country of",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Seoul is located in the country of",
+    "continuation": " Korea",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Amsterdam is located in the country of",
+    "continuation": " Netherlands",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Dublin is located in the country of",
+    "continuation": " Ireland",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Istanbul is located in the country of",
+    "continuation": " Turkey",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Delhi is located in the country of",
+    "continuation": " India",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Osaka is located in the country of",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Oslo is located in the country of",
+    "continuation": " Norway",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Toronto is located in the country of",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Barcelona is located in the country of",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Brussels is located in the country of",
+    "continuation": " Belgium",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Cairo is located in the country of",
+    "continuation": " Egypt",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Bangkok is located in the country of",
+    "continuation": " Thailand",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Berlin is located in the country of",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Milan is located in the country of",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Moscow is located in the country of",
+    "continuation": " Russia",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Vancouver is located in the country of",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Sydney is located in the country of",
+    "continuation": " Australia",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Beijing is located in the country of",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Tokyo is located in the country of",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Lisbon is located in the country of",
+    "continuation": " Portugal",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Mumbai is located in the country of",
+    "continuation": " India",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Athens is located in the country of",
+    "continuation": " Greece",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Brussels is located in the country of",
+    "continuation": " Belgium",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Barcelona is located in the country of",
+    "continuation": " Spain",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Quick fact. The city of Stockholm is located in the country of",
+    "continuation": " Sweden",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Munich is located in the country of",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Rome is located in the country of",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Melbourne is located in the country of",
+    "continuation": " Australia",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Osaka is located in the country of",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Stockholm is located in the country of",
+    "continuation": " Sweden",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Amsterdam is located in the country of",
+    "continuation": " Netherlands",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Vancouver is located in the country of",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Istanbul is located in the country of",
+    "continuation": " Turkey",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Paris is located in the country of",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Shanghai is located in the country of",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Munich is located in the country of",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Oslo is located in the country of",
+    "continuation": " Norway",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Stockholm is located in the country of",
+    "continuation": " Sweden",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Munich is located in the country of",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Bangkok is located in the country of",
+    "continuation": " Thailand",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Warsaw is located in the country of",
+    "continuation": " Poland",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Vienna is located in the country of",
+    "continuation": " Austria",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Oslo is located in the country of",
+    "continuation": " Norway",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Rome is located in the country of",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Vienna is located in the country of",
+    "continuation": " Austria",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Dublin is located in the country of",
+    "continuation": " Ireland",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Athens is located in the country of",
+    "continuation": " Greece",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Bangkok is located in the country of",
+    "continuation": " Thailand",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Madrid is located in the country of",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Milan is located in the country of",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Mumbai is located in the country of",
+    "continuation": " India",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Shanghai is located in the country of",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Melbourne is located in the country of",
+    "continuation": " Australia",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Tokyo is located in the country of",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Paris is located in the country of",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Moscow is located in the country of",
+    "continuation": " Russia",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Melbourne is located in the country of",
+    "continuation": " Australia",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Tokyo is located in the country of",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Sydney is located in the country of",
+    "continuation": " Australia",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Paris is located in the country of",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Seoul is located in the country of",
+    "continuation": " Korea",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Madrid is located in the country of",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Toronto is located in the country of",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Istanbul is located in the country of",
+    "continuation": " Turkey",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Beijing is located in the country of",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Cairo is located in the country of",
+    "continuation": " Egypt",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Amsterdam is located in the country of",
+    "continuation": " Netherlands",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Lyon is located in the country of",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Lyon is located in the country of",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Osaka is located in the country of",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Athens is located in the country of",
+    "continuation": " Greece",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Sydney is located in the country of",
+    "continuation": " Australia",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Geography. The city of Istanbul is located in a country. The city named here is",
+    "continuation": " Istanbul",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Amsterdam is located in a country. The city named here is",
+    "continuation": " Amsterdam",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Madrid is located in a country. The city named here is",
+    "continuation": " Madrid",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Cairo is located in a country. The city named here is",
+    "continuation": " Cairo",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Tokyo is located in a country. The city named here is",
+    "continuation": " Tokyo",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Lyon is located in a country. The city named here is",
+    "continuation": " Lyon",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Delhi is located in a country. The city named here is",
+    "continuation": " Delhi",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Milan is located in a country. The city named here is",
+    "continuation": " Milan",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Vancouver is located in a country. The city named here is",
+    "continuation": " Vancouver",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Lisbon is located in a country. The city named here is",
+    "continuation": " Lisbon",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Warsaw is located in a country. The city named here is",
+    "continuation": " Warsaw",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Toronto is located in a country. The city named here is",
+    "continuation": " Toronto",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Istanbul is located in a country. The city named here is",
+    "continuation": " Istanbul",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Mumbai is located in a country. The city named here is",
+    "continuation": " Mumbai",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Warsaw is located in a country. The city named here is",
+    "continuation": " Warsaw",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Paris is located in a country. The city named here is",
+    "continuation": " Paris",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Athens is located in a country. The city named here is",
+    "continuation": " Athens",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Shanghai is located in a country. The city named here is",
+    "continuation": " Shanghai",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Lisbon is located in a country. The city named here is",
+    "continuation": " Lisbon",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Brussels is located in a country. The city named here is",
+    "continuation": " Brussels",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Moscow is located in a country. The city named here is",
+    "continuation": " Moscow",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Osaka is located in a country. The city named here is",
+    "continuation": " Osaka",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Lyon is located in a country. The city named here is",
+    "continuation": " Lyon",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Madrid is located in a country. The city named here is",
+    "continuation": " Madrid",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Tokyo is located in a country. The city named here is",
+    "continuation": " Tokyo",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Vienna is located in a country. The city named here is",
+    "continuation": " Vienna",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Vancouver is located in a country. The city named here is",
+    "continuation": " Vancouver",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Seoul is located in a country. The city named here is",
+    "continuation": " Seoul",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Sydney is located in a country. The city named here is",
+    "continuation": " Sydney",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Beijing is located in a country. The city named here is",
+    "continuation": " Beijing",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Moscow is located in a country. The city named here is",
+    "continuation": " Moscow",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Stockholm is located in a country. The city named here is",
+    "continuation": " Stockholm",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Osaka is located in a country. The city named here is",
+    "continuation": " Osaka",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Seoul is located in a country. The city named here is",
+    "continuation": " Seoul",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Madrid is located in a country. The city named here is",
+    "continuation": " Madrid",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Cairo is located in a country. The city named here is",
+    "continuation": " Cairo",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Lisbon is located in a country. The city named here is",
+    "continuation": " Lisbon",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Shanghai is located in a country. The city named here is",
+    "continuation": " Shanghai",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Berlin is located in a country. The city named here is",
+    "continuation": " Berlin",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Bangkok is located in a country. The city named here is",
+    "continuation": " Bangkok",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Athens is located in a country. The city named here is",
+    "continuation": " Athens",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Shanghai is located in a country. The city named here is",
+    "continuation": " Shanghai",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Melbourne is located in a country. The city named here is",
+    "continuation": " Melbourne",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Milan is located in a country. The city named here is",
+    "continuation": " Milan",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Barcelona is located in a country. The city named here is",
+    "continuation": " Barcelona",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Beijing is located in a country. The city named here is",
+    "continuation": " Beijing",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Milan is located in a country. The city named here is",
+    "continuation": " Milan",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Oslo is located in a country. The city named here is",
+    "continuation": " Oslo",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Quick fact. The city of Athens is located in a country. The city named here is",
+    "continuation": " Athens",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Tokyo is located in a country. The city named here is",
+    "continuation": " Tokyo",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Melbourne is located in a country. The city named here is",
+    "continuation": " Melbourne",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Barcelona is located in a country. The city named here is",
+    "continuation": " Barcelona",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Vienna is located in a country. The city named here is",
+    "continuation": " Vienna",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Delhi is located in a country. The city named here is",
+    "continuation": " Delhi",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Barcelona is located in a country. The city named here is",
+    "continuation": " Barcelona",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Mumbai is located in a country. The city named here is",
+    "continuation": " Mumbai",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Dublin is located in a country. The city named here is",
+    "continuation": " Dublin",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Vancouver is located in a country. The city named here is",
+    "continuation": " Vancouver",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Munich is located in a country. The city named here is",
+    "continuation": " Munich",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Brussels is located in a country. The city named here is",
+    "continuation": " Brussels",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Warsaw is located in a country. The city named here is",
+    "continuation": " Warsaw",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Oslo is located in a country. The city named here is",
+    "continuation": " Oslo",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Munich is located in a country. The city named here is",
+    "continuation": " Munich",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Bangkok is located in a country. The city named here is",
+    "continuation": " Bangkok",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Beijing is located in a country. The city named here is",
+    "continuation": " Beijing",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Dublin is located in a country. The city named here is",
+    "continuation": " Dublin",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Seoul is located in a country. The city named here is",
+    "continuation": " Seoul",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Dublin is located in a country. The city named here is",
+    "continuation": " Dublin",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Lyon is located in a country. The city named here is",
+    "continuation": " Lyon",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Osaka is located in a country. The city named here is",
+    "continuation": " Osaka",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Amsterdam is located in a country. The city named here is",
+    "continuation": " Amsterdam",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Berlin is located in a country. The city named here is",
+    "continuation": " Berlin",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Melbourne is located in a country. The city named here is",
+    "continuation": " Melbourne",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Rome is located in a country. The city named here is",
+    "continuation": " Rome",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Toronto is located in a country. The city named here is",
+    "continuation": " Toronto",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Istanbul is located in a country. The city named here is",
+    "continuation": " Istanbul",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Berlin is located in a country. The city named here is",
+    "continuation": " Berlin",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Stockholm is located in a country. The city named here is",
+    "continuation": " Stockholm",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Paris is located in a country. The city named here is",
+    "continuation": " Paris",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Toronto is located in a country. The city named here is",
+    "continuation": " Toronto",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Vienna is located in a country. The city named here is",
+    "continuation": " Vienna",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Sydney is located in a country. The city named here is",
+    "continuation": " Sydney",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Munich is located in a country. The city named here is",
+    "continuation": " Munich",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Amsterdam is located in a country. The city named here is",
+    "continuation": " Amsterdam",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Moscow is located in a country. The city named here is",
+    "continuation": " Moscow",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Oslo is located in a country. The city named here is",
+    "continuation": " Oslo",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Delhi is located in a country. The city named here is",
+    "continuation": " Delhi",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Cairo is located in a country. The city named here is",
+    "continuation": " Cairo",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Bangkok is located in a country. The city named here is",
+    "continuation": " Bangkok",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Stockholm is located in a country. The city named here is",
+    "continuation": " Stockholm",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Brussels is located in a country. The city named here is",
+    "continuation": " Brussels",
+    "digits_only": false
+   },
+   {
+    "context": "Geography. The city of Mumbai is located in a country. The city named here is",
+    "continuation": " Mumbai",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Paris is located in a country. The city named here is",
+    "continuation": " Paris",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Rome is located in a country. The city named here is",
+    "continuation": " Rome",
+    "digits_only": false
+   },
+   {
+    "context": "Travel note. The city of Rome is located in a country. The city named here is",
+    "continuation": " Rome",
+    "digits_only": false
+   },
+   {
+    "context": "Quick fact. The city of Sydney is located in a country. The city named here is",
+    "continuation": " Sydney",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 10.7943
+}

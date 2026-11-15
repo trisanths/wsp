@@ -1,0 +1,104 @@
+{
+  "id": "expert_weekday-name_writer_expert_lfm2_24b_a2b_L31_k1_001",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 31, weekday-name writer expert",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "weekday_successor"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'weekday_successor' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.4125,
+      "control_value": -0.002,
+      "split": "person_a held-out skill items (weekday_successor)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0133"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 31,
+  "layers": [
+    31
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/expert_weekday-name_writer_expert_lfm2_24b_a2b_L31_k1_001.pt",
+  "units_remote": "person_a/parts/lfm2_24b_a2b/expert_weekday-name_writer_expert_lfm2_24b_a2b_L31_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'weekday_successor'",
+    "label": "weekday-name writer expert",
+    "num_units": 1,
+    "d_model": 2048,
+    "effect": {
+      "math|search": -0.0011,
+      "math|heldout": -0.0006,
+      "code|search": 0.0003,
+      "code|heldout": 0.0002,
+      "facts|search": -0.0078,
+      "facts|heldout": -0.0011,
+      "multilingual|search": -0.003,
+      "multilingual|heldout": -0.0075,
+      "general_text|search": -0.0016,
+      "general_text|heldout": 0.0017,
+      "month_successor|search": 0.1556,
+      "month_successor__control|search": -0.0062,
+      "month_successor|heldout": 0.1515,
+      "month_successor__control|heldout": 0.0022,
+      "weekday_successor|search": 0.6067,
+      "weekday_successor__control|search": -0.0796,
+      "weekday_successor|heldout": 0.4125,
+      "weekday_successor__control|heldout": 0.0133,
+      "roman_numeral|search": 0.0013,
+      "roman_numeral__control|search": 0.0005,
+      "roman_numeral|heldout": 0.0004,
+      "roman_numeral__control|heldout": 0.0005,
+      "antonym|search": -0.0017,
+      "antonym__control|search": -0.0099,
+      "antonym|heldout": -0.0024,
+      "antonym__control|heldout": -0.0429,
+      "chinese_numeral|search": 0.0,
+      "chinese_numeral__control|search": 0.033,
+      "chinese_numeral|heldout": 0.0,
+      "chinese_numeral__control|heldout": 0.0503
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.2022,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0,
+      0.0002,
+      0.0,
+      0.0,
+      -0.0103
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L31 expert 12 down-projection carries 5.0x the energy of random tokens on weekday-name unembedding rows, the single largest weekday outlier among 1280 experts in L20-39; ablation dropped weekday_successor 0.607 with tiny effects elsewhere."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2_24b_a2b/weekday_successor.json",
+    "hash": "bd685730b9f9742c",
+    "description": "Day-of-week arithmetic: which weekday is k days after a given weekday. Control: letter-of-alphabet successor in the same frame.",
+    "name": "weekday_successor"
+  },
+  "catalog_id": "expert_weekday-name_writer_expert_lfm2_24b_a2b_L31_k1_001",
+  "exported_copy": "library/lfm2_24b_a2b/expert_weekday-name_writer_expert_lfm2_24b_a2b_L31_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

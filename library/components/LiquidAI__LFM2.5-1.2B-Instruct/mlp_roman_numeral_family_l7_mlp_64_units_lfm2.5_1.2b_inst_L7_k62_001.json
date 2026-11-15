@@ -1,0 +1,116 @@
+{
+  "id": "mlp_roman_numeral_family_l7_mlp_64_units_lfm2.5_1.2b_inst_L7_k62_001",
+  "kind": "mlp_cluster",
+  "title": "LFM2.5-1.2B-Instruct layer 7, roman numeral family (L7 MLP, 64 units)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_1.2b_inst.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "roman_numeral"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-1.2B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'roman_numeral' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2398,
+      "control_value": 0.0085,
+      "split": "person_a held-out skill items (roman_numeral)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_1.2b_inst.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0337"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-1.2B-Instruct",
+  "layer": 7,
+  "layers": [
+    7
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-1.2B-Instruct/mlp_roman_numeral_family_l7_mlp_64_units_lfm2.5_1.2b_inst_L7_k62_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_1.2b_inst/mlp_roman_numeral_family_l7_mlp_64_units_lfm2.5_1.2b_inst_L7_k62_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'roman_numeral'",
+    "label": "roman numeral family (L7 MLP, 64 units)",
+    "num_units": 62,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0017,
+      "math|heldout": 0.0004,
+      "code|search": 0.0009,
+      "code|heldout": 0.0019,
+      "facts|search": -0.0091,
+      "facts|heldout": -0.017,
+      "multilingual|search": 0.0018,
+      "multilingual|heldout": 0.008,
+      "general_text|search": -0.003,
+      "general_text|heldout": -0.0031,
+      "month_successor|search": -0.039,
+      "month_successor__control|search": 0.0373,
+      "month_successor|heldout": -0.0972,
+      "month_successor__control|heldout": 0.0212,
+      "weekday_successor|search": 0.0782,
+      "weekday_successor__control|search": 0.0093,
+      "weekday_successor|heldout": 0.0275,
+      "weekday_successor__control|heldout": 0.038,
+      "object_color|search": 0.0244,
+      "object_color__control|search": 0.0995,
+      "object_color|heldout": 0.0071,
+      "object_color__control|heldout": 0.1472,
+      "feminine_pronoun|search": 0.0304,
+      "feminine_pronoun__control|search": 0.0324,
+      "feminine_pronoun|heldout": -0.0007,
+      "feminine_pronoun__control|heldout": 0.0333,
+      "month_list_next|search": 0.0015,
+      "month_list_next__control|search": 0.0045,
+      "month_list_next|heldout": 0.0018,
+      "month_list_next__control|heldout": 0.0046,
+      "weekday_list_next|search": 0.0041,
+      "weekday_list_next__control|search": 0.0032,
+      "weekday_list_next|heldout": 0.0004,
+      "weekday_list_next__control|heldout": -0.0014,
+      "roman_numeral|search": 0.3528,
+      "roman_numeral__control|search": -0.033,
+      "roman_numeral|heldout": 0.2398,
+      "roman_numeral__control|heldout": -0.0337,
+      "masculine_pronoun|search": 0.0576,
+      "masculine_pronoun__control|search": 0.0406,
+      "masculine_pronoun|heldout": 0.0657,
+      "masculine_pronoun__control|heldout": 0.0514
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1176,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0035,
+      0.0171,
+      0.0486,
+      -0.0112,
+      -0.0157
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "64 L7 units closest (w2+w1 cosine) to roman-attributed 2409/7957/3004, hub 1286 and weekday/month/color/pronoun seeds subtracted. Ablation roman .353, others <.1."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_1.2b_inst/roman_numeral.json",
+    "hash": "20db11f11a683ac2",
+    "description": "Convert an integer 1-39 to its Roman numeral. Control: same template, write the integer as Arabic digits after doubling.",
+    "name": "roman_numeral"
+  },
+  "catalog_id": "mlp_roman_numeral_family_l7_mlp_64_units_lfm2.5_1.2b_inst_L7_k62_001",
+  "exported_copy": "library/lfm2.5_1.2b_inst/mlp_roman_numeral_family_l7_mlp_64_units_lfm2.5_1.2b_inst_L7_k62_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

@@ -1,0 +1,116 @@
+{
+  "id": "mlp_ordinal-word_writer_128-unit_l31_cluster_qwen3.5_9b_L31_k128_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen3.5-9B layer 31, ordinal-word writer (128-unit L31 cluster)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwen3.5_9b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "ordinal_words"
+  ],
+  "models": [
+    "Qwen/Qwen3.5-9B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'ordinal_words' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.4563,
+      "control_value": -0.0232,
+      "split": "person_a held-out skill items (ordinal_words)",
+      "seeds": null,
+      "source": "person_a/catalog/qwen3.5_9b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0936"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen3.5-9B",
+  "layer": 31,
+  "layers": [
+    31
+  ],
+  "units_file": "components/Qwen__Qwen3.5-9B/mlp_ordinal-word_writer_128-unit_l31_cluster_qwen3.5_9b_L31_k128_001.pt",
+  "units_remote": "person_a/parts/qwen3.5_9b/mlp_ordinal-word_writer_128-unit_l31_cluster_qwen3.5_9b_L31_k128_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'ordinal_words'",
+    "label": "ordinal-word writer (128-unit L31 cluster)",
+    "num_units": 128,
+    "d_model": 4096,
+    "effect": {
+      "math|search": -0.0002,
+      "math|heldout": -0.0003,
+      "code|search": 0.0039,
+      "code|heldout": 0.0035,
+      "facts|search": 0.0148,
+      "facts|heldout": 0.025,
+      "multilingual|search": 0.0065,
+      "multilingual|heldout": 0.0013,
+      "general_text|search": 0.0055,
+      "general_text|heldout": 0.0035,
+      "roman_numeral|search": -0.0032,
+      "roman_numeral__control|search": 0.0006,
+      "roman_numeral|heldout": -0.0043,
+      "roman_numeral__control|heldout": 0.0007,
+      "weekday_successor|search": 0.1464,
+      "weekday_successor__control|search": 0.0028,
+      "weekday_successor|heldout": 0.1122,
+      "weekday_successor__control|heldout": 0.0032,
+      "month_successor|search": 0.0406,
+      "month_successor__control|search": 0.0026,
+      "month_successor|heldout": 0.0378,
+      "month_successor__control|heldout": 0.0028,
+      "ordinal_words|search": 0.4432,
+      "ordinal_words__control|search": 0.0999,
+      "ordinal_words|heldout": 0.4563,
+      "ordinal_words__control|heldout": 0.0936,
+      "color_naming|search": 0.0388,
+      "color_naming__control|search": 0.0725,
+      "color_naming|heldout": 0.0322,
+      "color_naming__control|heldout": 0.0647,
+      "past_tense|search": 0.0692,
+      "past_tense__control|search": 0.0965,
+      "past_tense|heldout": 0.0574,
+      "past_tense__control|heldout": 0.0998,
+      "plural_nouns|search": 0.012,
+      "plural_nouns__control|search": 0.0613,
+      "plural_nouns|heldout": 0.0052,
+      "plural_nouns__control|heldout": 0.0603,
+      "capital_city|search": 0.0011,
+      "capital_city__control|search": 0.0004,
+      "capital_city|heldout": -0.0015,
+      "capital_city__control|heldout": 0.0012
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1477,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0011,
+      -0.0073,
+      0.0064,
+      -0.1148,
+      0.0008
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "The L31 ordinal seed subspace (10907, 8945, 3093, 10782, 11135, 10187, 6107) grown to 128 units by down/gate/up projection, made selective against 11 other skill-seed subspaces."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwen3.5_9b/ordinal_words.json",
+    "hash": "8a38baaad71ded46",
+    "description": "Write the ordinal word for a number (3 -> third), few-shot. Control: same format but write the cardinal number word (3 -> three).",
+    "name": "ordinal_words"
+  },
+  "catalog_id": "mlp_ordinal-word_writer_128-unit_l31_cluster_qwen3.5_9b_L31_k128_001",
+  "exported_copy": "library/qwen3.5_9b/mlp_ordinal-word_writer_128-unit_l31_cluster_qwen3.5_9b_L31_k128_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

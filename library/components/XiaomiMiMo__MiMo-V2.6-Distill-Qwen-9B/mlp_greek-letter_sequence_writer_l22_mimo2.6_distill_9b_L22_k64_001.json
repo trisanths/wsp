@@ -1,0 +1,116 @@
+{
+  "id": "mlp_greek-letter_sequence_writer_l22_mimo2.6_distill_9b_L22_k64_001",
+  "kind": "mlp_cluster",
+  "title": "MiMo-V2.6-Distill-Qwen-9B layer 22, greek-letter sequence writer (L22)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/mimo2.6_distill_9b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "greek_letter_successor"
+  ],
+  "models": [
+    "XiaomiMiMo/MiMo-V2.6-Distill-Qwen-9B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'greek_letter_successor' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2397,
+      "control_value": 0.0054,
+      "split": "person_a held-out skill items (greek_letter_successor)",
+      "seeds": null,
+      "source": "person_a/catalog/mimo2.6_distill_9b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0129"
+    }
+  ],
+  "generated": true,
+  "model": "XiaomiMiMo/MiMo-V2.6-Distill-Qwen-9B",
+  "layer": 22,
+  "layers": [
+    22
+  ],
+  "units_file": "components/XiaomiMiMo__MiMo-V2.6-Distill-Qwen-9B/mlp_greek-letter_sequence_writer_l22_mimo2.6_distill_9b_L22_k64_001.pt",
+  "units_remote": "person_a/parts/mimo2.6_distill_9b/mlp_greek-letter_sequence_writer_l22_mimo2.6_distill_9b_L22_k64_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'greek_letter_successor'",
+    "label": "greek-letter sequence writer (L22)",
+    "num_units": 64,
+    "d_model": 4096,
+    "effect": {
+      "math|search": -0.0002,
+      "math|heldout": -0.0001,
+      "code|search": 0.0002,
+      "code|heldout": -0.001,
+      "facts|search": 0.0003,
+      "facts|heldout": 0.0119,
+      "multilingual|search": 0.0,
+      "multilingual|heldout": -0.0007,
+      "general_text|search": 0.0009,
+      "general_text|heldout": -0.0009,
+      "month_successor|search": -0.0556,
+      "month_successor__control|search": 0.0056,
+      "month_successor|heldout": -0.0515,
+      "month_successor__control|heldout": 0.0069,
+      "roman_numeral|search": 0.0034,
+      "roman_numeral__control|search": -0.0012,
+      "roman_numeral|heldout": 0.0084,
+      "roman_numeral__control|heldout": -0.0034,
+      "ordinal_word|search": -0.0114,
+      "ordinal_word__control|search": -0.0374,
+      "ordinal_word|heldout": -0.016,
+      "ordinal_word__control|heldout": -0.0203,
+      "weekday_successor|search": 0.0163,
+      "weekday_successor__control|search": 0.0017,
+      "weekday_successor|heldout": 0.0063,
+      "weekday_successor__control|heldout": -0.0009,
+      "color_of_object|search": 0.0117,
+      "color_of_object__control|search": 0.0002,
+      "color_of_object|heldout": -0.001,
+      "color_of_object__control|heldout": 0.0015,
+      "greek_letter_successor|search": 0.2192,
+      "greek_letter_successor__control|search": -0.0174,
+      "greek_letter_successor|heldout": 0.2397,
+      "greek_letter_successor__control|heldout": -0.0129,
+      "country_of_city|search": 0.002,
+      "country_of_city__control|search": -0.0017,
+      "country_of_city|heldout": 0.0029,
+      "country_of_city__control|heldout": -0.0053,
+      "en_fr_translation|search": 0.0018,
+      "en_fr_translation__control|search": 0.0002,
+      "en_fr_translation|heldout": -0.0005,
+      "en_fr_translation__control|heldout": 0.0001
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0731,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0131,
+      -0.0065,
+      0.0093,
+      0.0158,
+      -0.0048
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Seeds 720 (top greek attribution .117) and 1695, plus the 62 L22 units whose down_proj columns most promote greek-letter-name tokens through final norm + lm_head."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/mimo2.6_distill_9b/greek_letter_successor.json",
+    "hash": "889de7649fe7a926",
+    "description": "Continue the Greek alphabet: given two consecutive Greek letter names, give the next. Control repeats the last given letter.",
+    "name": "greek_letter_successor"
+  },
+  "catalog_id": "mlp_greek-letter_sequence_writer_l22_mimo2.6_distill_9b_L22_k64_001",
+  "exported_copy": "library/mimo2.6_distill_9b/mlp_greek-letter_sequence_writer_l22_mimo2.6_distill_9b_L22_k64_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

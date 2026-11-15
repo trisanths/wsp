@@ -1,0 +1,116 @@
+{
+  "id": "heads_polarity_selection_support_qwen3.6_35b_a3b_L37_k1_001",
+  "kind": "attn_heads",
+  "title": "Qwen3.6-35B-A3B layer 37, polarity selection support",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwen3.6_35b_a3b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "product_polarity"
+  ],
+  "models": [
+    "Qwen/Qwen3.6-35B-A3B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'product_polarity' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1962,
+      "control_value": 0.0144,
+      "split": "person_a held-out skill items (product_polarity)",
+      "seeds": null,
+      "source": "person_a/catalog/qwen3.6_35b_a3b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0054"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen3.6-35B-A3B",
+  "layer": 37,
+  "layers": [
+    37
+  ],
+  "units_file": "components/Qwen__Qwen3.6-35B-A3B/heads_polarity_selection_support_qwen3.6_35b_a3b_L37_k1_001.pt",
+  "units_remote": "person_a/parts/qwen3.6_35b_a3b/heads_polarity_selection_support_qwen3.6_35b_a3b_L37_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'product_polarity'",
+    "label": "polarity selection support",
+    "num_units": 1,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0003,
+      "math|heldout": -0.0,
+      "code|search": -0.0002,
+      "code|heldout": -0.0006,
+      "facts|search": -0.0057,
+      "facts|heldout": -0.0112,
+      "multilingual|search": 0.0018,
+      "multilingual|heldout": -0.0018,
+      "general_text|search": 0.0012,
+      "general_text|heldout": 0.0017,
+      "digit_copy|search": -0.0009,
+      "digit_copy__control|search": -0.0012,
+      "digit_copy|heldout": 0.0013,
+      "digit_copy__control|heldout": 0.0035,
+      "symbol_copy|search": -0.0085,
+      "symbol_copy__control|search": -0.0155,
+      "symbol_copy|heldout": -0.0148,
+      "symbol_copy__control|heldout": 0.0167,
+      "number_words|search": -0.0208,
+      "number_words__control|search": -0.0108,
+      "number_words|heldout": -0.0163,
+      "number_words__control|heldout": -0.0191,
+      "word_field_copy|search": -0.0479,
+      "word_field_copy__control|search": -0.0013,
+      "word_field_copy|heldout": -0.0073,
+      "word_field_copy__control|heldout": -0.0009,
+      "word_to_digit|search": 0.0046,
+      "word_to_digit__control|search": -0.0152,
+      "word_to_digit|heldout": 0.0078,
+      "word_to_digit__control|heldout": -0.0027,
+      "product_polarity|search": 0.1804,
+      "product_polarity__control|search": -0.0082,
+      "product_polarity|heldout": 0.1962,
+      "product_polarity__control|heldout": -0.0054,
+      "closing_bracket|search": 0.0168,
+      "closing_bracket__control|search": 0.015,
+      "closing_bracket|heldout": 0.0135,
+      "closing_bracket__control|heldout": 0.0012,
+      "python_if_for|search": 0.0039,
+      "python_if_for__control|search": 0.0013,
+      "python_if_for|heldout": 0.0002,
+      "python_if_for__control|heldout": -0.0035
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0601,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0158,
+      0.1224,
+      -0.0032,
+      -0.0257,
+      -0.0055
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L37H1 second strongest sign OV identity .0192; screened H1/H6/H27 cluster caused .340 polarity drop whereas H27 alone .122. Isolate H1 for smaller part."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwen3.6_35b_a3b/product_polarity.json",
+    "hash": "10a3c86e8cd8c8ad",
+    "description": "Determine positive/negative polarity of a product of signed integers, with matched operand magnitude control.",
+    "name": "product_polarity"
+  },
+  "catalog_id": "heads_polarity_selection_support_qwen3.6_35b_a3b_L37_k1_001",
+  "exported_copy": "library/qwen3.6_35b_a3b/heads_polarity_selection_support_qwen3.6_35b_a3b_L37_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

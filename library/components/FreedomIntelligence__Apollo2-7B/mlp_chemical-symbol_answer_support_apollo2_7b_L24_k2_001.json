@@ -1,0 +1,108 @@
+{
+  "id": "mlp_chemical-symbol_answer_support_apollo2_7b_L24_k2_001",
+  "kind": "mlp_cluster",
+  "title": "Apollo2-7B layer 24, chemical-symbol answer support",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/apollo2_7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "chemical_symbols"
+  ],
+  "models": [
+    "FreedomIntelligence/Apollo2-7B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'chemical_symbols' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2783,
+      "control_value": 0.0007,
+      "split": "person_a held-out skill items (chemical_symbols)",
+      "seeds": null,
+      "source": "person_a/catalog/apollo2_7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0113"
+    }
+  ],
+  "generated": true,
+  "model": "FreedomIntelligence/Apollo2-7B",
+  "layer": 24,
+  "layers": [
+    24
+  ],
+  "units_file": "components/FreedomIntelligence__Apollo2-7B/mlp_chemical-symbol_answer_support_apollo2_7b_L24_k2_001.pt",
+  "units_remote": "person_a/parts/apollo2_7b/mlp_chemical-symbol_answer_support_apollo2_7b_L24_k2_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'chemical_symbols'",
+    "label": "chemical-symbol answer support",
+    "num_units": 2,
+    "d_model": 3584,
+    "effect": {
+      "math|search": -0.0002,
+      "math|heldout": -0.0,
+      "code|search": 0.0,
+      "code|heldout": 0.0002,
+      "facts|search": -0.0006,
+      "facts|heldout": 0.0089,
+      "multilingual|search": 0.0,
+      "multilingual|heldout": 0.0,
+      "general_text|search": -0.0002,
+      "general_text|heldout": -0.0014,
+      "city_country|search": 0.0001,
+      "city_country__control|search": 0.0023,
+      "city_country|heldout": -0.0002,
+      "city_country__control|heldout": 0.0008,
+      "anatomical_function|search": -0.0073,
+      "anatomical_function__control|search": -0.025,
+      "anatomical_function|heldout": 0.0039,
+      "anatomical_function__control|heldout": -0.0222,
+      "chemical_symbols|search": 0.2875,
+      "chemical_symbols__control|search": -0.0138,
+      "chemical_symbols|heldout": 0.2783,
+      "chemical_symbols__control|heldout": -0.0113,
+      "legal_definitions|search": 0.013,
+      "legal_definitions__control|search": 0.0007,
+      "legal_definitions|heldout": 0.0069,
+      "legal_definitions__control|heldout": -0.0126,
+      "financial_definitions|search": 0.0007,
+      "financial_definitions__control|search": 0.0024,
+      "financial_definitions|heldout": 0.0032,
+      "financial_definitions__control|heldout": -0.0056,
+      "physics_quantities|search": 0.0064,
+      "physics_quantities__control|search": -0.0015,
+      "physics_quantities|heldout": 0.0106,
+      "physics_quantities__control|heldout": 0.0004
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0958,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0022,
+      0.0007,
+      -0.0017,
+      -0.0022,
+      0.0047
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Chemistry weight exploration established chemical-symbol expansion benchmark. Independent attribution locates 3474/7884 (.140/.116); output weights show capitalized word starts (Crypt/Semi/Kernel) and Of/R, not an element dictionary. Screen the narrower task-support hypothesis with controls rather than assume chemical semantics."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/apollo2_7b/chemical_symbols.json",
+    "hash": "f9816858530d5f3e",
+    "description": "Expand chemical element symbols to element names, with marker-reading controls.",
+    "name": "chemical_symbols"
+  },
+  "catalog_id": "mlp_chemical-symbol_answer_support_apollo2_7b_L24_k2_001",
+  "exported_copy": "library/apollo2_7b/mlp_chemical-symbol_answer_support_apollo2_7b_L24_k2_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

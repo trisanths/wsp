@@ -1,6 +1,7 @@
 """Feedback seams: exact recursion, parallel passes, padding, controls, save and load, a planted skill."""
 
 import copy
+import random
 
 import pytest
 import torch
@@ -13,15 +14,19 @@ from wsp.feedback import (
     count_params,
     first_real,
     heal_distill,
+    heal_seam,
     kd_kl,
     load_seam,
     make_block_branch,
     make_plain_branch,
     positions_of,
     random_range,
+    feedback_stats,
+    held_out_cosine,
     save_seam,
     shift_feedback,
     stage2_groups,
+    warm_start_t_out,
 )
 
 NEW_TOKENS = 6
@@ -50,14 +55,24 @@ def sink_vector():
     return torch.randn(48) * 3.0
 
 
-def randomize(seam, scale=0.3, seed=5):
-    """Give every branch a nonzero T_out, so the feedback matters."""
+def set_gate(branch, value):
+    """Set the effective gate of a branch (legacy or not)."""
+    with torch.no_grad():
+        if branch.legacy:
+            branch.gate_raw.fill_(value)
+        else:
+            branch.gate_raw.fill_(float(torch.atanh(torch.tensor(value / float(branch.g_max)))))
+
+
+def randomize(seam, scale=0.3, seed=5, gate=0.3):
+    """Give every branch a new T_out and an open gate, so the feedback matters."""
     generator = torch.Generator()
     generator.manual_seed(seed)
     for branch in seam.branches:
         weight = torch.randn(branch.t_out.weight.shape, generator=generator) * scale
         with torch.no_grad():
             branch.t_out.weight.copy_(weight)
+        set_gate(branch, gate)
     return seam
 
 
@@ -289,6 +304,7 @@ def test_plain_branch_matches_a_hand_written_reference():
     branch = seam.branches[0]
     w = branch.t_out.weight.detach().clone()
     gate = float(branch.gate.detach())
+    embed_rms = float(branch.embed_rms)
     ids = plain_ids()
     batch, length = ids.shape
     embed = host.get_input_embeddings()
@@ -300,7 +316,9 @@ def test_plain_branch_matches_a_hand_written_reference():
         for t in range(length):
             inputs = embed(ids[:, :t + 1]).clone()
             for u in range(1, t + 1):
-                inputs[:, u] = inputs[:, u] + gate * (top[u - 1] @ w.T)
+                normed = top[u - 1] * torch.rsqrt(top[u - 1].pow(2).mean(-1, keepdim=True) + 1e-6)
+                y = normed @ w.T
+                inputs[:, u] = inputs[:, u] + gate * embed_rms * y / y.norm(dim=-1, keepdim=True)
             out = host.model(inputs_embeds=inputs, use_cache=False)
             top = [out.last_hidden_state[:, u] for u in range(t + 1)]
             logits.append(host.lm_head(out.last_hidden_state[:, -1]))
@@ -317,7 +335,7 @@ def test_stage_two_gradients_reach_only_t_out_gates_and_lora():
     seam = block_seam(plain=True)
     seam.add_host_lora(4)
     seam.to(torch.float32)
-    groups = stage2_groups(seam)
+    groups = stage2_groups(seam, train_t_in=False)
     assert [group["name"] for group in groups] == ["t_out", "gate", "lora"]
     ids = plain_ids()
     seam.train()
@@ -333,7 +351,15 @@ def test_stage_two_gradients_reach_only_t_out_gates_and_lora():
         else:
             assert not param.requires_grad, name
             assert param.grad is None, name
-    # A fresh seam has T_out at zero, so its gradient flows through the gate times the vector.
+    # A fresh seam has the gate at 0, so at step 0 only the gate has a gradient. T_out gets none yet.
+    for branch in seam.branches:
+        assert float(branch.gate_raw.grad.abs()) > 0
+        assert branch.t_out.weight.grad is None or float(branch.t_out.weight.grad.abs().sum()) == 0
+    # With an open gate, T_out gets a gradient too.
+    for branch in seam.branches:
+        set_gate(branch, 0.2)
+    seam.zero_grad()
+    seam(ids, passes=2).logits.pow(2).mean().backward()
     for branch in seam.branches:
         assert branch.t_out.weight.grad is not None
         assert float(branch.t_out.weight.grad.abs().sum()) > 0
@@ -435,11 +461,11 @@ def test_save_and_load_give_equal_logits_and_generation(tmp_path):
         for name, param in seam.named_parameters():
             if name.endswith("lora_B"):
                 param.normal_(0, 0.1)
-        seam.branches[0].gate.fill_(0.7)
+        set_gate(seam.branches[0], 0.4)
     seam.eval()
     out_dir = tmp_path / "saved"
     manifest = save_seam(seam, str(out_dir), base_id="unused")
-    assert manifest["format"] == "wsp-feedback-1"
+    assert manifest["format"] == "wsp-feedback-2"
     assert manifest["branches"][0]["donor_layers"] == [1, 2]
     loaded, tokenizer = load_seam(str(out_dir), host=pristine, dtype=torch.float32)
     assert tokenizer is None
@@ -776,3 +802,329 @@ def test_scrambled_control_keeps_shapes_and_survives_save_and_load(tmp_path):
     loaded_state = loaded.branches[0].part.state_dict()
     for name in state:
         assert torch.allclose(loaded_state[name].float(), state[name].float(), atol=1e-5)
+
+
+# ---------------------------------------------------------------- scale control, warm start, optimizer safety
+
+
+def loud_donor(amp):
+    """A donor whose block output is amp times larger, like the outlier dimensions of a real residual stream."""
+    donor = donor_model()
+    with torch.no_grad():
+        for layer in donor.model.layers:
+            layer.self_attn.o_proj.weight.mul_(amp)
+            layer.mlp.down_proj.weight.mul_(amp)
+    return donor
+
+
+def one_step_change(legacy, amp, lr_t_out=3e-4, lr_gate=1e-3):
+    """Largest logit change after ONE optimizer step from a fresh seam, and the written norm over the embedding norm."""
+    host = host_model()
+    donor = loud_donor(amp)
+    teacher = tiny_llama(32, 4, seed=7)
+    branch = make_block_branch(host, donor, [1, 2], 1, sink=sink_vector(), legacy=legacy)
+    seam = FeedbackSeam(host, [branch]).eval()
+    seam.to(torch.float32)
+    groups = []
+    found = seam.set_trainable(("t_out", "gate"))
+    groups.append({"params": found["t_out"], "lr": lr_t_out})
+    groups.append({"params": found["gate"], "lr": lr_gate})
+    ids = plain_ids()
+    with torch.no_grad():
+        before = seam(ids, passes=2).logits.clone()
+    optimizer = torch.optim.AdamW(groups, weight_decay=0.0)
+    loss = kd_kl(seam(ids, passes=2).logits, teacher(ids).logits, torch.ones(ids.shape))
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+    with torch.no_grad():
+        after = seam(ids, passes=2).logits
+        mask = torch.ones_like(ids)
+        out = seam.host_pass(ids, mask, positions_of(mask), None)
+        written = branch.output(seam.reads_of(out.hidden_states)[0], mask)
+        ratio = float(written.norm(dim=-1).mean() / seam.get_input_embeddings()(ids).norm(dim=-1).mean())
+    return float((after - before).abs().max()), float(before.std()), ratio
+
+
+def test_one_optimizer_step_from_a_fresh_seam_moves_the_logits_by_a_small_bounded_amount():
+    # The old path (legacy=True): the first Adam step gives every T_out entry a move of lr, so the written vector
+    # grows with the raw scale of the block output. The new path does not depend on that scale.
+    legacy_small, std, legacy_ratio_small = one_step_change(True, 1.0)
+    legacy_big, _, legacy_ratio_big = one_step_change(True, 300.0)
+    new_small, _, new_ratio_small = one_step_change(False, 1.0)
+    new_big, _, new_ratio_big = one_step_change(False, 300.0)
+    print("legacy", legacy_small, legacy_big, legacy_ratio_small, legacy_ratio_big)
+    print("new", new_small, new_big, new_ratio_small, new_ratio_big)
+    # Confirms the cause: with the old init the move scales with the block output.
+    assert legacy_big > 30 * legacy_small
+    assert legacy_ratio_big > 1.0
+    # The fix: bounded and independent of the block scale.
+    assert new_big < 0.01 * std
+    assert new_small < 0.01 * std
+    assert new_ratio_big < 0.01
+    assert legacy_big > 20 * new_big
+
+
+@pytest.mark.parametrize("scale", [1e-3, 1.0, 1e3])
+def test_written_vector_norm_is_gate_times_embed_rms_for_any_t_out_scale(scale):
+    host = host_model()
+    donor = donor_model()
+    branch = make_block_branch(host, donor, [1, 2], 1, sink=sink_vector(), g_max=0.5)
+    plain = make_plain_branch(host, g_max=0.5)
+    seam = FeedbackSeam(host, [branch, plain]).eval()
+    seam.to(torch.float32)
+    expected_rms = float(torch.sqrt(host.get_input_embeddings().weight.pow(2).sum(-1).mean()))
+    for item in seam.branches:
+        assert float(item.embed_rms) == pytest.approx(expected_rms, rel=1e-5)
+        with torch.no_grad():
+            item.t_out.weight.mul_(scale)
+        set_gate(item, 0.25)
+    ids = plain_ids()
+    mask = torch.ones_like(ids)
+    with torch.no_grad():
+        out = seam.host_pass(ids, mask, positions_of(mask), None)
+        for item, read in zip(seam.branches, seam.reads_of(out.hidden_states)):
+            written = item.output(read, mask)
+            norms = written.norm(dim=-1)
+            assert float(norms.max()) == pytest.approx(0.25 * expected_rms, rel=1e-4)
+            assert float(norms.min()) == pytest.approx(0.25 * expected_rms, rel=1e-4)
+    stats = feedback_stats(seam, Tok(), [" ".join(str(int(v)) for v in ids[0])])
+    for found in stats:
+        assert found["gate"] == pytest.approx(0.25, rel=1e-4)
+        assert found["ratio"] == pytest.approx(0.25, rel=1e-3)
+
+
+def test_gate_zero_gives_the_base_exactly_in_forward_and_generate_even_with_a_big_t_out():
+    host = host_model()
+    donor = donor_model()
+    seam = FeedbackSeam(host, [make_block_branch(host, donor, [1, 2], 1, sink=sink_vector()),
+                               make_plain_branch(host)]).eval()
+    for branch in seam.branches:
+        with torch.no_grad():
+            branch.t_out.weight.mul_(50.0)
+        assert float(branch.gate) == 0.0
+    ids, mask = padded_batch()
+    pos = positions_of(mask)
+    with torch.no_grad():
+        want = host(input_ids=ids, attention_mask=mask, position_ids=pos).logits
+        for passes in (1, 2, 3):
+            assert worst(seam(ids, mask, passes=passes).logits, want) == 0.0
+        settings = dict(max_new_tokens=NEW_TOKENS, do_sample=False, pad_token_id=0, eos_token_id=None)
+        assert torch.equal(seam.generate(input_ids=ids, attention_mask=mask, **settings),
+                           host.generate(input_ids=ids, attention_mask=mask, **settings))
+    # The gate is bounded: raw values far from 0 stay inside (-g_max, g_max).
+    with torch.no_grad():
+        seam.branches[0].gate_raw.fill_(50.0)
+    assert float(seam.branches[0].gate) <= 0.5 + 1e-6
+
+
+def test_the_gate_opens_slowly_and_t_out_gets_no_gradient_at_step_zero():
+    seam = block_seam()
+    seam.set_trainable(("t_out", "gate"))
+    seam(plain_ids(), passes=2).logits.pow(2).mean().backward()
+    branch = seam.branches[0]
+    assert float(branch.gate_raw.grad.abs()) > 0
+    assert branch.t_out.weight.grad is None or float(branch.t_out.weight.grad.abs().sum()) == 0.0
+
+
+class DivergingForward:
+    """A student that gets worse every call: the logits drift away from the teacher's."""
+
+    def __init__(self, teacher, vocab):
+        self.teacher = teacher
+        self.vocab = vocab
+        self.calls = 0
+        self.param = torch.nn.Parameter(torch.zeros(1))
+
+    def __call__(self, ids, mask, passes):
+        self.calls += 1
+        with torch.no_grad():
+            logits = self.teacher(input_ids=ids, attention_mask=mask).logits
+        noise = torch.randn(logits.shape, generator=torch.Generator().manual_seed(self.calls))
+        if passes == 1:
+            return logits + self.param
+        return logits + self.param + noise * (0.5 * self.calls)
+
+
+def test_the_heal_loop_halts_on_a_planted_diverging_run_and_not_on_a_healthy_one():
+    teacher = tiny_llama(32, 4, seed=7)
+    torch.manual_seed(4)
+    texts = []
+    for _ in range(24):
+        texts.append(" ".join(str(int(v)) for v in torch.randint(3, 300, (10,))))
+    flags = [False] * 24
+    student = DivergingForward(teacher, 300)
+    groups = [{"params": [student.param], "lr": 1e-3}]
+
+    def anchor(ids, mask):
+        return teacher(input_ids=ids, attention_mask=mask).logits
+
+    log = heal_distill(student, anchor, groups, Tok(), teacher, texts, flags, steps=200, batch_size=4, seq_len=10,
+                       seed=1, log_every=0, one_pass_prob=0.0, three_pass_prob=0.0, halt_patience=5)
+    assert log["halted"]
+    assert log["halt_step"] < 60
+    assert len(log["kd"]) == log["halt_step"]
+    assert "two-pass KD" in log["halt_reason"] or "non-finite" in log["halt_reason"]
+    # A healthy loop (the teacher itself as student) never halts.
+    healthy = heal_distill(lambda ids, mask, passes: teacher(input_ids=ids, attention_mask=mask).logits
+                           + groups[0]["params"][0], anchor, groups, Tok(), teacher, texts, flags, steps=40,
+                           batch_size=4, seq_len=10, seed=1, log_every=0, halt_patience=5)
+    assert not healthy["halted"]
+    assert len(healthy["kd"]) == 40
+
+
+def test_the_pass_schedule_has_three_pass_steps_after_the_warmup_and_stays_reproducible():
+    from wsp.feedback import draw_passes
+
+    first = random.Random(5)
+    second = random.Random(5)
+    one = [draw_passes(first, step, 0.15, 0.3, 50) for step in range(400)]
+    two = [draw_passes(second, step, 0.15, 0.3, 50) for step in range(400)]
+    assert one == two
+    assert 3 not in one[:50]
+    late = one[50:]
+    assert late.count(3) > 0.15 * len(late)
+    assert late.count(1) > 0
+    # The pass count does not change the draws used by the other arms.
+    no_three = [draw_passes(random.Random(5), 0, 0.15, 0.0, 50)]
+    assert no_three[0] in (1, 2)
+
+
+def test_three_pass_training_runs_and_gradients_reach_only_the_intended_parameters():
+    seam = block_seam(plain=True)
+    seam.add_host_lora(4)
+    seam.to(torch.float32)
+    randomize(seam)
+    groups = stage2_groups(seam, train_t_in=True)
+    assert [group["name"] for group in groups] == ["t_out", "gate", "t_in", "lora"]
+    ids = plain_ids()
+    seam.train()
+    seam(ids, passes=3).logits.pow(2).mean().backward()
+    allowed = {}
+    for group in groups:
+        for param in group["params"]:
+            allowed[id(param)] = group["name"]
+    for name, param in seam.named_parameters():
+        if id(param) in allowed:
+            assert param.requires_grad, name
+        else:
+            assert param.grad is None, name
+    assert float(seam.branches[0].t_in.weight.grad.abs().sum()) > 0
+    assert float(seam.branches[0].t_out.weight.grad.abs().sum()) > 0
+
+
+def test_heal_distill_runs_three_pass_steps_with_a_group_warmup_and_logs_the_passes_gap():
+    host = host_model()
+    teacher = tiny_llama(32, 4, seed=7)
+    seam = FeedbackSeam(host, [make_plain_branch(host)])
+    seam.add_host_lora(4)
+    torch.manual_seed(4)
+    texts = []
+    for _ in range(24):
+        texts.append(" ".join(str(int(v)) for v in torch.randint(3, 300, (10,))))
+    flags = [index % 3 == 0 for index in range(24)]
+    log = heal_seam(seam, Tok(), teacher, texts, flags, lrs={"lr_t_out": 1e-3, "lr_gate": 1e-2, "lr_lora": 1e-3},
+                    gap_texts=texts[:2], gap_every=10, train_t_in=False, steps=30, batch_size=6, seq_len=10, seed=1,
+                    log_every=0, warmup=5, three_pass_prob=0.5, one_pass_prob=0.1)
+    assert 3 in log["passes"]
+    assert 3 not in log["passes"][:5]
+    assert [entry["step"] for entry in log["gap"]] == [10, 20, 30]
+    assert set(log["gap"][0]) >= {"kl", "agree", "tokens"}
+    assert not log["halted"]
+    assert float(seam.branches[0].gate) != 0.0
+
+
+def test_t_in_regularizer_gives_a_loss_with_a_gradient_on_t_in_only():
+    from tests.test_align import WORDS, tiny_tokenizer
+    from wsp.feedback import t_in_regularizer
+
+    tokenizer = tiny_tokenizer()
+    host = host_model()
+    donor = donor_model()
+    branch = make_block_branch(host, donor, [1, 2], 1, sink=sink_vector())
+    seam = FeedbackSeam(host, [branch])
+    seam.set_trainable(("t_in",))
+    texts = []
+    for i in range(6):
+        texts.append(" ".join(WORDS[i % 5: i % 5 + 8]))
+    regularizer = t_in_regularizer(seam, tokenizer, donor, texts, weight=0.5, batch_size=2, seq_len=16)
+    loss = regularizer(0)
+    assert torch.isfinite(loss)
+    loss.backward()
+    assert float(branch.t_in.weight.grad.abs().sum()) > 0
+    assert branch.t_out.weight.grad is None
+    assert branch.gate_raw.grad is None
+
+
+def test_save_and_load_keep_the_gate_the_scale_and_the_t_out_start(tmp_path):
+    donor = donor_model()
+    donor_dir = tmp_path / "donor"
+    donor.save_pretrained(donor_dir)
+    host = host_model()
+    pristine = copy.deepcopy(host)
+    branch = make_block_branch(host, str(donor_dir), [1, 2], 1, donor_config=donor.config, donor_id=str(donor_dir),
+                               g_max=0.4, init_seed=3)
+    seam = FeedbackSeam(host, [branch, make_plain_branch(host, g_max=0.4)], base_id="unused").eval()
+    seam.to(torch.float32)
+    set_gate(seam.branches[0], 0.2)
+    set_gate(seam.branches[1], 0.1)
+    assert branch.meta["t_out_init"] == "random"
+    save_seam(seam, str(tmp_path / "saved"), base_id="unused")
+    loaded, _ = load_seam(str(tmp_path / "saved"), host=pristine, dtype=torch.float32)
+    for old, new in zip(seam.branches, loaded.branches):
+        assert float(new.g_max) == pytest.approx(0.4)
+        assert float(new.embed_rms) == pytest.approx(float(old.embed_rms))
+        assert float(new.gate) == pytest.approx(float(old.gate))
+        assert torch.equal(new.gate_raw, old.gate_raw)
+        assert not new.legacy
+    ids = plain_ids()
+    with torch.no_grad():
+        assert worst(seam(ids).logits, loaded(ids).logits) == 0.0
+
+
+def test_a_new_branch_starts_random_and_a_legacy_branch_starts_at_zero():
+    host = host_model()
+    new = make_plain_branch(host)
+    old = make_plain_branch(host, legacy=True)
+    assert float(new.gate) == 0.0
+    assert float(new.t_out.weight.abs().sum()) > 0
+    assert float(new.t_out.weight.std()) == pytest.approx(1.0 / 32 ** 0.5, rel=0.2)
+    assert float(old.gate) == 1.0
+    assert float(old.t_out.weight.abs().sum()) == 0.0
+    again = make_plain_branch(host)
+    other = make_plain_branch(host, init_seed=7)
+    assert torch.equal(new.t_out.weight, again.t_out.weight)
+    assert not torch.equal(new.t_out.weight, other.t_out.weight)
+    with pytest.raises(ValueError):
+        make_plain_branch(host, gate_init=0.6, g_max=0.5)
+
+
+def test_warm_start_fits_t_out_toward_the_donor_and_beats_the_random_start_on_held_out_rows():
+    donor, donor_loss = train_planted_donor()
+    host = planted_host()
+    generator = torch.Generator()
+    generator.manual_seed(31)
+    t_in = ridge_t_in(host, 0, donor, 0, generator)
+    branch = make_block_branch(host, donor, [0, 2], 0, t_in=t_in)
+    seam = FeedbackSeam(host, [branch]).eval()
+    before = branch.t_out.weight.detach().clone()
+    ids = planted_batch(48, 12, generator)
+    texts = [" ".join(str(int(v)) for v in row) for row in ids]
+    reports = warm_start_t_out(seam, Tok(), donor, texts, batch_size=4, seq_len=12, min_rows=20)
+    print("warm start", reports)
+    report = reports[0]
+    assert report["mode"] == "ridge"
+    assert report["lag"] in (0, 1)
+    best = report["cosine"][f"lag{report['lag']}"]
+    assert best > 0
+    assert best > report["random_cosine"][f"lag{report['lag']}"] + 0.05
+    assert not torch.equal(before, branch.t_out.weight)
+    # The fit has the same scale as a random start, and the gate did not move.
+    assert float(branch.t_out.weight.pow(2).mean().sqrt()) == pytest.approx(1.0 / 32 ** 0.5, rel=1e-3)
+    assert float(branch.gate) == 0.0
+    # Too few rows: the random start stays and the report says so.
+    seam2 = FeedbackSeam(planted_host(), [make_block_branch(planted_host(), donor, [0, 2], 0, t_in=t_in)]).eval()
+    kept = seam2.branches[0].t_out.weight.detach().clone()
+    again = warm_start_t_out(seam2, Tok(), donor, texts[:2], batch_size=2, seq_len=12, min_rows=10 ** 6)
+    assert again[0]["mode"] == "random"
+    assert torch.equal(kept, seam2.branches[0].t_out.weight)

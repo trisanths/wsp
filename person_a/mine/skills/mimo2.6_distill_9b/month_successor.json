@@ -1,0 +1,1220 @@
+{
+ "name": "month_successor",
+ "description": "Name the month that comes N (1-3) months after a given month, wrapping mod 12. Control copies the given month name from the same sentence frame.",
+ "hash": "b88b845e6c10026d",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nM=['January','February','March','April','May','June','July','August','September','October','November','December']\nnw={1:'one',2:'two',3:'three'}\nitems=[];control=[]\nfor i in range(120):\n    m=random.randrange(12); k=random.choice([1,2,3])\n    items.append({\"prompt\":f\"Calendar question: {nw[k]} month{'s' if k>1 else ''} after {M[m]} comes the month of\",\"answer\":\" \"+M[(m+k)%12]})\n    control.append({\"prompt\":f\"Calendar question: {nw[k]} month{'s' if k>1 else ''} after {M[m]}. Repeat the starting month: the month of\",\"answer\":\" \"+M[m]})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Calendar question: three months after December comes the month of",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after December comes the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after July comes the month of",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after July comes the month of",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after June comes the month of",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after April comes the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after April comes the month of",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after September comes the month of",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after February comes the month of",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after November comes the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after May comes the month of",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after June comes the month of",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after February comes the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after February comes the month of",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after July comes the month of",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after June comes the month of",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after July comes the month of",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after June comes the month of",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after September comes the month of",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after February comes the month of",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after February comes the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after March comes the month of",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after May comes the month of",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after October comes the month of",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after May comes the month of",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after February comes the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after October comes the month of",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after January comes the month of",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after October comes the month of",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after May comes the month of",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after December comes the month of",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after July comes the month of",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after April comes the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after November comes the month of",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after April comes the month of",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after January comes the month of",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after February comes the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after February comes the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after May comes the month of",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after May comes the month of",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after February comes the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after April comes the month of",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after June comes the month of",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after September comes the month of",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after September comes the month of",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after October comes the month of",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after February comes the month of",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after August comes the month of",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after May comes the month of",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after November comes the month of",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after April comes the month of",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after February comes the month of",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after January comes the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after January comes the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after July comes the month of",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after September comes the month of",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after June comes the month of",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after January comes the month of",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after May comes the month of",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after April comes the month of",
+    "continuation": " July",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Calendar question: two months after August comes the month of",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after February comes the month of",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after February comes the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after April comes the month of",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after October comes the month of",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after June comes the month of",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after August comes the month of",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after July comes the month of",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after March comes the month of",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after March comes the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after January comes the month of",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after January comes the month of",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after May comes the month of",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after November comes the month of",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after June comes the month of",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after November comes the month of",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after June comes the month of",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after April comes the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after January comes the month of",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after January comes the month of",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after June comes the month of",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after December comes the month of",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after June comes the month of",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after March comes the month of",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after December comes the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after November comes the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after September comes the month of",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after January comes the month of",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after May comes the month of",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after October comes the month of",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after February comes the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after November comes the month of",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after December comes the month of",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after February comes the month of",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after October comes the month of",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after April comes the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after November comes the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after February comes the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after February comes the month of",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after August comes the month of",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after August comes the month of",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after June comes the month of",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after November comes the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after August comes the month of",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after March comes the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after July comes the month of",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after July comes the month of",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after May comes the month of",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after August comes the month of",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after January comes the month of",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after August comes the month of",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after May comes the month of",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after June comes the month of",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after September comes the month of",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after October comes the month of",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after March comes the month of",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after October comes the month of",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after February comes the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after January comes the month of",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after November comes the month of",
+    "continuation": " December",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Calendar question: two months after June. Repeat the starting month: the month of",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after February. Repeat the starting month: the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after August. Repeat the starting month: the month of",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after February. Repeat the starting month: the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after October. Repeat the starting month: the month of",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after April. Repeat the starting month: the month of",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after August. Repeat the starting month: the month of",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after November. Repeat the starting month: the month of",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after May. Repeat the starting month: the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after December. Repeat the starting month: the month of",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after June. Repeat the starting month: the month of",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after February. Repeat the starting month: the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after September. Repeat the starting month: the month of",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after January. Repeat the starting month: the month of",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after November. Repeat the starting month: the month of",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after December. Repeat the starting month: the month of",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after April. Repeat the starting month: the month of",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after February. Repeat the starting month: the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after July. Repeat the starting month: the month of",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after May. Repeat the starting month: the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after February. Repeat the starting month: the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after November. Repeat the starting month: the month of",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after February. Repeat the starting month: the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after January. Repeat the starting month: the month of",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after February. Repeat the starting month: the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after August. Repeat the starting month: the month of",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after June. Repeat the starting month: the month of",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after November. Repeat the starting month: the month of",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after June. Repeat the starting month: the month of",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after September. Repeat the starting month: the month of",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after July. Repeat the starting month: the month of",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after September. Repeat the starting month: the month of",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after October. Repeat the starting month: the month of",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after October. Repeat the starting month: the month of",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after June. Repeat the starting month: the month of",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after March. Repeat the starting month: the month of",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after March. Repeat the starting month: the month of",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after April. Repeat the starting month: the month of",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after May. Repeat the starting month: the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after May. Repeat the starting month: the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after February. Repeat the starting month: the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after June. Repeat the starting month: the month of",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after October. Repeat the starting month: the month of",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after November. Repeat the starting month: the month of",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after August. Repeat the starting month: the month of",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after October. Repeat the starting month: the month of",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after May. Repeat the starting month: the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after April. Repeat the starting month: the month of",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after September. Repeat the starting month: the month of",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after November. Repeat the starting month: the month of",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after September. Repeat the starting month: the month of",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after June. Repeat the starting month: the month of",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after October. Repeat the starting month: the month of",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after October. Repeat the starting month: the month of",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after July. Repeat the starting month: the month of",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after July. Repeat the starting month: the month of",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after May. Repeat the starting month: the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after May. Repeat the starting month: the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after May. Repeat the starting month: the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after November. Repeat the starting month: the month of",
+    "continuation": " November",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Calendar question: one month after July. Repeat the starting month: the month of",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after October. Repeat the starting month: the month of",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after January. Repeat the starting month: the month of",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after February. Repeat the starting month: the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after December. Repeat the starting month: the month of",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after March. Repeat the starting month: the month of",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after June. Repeat the starting month: the month of",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after May. Repeat the starting month: the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after May. Repeat the starting month: the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after February. Repeat the starting month: the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after May. Repeat the starting month: the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after February. Repeat the starting month: the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after April. Repeat the starting month: the month of",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after April. Repeat the starting month: the month of",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after June. Repeat the starting month: the month of",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after November. Repeat the starting month: the month of",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after April. Repeat the starting month: the month of",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after February. Repeat the starting month: the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after July. Repeat the starting month: the month of",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after January. Repeat the starting month: the month of",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after August. Repeat the starting month: the month of",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after August. Repeat the starting month: the month of",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after January. Repeat the starting month: the month of",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after June. Repeat the starting month: the month of",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after March. Repeat the starting month: the month of",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after January. Repeat the starting month: the month of",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after September. Repeat the starting month: the month of",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after August. Repeat the starting month: the month of",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after June. Repeat the starting month: the month of",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after February. Repeat the starting month: the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after July. Repeat the starting month: the month of",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after June. Repeat the starting month: the month of",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after January. Repeat the starting month: the month of",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after February. Repeat the starting month: the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after January. Repeat the starting month: the month of",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after March. Repeat the starting month: the month of",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after July. Repeat the starting month: the month of",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after March. Repeat the starting month: the month of",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after December. Repeat the starting month: the month of",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after December. Repeat the starting month: the month of",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after January. Repeat the starting month: the month of",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after July. Repeat the starting month: the month of",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after May. Repeat the starting month: the month of",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after February. Repeat the starting month: the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after January. Repeat the starting month: the month of",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after January. Repeat the starting month: the month of",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after April. Repeat the starting month: the month of",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after April. Repeat the starting month: the month of",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after November. Repeat the starting month: the month of",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after December. Repeat the starting month: the month of",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: two months after January. Repeat the starting month: the month of",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after August. Repeat the starting month: the month of",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after September. Repeat the starting month: the month of",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after April. Repeat the starting month: the month of",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after February. Repeat the starting month: the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after February. Repeat the starting month: the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after October. Repeat the starting month: the month of",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: one month after November. Repeat the starting month: the month of",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after February. Repeat the starting month: the month of",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Calendar question: three months after June. Repeat the starting month: the month of",
+    "continuation": " June",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 1.601
+}

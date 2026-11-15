@@ -1,0 +1,108 @@
+{
+  "id": "mlp_legal_and_litigation_terminology_retrieval_qwencoder7b_L27_k1_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen2.5-Coder-7B-Instruct layer 27, legal and litigation terminology retrieval",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwencoder7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "legal_terms"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Coder-7B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'legal_terms' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2033,
+      "control_value": -0.0005,
+      "split": "person_a held-out skill items (legal_terms)",
+      "seeds": null,
+      "source": "person_a/catalog/qwencoder7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0149"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "layer": 27,
+  "layers": [
+    27
+  ],
+  "units_file": "components/Qwen__Qwen2.5-Coder-7B-Instruct/mlp_legal_and_litigation_terminology_retrieval_qwencoder7b_L27_k1_001.pt",
+  "units_remote": "person_a/parts/qwencoder7b/mlp_legal_and_litigation_terminology_retrieval_qwencoder7b_L27_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'legal_terms'",
+    "label": "legal and litigation terminology retrieval",
+    "num_units": 1,
+    "d_model": 3584,
+    "effect": {
+      "math|search": 0.0001,
+      "math|heldout": -0.0,
+      "code|search": 0.0002,
+      "code|heldout": -0.0,
+      "facts|search": 0.0002,
+      "facts|heldout": -0.0017,
+      "multilingual|search": 0.0,
+      "multilingual|heldout": -0.0001,
+      "general_text|search": 0.0001,
+      "general_text|heldout": 0.0004,
+      "capital_country|search": -0.004,
+      "capital_country__control|search": 0.0004,
+      "capital_country|heldout": -0.0035,
+      "capital_country__control|heldout": 0.0004,
+      "anatomical_function|search": 0.0005,
+      "anatomical_function__control|search": -0.0016,
+      "anatomical_function|heldout": 0.001,
+      "anatomical_function__control|heldout": 0.0087,
+      "financial_terms|search": 0.011,
+      "financial_terms__control|search": -0.0,
+      "financial_terms|heldout": 0.0021,
+      "financial_terms__control|heldout": -0.0009,
+      "element_symbols|search": -0.002,
+      "element_symbols__control|search": 0.0005,
+      "element_symbols|heldout": 0.0019,
+      "element_symbols__control|heldout": -0.0008,
+      "legal_terms|search": 0.2478,
+      "legal_terms__control|search": 0.0115,
+      "legal_terms|heldout": 0.2033,
+      "legal_terms__control|heldout": 0.0149,
+      "physics_concepts|search": 0.0038,
+      "physics_concepts__control|search": -0.0031,
+      "physics_concepts|heldout": -0.0017,
+      "physics_concepts__control|heldout": -0.0021
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0826,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0031,
+      0.0037,
+      0.0002,
+      -0.0019,
+      -0.0014
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Negative output projection of 16710 coherently encodes plaintiff/defendant/prosecution/courtroom and Chinese litigation vocabulary. Single-unit ablation gives .248 legal-term retrieval drop with only .011 matched-copy drop and <=.011 on other domains; attribution .252 agrees."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwencoder7b/legal_terms.json",
+    "hash": "2221e4b5f0b2761e",
+    "description": "Map plain-language descriptions of legal roles and concepts to standard legal terms; control copies the provided term.",
+    "name": "legal_terms"
+  },
+  "catalog_id": "mlp_legal_and_litigation_terminology_retrieval_qwencoder7b_L27_k1_001",
+  "exported_copy": "library/qwencoder7b/mlp_legal_and_litigation_terminology_retrieval_qwencoder7b_L27_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

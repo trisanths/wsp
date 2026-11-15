@@ -1,0 +1,116 @@
+{
+  "id": "mlp_month-sequence_next_month_cluster_l12_mlp_weekda_lfm2.5_2.6b_L12_k2048_001",
+  "kind": "mlp_cluster",
+  "title": "LFM2.5-2.6B layer 12, month-sequence (next month) cluster, L12 MLP, weekday-separated",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_2.6b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "month_successor"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-2.6B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'month_successor' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1682,
+      "control_value": 0.0775,
+      "split": "person_a held-out skill items (month_successor)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_2.6b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0063"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-2.6B",
+  "layer": 12,
+  "layers": [
+    12
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-2.6B/mlp_month-sequence_next_month_cluster_l12_mlp_weekda_lfm2.5_2.6b_L12_k2048_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_2.6b/mlp_month-sequence_next_month_cluster_l12_mlp_weekda_lfm2.5_2.6b_L12_k2048_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'month_successor'",
+    "label": "month-sequence (next month) cluster, L12 MLP, weekday-separated",
+    "num_units": 2048,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0028,
+      "math|heldout": 0.0036,
+      "code|search": 0.0331,
+      "code|heldout": 0.0231,
+      "facts|search": 0.0475,
+      "facts|heldout": 0.0782,
+      "multilingual|search": 0.0083,
+      "multilingual|heldout": 0.004,
+      "general_text|search": 0.0625,
+      "general_text|heldout": 0.0601,
+      "month_successor|search": 0.1942,
+      "month_successor__control|search": 0.0061,
+      "month_successor|heldout": 0.1682,
+      "month_successor__control|heldout": 0.0063,
+      "weekday_successor|search": 0.0313,
+      "weekday_successor__control|search": -0.0028,
+      "weekday_successor|heldout": 0.0095,
+      "weekday_successor__control|heldout": 0.0035,
+      "roman_numerals|search": 0.0418,
+      "roman_numerals__control|search": 0.0003,
+      "roman_numerals|heldout": 0.0143,
+      "roman_numerals__control|heldout": 0.0008,
+      "object_color|search": 0.0465,
+      "object_color__control|search": 0.0083,
+      "object_color|heldout": 0.0412,
+      "object_color__control|heldout": 0.01,
+      "antonym|search": 0.0022,
+      "antonym__control|search": 0.0017,
+      "antonym|heldout": 0.0401,
+      "antonym__control|heldout": 0.0034,
+      "ordinal_word|search": 0.0022,
+      "ordinal_word__control|search": -0.0288,
+      "ordinal_word|heldout": 0.0042,
+      "ordinal_word__control|heldout": -0.0125,
+      "capital_city|search": 0.0046,
+      "capital_city__control|search": 0.0003,
+      "capital_city|heldout": 0.0026,
+      "capital_city__control|heldout": 0.0003,
+      "past_tense|search": 0.0032,
+      "past_tense__control|search": -0.0004,
+      "past_tense|heldout": 0.0002,
+      "past_tense__control|heldout": -0.0002
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0647,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0851,
+      0.0872,
+      0.0553,
+      0.084,
+      0.0761
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "The whole L12 MLP drops month .40. Seeds are the month-attributed L12 units (3407, 6731, 5908...). The cluster grows to 2048 units whose gate rows project onto the month seed span, minus 2x their projection onto the facts and weekday seed spans. This separates month-order reading from weekday and entity reading: weekday drops only .031."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_2.6b/month_successor.json",
+    "hash": "daacbf190d5d8adf",
+    "description": "Name the month that is k (1-3) months after a given month, few-shot. Control: same arrow format with integer successor (+k).",
+    "name": "month_successor"
+  },
+  "catalog_id": "mlp_month-sequence_next_month_cluster_l12_mlp_weekda_lfm2.5_2.6b_L12_k2048_001",
+  "exported_copy": "library/lfm2.5_2.6b/mlp_month-sequence_next_month_cluster_l12_mlp_weekda_lfm2.5_2.6b_L12_k2048_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

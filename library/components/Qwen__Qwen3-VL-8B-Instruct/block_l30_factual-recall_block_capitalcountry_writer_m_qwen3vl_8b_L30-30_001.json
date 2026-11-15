@@ -1,0 +1,113 @@
+{
+  "id": "block_l30_factual-recall_block_capitalcountry_writer_m_qwen3vl_8b_L30-30_001",
+  "kind": "block",
+  "title": "Qwen3-VL-8B-Instruct layer 30, L30 factual-recall block (capital/country writer MLP + retrieval heads)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwen3vl_8b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "facts"
+  ],
+  "models": [
+    "Qwen/Qwen3-VL-8B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'facts' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2034,
+      "control_value": 0.1411,
+      "split": "person_a held-out skill items (facts)",
+      "seeds": null,
+      "source": "person_a/catalog/qwen3vl_8b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen3-VL-8B-Instruct",
+  "layer": 30,
+  "layers": [
+    30
+  ],
+  "units_file": "components/Qwen__Qwen3-VL-8B-Instruct/block_l30_factual-recall_block_capitalcountry_writer_m_qwen3vl_8b_L30-30_001.pt",
+  "units_remote": "person_a/parts/qwen3vl_8b/block_l30_factual-recall_block_capitalcountry_writer_m_qwen3vl_8b_L30-30_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'facts'",
+    "label": "L30 factual-recall block (capital/country writer MLP + retrieval heads)",
+    "num_units": 1,
+    "d_model": 4096,
+    "effect": {
+      "math|search": -0.0006,
+      "math|heldout": -0.0034,
+      "code|search": 0.0257,
+      "code|heldout": 0.0164,
+      "facts|search": 0.3527,
+      "facts|heldout": 0.2034,
+      "multilingual|search": 0.0512,
+      "multilingual|heldout": 0.0293,
+      "general_text|search": 0.1111,
+      "general_text|heldout": 0.1231,
+      "en_fr_word_translation|search": -0.0107,
+      "en_fr_word_translation__control|search": 0.0001,
+      "en_fr_word_translation|heldout": 0.0131,
+      "en_fr_word_translation__control|heldout": 0.0002,
+      "two_digit_addition|search": -0.0139,
+      "two_digit_addition__control|search": 0.0031,
+      "two_digit_addition|heldout": -0.0113,
+      "two_digit_addition__control|heldout": 0.005,
+      "python_list_index|search": 0.0017,
+      "python_list_index__control|search": 0.0064,
+      "python_list_index|heldout": -0.0282,
+      "python_list_index__control|heldout": 0.0057,
+      "recall_first_number|search": 0.0059,
+      "recall_first_number__control|search": -0.0051,
+      "recall_first_number|heldout": 0.0054,
+      "recall_first_number__control|heldout": -0.0056,
+      "month_successor|search": 0.002,
+      "month_successor__control|search": 0.0374,
+      "month_successor|heldout": -0.0044,
+      "month_successor__control|heldout": 0.014,
+      "object_color|search": 0.0634,
+      "object_color__control|search": 0.0001,
+      "object_color|heldout": 0.0598,
+      "object_color__control|heldout": 0.0001,
+      "two_digit_subtraction|search": -0.0021,
+      "two_digit_subtraction__control|search": 0.0032,
+      "two_digit_subtraction|heldout": -0.0012,
+      "two_digit_subtraction__control|heldout": 0.0025,
+      "times_table|search": 0.0264,
+      "times_table__control|search": 0.0005,
+      "times_table|heldout": 0.0142,
+      "times_table__control|heldout": 0.0004
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1176,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.1047,
+      0.0565,
+      0.2976,
+      0.1546,
+      0.092
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L30 MLP has capital-name writer columns up to cos .47 and country .32 with the facts attribution leaders (10573, 5331, 4505); L30 h8 maps country embeddings to capital unembeddings (OV 3.3). The whole block is a transplantable fact-retrieval layer."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "builtin",
+    "name": "facts"
+  },
+  "catalog_id": "block_l30_factual-recall_block_capitalcountry_writer_m_qwen3vl_8b_L30-30_001",
+  "exported_copy": "library/qwen3vl_8b/block_l30_factual-recall_block_capitalcountry_writer_m_qwen3vl_8b_L30-30_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

@@ -1,0 +1,113 @@
+{
+  "id": "heads_non-english_language_routing_heads_8-head_set_l1_lfm2.5_1.2b_inst_L10_k8_001",
+  "kind": "attn_heads",
+  "title": "LFM2.5-1.2B-Instruct layer 10, non-English language routing heads, 8-head set (L10)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_1.2b_inst.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "multilingual"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-1.2B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'multilingual' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.6899,
+      "control_value": 0.0671,
+      "split": "person_a held-out skill items (multilingual)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_1.2b_inst.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-1.2B-Instruct",
+  "layer": 10,
+  "layers": [
+    10
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-1.2B-Instruct/heads_non-english_language_routing_heads_8-head_set_l1_lfm2.5_1.2b_inst_L10_k8_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_1.2b_inst/heads_non-english_language_routing_heads_8-head_set_l1_lfm2.5_1.2b_inst_L10_k8_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'multilingual'",
+    "label": "non-English language routing heads, 8-head set (L10)",
+    "num_units": 8,
+    "d_model": 2048,
+    "effect": {
+      "math|search": -0.0002,
+      "math|heldout": -0.017,
+      "code|search": 0.0725,
+      "code|heldout": 0.0805,
+      "facts|search": -0.0471,
+      "facts|heldout": -0.0425,
+      "multilingual|search": 0.6968,
+      "multilingual|heldout": 0.6899,
+      "general_text|search": 0.0742,
+      "general_text|heldout": 0.0788,
+      "month_successor|search": -0.184,
+      "month_successor__control|search": -0.2071,
+      "month_successor|heldout": -0.1872,
+      "month_successor__control|heldout": -0.078,
+      "weekday_successor|search": -0.0743,
+      "weekday_successor__control|search": -0.169,
+      "weekday_successor|heldout": 0.1385,
+      "weekday_successor__control|heldout": -0.2825,
+      "object_color|search": 0.1,
+      "object_color__control|search": 0.1585,
+      "object_color|heldout": 0.0944,
+      "object_color__control|heldout": 0.0931,
+      "feminine_pronoun|search": -0.0967,
+      "feminine_pronoun__control|search": -0.0658,
+      "feminine_pronoun|heldout": -0.1626,
+      "feminine_pronoun__control|heldout": -0.0821,
+      "month_list_next|search": 0.0135,
+      "month_list_next__control|search": -0.004,
+      "month_list_next|heldout": 0.0148,
+      "month_list_next__control|heldout": 0.0053,
+      "weekday_list_next|search": 0.0183,
+      "weekday_list_next__control|search": -0.0029,
+      "weekday_list_next|heldout": 0.0126,
+      "weekday_list_next__control|heldout": 0.0092,
+      "roman_numeral|search": -0.2001,
+      "roman_numeral__control|search": -0.3047,
+      "roman_numeral|heldout": -0.2367,
+      "roman_numeral__control|heldout": -0.3498,
+      "masculine_pronoun|search": -0.137,
+      "masculine_pronoun__control|search": -0.1233,
+      "masculine_pronoun|heldout": -0.1204,
+      "masculine_pronoun__control|heldout": -0.159
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.2323,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.1224,
+      0.0927,
+      0.0332,
+      0.0687,
+      0.0186
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "This grows the screened 4-head L10 set: heads 8/9 (KV group 2) read and write non-English subword OV directions ('v\u00f6ll', 'ancienne', 'comprende', 'sondern', 'Dar\u00fcber'), plus all of KV group 5 (20-23) and 30/31. KV group 5 ablated alone hurt no other skill. The 8-head set drops multilingual by .697, and other skills move at most .10."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "builtin",
+    "name": "multilingual"
+  },
+  "catalog_id": "heads_non-english_language_routing_heads_8-head_set_l1_lfm2.5_1.2b_inst_L10_k8_001",
+  "exported_copy": "library/lfm2.5_1.2b_inst/heads_non-english_language_routing_heads_8-head_set_l1_lfm2.5_1.2b_inst_L10_k8_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

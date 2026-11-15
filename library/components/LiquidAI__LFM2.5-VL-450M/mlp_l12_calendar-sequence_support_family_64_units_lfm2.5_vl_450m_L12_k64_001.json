@@ -1,0 +1,116 @@
+{
+  "id": "mlp_l12_calendar-sequence_support_family_64_units_lfm2.5_vl_450m_L12_k64_001",
+  "kind": "mlp_cluster",
+  "title": "LFM2.5-VL-450M layer 12, L12 calendar-sequence support family (64 units)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "month_successor"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-VL-450M"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'month_successor' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1644,
+      "control_value": 0.0289,
+      "split": "person_a held-out skill items (month_successor)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.064"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-VL-450M",
+  "layer": 12,
+  "layers": [
+    12
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-VL-450M/mlp_l12_calendar-sequence_support_family_64_units_lfm2.5_vl_450m_L12_k64_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_vl_450m/mlp_l12_calendar-sequence_support_family_64_units_lfm2.5_vl_450m_L12_k64_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'month_successor'",
+    "label": "L12 calendar-sequence support family (64 units)",
+    "num_units": 64,
+    "d_model": 1024,
+    "effect": {
+      "math|search": 0.0129,
+      "math|heldout": 0.0101,
+      "code|search": 0.0035,
+      "code|heldout": -0.0007,
+      "facts|search": 0.0171,
+      "facts|heldout": 0.01,
+      "multilingual|search": 0.0002,
+      "multilingual|heldout": 0.0001,
+      "general_text|search": 0.0,
+      "general_text|heldout": 0.0025,
+      "month_successor|search": 0.2598,
+      "month_successor__control|search": 0.05,
+      "month_successor|heldout": 0.1644,
+      "month_successor__control|heldout": 0.064,
+      "numberword_successor|search": 0.0193,
+      "numberword_successor__control|search": 0.0027,
+      "numberword_successor|heldout": 0.0382,
+      "numberword_successor__control|heldout": 0.0025,
+      "weekday_successor|search": 0.0617,
+      "weekday_successor__control|search": 0.0169,
+      "weekday_successor|heldout": 0.0593,
+      "weekday_successor__control|heldout": 0.0112,
+      "comparative_adjective|search": 0.0286,
+      "comparative_adjective__control|search": 0.0015,
+      "comparative_adjective|heldout": 0.0479,
+      "comparative_adjective__control|heldout": 0.0029,
+      "irregular_past_tense|search": 0.002,
+      "irregular_past_tense__control|search": 0.0012,
+      "irregular_past_tense|heldout": 0.0026,
+      "irregular_past_tense__control|heldout": 0.001,
+      "object_colour|search": 0.0019,
+      "object_colour__control|search": -0.0001,
+      "object_colour|heldout": 0.0055,
+      "object_colour__control|heldout": 0.0001,
+      "antonym|search": 0.0739,
+      "antonym__control|search": 0.0024,
+      "antonym|heldout": 0.061,
+      "antonym__control|heldout": 0.0017,
+      "pronoun_gender|search": 0.0021,
+      "pronoun_gender__control|search": 0.0005,
+      "pronoun_gender|heldout": 0.0025,
+      "pronoun_gender__control|heldout": -0.001
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0866,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0239,
+      0.0632,
+      0.0018,
+      0.022,
+      0.0338
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "64 L12 units forming a w1/w2-cosine family around attribution/activation-selected L12 units (1093, 3922, 1940, 1655, 872, 586...), with similarity to the known month writers (1322, 1189, 568) and the comparative units (1069, 3753) subtracted. Ablation shows the family supports month succession (month .26, control .05) without math or comparative effects. It is a distinct L12 family that feeds calendar sequencing, separate from the 3-unit month core."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_vl_450m/month_successor.json",
+    "hash": "cba3eb6438a2ca61",
+    "description": "Name the month that follows (or is k months after) a given month. Control: same format with number successor.",
+    "name": "month_successor"
+  },
+  "catalog_id": "mlp_l12_calendar-sequence_support_family_64_units_lfm2.5_vl_450m_L12_k64_001",
+  "exported_copy": "library/lfm2.5_vl_450m/mlp_l12_calendar-sequence_support_family_64_units_lfm2.5_vl_450m_L12_k64_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

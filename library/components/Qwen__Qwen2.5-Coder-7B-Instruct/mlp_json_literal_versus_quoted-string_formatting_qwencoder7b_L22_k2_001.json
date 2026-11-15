@@ -1,0 +1,112 @@
+{
+  "id": "mlp_json_literal_versus_quoted-string_formatting_qwencoder7b_L22_k2_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen2.5-Coder-7B-Instruct layer 22, JSON literal versus quoted-string formatting",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwencoder7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "json_literals"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Coder-7B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'json_literals' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.7113,
+      "control_value": 0.0007,
+      "split": "person_a held-out skill items (json_literals)",
+      "seeds": null,
+      "source": "person_a/catalog/qwencoder7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0032"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "layer": 22,
+  "layers": [
+    22
+  ],
+  "units_file": "components/Qwen__Qwen2.5-Coder-7B-Instruct/mlp_json_literal_versus_quoted-string_formatting_qwencoder7b_L22_k2_001.pt",
+  "units_remote": "person_a/parts/qwencoder7b/mlp_json_literal_versus_quoted-string_formatting_qwencoder7b_L22_k2_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'json_literals'",
+    "label": "JSON literal versus quoted-string formatting",
+    "num_units": 2,
+    "d_model": 3584,
+    "effect": {
+      "math|search": -0.0001,
+      "math|heldout": -0.0002,
+      "code|search": -0.0004,
+      "code|heldout": -0.0001,
+      "facts|search": 0.0017,
+      "facts|heldout": -0.0031,
+      "multilingual|search": 0.0004,
+      "multilingual|heldout": 0.0006,
+      "general_text|search": -0.0001,
+      "general_text|heldout": 0.0007,
+      "json_literals|search": 0.6611,
+      "json_literals__control|search": 0.0041,
+      "json_literals|heldout": 0.7113,
+      "json_literals__control|heldout": 0.0032,
+      "python_literals|search": -0.0021,
+      "python_literals__control|search": 0.0,
+      "python_literals|heldout": -0.0001,
+      "python_literals__control|heldout": 0.0,
+      "string_escapes|search": -0.0662,
+      "string_escapes__control|search": -0.0834,
+      "string_escapes|heldout": -0.0653,
+      "string_escapes__control|heldout": -0.1148,
+      "url_scheme|search": 0.001,
+      "url_scheme__control|search": 0.0008,
+      "url_scheme|heldout": 0.0017,
+      "url_scheme__control|heldout": 0.0001,
+      "sql_clauses|search": 0.0008,
+      "sql_clauses__control|search": 0.0019,
+      "sql_clauses|heldout": 0.0005,
+      "sql_clauses__control|heldout": -0.0016,
+      "unit_symbols|search": 0.0012,
+      "unit_symbols__control|search": -0.0001,
+      "unit_symbols|heldout": -0.0013,
+      "unit_symbols__control|heldout": 0.0029,
+      "html_entities|search": 0.0032,
+      "html_entities__control|search": -0.003,
+      "html_entities|heldout": 0.0039,
+      "html_entities__control|heldout": 0.0173
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.2204,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0011,
+      -0.0003,
+      0.0015,
+      0.0008,
+      0.0002
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Both down columns promote leading quotation syntax: 14966 single-quoted punctuation and 13075 double-quoted prefixes and JSON object starts. They may distinguish quoted strings from unquoted literals; independent JSON attributions 0.128/0.044 motivate causal test against same-format string controls."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwencoder7b/json_literals.json",
+    "hash": "a6c3fbb1fbb61ce2",
+    "description": "Translate Python boolean and missing-value literals into JSON lowercase literals; matched control serializes strings in the same object format.",
+    "name": "json_literals"
+  },
+  "catalog_id": "mlp_json_literal_versus_quoted-string_formatting_qwencoder7b_L22_k2_001",
+  "exported_copy": "library/qwencoder7b/mlp_json_literal_versus_quoted-string_formatting_qwencoder7b_L22_k2_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

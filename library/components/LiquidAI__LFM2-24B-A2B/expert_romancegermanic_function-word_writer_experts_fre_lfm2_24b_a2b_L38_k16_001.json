@@ -1,0 +1,116 @@
+{
+  "id": "expert_romancegermanic_function-word_writer_experts_fre_lfm2_24b_a2b_L38_k16_001",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 38, Romance/Germanic function-word writer experts (French output)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "en_fr_translation"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'en_fr_translation' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1696,
+      "control_value": 0.0586,
+      "split": "person_a held-out skill items (en_fr_translation)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0044"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 38,
+  "layers": [
+    38
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/expert_romancegermanic_function-word_writer_experts_fre_lfm2_24b_a2b_L38_k16_001.pt",
+  "units_remote": "person_a/parts/lfm2_24b_a2b/expert_romancegermanic_function-word_writer_experts_fre_lfm2_24b_a2b_L38_k16_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'en_fr_translation'",
+    "label": "Romance/Germanic function-word writer experts (French output)",
+    "num_units": 16,
+    "d_model": 2048,
+    "effect": {
+      "math|search": -0.0001,
+      "math|heldout": -0.0004,
+      "code|search": -0.0025,
+      "code|heldout": -0.0015,
+      "facts|search": 0.009,
+      "facts|heldout": 0.007,
+      "multilingual|search": -0.038,
+      "multilingual|heldout": -0.0019,
+      "general_text|search": -0.0429,
+      "general_text|heldout": -0.0483,
+      "month_successor|search": 0.0433,
+      "month_successor__control|search": 0.0176,
+      "month_successor|heldout": 0.0443,
+      "month_successor__control|heldout": 0.0132,
+      "weekday_successor|search": 0.0118,
+      "weekday_successor__control|search": -0.0771,
+      "weekday_successor|heldout": 0.0134,
+      "weekday_successor__control|heldout": -0.1033,
+      "roman_numeral|search": -0.0002,
+      "roman_numeral__control|search": 0.0039,
+      "roman_numeral|heldout": -0.0002,
+      "roman_numeral__control|heldout": 0.005,
+      "antonym|search": -0.002,
+      "antonym__control|search": -0.0675,
+      "antonym|heldout": -0.0143,
+      "antonym__control|heldout": 0.0119,
+      "chinese_numeral|search": -0.0006,
+      "chinese_numeral__control|search": -0.0925,
+      "chinese_numeral|heldout": -0.0005,
+      "chinese_numeral__control|heldout": -0.05,
+      "a_an_article|search": -0.0129,
+      "a_an_article__control|search": 0.0399,
+      "a_an_article|heldout": -0.0825,
+      "a_an_article__control|heldout": 0.0176,
+      "subject_verb_agreement|search": -0.0567,
+      "subject_verb_agreement__control|search": 0.0215,
+      "subject_verb_agreement|heldout": -0.0401,
+      "subject_verb_agreement__control|heldout": 0.0951,
+      "en_fr_translation|search": 0.1733,
+      "en_fr_translation__control|search": 0.0033,
+      "en_fr_translation|heldout": 0.1696,
+      "en_fr_translation__control|heldout": 0.0044
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0578,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0005,
+      0.1229,
+      0.0655,
+      0.0052,
+      0.1
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "16 L38 experts ranked by down-projection energy on French/Spanish/German function-word unembeddings minus their digit/code/bracket energy. e18 has 2.2x French energy and the top French router-row z (2.46). Ablation dropped en_fr_translation .173 while its matched control moved only .003."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2_24b_a2b/en_fr_translation.json",
+    "hash": "f30392e2ee8eba4d",
+    "description": "Translate a common English noun to French in a few-shot list. Control: same list format but English->English (copy).",
+    "name": "en_fr_translation"
+  },
+  "catalog_id": "expert_romancegermanic_function-word_writer_experts_fre_lfm2_24b_a2b_L38_k16_001",
+  "exported_copy": "library/lfm2_24b_a2b/expert_romancegermanic_function-word_writer_experts_fre_lfm2_24b_a2b_L38_k16_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

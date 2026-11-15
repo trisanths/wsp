@@ -1,0 +1,112 @@
+{
+  "id": "mlp_colour-name_output_writers_object_colour_recall_mimo2.6_distill_9b_L26_k64_001",
+  "kind": "mlp_cluster",
+  "title": "MiMo-V2.6-Distill-Qwen-9B layer 26, colour-name output writers (object colour recall)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/mimo2.6_distill_9b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "color_of_object"
+  ],
+  "models": [
+    "XiaomiMiMo/MiMo-V2.6-Distill-Qwen-9B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'color_of_object' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2522,
+      "control_value": 0.0085,
+      "split": "person_a held-out skill items (color_of_object)",
+      "seeds": null,
+      "source": "person_a/catalog/mimo2.6_distill_9b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0172"
+    }
+  ],
+  "generated": true,
+  "model": "XiaomiMiMo/MiMo-V2.6-Distill-Qwen-9B",
+  "layer": 26,
+  "layers": [
+    26
+  ],
+  "units_file": "components/XiaomiMiMo__MiMo-V2.6-Distill-Qwen-9B/mlp_colour-name_output_writers_object_colour_recall_mimo2.6_distill_9b_L26_k64_001.pt",
+  "units_remote": "person_a/parts/mimo2.6_distill_9b/mlp_colour-name_output_writers_object_colour_recall_mimo2.6_distill_9b_L26_k64_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'color_of_object'",
+    "label": "colour-name output writers (object colour recall)",
+    "num_units": 64,
+    "d_model": 4096,
+    "effect": {
+      "math|search": 0.0011,
+      "math|heldout": 0.001,
+      "code|search": 0.0032,
+      "code|heldout": 0.0014,
+      "facts|search": 0.0185,
+      "facts|heldout": 0.0229,
+      "multilingual|search": 0.0118,
+      "multilingual|heldout": 0.0106,
+      "general_text|search": 0.0096,
+      "general_text|heldout": 0.0091,
+      "month_successor|search": 0.0006,
+      "month_successor__control|search": 0.0757,
+      "month_successor|heldout": -0.006,
+      "month_successor__control|heldout": 0.0859,
+      "roman_numeral|search": 0.0169,
+      "roman_numeral__control|search": 0.007,
+      "roman_numeral|heldout": 0.0115,
+      "roman_numeral__control|heldout": 0.0092,
+      "ordinal_word|search": -0.0319,
+      "ordinal_word__control|search": 0.0387,
+      "ordinal_word|heldout": -0.0287,
+      "ordinal_word__control|heldout": 0.0419,
+      "weekday_successor|search": 0.0277,
+      "weekday_successor__control|search": 0.0496,
+      "weekday_successor|heldout": 0.0404,
+      "weekday_successor__control|heldout": 0.0524,
+      "color_of_object|search": 0.2383,
+      "color_of_object__control|search": 0.03,
+      "color_of_object|heldout": 0.2522,
+      "color_of_object__control|heldout": 0.0172,
+      "greek_letter_successor|search": 0.0404,
+      "greek_letter_successor__control|search": 0.0286,
+      "greek_letter_successor|heldout": 0.0336,
+      "greek_letter_successor__control|heldout": 0.0278,
+      "country_of_city|search": 0.0161,
+      "country_of_city__control|search": 0.0793,
+      "country_of_city|heldout": 0.0238,
+      "country_of_city__control|heldout": 0.0591
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0794,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0116,
+      0.0123,
+      0.0108,
+      0.0069,
+      0.0011
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L26 has the highest mean colour logit-lens alignment of any layer (top-64 mean z 2.4). Seed units write specific colour words: 1932 brown, 2397 bronze/olive/gold, 1715 suppresses gray/grey. The other units are the next-highest colour-z L26 units."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/mimo2.6_distill_9b/color_of_object.json",
+    "hash": "56842699529f106e",
+    "description": "Name the typical color of a common object (banana -> yellow). Control copies the object noun from the same frame.",
+    "name": "color_of_object"
+  },
+  "catalog_id": "mlp_colour-name_output_writers_object_colour_recall_mimo2.6_distill_9b_L26_k64_001",
+  "exported_copy": "library/mimo2.6_distill_9b/mlp_colour-name_output_writers_object_colour_recall_mimo2.6_distill_9b_L26_k64_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

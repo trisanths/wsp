@@ -1,0 +1,113 @@
+{
+  "id": "mlp_early_subject-enrichment_fact_store_l3_mlp_lfm2.5_2.6b_L3_k2048_001",
+  "kind": "mlp_cluster",
+  "title": "LFM2.5-2.6B layer 3, early subject-enrichment fact store (L3 MLP)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_2.6b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "facts"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-2.6B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'facts' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.4751,
+      "control_value": 0.205,
+      "split": "person_a held-out skill items (facts)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_2.6b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-2.6B",
+  "layer": 3,
+  "layers": [
+    3
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-2.6B/mlp_early_subject-enrichment_fact_store_l3_mlp_lfm2.5_2.6b_L3_k2048_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_2.6b/mlp_early_subject-enrichment_fact_store_l3_mlp_lfm2.5_2.6b_L3_k2048_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'facts'",
+    "label": "early subject-enrichment fact store (L3 MLP)",
+    "num_units": 2048,
+    "d_model": 2048,
+    "effect": {
+      "math|search": -0.0003,
+      "math|heldout": 0.0058,
+      "code|search": 0.0158,
+      "code|heldout": 0.0122,
+      "facts|search": 0.4595,
+      "facts|heldout": 0.4751,
+      "multilingual|search": 0.0096,
+      "multilingual|heldout": 0.0271,
+      "general_text|search": -0.0661,
+      "general_text|heldout": -0.0699,
+      "month_successor|search": -0.0849,
+      "month_successor__control|search": -0.0057,
+      "month_successor|heldout": -0.1215,
+      "month_successor__control|heldout": -0.0026,
+      "weekday_successor|search": 0.0097,
+      "weekday_successor__control|search": -0.0131,
+      "weekday_successor|heldout": 0.0068,
+      "weekday_successor__control|heldout": -0.001,
+      "roman_numerals|search": -0.049,
+      "roman_numerals__control|search": -0.0009,
+      "roman_numerals|heldout": -0.0064,
+      "roman_numerals__control|heldout": -0.0009,
+      "object_color|search": 0.0434,
+      "object_color__control|search": -0.0034,
+      "object_color|heldout": -0.0014,
+      "object_color__control|heldout": -0.0004,
+      "antonym|search": -0.0244,
+      "antonym__control|search": -0.0022,
+      "antonym|heldout": -0.0298,
+      "antonym__control|heldout": -0.0045,
+      "ordinal_word|search": 0.0105,
+      "ordinal_word__control|search": -0.0258,
+      "ordinal_word|heldout": -0.0031,
+      "ordinal_word__control|heldout": -0.0162,
+      "capital_city|search": 0.0017,
+      "capital_city__control|search": -0.0004,
+      "capital_city|heldout": -0.004,
+      "capital_city__control|heldout": -0.0005,
+      "past_tense|search": -0.0125,
+      "past_tense__control|search": -0.0003,
+      "past_tense|heldout": 0.0025,
+      "past_tense__control|heldout": 0.0024
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1532,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0931,
+      0.3353,
+      0.178,
+      0.2619,
+      0.3429
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "The early L3 MLP alone drops facts .59. Facts-attributed seeds (1054 with attribution .109, 5379, 6277...) grow to 2048 units whose gate rows project onto the seed gate span, minus 2x their projection onto the colour, month, weekday, antonym and past-tense seed spans. This matches the early-MLP subject-enrichment store reported in other models."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "builtin",
+    "name": "facts"
+  },
+  "catalog_id": "mlp_early_subject-enrichment_fact_store_l3_mlp_lfm2.5_2.6b_L3_k2048_001",
+  "exported_copy": "library/lfm2.5_2.6b/mlp_early_subject-enrichment_fact_store_l3_mlp_lfm2.5_2.6b_L3_k2048_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

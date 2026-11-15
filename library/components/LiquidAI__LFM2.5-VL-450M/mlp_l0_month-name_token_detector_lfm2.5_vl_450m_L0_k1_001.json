@@ -1,0 +1,116 @@
+{
+  "id": "mlp_l0_month-name_token_detector_lfm2.5_vl_450m_L0_k1_001",
+  "kind": "mlp_cluster",
+  "title": "LFM2.5-VL-450M layer 0, L0 month-name token detector",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "month_successor"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-VL-450M"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'month_successor' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.8549,
+      "control_value": 0.0103,
+      "split": "person_a held-out skill items (month_successor)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0449"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-VL-450M",
+  "layer": 0,
+  "layers": [
+    0
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-VL-450M/mlp_l0_month-name_token_detector_lfm2.5_vl_450m_L0_k1_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_vl_450m/mlp_l0_month-name_token_detector_lfm2.5_vl_450m_L0_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'month_successor'",
+    "label": "L0 month-name token detector",
+    "num_units": 1,
+    "d_model": 1024,
+    "effect": {
+      "math|search": 0.0039,
+      "math|heldout": 0.0091,
+      "code|search": -0.0704,
+      "code|heldout": -0.0713,
+      "facts|search": 0.1134,
+      "facts|heldout": 0.0581,
+      "multilingual|search": 0.0349,
+      "multilingual|heldout": 0.0571,
+      "general_text|search": -0.2335,
+      "general_text|heldout": -0.2705,
+      "month_successor|search": 0.7849,
+      "month_successor__control|search": -0.0277,
+      "month_successor|heldout": 0.8549,
+      "month_successor__control|heldout": -0.0449,
+      "numberword_successor|search": 0.0433,
+      "numberword_successor__control|search": 0.0025,
+      "numberword_successor|heldout": 0.049,
+      "numberword_successor__control|heldout": 0.0018,
+      "weekday_successor|search": -0.1187,
+      "weekday_successor__control|search": -0.0129,
+      "weekday_successor|heldout": -0.1734,
+      "weekday_successor__control|heldout": -0.0123,
+      "comparative_adjective|search": -0.2644,
+      "comparative_adjective__control|search": 0.0058,
+      "comparative_adjective|heldout": 0.0004,
+      "comparative_adjective__control|heldout": -0.0089,
+      "irregular_past_tense|search": 0.0955,
+      "irregular_past_tense__control|search": 0.0052,
+      "irregular_past_tense|heldout": 0.2373,
+      "irregular_past_tense__control|heldout": -0.0021,
+      "object_colour|search": 0.0558,
+      "object_colour__control|search": 0.0047,
+      "object_colour|heldout": -0.0075,
+      "object_colour__control|heldout": 0.0065,
+      "antonym|search": -0.071,
+      "antonym__control|search": -0.0156,
+      "antonym|heldout": -0.3991,
+      "antonym__control|heldout": -0.0187,
+      "pronoun_gender|search": -0.2266,
+      "pronoun_gender__control|search": -0.916,
+      "pronoun_gender|heldout": -0.0844,
+      "pronoun_gender__control|heldout": -0.6396
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.2616,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0112,
+      0.0172,
+      -0.0073,
+      -0.0071,
+      0.0597
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L0 unit 3761 SwiGLU response to raw token embeddings: all 12 month names give activation ~-0.01, about -5 sd from the vocab distribution (std .002), i.e. a lexical month detector at the embedding stage; top month_successor attribution unit (.9). Ablation .785 vs number-successor control -.028."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_vl_450m/month_successor.json",
+    "hash": "cba3eb6438a2ca61",
+    "description": "Name the month that follows (or is k months after) a given month. Control: same format with number successor.",
+    "name": "month_successor"
+  },
+  "catalog_id": "mlp_l0_month-name_token_detector_lfm2.5_vl_450m_L0_k1_001",
+  "exported_copy": "library/lfm2.5_vl_450m/mlp_l0_month-name_token_detector_lfm2.5_vl_450m_L0_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

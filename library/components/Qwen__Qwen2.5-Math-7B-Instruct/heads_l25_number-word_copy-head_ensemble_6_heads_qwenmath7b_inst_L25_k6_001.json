@@ -1,0 +1,116 @@
+{
+  "id": "heads_l25_number-word_copy-head_ensemble_6_heads_qwenmath7b_inst_L25_k6_001",
+  "kind": "attn_heads",
+  "title": "Qwen2.5-Math-7B-Instruct layer 25, L25 number-word copy-head ensemble (6 heads)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwenmath7b_inst.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "number_to_word"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Math-7B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'number_to_word' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.5497,
+      "control_value": 0.0459,
+      "split": "person_a held-out skill items (number_to_word)",
+      "seeds": null,
+      "source": "person_a/catalog/qwenmath7b_inst.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0001"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Math-7B-Instruct",
+  "layer": 25,
+  "layers": [
+    25
+  ],
+  "units_file": "components/Qwen__Qwen2.5-Math-7B-Instruct/heads_l25_number-word_copy-head_ensemble_6_heads_qwenmath7b_inst_L25_k6_001.pt",
+  "units_remote": "person_a/parts/qwenmath7b_inst/heads_l25_number-word_copy-head_ensemble_6_heads_qwenmath7b_inst_L25_k6_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'number_to_word'",
+    "label": "L25 number-word copy-head ensemble (6 heads)",
+    "num_units": 6,
+    "d_model": 3584,
+    "effect": {
+      "math|search": 0.0001,
+      "math|heldout": -0.0038,
+      "code|search": 0.0118,
+      "code|heldout": 0.0026,
+      "facts|search": 0.0259,
+      "facts|heldout": -0.0072,
+      "multilingual|search": 0.0135,
+      "multilingual|heldout": 0.015,
+      "general_text|search": -0.0158,
+      "general_text|heldout": -0.0099,
+      "weekday_successor|search": 0.0054,
+      "weekday_successor__control|search": -0.0256,
+      "weekday_successor|heldout": -0.0124,
+      "weekday_successor__control|heldout": -0.0216,
+      "number_to_word|search": 0.5199,
+      "number_to_word__control|search": 0.0005,
+      "number_to_word|heldout": 0.5497,
+      "number_to_word__control|heldout": -0.0001,
+      "object_color|search": 0.0683,
+      "object_color__control|search": 0.0,
+      "object_color|heldout": 0.0191,
+      "object_color__control|heldout": -0.0217,
+      "month_successor|search": 0.0148,
+      "month_successor__control|search": 0.0138,
+      "month_successor|heldout": -0.0277,
+      "month_successor__control|heldout": 0.0094,
+      "parity|search": 0.0137,
+      "parity__control|search": -0.0007,
+      "parity|heldout": 0.0108,
+      "parity__control|heldout": -0.0008,
+      "product_sign|search": 0.0,
+      "product_sign__control|search": 0.0052,
+      "product_sign|heldout": -0.0011,
+      "product_sign__control|heldout": 0.0007,
+      "ordinal_word|search": 0.1511,
+      "ordinal_word__control|search": -0.0562,
+      "ordinal_word|heldout": 0.1732,
+      "ordinal_word__control|heldout": -0.0441,
+      "greek_letter_name|search": 0.1455,
+      "greek_letter_name__control|search": 0.2121,
+      "greek_letter_name|heldout": 0.1736,
+      "greek_letter_name__control|heldout": 0.1489
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1733,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.1639,
+      -0.0023,
+      0.3513,
+      0.1171,
+      -0.0726
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L25 heads with number-word identity OV circuits: h12 (number-word self-argmax 0.8, weekday 0.71), KV-group-2 heads 15/16/17 (0.4/0.2/0.3), plus h2 and h5, which share that number-word attribution profile."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwenmath7b_inst/number_to_word.json",
+    "hash": "752ca9c4bd72b26f",
+    "description": "Write a small integer (or a sum result) as an English number word. Control: same format asking for the digit form.",
+    "name": "number_to_word"
+  },
+  "catalog_id": "heads_l25_number-word_copy-head_ensemble_6_heads_qwenmath7b_inst_L25_k6_001",
+  "exported_copy": "library/qwenmath7b_inst/heads_l25_number-word_copy-head_ensemble_6_heads_qwenmath7b_inst_L25_k6_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

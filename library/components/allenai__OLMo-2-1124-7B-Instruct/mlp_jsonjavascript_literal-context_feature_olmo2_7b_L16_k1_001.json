@@ -1,0 +1,112 @@
+{
+  "id": "mlp_jsonjavascript_literal-context_feature_olmo2_7b_L16_k1_001",
+  "kind": "mlp_cluster",
+  "title": "OLMo-2-1124-7B-Instruct layer 16, JSON/JavaScript literal-context feature",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/olmo2_7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "json_python_literals"
+  ],
+  "models": [
+    "allenai/OLMo-2-1124-7B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'json_python_literals' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2989,
+      "control_value": 0.0095,
+      "split": "person_a held-out skill items (json_python_literals)",
+      "seeds": null,
+      "source": "person_a/catalog/olmo2_7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0194"
+    }
+  ],
+  "generated": true,
+  "model": "allenai/OLMo-2-1124-7B-Instruct",
+  "layer": 16,
+  "layers": [
+    16
+  ],
+  "units_file": "components/allenai__OLMo-2-1124-7B-Instruct/mlp_jsonjavascript_literal-context_feature_olmo2_7b_L16_k1_001.pt",
+  "units_remote": "person_a/parts/olmo2_7b/mlp_jsonjavascript_literal-context_feature_olmo2_7b_L16_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'json_python_literals'",
+    "label": "JSON/JavaScript literal-context feature",
+    "num_units": 1,
+    "d_model": 4096,
+    "effect": {
+      "math|search": -0.0001,
+      "math|heldout": 0.0002,
+      "code|search": -0.0006,
+      "code|heldout": -0.0001,
+      "facts|search": 0.0014,
+      "facts|heldout": -0.0008,
+      "multilingual|search": -0.0001,
+      "multilingual|heldout": 0.0,
+      "general_text|search": -0.0001,
+      "general_text|heldout": 0.0005,
+      "web_url_scheme|search": 0.0076,
+      "web_url_scheme__control|search": 0.0034,
+      "web_url_scheme|heldout": 0.0017,
+      "web_url_scheme__control|heldout": 0.0018,
+      "si_unit_names|search": -0.0039,
+      "si_unit_names__control|search": -0.0002,
+      "si_unit_names|heldout": -0.0027,
+      "si_unit_names__control|heldout": -0.0033,
+      "python_declaration_keyword|search": -0.0002,
+      "python_declaration_keyword__control|search": 0.0121,
+      "python_declaration_keyword|heldout": 0.0003,
+      "python_declaration_keyword__control|heldout": 0.0096,
+      "html_named_entity|search": -0.0003,
+      "html_named_entity__control|search": 0.0013,
+      "html_named_entity|heldout": -0.0017,
+      "html_named_entity__control|heldout": 0.0019,
+      "sql_clause_keyword|search": -0.0013,
+      "sql_clause_keyword__control|search": -0.0042,
+      "sql_clause_keyword|heldout": -0.0097,
+      "sql_clause_keyword__control|heldout": 0.0022,
+      "css_property_name|search": -0.0151,
+      "css_property_name__control|search": 0.0012,
+      "css_property_name|heldout": -0.0064,
+      "css_property_name__control|heldout": 0.0014,
+      "json_python_literals|search": 0.3017,
+      "json_python_literals__control|search": -0.022,
+      "json_python_literals|heldout": 0.2989,
+      "json_python_literals__control|heldout": -0.0194
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1006,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0073,
+      0.0062,
+      0.022,
+      0.0057,
+      0.0065
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L16 7498 gate has top embedding matches JavaScript, JSON, json, TypeError, JavaScript and XMLHttpRequest, a coherent structured-language context feature. Independent attribution gives .300 JSON-literal effect. Test whether it selectively supports Python-to-JSON literal translation rather than generic syntax."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/olmo2_7b/json_python_literals.json",
+    "hash": "c799e3704af75fd5",
+    "description": "Translate Python True, False, and None to their corresponding lowercase JSON literals, with key-copy control.",
+    "name": "json_python_literals"
+  },
+  "catalog_id": "mlp_jsonjavascript_literal-context_feature_olmo2_7b_L16_k1_001",
+  "exported_copy": "library/olmo2_7b/mlp_jsonjavascript_literal-context_feature_olmo2_7b_L16_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

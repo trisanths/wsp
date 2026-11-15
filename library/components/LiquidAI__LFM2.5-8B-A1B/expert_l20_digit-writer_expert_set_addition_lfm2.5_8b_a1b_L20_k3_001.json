@@ -1,0 +1,116 @@
+{
+  "id": "expert_l20_digit-writer_expert_set_addition_lfm2.5_8b_a1b_L20_k3_001",
+  "kind": "expert",
+  "title": "LFM2.5-8B-A1B layer 20, L20 digit-writer expert set (addition)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "two_digit_addition"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-8B-A1B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'two_digit_addition' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2888,
+      "control_value": 0.0238,
+      "split": "person_a held-out skill items (two_digit_addition)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0193"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-8B-A1B",
+  "layer": 20,
+  "layers": [
+    20
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-8B-A1B/expert_l20_digit-writer_expert_set_addition_lfm2.5_8b_a1b_L20_k3_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_8b_a1b/expert_l20_digit-writer_expert_set_addition_lfm2.5_8b_a1b_L20_k3_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'two_digit_addition'",
+    "label": "L20 digit-writer expert set (addition)",
+    "num_units": 3,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0242,
+      "math|heldout": 0.0207,
+      "code|search": 0.0364,
+      "code|heldout": 0.0431,
+      "facts|search": 0.0,
+      "facts|heldout": -0.0526,
+      "multilingual|search": -0.0521,
+      "multilingual|heldout": -0.0777,
+      "general_text|search": 0.0123,
+      "general_text|heldout": 0.016,
+      "en_to_fr_noun|search": -0.0577,
+      "en_to_fr_noun__control|search": 0.0134,
+      "en_to_fr_noun|heldout": -0.1882,
+      "en_to_fr_noun__control|heldout": -0.0012,
+      "two_digit_addition|search": 0.1644,
+      "two_digit_addition__control|search": 0.0137,
+      "two_digit_addition|heldout": 0.2888,
+      "two_digit_addition__control|heldout": 0.0193,
+      "en_to_de_noun|search": -0.125,
+      "en_to_de_noun__control|search": 0.007,
+      "en_to_de_noun|heldout": -0.3,
+      "en_to_de_noun__control|heldout": 0.0063,
+      "en_to_es_noun|search": -0.0777,
+      "en_to_es_noun__control|search": 0.0069,
+      "en_to_es_noun|heldout": -0.1948,
+      "en_to_es_noun__control|heldout": 0.0033,
+      "en_to_ru_word|search": -0.0275,
+      "en_to_ru_word__control|search": 0.0459,
+      "en_to_ru_word|heldout": 0.0205,
+      "en_to_ru_word__control|heldout": 0.024,
+      "en_to_zh_word|search": -0.0227,
+      "en_to_zh_word__control|search": 0.0375,
+      "en_to_zh_word|heldout": -0.0398,
+      "en_to_zh_word__control|heldout": -0.0464,
+      "en_to_it_word|search": -0.0853,
+      "en_to_it_word__control|search": 0.0068,
+      "en_to_it_word|heldout": -0.037,
+      "en_to_it_word__control|heldout": -0.0004,
+      "en_to_ja_word|search": -0.0339,
+      "en_to_ja_word__control|search": -0.0141,
+      "en_to_ja_word|heldout": -0.0268,
+      "en_to_ja_word__control|heldout": 0.0047
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0548,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.1449,
+      0.0007,
+      -0.0101,
+      -0.0146,
+      -0.0019
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L20 e26 (digit z 4.2), e1 and e8 share the top digit-selective w2 lens in L20 (sel 1.7 each), and e1 is the top addition-routed L20 expert (14.5). Ablation: addition .164, control .014, others \u2264 .036."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_8b_a1b/two_digit_addition.json",
+    "hash": "26a7b508ee627c6b",
+    "description": "Compute a+b for two-digit numbers, answer written in digits. Control: copy a number of the same size from the prompt (digit output without computation).",
+    "name": "two_digit_addition"
+  },
+  "catalog_id": "expert_l20_digit-writer_expert_set_addition_lfm2.5_8b_a1b_L20_k3_001",
+  "exported_copy": "library/lfm2.5_8b_a1b/expert_l20_digit-writer_expert_set_addition_lfm2.5_8b_a1b_L20_k3_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

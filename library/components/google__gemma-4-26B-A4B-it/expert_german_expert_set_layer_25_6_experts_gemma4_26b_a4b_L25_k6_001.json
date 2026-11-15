@@ -1,0 +1,116 @@
+{
+  "id": "expert_german_expert_set_layer_25_6_experts_gemma4_26b_a4b_L25_k6_001",
+  "kind": "expert",
+  "title": "gemma-4-26B-A4B-it layer 25, German expert set (layer 25, 6 experts)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/gemma4_26b_a4b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "en_to_german_words"
+  ],
+  "models": [
+    "google/gemma-4-26B-A4B-it"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'en_to_german_words' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.546,
+      "control_value": 0.0166,
+      "split": "person_a held-out skill items (en_to_german_words)",
+      "seeds": null,
+      "source": "person_a/catalog/gemma4_26b_a4b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0248"
+    }
+  ],
+  "generated": true,
+  "model": "google/gemma-4-26B-A4B-it",
+  "layer": 25,
+  "layers": [
+    25
+  ],
+  "units_file": "components/google__gemma-4-26B-A4B-it/expert_german_expert_set_layer_25_6_experts_gemma4_26b_a4b_L25_k6_001.pt",
+  "units_remote": "person_a/parts/gemma4_26b_a4b/expert_german_expert_set_layer_25_6_experts_gemma4_26b_a4b_L25_k6_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'en_to_german_words'",
+    "label": "German expert set (layer 25, 6 experts)",
+    "num_units": 6,
+    "d_model": 2816,
+    "effect": {
+      "math|search": -0.0014,
+      "math|heldout": 0.0026,
+      "code|search": 0.0021,
+      "code|heldout": 0.0034,
+      "facts|search": -0.039,
+      "facts|heldout": -0.0556,
+      "multilingual|search": 0.0114,
+      "multilingual|heldout": 0.055,
+      "general_text|search": 0.0,
+      "general_text|heldout": 0.0085,
+      "en_to_french_words|search": -0.1555,
+      "en_to_french_words__control|search": 0.0072,
+      "en_to_french_words|heldout": -0.153,
+      "en_to_french_words__control|heldout": 0.0248,
+      "en_to_german_words|search": 0.3263,
+      "en_to_german_words__control|search": 0.0072,
+      "en_to_german_words|heldout": 0.546,
+      "en_to_german_words__control|heldout": 0.0248,
+      "en_to_spanish_words|search": -0.1489,
+      "en_to_spanish_words__control|search": 0.0072,
+      "en_to_spanish_words|heldout": -0.0226,
+      "en_to_spanish_words__control|heldout": 0.0248,
+      "month_sequence|search": 0.0909,
+      "month_sequence__control|search": -0.0047,
+      "month_sequence|heldout": -0.0667,
+      "month_sequence__control|heldout": 0.0032,
+      "en_to_russian_words|search": -0.064,
+      "en_to_russian_words__control|search": 0.0062,
+      "en_to_russian_words|heldout": -0.0232,
+      "en_to_russian_words__control|heldout": 0.0248,
+      "en_to_chinese_words|search": -0.0471,
+      "en_to_chinese_words__control|search": -0.0016,
+      "en_to_chinese_words|heldout": -0.0162,
+      "en_to_chinese_words__control|heldout": 0.0183,
+      "en_to_japanese_words|search": 0.0327,
+      "en_to_japanese_words__control|search": 0.0004,
+      "en_to_japanese_words|heldout": -0.0194,
+      "en_to_japanese_words__control|heldout": 0.0352,
+      "en_to_italian_words|search": -0.1126,
+      "en_to_italian_words__control|search": 0.0072,
+      "en_to_italian_words|heldout": -0.1025,
+      "en_to_italian_words__control|heldout": 0.0248
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1088,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0049,
+      0.0,
+      -0.0114,
+      -0.0326,
+      0.1321
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L25 router rows 70 (German z=4.4, sel 4.4), 114 (3.3/3.0), 118 (2.7), 110 (1.0), plus the L25 German attribution experts 100 and 36. Ablation: German .326; every other language rises or drops <= .033."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/gemma4_26b_a4b/en_to_german_words.json",
+    "hash": "aa81030c86923649",
+    "description": "Few-shot English->German single-word translation. Control: same format, English->English copy.",
+    "name": "en_to_german_words"
+  },
+  "catalog_id": "expert_german_expert_set_layer_25_6_experts_gemma4_26b_a4b_L25_k6_001",
+  "exported_copy": "library/gemma4_26b_a4b/expert_german_expert_set_layer_25_6_experts_gemma4_26b_a4b_L25_k6_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

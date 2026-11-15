@@ -1,0 +1,113 @@
+{
+  "id": "expert_factual-recall_expert_set_l19_8_experts_lfm2.5_8b_a1b_L19_k8_001",
+  "kind": "expert",
+  "title": "LFM2.5-8B-A1B layer 19, factual-recall expert set (L19, 8 experts)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "facts"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-8B-A1B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'facts' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2105,
+      "control_value": 0.1122,
+      "split": "person_a held-out skill items (facts)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-8B-A1B",
+  "layer": 19,
+  "layers": [
+    19
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-8B-A1B/expert_factual-recall_expert_set_l19_8_experts_lfm2.5_8b_a1b_L19_k8_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_8b_a1b/expert_factual-recall_expert_set_l19_8_experts_lfm2.5_8b_a1b_L19_k8_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'facts'",
+    "label": "factual-recall expert set (L19, 8 experts)",
+    "num_units": 8,
+    "d_model": 2048,
+    "effect": {
+      "math|search": -0.0013,
+      "math|heldout": -0.0015,
+      "code|search": 0.0177,
+      "code|heldout": 0.0144,
+      "facts|search": 0.2195,
+      "facts|heldout": 0.2105,
+      "multilingual|search": 0.0656,
+      "multilingual|heldout": 0.0466,
+      "general_text|search": 0.0695,
+      "general_text|heldout": 0.0776,
+      "en_to_fr_noun|search": -0.0839,
+      "en_to_fr_noun__control|search": -0.0103,
+      "en_to_fr_noun|heldout": -0.1098,
+      "en_to_fr_noun__control|heldout": -0.0013,
+      "two_digit_addition|search": 0.0258,
+      "two_digit_addition__control|search": 0.0107,
+      "two_digit_addition|heldout": 0.0365,
+      "two_digit_addition__control|heldout": 0.0142,
+      "en_to_de_noun|search": -0.025,
+      "en_to_de_noun__control|search": 0.0447,
+      "en_to_de_noun|heldout": -0.2222,
+      "en_to_de_noun__control|heldout": 0.0023,
+      "en_to_es_noun|search": -0.0095,
+      "en_to_es_noun__control|search": 0.0386,
+      "en_to_es_noun|heldout": 0.0979,
+      "en_to_es_noun__control|heldout": -0.0026,
+      "en_to_ru_word|search": -0.005,
+      "en_to_ru_word__control|search": -0.0377,
+      "en_to_ru_word|heldout": -0.0492,
+      "en_to_ru_word__control|heldout": -0.0493,
+      "en_to_zh_word|search": 0.0278,
+      "en_to_zh_word__control|search": 0.0036,
+      "en_to_zh_word|heldout": 0.0071,
+      "en_to_zh_word__control|heldout": -0.0589,
+      "en_to_it_word|search": 0.0543,
+      "en_to_it_word__control|search": 0.1058,
+      "en_to_it_word|heldout": 0.1204,
+      "en_to_it_word__control|heldout": 0.1169,
+      "en_to_ja_word|search": 0.0535,
+      "en_to_ja_word__control|search": 0.0164,
+      "en_to_ja_word|heldout": 0.019,
+      "en_to_ja_word__control|heldout": -0.0683
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0732,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0,
+      0.1951,
+      0.1951,
+      0.1707,
+      0.0
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L19 facts attribution ranks e11 (.186), e27 (.038), e8 (.016). e22, e15, e25, e19 and e21 are the facts-routed L19 experts. Left out: code (28, 31, 1), addition (9, 3, 17), German (30, 4) and multilingual (5). Ablation: facts .22, general_text .07, multilingual .066, others \u2264 .054."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "builtin",
+    "name": "facts"
+  },
+  "catalog_id": "expert_factual-recall_expert_set_l19_8_experts_lfm2.5_8b_a1b_L19_k8_001",
+  "exported_copy": "library/lfm2.5_8b_a1b/expert_factual-recall_expert_set_l19_8_experts_lfm2.5_8b_a1b_L19_k8_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

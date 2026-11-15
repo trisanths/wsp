@@ -1,0 +1,116 @@
+{
+  "id": "heads_l16_number-word_routing_heads_qwenmath7b_inst_L16_k4_001",
+  "kind": "attn_heads",
+  "title": "Qwen2.5-Math-7B-Instruct layer 16, L16 number-word routing heads",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwenmath7b_inst.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "number_to_word"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Math-7B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'number_to_word' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2841,
+      "control_value": -0.0951,
+      "split": "person_a held-out skill items (number_to_word)",
+      "seeds": null,
+      "source": "person_a/catalog/qwenmath7b_inst.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0048"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Math-7B-Instruct",
+  "layer": 16,
+  "layers": [
+    16
+  ],
+  "units_file": "components/Qwen__Qwen2.5-Math-7B-Instruct/heads_l16_number-word_routing_heads_qwenmath7b_inst_L16_k4_001.pt",
+  "units_remote": "person_a/parts/qwenmath7b_inst/heads_l16_number-word_routing_heads_qwenmath7b_inst_L16_k4_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'number_to_word'",
+    "label": "L16 number-word routing heads",
+    "num_units": 4,
+    "d_model": 3584,
+    "effect": {
+      "math|search": 0.0019,
+      "math|heldout": 0.0044,
+      "code|search": 0.0042,
+      "code|heldout": -0.0013,
+      "facts|search": 0.0054,
+      "facts|heldout": 0.0,
+      "multilingual|search": 0.0112,
+      "multilingual|heldout": 0.018,
+      "general_text|search": 0.0036,
+      "general_text|heldout": 0.0,
+      "weekday_successor|search": -0.0046,
+      "weekday_successor__control|search": -0.0089,
+      "weekday_successor|heldout": -0.0191,
+      "weekday_successor__control|heldout": -0.007,
+      "number_to_word|search": 0.2927,
+      "number_to_word__control|search": 0.0057,
+      "number_to_word|heldout": 0.2841,
+      "number_to_word__control|heldout": 0.0048,
+      "object_color|search": -0.0535,
+      "object_color__control|search": 0.0621,
+      "object_color|heldout": 0.0094,
+      "object_color__control|heldout": 0.0797,
+      "month_successor|search": -0.019,
+      "month_successor__control|search": 0.0012,
+      "month_successor|heldout": -0.057,
+      "month_successor__control|heldout": -0.0002,
+      "parity|search": -0.0341,
+      "parity__control|search": -0.0,
+      "parity|heldout": -0.0397,
+      "parity__control|heldout": -0.0002,
+      "product_sign|search": -0.0064,
+      "product_sign__control|search": 0.0851,
+      "product_sign|heldout": -0.0035,
+      "product_sign__control|heldout": 0.078,
+      "ordinal_word|search": 0.0178,
+      "ordinal_word__control|search": 0.0767,
+      "ordinal_word|heldout": 0.0335,
+      "ordinal_word__control|heldout": 0.0781,
+      "greek_letter_name|search": 0.0303,
+      "greek_letter_name__control|search": -0.4848,
+      "greek_letter_name|heldout": -0.0087,
+      "greek_letter_name__control|heldout": -0.4255
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0976,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.1077,
+      -0.1803,
+      -0.1007,
+      0.1218,
+      -0.2084
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L16 heads 2, 20, 26 are the top number_to_word-attributed heads in L16; h26 has number-word copy OV (.2) and h6 forward number-word OV (.11). Swapping ordinal heads 14/18 for 6/20 separates this group from the passed L16 ordinal group."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwenmath7b_inst/number_to_word.json",
+    "hash": "752ca9c4bd72b26f",
+    "description": "Write a small integer (or a sum result) as an English number word. Control: same format asking for the digit form.",
+    "name": "number_to_word"
+  },
+  "catalog_id": "heads_l16_number-word_routing_heads_qwenmath7b_inst_L16_k4_001",
+  "exported_copy": "library/qwenmath7b_inst/heads_l16_number-word_routing_heads_qwenmath7b_inst_L16_k4_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

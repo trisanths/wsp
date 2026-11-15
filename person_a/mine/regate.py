@@ -11,6 +11,39 @@ import common  # noqa: E402
 from client import Miner, light_gate  # noqa: E402
 
 
+def regate(short, targets):
+    # Reads the catalog and replaces it under the lock of client.write_part, so a row that a live run
+    # appends is neither lost nor left out of the check. Returns (kept rows, rejected rows).
+    path = common.catalog_path(short)
+    keep = []
+    rejected = []
+    with common.catalog_lock(short):
+        with open(path) as f:
+            for line in f:
+                if not line.strip():
+                    continue
+                rec = json.loads(line)
+                sig = rec.get("signature", {})
+                if "random_drops" not in sig or "skill" not in rec:
+                    keep.append(rec)  # not produced by mine/ (e.g. v1 records): leave alone
+                    continue
+                gate = light_gate(sig["effect"], sig["random_drops"], rec["skill"]["name"], targets)
+                if gate["passed"]:
+                    sig["gate"] = gate
+                    keep.append(rec)
+                else:
+                    rec["rejected_reasons"] = gate["reasons"]
+                    rejected.append(rec)
+        tmp = path + ".regate.tmp"
+        with open(tmp, "w") as f:
+            for rec in keep:
+                f.write(json.dumps(rec) + "\n")
+        os.replace(tmp, path)
+        for rec in rejected:
+            common.append_jsonl(os.path.join(common.ROOT, "catalog", short + ".rejected.jsonl"), rec)
+    return keep, rejected
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", required=True)
@@ -20,31 +53,7 @@ def main():
         print("no catalog for", args.model)
         return
     targets = Miner(args.model).target_skills()
-    keep = []
-    rejected = []
-    with open(path) as f:
-        for line in f:
-            if not line.strip():
-                continue
-            rec = json.loads(line)
-            sig = rec.get("signature", {})
-            if "random_drops" not in sig or "skill" not in rec:
-                keep.append(rec)  # not produced by mine/ (e.g. v1 records): leave alone
-                continue
-            gate = light_gate(sig["effect"], sig["random_drops"], rec["skill"]["name"], targets)
-            if gate["passed"]:
-                sig["gate"] = gate
-                keep.append(rec)
-            else:
-                rec["rejected_reasons"] = gate["reasons"]
-                rejected.append(rec)
-    tmp = path + ".tmp"
-    with open(tmp, "w") as f:
-        for rec in keep:
-            f.write(json.dumps(rec) + "\n")
-    os.replace(tmp, path)
-    for rec in rejected:
-        common.append_jsonl(os.path.join(common.ROOT, "catalog", args.model + ".rejected.jsonl"), rec)
+    keep, rejected = regate(args.model, targets)
     print("kept", len(keep), "rejected", len(rejected))
     for rec in rejected:
         print("  rejected", rec["id"], rec["rejected_reasons"])

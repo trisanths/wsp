@@ -6,7 +6,7 @@ the wsp.healdata pools (math, code, medicine, general), checked with
 healdata.check_sources. Benchmarks only score the finished model, through
 wsp.skills_eval. The three ranges of each pool never overlap:
 
-  stitch (T_in)   pool positions [1000, 1064) of each pool   256 texts
+  stitch (T_in)   pool positions [1000, 1300) of each pool   1200 texts
   heal            [2000, 4000) of each pool                  8000 texts, 2000 per pool
   probe           [5000, 5096) of each pool                  held out from everything
 
@@ -20,6 +20,26 @@ input. We use that as a new place for a component's output to re-enter the host:
 the donor block reads the host state at layer k through T_in, runs beside the
 host's upper layers, and T_out writes its output into the next token's input
 embedding (wsp/feedback.py). The whole host stack then reads what it wrote.
+
+First real run (2026-11-14, pair A, feedback_block, seed 0) destroyed the model: GSM8K 0.0,
+MBPP 0.0, MMLU 25.9, probe transfer -2.49, drift 2.76 nats. Three causes, all fixed (docs/feedback.md):
+  1 stage 1 left a 1.98 nat penalty (linear stitch, 400 steps, 256 texts, a 1536 to 3584 map; the
+    study's 0.03 was an MLP or linear stitch, 1000 steps, 2400 texts, between a 1.5B base and a
+    1.5B relative of the same init). Now: MLP stitch, lr 3e-4, 1000 steps, 1200 texts, up to two
+    more rounds of 500 steps while the penalty is above 0.3 nats. A cell whose penalty stays above
+    the threshold ends with status failed_stage1 and does not start stage 2.
+  2 one Adam step made the written vector many times the embedding norm. Now the branch output is
+    RMS-normalized, T_out is normalized, and the written vector has norm gate * embed_rms with
+    gate = 0.5 * tanh(raw), raw starting at 0. T_out starts at a ridge fit toward the donor
+    (warm_start_t_out), else random. Gate and T_out warm up over 100 steps; clipping is per group.
+    The heal halts, with status failed_heal, when the two-pass KD stays above 3x its first value
+    for 20 two-pass steps in a row.
+  3 training (two passes, clean reads) and exact generation differed: passes_gap KL 6.18. Now one
+    pass 15 percent, three passes 30 percent after step 100, else two; T_in fine-tunes at lr 1e-5
+    with the stage-1 loss as a regularizer; passes_gap on held-out text goes to the heal log every
+    200 steps.
+Every row records stage1_penalty, gate, written_ratio (norm of the written vector over embed_rms),
+passes_gap, and status ("ok", "failed_stage1", "failed_heal").
 
 Pairs (same tokenizer in each):
   A  base Qwen/Qwen2.5-1.5B-Instruct  donor Qwen/Qwen2.5-7B-Instruct   block donor layers 8..20
@@ -54,14 +74,14 @@ signal:
   midstack_block_random  the same with the random range
 
 Training. Stage 1 trains T_in on the donor's own LM loss with the donor sink
-(wsp.stitch donor_lm), shared by the two arms that use the same block (cached in
+(wsp.stitch donor_lm), shared by the arms that use the same block (cached in
 /vol/round22). Stage 2 trains T_out, the gates, and a LoRA r16 on the host layers
 ABOVE the read layer (a LoRA below it would move the state T_in reads), with
 KL(donor || student) on the math, code, and medicine pool texts plus 0.5 *
 KL(frozen base || student) on the general pool texts. There is no LM loss on any
-text. Feedback arms use the paper's pass schedule: one pass with probability 0.15,
-else two. 1000 steps, batch 8, 384 tokens. Learning rates (untuned first guesses):
-T_out 3e-4, gate 1e-3, LoRA 2e-4. The midstack arms start the gate at 0 and
+text. Feedback arms: one pass with probability 0.15, else three with probability 0.3
+after step 100, else two. 1000 steps, batch 8, 384 tokens. Learning rates (untuned first
+guesses): T_out 3e-4, gate 1e-3, LoRA 2e-4, T_in 1e-5. The midstack arms start the gate at 0 and
 stitch_out at the pseudo-inverse of T_in, as wsp/insert.py does, with gate 5e-3 and
 stitch_out 1e-4.
 
@@ -72,7 +92,8 @@ then the benchmark scores once through wsp.skills_eval (GSM8K 300, MBPP 200 of t
 run per token, trainable parameters, heal seconds, and decode tokens per second.
 Feedback arms score the multiple-choice items teacher forced with passes=2 and
 generate exactly (token by token, with caches). They also record passes_gap, the
-KL from the exact recursion to passes=2 on 8 probe texts. The content gain (real
+KL from the exact recursion to passes=2 on 8 probe texts, and every 200 heal steps on
+8 other probe texts (heal.gap). The content gain (real
 minus random transfer) is computed from the rows by --verdict.
 
 Go rule. feedback_block beats kd_lora, feedback_plain, and feedback_block_random on
@@ -90,6 +111,7 @@ probe transfer (mean over skills) by more than the seed spread, with drift under
   feedback_block drifts over 0.05 nats      the heal damages the base; lower the LoRA
                                             rate or raise the anchor weight first
 
+    modal run modal_round22.py --only feedback_block --pairs A --seeds 0     (the smoke command: one cell)
     modal run modal_round22.py --shard 0 --nshards 8
     modal run modal_round22.py --only feedback_block,feedback_block_random --pairs A
     modal run modal_round22.py --verdict 'results/round22_shard*.json'   (reads rows, runs no cell)
@@ -141,14 +163,22 @@ SEQ_LEN = 384
 LORA_RANK = 16
 ANCHOR_WEIGHT = 0.5
 ONE_PASS_PROB = 0.15
-LR = {"t_out": 3e-4, "gate": 1e-3, "lora": 2e-4}
+LR = {"t_out": 3e-4, "gate": 1e-3, "lora": 2e-4, "t_in": 1e-5}
+G_MAX = 0.5
+THREE_PASS_PROB = 0.3
+SEAM_WARMUP = 100
+HALT_RATIO = 3.0
+HALT_PATIENCE = 20
+GAP_EVERY = 200
+STAGE1_THRESHOLD = 0.3
+WARM_TEXTS = 256
 LR_MID = {"t_out": 1e-4, "gate": 5e-3, "lora": 2e-4}
-STITCH = {"kind": "linear", "steps": 400, "lr": 1e-3, "batch_size": 8, "seq_len": 256}
+STITCH = {"kind": "mlp", "steps": 1000, "lr": 3e-4, "batch_size": 8, "seq_len": 256, "version": "v2"}
 
 POOLS = ["math", "code", "medicine", "general"]
 SKILL_POOLS = ["math", "code", "medicine"]
 STITCH_START = 1000
-STITCH_PER_POOL = 64
+STITCH_PER_POOL = 300
 HEAL_START = 2000
 HEAL_PER_POOL = 2000
 PROBE_START = 5000
@@ -303,14 +333,30 @@ def tail_mean(values, count=50):
     return round(sum(tail) / len(tail), 5)
 
 
+def slim_stage1(report):
+    """The stage-1 report without the per-dimension arrays, so a row stays small."""
+    out = {}
+    for key, value in report.items():
+        if key in ("before", "after"):
+            out[key] = {k: v for k, v in value.items() if k != "r2_dim"}
+        elif key == "ridge":
+            out[key] = {k: v for k, v in value.items() if k != "r2_dim"}
+        else:
+            out[key] = value
+    return out
+
+
 def get_t_in(pair, first, seed, host, donor, tokenizer, read_layer):
-    """Stage 1, shared by the two arms that use the same donor layer. Cached on the volume."""
+    """Stage 1, shared by the arms that use the same donor layer. Cached on the volume.
+
+    The report has penalty (donor loss through T_in minus native, in nats), threshold, and ok.
+    """
     import torch
 
     from wsp.feedback import fit_t_in
     from wsp.stitch import build_stitch
 
-    path = f"/vol/round22/t_in_{pair}_{first}_l{read_layer}_s{seed}.pt"
+    path = f"/vol/round22/t_in_{STITCH['version']}_{pair}_{first}_l{read_layer}_s{seed}.pt"
     if os.path.exists(path):
         saved = torch.load(path)
         t_in = build_stitch({"kind": STITCH["kind"]}, host.config.hidden_size, donor.config.hidden_size)
@@ -322,11 +368,34 @@ def get_t_in(pair, first, seed, host, donor, tokenizer, read_layer):
     t_in, sink, report = fit_t_in(host, tokenizer, read_layer, donor, tokenizer, first, texts, kind=STITCH["kind"],
                                   steps=STITCH["steps"], lr=STITCH["lr"], batch_size=STITCH["batch_size"],
                                   seq_len=STITCH["seq_len"], seed=seed, eval_texts=eval_texts, sink=True,
-                                  log_every=100)
+                                  log_every=100, threshold=STAGE1_THRESHOLD)
+    report = slim_stage1(report)
     os.makedirs("/vol/round22", exist_ok=True)
     torch.save({"state": t_in.state_dict(), "sink": sink, "report": report}, path)
     volume.commit()
     return t_in, sink, report
+
+
+def finish_failed(row, status, reason, start, pair, arm, seed):
+    """Write a failed cell's row (no benchmark runs) and return it."""
+    row["status"] = status
+    row["failure"] = reason
+    row["seconds"] = round(time.time() - start, 1)
+    os.makedirs("/vol/results/round22", exist_ok=True)
+    with open(f"/vol/results/round22/{pair}_{arm}_s{seed}.json", "w") as f:
+        json.dump(row, f, default=str)
+    volume.commit()
+    print(f"CELL {pair} {arm} s{seed} {status}: {reason}")
+    return row
+
+
+def heal_row(heal_log):
+    return {"kd": thin(heal_log["kd"]), "anchor": thin(heal_log["anchor"]),
+            "kd_last50": tail_mean(heal_log["kd"]), "anchor_last50": tail_mean(heal_log["anchor"]),
+            "passes_counts": {str(n): heal_log["passes"].count(n) for n in (1, 2, 3)},
+            "gap": heal_log.get("gap", []), "halted": heal_log.get("halted", False),
+            "halt_step": heal_log.get("halt_step"), "halt_reason": heal_log.get("halt_reason"),
+            "baseline_kd": heal_log.get("baseline_kd")}
 
 
 def probe_row(written, base_view, donor, tokenizer):
@@ -360,7 +429,7 @@ def run_cell(pair, arm, seed):
     first, last = spec["block"]
     tokenizer = transformers.AutoTokenizer.from_pretrained(base_id)
     row = {"pair": pair, "arm": arm, "seed": seed, "base": base_id, "donor": donor_id, "block": [first, last],
-           "eval": "wsp.skills_eval"}
+           "eval": "wsp.skills_eval", "status": "ok"}
     row.update(pool_record())
 
     host = load_model(base_id).eval()
@@ -397,11 +466,12 @@ def run_cell(pair, arm, seed):
 
         heal_log = fb.heal_distill(forward, anchor, groups, tokenizer, donor, texts, flags, steps=STEPS,
                                    batch_size=BATCH, seq_len=SEQ_LEN, seed=seed, one_pass_prob=0.0,
-                                   anchor_weight=ANCHOR_WEIGHT, autocast_dtype=torch.bfloat16)
+                                   three_pass_prob=0.0, anchor_weight=ANCHOR_WEIGHT, autocast_dtype=torch.bfloat16,
+                                   halt_ratio=HALT_RATIO, halt_patience=HALT_PATIENCE)
         host.eval()
     elif arm.startswith("feedback"):
         if arm == "feedback_plain":
-            branch = fb.make_plain_branch(host)
+            branch = fb.make_plain_branch(host, g_max=G_MAX, init_seed=seed)
         else:
             control = "random" if arm.endswith("random") else None
             if arm.endswith("scrambled"):
@@ -413,21 +483,36 @@ def run_cell(pair, arm, seed):
                 use_first = random_range(donor.config.num_hidden_layers, first, last, seed)[0]
             t_in, sink, stage1 = get_t_in(pair, use_first, seed, host, donor, tokenizer, read_layer)
             row["stage1"] = stage1
+            row["stage1_penalty"] = stage1["penalty"]
+            if not stage1["ok"]:
+                return finish_failed(row, "failed_stage1", f"stage 1 penalty {stage1['penalty']:.3f} nats is above "
+                                     f"{STAGE1_THRESHOLD}", start, pair, arm, seed)
             branch = fb.make_block_branch(host, donor, [first, last], read_layer, t_in=t_in, sink=sink,
-                                          control=control, control_seed=seed)
+                                          control=control, control_seed=seed, g_max=G_MAX, init_seed=seed)
             row["donor_layers_used"] = branch.meta["donor_layers"]
         seam = fb.FeedbackSeam(host, [branch], base_id)
         seam.add_host_lora(LORA_RANK, layers=lora_layers)
         trainable_all = fb.count_params(seam)["trainable"]
         row["params_trainable_before_stage2"] = trainable_all
+        skill_texts = [text for text, flag in zip(texts, flags) if not flag][:WARM_TEXTS]
+        row["warm_start"] = fb.warm_start_t_out(seam, tokenizer, donor, skill_texts, batch_size=4, seq_len=256)
+        held_gap = probe_texts(tokenizer)["math"][GAP_TEXTS:2 * GAP_TEXTS]
         heal_log = fb.heal_seam(seam, tokenizer, donor, texts, flags,
-                                lrs={"lr_t_out": LR["t_out"], "lr_gate": LR["gate"], "lr_lora": LR["lora"]},
+                                lrs={"lr_t_out": LR["t_out"], "lr_gate": LR["gate"], "lr_lora": LR["lora"],
+                                     "lr_t_in": LR["t_in"], "warmup_seam": SEAM_WARMUP},
+                                gap_texts=held_gap, gap_every=GAP_EVERY, train_t_in=arm != "feedback_plain",
                                 steps=STEPS, batch_size=BATCH, seq_len=SEQ_LEN, seed=seed,
-                                one_pass_prob=ONE_PASS_PROB, anchor_weight=ANCHOR_WEIGHT,
-                                autocast_dtype=torch.bfloat16)
+                                one_pass_prob=ONE_PASS_PROB, three_pass_prob=THREE_PASS_PROB,
+                                three_pass_after=SEAM_WARMUP, anchor_weight=ANCHOR_WEIGHT,
+                                autocast_dtype=torch.bfloat16, halt_ratio=HALT_RATIO, halt_patience=HALT_PATIENCE)
+        row["heal_seconds"] = heal_log["seconds"]
+        row["heal"] = heal_row(heal_log)
+        row["gates"] = [round(float(b.gate), 4) for b in seam.branches]
+        row["gate"] = row["gates"][0]
+        if heal_log["halted"]:
+            return finish_failed(row, "failed_heal", heal_log["halt_reason"], start, pair, arm, seed)
         model = seam
         base_view = fb.BaseView(seam)
-        row["gates"] = [round(float(b.gate.detach()), 4) for b in seam.branches]
         out_dir = f"/vol/written/round22_{pair}_{arm}_s{seed}"
         fb.save_seam(seam, out_dir, tokenizer, base_id)
         volume.commit()
@@ -441,6 +526,10 @@ def run_cell(pair, arm, seed):
             use_first, use_last = random_range(donor.config.num_hidden_layers, first, last, seed)
         t_in, sink, stage1 = get_t_in(pair, use_first, seed, host, donor, tokenizer, read_layer)
         row["stage1"] = stage1
+        row["stage1_penalty"] = stage1["penalty"]
+        if not stage1["ok"]:
+            return finish_failed(row, "failed_stage1", f"stage 1 penalty {stage1['penalty']:.3f} nats is above "
+                                 f"{STAGE1_THRESHOLD}", start, pair, arm, seed)
         row["donor_layers_used"] = [use_first, use_last]
         insertion = insert.insert_layers(host, donor, [use_first, use_last], read_layer + 1, stitch_in=t_in,
                                          donor_id=donor_id, sink=sink, gate_init=0.0)
@@ -458,7 +547,8 @@ def run_cell(pair, arm, seed):
 
         heal_log = fb.heal_distill(forward, anchor, groups, tokenizer, donor, texts, flags, steps=STEPS,
                                    batch_size=BATCH, seq_len=SEQ_LEN, seed=seed, one_pass_prob=0.0,
-                                   anchor_weight=ANCHOR_WEIGHT, autocast_dtype=torch.bfloat16)
+                                   three_pass_prob=0.0, anchor_weight=ANCHOR_WEIGHT, autocast_dtype=torch.bfloat16,
+                                   halt_ratio=HALT_RATIO, halt_patience=HALT_PATIENCE)
         host.eval()
         row["gates"] = insert.gate_values(host)
         out_dir = f"/vol/written/round22_{pair}_{arm}_s{seed}"
@@ -471,8 +561,9 @@ def run_cell(pair, arm, seed):
 
     if heal_log is not None:
         row["heal_seconds"] = heal_log["seconds"]
-        row["heal"] = {"kd": thin(heal_log["kd"]), "anchor": thin(heal_log["anchor"]),
-                       "kd_last50": tail_mean(heal_log["kd"]), "anchor_last50": tail_mean(heal_log["anchor"])}
+        row["heal"] = heal_row(heal_log)
+        if heal_log.get("halted"):
+            return finish_failed(row, "failed_heal", heal_log["halt_reason"], start, pair, arm, seed)
 
     # ---- parameters
     if seam is not None:
@@ -503,6 +594,11 @@ def run_cell(pair, arm, seed):
         held = probe_texts(tokenizer)
         row["passes_gap"] = fb.passes_gap(seam, tokenizer, held["math"][:GAP_TEXTS], passes=2,
                                           max_length=GAP_LENGTH)
+        found = fb.feedback_stats(seam, tokenizer, held["math"][:GAP_TEXTS], max_length=GAP_LENGTH)[0]
+        row["gate"] = round(found["gate"], 5)
+        row["written_ratio"] = round(found["ratio"], 5) if found["ratio"] is not None else None
+        row["written_norm"] = found["written_norm"]
+        row["embed_rms"] = found["embed_rms"]
     del donor
     torch.cuda.empty_cache()
 
@@ -581,7 +677,8 @@ def main(shard: int = 0, nshards: int = 1, only: str = "", pairs: str = "", verd
         rows.append(row)
         print(json.dumps({k: row.get(k) for k in ["pair", "arm", "seed", "scores", "macro", "transfer_mean",
                                                   "params_total", "params_per_token", "heal_seconds",
-                                                  "decode_tok_s"]}))
+                                                  "decode_tok_s", "status", "stage1_penalty", "gate",
+                                                  "written_ratio", "passes_gap", "failure"]}))
     os.makedirs("results", exist_ok=True)
     with open(f"results/round22_shard{shard}.json", "w") as f:
         json.dump(rows, f, indent=2)

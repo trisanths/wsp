@@ -1,0 +1,104 @@
+{
+  "id": "mlp_hebrew-script_recognition_support_granite8b_L38_k1_001",
+  "kind": "mlp_cluster",
+  "title": "granite-3.3-8b-instruct layer 38, Hebrew-script recognition support",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/granite8b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "writing_system"
+  ],
+  "models": [
+    "ibm-granite/granite-3.3-8b-instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'writing_system' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1957,
+      "control_value": -0.0005,
+      "split": "person_a held-out skill items (writing_system)",
+      "seeds": null,
+      "source": "person_a/catalog/granite8b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0032"
+    }
+  ],
+  "generated": true,
+  "model": "ibm-granite/granite-3.3-8b-instruct",
+  "layer": 38,
+  "layers": [
+    38
+  ],
+  "units_file": "components/ibm-granite__granite-3.3-8b-instruct/mlp_hebrew-script_recognition_support_granite8b_L38_k1_001.pt",
+  "units_remote": "person_a/parts/granite8b/mlp_hebrew-script_recognition_support_granite8b_L38_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'writing_system'",
+    "label": "Hebrew-script recognition support",
+    "num_units": 1,
+    "d_model": 4096,
+    "effect": {
+      "math|search": 0.0001,
+      "math|heldout": -0.0001,
+      "code|search": -0.0003,
+      "code|heldout": -0.0003,
+      "facts|search": 0.0004,
+      "facts|heldout": -0.0009,
+      "multilingual|search": -0.0006,
+      "multilingual|heldout": -0.0003,
+      "general_text|search": 0.0003,
+      "general_text|heldout": 0.0001,
+      "past_copula|search": -0.0013,
+      "past_copula__control|search": -0.0044,
+      "past_copula|heldout": 0.0008,
+      "past_copula__control|heldout": -0.0014,
+      "possessive_determiner|search": -0.0078,
+      "possessive_determiner__control|search": 0.0019,
+      "possessive_determiner|heldout": -0.0027,
+      "possessive_determiner__control|heldout": 0.0006,
+      "emotion_valence|search": -0.0011,
+      "emotion_valence__control|search": -0.0022,
+      "emotion_valence|heldout": -0.0005,
+      "emotion_valence__control|heldout": -0.0029,
+      "writing_system|search": 0.2496,
+      "writing_system__control|search": -0.0009,
+      "writing_system|heldout": 0.1957,
+      "writing_system__control|heldout": -0.0032,
+      "courtesy_function|search": -0.0011,
+      "courtesy_function__control|search": -0.0002,
+      "courtesy_function|heldout": 0.0036,
+      "courtesy_function__control|heldout": 0.0
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0832,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0008,
+      -0.0024,
+      0.0011,
+      -0.0001,
+      -0.0001
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L38 11664 gate's leading tokens include Hebrew byte prefix .147, Hebrew aleph .128, lamed .115, bet .114 and shin .105; output Hal and Is/J hints script-name prefix routing rather than full lexical writer. Attribution writing_system .149."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/granite8b/writing_system.json",
+    "hash": "73f0b8391bd3bd60",
+    "description": "Identify Unicode writing systems from natural words: Cyrillic, Greek, Arabic, Hebrew, Hiragana, Hangul. Matched control extracts an English marker from identical records.",
+    "name": "writing_system"
+  },
+  "catalog_id": "mlp_hebrew-script_recognition_support_granite8b_L38_k1_001",
+  "exported_copy": "library/granite8b/mlp_hebrew-script_recognition_support_granite8b_L38_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

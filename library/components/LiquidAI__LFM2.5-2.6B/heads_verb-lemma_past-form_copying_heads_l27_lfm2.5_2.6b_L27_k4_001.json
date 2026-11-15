@@ -1,0 +1,116 @@
+{
+  "id": "heads_verb-lemma_past-form_copying_heads_l27_lfm2.5_2.6b_L27_k4_001",
+  "kind": "attn_heads",
+  "title": "LFM2.5-2.6B layer 27, verb-lemma / past-form copying heads (L27)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_2.6b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "past_tense"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-2.6B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'past_tense' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2425,
+      "control_value": 0.0085,
+      "split": "person_a held-out skill items (past_tense)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_2.6b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0525"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-2.6B",
+  "layer": 27,
+  "layers": [
+    27
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-2.6B/heads_verb-lemma_past-form_copying_heads_l27_lfm2.5_2.6b_L27_k4_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_2.6b/heads_verb-lemma_past-form_copying_heads_l27_lfm2.5_2.6b_L27_k4_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'past_tense'",
+    "label": "verb-lemma / past-form copying heads (L27)",
+    "num_units": 4,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.001,
+      "math|heldout": 0.0003,
+      "code|search": 0.0037,
+      "code|heldout": 0.019,
+      "facts|search": 0.0226,
+      "facts|heldout": 0.0523,
+      "multilingual|search": -0.0004,
+      "multilingual|heldout": -0.0174,
+      "general_text|search": -0.0123,
+      "general_text|heldout": -0.0098,
+      "month_successor|search": 0.0442,
+      "month_successor__control|search": 0.0007,
+      "month_successor|heldout": 0.0746,
+      "month_successor__control|heldout": 0.0003,
+      "weekday_successor|search": 0.0259,
+      "weekday_successor__control|search": -0.0037,
+      "weekday_successor|heldout": 0.069,
+      "weekday_successor__control|heldout": 0.0006,
+      "roman_numerals|search": 0.0401,
+      "roman_numerals__control|search": 0.005,
+      "roman_numerals|heldout": 0.0521,
+      "roman_numerals__control|heldout": 0.0038,
+      "object_color|search": 0.0731,
+      "object_color__control|search": 0.0076,
+      "object_color|heldout": 0.0228,
+      "object_color__control|heldout": 0.008,
+      "antonym|search": 0.0397,
+      "antonym__control|search": 0.023,
+      "antonym|heldout": 0.0746,
+      "antonym__control|heldout": 0.0423,
+      "ordinal_word|search": 0.0077,
+      "ordinal_word__control|search": 0.0321,
+      "ordinal_word|heldout": 0.0064,
+      "ordinal_word__control|heldout": 0.0355,
+      "capital_city|search": 0.0035,
+      "capital_city__control|search": 0.0012,
+      "capital_city|heldout": 0.0084,
+      "capital_city__control|heldout": 0.0013,
+      "past_tense|search": 0.2748,
+      "past_tense__control|search": 0.0477,
+      "past_tense|heldout": 0.2425,
+      "past_tense__control|heldout": 0.0525
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0916,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0155,
+      -0.0094,
+      -0.0136,
+      0.0119,
+      0.0379
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "The static OV of L27 heads 28, 31 and 17 maps a base verb's embedding onto its own lemma family, including the irregular past form. Over 19 irregular pairs (go\u2192went, see\u2192saw...) the past-form z-scores are +13.3, +6.1 and +4.7. Head 30 carries past/roman attribution. Together they write the past-tense form late in the network."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_2.6b/past_tense.json",
+    "hash": "5928ff924c467359",
+    "description": "Give the past tense of an irregular English verb, few-shot. Control: same format copying the verb.",
+    "name": "past_tense"
+  },
+  "catalog_id": "heads_verb-lemma_past-form_copying_heads_l27_lfm2.5_2.6b_L27_k4_001",
+  "exported_copy": "library/lfm2.5_2.6b/heads_verb-lemma_past-form_copying_heads_l27_lfm2.5_2.6b_L27_k4_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

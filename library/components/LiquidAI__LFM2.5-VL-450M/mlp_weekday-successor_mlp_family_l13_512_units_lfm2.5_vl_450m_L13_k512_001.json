@@ -1,0 +1,116 @@
+{
+  "id": "mlp_weekday-successor_mlp_family_l13_512_units_lfm2.5_vl_450m_L13_k512_001",
+  "kind": "mlp_cluster",
+  "title": "LFM2.5-VL-450M layer 13, weekday-successor MLP family (L13, 512 units)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "weekday_successor"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-VL-450M"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'weekday_successor' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.4845,
+      "control_value": 0.0359,
+      "split": "person_a held-out skill items (weekday_successor)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0003"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-VL-450M",
+  "layer": 13,
+  "layers": [
+    13
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-VL-450M/mlp_weekday-successor_mlp_family_l13_512_units_lfm2.5_vl_450m_L13_k512_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_vl_450m/mlp_weekday-successor_mlp_family_l13_512_units_lfm2.5_vl_450m_L13_k512_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'weekday_successor'",
+    "label": "weekday-successor MLP family (L13, 512 units)",
+    "num_units": 512,
+    "d_model": 1024,
+    "effect": {
+      "math|search": 0.0111,
+      "math|heldout": 0.0146,
+      "code|search": 0.0122,
+      "code|heldout": 0.0073,
+      "facts|search": 0.0975,
+      "facts|heldout": 0.0418,
+      "multilingual|search": 0.0313,
+      "multilingual|heldout": 0.0476,
+      "general_text|search": 0.0538,
+      "general_text|heldout": 0.0635,
+      "month_successor|search": 0.0136,
+      "month_successor__control|search": 0.0107,
+      "month_successor|heldout": 0.0226,
+      "month_successor__control|heldout": 0.0295,
+      "numberword_successor|search": 0.0238,
+      "numberword_successor__control|search": -0.0029,
+      "numberword_successor|heldout": 0.0065,
+      "numberword_successor__control|heldout": -0.0009,
+      "weekday_successor|search": 0.3935,
+      "weekday_successor__control|search": 0.0053,
+      "weekday_successor|heldout": 0.4845,
+      "weekday_successor__control|heldout": 0.0003,
+      "comparative_adjective|search": 0.1198,
+      "comparative_adjective__control|search": 0.0039,
+      "comparative_adjective|heldout": 0.1142,
+      "comparative_adjective__control|heldout": 0.0044,
+      "irregular_past_tense|search": -0.0189,
+      "irregular_past_tense__control|search": 0.0021,
+      "irregular_past_tense|heldout": -0.0367,
+      "irregular_past_tense__control|heldout": 0.0018,
+      "object_colour|search": 0.0276,
+      "object_colour__control|search": -0.0005,
+      "object_colour|heldout": 0.0534,
+      "object_colour__control|heldout": -0.0001,
+      "antonym|search": 0.0179,
+      "antonym__control|search": -0.0025,
+      "antonym|heldout": 0.0759,
+      "antonym__control|heldout": -0.0049,
+      "pronoun_gender|search": 0.0168,
+      "pronoun_gender__control|search": -0.0713,
+      "pronoun_gender|heldout": 0.0141,
+      "pronoun_gender__control|heldout": -0.0052
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1312,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0425,
+      0.0484,
+      0.0489,
+      0.0427,
+      -0.0029
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "The L13 weekday seed 4519 grown to 512 units by w1-gate-row plus w2-column cosine; a superset of the screened 64/128/256-unit families."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_vl_450m/weekday_successor.json",
+    "hash": "96b4aa2a8bf28253",
+    "description": "Continue a weekday sequence (e.g. 'Monday, Tuesday,' -> ' Wednesday'), wrapping Sunday->Monday. Control: same format with digit sequences.",
+    "name": "weekday_successor"
+  },
+  "catalog_id": "mlp_weekday-successor_mlp_family_l13_512_units_lfm2.5_vl_450m_L13_k512_001",
+  "exported_copy": "library/lfm2.5_vl_450m/mlp_weekday-successor_mlp_family_l13_512_units_lfm2.5_vl_450m_L13_k512_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

@@ -1,0 +1,116 @@
+{
+  "id": "heads_l21_sequence-successor_heads_for_ordinal_words_qwenmath7b_inst_L21_k4_001",
+  "kind": "attn_heads",
+  "title": "Qwen2.5-Math-7B-Instruct layer 21, L21 sequence-successor heads for ordinal words",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwenmath7b_inst.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "ordinal_word"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Math-7B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'ordinal_word' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.5587,
+      "control_value": -0.1049,
+      "split": "person_a held-out skill items (ordinal_word)",
+      "seeds": null,
+      "source": "person_a/catalog/qwenmath7b_inst.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0312"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Math-7B-Instruct",
+  "layer": 21,
+  "layers": [
+    21
+  ],
+  "units_file": "components/Qwen__Qwen2.5-Math-7B-Instruct/heads_l21_sequence-successor_heads_for_ordinal_words_qwenmath7b_inst_L21_k4_001.pt",
+  "units_remote": "person_a/parts/qwenmath7b_inst/heads_l21_sequence-successor_heads_for_ordinal_words_qwenmath7b_inst_L21_k4_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'ordinal_word'",
+    "label": "L21 sequence-successor heads for ordinal words",
+    "num_units": 4,
+    "d_model": 3584,
+    "effect": {
+      "math|search": 0.0011,
+      "math|heldout": 0.0041,
+      "code|search": 0.008,
+      "code|heldout": 0.0078,
+      "facts|search": 0.0082,
+      "facts|heldout": 0.0154,
+      "multilingual|search": -0.0017,
+      "multilingual|heldout": -0.0039,
+      "general_text|search": -0.0049,
+      "general_text|heldout": 0.0,
+      "weekday_successor|search": 0.024,
+      "weekday_successor__control|search": 0.026,
+      "weekday_successor|heldout": 0.042,
+      "weekday_successor__control|heldout": 0.0153,
+      "number_to_word|search": -0.5995,
+      "number_to_word__control|search": 0.0249,
+      "number_to_word|heldout": -0.6236,
+      "number_to_word__control|heldout": 0.0262,
+      "object_color|search": 0.1189,
+      "object_color__control|search": -0.3955,
+      "object_color|heldout": 0.16,
+      "object_color__control|heldout": -0.4203,
+      "month_successor|search": 0.0472,
+      "month_successor__control|search": 0.0016,
+      "month_successor|heldout": 0.0697,
+      "month_successor__control|heldout": 0.0035,
+      "parity|search": -0.125,
+      "parity__control|search": -0.0004,
+      "parity|heldout": -0.1137,
+      "parity__control|heldout": -0.0003,
+      "product_sign|search": 0.0037,
+      "product_sign__control|search": -0.059,
+      "product_sign|heldout": 0.0026,
+      "product_sign__control|heldout": -0.0577,
+      "ordinal_word|search": 0.5778,
+      "ordinal_word__control|search": -0.0818,
+      "ordinal_word|heldout": 0.5587,
+      "ordinal_word__control|heldout": -0.0312,
+      "greek_letter_name|search": 0.12,
+      "greek_letter_name__control|search": 0.2424,
+      "greek_letter_name|heldout": 0.0686,
+      "greek_letter_name__control|heldout": 0.2128
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1926,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.2311,
+      0.2311,
+      -0.0222,
+      -0.4933,
+      -0.4711
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L21 h19 has forward ordinal-successor OV (ordinal_i -> ordinal_{i+1} .22), h0 and h17 have Greek-sequence successor OV (.5), and h2 shares KV group 0 with h0. These are the top ordinal-attributed heads of L21."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwenmath7b_inst/ordinal_word.json",
+    "hash": "13745e89ca90ceea",
+    "description": "Give the English ordinal word for a position (e.g. position 3 -> third). Control: same format asking for the cardinal digit.",
+    "name": "ordinal_word"
+  },
+  "catalog_id": "heads_l21_sequence-successor_heads_for_ordinal_words_qwenmath7b_inst_L21_k4_001",
+  "exported_copy": "library/qwenmath7b_inst/heads_l21_sequence-successor_heads_for_ordinal_words_qwenmath7b_inst_L21_k4_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

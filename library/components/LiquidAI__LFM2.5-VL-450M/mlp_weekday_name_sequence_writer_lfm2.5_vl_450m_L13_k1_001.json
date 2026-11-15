@@ -1,0 +1,104 @@
+{
+  "id": "mlp_weekday_name_sequence_writer_lfm2.5_vl_450m_L13_k1_001",
+  "kind": "mlp_cluster",
+  "title": "LFM2.5-VL-450M layer 13, weekday name sequence writer",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "weekday_successor"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-VL-450M"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'weekday_successor' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.4144,
+      "control_value": 0.0012,
+      "split": "person_a held-out skill items (weekday_successor)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0017"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-VL-450M",
+  "layer": 13,
+  "layers": [
+    13
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-VL-450M/mlp_weekday_name_sequence_writer_lfm2.5_vl_450m_L13_k1_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_vl_450m/mlp_weekday_name_sequence_writer_lfm2.5_vl_450m_L13_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'weekday_successor'",
+    "label": "weekday name sequence writer",
+    "num_units": 1,
+    "d_model": 1024,
+    "effect": {
+      "math|search": -0.0,
+      "math|heldout": 0.0015,
+      "code|search": -0.001,
+      "code|heldout": -0.0005,
+      "facts|search": 0.0015,
+      "facts|heldout": -0.0083,
+      "multilingual|search": 0.0008,
+      "multilingual|heldout": 0.0001,
+      "general_text|search": 0.0,
+      "general_text|heldout": 0.0005,
+      "month_successor|search": -0.0213,
+      "month_successor__control|search": -0.0002,
+      "month_successor|heldout": -0.0031,
+      "month_successor__control|heldout": -0.0021,
+      "numberword_successor|search": 0.0014,
+      "numberword_successor__control|search": -0.0001,
+      "numberword_successor|heldout": 0.0006,
+      "numberword_successor__control|heldout": -0.0001,
+      "weekday_successor|search": 0.3156,
+      "weekday_successor__control|search": -0.0011,
+      "weekday_successor|heldout": 0.4144,
+      "weekday_successor__control|heldout": -0.0017,
+      "comparative_adjective|search": 0.0003,
+      "comparative_adjective__control|search": -0.0003,
+      "comparative_adjective|heldout": -0.003,
+      "comparative_adjective__control|heldout": -0.0006,
+      "irregular_past_tense|search": 0.0063,
+      "irregular_past_tense__control|search": 0.0001,
+      "irregular_past_tense|heldout": 0.003,
+      "irregular_past_tense__control|heldout": 0.0002
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1052,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0002,
+      0.0017,
+      0.0024,
+      0.0012,
+      0.0009
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L13 unit 4519 down-proj column has the highest |cosine| (-.24) in L13 to the mean weekday-name unembedding direction; independently top attribution unit for weekday_successor; ablation .316 drop with digit control 0."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_vl_450m/weekday_successor.json",
+    "hash": "96b4aa2a8bf28253",
+    "description": "Continue a weekday sequence (e.g. 'Monday, Tuesday,' -> ' Wednesday'), wrapping Sunday->Monday. Control: same format with digit sequences.",
+    "name": "weekday_successor"
+  },
+  "catalog_id": "mlp_weekday_name_sequence_writer_lfm2.5_vl_450m_L13_k1_001",
+  "exported_copy": "library/lfm2.5_vl_450m/mlp_weekday_name_sequence_writer_lfm2.5_vl_450m_L13_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

@@ -1,0 +1,113 @@
+{
+  "id": "heads_arithmetic-reasoning_attention_unit_9_heads_l10_lfm2.5_1.2b_inst_L10_k9_001",
+  "kind": "attn_heads",
+  "title": "LFM2.5-1.2B-Instruct layer 10, arithmetic-reasoning attention unit, 9 heads (L10)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_1.2b_inst.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "math"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-1.2B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'math' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2003,
+      "control_value": 0.0184,
+      "split": "person_a held-out skill items (math)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_1.2b_inst.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-1.2B-Instruct",
+  "layer": 10,
+  "layers": [
+    10
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-1.2B-Instruct/heads_arithmetic-reasoning_attention_unit_9_heads_l10_lfm2.5_1.2b_inst_L10_k9_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_1.2b_inst/heads_arithmetic-reasoning_attention_unit_9_heads_l10_lfm2.5_1.2b_inst_L10_k9_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'math'",
+    "label": "arithmetic-reasoning attention unit, 9 heads (L10)",
+    "num_units": 9,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.1918,
+      "math|heldout": 0.2003,
+      "code|search": 0.0616,
+      "code|heldout": 0.0565,
+      "facts|search": -0.0381,
+      "facts|heldout": -0.1733,
+      "multilingual|search": 0.0439,
+      "multilingual|heldout": 0.0567,
+      "general_text|search": 0.0569,
+      "general_text|heldout": 0.0658,
+      "month_successor|search": -0.2825,
+      "month_successor__control|search": -0.0556,
+      "month_successor|heldout": -0.2672,
+      "month_successor__control|heldout": -0.006,
+      "weekday_successor|search": -0.3706,
+      "weekday_successor__control|search": 0.0954,
+      "weekday_successor|heldout": -0.3113,
+      "weekday_successor__control|heldout": -0.0599,
+      "object_color|search": 0.0142,
+      "object_color__control|search": -0.6254,
+      "object_color|heldout": 0.0548,
+      "object_color__control|heldout": -1.557,
+      "feminine_pronoun|search": 0.0221,
+      "feminine_pronoun__control|search": 0.0634,
+      "feminine_pronoun|heldout": -0.0004,
+      "feminine_pronoun__control|heldout": -0.013,
+      "month_list_next|search": 0.0036,
+      "month_list_next__control|search": -0.0196,
+      "month_list_next|heldout": -0.0004,
+      "month_list_next__control|heldout": -0.011,
+      "weekday_list_next|search": -0.0231,
+      "weekday_list_next__control|search": -0.0388,
+      "weekday_list_next|heldout": -0.0088,
+      "weekday_list_next__control|heldout": -0.0463,
+      "roman_numeral|search": -0.2476,
+      "roman_numeral__control|search": -0.2443,
+      "roman_numeral|heldout": -0.233,
+      "roman_numeral__control|heldout": -0.2761,
+      "masculine_pronoun|search": 0.0227,
+      "masculine_pronoun__control|search": -0.0149,
+      "masculine_pronoun|heldout": 0.0188,
+      "masculine_pronoun__control|heldout": -0.0495
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0639,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0305,
+      -0.0086,
+      0.0511,
+      -0.0038,
+      0.023
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "This grows the GSM8K-confirmed L10 math set (KV group 5 + heads 25/27; head 25 has an out_proj norm outlier of 6.2). It adds KV group 1 heads 5-7: head 5 carries math attribution (.005), and 6/7 cancel head 5's calendar side effect. Math drops .192; every other skill \u2264.062, and the calendar skills improve."
+  },
+  "tier": "confirmed",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "builtin",
+    "name": "math"
+  },
+  "catalog_id": "heads_arithmetic-reasoning_attention_unit_9_heads_l10_lfm2.5_1.2b_inst_L10_k9_001",
+  "exported_copy": "library/lfm2.5_1.2b_inst/heads_arithmetic-reasoning_attention_unit_9_heads_l10_lfm2.5_1.2b_inst_L10_k9_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

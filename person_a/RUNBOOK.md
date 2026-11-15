@@ -66,6 +66,12 @@ Deploy the GPU engine (once per workspace, and again after pulling engine change
 ```bash
 .venv/bin/modal deploy mine/engine_app.py
 ```
+The app `swarmy-mine` serves every run in its Modal workspace: agent runs, sweeps, and map jobs. A
+deploy replaces the engine for all of them at once. A deploy from a checkout that is behind `main`
+removes the newer engine methods (`attribution_units`, `activation_units`, `expert_pick_rates`,
+`builtin_info`, `skill_maps(modules=...)`) for every caller, and an error in the file stops every
+container at startup. So run `git pull --rebase origin main` and the tests of section 8a first. When
+you share the workspace with teammates, one person deploys: ask your human who that is.
 
 ## 4. Check the setup first (cheap, about $1-3 per model)
 ```bash
@@ -96,16 +102,197 @@ All your models in parallel:
 - Runs can be resumed: if one stops, run the same command again and it continues where it left off.
 - Run long jobs in the background and report progress to your human at milestones, not constantly.
 
+## 5b. Sweep miner (no LLM, large parts)
+`mine/sweep.py` mines large parts for many skills on one model. It uses no agent and no OpenAI key.
+The compiler asked for larger units than the agents find: MLP clusters of 64 units and more, groups of
+heads, expert sets, and layer blocks.
+
+What it does:
+1. It checks which skills the model can do (base score against shuffled answers) and skips the others.
+2. For each skill and each unit kind the model has, it asks the engine for the best units of every layer
+   by attribution patching: the estimated loss rise on the skill when a unit is zeroed, minus the same
+   on `general_text`. A quantized (FP8) model cannot run this, so the sweep ranks by activation there.
+   Experts that a model keeps as a list of modules are ranked by attribution only.
+3. It builds candidates in the 3 best layers: MLP clusters of 64, 256, and 1024 units, head groups of 4
+   and 8, and expert sets of 2, 4, and 8. It adds the layer blocks of
+   `atlas/pool_entries/<org>__<name>.json` when `mine/maps.py` has written that file.
+4. It screens the candidates in order, best first, with the same switch-off test and light gate as the
+   agents. A part is saved when the light gate passes and its drop is at least 2 standard deviations
+   above the drops of the random parts of the same size (z-score, search half).
+
+The order. A summed score always puts the largest part of a layer first, and a score per unit always
+the smallest. So the sweep sorts on a score that does not depend on the size: the summed score of a
+candidate divided by the mean summed score of all candidates of the same kind and size in this run. The
+order tells you which candidates stand out among parts of their own size. It does not tell you which
+size is best.
+
+The z-score. It follows the rule of the row field `signature.z` (section 6): mean and sample standard
+deviation of the random drops. The engine rounds drops to 4 decimals, so the random drops of a small
+part can all be equal, or differ in one rounding step. Fewer than 3 distinct random drops are not a
+measured deviation (`signature.z_flag` marks the same rows). The row then has
+`random_spread: "below resolution"`, and the part is saved only when its drop is at least 0.15 (the
+lowest target drop of the light gate) above the largest random drop. `z_search` is null when all random
+drops are equal.
+
+```bash
+.venv/bin/python mine/sweep.py --short <short_name> --skills law,medicine,math
+.venv/bin/python mine/sweep.py --short <short_name> --skills all --max-screens 200 --max-hours 4
+.venv/bin/python mine/sweep.py --short <short_name> --skills law --rank-only     # print the plan, screen nothing
+```
+
+Skills are the built-in sets (`math`, `code`, `facts`, `multilingual`) and the sets in
+`mine/data/pool_skills.json`. Each screen scores the target, `general_text`, and 5 guard skills from
+other domains (the list is at the top of `mine/sweep.py`), not every skill set. When the model cannot do
+a guard skill, another skill of the same domain takes its place. The summary names every skill that was
+screened with fewer than 5 guards. A skill with fewer than `--min-guards` guards is skipped.
+
+| Option | Default | Meaning |
+|---|---|---|
+| `--skills` | required | comma-separated names, or `all` |
+| `--max-screens` | 60 | new switch-off tests in this run; finished ones are free |
+| `--max-hours` | 3 | stop starting new work after this time |
+| `--kinds` | all four | any of `mlp_cluster`, `attn_heads`, `expert`, `block` |
+| `--mlp-sizes`, `--head-sizes`, `--expert-sizes` | `64,256,1024`, `4,8`, `2,4,8` | part sizes |
+| `--top-layers` | 3 | layers per skill and kind |
+| `--rank-items` | 24 | search items per ranking pass |
+| `--z-min` | 2.0 | lowest z-score that passes |
+| `--min-margin` | 0.25 | skip a skill when the base margin over shuffled answers is lower (nats) |
+| `--min-guards` | 3 | skip a skill when fewer guard skills than this can be scored |
+| `--order` | `global` | `global`: highest score first over all skills and kinds; `round`: the best candidate of every skill and kind first, then the second best |
+| `--lane` | empty | a name for a second sweep on the same model at the same time |
+| `--rank-only` | off | rank and print the plan only |
+
+- The sweep can be resumed. Run the same command again: rankings and finished screens are kept, and
+  `--max-screens` counts only new screens. With `--skills all`, raise `--max-screens`; the default
+  covers only the candidates with the highest scores.
+- A rerun does not write a row again. If you moved a row out of the catalog, it stays out, and the
+  summary lists it under "passed, but the row an earlier run wrote is not in catalog/..." with its key.
+  To have the row written again, remove that key from `sweep_written` in the lane state file and run
+  again (the kept screen makes that free). A part whose row is in
+  `catalog/<short_name>.rejected.jsonl` is never written. A kept screen is checked again with the light
+  gate of today.
+- A ranking that fails (for example out of memory) is named in the summary, and the run goes on with
+  the other skills and kinds. The next run tries that ranking again. 3 failures in a row stop the ranking.
+- It is safe to run next to an agent run on the same model. The sweep keeps its state in
+  `logs/<short_name>/state.lanesweep.json`, and it appends to the catalog under the same lock as the agents.
+  It takes the pinned revision from the agents' state (`state.json`, or the newest `state.lane<N>.json`)
+  and prints which file it used. If the lane files pin different revisions, the sweep stops: tell your human.
+- To rank again from nothing, move `logs/<short_name>/sweep/` away. To screen again, also move the
+  lane state file and its backup away: `logs/<short_name>/state.lanesweep.json` and
+  `logs/<short_name>/state.lanesweep.json.bak` (with `--lane x`: `state.lanesweepx.json` and its
+  `.bak`). The sweep reads the backup when the state file is missing.
+- The deployed engine needs the methods `attribution_units` and `activation_units`. If the run says a
+  method is missing, the engine was deployed from an older branch: tell your human.
+
+Output:
+- Rows in `catalog/<short_name>.jsonl` with tier `screened`, a label such as
+  `law, MLP cluster of 256 units, layer 14 (attribution-ranked)`, and `evidence_used`
+  `["attribution", "ablation"]` (`["activation", "ablation"]` for a quantized model, `["ablation"]`
+  for a block; a block is ranked by the layer map, which is itself an ablation). Each row has one more
+  field, `sweep`: the ranking method and summed score, the z-score (or the gap, when the random drops
+  have no measured spread), and the guard skills. For a pool skill, `skill.source` is `pool` and the row
+  names the dataset.
+- `logs/<short_name>/sweep/results.jsonl`: one line per screen, passed or not, with the reasons.
+- `logs/<short_name>/sweep/rank_<skill>_<kind>.json`: the candidates of each ranking.
+- A summary at the end: candidates ranked, screened, and passed, by kind and by skill, then notes:
+  skipped skills, short guard sets, failed rankings, and the parts that passed.
+
+Push the results as in section 7.
+
 ## 6. What you get
 - `catalog/<short_name>.jsonl`: one line per part. The fields are:
   - `id`, `type` (`mlp_cluster` | `attn_heads` | `expert` | `block`)
   - `label`, `tier` (`screened`, or `confirmed` if the optional stricter check passed)
-  - `model`, `layer`/`layers`, `units` (path to the `.pt` index file), `d_model`
+  - `model`, `revision` (the weights the part was mined on), `layer`/`layers`, `units` (path to the
+    `.pt` index file), `num_units`, `d_model`
   - `signature` (score drops per skill)
-  - whether the label was built-in or agent-defined, and the agent's weight rationale
+  - `skill` (the target: `name`, and `source` `builtin`, `agent`, or `pool`), `trained_on`,
+    `evidence_used`, and the weight rationale
+  - `part_key` (kind, layer, and a hash of the unit indices: the same part has the same key) and
+    `created` (local time of the machine that wrote the row)
+  - `sweep` (rows of `mine/sweep.py` only, section 5b)
+  - in `signature`: `z` (the target drop on the search half as a z-score against the random same-size
+    parts: the drop minus their mean, divided by their sample standard deviation; null with fewer than
+    2 random drops or when they are all equal), `random_n`, `random_mean`, `random_std`. Read `z` as a
+    rough number: it is from the search half, the half the part was selected on, and from the gate's
+    5 random parts (`GATE_N_RANDOM` in `mine/client.py`). The engine draws them with replacement and
+    rounds each score, so drops can repeat: `random_distinct` counts the distinct values, and `z_flag`
+    is set when there are fewer than 3.
+  - in `signature`: `z_heldout` and `random_heldout` (the same for the held-out half; null while the
+    engine scores random parts on the search half only)
+  - in `signature`: `guard` (for `search` and for `heldout`: the skill, other than the target and its
+    own control, whose score moved most when the part was off, as `skill`, `drop`, `abs`)
+  - `selection_data` (the data the part was selected on): `skill`, `source` (`agent` | `builtin` |
+    `pool`, or `unknown` when no file names the skill), `path` and `hash` of the frozen test for an
+    agent skill, `hash` and `dataset` of the set for a pool skill, `description`, `datasets`,
+    `control`, `off_target` (the other skills the gate checked) with `off_target_data`, `pool` (the
+    text pool of `wsp/healdata.py` that matches the skill, or null) with `pool_match`, and
+    `reported_benchmarks` (the dataset ids in the selection data that are in the `BANNED` list of
+    `wsp/healdata.py`; null means not checked). `builtin_basis` says where the built-in
+    descriptions came from: `engine`, `local file`, `git history`, or
+    `git history, version uncertain`. `items_sha` names the version of a built-in set.
+    `builtin_version` is the commit of the built-in file that the backfill used (`git history`).
+    `note` says that `wsp/healdata.py` was not found, so `pool` and `reported_benchmarks` are null.
+    The field `pool` here follows another rule than `selection_sources[skill].pool` of a map entry
+    (section 8a): here the skill name, then the dataset, then the first word of the name decide; a map
+    entry looks at the dataset only. So `law` and the `prose_*` skills have a pool here and null there.
+  - in `selection_data`, for a pool skill (rows of `mine/sweep.py`): the `hash` names the set of
+    `mine/data/pool_skills.json` that was scored, for the target and in `off_target_data`.
+    `mine/enrich_rows.py` keeps these as the row stores them when the pool file is built again.
+    `pool_hash_matches` says if the pool file of today still has the target's set (null: no set of
+    that name). `hash_unverified: true` marks a set that the backfill took from the pool file of its
+    own day, because the row did not record it.
+    `selection_data` is null, with the reason in `selection_note`, when the files behind it could
+    not be read at the time the row was written; `mine/enrich_rows.py` fills it in.
+  - in `selection_data`, for an agent skill: `path_matches` (does the file at `path` still have the
+    row's `hash`? Lanes on one model share `mine/skills/<short_name>/`, and a later lane can replace
+    a test of the same name; `path_hash` and `path_note` say what was found). An off-target agent
+    skill has its `hash`, or null and `hash_candidates` when more than one test of that name is known.
+  - in `selection_data`, with `git history, version uncertain`: the backfill could not tell which
+    version of the built-in file the engine held for the row. `reported_benchmarks` is then the
+    union over the versions, `builtin_candidates` lists what each version says, and `builtin_note`
+    says how to settle it.
+  - `routing` (expert parts only): for each expert, `skill_rate` and `general_rate` (router picks per
+    token on the target skill's text and on `general_text`) and their `log_ratio`, for `search` and
+    `heldout`, and the `revision` of the weights the picks were counted on. It is null, with the
+    reason in `routing_note`, when the engine cannot count the picks (`module_list` experts, router
+    indices that do not fit the batch, a target skill the engine does not hold, or a deployment
+    older than `expert_pick_rates`). A note that starts with `no routing, final:` names a reason
+    that another engine call cannot change.
+  - `enriched_at`: set on rows that `mine/enrich_rows.py` filled in after they were written
 - `parts/<short_name>/*.pt`: index files `{kind, model, layer, indices}`.
 - `mine/skills/<short_name>/`: the tests the agent wrote for its own labels. These are frozen and hashed.
 - `logs/<short_name>/`: the run transcript, experiment log and cost.
+
+Rows written before these fields existed get them from the stored numbers, with no GPU call:
+```bash
+.venv/bin/python mine/enrich_rows.py --model <short_name>      # repeat --model for more models
+```
+It keeps the row order and every field, apart from notes that no longer hold: `selection_note` once
+`selection_data` is filled, `routing_note` once `routing` is filled, and in `selection_data` the keys
+`note`, `builtin_version`, `builtin_candidates`, `builtin_note`, `path_hash`, `path_note`,
+`hash_unverified`, and `pool_hash_matches` of an earlier run. It never touches `*.rejected.jsonl`.
+- Run it on the machine that mines the model, after the run has stopped and the catalog is pushed.
+  It rewrites every line of the file, so a teammate who appends rows to the same file on another
+  machine gets a merge conflict.
+- It refuses a model whose `logs/<short_name>/` changed in the last 10 minutes (a live run), and a
+  model that has no `logs/<short_name>/` folder on this machine (the run can be on another machine),
+  unless you pass `--force`. A fresh `git pull` or checkout also gives the log files new times, so
+  wait 10 minutes after one.
+- The backfill, the agent's `confirm_math` tool, and `mine/regate.py` each replace the catalog file.
+  All three hold the catalog lock of `write_part` while they read the file and write it, so none of
+  them writes old rows back. An agent run that started from a checkout before this lock was added
+  still replaces the file without it: stop such a run before a backfill or a sweep on the same model.
+- For rows without an engine-reported description, the built-in sets come from the git history of
+  `mine/data/builtin_skills.json`. The engine uses the file from its last deploy, and git does not
+  hold the deploy time. A row made after the commit of a newer version gets
+  `git history, version uncertain`. Ask the person who deployed when the engine began to use that
+  version, and pass `--live-since <commit>=<YYYY-MM-DDTHH:MM:SS>` (local time).
+- `--routing` also fills `routing` for expert rows; that one flag calls the GPU engine, and it
+  prints the number of engine calls first. The engine is built for the `revision` of each row. A row
+  with a `no routing, final:` note is not asked again unless you add `--retry-routing`. For a pool
+  skill the backfill sends the set of `mine/data/pool_skills.json` to the engine, when its hash is
+  the one in the row; a pool file built again since gives a final note.
 
 ## 7. Push your results (no merge conflicts by design)
 Every model writes only its **own** files, so teammates never edit the same file.
@@ -125,6 +312,127 @@ Push after each model finishes; don't wait for all of them. If the push is rejec
 .venv/bin/python mine/compile_catalog.py   # merges catalog/*.jsonl -> catalog.jsonl
 ```
 Then commit and push `catalog.jsonl`. This is the file Trisanth's `compile()` reads.
+
+## 8a. Skill maps (model level, no agent)
+`mine/maps.py` measures where each skill sits in one model. It needs no agent and no OpenAI key.
+```bash
+.venv/bin/python mine/maps.py --zoo-key <key in atlas/zoo.json>
+.venv/bin/python mine/maps.py --zoo-key <key> --modules
+.venv/bin/python mine/maps_many.py --zoo-keys A,B,C --jobs 3 --modules
+```
+What it measures. The engine skips each decoder layer in turn and scores every skill set. The
+score of a layer for a skill is the loss increase on the skill text minus the loss increase on
+`general_text`, in nats. Blocks are the shortest windows of layers that hold 60% of the positive
+score. They are chosen on the search half of each set and checked on the held-out half. For
+layers with fused experts, the engine also counts how often the router picks each expert on each
+skill's text.
+
+What `--modules` adds. For each layer, the engine also scores every skill set with only the
+attention output zeroed, and with only the feed-forward output zeroed. The feed-forward module is
+the dense MLP, the routed experts, or both when a layer has a shared expert next to routed
+experts. The parts zero the input of the out-projection, so a bias on that projection stays.
+
+Cost in scoring passes. One pass scores every skill set once (39 sets with the current pool file,
+48 search items and 24 held-out items each).
+- A plain run takes one pass for the base scores and one pass per layer, in one engine call. A
+  model with fused experts also gets one forward pass over each half of each skill set, on at
+  most 64 items per half, for the router counts.
+- `--modules` adds one pass per layer that has an attention module and one pass per layer that
+  has a feed-forward module. That is up to three passes per layer in place of one.
+
+How a `--modules` run works. An engine call that reaches its timeout returns nothing (3600 s on
+the single-GPU tiers, 3 hours on the multi-GPU tiers, in `engine_app.py`). So the module passes
+do not go into the plain call.
+1. The layer and expert maps are kept from the entry that is there, when it is for the same model
+   revision and the same skill text. The whole-layer passes are not paid again. When there is no
+   such entry, the plain call runs first and its entry is written before any module call.
+2. The module passes go to the engine in calls of a few layers each. A call for N layers takes at
+   most 1 + 2 x N passes. `maps.py` takes the seconds per pass from the plain entry
+   (`engine_seconds` over 1 + `layers` passes) and picks the most layers for which that estimate
+   stays within half of the 3600 s timeout. `--layers-per-call N` sets the number by hand. When
+   the estimate for the 3 passes of one layer is above 3600 s, the run stops before any call.
+3. After each call the merged result is saved in
+   `atlas/pool_logs/<org>__<name>.modules-partial.json`. A run that fails starts again after the
+   saved layers, when the revision and the skill sets are the same. The file is removed when the
+   entry is written. `--force` does not use it.
+- `--modules` needs an engine that was deployed with `skill_maps(modules=, layers=, plain=)`.
+  With an older engine `maps.py` prints that and exits with code 3, and `maps_many.py` starts no
+  more models. A plain run sends the same call as before, so it works with an older engine.
+- An entry that exists is skipped. With `--modules`, an entry is skipped when it has the
+  `module_maps` field. `--force` always measures again, the plain passes included.
+- An entry stores `skill_hashes`, the hash of each skill set it was measured on. A `--modules` run
+  keeps a plain entry only when these are the hashes of today's sets. An entry from before that field
+  is compared by the dataset and description strings alone, so after `pool_skills.json` or
+  `builtin_skills.json` was built again, run such an entry with `--force`.
+- Do not start a `--modules` job for a model that a plain job from an older checkout still works on.
+  The old `maps.py` writes its entry at the end without a check and can put a plain entry over one
+  that has module maps. Wait for the old job to end, or pass only models that have an entry.
+- A plain run does not replace an entry that has `module_maps` unless `--force` is set.
+- `maps_many.py --modules` writes `atlas/pool_logs/<key>.modules-failed` when the run of a model
+  fails, and does not start that model again in later `--modules` runs. `--retry-failed` starts
+  it again. A run that ends well removes the file. Read `atlas/pool_logs/<key>.log` first.
+  A run that leaves a model out for this reason ends with exit code 1. The mark is also written when
+  the failure says nothing about the model (no Modal login, an engine whose containers do not start):
+  after such a run, pass `--retry-failed`. For a model whose module call reached the timeout, add
+  `--layers-per-call N` with a smaller N, or the same plan runs again.
+
+Output: `atlas/pool_entries/<org>__<name>.json`. Fields per skill:
+- `layer_maps[skill]`: `scores` and `influence` (one number per layer), `blocks`, `block_mass`,
+  and `heldout` with `check_mass` and `split_half_r`.
+- `layer_maps[skill].block_z`: for each block, its positive score mass against the positive mass
+  of every other window of the same length in the same model, in sample standard deviations. The
+  value is null when there are fewer than 3 other windows or when they all hold the same mass.
+  `block_z` uses the search scores, which also chose the block. `block_z_heldout` uses the
+  held-out scores for the same block.
+- How to read `block_z`. It is not a test against independent random blocks. Most of the other
+  windows share layers with the block: `block_z_windows` is the number of other windows and
+  `block_z_disjoint_windows` is how many of them share no layer with it. The first block is the
+  window with the most mass on the search scores, so its `block_z` is positive or null by
+  construction. Only `block_z_heldout` and `block_z_disjoint_heldout` are a check. A short block
+  is compared with windows that mostly hold zero mass, so the deviation is small and z can be
+  very large. Do not read it as a significance level.
+- `layer_maps[skill].block_z_disjoint` and `block_z_disjoint_heldout`: the same z against only
+  the windows that share no layer with the block. Null with fewer than 3 such windows or when
+  they all hold the same mass.
+- `module_maps[skill]` (only with `--modules`): `attn` and `mlp`, the layer score definition for
+  one module, with null where the layer lacks the module. `module_share` is the attention share
+  of the positive `attn` + `mlp` score per layer. It is null where the layer lacks one of the two
+  modules (the `attn` and `mlp` lists still have the score that was measured), and null when
+  neither score is positive. A score at or below 0.00002 nats counts as 0 in the share, because
+  the four rounded log-probs behind a score can move it by that much. The share has no other
+  floor: read it with the two scores. `heldout.split_half_r.attn` and `.mlp` are the Pearson r of
+  the search and held-out score lists over the layers that have the module, and
+  `heldout.n_layers.attn` and `.mlp` are how many layers that is. r is null below 4 layers.
+- The adapter knows two modules per layer. Where it finds no attention module (the conv layers
+  of the LFM2 models), `attn` and `module_share` are null and the operator that sits there is
+  not measured.
+- `module_parts` (only with `--modules`): per layer, the part kinds that were zeroed for `attn`
+  and for `mlp`. An empty list means the layer lacks the module.
+- `module_engine_seconds`, `module_calls`, `module_measured_at` (only with `--modules`): the
+  engine time and the number of the module calls, and when the module fields were written.
+  `engine_seconds` and `measured_at` stay those of the plain call.
+- `expert_maps[skill]` and `expert_details[skill]`: per layer, the experts that the router picks
+  more on skill text than on general text, on both halves.
+- `selection_data[skill]`: one string with the dataset and the description of the skill text.
+- `selection_sources[skill]`: `dataset`, `description`, `pool` (the `wsp/healdata.py` pool that
+  draws on the same dataset, or null), and `reported_benchmark` (true when the dataset id is in
+  the `BANNED` list of `wsp/healdata.py`). Mining may use benchmark data, so read this field
+  before you train or select on a skill's text. `pool` here is matched by the dataset only; the
+  `selection_data.pool` of a catalog row (section 6) is also matched by the skill name.
+- `reported_benchmark_skills`: the names of the skills with `reported_benchmark` true, or null
+  when `wsp/healdata.py` was not found. `benchmark_free` is written as true for every entry, as
+  before, and does not look at the skill list. An entry can have `benchmark_free: true` and a
+  list of reported skills here: trust the list. The owner decides if `benchmark_free` goes away.
+- A plain entry that `--modules` extends keeps its layer fields as they were written. An entry
+  from before `block_z` existed gets `block_z`, `block_z_windows`, `block_z_disjoint_windows`, and
+  `block_z_disjoint` from its stored search scores (no GPU). Its held-out scores were not stored, so
+  `block_z_heldout` and `block_z_disjoint_heldout` hold null for every block, and `block_z_note` says
+  so. The held-out values need a `--force` run.
+
+Tests (CPU only, no Modal call), each prints `ok`:
+```bash
+for t in mine/tests/test_*.py; do .venv/bin/python $t; done
+```
 
 ## 9. Rules
 - Never invent numbers. If something fails, report the exact error.

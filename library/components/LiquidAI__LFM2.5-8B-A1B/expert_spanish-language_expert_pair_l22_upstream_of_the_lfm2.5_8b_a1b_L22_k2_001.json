@@ -1,0 +1,116 @@
+{
+  "id": "expert_spanish-language_expert_pair_l22_upstream_of_the_lfm2.5_8b_a1b_L22_k2_001",
+  "kind": "expert",
+  "title": "LFM2.5-8B-A1B layer 22, Spanish-language expert pair (L22, upstream of the final Spanish writer)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "en_to_es_noun"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-8B-A1B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'en_to_es_noun' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1926,
+      "control_value": 0.0323,
+      "split": "person_a held-out skill items (en_to_es_noun)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0021"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-8B-A1B",
+  "layer": 22,
+  "layers": [
+    22
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-8B-A1B/expert_spanish-language_expert_pair_l22_upstream_of_the_lfm2.5_8b_a1b_L22_k2_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_8b_a1b/expert_spanish-language_expert_pair_l22_upstream_of_the_lfm2.5_8b_a1b_L22_k2_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'en_to_es_noun'",
+    "label": "Spanish-language expert pair (L22, upstream of the final Spanish writer)",
+    "num_units": 2,
+    "d_model": 2048,
+    "effect": {
+      "math|search": -0.0008,
+      "math|heldout": 0.0008,
+      "code|search": 0.0003,
+      "code|heldout": 0.0012,
+      "facts|search": -0.0244,
+      "facts|heldout": 0.0,
+      "multilingual|search": 0.0282,
+      "multilingual|heldout": 0.027,
+      "general_text|search": -0.0061,
+      "general_text|heldout": -0.0068,
+      "en_to_fr_noun|search": 0.0,
+      "en_to_fr_noun__control|search": 0.0052,
+      "en_to_fr_noun|heldout": 0.0,
+      "en_to_fr_noun__control|heldout": 0.0003,
+      "two_digit_addition|search": -0.0004,
+      "two_digit_addition__control|search": 0.0,
+      "two_digit_addition|heldout": 0.0,
+      "two_digit_addition__control|heldout": 0.0,
+      "en_to_de_noun|search": -0.025,
+      "en_to_de_noun__control|search": 0.0001,
+      "en_to_de_noun|heldout": 0.0,
+      "en_to_de_noun__control|heldout": 0.0,
+      "en_to_es_noun|search": 0.2335,
+      "en_to_es_noun__control|search": 0.0139,
+      "en_to_es_noun|heldout": 0.1926,
+      "en_to_es_noun__control|heldout": 0.0021,
+      "en_to_ru_word|search": 0.0,
+      "en_to_ru_word__control|search": 0.0,
+      "en_to_ru_word|heldout": 0.0,
+      "en_to_ru_word__control|heldout": 0.0,
+      "en_to_zh_word|search": 0.0,
+      "en_to_zh_word__control|search": 0.0,
+      "en_to_zh_word|heldout": 0.0,
+      "en_to_zh_word__control|heldout": 0.0,
+      "en_to_it_word|search": 0.0,
+      "en_to_it_word__control|search": -0.0017,
+      "en_to_it_word|heldout": -0.0093,
+      "en_to_it_word__control|heldout": 0.0017,
+      "en_to_ja_word|search": 0.0,
+      "en_to_ja_word__control|search": 0.0031,
+      "en_to_ja_word|heldout": -0.0007,
+      "en_to_ja_word__control|heldout": 0.0122
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0778,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0287,
+      0.2073,
+      0.0003,
+      0.0003,
+      -0.0175
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L22 e14 and e19 are the top EN->ES routed experts in L22 (5.2, 4.6), feeding the passed L23 e15 Spanish expert. Ablation: es .234, control .014, all others \u2264 .028."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_8b_a1b/en_to_es_noun.json",
+    "hash": "3f16d8ebce496ee5",
+    "description": "Translate short English sentence into Spanish; answer is Spanish noun after the article. Control: reverse direction (Spanish->English), English noun.",
+    "name": "en_to_es_noun"
+  },
+  "catalog_id": "expert_spanish-language_expert_pair_l22_upstream_of_the_lfm2.5_8b_a1b_L22_k2_001",
+  "exported_copy": "library/lfm2.5_8b_a1b/expert_spanish-language_expert_pair_l22_upstream_of_the_lfm2.5_8b_a1b_L22_k2_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

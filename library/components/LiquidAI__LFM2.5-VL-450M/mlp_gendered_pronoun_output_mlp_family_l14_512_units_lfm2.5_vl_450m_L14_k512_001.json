@@ -1,0 +1,116 @@
+{
+  "id": "mlp_gendered_pronoun_output_mlp_family_l14_512_units_lfm2.5_vl_450m_L14_k512_001",
+  "kind": "mlp_cluster",
+  "title": "LFM2.5-VL-450M layer 14, gendered pronoun output MLP family (L14, 512 units)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "pronoun_gender"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-VL-450M"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'pronoun_gender' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.5946,
+      "control_value": 0.0145,
+      "split": "person_a held-out skill items (pronoun_gender)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0682"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-VL-450M",
+  "layer": 14,
+  "layers": [
+    14
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-VL-450M/mlp_gendered_pronoun_output_mlp_family_l14_512_units_lfm2.5_vl_450m_L14_k512_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_vl_450m/mlp_gendered_pronoun_output_mlp_family_l14_512_units_lfm2.5_vl_450m_L14_k512_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'pronoun_gender'",
+    "label": "gendered pronoun output MLP family (L14, 512 units)",
+    "num_units": 512,
+    "d_model": 1024,
+    "effect": {
+      "math|search": 0.015,
+      "math|heldout": 0.0323,
+      "code|search": 0.0169,
+      "code|heldout": 0.0175,
+      "facts|search": 0.0748,
+      "facts|heldout": -0.0356,
+      "multilingual|search": 0.1024,
+      "multilingual|heldout": 0.0955,
+      "general_text|search": 0.0237,
+      "general_text|heldout": 0.03,
+      "month_successor|search": 0.0085,
+      "month_successor__control|search": 0.027,
+      "month_successor|heldout": -0.013,
+      "month_successor__control|heldout": 0.0337,
+      "numberword_successor|search": 0.0029,
+      "numberword_successor__control|search": 0.0001,
+      "numberword_successor|heldout": 0.0065,
+      "numberword_successor__control|heldout": 0.0009,
+      "weekday_successor|search": -0.0019,
+      "weekday_successor__control|search": 0.0069,
+      "weekday_successor|heldout": 0.023,
+      "weekday_successor__control|heldout": 0.0112,
+      "comparative_adjective|search": 0.0176,
+      "comparative_adjective__control|search": 0.0096,
+      "comparative_adjective|heldout": 0.0253,
+      "comparative_adjective__control|heldout": 0.0124,
+      "irregular_past_tense|search": -0.031,
+      "irregular_past_tense__control|search": 0.0155,
+      "irregular_past_tense|heldout": -0.0074,
+      "irregular_past_tense__control|heldout": 0.0113,
+      "object_colour|search": 0.0638,
+      "object_colour__control|search": 0.0047,
+      "object_colour|heldout": 0.0538,
+      "object_colour__control|heldout": 0.0032,
+      "antonym|search": 0.0384,
+      "antonym__control|search": 0.0152,
+      "antonym|heldout": 0.0231,
+      "antonym__control|heldout": 0.0264,
+      "pronoun_gender|search": 0.656,
+      "pronoun_gender__control|search": -0.0187,
+      "pronoun_gender|heldout": 0.5946,
+      "pronoun_gender__control|heldout": -0.0682
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.2187,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0593,
+      -0.0253,
+      -0.0357,
+      0.1783,
+      0.0143
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "The L14 pronoun attribution seeds grown to 512 units by w1/w2 cosine, with the L14 hub and numberword/colour units subtracted; a superset of the screened 256-unit family."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_vl_450m/pronoun_gender.json",
+    "hash": "98863de46f0a916d",
+    "description": "Choose the gendered subject pronoun referring back to a named person (e.g. 'Mary was tired, so' -> ' she'). Control: same sentences, answer is the name repeated ('Mary was tired, so Mary rested. Who rested? Answer:' -> ' Mary').",
+    "name": "pronoun_gender"
+  },
+  "catalog_id": "mlp_gendered_pronoun_output_mlp_family_l14_512_units_lfm2.5_vl_450m_L14_k512_001",
+  "exported_copy": "library/lfm2.5_vl_450m/mlp_gendered_pronoun_output_mlp_family_l14_512_units_lfm2.5_vl_450m_L14_k512_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

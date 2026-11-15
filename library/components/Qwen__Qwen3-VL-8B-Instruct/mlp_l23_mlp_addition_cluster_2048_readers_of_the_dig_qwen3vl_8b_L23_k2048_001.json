@@ -1,0 +1,116 @@
+{
+  "id": "mlp_l23_mlp_addition_cluster_2048_readers_of_the_dig_qwen3vl_8b_L23_k2048_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen3-VL-8B-Instruct layer 23, L23 MLP addition cluster, 2048 readers of the digit-copy-head output subspace",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwen3vl_8b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "two_digit_addition"
+  ],
+  "models": [
+    "Qwen/Qwen3-VL-8B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'two_digit_addition' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.4401,
+      "control_value": -0.0006,
+      "split": "person_a held-out skill items (two_digit_addition)",
+      "seeds": null,
+      "source": "person_a/catalog/qwen3vl_8b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0194"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen3-VL-8B-Instruct",
+  "layer": 23,
+  "layers": [
+    23
+  ],
+  "units_file": "components/Qwen__Qwen3-VL-8B-Instruct/mlp_l23_mlp_addition_cluster_2048_readers_of_the_dig_qwen3vl_8b_L23_k2048_001.pt",
+  "units_remote": "person_a/parts/qwen3vl_8b/mlp_l23_mlp_addition_cluster_2048_readers_of_the_dig_qwen3vl_8b_L23_k2048_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'two_digit_addition'",
+    "label": "L23 MLP addition cluster, 2048 readers of the digit-copy-head output subspace",
+    "num_units": 2048,
+    "d_model": 4096,
+    "effect": {
+      "math|search": 0.0389,
+      "math|heldout": 0.0266,
+      "code|search": 0.0038,
+      "code|heldout": 0.0043,
+      "facts|search": 0.0174,
+      "facts|heldout": 0.007,
+      "multilingual|search": 0.0048,
+      "multilingual|heldout": 0.0048,
+      "general_text|search": 0.0061,
+      "general_text|heldout": 0.0055,
+      "en_fr_word_translation|search": -0.0049,
+      "en_fr_word_translation__control|search": -0.0,
+      "en_fr_word_translation|heldout": -0.0026,
+      "en_fr_word_translation__control|heldout": -0.0,
+      "two_digit_addition|search": 0.4363,
+      "two_digit_addition__control|search": -0.0033,
+      "two_digit_addition|heldout": 0.4401,
+      "two_digit_addition__control|heldout": -0.0194,
+      "python_list_index|search": 0.0038,
+      "python_list_index__control|search": 0.002,
+      "python_list_index|heldout": 0.0098,
+      "python_list_index__control|heldout": 0.0021,
+      "recall_first_number|search": 0.0018,
+      "recall_first_number__control|search": -0.0061,
+      "recall_first_number|heldout": 0.0017,
+      "recall_first_number__control|heldout": 0.0018,
+      "month_successor|search": 0.1171,
+      "month_successor__control|search": -0.1348,
+      "month_successor|heldout": 0.1594,
+      "month_successor__control|heldout": -0.0076,
+      "object_color|search": 0.0043,
+      "object_color__control|search": 0.0,
+      "object_color|heldout": 0.007,
+      "object_color__control|heldout": 0.0,
+      "two_digit_subtraction|search": 0.1405,
+      "two_digit_subtraction__control|search": 0.0006,
+      "two_digit_subtraction|heldout": 0.1218,
+      "two_digit_subtraction__control|heldout": 0.0003,
+      "times_table|search": 0.0051,
+      "times_table__control|search": 0.0003,
+      "times_table|heldout": 0.0038,
+      "times_table__control|heldout": 0.0015
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1454,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0131,
+      0.0211,
+      -0.0162,
+      -0.0054,
+      0.0108
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "2048 L23 MLP units ranked by the fraction of gate+up row norm inside the 12-dim SVD subspace of the L23 digit-copy heads' OV outputs on digit tokens; same recipe as the screened 256/512/1024 clusters."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwen3vl_8b/two_digit_addition.json",
+    "hash": "b276d5d4a7212db5",
+    "description": "Add two 2-digit numbers (few-shot 'a + b = c'). Control: same format, answer is copying the first operand ('first of a and b is a').",
+    "name": "two_digit_addition"
+  },
+  "catalog_id": "mlp_l23_mlp_addition_cluster_2048_readers_of_the_dig_qwen3vl_8b_L23_k2048_001",
+  "exported_copy": "library/qwen3vl_8b/mlp_l23_mlp_addition_cluster_2048_readers_of_the_dig_qwen3vl_8b_L23_k2048_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

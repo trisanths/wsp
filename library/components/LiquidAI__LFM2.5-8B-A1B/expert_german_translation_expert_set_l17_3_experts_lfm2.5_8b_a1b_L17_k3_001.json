@@ -1,0 +1,116 @@
+{
+  "id": "expert_german_translation_expert_set_l17_3_experts_lfm2.5_8b_a1b_L17_k3_001",
+  "kind": "expert",
+  "title": "LFM2.5-8B-A1B layer 17, German translation expert set (L17, 3 experts)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "en_to_de_noun"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-8B-A1B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'en_to_de_noun' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.6,
+      "control_value": 0.36,
+      "split": "person_a held-out skill items (en_to_de_noun)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.1931"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-8B-A1B",
+  "layer": 17,
+  "layers": [
+    17
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-8B-A1B/expert_german_translation_expert_set_l17_3_experts_lfm2.5_8b_a1b_L17_k3_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_8b_a1b/expert_german_translation_expert_set_l17_3_experts_lfm2.5_8b_a1b_L17_k3_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'en_to_de_noun'",
+    "label": "German translation expert set (L17, 3 experts)",
+    "num_units": 3,
+    "d_model": 2048,
+    "effect": {
+      "math|search": -0.0006,
+      "math|heldout": 0.0023,
+      "code|search": 0.0061,
+      "code|heldout": 0.0044,
+      "facts|search": 0.0488,
+      "facts|heldout": 0.0526,
+      "multilingual|search": 0.0521,
+      "multilingual|heldout": 0.0715,
+      "general_text|search": 0.0348,
+      "general_text|heldout": 0.0525,
+      "en_to_fr_noun|search": 0.2156,
+      "en_to_fr_noun__control|search": 0.1518,
+      "en_to_fr_noun|heldout": 0.4376,
+      "en_to_fr_noun__control|heldout": 0.1129,
+      "two_digit_addition|search": -0.0045,
+      "two_digit_addition__control|search": 0.0119,
+      "two_digit_addition|heldout": -0.016,
+      "two_digit_addition__control|heldout": 0.0093,
+      "en_to_de_noun|search": 0.65,
+      "en_to_de_noun__control|search": 0.1601,
+      "en_to_de_noun|heldout": 0.6,
+      "en_to_de_noun__control|heldout": 0.1931,
+      "en_to_es_noun|search": 0.2152,
+      "en_to_es_noun__control|search": 0.2262,
+      "en_to_es_noun|heldout": 0.2618,
+      "en_to_es_noun__control|heldout": 0.2224,
+      "en_to_ru_word|search": 0.0033,
+      "en_to_ru_word__control|search": 0.0668,
+      "en_to_ru_word|heldout": -0.0164,
+      "en_to_ru_word__control|heldout": 0.0233,
+      "en_to_zh_word|search": -0.0092,
+      "en_to_zh_word__control|search": 0.0665,
+      "en_to_zh_word|heldout": 0.003,
+      "en_to_zh_word__control|heldout": 0.0251,
+      "en_to_it_word|search": 0.0233,
+      "en_to_it_word__control|search": 0.0495,
+      "en_to_it_word|heldout": -0.0278,
+      "en_to_it_word__control|heldout": 0.0077,
+      "en_to_ja_word|search": 0.0135,
+      "en_to_ja_word__control|search": 0.0736,
+      "en_to_ja_word|heldout": 0.0125,
+      "en_to_ja_word__control|heldout": 0.0865
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.2167,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.35,
+      0.3,
+      0.15,
+      0.4,
+      0.6
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "The L17 German-attribution experts e30 (.27), e15 (.229) and e10 (.223), growing the passed L17 {15,30} pair. Ablation: de .65, fr .216, es .215 (cap .217), others \u2264 .052, control .16."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_8b_a1b/en_to_de_noun.json",
+    "hash": "4377338c94e879c2",
+    "description": "Translate short English sentence into German; answer is German noun after the article. Control: reverse direction (German->English), English noun.",
+    "name": "en_to_de_noun"
+  },
+  "catalog_id": "expert_german_translation_expert_set_l17_3_experts_lfm2.5_8b_a1b_L17_k3_001",
+  "exported_copy": "library/lfm2.5_8b_a1b/expert_german_translation_expert_set_l17_3_experts_lfm2.5_8b_a1b_L17_k3_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}
