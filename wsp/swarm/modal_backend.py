@@ -156,7 +156,6 @@ class ModalCompileEval(CompileEval):
             if config.get("cascade"):
                 raise ValueError("modal_scorer 'harness' grades whole splits only, so the cascade (partial "
                                  "question sets) cannot run with it; turn cascade off or use the interim scorer")
-            self.check_base_table(tasks)
 
         path = catalog_path_or_default(config.get("catalog_path"))
         self.catalog_name = catalog_name_for(path, self.ms.CATALOG_FILES)
@@ -171,15 +170,6 @@ class ModalCompileEval(CompileEval):
         self.functions_lock = threading.Lock()
         self.base = {}
         self.base_lock = threading.Lock()
-
-    def check_base_table(self, tasks):
-        """The harness scorer reads host scores from config base_scores: refuse a table missing a split or task."""
-        table = self.config.get("base_scores") or {}
-        for split in sorted(SPLIT_SIZES):
-            for task in tasks:
-                if split not in table or task not in table[split]:
-                    raise ValueError("modal_scorer 'harness' needs config base_scores[" + split + "][" + task +
-                                     "], the host graded by the same harness (modal_eval.py::base_scores)")
 
     def function(self, name):
         """A handle to one deployed function, looked up once."""
@@ -280,13 +270,16 @@ class ModalCompileEval(CompileEval):
         return out
 
     def base_scores(self, split, tasks):
-        """The plain host, graded by this run's scorer: host_baseline (interim) or the config table (harness)."""
+        """The plain host, graded by this run's scorer.
+
+        Interim: host_baseline once per split. Harness: the config base_scores
+        table for the tasks it has (gsm8k and if_guard, measured by the same
+        harness with modal_eval.py::base_scores), and host_baseline in harness
+        mode for any other task, such as a researched benchmark. Both are
+        shared references, cached on Modal and charged to no run.
+        """
         if self.scorer == "harness":
-            table = self.config["base_scores"][split]
-            out = {}
-            for task in tasks:
-                out[task] = table[task]
-            return out
+            return self.harness_base(split, list(tasks))
         with self.base_lock:
             if split not in self.base:
                 result = self.function("host_baseline").remote(split)
@@ -299,4 +292,30 @@ class ModalCompileEval(CompileEval):
             if task not in table:
                 raise RuntimeError("host_baseline has no score for " + task + " on " + split)
             out[task] = table[task]
+        return out
+
+    def harness_base(self, split, tasks):
+        """Harness host scores: the config table where it has them, else host_baseline in harness mode."""
+        table = (self.config.get("base_scores") or {}).get(split) or {}
+        out = {}
+        missing = []
+        for task in tasks:
+            if task in table:
+                out[task] = float(table[task])
+            else:
+                missing.append(task)
+        if len(missing) == 0:
+            return out
+        key = split + "|" + "+".join(missing)
+        with self.base_lock:
+            if key not in self.base:
+                result = self.function("host_baseline").remote(split, tasks=missing, scorer="harness")
+                if not result.get("ok"):
+                    raise RuntimeError(error_text(result, "host_baseline") + " (split " + split + ", harness)")
+                self.base[key] = dict(result["scores"])
+            measured = self.base[key]
+        for task in missing:
+            if task not in measured:
+                raise RuntimeError("host_baseline has no harness score for " + task + " on " + split)
+            out[task] = float(measured[task])
         return out

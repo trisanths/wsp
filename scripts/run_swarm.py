@@ -47,6 +47,8 @@ def parse_args(argv=None):
                         help="modal backend: interim (gsm8k only, default) | harness (gsm8k + if_guard, no cascade)")
     parser.add_argument("--heldout-top", type=int, default=None,
                         help="programs scored on held-out at the end, each with 2 controls (default 3; 0 skips it)")
+    parser.add_argument("--benchmarks", default=None,
+                        help="a researched setup from scripts/research_benchmarks.py (overrides --task-type)")
     return parser.parse_args(argv)
 
 
@@ -75,7 +77,19 @@ def build_config(args):
         overrides["modal_scorer"] = args.modal_scorer
     if args.heldout_top is not None:
         overrides["heldout_top"] = args.heldout_top
+    if args.benchmarks is not None:
+        overrides.update(researched_overrides(args.benchmarks))
     return make_config(overrides)
+
+
+def researched_overrides(path):
+    """task_type and task_types for a researched benchmark file (wsp/swarm/benchmarks.py)."""
+    import json
+
+    from wsp.swarm import benchmarks
+
+    with open(path, encoding="utf-8") as handle:
+        return benchmarks.config_overrides(json.load(handle))
 
 
 def format_score(value):
