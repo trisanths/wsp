@@ -32,6 +32,8 @@ Run 2: trunk 0.557 (+7.7 over host, +7.9 over the matched LoRA); stitch penalty
 0.30 -> -0.26 nats at donor layer 0.
 Run 3: trunk_shuffled 0.246 (training diverged on the scrambled outputs); trunk_full
 0.561 with 6.4M trainable, so the rank-64 exit is not the bottleneck.
+Run 4: trunk_at10 0.487 (stitch penalty 0.06, training loss as low as the trunk's),
+so writing at host layer 10 is worse than layer 1, not better.
 
 Run 1 (seed 0): host 0.480, graft 0.462, early_block 0.491, lora 0.478. The
 stitch into donor layer 12 only fell from 0.84 to 0.57 nats, against -0.03
