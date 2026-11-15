@@ -3,6 +3,7 @@
 #   - per layer: the attention output projection (+ heads, head_dim), the dense MLP down
 #     projection (+ width), and the MoE experts module (+ number of experts) if present
 # and installs zero-ablation hooks for parts. Runs inside the Modal engine.
+# full_module_parts() names the parts that switch off a whole attention or feed-forward module.
 #
 # Part formats (plain dicts):
 #   {"kind": "mlp_cluster", "layer": L, "indices": [...]}   columns of the MLP down-projection input
@@ -185,6 +186,70 @@ def check_part(info, part):
     if len(set(idx)) != len(idx):
         return "duplicate indices"
     return None
+
+
+def full_module_parts(info, layer, module):
+    # The zero-ablation parts that together remove one whole module of one layer:
+    #   "attn": every head of the attention out-projection
+    #   "mlp":  the feed-forward path, which is every column of the dense MLP (or shared expert) and
+    #           every routed expert, whichever of the two the layer has
+    # Returns a list, because a layer with a shared expert next to routed experts needs two parts.
+    # The list is empty when the layer has no such module that this adapter supports.
+    # The parts zero the INPUT of the out / down projection, so a bias on that projection stays:
+    # it is a constant that does not depend on the text.
+    if module not in ["attn", "mlp"]:
+        raise AdapterError("module must be attn or mlp, not " + str(module))
+    entry = info["layers"][layer]
+    parts = []
+    if module == "attn":
+        if "attn" in entry:
+            parts.append({"kind": "attn_heads", "layer": layer, "indices": list(range(entry["attn"]["n_heads"]))})
+        return parts
+    if "mlp" in entry:
+        parts.append({"kind": "mlp_cluster", "layer": layer, "indices": list(range(entry["mlp"]["width"]))})
+    if "experts" in entry and entry["experts"].get("n_experts"):
+        parts.append({"kind": "expert", "layer": layer, "indices": list(range(entry["experts"]["n_experts"]))})
+    return parts
+
+
+def install_all(info, layers, parts, handles):
+    # Checks and installs several parts at once (same handle rule as install: the caller removes
+    # them in `finally`). Raises AdapterError on a part that check_part refuses.
+    for part in parts:
+        err = check_part(info, part)
+        if err:
+            raise AdapterError("bad part: " + err)
+        install(info, layers, part, handles)
+
+
+def module_ablation_maps(info, layers, names, score_all):
+    # For every layer: switch off its whole attention module, call score_all(), switch it on again,
+    # then do the same for its feed-forward module. score_all() returns {name: value} for the model
+    # as it is hooked at that moment. Returns
+    #   {"attn": {name: [value per layer]}, "mlp": {name: [value per layer]},
+    #    "parts": [{"attn": [part kinds], "mlp": [part kinds]} per layer]}
+    # with None for a layer that lacks the module (score_all is not called for it).
+    out = {"attn": {}, "mlp": {}, "parts": []}
+    for module in ["attn", "mlp"]:
+        for name in names:
+            out[module][name] = []
+    for l in range(info["n_layers"]):
+        kinds = {}
+        for module in ["attn", "mlp"]:
+            parts = full_module_parts(info, l, module)
+            kinds[module] = [p["kind"] for p in parts]
+            scores = None
+            if parts:
+                handles = []
+                try:
+                    install_all(info, layers, parts, handles)
+                    scores = score_all()
+                finally:
+                    remove_all(handles)
+            for name in names:
+                out[module][name].append(None if scores is None else scores[name])
+        out["parts"].append(kinds)
+    return out
 
 
 def install(info, layers, part, handles):

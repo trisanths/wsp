@@ -303,11 +303,15 @@ class EngineBase:
         return {"drops": drops, "ablated": self._as_dict(abl), "seconds": round(time.time() - start, 1)}
 
     @modal.method()
-    def skill_maps(self, payload, routing_items=64):
+    def skill_maps(self, payload, routing_items=64, modules=False):
         # Model-level maps for the compiler, measured only on the payload's skill sets:
         # - layer_lp: mean answer log-prob of each skill when one whole layer is skipped
         # - expert_freq: for layers with fused experts, how often the router picks each expert
         #   (picks per scored token) on each skill's text
+        # - with modules=True also attn_lp and mlp_lp: the same as layer_lp, but with only the
+        #   attention output, or only the feed-forward output, of the layer zeroed (null for a layer
+        #   that lacks the module), and module_parts: the part kinds used per layer. This adds up to
+        #   two scoring passes per layer to the one pass that layer_lp takes.
         import torch
 
         start = time.time()
@@ -317,6 +321,19 @@ class EngineBase:
             abl = self._score(payload, {"kind": "block", "layers": [l]})
             for key in abl:
                 layer_lp.setdefault(key[0] + "|" + key[1], []).append(abl[key]["lp"])
+        module_out = None
+        if modules:
+            all_sets = self._skill_sets(payload)
+
+            def score_all():
+                # one scoring pass over every skill set, with whatever hooks are installed now
+                lps = {}
+                for key in all_sets:
+                    rows = self._tokenized(all_sets[key][0], all_sets[key][1])
+                    lps[key[0] + "|" + key[1]] = self._score_rows(rows)["lp"]
+                return lps
+            names = [key[0] + "|" + key[1] for key in all_sets]
+            module_out = self.adapter.module_ablation_maps(self.info, self.layers, names, score_all)
         exp_layers = []
         for e in self.info["layers"]:
             if "experts" in e and e["experts"].get("style") != "module_list":
@@ -351,8 +368,14 @@ class EngineBase:
         base_out = {}
         for key in base:
             base_out[key[0] + "|" + key[1]] = {"lp": base[key]["lp"], "score": base[key]["score"]}
-        return {"base": base_out, "layer_lp": layer_lp, "expert_freq": expert_freq, "info": self.info_summary_local(),
-                "seconds": round(time.time() - start, 1)}
+        out = {"base": base_out, "layer_lp": layer_lp, "expert_freq": expert_freq, "info": self.info_summary_local(),
+               "seconds": round(time.time() - start, 1)}
+        if module_out is not None:
+            # only present when asked for, so the result of a plain call keeps its old keys
+            out["attn_lp"] = module_out["attn"]
+            out["mlp_lp"] = module_out["mlp"]
+            out["module_parts"] = module_out["parts"]
+        return out
 
     def info_summary_local(self):
         s = self.adapter.summarize(self.info)

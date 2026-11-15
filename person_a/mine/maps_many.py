@@ -1,7 +1,9 @@
 # Run mine/maps.py for many models, a few at a time (one subprocess per model).
 #   .venv/bin/python mine/maps_many.py --zoo-keys A,B,C --jobs 3        # models of atlas/zoo.json
 #   .venv/bin/python mine/maps_many.py --all-zoo --max-params-b 40 --jobs 3
-# Models that already have an entry in atlas/pool_entries/ are skipped. Logs: atlas/pool_logs/<key>.log
+#   .venv/bin/python mine/maps_many.py --zoo-keys A,B,C --modules       # also the per-module maps
+# Models that already have an entry in atlas/pool_entries/ are skipped. With --modules, a model is
+# skipped only when its entry already has module_maps. Logs: atlas/pool_logs/<key>.log
 # Set MODAL_PROFILE to choose the Modal workspace. Stop with Ctrl-C (kill -INT), never kill -9.
 import argparse
 import json
@@ -15,6 +17,13 @@ sys.path.insert(0, HERE)
 import maps  # noqa: E402
 
 
+def maps_command(key, modules):
+    cmd = [sys.executable, "-u", os.path.join(HERE, "maps.py"), "--zoo-key", key]
+    if modules:
+        cmd.append("--modules")
+    return cmd
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--zoo-keys", default="")
@@ -24,6 +33,7 @@ def main():
     ap.add_argument("--shard", type=int, default=0)
     ap.add_argument("--nshards", type=int, default=1)
     ap.add_argument("--jobs", type=int, default=3)
+    ap.add_argument("--modules", action="store_true", help="passed to maps.py: also map attention and feed-forward")
     args = ap.parse_args()
     with open(maps.ZOO) as f:
         zoo = json.load(f)["models"]
@@ -41,7 +51,7 @@ def main():
         if not (args.min_params_b <= float(m["params_b"]) <= args.max_params_b):
             continue
         out = os.path.join(maps.OUT_DIR, m["id"].replace("/", "__") + ".json")
-        if os.path.exists(out):
+        if maps.entry_done(out, args.modules):
             continue
         todo.append(m["key"])
     todo = [k for i, k in enumerate(sorted(todo)) if i % args.nshards == args.shard]
@@ -57,7 +67,7 @@ def main():
         while todo and len(running) < args.jobs:
             key = todo.pop(0)
             log = open(os.path.join(log_dir, key + ".log"), "a")
-            cmd = [sys.executable, "-u", os.path.join(HERE, "maps.py"), "--zoo-key", key]
+            cmd = maps_command(key, args.modules)
             running[key] = (subprocess.Popen(cmd, stdout=log, stderr=subprocess.STDOUT), log, time.time())
             print("started", key, flush=True)
         time.sleep(5)
