@@ -7,6 +7,7 @@ which allocates no memory and downloads no weights.
 """
 
 import copy
+import re
 
 import torch
 from torch import nn
@@ -50,18 +51,86 @@ def find_decoder_layers(model, layer):
     return best_name, best_list
 
 
-def find_layer_modules(config, layer):
-    """Find the MLP and its norms for one donor layer.
-
-    Builds the donor on the meta device. Returns a dict with mlp, mlp_prefix,
-    pre_norm, pre_norm_prefix, post_norm, post_norm_prefix. The prefixes are
-    the dotted names used in the checkpoint. post_norm is None when the
-    layer has no post-feedforward norm.
-    """
+def _build_meta_model(config):
+    """Build the donor on the meta device from its config alone."""
     import transformers
 
     with torch.device("meta"):
-        model = transformers.AutoModelForCausalLM.from_config(config)
+        try:
+            return transformers.AutoModelForCausalLM.from_config(config)
+        except ValueError:
+            # Some multimodal configs (for example mistral3) have no causal
+            # LM class. The image-text class holds the same language model.
+            return transformers.AutoModelForImageTextToText.from_config(config)
+
+
+def _name_rules(model):
+    """Return the rename rules between checkpoint names and module names.
+
+    Multimodal models such as Gemma 3 and Mistral 3 keep old names in their
+    checkpoints (language_model.model.layers.N) while their modules are
+    named model.language_model.layers.N. Transformers renames the keys with
+    _checkpoint_conversion_mapping when it loads and saves. We do the same.
+    Returns (to_module, to_checkpoint), two lists of (pattern, replacement).
+    Plain LMs have no mapping, so both lists are empty.
+    """
+    mapping = getattr(model, "_checkpoint_conversion_mapping", None)
+    to_module = []
+    to_checkpoint = []
+    if not mapping:
+        return to_module, to_checkpoint
+    for pattern, replacement in mapping.items():
+        to_module.append((pattern, replacement))
+        old_name = pattern.lstrip("^")
+        old_name = re.sub(r"\(.*\)", "", old_name)
+        to_checkpoint.append(("^" + re.escape(replacement), old_name))
+    return to_module, to_checkpoint
+
+
+def _rename(name, rules):
+    """Apply the first rule that matches name, like Transformers does."""
+    for pattern, replacement in rules:
+        new_name, count = re.subn(pattern, replacement, name)
+        if count > 0:
+            return new_name
+    return name
+
+
+def _checkpoint_names(found, names):
+    """Turn module names into the tensor names the checkpoint uses."""
+    out = []
+    for name in names:
+        out.append(_rename(name, found["to_checkpoint"]))
+    return out
+
+
+def _module_named(tensors, found):
+    """Return tensors keyed by module names.
+
+    Fetched tensors use checkpoint names. Tensors rebuilt from a saved graft
+    already use module names, and the rules leave those names unchanged.
+    """
+    if not found["to_module"]:
+        return tensors
+    out = {}
+    for name, tensor in tensors.items():
+        out[_rename(name, found["to_module"])] = tensor
+    return out
+
+
+def find_layer_modules(config, layer):
+    """Find the MLP, the attention, and their norms for one donor layer.
+
+    Builds the donor on the meta device. Returns a dict with mlp, mlp_prefix,
+    pre_norm, pre_norm_prefix, post_norm, post_norm_prefix and the attention
+    keys. The prefixes are module names in the donor model, so get_submodule
+    works with them. Use _checkpoint_names to get the checkpoint tensor
+    names. mlp is None when the layer has no plain mlp attribute (for example
+    Mixtral, whose layers hold block_sparse_moe). post_norm is None when the
+    layer has no post-feedforward norm.
+    """
+    model = _build_meta_model(config)
+    to_module, to_checkpoint = _name_rules(model)
     list_name, layers = find_decoder_layers(model, layer)
     layer_module = layers[layer]
     layer_prefix = f"{list_name}.{layer}"
@@ -72,7 +141,9 @@ def find_layer_modules(config, layer):
         pre_name = "post_attention_layernorm"
 
     result = {}
-    result["mlp"] = layer_module.mlp
+    result["to_module"] = to_module
+    result["to_checkpoint"] = to_checkpoint
+    result["mlp"] = getattr(layer_module, "mlp", None)
     result["mlp_prefix"] = f"{layer_prefix}.mlp"
     result["pre_norm"] = getattr(layer_module, pre_name)
     result["pre_norm_prefix"] = f"{layer_prefix}.{pre_name}"
@@ -121,14 +192,30 @@ def _prefixed_keys(module, prefix):
     return names
 
 
+def _require_dense_mlp(found, layer):
+    """Raise ValueError when the layer has no dense MLP to take neurons from."""
+    mlp = found["mlp"]
+    if mlp is None:
+        raise ValueError(
+            f"layer {layer} has no mlp module (it may be a sparse MoE layer); "
+            "use kind 'expert' instead of 'mlp_cluster'"
+        )
+    if hasattr(mlp, "experts"):
+        raise ValueError(
+            f"layer {layer} mlp is a sparse MoE block ({type(mlp).__name__}); "
+            "use kind 'expert' instead of 'mlp_cluster'"
+        )
+
+
 def mlp_tensor_names(config, layer):
     """List the checkpoint tensor names a cluster needs for one layer."""
     found = find_layer_modules(config, layer)
+    _require_dense_mlp(found, layer)
     names = _prefixed_keys(found["mlp"], found["mlp_prefix"])
     names += _prefixed_keys(found["pre_norm"], found["pre_norm_prefix"])
     if found["post_norm"] is not None:
         names += _prefixed_keys(found["post_norm"], found["post_norm_prefix"])
-    return names
+    return _checkpoint_names(found, names)
 
 
 class MLPCluster(nn.Module):
@@ -177,6 +264,8 @@ def build_mlp_cluster(config, layer, indices, tensors):
     The result is in eval mode with all parameters frozen.
     """
     found = find_layer_modules(config, layer)
+    _require_dense_mlp(found, layer)
+    tensors = _module_named(tensors, found)
     text_config = _text_config(config)
     full_size = text_config.intermediate_size
     indices = torch.as_tensor(indices, dtype=torch.long)
@@ -191,9 +280,15 @@ def build_mlp_cluster(config, layer, indices, tensors):
     state = {}
     for key in found["mlp"].state_dict().keys():
         tensor = tensors[f"{mlp_prefix}.{key}"]
-        for dim in range(tensor.dim()):
-            if tensor.shape[dim] == full_size:
-                tensor = tensor.index_select(dim, indices.to(tensor.device))
+        idx = indices.to(tensor.device)
+        if "gate_up" in key:
+            # Phi-3 and Phi-4 fuse gate and up into one tensor of 2 * I rows.
+            # The gate half comes first, so take each neuron from both halves.
+            tensor = tensor.index_select(0, torch.cat([idx, idx + full_size]))
+        else:
+            for dim in range(tensor.dim()):
+                if tensor.shape[dim] == full_size:
+                    tensor = tensor.index_select(dim, idx)
         state[key] = tensor.to(dtype).contiguous()
     mlp.load_state_dict(state, strict=True)
 
@@ -217,10 +312,8 @@ def find_moe_block(config, layer):
     post_norm_prefix. Raises ValueError when the layer has no MoE block and
     NotImplementedError when the experts are stored as fused tensors.
     """
-    import transformers
-
-    with torch.device("meta"):
-        model = transformers.AutoModelForCausalLM.from_config(config)
+    model = _build_meta_model(config)
+    to_module, to_checkpoint = _name_rules(model)
     list_name, layers = find_decoder_layers(model, layer)
     layer_module = layers[layer]
     layer_prefix = f"{list_name}.{layer}"
@@ -245,6 +338,8 @@ def find_moe_block(config, layer):
         pre_name = "post_attention_layernorm"
 
     result = {}
+    result["to_module"] = to_module
+    result["to_checkpoint"] = to_checkpoint
     result["moe"] = moe
     result["moe_prefix"] = f"{layer_prefix}.{moe_name}"
     result["expert_cls"] = type(moe.experts[0])
@@ -269,7 +364,7 @@ def expert_tensor_names(config, layer, experts):
     names += _prefixed_keys(found["pre_norm"], found["pre_norm_prefix"])
     if found["post_norm"] is not None:
         names += _prefixed_keys(found["post_norm"], found["post_norm_prefix"])
-    return names
+    return _checkpoint_names(found, names)
 
 
 class ExpertPart(nn.Module):
@@ -327,6 +422,7 @@ def build_expert_part(config, layer, experts, tensors):
     The result is in eval mode with all parameters frozen.
     """
     found = find_moe_block(config, layer)
+    tensors = _module_named(tensors, found)
     text_config = _text_config(config)
     ids = []
     for e in torch.as_tensor(experts, dtype=torch.long).tolist():
@@ -381,7 +477,7 @@ def attn_tensor_names(config, layer):
     names += _prefixed_keys(found["input_norm"], found["input_norm_prefix"])
     if found["post_attn_norm"] is not None:
         names += _prefixed_keys(found["post_attn_norm"], found["post_attn_norm_prefix"])
-    return names
+    return _checkpoint_names(found, names)
 
 
 def causal_mask(batch, seq, dtype, device, window=None):
@@ -406,8 +502,11 @@ class AttnHeadsPart(nn.Module):
 
     x has shape (batch, seq, d_donor) and holds the whole sequence. There is
     no KV cache, so this part needs use_cache=False when the host generates.
-    The rotary module is kept out of the module tree, so a dtype change on
-    the part does not round its frequencies.
+    attention_mask is the host's 2D padding mask (batch, seq), with 1 for
+    real tokens and 0 for pads, or None. With it, positions count only real
+    tokens and no token attends to a pad. The rotary module is kept out of
+    the module tree, so a dtype change on the part does not round its
+    frequencies.
     """
 
     def __init__(self, input_norm, attn, rotary, post_norm=None):
@@ -417,16 +516,35 @@ class AttnHeadsPart(nn.Module):
         self.post_norm = post_norm
         self._rotary = [rotary]
 
-    def forward(self, x):
+    def forward(self, x, attention_mask=None):
         batch, seq, _ = x.shape
         rotary = self._rotary[0]
         if rotary.inv_freq.device != x.device:
             rotary.to(x.device)
-        position_ids = torch.arange(seq, device=x.device).view(1, seq).expand(batch, seq)
+        if attention_mask is not None:
+            if tuple(attention_mask.shape) != (batch, seq):
+                raise ValueError(
+                    f"attention_mask has shape {tuple(attention_mask.shape)} but the input is "
+                    f"({batch}, {seq}); an attn_heads part needs the whole sequence, "
+                    "so run the host with use_cache=False"
+                )
+            attention_mask = attention_mask.to(x.device)
+            position_ids = (attention_mask.long().cumsum(-1) - 1).clamp(min=0)
+        else:
+            position_ids = torch.arange(seq, device=x.device).view(1, seq).expand(batch, seq)
         normed = self.input_norm(x)
         cos_sin = rotary(normed, position_ids)
-        window = getattr(self.attn, "sliding_window", None)
+        # Mistral, Mixtral and Phi-3 attention keep the window only in the
+        # config. Qwen and Gemma set the attribute, and None on full layers.
+        if hasattr(self.attn, "sliding_window"):
+            window = self.attn.sliding_window
+        else:
+            window = getattr(self.attn.config, "sliding_window", None)
         mask = causal_mask(batch, seq, normed.dtype, x.device, window)
+        if attention_mask is not None:
+            # causal_mask returns an expanded view, so clone before the fill.
+            pad_keys = attention_mask[:, None, None, :] == 0
+            mask = mask.clone().masked_fill(pad_keys, torch.finfo(mask.dtype).min)
         out = self.attn(hidden_states=normed, position_embeddings=cos_sin, attention_mask=mask)[0]
         if self.post_norm is not None:
             out = self.post_norm(out)
@@ -451,6 +569,7 @@ def build_attn_heads(config, layer, heads, tensors):
     class runs the math. The result is in eval mode with frozen parameters.
     """
     found = find_layer_modules(config, layer)
+    tensors = _module_named(tensors, found)
     text_config = _text_config(config)
     heads = torch.as_tensor(heads, dtype=torch.long)
     n = len(heads)
@@ -485,6 +604,12 @@ def build_attn_heads(config, layer, heads, tensors):
             tensor = tensor.index_select(0, q_rows.to(tensor.device))
         elif owner in ("k_proj", "v_proj"):
             tensor = tensor.index_select(0, kv_rows.to(tensor.device))
+        elif owner == "qkv_proj":
+            # Phi-3 and Phi-4 fuse the rows as [all q | all k | all v].
+            q_size = num_heads * head_dim
+            kv_size = _kv_head_count(text_config) * head_dim
+            rows = torch.cat([q_rows, kv_rows + q_size, kv_rows + q_size + kv_size])
+            tensor = tensor.index_select(0, rows.to(tensor.device))
         elif key == "o_proj.weight":
             tensor = tensor.index_select(1, q_rows.to(tensor.device))
         state[key] = tensor.to(dtype).contiguous()
@@ -497,6 +622,12 @@ def build_attn_heads(config, layer, heads, tensors):
 
     rotary_config = copy.deepcopy(text_config)
     rotary_config.head_dim = head_dim
+    # Gemma 3 sliding layers use a local rotary with its own base and no
+    # scaling, like Gemma3TextModel.rotary_emb_local.
+    local_base = getattr(text_config, "rope_local_base_freq", None)
+    if getattr(found["attn"], "is_sliding", False) and local_base is not None:
+        rotary_config.rope_theta = local_base
+        rotary_config.rope_scaling = {"rope_type": "default"}
     rotary = type(found["rotary"])(config=rotary_config)
 
     part = AttnHeadsPart(input_norm, attn, rotary, post_norm)

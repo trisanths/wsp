@@ -41,10 +41,11 @@ def test_ridge_recovers_linear_map():
     x = torch.randn(500, 16)
     a = torch.randn(12, 16)
     y = x @ a.T
-    w, r2 = ridge_fit(x, y, lam=1e-5)
+    w, r2, r2_dim = ridge_fit(x, y, lam=1e-5)
     assert w.shape == (12, 16)
     assert torch.allclose(w, a, atol=1e-2)
     assert r2 > 0.99
+    assert r2_dim > 0.99
 
 
 def test_ridge_too_few_rows_raises():

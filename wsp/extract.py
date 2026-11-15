@@ -98,3 +98,93 @@ def top_routed_experts(model, tokenizer, texts, moe_module, n, max_tokens=50000)
     mean_prob = state["sums"] / counts[0]
     top = torch.topk(mean_prob, n).indices
     return torch.sort(top).values
+
+
+def _find_down_proj(mlp_module):
+    for name, child in mlp_module.named_children():
+        if name == "down_proj":
+            return child
+    raise ValueError("mlp module has no down_proj child")
+
+
+def mean_abs_activation(model, tokenizer, texts, mlp_module, max_tokens=50000):
+    """Return a float tensor (intermediate,) of mean |activation| per neuron."""
+    down_proj = _find_down_proj(mlp_module)
+    totals = {"sum": None, "tokens": 0}
+
+    def hook(module, args):
+        acts = args[0].detach().float().abs()
+        acts = acts.reshape(-1, acts.shape[-1])
+        if totals["sum"] is None:
+            totals["sum"] = acts.sum(dim=0)
+        else:
+            totals["sum"] += acts.sum(dim=0)
+        totals["tokens"] += acts.shape[0]
+
+    handle = down_proj.register_forward_pre_hook(hook)
+    device = next(model.parameters()).device
+    try:
+        for text in texts:
+            if totals["tokens"] >= max_tokens:
+                break
+            ids = tokenizer(text, return_tensors="pt").input_ids.to(device)
+            with torch.no_grad():
+                model(ids)
+    finally:
+        handle.remove()
+    return totals["sum"] / max(1, totals["tokens"])
+
+
+def contrast_neurons(model, tokenizer, task_texts, generic_texts, mlp_module, n, max_tokens=50000):
+    """Top n neurons by mean |activation| on task text minus on generic text.
+
+    This picks neurons that fire more on the task than in general, not
+    neurons that are always loud.
+    """
+    task = mean_abs_activation(model, tokenizer, task_texts, mlp_module, max_tokens)
+    generic = mean_abs_activation(model, tokenizer, generic_texts, mlp_module, max_tokens)
+    score = task - generic
+    top = torch.topk(score, n).indices
+    return torch.sort(top).values
+
+
+def attribution_neurons(model, tokenizer, texts, mlp_module, n, max_tokens=20000):
+    """Top n neurons by estimated loss increase when the neuron is zeroed.
+
+    First-order estimate (attribution patching): zeroing activation a
+    changes the loss by about -a * dL/da. We sum that over tokens of the
+    task text, using the model's own next-token loss.
+    """
+    down_proj = _find_down_proj(mlp_module)
+    store = {}
+
+    def hook(module, args):
+        acts = args[0]
+        acts.retain_grad()
+        store["acts"] = acts
+
+    handle = down_proj.register_forward_pre_hook(hook)
+    device = next(model.parameters()).device
+    score = None
+    tokens = 0
+    try:
+        for text in texts:
+            if tokens >= max_tokens:
+                break
+            ids = tokenizer(text, return_tensors="pt").input_ids.to(device)
+            model.zero_grad(set_to_none=True)
+            loss = model(ids, labels=ids).loss
+            loss.backward()
+            acts = store["acts"]
+            effect = -(acts.detach().float() * acts.grad.detach().float())
+            effect = effect.reshape(-1, effect.shape[-1]).sum(dim=0)
+            if score is None:
+                score = effect
+            else:
+                score += effect
+            tokens += ids.shape[1]
+    finally:
+        handle.remove()
+        model.zero_grad(set_to_none=True)
+    top = torch.topk(score, n).indices
+    return torch.sort(top).values

@@ -86,7 +86,8 @@ def test_fresh_graft_keeps_host_logits():
     with torch.no_grad():
         after = host(ids).logits
     assert torch.equal(before, after)
-    assert len(handles) == 1
+    # One layer hook per graft, plus the host pre-hook that stores the padding mask.
+    assert len(handles) == 2
     assert len(host.wsp_grafts) == 1
 
 

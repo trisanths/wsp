@@ -12,6 +12,7 @@ Steps:
 
 import json
 import os
+import shutil
 
 import torch
 
@@ -94,6 +95,21 @@ def apply_mask(params, mask):
     return deleted
 
 
+def remove_stale_outputs(output_dir):
+    """Remove the files a past compile into output_dir can leave behind.
+
+    load() picks its path from the files that exist. A host/ or grafts.json
+    from an older program would make it load the wrong model.
+    """
+    host_dir = os.path.join(output_dir, "host")
+    if os.path.isdir(host_dir):
+        shutil.rmtree(host_dir)
+    for name in ["grafts.json", "graft_weights.safetensors"]:
+        path = os.path.join(output_dir, name)
+        if os.path.exists(path):
+            os.remove(path)
+
+
 def compile_program(program, catalog, output_dir, align_texts=None, heal_texts=None, device=None, cache_dir=None):
     """Build the program's model and save it to output_dir. Return output_dir.
 
@@ -144,6 +160,7 @@ def compile_program(program, catalog, output_dir, align_texts=None, heal_texts=N
         }
 
     os.makedirs(output_dir, exist_ok=True)
+    remove_stale_outputs(output_dir)
     tokenizer.save_pretrained(output_dir)
     host_changed = program.masks is not None or len(program.task_vectors) > 0
     if len(program.grafts) == 0:

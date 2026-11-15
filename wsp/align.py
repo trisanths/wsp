@@ -8,13 +8,39 @@ fit on those rows gives W_in, which maps host hidden size to donor hidden size.
 import torch
 
 
-def token_end_offsets(tokenizer, text):
-    """Return the character end offset of every token in text (no special tokens)."""
-    encoded = tokenizer(text, add_special_tokens=False, return_offsets_mapping=True)
+def alignment_tokens(tokenizer, text):
+    """Tokenize text the way heal and inference do, and pick the rows to fit.
+
+    The tokenizer adds its default special tokens (for example BOS), so the
+    model sees the same kind of sequence as at run time. Returns
+    (input_ids, positions, ends). input_ids has shape (1, seq). positions
+    holds the index of each token we may fit on, and ends holds its
+    character end offset. Special tokens are left out. When the sequence has
+    no special token at index 0, the first text token is the attention sink,
+    so it is left out too.
+    """
+    encoded = tokenizer(text, return_offsets_mapping=True, return_special_tokens_mask=True,
+                        return_tensors="pt")
+    special = encoded["special_tokens_mask"][0].tolist()
+    offsets = encoded["offset_mapping"][0].tolist()
+    has_bos = len(special) > 0 and special[0] == 1
+
+    positions = []
     ends = []
-    for start, end in encoded["offset_mapping"]:
+    for index in range(len(offsets)):
+        start, end = offsets[index]
+        if special[index] == 1:
+            continue
+        if end <= start:
+            # A token with no characters has nothing to match on.
+            continue
+        positions.append(index)
         ends.append(int(end))
-    return ends
+
+    if not has_bos and len(positions) > 0:
+        positions = positions[1:]
+        ends = ends[1:]
+    return encoded["input_ids"], positions, ends
 
 
 def match_offsets(host_ends, donor_ends):
@@ -35,10 +61,13 @@ def match_offsets(host_ends, donor_ends):
 
 
 def ridge_fit(x, y, lam=1e-2, holdout=0.1, seed=0):
-    """Fit y ~ x @ w.T with ridge. Return (w, r2) with r2 scored on a holdout.
+    """Fit y ~ x @ w.T with ridge. Return (w, r2, r2_dim), scored on a holdout.
 
     w has shape (d_donor, d_host). lam is scaled by the mean diagonal of X^T X,
-    so it has no units.
+    so it has no units. r2 pools the error over all output dims, so a few
+    dims with huge variance can decide it. r2_dim is the mean of each output
+    dim's own r2, so every dim counts the same. Dims that are constant on the
+    holdout are left out of r2_dim.
     """
     n = x.shape[0]
     if n < 20:
@@ -70,41 +99,71 @@ def ridge_fit(x, y, lam=1e-2, holdout=0.1, seed=0):
     sst = ((y_hold - y_hold.mean(dim=0, keepdim=True)) ** 2).sum()
     r2 = 1.0 - float(sse / sst)
 
+    sse_dim = ((y_hold - pred) ** 2).sum(dim=0)
+    sst_dim = ((y_hold - y_hold.mean(dim=0, keepdim=True)) ** 2).sum(dim=0)
+    varying = sst_dim > 0
+    if varying.any():
+        r2_dim = float((1.0 - sse_dim[varying] / sst_dim[varying]).mean())
+    else:
+        r2_dim = float("nan")
+
     w = w_t.T.contiguous().float()
-    return w, r2
+    return w, r2, r2_dim
 
 
 def collect_pairs(host_model, host_tokenizer, host_layer, donor_model, donor_tokenizer,
                   donor_capture, texts, max_pairs=20000):
     """Run both models on each text and stack matched (host, donor) hidden rows.
 
-    The host row is the output of decoder layer host_layer. The donor row comes
-    from donor_capture(donor_model, input_ids), which returns (seq, d_donor).
-    Returns (x, y) as float32 tensors.
+    The host row is the output of decoder layer host_layer, read with a
+    forward hook on that layer. That is the same tensor the graft hook gets.
+    The donor row comes from donor_capture(donor_model, input_ids), which
+    returns (seq, d_donor). Both models see their default special tokens.
+    Only rows that alignment_tokens picks enter the fit. Returns (x, y) as
+    float32 tensors.
     """
+    from wsp.parts import find_decoder_layers
+
     host_device = next(host_model.parameters()).device
     donor_device = next(donor_model.parameters()).device
+    _, host_layers = find_decoder_layers(host_model, host_layer)
+
+    host_store = []
+
+    def host_hook(module, inputs, output):
+        if isinstance(output, tuple):
+            output = output[0]
+        host_store.append(output.detach())
+
     xs = []
     ys = []
     total = 0
     for text in texts:
         if total >= max_pairs:
             break
-        host_ends = token_end_offsets(host_tokenizer, text)
-        donor_ends = token_end_offsets(donor_tokenizer, text)
+        host_ids, host_positions, host_ends = alignment_tokens(host_tokenizer, text)
+        donor_ids, donor_positions, donor_ends = alignment_tokens(donor_tokenizer, text)
         pairs = match_offsets(host_ends, donor_ends)
         if len(pairs) == 0:
             continue
 
-        host_ids = host_tokenizer(text, add_special_tokens=False, return_tensors="pt")["input_ids"]
-        donor_ids = donor_tokenizer(text, add_special_tokens=False, return_tensors="pt")["input_ids"]
-        with torch.no_grad():
-            out = host_model(host_ids.to(host_device), output_hidden_states=True)
-            host_hidden = out.hidden_states[host_layer + 1][0]
-            donor_hidden = donor_capture(donor_model, donor_ids.to(donor_device))
+        host_store.clear()
+        handle = host_layers[host_layer].register_forward_hook(host_hook)
+        try:
+            with torch.no_grad():
+                host_model(host_ids.to(host_device))
+        finally:
+            handle.remove()
+        host_hidden = host_store[0][0]
+        donor_hidden = donor_capture(donor_model, donor_ids.to(donor_device))
 
-        host_rows = torch.tensor([p[0] for p in pairs])
-        donor_rows = torch.tensor([p[1] for p in pairs])
+        host_rows = []
+        donor_rows = []
+        for i, j in pairs:
+            host_rows.append(host_positions[i])
+            donor_rows.append(donor_positions[j])
+        host_rows = torch.tensor(host_rows)
+        donor_rows = torch.tensor(donor_rows)
         xs.append(host_hidden.float().cpu()[host_rows])
         ys.append(donor_hidden.float().cpu()[donor_rows])
         total += len(pairs)

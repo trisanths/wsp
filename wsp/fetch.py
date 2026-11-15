@@ -157,9 +157,11 @@ def fetch_tensors(repo_id, names, revision="main", cache_dir=None):
     if len(missing) == 0:
         return result
 
-    from huggingface_hub import hf_hub_url
+    from huggingface_hub import get_token, hf_hub_url
 
-    token = os.environ.get("HF_TOKEN")
+    # get_token reads HF_TOKEN and the token file that "hf auth login" saves,
+    # the same way hf_hub_download does.
+    token = get_token()
     shards = _shard_map(repo_id, missing, revision)
     for shard, shard_names in shards.items():
         url = hf_hub_url(repo_id, shard, revision=revision)

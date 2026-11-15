@@ -27,6 +27,7 @@ from wsp.parts import (
     find_layer_modules,
     find_moe_block,
     mlp_tensor_names,
+    _text_config,
 )
 
 
@@ -39,7 +40,11 @@ def read_units(catalog, component_id):
 
 
 def host_layer_count(host_model):
-    return host_model.config.num_hidden_layers
+    return _text_config(host_model.config).num_hidden_layers
+
+
+def host_hidden_size(host_model):
+    return _text_config(host_model.config).hidden_size
 
 
 def default_host_layer(donor_layer, donor_layers, host_layers):
@@ -51,14 +56,36 @@ def default_host_layer(donor_layer, donor_layers, host_layers):
     return k
 
 
+def resolve_host_layer(spec, donor_layer, donor_layers, host_layers):
+    """Return the host layer index for a graft spec.
+
+    spec.at None picks a layer at the same relative depth as the donor
+    layer. A negative spec.at counts from the last layer, as in Python. An
+    index outside the host raises ValueError.
+    """
+    if spec.at is None:
+        return default_host_layer(donor_layer, donor_layers, host_layers)
+    host_layer = spec.at
+    if host_layer < 0:
+        host_layer += host_layers
+    if host_layer < 0 or host_layer >= host_layers:
+        raise ValueError(f"{spec.component_id}: at={spec.at} is out of range for {host_layers} host layers")
+    return host_layer
+
+
 def fit_w_in(host_model, host_tokenizer, host_layer, donor_id, donor_layer, align_texts, device, norm_prefix=None,
              layer_input=False):
-    """Fit W_in on offset-matched hidden states. Return (w, r2, pairs)."""
+    """Fit W_in on offset-matched hidden states. Return (w, r2, r2_dim, pairs)."""
     import transformers
 
     from wsp.align import collect_pairs, mlp_input_capture, ridge_fit
 
-    donor_model = transformers.AutoModelForCausalLM.from_pretrained(donor_id, dtype=torch.bfloat16)
+    try:
+        donor_model = transformers.AutoModelForCausalLM.from_pretrained(donor_id, dtype=torch.bfloat16)
+    except ValueError:
+        # Some multimodal donors (for example mistral3) have no causal LM
+        # class. The image-text class holds the same language model.
+        donor_model = transformers.AutoModelForImageTextToText.from_pretrained(donor_id, dtype=torch.bfloat16)
     donor_model.to(device)
     donor_model.eval()
     donor_tokenizer = transformers.AutoTokenizer.from_pretrained(donor_id)
@@ -73,11 +100,11 @@ def fit_w_in(host_model, host_tokenizer, host_layer, donor_id, donor_layer, alig
         modules = find_layer_modules(donor_model.config, donor_layer)
         capture = layer_input_capture(donor_model.get_submodule(modules["layer_prefix"]))
     x, y = collect_pairs(host_model, host_tokenizer, host_layer, donor_model, donor_tokenizer, capture, align_texts)
-    w, r2 = ridge_fit(x, y)
+    w, r2, r2_dim = ridge_fit(x, y)
     del donor_model
     if device == "cuda":
         torch.cuda.empty_cache()
-    return w, r2, x.shape[0]
+    return w, r2, r2_dim, x.shape[0]
 
 
 def build_graft(spec, catalog, host_model, host_tokenizer, align_texts=None, device="cpu", cache_dir=None):
@@ -93,21 +120,20 @@ def build_graft(spec, catalog, host_model, host_tokenizer, align_texts=None, dev
     donor_id = record["model"]
     donor_layer = record["layer"]
     config = fetch_config(donor_id)
+    text_config = _text_config(config)
     units = read_units(catalog, spec.component_id)
     indices = units["indices"]
     if spec.control == "random":
-        indices = random_neurons(config.intermediate_size, len(indices), spec.control_seed)
+        indices = random_neurons(text_config.intermediate_size, len(indices), spec.control_seed)
 
     tensors = fetch_tensors(donor_id, mlp_tensor_names(config, donor_layer), cache_dir=cache_dir)
     part = build_mlp_cluster(config, donor_layer, indices, tensors)
 
     host_layers = host_layer_count(host_model)
-    host_layer = spec.at
-    if host_layer is None:
-        host_layer = default_host_layer(donor_layer, config.num_hidden_layers, host_layers)
+    host_layer = resolve_host_layer(spec, donor_layer, text_config.num_hidden_layers, host_layers)
 
-    d_host = host_model.config.hidden_size
-    d_donor = config.hidden_size
+    d_host = host_hidden_size(host_model)
+    d_donor = text_config.hidden_size
     graft = Graft(d_host, d_donor, part)
 
     meta = {
@@ -123,15 +149,18 @@ def build_graft(spec, catalog, host_model, host_tokenizer, align_texts=None, dev
         "part_params": count_params(part),
         "glue_params": count_params(graft.w_in) + count_params(graft.w_out),
         "fit_r2": None,
+        "fit_r2_dim": None,
         "fit_pairs": 0,
         "fit": "skipped",
     }
 
     if align_texts is not None:
-        w, r2, pairs = fit_w_in(host_model, host_tokenizer, host_layer, donor_id, donor_layer, align_texts, device)
+        w, r2, r2_dim, pairs = fit_w_in(host_model, host_tokenizer, host_layer, donor_id, donor_layer,
+                                        align_texts, device)
         with torch.no_grad():
             graft.w_in.weight.copy_(w.to(graft.w_in.weight.dtype))
         meta["fit_r2"] = r2
+        meta["fit_r2_dim"] = r2_dim
         meta["fit_pairs"] = pairs
         meta["fit"] = "ridge"
     return host_layer, graft, meta
@@ -152,9 +181,7 @@ def rebuild_graft(meta, graft_state, index):
         return rebuild_expert_graft(meta, graft_state, index)
     config = copy.deepcopy(fetch_config(meta["donor"]))
     n = len(meta["indices"])
-    text_config = config
-    if hasattr(config, "get_text_config"):
-        text_config = config.get_text_config()
+    text_config = _text_config(config)
     text_config.intermediate_size = n
     modules = find_layer_modules(config, meta["donor_layer"])
     tensors = {}
@@ -200,15 +227,11 @@ def build_expert_graft(spec, record, catalog, host_model, host_tokenizer, align_
     tensors = fetch_tensors(donor_id, names, cache_dir=cache_dir)
     part = build_expert_part(config, donor_layer, experts, tensors)
 
-    text_config = config
-    if hasattr(config, "get_text_config"):
-        text_config = config.get_text_config()
+    text_config = _text_config(config)
     host_layers = host_layer_count(host_model)
-    host_layer = spec.at
-    if host_layer is None:
-        host_layer = default_host_layer(donor_layer, text_config.num_hidden_layers, host_layers)
+    host_layer = resolve_host_layer(spec, donor_layer, text_config.num_hidden_layers, host_layers)
 
-    d_host = host_model.config.hidden_size
+    d_host = host_hidden_size(host_model)
     d_donor = text_config.hidden_size
     graft = Graft(d_host, d_donor, part)
 
@@ -225,16 +248,18 @@ def build_expert_graft(spec, record, catalog, host_model, host_tokenizer, align_
         "part_params": count_params(part),
         "glue_params": count_params(graft.w_in) + count_params(graft.w_out),
         "fit_r2": None,
+        "fit_r2_dim": None,
         "fit_pairs": 0,
         "fit": "skipped",
     }
 
     if align_texts is not None:
-        w, r2, pairs = fit_w_in(host_model, host_tokenizer, host_layer, donor_id, donor_layer,
-                                align_texts, device, norm_prefix=found["pre_norm_prefix"])
+        w, r2, r2_dim, pairs = fit_w_in(host_model, host_tokenizer, host_layer, donor_id, donor_layer,
+                                        align_texts, device, norm_prefix=found["pre_norm_prefix"])
         with torch.no_grad():
             graft.w_in.weight.copy_(w.to(graft.w_in.weight.dtype))
         meta["fit_r2"] = r2
+        meta["fit_r2_dim"] = r2_dim
         meta["fit_pairs"] = pairs
         meta["fit"] = "ridge"
     return host_layer, graft, meta
@@ -280,8 +305,6 @@ def build_attn_graft(spec, record, catalog, host_model, host_tokenizer, align_te
     the donor layer. Grafts of this kind need use_cache=False when the host
     generates, because the part recomputes attention over the full sequence.
     """
-    from wsp.parts import _text_config
-
     donor_id = record["model"]
     donor_layer = record["layer"]
     config = fetch_config(donor_id)
@@ -293,11 +316,10 @@ def build_attn_graft(spec, record, catalog, host_model, host_tokenizer, align_te
     tensors = fetch_tensors(donor_id, attn_tensor_names(config, donor_layer), cache_dir=cache_dir)
     part = build_attn_heads(config, donor_layer, heads, tensors)
 
-    host_layer = spec.at
-    if host_layer is None:
-        host_layer = default_host_layer(donor_layer, text_config.num_hidden_layers, host_layer_count(host_model))
+    host_layers = host_layer_count(host_model)
+    host_layer = resolve_host_layer(spec, donor_layer, text_config.num_hidden_layers, host_layers)
 
-    d_host = host_model.config.hidden_size
+    d_host = host_hidden_size(host_model)
     d_donor = text_config.hidden_size
     graft = Graft(d_host, d_donor, part)
 
@@ -314,15 +336,17 @@ def build_attn_graft(spec, record, catalog, host_model, host_tokenizer, align_te
         "part_params": count_params(part),
         "glue_params": count_params(graft.w_in) + count_params(graft.w_out),
         "fit_r2": None,
+        "fit_r2_dim": None,
         "fit_pairs": 0,
         "fit": "skipped",
     }
     if align_texts is not None:
-        w, r2, pairs = fit_w_in(host_model, host_tokenizer, host_layer, donor_id, donor_layer,
-                                align_texts, device, layer_input=True)
+        w, r2, r2_dim, pairs = fit_w_in(host_model, host_tokenizer, host_layer, donor_id, donor_layer,
+                                        align_texts, device, layer_input=True)
         with torch.no_grad():
             graft.w_in.weight.copy_(w.to(graft.w_in.weight.dtype))
         meta["fit_r2"] = r2
+        meta["fit_r2_dim"] = r2_dim
         meta["fit_pairs"] = pairs
         meta["fit"] = "ridge"
     return host_layer, graft, meta
@@ -337,7 +361,7 @@ def rebuild_attn_graft(meta, graft_state, index):
     """
     import copy
 
-    from wsp.parts import _head_dim, _text_config
+    from wsp.parts import _head_dim
 
     config = copy.deepcopy(fetch_config(meta["donor"]))
     n = len(meta["indices"])
