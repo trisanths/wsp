@@ -27,10 +27,18 @@
 # minutes, or pass --force when you know that no run is active.
 #
 # The lock. The script holds the catalog lock of client.write_part while it replaces the file, so a
-# row that write_part appends in that time is not lost. Two other writers do not take that lock: the
-# agent's confirm_math tool (agent.py) and regate.py read the catalog and later replace it with the
-# rows they read. If the backfill runs between their read and their write, they write the old rows
-# back and the new fields are gone, without a message. --force does not protect against that.
+# row that write_part appends in that time is not lost. The two other writers that replace the file,
+# the agent's confirm_math tool (agent.py) and regate.py, hold the same lock (common.catalog_lock)
+# and read the file again under it, so they keep the new fields. An agent run that started from a
+# checkout before that lock still writes the rows of its first read back: stop it first.
+#
+# Pool skills. A row of mine/sweep.py names its pool sets by hash: the target in "skill", the guard
+# skills in selection_data.off_target_data. The backfill keeps these as the row stores them. It does
+# not read them again from mine/data/pool_skills.json, which can be built again with other items, and
+# it does not let an agent skill of another lane with the same name take their place.
+# selection_data.pool_hash_matches says whether the pool file of today still has the target's set.
+# A pool set that the row does not name (a row written without selection_data) comes from the pool
+# file of today and gets "hash_unverified": true.
 #
 # Built-in sets of old rows. A row does not store which version of the built-in skill file the
 # engine scored it with. A row that client.write_part wrote with builtin_basis "engine" keeps what
@@ -56,8 +64,10 @@
 # Routing (--routing). The engine is built for the revision that the row stores, not for the one in
 # this machine's state file. A row gets routing null and a routing_note that starts with
 # "no routing, final: ", with no engine call, when the row has no revision, when its part file or
-# frozen test cannot be read, when the frozen test file does not have the row's hash, or when the
-# state file of that revision shows module_list experts in the layer. The routing step writes
+# frozen test cannot be read, when the frozen test file does not have the row's hash, when the
+# target is a pool skill and the pool file has no set of that name or a set with another hash, or
+# when the state file of that revision shows module_list experts in the layer. A pool set with the
+# row's hash goes to the engine inline, the way mine/sweep.py sends it. The routing step writes
 # nothing to logs/<short_name>/.
 import argparse
 import fcntl
@@ -75,7 +85,11 @@ LIVE_SECONDS = 600
 TIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
 UNCERTAIN = "git history, version uncertain"
 # keys of selection_data that an earlier run can have written and that may no longer hold
-PASSING_KEYS = ["note", "builtin_version", "builtin_candidates", "builtin_note", "path_hash", "path_note"]
+PASSING_KEYS = ["note", "builtin_version", "builtin_candidates", "builtin_note", "path_hash", "path_note",
+                "hash_unverified", "pool_hash_matches"]
+# The note that routing_plan gave a pool-skill row before it could send the pool set to the engine.
+# It is not final for such a row any more, so a run without --retry-routing asks again.
+NOT_A_SET = "the target skill is neither a built-in set of the engine nor an agent skill with a frozen test"
 _at = {}
 
 
@@ -264,6 +278,44 @@ def stored_builtin(old):
     return out
 
 
+def pool_pins(rec, old):
+    # The pool sets that the row itself names: {name: info in the format of evidence.local_pool}.
+    # The pool file can be built again with other items, and an agent skill of another lane can have
+    # the name of a pool skill, so what the row stores comes before both. The target comes from
+    # rec["skill"] (the sweep writes hash, dataset, and description there), an off-target skill from
+    # the stored selection_data.
+    pins = {}
+    skill = rec["skill"]
+    if skill.get("source") == "pool":
+        ids = [evidence.dataset_id(skill.get("dataset"))] if evidence.dataset_id(skill.get("dataset")) else []
+        pins[skill["name"]] = {"source": "pool", "description": skill.get("description"),
+                               "dataset": skill.get("dataset"), "hash": skill.get("hash"), "datasets": ids}
+    stored = old.get("off_target_data")
+    for name in stored if isinstance(stored, dict) else {}:
+        if isinstance(stored[name], dict) and stored[name].get("source") == "pool" and name not in pins:
+            pins[name] = dict(stored[name])
+    return pins
+
+
+def row_lookup(rec, agent, builtin, pins):
+    # evidence.make_lookup for one row, with the row's own pool sets first. A sweep row (it has the
+    # field "sweep") was scored on built-in and pool sets only, so the agent skills of the other
+    # lanes are not looked at for it. A pool set that the row does not name comes from the pool file
+    # of today; the row does not record which version was scored, so its hash is marked unverified.
+    if isinstance(rec.get("sweep"), dict):
+        agent = {}
+    inner = evidence.make_lookup(agent, builtin)
+
+    def lookup(name):
+        if name in pins:
+            return dict(pins[name])
+        info = inner(name)
+        if info["source"] == "pool":
+            info["hash_unverified"] = True
+        return info
+    return lookup
+
+
 def enrich_row(rec, agent, versions, healdata, stamp):
     # Changes rec in place. Returns False for a row that the mining pipeline did not write.
     if not from_mining(rec):
@@ -277,9 +329,10 @@ def enrich_row(rec, agent, versions, healdata, stamp):
         agent[target] = {"path": rec["skill"].get("path"), "hash": rec["skill"].get("hash"),
                          "description": rec["skill"].get("description")}
     old = rec.get("selection_data") if isinstance(rec.get("selection_data"), dict) else {}
+    pins = pool_pins(rec, old)
 
     def build(builtin, basis):
-        return evidence.selection_data(target, sig["effect"], evidence.make_lookup(agent, builtin), healdata, basis)
+        return evidence.selection_data(target, sig["effect"], row_lookup(rec, agent, builtin, pins), healdata, basis)
 
     if old.get("builtin_basis") == "engine":
         new = build(stored_builtin(old), "engine")
@@ -296,6 +349,11 @@ def enrich_row(rec, agent, versions, healdata, stamp):
             new = evidence.merge_uncertain(per, [version_label(v) for v in candidates])
     if new["source"] == "agent":
         new.update(evidence.path_check(os.path.join(common.ROOT, str(new.get("path"))), new.get("hash")))
+    if new["source"] == "pool" and not new.get("hash_unverified"):
+        # Is the set of this name in the pool file of today the set the row was selected on?
+        # None when the file has no set of this name.
+        today = evidence.local_pool().get(target)
+        new["pool_hash_matches"] = None if today is None else today.get("hash") == new.get("hash")
     merged = dict(old)
     merged.update(new)
     for key in PASSING_KEYS:
@@ -320,9 +378,11 @@ def routing_plan(short, rows, states, retry=False):
     for r in rows:
         if not (from_mining(r) and r.get("type") == "expert" and r.get("routing") is None):
             continue
-        if not retry and str(r.get("routing_note") or "").startswith(evidence.FINAL):
-            continue  # the answer would be the same: no call, and the row stays as it is
         target = r["skill"]["name"]
+        note = str(r.get("routing_note") or "")
+        outdated = r["skill"].get("source") == "pool" and note == evidence.FINAL + NOT_A_SET
+        if not retry and note.startswith(evidence.FINAL) and not outdated:
+            continue  # the answer would be the same: no call, and the row stays as it is
         if not r.get("revision"):
             out[r["id"]] = (None, evidence.FINAL + "the row has no revision, so the weights it was mined on are not known")
             continue
@@ -347,9 +407,26 @@ def routing_plan(short, rows, states, retry=False):
                 out[r["id"]] = (None, evidence.FINAL + "the frozen test file has hash " + str(data["hash"])
                                 + ", which differs from the row's hash " + str(r["skill"].get("hash")))
                 continue
+        elif r["skill"].get("source") == "pool":
+            # A pool set is sent inline, the way mine/sweep.py sends it. The file is the one that
+            # evidence.local_pool reads; the path in the row is relative to the writer's checkout.
+            try:
+                found = evidence.read_json(evidence.POOL_SKILLS).get(target)
+            except (OSError, ValueError, AttributeError) as e:
+                out[r["id"]] = (None, evidence.FINAL + "could not read the pool skill file: "
+                                + type(e).__name__ + ": " + str(e)[:160])
+                continue
+            if not isinstance(found, dict) or "items" not in found:
+                out[r["id"]] = (None, evidence.FINAL + "the pool skill file has no set named '" + target + "'")
+                continue
+            if found.get("hash") != r["skill"].get("hash"):
+                # the pool file was built again: its items are not the text this row was selected on
+                out[r["id"]] = (None, evidence.FINAL + "the pool set has hash " + str(found.get("hash"))
+                                + ", which differs from the row's hash " + str(r["skill"].get("hash")))
+                continue
+            extra[target] = {"hash": "pool-" + str(found["hash"]), "items": found["items"], "control": None}
         elif target not in common.BUILTIN_TARGETS + common.CONTROL_ONLY:
-            out[r["id"]] = (None, evidence.FINAL + "the target skill is neither a built-in set of the engine"
-                            " nor an agent skill with a frozen test")
+            out[r["id"]] = (None, evidence.FINAL + NOT_A_SET)
             continue
         reason = None
         for state in states:

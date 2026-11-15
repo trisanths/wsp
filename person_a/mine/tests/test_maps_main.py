@@ -197,6 +197,47 @@ def test_modules_from_nothing_and_a_failed_call():
         assert full["module_maps"] == want["module_maps"] and full["module_calls"] == 2
         assert not os.path.exists(world.partial_path)
 
+        assert full["skill_hashes"] == {"law": "law1", maps.REFERENCE: "gen1"}
+
+        # --force with a saved state of the same run: the saved calls are not used, every layer is
+        # asked from the engine again
+        os.makedirs(world.log_dir, exist_ok=True)
+        with open(world.partial_path, "w") as f:
+            json.dump({"stamp": {"model": "org/toy", "revision": "rev1", "layers": n,
+                                 "skills": {"law": "law1", maps.REFERENCE: "gen1"}},
+                       "increases": maps.module_increases(world.engine.skill_maps(toy.payload(), modules=True)),
+                       "engine_seconds": 5.0, "calls": 1}, f)
+        code, error, text = world.run("--modules", "--force", "--layers-per-call", "6")
+        assert code is None and error is None, (code, error, text)
+        assert world.calls[0] == {} and [kwargs["layers"] for kwargs in world.calls[1:]] == [list(range(n))]
+        assert world.entry()["module_calls"] == 1 and not os.path.exists(world.partial_path)
+
+        # the skill sets have other items and the same descriptions: the entry does not fit
+        real_payload = toy.payload
+
+        def other_items():
+            changed = real_payload()
+            changed["skills"]["law"]["hash"] = "law2"
+            return changed
+        toy.payload = other_items
+        try:
+            code, error, text = world.run("--modules", "--layers-per-call", "6")
+        finally:
+            toy.payload = real_payload
+        assert "exists:" in text and world.calls == []      # done entries are skipped before the check
+        entry = world.entry()
+        del entry["module_maps"]
+        maps.write_entry(world.entry_path, entry, True)
+        toy.payload = other_items
+        try:
+            code, error, text = world.run("--modules", "--layers-per-call", "6")
+        finally:
+            toy.payload = real_payload
+        assert code is None and error is None, (code, error, text)
+        assert world.calls[0] == {} and "other skill sets" in text, text
+        assert world.entry()["skill_hashes"]["law"] == "law2" and "module_maps" in world.entry()
+        world.run("--modules", "--force", "--layers-per-call", "6")   # back to the sets of this test
+
         # the model has a new revision: the entry does not fit, everything is measured again
         world.revision = "rev2"
         code, error, text = world.run("--modules", "--force", "--layers-per-call", "6")

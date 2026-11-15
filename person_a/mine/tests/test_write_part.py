@@ -229,10 +229,20 @@ def main():
     assert rec["selection_data"] is None and "selection_data could not be built" in rec["selection_note"], rec
     assert os.path.exists(os.path.join(root, rec["units"])), rec
 
+    # 11. the same part under a second label is a second row with its own index file; only the same
+    # part under the same label gives the stored row back
+    m = make_miner({"builtin_info": ENGINE_BUILTIN, "expert_pick_rates": PICKS})
+    twice = {"kind": "mlp_cluster", "layer": 2, "indices": [8, 9]}
+    one = m.write_part(twice, "first label", "sk", SCREEN, [], "why", "screened")
+    two = m.write_part(twice, "second label", "sk", SCREEN, [], "why", "screened")
+    assert one["id"] != two["id"] and one["part_key"] == two["part_key"] and one["units"] != two["units"], (one, two)
+    assert two["label"] == "second label" and os.path.exists(os.path.join(root, two["units"]))
+    assert m.write_part(twice, "second label", "sk", SCREEN, [], "why", "screened") == two
+
     with open(common.catalog_path("toy")) as f:
         rows = [json.loads(line) for line in f if line.strip()]
-    assert len(rows) == 13 and len(set(r["id"] for r in rows)) == 13, [r["id"] for r in rows]
-    assert len(os.listdir(os.path.join(root, "parts", "toy"))) == 13, "one index file for each row, none left over"
+    assert len(rows) == 15 and len(set(r["id"] for r in rows)) == 15, [r["id"] for r in rows]
+    assert len(os.listdir(os.path.join(root, "parts", "toy"))) == 15, "one index file for each row, none left over"
     shutil.rmtree(root)
     print("ok")
 

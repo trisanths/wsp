@@ -233,6 +233,17 @@ def check_engine_and_entry():
     # nothing stays hooked after all these calls
     assert engine.skill_maps(payload())["layer_lp"] == plain["layer_lp"]
 
+    # routing_items: the router counts use that many items of each set, the first ones
+    one_item = payload()
+    for name in one_item["skills"]:
+        spec = one_item["skills"][name]
+        spec["hash"] = spec["hash"] + "-first"
+        spec["items"] = {"search": spec["items"]["search"][:1], "heldout": spec["items"]["heldout"][:1]}
+    want = engine.skill_maps(one_item, layers=[0])["expert_freq"]
+    got = engine.skill_maps(payload(), 1, layers=[0])["expert_freq"]
+    assert got == want and got != plain["expert_freq"], (got, want)
+    assert engine.skill_maps(payload(), routing_items=64, layers=[0])["expert_freq"] == plain["expert_freq"]
+
     # maps.py splits a --modules run over calls: the merged result is the same as from one call
     asked = []
 

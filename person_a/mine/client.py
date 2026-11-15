@@ -18,7 +18,8 @@ BUILTIN_MIN_MARGIN = 0.25
 # Light gate ("screened" tier)
 GATE_MIN_TARGET_DROP = 0.15
 GATE_N_RANDOM = 5
-# "confirmed" tier (optional, math only): relative greedy-accuracy drop on 40 GSM8K problems
+# "confirmed" tier (optional, math only): relative greedy-accuracy drop on 40 problems of the engine's
+# built-in math set
 CONFIRM_MIN_DROP = 0.20
 # items per skill half for the router pick rates of an expert part (the count skill_maps uses)
 ROUTING_ITEMS = 64

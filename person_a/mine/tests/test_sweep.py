@@ -13,6 +13,7 @@ import torch
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import adapter  # noqa: E402
 import common  # noqa: E402
+import evidence as evidence_module  # noqa: E402
 import client  # noqa: E402
 import sweep  # noqa: E402
 
@@ -158,10 +159,32 @@ def test_z_rule():
     # measured spread: z decides
     r = sweep.z_rule(0.30, [0.01, 0.02, 0.03, 0.02, 0.02], 2.0)
     assert r == {"passed": True, "z_search": 39.598, "random_spread": "measured", "gap_search": None, "reason": None}
-    # mean 0.078, sum of squares 4 * 0.078^2 + 0.312^2 = 0.12168, variance 0.03042, std 0.174413 -> 0.322 / 0.174413
-    r = sweep.z_rule(0.40, [0.0, 0.39, 0.0, 0.0, 0.0], 2.0)
+    # mean 0.08, sum of squares 3 * 0.08^2 + 0.31^2 + 0.07^2 = 0.1202, variance 0.03005, std 0.173349 -> 0.32 / 0.173349
+    r = sweep.z_rule(0.40, [0.0, 0.39, 0.01, 0.0, 0.0], 2.0)
     assert not r["passed"] and r["z_search"] == 1.846 and r["reason"] == "z-score 1.846 < 2.0"
-    assert sweep.z_rule(0.40, [0.0, 0.39, 0.0, 0.0, 0.0], 1.5)["passed"]
+    assert r["random_spread"] == "measured" and r["gap_search"] is None
+    assert sweep.z_rule(0.40, [0.0, 0.39, 0.01, 0.0, 0.0], 1.5)["passed"]
+    # a z-score equal to --z-min passes: mean 0.2, std 0.1 -> (0.4 - 0.2) / 0.1 = 2.0
+    r = sweep.z_rule(0.4, [0.1, 0.2, 0.3], 2.0)
+    assert r["passed"] and r["z_search"] == 2.0, r
+    # Fewer than 3 distinct random drops are not a measured spread (signature.z_flag marks the same
+    # rows): one rounding step in one random drop gives z 1341.194, and the gap decides, as it does
+    # when all random drops are equal. Target 0.16 is 0.0599 above the largest random drop.
+    assert evidence_module.MIN_DISTINCT == 3
+    assert not sweep.z_rule(0.16, [0.1] * 5, 2.0)["passed"]
+    r = sweep.z_rule(0.16, [0.1, 0.1, 0.1, 0.1, 0.1001], 2.0)
+    assert r == {"passed": False, "z_search": 1341.194, "random_spread": "below resolution", "gap_search": 0.0599,
+                 "reason": "the random drops have only 2 distinct values and the target drop is only 0.0599 above "
+                           "them (needs 0.15)"}, r
+    flags = evidence_module.z_fields({"t|search": 0.16}, [0.1, 0.1, 0.1, 0.1, 0.1001], "t")
+    assert flags["z"] == r["z_search"] and flags["z_flag"] == "fewer than 3 distinct random drops", flags
+    # the gap is taken from the largest random drop: 0.40 is 0.01 above 0.39
+    r = sweep.z_rule(0.40, [0.0, 0.39, 0.0, 0.0, 0.0], 1.5)
+    assert not r["passed"] and r["gap_search"] == 0.01 and r["z_search"] == 1.846, r
+    r = sweep.z_rule(0.30, [0.0, 0.0, 0.0, 0.0, 0.0001], 2.0)
+    assert r["passed"] and r["random_spread"] == "below resolution" and r["gap_search"] == 0.2999, r
+    # three distinct values are a measured spread
+    assert sweep.z_rule(0.16, [0.1, 0.1, 0.1, 0.1002, 0.1001], 2.0)["random_spread"] == "measured"
     # no measured spread: no z-score; the gap between the target drop and the random drops decides
     r = sweep.z_rule(0.2, [0.0, 0.0, 0.0, 0.0, 0.0], 2.0)
     assert r == {"passed": True, "z_search": None, "random_spread": "below resolution", "gap_search": 0.2, "reason": None}
@@ -342,6 +365,10 @@ class FakeEngine:
         self.margins = {}          # skill -> margin over shuffled answers
         self.fail_parts = set()    # part keys whose ablation raises
         self.fail_ranks = set()    # (kind, skill) whose ranking raises
+        self.fail_routing = False  # expert_pick_rates raises
+        # Calls the fake has no answer for. The client catches the errors of some calls (builtin_info,
+        # expert_pick_rates), so the AssertionError below does not reach the test: each test checks this.
+        self.unknown = []
         self.quantized = False
         self.clock = None
         self.seconds_per_ablate = 0
@@ -378,6 +405,27 @@ class FakeEngine:
                 raise RuntimeError("CUDA out of memory")
             rank = self.rank_by.get((args[1], args[2]), self.rank_result)
             return dict(rank, method=method.split("_")[0], seconds=3.0, n_tokens=100)
+        if method == "builtin_info":
+            return dict((name, {"description": "built-in " + name, "dataset": "org/" + name + " train", "n_search": 2,
+                                "n_heldout": 2, "items_sha": "sha-" + name})
+                        for name in common.BUILTIN_TARGETS + common.CONTROL_ONLY)
+        if method == "expert_pick_rates":
+            if self.fail_routing:
+                raise TimeoutError("container timed out")
+            payload, names, layers, n_items = args
+            rates = {}
+            missing = []
+            for name in names:
+                for split in ["search", "heldout"]:
+                    if name not in payload["skills"]:
+                        missing.append(name + "|" + split)
+                        continue
+                    picks = [0.25, 0.25, 0.5, 1.0] if name == "general_text" else [0.0, 0.5, 0.25, 1.25]
+                    rates[name + "|" + split] = {"n_items": 2, "layers": dict(
+                        (str(l), {"rates": picks, "tokens": 40, "top_k": 2}) for l in layers)}
+            return {"rates": rates, "counted_layers": list(layers), "unsupported": {}, "missing": missing,
+                    "seconds": 1.0}
+        self.unknown.append(method)
         raise AssertionError("unexpected engine call " + method)
 
     def count(self, method):
@@ -484,6 +532,19 @@ def test_miner_paths(specs):
                                 "random_spread": "measured"}
         index = torch.load(os.path.join(tmp, row["units"]))
         assert index["kind"] == "mlp_cluster" and index["layer"] == 5 and index["indices"].tolist() == [2, 4, 7, 9]
+        # the evidence fields of client.write_part on a sweep row: one z-score, the built-in sets as the
+        # engine reports them, and the pool sets of the target and the guards by hash
+        assert row["signature"]["z"] == row["sweep"]["z_search"] == 39.598 and row["signature"]["z_flag"] is None
+        sd = row["selection_data"]
+        assert sd["builtin_basis"] == "engine" and sd["source"] == "pool" and sd["hash"] == specs["law"]["info"]["hash"], sd
+        assert sd["datasets"] == ["cais/mmlu"] and sd["off_target"] == ["general_text"] + guards, sd
+        assert sd["off_target_data"]["math"] == {"source": "builtin", "description": "built-in math",
+                                                 "datasets": ["org/math"], "items_sha": "sha-math"}, sd
+        for g in ["medicine", "prose_zh", "physics"]:
+            assert sd["off_target_data"][g]["source"] == "pool", sd
+            assert sd["off_target_data"][g]["hash"] == specs[g]["info"]["hash"], sd
+        assert "routing" not in row and "selection_note" not in row
+        assert engine.count("builtin_info") == 1 and engine.count("expert_pick_rates") == 0
 
         # 2. the same candidate again: no engine call, no second row
         n_calls = len(engine.calls)
@@ -494,9 +555,9 @@ def test_miner_paths(specs):
         # 3. the light gate passes but the random parts spread too widely: z below 2, nothing written
         c2 = dict(c1, part={"kind": "mlp_cluster", "layer": 5, "indices": [11, 12, 13, 14]})
         engine.drops = {"law": 0.40}
-        engine.random = {"law": [0.0, 0.39, 0.0, 0.0, 0.0]}
+        engine.random = {"law": [0.0, 0.39, 0.01, 0.0, 0.0]}
         r2 = m.screen_candidate(c2, guards, 2.0, 24)
-        # mean 0.078, sample variance 0.03042, std 0.174413 -> (0.40 - 0.078) / 0.174413 = 1.846
+        # mean 0.08, sample variance 0.03005, std 0.173349 -> (0.40 - 0.08) / 0.173349 = 1.846
         assert r2["gate_passed"] and not r2["passed"] and r2["z_search"] == 1.846 and r2["catalog_id"] is None
         assert r2["reasons"] == ["z-score 1.846 < 2.0"]
         assert m.screen_candidate(c2, guards, 1.5, 24)["passed"]         # a cached screen follows a new --z-min
@@ -553,14 +614,16 @@ def test_miner_paths(specs):
         assert n_rows == 5
 
         # 5c. reruns and rows that left the catalog. Someone deletes the row of c5 from the catalog (an
-        # audit): the kept screen still passes, but the row is not written again.
+        # audit): the kept screen still passes, but the row is not written again, and the result does
+        # not name a catalog id that no row has.
         kept_rows = [r for r in read_jsonl(common.catalog_path(short)) if r["id"] != row5["id"]]
         with open(common.catalog_path(short), "w") as f:
             for r in kept_rows:
                 f.write(json.dumps(r) + "\n")
         n_calls = len(engine.calls)
         again5 = m.screen_candidate(c5, guards, 2.0, 24)
-        assert again5["passed"] and again5["catalog_id"] == row5["id"] and len(engine.calls) == n_calls
+        assert again5["passed"] and again5["catalog_id"] is None and again5["row_missing"] == row5["id"]
+        assert len(engine.calls) == n_calls and "row_missing" not in again
         assert [r["id"] for r in read_jsonl(common.catalog_path(short))] == [r["id"] for r in kept_rows]
         # mine/regate.py moved the row of c1 to the rejected file: the part is not passed and not written,
         # also when the lane state has no record of the first write (a state from before that record)
@@ -589,6 +652,38 @@ def test_miner_paths(specs):
         assert len(engine.calls) == n_calls and len(read_jsonl(common.catalog_path(short))) == len(kept_rows)
         assert m.state["screens"][sweep.cand_key(c7)]["gate"]["gate_version"] == 1     # the kept screen is not changed
 
+        # 5d. an expert part on a pool skill: the row gets routing, counted on the pool set that the
+        # sweep sends inline, and one z-score
+        ce = {"skill": "law", "kind": "expert", "size": 2, "layer": 3, "rank_method": "attribution",
+              "rank_score": 0.5, "part": {"kind": "expert", "layer": 3, "indices": [2, 1]}}
+        engine.drops = {"law": 0.30}
+        engine.random = {"law": [0.01, 0.02, 0.03, 0.02, 0.02]}
+        re_ = m.screen_candidate(ce, guards, 2.0, 24)
+        assert re_["passed"] and re_["catalog_id"].startswith("expert_law_"), re_
+        rowe = read_jsonl(common.catalog_path(short))[-1]
+        assert rowe["id"] == re_["catalog_id"] and rowe["type"] == "expert" and rowe["skill"]["source"] == "pool"
+        assert rowe["signature"]["z"] == rowe["sweep"]["z_search"] == 39.598
+        assert rowe["selection_data"]["source"] == "pool" and rowe["selection_data"]["builtin_basis"] == "engine"
+        pick_call = [c for c in engine.calls if c[0] == "expert_pick_rates"][-1][1]
+        assert pick_call[1:] == (["law", "general_text"], [3], client.ROUTING_ITEMS), pick_call[1:]
+        assert pick_call[0]["skills"]["law"] == specs["law"]["spec"], "the pool set goes inline"
+        assert pick_call[0]["skills"]["general_text"] == {"builtin": True}
+        assert "routing_note" not in rowe and rowe["routing"]["skill"] == "law" and rowe["routing"]["layer"] == 3
+        assert rowe["routing"]["revision"] == "rev-main" and sorted(rowe["routing"]["experts"]) == ["1", "2"]
+        # ln(0.5 / 0.25) = 0.6931
+        assert rowe["routing"]["experts"]["1"]["search"] == {"skill_rate": 0.5, "general_rate": 0.25, "log_ratio": 0.6931}
+        # the engine call for the routing fails: the row is written, with a note that a backfill can act on
+        cf = dict(ce, part={"kind": "expert", "layer": 3, "indices": [0, 3]})
+        engine.fail_routing = True
+        rf = m.screen_candidate(cf, guards, 2.0, 24)
+        engine.fail_routing = False
+        rowf = read_jsonl(common.catalog_path(short))[-1]
+        assert rf["passed"] and rowf["id"] == rf["catalog_id"] and rowf["routing"] is None
+        assert rowf["routing_note"].startswith("no routing: engine call expert_pick_rates failed"), rowf["routing_note"]
+        assert not rowf["routing_note"].startswith(evidence_module.FINAL)
+        kept_rows = kept_rows + [rowe, rowf]
+        n_calls = len(engine.calls)
+
         # 6. rankings: kept in the lane folder, redone when the options change
         engine.rank_result = {"layers": {"0": layer_rank(64, dict((u, 0.1) for u in range(20)))}}
         found, cached = m.ranked_candidates("law", "mlp_cluster", [4, 8], 3, 24)
@@ -613,17 +708,24 @@ def test_miner_paths(specs):
         tried = engine.count("attribution_units")
         m.ranked_candidates("math", "expert", [2, 4], 3, 24)
         assert engine.count("attribution_units") == tried and engine.count("activation_units") == 2
-        # any other engine error is not hidden
+        # Any other engine error is not hidden, and it does not move the lane to the activation
+        # ranking: attribution fails here and activation would work.
         del m.state["sweep_method"]
+        asked = []
 
         def broken(method, *args):
-            raise RuntimeError("CUDA out of memory")
+            asked.append(method)
+            if method == "attribution_units":
+                raise RuntimeError("CUDA out of memory")
+            return engine(method, *args)
         m.call = broken
         try:
             m.ranked_candidates("history", "expert", [2, 4], 3, 24)
             raise AssertionError("the error must be raised")
         except RuntimeError as e:
             assert "out of memory" in str(e)
+        assert asked == ["attribution_units"] and "sweep_method" not in m.state, (asked, m.state.get("sweep_method"))
+        assert engine.unknown == [], engine.unknown
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
         common.ROOT = real_root
@@ -739,6 +841,14 @@ def test_run_sweep(specs):
                                                    "--head-sizes", "2", "--top-layers", "2", "--max-screens", "0"]))
         assert s2b["total"] == {"ranked": 9, "screened": 7, "passed": 4} and s2b["new_screens"] == 0 and engine.count("ablate") == 7
         assert [r["id"] for r in read_jsonl(common.catalog_path(short))] == [r["id"] for r in rows[1:]]
+        # the summary names the missing row and its key in the lane state, and does not list it as a passed part
+        at = [i for i in range(len(s2b["notes"])) if s2b["notes"][i].startswith("passed, but the row an earlier run wrote")]
+        assert len(at) == 1 and "state.lanesweep.json" in s2b["notes"][at[0]], s2b["notes"]
+        assert s2b["notes"][at[0] + 1].startswith("  " + rows[0]["id"] + " | sweep_written key ") and len(s2b["notes"]) == at[0] + 2
+        assert json.loads(s2b["notes"][at[0] + 1].split("sweep_written key ")[1]) in m.state["sweep_written"]
+        listed = [n.split(" | ")[0].strip() for n in s2b["notes"][:at[0]] if " | z " in n]
+        assert sorted(listed) == sorted(r["id"] for r in rows[1:]), listed
+        assert not any(n.startswith("passed, but the row") for n in s2["notes"])
         common.append_jsonl(common.catalog_path(short), rows[0])     # put it back for the checks below
 
         # --order round: every (skill, kind) pair gets its best candidate before any pair gets a second one
@@ -807,6 +917,9 @@ def test_run_sweep(specs):
                                                   "--mlp-sizes", "4", "--head-sizes", "2"]))
         assert s8["rank_failed"] == 3 and s8["total"] == {"ranked": 1, "screened": 1, "passed": 1}, s8
         assert any(n.startswith("3 rankings in a row failed") for n in s8["notes"])
+        # every engine call of the run had an answer in the fake (the client hides some call errors)
+        assert engine.unknown == [], engine.unknown
+        assert all(r["selection_data"]["builtin_basis"] == "engine" for r in read_jsonl(common.catalog_path(short)))
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
         common.ROOT = real_root

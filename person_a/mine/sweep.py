@@ -30,11 +30,14 @@
 #   4. Write. Passing parts go to catalog/<model>.jsonl through Miner.write_part with tier "screened".
 #
 # The z rule. z = (target drop - mean of the random drops) / their sample standard deviation, the rule of
-# evidence.z_score on the branch mining/row-evidence, so a row never holds two different z-scores. The
-# candidate passes when z is at least Z_MIN. The engine rounds drops to 4 decimals, so the random drops of
-# a small part in a wide layer can all be equal. Then the deviation is not measured and z is not
-# defined (null in the row; "random_spread" says "below resolution"). In that case the candidate passes
-# only when its drop is at least NO_SPREAD_GAP above the random drops ("gap_search" in the row).
+# evidence.z_score (signature.z of the row), so a row never holds two different z-scores. The candidate
+# passes when z is at least Z_MIN. The engine rounds drops to 4 decimals, so the random drops of a small
+# part in a wide layer can all be equal, or differ by one rounding step in one of them. A deviation
+# from fewer than evidence.MIN_DISTINCT distinct values is not a measured spread: one rounding step
+# gives a z in the thousands. Then "random_spread" says "below resolution" and the candidate passes only
+# when its drop is at least NO_SPREAD_GAP above the largest random drop ("gap_search" in the row).
+# z_search is null when the random drops are all equal; with 2 distinct values it holds the same number
+# as signature.z, which signature.z_flag marks, and it does not decide.
 #
 # Order and limits. A sum over units always puts the largest part of a layer first, and a mean always
 # the smallest. So the order uses a score that does not depend on the size: the candidate's summed score
@@ -49,8 +52,10 @@
 #
 # Reruns and the catalog. The lane state records the catalog id of every row the sweep wrote. A rerun
 # does not write a kept screen again when an id is recorded, so a row that someone moved out of the
-# catalog stays out. A part whose row is in catalog/<model>.rejected.jsonl (mine/regate.py) is never
-# written. A kept screen is judged again by the light gate of today, not by the stored gate result.
+# catalog stays out. When the recorded row is not in the catalog any more, the result has no catalog id
+# and the summary says so, with the line of the lane state to remove when the row must be written
+# again. A part whose row is in catalog/<model>.rejected.jsonl (mine/regate.py) is never written. A kept
+# screen is judged again by the light gate of today, not by the stored gate result.
 #
 # Guard skills. The agents score every built-in and agent skill in each ablation. A sweep over many
 # skills would then score dozens of sets per screen, so each screen scores only: the target, general_text,
@@ -70,6 +75,9 @@
 #     different revisions the sweep stops. A lock file stops two sweeps from sharing one lane.
 #   - Catalog. Rows are appended by Miner.write_part, which holds catalog/<model>.jsonl.lock while it
 #     picks the id and appends. The agents hold the same lock, so ids never collide and lines never mix.
+#     The three writers that replace the file (the agents' confirm_math tool, mine/regate.py, and
+#     mine/enrich_rows.py) read it again under the same lock (common.catalog_lock), so they keep a row
+#     that the sweep appended in the meantime.
 #   - Engine. Calls from both runs queue on the same deployed class; score caches are keyed by set hash.
 #
 # Catalog rows. All existing fields keep their meaning. The sweep adds one field, "sweep" (how the part
@@ -93,6 +101,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import common  # noqa: E402
 import client  # noqa: E402
+import evidence  # noqa: E402
 
 REPO = os.path.dirname(common.ROOT)
 POOL_SKILLS = os.path.join(HERE, "data", "pool_skills.json")
@@ -100,9 +109,10 @@ POOL_ENTRIES = os.path.join(REPO, "atlas", "pool_entries")
 REFERENCE = "general_text"
 
 Z_MIN = 2.0
-# The engine rounds relative drops to 4 decimals. When all random drops are equal after that, their
-# deviation is not measured and no z-score exists. The candidate must then be this far above the random
-# drops: the lowest target drop the light gate accepts, so the part beats random by a full gate step.
+# The engine rounds relative drops to 4 decimals. When the random drops have fewer than
+# evidence.MIN_DISTINCT distinct values after that, their deviation is not measured. The candidate must
+# then be this far above the largest random drop: the lowest target drop the light gate accepts, so the
+# part beats random by a full gate step.
 NO_SPREAD_GAP = client.GATE_MIN_TARGET_DROP
 SIZES = {"mlp_cluster": [64, 256, 1024], "attn_heads": [4, 8], "expert": [2, 4, 8]}
 TOP_LAYERS = 3
@@ -228,8 +238,7 @@ def numbers(values):
 def z_score(target_drop, random_drops):
     # How many sample standard deviations the candidate's drop is above the drops of the random same-size
     # parts. None when the drop is missing, when fewer than 2 random drops exist, or when they are all
-    # equal (no measured deviation). Same rule and rounding as evidence.z_score and signature.z on the
-    # branch mining/row-evidence.
+    # equal (no measured deviation). Same rule and rounding as evidence.z_score and signature.z.
     vals = numbers(random_drops)
     if not is_number(target_drop) or len(vals) < 2 or max(vals) == min(vals):
         return None
@@ -240,19 +249,23 @@ def z_score(target_drop, random_drops):
 
 def z_rule(target_drop, random_drops, z_min):
     # The sweep's test after the light gate (see "The z rule" in the header comment).
-    # random_spread: "measured" (z decides), "below resolution" (all random drops equal: the gap decides),
-    # or None (fewer than 2 random drops, or no target drop: nothing to compare, not passed).
+    # random_spread: "measured" (z decides), "below resolution" (fewer than evidence.MIN_DISTINCT distinct
+    # random drops: the gap to the largest of them decides), or None (fewer than 2 random drops, or no
+    # target drop: nothing to compare, not passed).
     out = {"passed": False, "z_search": None, "random_spread": None, "gap_search": None, "reason": None}
     vals = numbers(random_drops)
     if not is_number(target_drop) or len(vals) < 2:
         out["reason"] = "no z-score: the target drop or the random drops are missing"
         return out
-    if max(vals) == min(vals):
+    distinct = len(set(vals))
+    if distinct < evidence.MIN_DISTINCT:
         out["random_spread"] = "below resolution"
-        out["gap_search"] = round(target_drop - vals[0], 4)
+        out["z_search"] = z_score(target_drop, vals)  # None when all are equal; else as signature.z, flagged there
+        out["gap_search"] = round(target_drop - max(vals), 4)
         out["passed"] = out["gap_search"] >= NO_SPREAD_GAP
         if not out["passed"]:
-            out["reason"] = ("the random drops have no measured spread and the target drop is only "
+            what = "no measured spread" if distinct == 1 else "only " + str(distinct) + " distinct values"
+            out["reason"] = ("the random drops have " + what + " and the target drop is only "
                              + str(out["gap_search"]) + " above them (needs " + str(NO_SPREAD_GAP) + ")")
         return out
     out["random_spread"] = "measured"
@@ -645,8 +658,16 @@ class SweepMiner(client.Miner):
         written = self.state.setdefault("sweep_written", {})
         if key in written:
             # The row was written by an earlier run. It is not written again: when someone moved it out
-            # of the catalog since, it must stay out.
-            out["catalog_id"] = written[key]
+            # of the catalog since, it must stay out. The result then has no catalog id, because a
+            # reader would look for a row that is not there.
+            try:
+                present = written[key] in set(rec.get("id") for rec in self.catalog_rows())
+            except ValueError:
+                present = True  # read without the lock, another writer is half-way through a line
+            if present:
+                out["catalog_id"] = written[key]
+            else:
+                out["row_missing"] = written[key]
             return out
         info = {"rank_method": c["rank_method"], "rank_score": c["rank_score"],
                 "rank_items": None if c["kind"] == "block" else n_items,
@@ -858,6 +879,7 @@ def run_sweep(miner, args):
         left = []
     results_path = os.path.join(lane_dir(miner.short), "results.jsonl")
     passed_lines = []
+    missing_lines = []
     new_screens = 0
     errors = 0
     stop = None
@@ -881,7 +903,9 @@ def run_sweep(miner, args):
             row = rows[cand_key(c)]
             row["screened"] = True
             row["passed"] = res["passed"]
-            if res["passed"]:
+            if res["passed"] and res.get("row_missing"):
+                missing_lines.append("  " + res["row_missing"] + " | sweep_written key " + json.dumps(cand_key(c)))
+            elif res["passed"]:
                 passed_lines.append("  " + str(res["catalog_id"]) + " | z " + str(res["z_search"]) + " | random spread "
                                     + str(res["random_spread"]) + " | target drop " + str(res["target_drop_search"]))
             if not cached:
@@ -907,6 +931,12 @@ def run_sweep(miner, args):
     if passed_lines:
         notes.append("passed parts (catalog/" + miner.short + ".jsonl):")
         notes.extend(passed_lines)
+    if missing_lines:
+        notes.append("passed, but the row an earlier run wrote is not in catalog/" + miner.short + ".jsonl and is not"
+                     " written again (someone removed it, or another writer replaced the file). To write a row"
+                     " again, remove its key from \"sweep_written\" in "
+                     + os.path.relpath(common.state_path(miner.short), common.ROOT) + " and run again:")
+        notes.extend(missing_lines)
     summary = summarize(list(rows.values()))
     summary["new_screens"] = new_screens
     summary["rank_failed"] = rank_failed

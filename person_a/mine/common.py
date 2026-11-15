@@ -1,5 +1,6 @@
 # Shared helpers for the v2 mining pipeline. Paths are relative to this file, so the
 # scripts work from ~/swarmy and from person_a/ in the team repo alike.
+import contextlib
 import csv
 import json
 import os
@@ -34,6 +35,24 @@ CONTROL_ONLY = ["general_text"]
 
 def catalog_path(short):
     return os.path.join(ROOT, "catalog", short + ".jsonl")
+
+
+@contextlib.contextmanager
+def catalog_lock(short):
+    # The lock that every writer of catalog/<short>.jsonl holds while it reads the file and writes it:
+    # client.write_part (append), enrich_rows.py, the agent's confirm_math tool, and regate.py (the last
+    # three replace the file). A writer that replaces the file must read it again under the lock, so a
+    # row that another writer appended in the meantime is kept.
+    import fcntl
+
+    path = catalog_path(short) + ".lock"
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as lock_file:
+        fcntl.flock(lock_file, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(lock_file, fcntl.LOCK_UN)
 
 
 def parts_dir(short):

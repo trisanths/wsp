@@ -249,6 +249,16 @@ def test_index_shapes():
     routing, note = evidence.routing_fields([1], 0, "sk", short)
     assert routing is None and note.startswith(evidence.FINAL) and "do not fit" in note, note
 
+    # The activation ranking of the sweep (activation_units) counts the picks with the same hook, so
+    # it gives the same rates for both index shapes, and no ranking for a layer that cannot be counted.
+    for shape in ["flat", "grid"]:
+        means, n_tokens = make_engine(shape)._activation_means(payload, "expert", "sk", [0], 64)
+        assert n_tokens == 6 and [round(v, 6) for v in means[0].tolist()] == [0.0, 0.666667, 1.0, 0.333333], (shape, means)
+    means, n_tokens = make_engine("short")._activation_means(payload, "expert", "sk", [0], 64)
+    assert means == {}, means
+    ranked = raw("activation_units")(make_engine("grid"), payload, "expert", "sk", [], 4, 64)
+    assert ranked["method"] == "activation" and list(ranked["layers"]) == ["0"] and ranked["n_tokens"] == 6, ranked
+
     # two fused layers, one of them bad: the good one keeps its rates
     both = raw("expert_pick_rates")(make_engine("flat", FusedMoE("short")), payload, ["sk"], [0, 1], 64)
     assert both["counted_layers"] == [0] and list(both["unsupported"]) == ["1"], both

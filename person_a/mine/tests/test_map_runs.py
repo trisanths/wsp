@@ -250,6 +250,78 @@ def test_plain_entry_fits_and_added_fields():
     out = maps.add_module_fields(mine, state, sources, details)
     assert out["selection_sources"] == {"law": {"reported_benchmark": False}} and out["reported_benchmark_skills"] == []
 
+    # An entry that stores the hashes of its skill sets fits only a run with the same sets: the pool
+    # file built again with other items keeps the description strings.
+    hashes = {"law": "maps-h1", maps.REFERENCE: "maps-builtin-general_text-aaaa"}
+    stored = dict(plain, skill_hashes=dict(hashes))
+    assert maps.plain_entry_fits(stored, "org/toy", "abc", sources, hashes)
+    assert not maps.plain_entry_fits(stored, "org/toy", "abc", sources, dict(hashes, law="maps-h2"))
+    assert maps.plain_entry_fits(stored, "org/toy", "abc", sources)          # a caller with no hashes
+    assert maps.plain_entry_fits(plain, "org/toy", "abc", sources, hashes)   # an entry from before the field
+    assert maps.skill_hashes({"skills": {"law": {"hash": "maps-h1", "items": {}}}}) == {"law": "maps-h1"}
+    # the built-in sets of the real payload are named by their items, the pool sets by the pool hash
+    payload, real_sources = maps.load_skills()
+    for name in ["math", "code", maps.REFERENCE]:
+        spec = payload["skills"][name]
+        assert spec["hash"].startswith("maps-builtin-" + name + "-") and len(spec["hash"].rsplit("-", 1)[1]) == 12
+        changed = json.loads(json.dumps(spec["items"]))
+        changed["search"][0]["continuation"] += " x"
+        digest = maps.hashlib.sha256(json.dumps(changed, sort_keys=True).encode()).hexdigest()[:12]
+        assert not spec["hash"].endswith(digest)
+    assert sorted(maps.skill_hashes(payload)) == sorted(real_sources)
+
+
+def test_block_z_for_old_entries():
+    # An entry that origin/main wrote has no block_z fields. A --modules run adds the ones that need
+    # no GPU, from the stored search scores, and leaves every stored number as it is.
+    sources = synthetic.SOURCES
+    plain = json.loads(json.dumps(maps.build_entry("org/toy", synthetic.engine_result(False), sources, synthetic.ROW)))
+    new_keys = ["block_z", "block_z_heldout", "block_z_windows", "block_z_disjoint_windows", "block_z_disjoint",
+                "block_z_disjoint_heldout"]
+    old = json.loads(json.dumps(plain))
+    for name in old["layer_maps"]:
+        for key in new_keys:
+            del old["layer_maps"][name][key]
+    before = json.dumps(old, sort_keys=True)
+    state = {"increases": maps.module_increases(synthetic.engine_result(True)), "engine_seconds": 1.0, "calls": 1}
+    out = maps.add_module_fields(old, state, sources, None)
+    assert json.dumps(old, sort_keys=True) == before, "the entry that was read is not changed"
+    assert out["layer_maps"], out
+    for name in out["layer_maps"]:
+        lm = out["layer_maps"][name]
+        want = plain["layer_maps"][name]
+        for key in old["layer_maps"][name]:
+            assert lm[key] == old["layer_maps"][name][key], (name, key)
+        n_blocks = len(lm["blocks"])
+        assert lm["block_z_windows"] == want["block_z_windows"], name
+        assert lm["block_z_disjoint_windows"] == want["block_z_disjoint_windows"], name
+        # from the stored scores, which are rounded to 5 places: equal to the first write within that
+        for key in ["block_z", "block_z_disjoint"]:
+            assert len(lm[key]) == n_blocks
+            for got, first in zip(lm[key], want[key]):
+                assert (got is None) == (first is None) and (got is None or abs(got - first) < 0.01), (name, key)
+        assert lm["block_z"] == maps.block_z(lm["scores"], lm["blocks"])
+        assert lm["block_z_heldout"] == [None] * n_blocks and lm["block_z_disjoint_heldout"] == [None] * n_blocks
+        assert "held-out" in lm["block_z_note"]
+    # an entry that has block_z keeps its layer maps as they are
+    out = maps.add_module_fields(plain, state, sources, None)
+    assert out["layer_maps"] == plain["layer_maps"]
+
+
+def test_merge_keeps_no_stale_numbers():
+    # A set with no base score in a later call has no module numbers at all: the numbers of the
+    # earlier calls must not stay under its name.
+    first = maps.module_increases(module_call([0, 1]))
+    second = maps.module_increases(module_call([2, 3]))
+    scored = [k for k in sorted(second["attn"]) if first["attn"][k] is not None and second["attn"][k] is not None]
+    key, other = scored[0], scored[1]
+    second["attn"][key] = None
+    merged = maps.merge_increases(maps.merge_increases(None, first), second)
+    assert merged["attn"][key] is None and merged["layers"] == [0, 1, 2, 3]
+    assert merged["attn"][other][:4] == [first["attn"][other][0], first["attn"][other][1],
+                                         second["attn"][other][2], second["attn"][other][3]]
+    assert merged["mlp"][key] is not None
+
 
 def test_maps_many_failure_memory():
     codes = {"a": 0, "b": 1, "c": maps.OLD_ENGINE_EXIT, "d": 0, "e": 0}
@@ -277,6 +349,15 @@ def test_maps_many_failure_memory():
         # a run stopped by a signal is not a failure of the model
         maps_many.note_exit(log_dir, "a", -2, True)
         assert not os.path.exists(maps_many.failed_path(log_dir, "a"))
+        # A run that left a model out ends with a failure code, so "0 models to map" after a bad
+        # deploy is not read as "all done".
+        assert maps_many.end_code([], ["b"], False) == 1 and maps_many.end_code(["a"], [], False) == 1
+        assert maps_many.end_code([], [], False) == 0
+        assert maps_many.end_code(["a"], ["b"], True) == maps.OLD_ENGINE_EXIT
+        # --layers-per-call goes to maps.py, with --modules only
+        assert maps_many.maps_command("k", True, 4)[-3:] == ["--modules", "--layers-per-call", "4"]
+        assert maps_many.maps_command("k", True)[-1] == "--modules" and maps_many.maps_command("k", True, 0)[-1] == "--modules"
+        assert "--layers-per-call" not in maps_many.maps_command("k", False, 4)
         # a good run forgets the failure
         codes["b"] = 0
         failed, not_started, old_engine = maps_many.run_all(["b"], 1, True, log_dir, command, 0.05)
@@ -299,5 +380,7 @@ if __name__ == "__main__":
         test_measure_modules_saves_each_call()
         test_old_engine()
         test_plain_entry_fits_and_added_fields()
+        test_block_z_for_old_entries()
+        test_merge_keeps_no_stale_numbers()
         test_maps_many_failure_memory()
     print("ok")
