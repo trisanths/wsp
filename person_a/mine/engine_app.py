@@ -632,6 +632,55 @@ class EngineBase:
             flat = flat.reshape(entry["n_heads"], entry["head_dim"]).sum(dim=-1)
         return flat
 
+    # ---------------- optional confirmation ----------------
+
+    @modal.method()
+    def confirm_math(self, part, n_items=40, max_new_tokens=256):
+        import re
+        import torch
+
+        start = time.time()
+        items = self.builtin["math"]["items"]["search"][:n_items]
+        prompts = []
+        for it in items:
+            prompts.append(it["context"])
+
+        def accuracy():
+            correct = 0
+            old_side = self.tok.padding_side
+            self.tok.padding_side = "left"
+            if self.tok.pad_token is None:
+                self.tok.pad_token = self.tok.eos_token
+            try:
+                for b in range(0, len(prompts), 8):
+                    enc = self.tok(prompts[b:b + 8], return_tensors="pt", padding=True).to("cuda")
+                    with torch.no_grad():
+                        out = self.model.generate(**enc, max_new_tokens=max_new_tokens, do_sample=False)
+                    for j in range(out.shape[0]):
+                        text = self.tok.decode(out[j, enc["input_ids"].shape[1]:], skip_special_tokens=True)
+                        text = text.split("Question:")[0]
+                        m = re.search(r"answer is\s*\$?(-?[\d,]*\.?\d+)", text)
+                        nums = re.findall(r"-?[\d,]*\.?\d+", text)
+                        got = m.group(1) if m else (nums[-1] if nums else "")
+                        got = got.replace(",", "").rstrip(".")
+                        if got == items[b + j]["answer"]:
+                            correct += 1
+            finally:
+                self.tok.padding_side = old_side
+            return correct / len(prompts)
+
+        if "base_gen" not in self.__dict__:
+            self.base_gen = accuracy()  # cached per container
+        base = self.base_gen
+        handles = []
+        try:
+            self.adapter.install(self.info, self.layers, part, handles)
+            abl = accuracy()
+        finally:
+            self.adapter.remove_all(handles)
+        return {"base_accuracy": round(base, 4), "ablated_accuracy": round(abl, 4),
+                "drop": rel_drop(base, abl), "n": len(prompts), "seconds": round(time.time() - start, 1)}
+
     # ---------------- per-layer unit rankings (mine/sweep.py) ----------------
     # attribution_scan and activation_scan return a short global list for an agent to read. The sweep
     # miner builds parts of 64 to 1024 units, so it needs the best units of EVERY layer. These methods
@@ -764,55 +813,6 @@ class EngineBase:
         # The same per-layer ranking from forward passes only (mean |activation|, or router pick rate for
         # experts, as a ratio to general_text). For quantized models, where attribution_units refuses.
         return self._unit_ranking(payload, "activation", kind, skill, layers, top_n, n_items, None)
-
-    # ---------------- optional confirmation ----------------
-
-    @modal.method()
-    def confirm_math(self, part, n_items=40, max_new_tokens=256):
-        import re
-        import torch
-
-        start = time.time()
-        items = self.builtin["math"]["items"]["search"][:n_items]
-        prompts = []
-        for it in items:
-            prompts.append(it["context"])
-
-        def accuracy():
-            correct = 0
-            old_side = self.tok.padding_side
-            self.tok.padding_side = "left"
-            if self.tok.pad_token is None:
-                self.tok.pad_token = self.tok.eos_token
-            try:
-                for b in range(0, len(prompts), 8):
-                    enc = self.tok(prompts[b:b + 8], return_tensors="pt", padding=True).to("cuda")
-                    with torch.no_grad():
-                        out = self.model.generate(**enc, max_new_tokens=max_new_tokens, do_sample=False)
-                    for j in range(out.shape[0]):
-                        text = self.tok.decode(out[j, enc["input_ids"].shape[1]:], skip_special_tokens=True)
-                        text = text.split("Question:")[0]
-                        m = re.search(r"answer is\s*\$?(-?[\d,]*\.?\d+)", text)
-                        nums = re.findall(r"-?[\d,]*\.?\d+", text)
-                        got = m.group(1) if m else (nums[-1] if nums else "")
-                        got = got.replace(",", "").rstrip(".")
-                        if got == items[b + j]["answer"]:
-                            correct += 1
-            finally:
-                self.tok.padding_side = old_side
-            return correct / len(prompts)
-
-        if "base_gen" not in self.__dict__:
-            self.base_gen = accuracy()  # cached per container
-        base = self.base_gen
-        handles = []
-        try:
-            self.adapter.install(self.info, self.layers, part, handles)
-            abl = accuracy()
-        finally:
-            self.adapter.remove_all(handles)
-        return {"base_accuracy": round(base, 4), "ablated_accuracy": round(abl, 4),
-                "drop": rel_drop(base, abl), "n": len(prompts), "seconds": round(time.time() - start, 1)}
 
 
 COMMON = {"image": image, "volumes": {"/models": volume}, "secrets": [modal.Secret.from_name("hf-token")],

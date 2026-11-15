@@ -138,20 +138,6 @@ def get_module(layer, path):
     return mod
 
 
-def summarize(info):
-    counts = {"attn": 0, "mlp": 0, "experts": 0}
-    for e in info["layers"]:
-        for k in counts:
-            if k in e:
-                counts[k] = counts[k] + 1
-    first = {}
-    for e in info["layers"]:
-        for k in ["attn", "mlp", "experts"]:
-            if k in e and k not in first:
-                first[k] = e[k]
-    return {"n_layers": info["n_layers"], "d_model": info["d_model"], "layers_with": counts, "example": first}
-
-
 def top_units(mine, ref, top_n, how):
     # Ranking of the units of ONE layer, for the engine methods attribution_units and activation_units
     # (used by mine/sweep.py). `mine` and `ref` are 1-D tensors with one value per unit: the statistic on
@@ -189,6 +175,20 @@ def top_units(mine, ref, top_n, how):
     for name, values in [("skill", mine), ("general", ref), ("score", score)]:
         out[name] = [float("%.5g" % v) for v in values[order].tolist()]
     return out
+
+
+def summarize(info):
+    counts = {"attn": 0, "mlp": 0, "experts": 0}
+    for e in info["layers"]:
+        for k in counts:
+            if k in e:
+                counts[k] = counts[k] + 1
+    first = {}
+    for e in info["layers"]:
+        for k in ["attn", "mlp", "experts"]:
+            if k in e and k not in first:
+                first[k] = e[k]
+    return {"n_layers": info["n_layers"], "d_model": info["d_model"], "layers_with": counts, "example": first}
 
 
 def check_part(info, part):
