@@ -11,7 +11,7 @@ import inspect
 import torch
 from torch import nn
 
-from wsp.parts import AttnHeadsPart, find_decoder_layers
+from wsp.parts import AttnHeadsPart, BlockPart, find_decoder_layers
 
 
 class LowRankLinear(nn.Module):
@@ -39,7 +39,8 @@ class Graft(nn.Module):
 
     pad_mask holds the host's 2D padding mask (batch, seq) for the current
     forward call, or None. attach_grafts sets it before each host forward.
-    Only an AttnHeadsPart uses it, because only attention mixes positions.
+    Only an AttnHeadsPart or a BlockPart uses it, because only attention
+    mixes positions.
     """
 
     def __init__(self, d_host, d_donor, part, rank=None):
@@ -70,7 +71,7 @@ class Graft(nn.Module):
     def forward(self, h):
         part_dtype = next(self.part.parameters()).dtype
         x = self.w_in(h.to(torch.float32))
-        if isinstance(self.part, AttnHeadsPart):
+        if isinstance(self.part, (AttnHeadsPart, BlockPart)):
             x = self.part(x.to(part_dtype), attention_mask=self.pad_mask)
         else:
             x = self.part(x.to(part_dtype))
@@ -124,7 +125,7 @@ def attach_grafts(host_model, placements):
 
     has_attn = False
     for graft in grafts:
-        if isinstance(getattr(graft, "part", None), AttnHeadsPart):
+        if isinstance(getattr(graft, "part", None), (AttnHeadsPart, BlockPart)):
             has_attn = True
     if has_attn:
         disable_cache(host_model)

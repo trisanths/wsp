@@ -7,6 +7,7 @@ which allocates no memory and downloads no weights.
 """
 
 import copy
+import inspect
 import re
 
 import torch
@@ -516,6 +517,12 @@ class AttnHeadsPart(nn.Module):
         self.post_norm = post_norm
         self._rotary = [rotary]
 
+    def train(self, mode=True):
+        # The donor attention is frozen, so it stays in eval mode. The heal
+        # pass calls model.train(), which would otherwise turn on donor
+        # attention dropout.
+        return super().train(False)
+
     def forward(self, x, attention_mask=None):
         batch, seq, _ = x.shape
         rotary = self._rotary[0]
@@ -631,6 +638,202 @@ def build_attn_heads(config, layer, heads, tensors):
     rotary = type(found["rotary"])(config=rotary_config)
 
     part = AttnHeadsPart(input_norm, attn, rotary, post_norm)
+    part.eval()
+    for param in part.parameters():
+        param.requires_grad_(False)
+    return part
+
+
+def _find_block(config, first, last):
+    """Find donor decoder layers first..last (inclusive) on the meta device.
+
+    Returns a dict with layers (the meta layer modules, in order), prefixes
+    (their module names), rotary (the donor's rotary module), to_module and
+    to_checkpoint. Raises ValueError for a bad range.
+    """
+    model = _build_meta_model(config)
+    to_module, to_checkpoint = _name_rules(model)
+    if first < 0 or last < first:
+        raise ValueError(f"bad block range [{first}, {last}]")
+    list_name, layers = find_decoder_layers(model, last)
+
+    result = {}
+    result["to_module"] = to_module
+    result["to_checkpoint"] = to_checkpoint
+    result["layers"] = []
+    result["prefixes"] = []
+    for index in range(first, last + 1):
+        result["layers"].append(layers[index])
+        result["prefixes"].append(f"{list_name}.{index}")
+    # _add_attention_modules finds the rotary module. We only keep that key.
+    scratch = {}
+    _add_attention_modules(scratch, model, layers[first], result["prefixes"][0])
+    result["rotary"] = scratch["rotary"]
+    return result
+
+
+def block_layer_prefixes(config, first, last):
+    """Return the module names of donor decoder layers first..last."""
+    return _find_block(config, first, last)["prefixes"]
+
+
+def block_tensor_names(config, first, last):
+    """List the checkpoint tensor names of donor decoder layers first..last."""
+    found = _find_block(config, first, last)
+    names = []
+    for layer_module, prefix in zip(found["layers"], found["prefixes"]):
+        names += _prefixed_keys(layer_module, prefix)
+    return _checkpoint_names(found, names)
+
+
+def _layer_window(layer, text_config):
+    """Return the sliding window of a donor decoder layer, or None."""
+    attn = getattr(layer, "self_attn", None)
+    # Mistral keeps the window only in the config. Qwen and Gemma set the
+    # attribute on the attention, and None on full layers.
+    if attn is not None and hasattr(attn, "sliding_window"):
+        return attn.sliding_window
+    return getattr(text_config, "sliding_window", None)
+
+
+class BlockPart(nn.Module):
+    """block(x) - x, where block runs whole donor decoder layers in order.
+
+    A block returns a full residual stream, so the part returns the change
+    the block makes. A block that does nothing adds nothing. x has shape
+    (batch, seq, d_donor) and holds the whole sequence. There is no KV
+    cache, so the host must run with use_cache=False. attention_mask is the
+    host's 2D padding mask (batch, seq), with 1 for real tokens and 0 for
+    pads, or None. The rotary modules are kept out of the module tree, so a
+    dtype change on the part does not round their frequencies.
+    """
+
+    def __init__(self, layers, rotary, local_rotary=None, windows=None):
+        super().__init__()
+        self.layers = nn.ModuleList(layers)
+        self._rotary = [rotary, local_rotary]
+        if windows is None:
+            windows = []
+            for _ in layers:
+                windows.append(None)
+        self.windows = list(windows)
+        # Gemma 3 layers take global and local rotary embeddings and pick
+        # one by layer type. Other layers take position_embeddings.
+        self.two_rotary = []
+        for layer in layers:
+            params = inspect.signature(layer.forward).parameters
+            self.two_rotary.append("position_embeddings_global" in params)
+
+    def train(self, mode=True):
+        # The donor layers are frozen, so they stay in eval mode. The heal
+        # pass calls model.train(), which would otherwise turn on donor
+        # dropout (Phi-2 has resid_pdrop 0.1, for example).
+        return super().train(False)
+
+    def forward(self, x, attention_mask=None):
+        batch, seq, _ = x.shape
+        rotary = self._rotary[0]
+        local_rotary = self._rotary[1]
+        if rotary.inv_freq.device != x.device:
+            rotary.to(x.device)
+        if local_rotary is not None and local_rotary.inv_freq.device != x.device:
+            local_rotary.to(x.device)
+
+        if attention_mask is not None:
+            if tuple(attention_mask.shape) != (batch, seq):
+                raise ValueError(
+                    f"attention_mask has shape {tuple(attention_mask.shape)} but the input is "
+                    f"({batch}, {seq}); a block part needs the whole sequence, "
+                    "so run the host with use_cache=False"
+                )
+            attention_mask = attention_mask.to(x.device)
+            position_ids = (attention_mask.long().cumsum(-1) - 1).clamp(min=0)
+        else:
+            position_ids = torch.arange(seq, device=x.device).view(1, seq).expand(batch, seq)
+        cache_position = torch.arange(seq, device=x.device)
+
+        cos_sin = rotary(x, position_ids)
+        local_cos_sin = cos_sin
+        if local_rotary is not None:
+            local_cos_sin = local_rotary(x, position_ids)
+
+        # One mask per window size, shared by the layers that use it.
+        masks = {}
+        hidden = x
+        for index in range(len(self.layers)):
+            layer = self.layers[index]
+            window = self.windows[index]
+            if window not in masks:
+                mask = causal_mask(batch, seq, x.dtype, x.device, window)
+                if attention_mask is not None:
+                    # causal_mask returns an expanded view, so clone before the fill.
+                    pad_keys = attention_mask[:, None, None, :] == 0
+                    mask = mask.clone().masked_fill(pad_keys, torch.finfo(mask.dtype).min)
+                masks[window] = mask
+
+            kwargs = {
+                "attention_mask": masks[window],
+                "position_ids": position_ids,
+                "past_key_values": None,
+                "use_cache": False,
+                "cache_position": cache_position,
+            }
+            if self.two_rotary[index]:
+                kwargs["position_embeddings_global"] = cos_sin
+                kwargs["position_embeddings_local"] = local_cos_sin
+            else:
+                kwargs["position_embeddings"] = cos_sin
+            out = layer(hidden, **kwargs)
+            if isinstance(out, tuple):
+                out = out[0]
+            hidden = out
+        return hidden - x
+
+
+def build_block_part(config, first, last, tensors):
+    """Build a part that runs donor decoder layers first..last in order.
+
+    Each layer is the donor's own decoder layer class, built on a copy of
+    the text config with eager attention and loaded strictly from tensors
+    (checkpoint names or module names). The result is in eval mode with
+    frozen parameters.
+    """
+    found = _find_block(config, first, last)
+    tensors = _module_named(tensors, found)
+    text_config = _text_config(config)
+    block_config = copy.deepcopy(text_config)
+    block_config._attn_implementation = "eager"
+
+    first_key = _prefixed_keys(found["layers"][0], found["prefixes"][0])[0]
+    dtype = tensors[first_key].dtype
+
+    layers = []
+    windows = []
+    for offset in range(len(found["layers"])):
+        meta_layer = found["layers"][offset]
+        prefix = found["prefixes"][offset]
+        layer = type(meta_layer)(block_config, first + offset)
+        layer = layer.to(dtype)
+        state = {}
+        for key in meta_layer.state_dict().keys():
+            state[key] = tensors[f"{prefix}.{key}"].to(dtype).contiguous()
+        layer.load_state_dict(state, strict=True)
+        layers.append(layer)
+        windows.append(_layer_window(layer, block_config))
+
+    rotary_cls = type(found["rotary"])
+    rotary = rotary_cls(config=copy.deepcopy(text_config))
+    # Gemma 3 sliding layers use a local rotary with its own base and no
+    # scaling, like Gemma3TextModel.rotary_emb_local.
+    local_rotary = None
+    local_base = getattr(text_config, "rope_local_base_freq", None)
+    if local_base is not None:
+        local_config = copy.deepcopy(text_config)
+        local_config.rope_theta = local_base
+        local_config.rope_scaling = {"rope_type": "default"}
+        local_rotary = rotary_cls(config=local_config)
+
+    part = BlockPart(layers, rotary, local_rotary, windows)
     part.eval()
     for param in part.parameters():
         param.requires_grad_(False)

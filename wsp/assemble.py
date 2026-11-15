@@ -20,7 +20,10 @@ from wsp.fetch import fetch_config, fetch_tensors
 from wsp.graft import Graft
 from wsp.parts import (
     attn_tensor_names,
+    block_layer_prefixes,
+    block_tensor_names,
     build_attn_heads,
+    build_block_part,
     build_expert_part,
     build_mlp_cluster,
     expert_tensor_names,
@@ -114,6 +117,8 @@ def build_graft(spec, catalog, host_model, host_tokenizer, align_texts=None, dev
         return build_attn_graft(spec, record, catalog, host_model, host_tokenizer, align_texts, device, cache_dir)
     if record["type"] == "expert":
         return build_expert_graft(spec, record, catalog, host_model, host_tokenizer, align_texts, device, cache_dir)
+    if record["type"] == "block":
+        return build_block_graft(spec, record, catalog, host_model, host_tokenizer, align_texts, device, cache_dir)
     if record["type"] != "mlp_cluster":
         raise ValueError(f"{spec.component_id}: graft type {record['type']} is not built yet")
 
@@ -180,6 +185,8 @@ def rebuild_graft(meta, graft_state, index):
         return rebuild_attn_graft(meta, graft_state, index)
     if meta.get("kind") == "expert":
         return rebuild_expert_graft(meta, graft_state, index)
+    if meta.get("kind") == "block":
+        return rebuild_block_graft(meta, graft_state, index)
     config = copy.deepcopy(fetch_config(meta["donor"]))
     n = len(meta["indices"])
     text_config = _text_config(config)
@@ -388,4 +395,123 @@ def rebuild_attn_graft(meta, graft_state, index):
         if owner in names:
             tensors[names[owner] + rest[len(owner):]] = graft_state[key]
     part = build_attn_heads(config, meta["donor_layer"], torch.arange(n), tensors)
+    return Graft(meta["d_host"], meta["d_donor"], part, rank=meta.get("glue_rank"))
+
+
+def random_block_range(num_layers, first, last, seed):
+    """Return a seeded random [start, end] range with the same length as [first, last].
+
+    The range differs from [first, last] and does not overlap it when the
+    donor has room for that. Raises ValueError when the block covers every
+    donor layer, since no other range of that length exists.
+    """
+    length = last - first + 1
+    apart = []
+    different = []
+    for start in range(num_layers - length + 1):
+        end = start + length - 1
+        if start == first:
+            continue
+        different.append(start)
+        if end < first or start > last:
+            apart.append(start)
+    choices = apart
+    if len(choices) == 0:
+        choices = different
+    if len(choices) == 0:
+        raise ValueError(f"block [{first}, {last}] covers all {num_layers} donor layers; "
+                         "no other range of that length exists for the random control")
+    generator = torch.Generator()
+    generator.manual_seed(seed)
+    pick = int(torch.randint(len(choices), (1,), generator=generator))
+    start = choices[pick]
+    return start, start + length - 1
+
+
+def build_block_graft(spec, record, catalog, host_model, host_tokenizer, align_texts, device, cache_dir):
+    """Return (host_layer, graft, meta) for a block record.
+
+    The record holds "layers": [i, j], the first and last donor layer, both
+    included. No units file is needed. The random control runs another range
+    of the same length from the same donor, at the same host layer. W_in is
+    fit against the input of the first donor layer that runs. Grafts of
+    this kind need use_cache=False when the host generates.
+    """
+    donor_id = record["model"]
+    first = int(record["layers"][0])
+    last = int(record["layers"][1])
+    config = fetch_config(donor_id)
+    text_config = _text_config(config)
+    donor_layers = text_config.num_hidden_layers
+    if first < 0 or last < first or last >= donor_layers:
+        raise ValueError(f"{spec.component_id}: layers {record['layers']} are not a range in "
+                         f"{donor_layers} donor layers")
+
+    host_layers = host_layer_count(host_model)
+    host_layer = resolve_host_layer(spec, first, donor_layers, host_layers)
+
+    if spec.control == "random":
+        first, last = random_block_range(donor_layers, first, last, spec.control_seed)
+
+    tensors = fetch_tensors(donor_id, block_tensor_names(config, first, last), cache_dir=cache_dir)
+    part = build_block_part(config, first, last, tensors)
+
+    d_host = host_hidden_size(host_model)
+    d_donor = text_config.hidden_size
+    graft = Graft(d_host, d_donor, part, rank=getattr(spec, "glue_rank", None))
+
+    layer_ids = []
+    for index in range(first, last + 1):
+        layer_ids.append(index)
+    meta = {
+        "id": spec.component_id,
+        "kind": "block",
+        "control": spec.control,
+        "donor": donor_id,
+        "donor_layer": first,
+        "layers": [first, last],
+        "indices": layer_ids,
+        "host_layer": host_layer,
+        "d_host": d_host,
+        "d_donor": d_donor,
+        "part_params": count_params(part),
+        "glue_params": count_params(graft.w_in) + count_params(graft.w_out),
+        "glue_rank": graft.rank,
+        "fit_r2": None,
+        "fit_r2_dim": None,
+        "fit_pairs": 0,
+        "fit": "skipped",
+    }
+    if align_texts is not None:
+        w, r2, r2_dim, pairs = fit_w_in(host_model, host_tokenizer, host_layer, donor_id, first,
+                                        align_texts, device, layer_input=True)
+        with torch.no_grad():
+            graft.set_w_in(w)
+        meta["fit_r2"] = r2
+        meta["fit_r2_dim"] = r2_dim
+        meta["fit_pairs"] = pairs
+        meta["fit"] = "ridge"
+    return host_layer, graft, meta
+
+
+def rebuild_block_graft(meta, graft_state, index):
+    """Rebuild a saved block graft without fetching donor weights.
+
+    Only the config is fetched. The saved part keys its layers as
+    layers.0, layers.1, and so on, so we map each one back to the donor
+    module name of layer first + k.
+    """
+    config = fetch_config(meta["donor"])
+    first = int(meta["layers"][0])
+    last = int(meta["layers"][1])
+    prefixes = block_layer_prefixes(config, first, last)
+    tensors = {}
+    prefix = f"{index}.part.layers."
+    for key in graft_state:
+        if not key.startswith(prefix):
+            continue
+        rest = key[len(prefix):]
+        offset, name = rest.split(".", 1)
+        tensors[prefixes[int(offset)] + "." + name] = graft_state[key]
+    part = build_block_part(config, first, last, tensors)
     return Graft(meta["d_host"], meta["d_donor"], part, rank=meta.get("glue_rank"))

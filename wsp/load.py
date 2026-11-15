@@ -2,8 +2,9 @@
 
 A compiled directory holds program.json and a tokenizer. A program with
 grafts also holds grafts.json and graft_weights.safetensors, plus host/
-when masks or task vectors changed the host. A program without grafts is
-a plain Hugging Face model directory.
+when masks or task vectors changed the host, and lora.json with
+lora_weights.safetensors when it has a LoRA. A program without grafts is
+a plain Hugging Face model directory (its LoRA, if any, is merged in).
 """
 
 import json
@@ -31,6 +32,15 @@ def load(path, device="cpu", dtype=torch.bfloat16):
     if os.path.isdir(os.path.join(path, "host")):
         host_source = os.path.join(path, "host")
     model = transformers.AutoModelForCausalLM.from_pretrained(host_source, dtype=dtype)
+
+    lora_path = os.path.join(path, "lora.json")
+    if os.path.exists(lora_path):
+        from wsp.lora import apply_lora, load_lora_state
+
+        with open(lora_path) as f:
+            lora = json.load(f)
+        apply_lora(model, lora["rank"], lora["alpha"], tuple(lora["targets"]), lora["layers"])
+        load_lora_state(model, load_file(os.path.join(path, "lora_weights.safetensors")))
 
     with open(grafts_path) as f:
         metas = json.load(f)

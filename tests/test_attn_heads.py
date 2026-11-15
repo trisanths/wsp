@@ -143,3 +143,26 @@ def test_healed_attn_graft_reloads_with_saved_weights(tmp_path, monkeypatch):
     model, _ = load(out, dtype=torch.float32)
     host = transformers.LlamaForCausalLM.from_pretrained(host_dir, dtype=torch.float32)
     assert not torch.equal(logits(model, "the cat sat"), logits(host, "the cat sat"))
+
+
+def test_attn_part_ignores_train_mode():
+    import copy
+
+    import torch
+    from transformers import Qwen2Config, Qwen2ForCausalLM
+
+    from wsp.parts import attn_tensor_names, build_attn_heads
+
+    config = Qwen2Config(hidden_size=48, intermediate_size=96, num_hidden_layers=2, num_attention_heads=4,
+                         num_key_value_heads=2, vocab_size=300, max_position_embeddings=64, attention_dropout=0.5)
+    torch.manual_seed(0)
+    donor = Qwen2ForCausalLM(config)
+    state = donor.state_dict()
+    tensors = {}
+    for name in attn_tensor_names(config, 1):
+        tensors[name] = state[name]
+    part = build_attn_heads(copy.deepcopy(config), 1, torch.tensor([0, 2]), tensors).float()
+    part.train()
+    assert part.training is False
+    x = torch.randn(1, 6, 48)
+    assert torch.equal(part(x), part(x))

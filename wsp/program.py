@@ -186,14 +186,50 @@ class HealSpec:
                 "batch_size": self.batch_size, "seq_len": self.seq_len}
 
 
+class LoraSpec:
+    """A LoRA on the host decoder layers, trained by the heal pass.
+
+    This is the regular fine-tuning control for a graft.
+    rank: the LoRA rank, or None to pick it from budget_params.
+    budget_params: a trainable parameter count. With rank None, the compiler
+        picks the largest rank whose LoRA count is at or under it. Use
+        wsp.lora.graft_budget(report["grafts"]) to match a graft's glue
+        plus part parameters.
+    targets: linear names to wrap, or None for wsp.lora.DEFAULT_TARGETS.
+    alpha: None for alpha = 2 * rank.
+    layers: host decoder layer indices, or None for all of them.
+    """
+
+    def __init__(self, rank=None, budget_params=None, targets=None, alpha=None, layers=None):
+        if rank is None and budget_params is None:
+            raise ValueError("a LoRA needs a rank or a budget_params")
+        self.rank = rank
+        self.budget_params = budget_params
+        if isinstance(targets, str):
+            targets = [targets]
+        self.targets = None if targets is None else list(targets)
+        self.alpha = alpha
+        self.layers = None if layers is None else sorted(list(layers))
+
+    def to_dict(self):
+        return {"rank": self.rank, "budget_params": self.budget_params, "targets": self.targets,
+                "alpha": self.alpha, "layers": self.layers}
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(rank=data.get("rank"), budget_params=data.get("budget_params"), targets=data.get("targets"),
+                   alpha=data.get("alpha"), layers=data.get("layers"))
+
+
 class Program:
     """A model described as a host plus components.
 
-    Compile order: task vectors, then the mask, then grafts, then heal.
-    `base` is an older name for `host` and still works.
+    Compile order: task vectors, then the mask, then the LoRA, then grafts,
+    then heal. `base` is an older name for `host` and still works.
     """
 
-    def __init__(self, host=None, masks=None, task_vectors=None, seed=0, base=None, grafts=None, heal=None):
+    def __init__(self, host=None, masks=None, task_vectors=None, seed=0, base=None, grafts=None, heal=None,
+                 lora=None):
         if host is None:
             host = base
         if host is None:
@@ -207,6 +243,7 @@ class Program:
         if grafts is not None:
             self.grafts = list(grafts)
         self.heal_spec = heal
+        self.lora_spec = lora
         self.seed = seed
 
     @property
@@ -226,6 +263,11 @@ class Program:
     def heal(self, steps=300, data="gsm8k_train", lr=3e-4, batch_size=8, seq_len=384):
         """Set the heal pass. Returns self so calls can chain."""
         self.heal_spec = HealSpec(steps, data, lr, batch_size, seq_len)
+        return self
+
+    def lora(self, rank=None, budget_params=None, targets=None, alpha=None, layers=None):
+        """Add a LoRA on the host. Returns self so calls can chain."""
+        self.lora_spec = LoraSpec(rank, budget_params, targets, alpha, layers)
         return self
 
     def component_ids(self):
@@ -258,6 +300,8 @@ class Program:
             data["grafts"].append(graft.to_dict())
         if self.heal_spec is not None:
             data["heal"] = self.heal_spec.to_dict()
+        if self.lora_spec is not None:
+            data["lora"] = self.lora_spec.to_dict()
         return data
 
     @classmethod
@@ -275,11 +319,14 @@ class Program:
         heal = None
         if data.get("heal") is not None:
             heal = HealSpec(**data["heal"])
+        lora = None
+        if data.get("lora") is not None:
+            lora = LoraSpec.from_dict(data["lora"])
         host = data.get("host")
         if host is None:
             host = data["base"]
         return cls(host=host, masks=masks, task_vectors=task_vectors, seed=data.get("seed", 0),
-                   grafts=grafts, heal=heal)
+                   grafts=grafts, heal=heal, lora=lora)
 
     def compile(self, output_dir, catalog, **options):
         """Build the model and save it to output_dir. Return output_dir.
@@ -293,7 +340,8 @@ class Program:
 
     def __repr__(self):
         return (f"Program(host={self.host!r}, masks={self.masks!r}, "
-                f"task_vectors={len(self.task_vectors)}, grafts={len(self.grafts)})")
+                f"task_vectors={len(self.task_vectors)}, grafts={len(self.grafts)}, "
+                f"lora={self.lora_spec is not None})")
 
 
 def collect_ids(expr, ids):

@@ -7,7 +7,12 @@ Steps:
 1. Load the base model in bf16.
 2. Add each task vector: weight * (fine-tuned - base), on its layers and modules.
 3. Evaluate the mask expression and zero every deleted weight.
-4. Save the model, its tokenizer, program.json, and compile_report.json.
+4. Add the LoRA, if any. Build and attach the grafts, if any.
+5. Heal: train the glue and the LoRA together.
+6. Save the model, its tokenizer, program.json, and compile_report.json.
+   A LoRA without grafts is merged into the weights, so the output is a
+   plain Hugging Face model. With grafts, the LoRA goes to
+   lora_weights.safetensors and lora.json.
 """
 
 import json
@@ -104,7 +109,7 @@ def remove_stale_outputs(output_dir):
     host_dir = os.path.join(output_dir, "host")
     if os.path.isdir(host_dir):
         shutil.rmtree(host_dir)
-    for name in ["grafts.json", "graft_weights.safetensors"]:
+    for name in ["grafts.json", "graft_weights.safetensors", "lora.json", "lora_weights.safetensors"]:
         path = os.path.join(output_dir, name)
         if os.path.exists(path):
             os.remove(path)
@@ -121,6 +126,8 @@ def compile_program(program, catalog, output_dir, align_texts=None, heal_texts=N
     import transformers
 
     check_same_base(program, catalog)
+    if program.lora_spec is not None and program.heal_spec is None:
+        raise CompileError("a program with a LoRA needs a heal spec: call .heal(...) to train it")
     torch.manual_seed(program.seed)
     if device is None:
         device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -128,7 +135,7 @@ def compile_program(program, catalog, output_dir, align_texts=None, heal_texts=N
     model = transformers.AutoModelForCausalLM.from_pretrained(program.host, dtype=torch.bfloat16)
     tokenizer = transformers.AutoTokenizer.from_pretrained(program.host)
     params = dict(model.named_parameters())
-    report = {"host": program.host, "task_vectors": [], "mask": None, "grafts": [], "heal": None}
+    report = {"host": program.host, "task_vectors": [], "mask": None, "grafts": [], "heal": None, "lora": None}
 
     if len(program.task_vectors) > 0:
         base_params = {}
@@ -163,14 +170,33 @@ def compile_program(program, catalog, output_dir, align_texts=None, heal_texts=N
     remove_stale_outputs(output_dir)
     tokenizer.save_pretrained(output_dir)
     host_changed = program.masks is not None or len(program.task_vectors) > 0
-    if len(program.grafts) == 0:
-        model.save_pretrained(output_dir)
-    elif host_changed:
+    if len(program.grafts) > 0 and host_changed:
+        # host/ holds the host without the LoRA. The LoRA is saved on its own.
         model.save_pretrained(os.path.join(output_dir, "host"))
+
+    lora_params = []
+    if program.lora_spec is not None:
+        lora_params = add_lora(program.lora_spec, model, report)
 
     if len(program.grafts) > 0:
         compile_grafts(program, catalog, model, tokenizer, output_dir, report,
-                       align_texts, heal_texts, device, cache_dir)
+                       align_texts, heal_texts, device, cache_dir, lora_params)
+        if program.lora_spec is not None:
+            save_lora(model, output_dir, report)
+    else:
+        if program.lora_spec is not None:
+            from wsp.lora import merge_lora
+
+            model.to(device)
+            for param in model.parameters():
+                param.requires_grad_(False)
+            for param in lora_params:
+                param.requires_grad_(True)
+            run_heal(program, model, tokenizer, heal_texts, lora_params, report)
+            # Fold the LoRA into the weights, so the output is a plain HF model.
+            merge_lora(model)
+            report["lora"]["merged"] = True
+        model.save_pretrained(output_dir)
 
     with open(os.path.join(output_dir, "program.json"), "w") as f:
         json.dump(program.to_dict(), f, indent=2)
@@ -179,15 +205,77 @@ def compile_program(program, catalog, output_dir, align_texts=None, heal_texts=N
     return output_dir
 
 
-def compile_grafts(program, catalog, model, tokenizer, output_dir, report, align_texts, heal_texts, device, cache_dir):
-    """Build, fit, attach, and heal the grafts. Save their weights."""
+def add_lora(spec, model, report):
+    """Apply the program's LoRA to the host. Record it in report["lora"]. Return its parameters."""
+    from wsp.lora import DEFAULT_TARGETS, default_alpha, apply_lora, rank_for_budget
+
+    targets = DEFAULT_TARGETS
+    if spec.targets is not None:
+        targets = tuple(spec.targets)
+    rank = spec.rank
+    if rank is None:
+        rank = rank_for_budget(model, spec.budget_params, targets, spec.layers)
+    alpha = spec.alpha
+    if alpha is None:
+        alpha = default_alpha(rank)
+    params = apply_lora(model, rank, alpha, targets, spec.layers)
+    count = 0
+    for param in params:
+        count += param.numel()
+    report["lora"] = {"rank": rank, "alpha": alpha, "targets": list(targets), "layers": spec.layers,
+                      "params": count, "budget_params": spec.budget_params, "merged": False}
+    return params
+
+
+def save_lora(model, output_dir, report):
+    """Save the LoRA tensors and lora.json, so wsp.load can rebuild the LoRA."""
+    from safetensors.torch import save_file
+
+    from wsp.lora import lora_state_dict
+
+    save_file(lora_state_dict(model), os.path.join(output_dir, "lora_weights.safetensors"))
+    info = {}
+    for key in ["rank", "alpha", "targets", "layers", "params"]:
+        info[key] = report["lora"][key]
+    with open(os.path.join(output_dir, "lora.json"), "w") as f:
+        json.dump(info, f, indent=2)
+
+
+def run_heal(program, model, tokenizer, heal_texts, params, report):
+    """Run the program's heal pass on params. Record it in report["heal"].
+
+    The caller sets requires_grad. Grafts and the LoRA use the same loop,
+    data, and seed, so their results compare fairly.
+    """
     import time
 
+    from wsp.heal import heal
+
+    spec = program.heal_spec
+    if heal_texts is None:
+        from wsp.data import task_texts
+
+        heal_texts = task_texts(spec.data, seed=0)
+    trainable = 0
+    for param in params:
+        trainable += param.numel()
+    start = time.time()
+    losses = heal(model, tokenizer, heal_texts, params, steps=spec.steps, lr=spec.lr,
+                  batch_size=spec.batch_size, seq_len=spec.seq_len, seed=program.seed)
+    report["heal"] = {"spec": spec.to_dict(), "losses": losses, "seconds": round(time.time() - start, 1),
+                      "trainable_params": trainable}
+
+
+def compile_grafts(program, catalog, model, tokenizer, output_dir, report, align_texts, heal_texts, device, cache_dir,
+                   lora_params=None):
+    """Build, fit, attach, and heal the grafts. Save their weights.
+
+    lora_params: LoRA parameters on the host, trained by the same heal pass.
+    """
     from safetensors.torch import save_file
 
     from wsp.assemble import build_graft
     from wsp.graft import attach_grafts, freeze_all_but_glue, glue_parameters
-    from wsp.heal import heal
 
     model.to(device)
     model.eval()
@@ -202,16 +290,13 @@ def compile_grafts(program, catalog, model, tokenizer, output_dir, report, align
     report["grafts"] = metas
 
     if program.heal_spec is not None:
-        spec = program.heal_spec
-        if heal_texts is None:
-            from wsp.data import task_texts
-
-            heal_texts = task_texts(spec.data, seed=0)
         freeze_all_but_glue(model)
-        start = time.time()
-        losses = heal(model, tokenizer, heal_texts, glue_parameters(model), steps=spec.steps, lr=spec.lr,
-                      batch_size=spec.batch_size, seq_len=spec.seq_len, seed=program.seed)
-        report["heal"] = {"spec": spec.to_dict(), "losses": losses, "seconds": round(time.time() - start, 1)}
+        params = glue_parameters(model)
+        if lora_params is not None:
+            for param in lora_params:
+                param.requires_grad_(True)
+                params.append(param)
+        run_heal(program, model, tokenizer, heal_texts, params, report)
 
     state = {}
     for key, value in model.wsp_grafts.state_dict().items():
