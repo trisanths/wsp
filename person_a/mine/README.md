@@ -24,6 +24,7 @@ Every ablation scores all active skills in one teacher-forced pass, measured as 
 | `weight_sandbox.py`, `wsp_helpers.py` | The weight sandbox. Its weights come from the engine's HF cache on the `swarmy-models` volume, at the pinned snapshot. |
 | `build_data.py` | Builds `data/builtin_skills.json` (math, code, facts, multilingual, general_text; 100 search + 50 held-out each). |
 | `run.py` / `run_many.py` | Entry points. `--smoke` checks the setup without the agent. |
+| `sweep.py` | Sweep miner with no LLM: ranks the units of every layer by attribution (engine methods `attribution_units` / `activation_units`), builds large parts, and screens the best with the light gate plus a z-score rule. See RUNBOOK section 5b. Tests: `tests/test_sweep.py`, `tests/test_top_units.py`, `tests/test_engine_units.py`. |
 | `compile_catalog.py` | Merges `catalog/*.jsonl` into `catalog.jsonl`. |
 
 ## How each part kind is switched off (zero ablation)
