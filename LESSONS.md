@@ -126,3 +126,8 @@ something fails. Each entry: what went wrong, then the rule.
   the mining session hit the same thing in the giants profiler. Import
   torch._dynamo and resolve the class before entering the context, and test
   such helpers in a fresh process.
+- CPU tests in float32 cannot catch dtype bugs that appear in bf16 on a GPU.
+  Skill tops passed 36 CPU tests and died on its first GPU step: the donor's
+  norm returned float32 into a bf16 head. Add at least one bf16 test of each
+  forward path (CPU supports bf16 matmuls), and cast explicitly at every
+  module boundary that mixes a donor's and a base's parameters.
