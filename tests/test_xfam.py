@@ -96,8 +96,12 @@ def test_spec_follows_the_measured_recipe():
     spec = xfam.spec_for({"layers": 16, "hidden": 2048}, {"layers": 28, "hidden": 3584})
     assert (spec["host_layer"], spec["first"], spec["last"]) == (7, 4, 20)
     assert spec["steps"] == 4000 and spec["align_steps"] == 600 and spec["lora_rank"] == 16
-    # the trainable Enc, Dec and gate count of the stored wi_xfam rows
-    assert xfam.glue_params(spec) == 15214466
+    assert spec["read_layers"] == [1, 2, 3, 4, 5, 6, 7]
+    # the trainable Enc, Dec and gate count of the stored wi_xfam rows (one read layer), plus 7 mix weights
+    assert xfam.glue_params(dict(spec, read_layers=None)) == 15214466
+    assert xfam.glue_params(spec) == 15214466 + 7
+    # an overridden host layer moves the reads with it
+    assert xfam.spec_for({"layers": 16, "hidden": 8}, {"layers": 28, "hidden": 8}, {"host_layer": 3})["read_layers"] == [1, 2, 3]
 
 
 def test_spec_refuses_a_span_outside_the_donor():
@@ -209,3 +213,25 @@ def test_load_or_build_data_reads_the_cache(tmp_path):
     assert len(data["items"]) == 8 and data["source"].startswith("cache")
     with pytest.raises(FileNotFoundError):
         xfam.load_or_build_data(str(tmp_path / "none"), "host")
+
+
+def test_multi_layer_reads_train_count_and_round_trip(tmp_path):
+    host_tok, donor_tok = make_tok(HOST_WORDS), make_tok(DONOR_WORDS)
+    base, donor = tiny_host(), tiny_donor()
+    spec = xfam.spec_for({"layers": 4, "hidden": 32}, {"layers": 7, "hidden": 48}, dict(SPEC_SMALL, host_layer=2))
+    spec.update(seq_len=24, donor_seq_len=32)
+    assert spec["read_layers"] == [1, 2]
+    t = texts()
+    data = {"align": t[:24], "align_eval": t[24:32], "general": t[32:] * 3}
+    built = xfam.train_network(base, host_tok, donor, donor_tok, pool_for(), data, spec, 3, log=lambda *a: None)
+    assert built.grafts[0].enc.host_layers == [1, 2]
+    assert built.row["trainable_glue"] == xfam.glue_params(spec)
+    path = xfam.save_artifact(str(tmp_path), base, built, spec, {"host": "h", "donor": "d"})
+    enc = host_tok([x[0] for x in items(6)], return_tensors="pt", padding=True)
+    with torch.no_grad():
+        want = base(**enc).logits
+    model, meta = xfam.load_artifact(path, base=tiny_host(), donor=tiny_donor(), device="cpu")
+    assert meta["spec"]["read_layers"] == [1, 2]
+    with torch.no_grad():
+        got = model(**enc).logits
+    assert torch.allclose(want, got, atol=1e-5)

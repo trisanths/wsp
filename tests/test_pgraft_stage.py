@@ -109,7 +109,7 @@ def test_plan_fields_state_layers_sizes_data_steps_and_controls():
     p = make_plan(request())
     st = p["stages"][0]
     assert st["host_layer"] == 7 and st["donor_span"] == [4, 20] and st["donor_slice_layers"] == 17
-    assert st["enc"]["depth"] == 2 and st["enc"]["params"] == 13770625 and st["dec"]["rank"] == 256
+    assert st["enc"]["depth"] == 2 and st["enc"]["params"] == 13770625 + 7 and st["enc"]["reads"] == [1, 2, 3, 4, 5, 6, 7] and st["dec"]["rank"] == 256
     assert st["dec"]["params"] == 256 * (3584 + 2048)
     assert st["lora_rank"] == 16 and st["lora_params"] == 11272192
     assert st["settings"]["steps"] == 4000 and st["settings"]["align_steps"] == 600

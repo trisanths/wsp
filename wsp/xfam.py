@@ -43,6 +43,9 @@ RECIPE = {
 }
 # Layer rule scaled from the measured config (host layer 7 of 16, donor layers 4..20 of 28).
 HOST_LAYER_RULE = "host layers // 2 - 1"
+# The encoder reads a learned mix of host layers 1..host_layer (measured on the hillclimb: 57.0 -> 59.8 MMLU held-out,
+# 3 seeds, Llama-1B with a Qwen2.5-14B slice; docs/research/2026-11-15-parallel-graft.md). None reads host_layer only.
+READ_RULE = "host layers 1 to host_layer"
 DONOR_SPAN_RULE = "donor layers // 7 to 5 * donor layers // 7"
 
 CONTROLS = (
@@ -66,6 +69,10 @@ def spec_for(base_cfg, donor_cfg, overrides=None):
     spec["d_donor"] = int(donor_cfg["hidden"])
     if overrides:
         spec.update(overrides)
+    if "read_layers" not in (overrides or {}):
+        spec["read_layers"] = list(range(1, spec["host_layer"] + 1)) if spec["host_layer"] >= 2 else None
+    if spec.get("read_layers") and (min(spec["read_layers"]) < 0 or max(spec["read_layers"]) > spec["host_layer"]):
+        raise ValueError("read_layers %s must lie in 0..host_layer (%d)" % (spec["read_layers"], spec["host_layer"]))
     if not 0 <= spec["first"] <= spec["last"] < donor_layers:
         raise ValueError("donor span %d..%d does not fit a donor with %d layers" % (spec["first"], spec["last"], donor_layers))
     return spec
@@ -77,7 +84,9 @@ def glue_params(spec):
     hidden = d_donor // 4
     enc = d_host * d_donor + d_donor + 1 + (spec["enc_depth"] - 1) * (2 * d_donor * hidden + hidden + d_donor)
     dec = d_donor * spec["dec_rank"] + spec["dec_rank"] * d_host
-    return enc + dec + d_host + 1
+    reads = spec.get("read_layers") or []
+    mix = len(reads) if list(reads) not in ([], [spec.get("host_layer")]) else 0
+    return enc + dec + d_host + 1 + mix
 
 
 # ------------------------------------------------------------------ prompts, letters, scoring
@@ -298,7 +307,8 @@ def build_network(base, tok, donor, donor_tok, spec, align_texts, arm="graft", s
         for p in lora_params:
             p.requires_grad_(True)
     graft = pgraft.build(base, donor if control is None else None, spec["host_layer"], spec["first"], spec["last"],
-                         control=control, enc_depth=spec["enc_depth"], dec_rank=spec["dec_rank"], d_donor=spec["d_donor"])
+                         control=control, enc_depth=spec["enc_depth"], dec_rank=spec["dec_rank"], d_donor=spec["d_donor"],
+                         read_layers=spec.get("read_layers"))
     pgraft.attach(base, [graft])
     if donor is not None and control is None:
         pgraft.set_sink(graft, donor, donor_tok, graft.donor_span[0], align_texts[:256])
@@ -499,7 +509,8 @@ def load_artifact(path, base=None, donor=None, device=None, dtype=torch.bfloat16
             p.requires_grad_(False)
         load_lora_state(base, load_file(os.path.join(path, "lora.safetensors")))
     graft = pgraft.build(base, donor if control is None else None, spec["host_layer"], spec["first"], spec["last"],
-                         control=control, enc_depth=spec["enc_depth"], dec_rank=spec["dec_rank"], d_donor=spec["d_donor"])
+                         control=control, enc_depth=spec["enc_depth"], dec_rank=spec["dec_rank"], d_donor=spec["d_donor"],
+                         read_layers=spec.get("read_layers"))
     pgraft.attach(base, [graft])
     glue = load_file(os.path.join(path, "glue.safetensors"))
     sink = glue.pop("sink", None)
