@@ -197,39 +197,30 @@ The same method works at 235B. On Qwen3-235B-A22B-Instruct-2507 (8 H200s, no tra
 
 ### Mining
 
-Code: `person_a/mine/`. For one donor model, a mining agent (Claude Opus 5.5 or GPT-5 through a tool loop, `agent.py`) does four things:
+For each donor model, a mining agent (Claude Opus 5.5 or GPT-5 in a tool loop) reads the raw weights in a read-only Modal sandbox with no network access. It proposes skill labels (Roman numerals, month successor, per-language output experts) and writes frozen tests for each one, with a matched control text and a chance check. It then switches off candidate parts on a Modal GPU and scores every skill in one teacher-forced pass. A part is switched off in one of four ways: zeroing its MLP columns, zeroing one attention head's output, blocking an expert in the router, or skipping a whole layer.
 
-1. Reads the raw weights in a network-blocked, read-only Modal sandbox (`weight_sandbox.py`).
-2. Proposes open-vocabulary skill labels (Roman numerals, month successor, per-language output experts).
-3. Writes frozen tests for each label, with a matched control text and a chance check (`skills.py`).
-4. Screens candidate parts by zero-ablation on a Modal GPU. Every ablation scores all active skills in one teacher-forced pass, as the mean log-prob of the answer tokens.
+A part is kept only if:
 
-`adapter.py` installs one zero-ablation hook per part kind: zero the MLP down-projection columns, zero a head's slice of the attention out-projection (also Gated DeltaNet layers), set banned experts' routing weights to 0 at the fused-experts input, or replace a layer's output with its input.
-
-A part passes the light gate (`gate_version` 2) only if:
-
-- the target skill drops at least 15% relative on both the search half and a held-out half the agent sees only as pass or fail;
+- its skill drops at least 15% on both the search half and a held-out half the agent sees only as pass or fail;
 - every other skill drops by at most max(5%, target drop / 3);
-- the target's matched control moves by at most the same limit in either direction;
-- the target drop beats each of 5 random parts of the same size and kind in the same layer.
+- its matched control moves by no more than that same limit;
+- the drop beats each of 5 random parts of the same size and kind in the same layer.
 
-`sweep.py` ranks every unit of every layer by attribution with no LLM in the loop, and `maps.py` builds model-level skill maps (layer scores, blocks, expert pick rates). The Qwen3-30B-A3B map covers 48 layers and 38 skills with a median split-half correlation of 0.98.
+A separate sweep, with no LLM involved, ranks every unit of every layer and builds a skill map of each model. The Qwen3-30B-A3B map covers 48 layers and 38 skills, with a median split-half correlation of 0.98.
 
-The library now holds 584 expert sets, 430 MLP clusters, 264 blocks, 91 head groups, 58 measured stitch recipes, 37 deletion masks, 44 findings and 23 run recipes across 76 models from 0.35B to 235B parameters (Qwen, Llama, Gemma, LFM, Phi, Granite and domain fine-tunes).
+The library holds 584 expert sets, 430 MLP clusters, 264 blocks, 91 head groups, 58 measured stitch recipes, 37 deletion masks, 44 findings and 23 run recipes across 76 models from 0.35B to 235B parameters (Qwen, Llama, Gemma, LFM, Phi, Granite and domain fine-tunes).
 
 ### Compiler
 
-Code: `wsp/`. Before building anything, the compiler works out how each source model relates to the base: identical, a fine-tune of the same base, the same tokenizer, or a different family (`wsp/lineage.py`). It decides this from small reads of each model's config, tokenizer and a few weight slices, with no full download. The relation sets which build methods are allowed, and the planner (`wsp/auto.py`) takes the first one that fits the size limits.
+Before building anything, the compiler works out how each source model relates to the base: identical, a fine-tune of the same base, the same tokenizer, or a different family. It decides from small reads of each model's config, tokenizer and a few weight slices, with no full download. The relation sets which build methods are allowed, and the planner takes the first one that fits the size limits.
 
-A part from another model joins the base as a side branch at a chosen layer. A small connector maps the base model's hidden state into the part's space and back, and starts at zero, so a fresh part changes nothing until training. Parts keep their own attention cache, so generation with a cache gives the same output as without. Two fixes made cross-model parts work at all: feeding each part the state its own model expects at the first token (its attention sink), and scaling inputs to the size the part saw in its own model.
-
-`wsp/slim.py` removes experts, layers, neurons or heads and runs the distillation heal. `sapien check` estimates the finished size against the limits before any GPU starts.
+A part from another model joins the base as a side branch at a chosen layer. It keeps its own attention cache, so generation with a cache gives the same output as without. The same compiler removes experts, layers, neurons or heads for a shrink and runs the distillation heal, and `sapien check` estimates the finished size against the limits before any GPU starts.
 
 ### Swarm and studio
 
-Code: `wsp/swarm/` and `studio/`. The swarm is an RL-style environment: planner agents propose programs over the library, a judge ranks them each round, and an analyst keeps a capability map. Each evaluation charges a fixed budget, and baselines (evolutionary search, LoRA, full fine-tune) run at the same budget. `wsp/swarm/program_schema.py` validates every proposal before it costs an eval.
+The swarm works like an RL environment: planner agents propose programs over the library, a judge ranks them each round, and an analyst keeps a map of what works. Every evaluation costs the same fixed budget, and the baselines (evolutionary search, LoRA, full fine-tune) get the same budget. Each proposal is checked against a schema before it costs an eval.
 
-The Sapien studio is a FastAPI app over the compiler and swarm. A person describes a model in plain language, the studio drafts a spec, a research agent proposes benchmarks with sourced reference scores, and then either the swarm builds the model or the person places parts on a canvas. On the Modal backend each call compiles one program, trains its stitch and heal, scores it, and returns per-component verdicts in one GPU container.
+The studio is a FastAPI app over the compiler and swarm. On the Modal backend each call compiles one program, trains its stitch and heal, scores it, and returns per-component verdicts in one GPU container.
 
 ## Sponsor challenges
 
@@ -265,7 +256,7 @@ Every GPU step runs on Modal: mining, compiling, healing, scoring and serving.
 
 ## Track 1: autoresearch
 
-Sapien runs the research loop on model construction. A mining agent picks a hypothesis about a donor (a label and a layer), writes a frozen test, runs the ablation on Modal, reads the gate result against random controls, records it to past.dev, and picks the next hypothesis. The swarm does the same over programs: propose, compile, score at a fixed eval budget, rank, record lessons, propose again.
+Sapien runs the research loop on model construction. The mining agents loop over parts and the swarm loops over programs, and both work the same way: propose a hypothesis, test it on Modal against controls, record the result to past.dev, pick the next one.
 
 The record Sapien targets is the best existing open model at the same size. That bar is in every comparison table above, and the compiler's latest change checks each graft plan against it before spending GPU time. The 1B host with a grafted 14B slice reaches 59.8 on MMLU held-out (three-seed mean), against 45.6 for fine-tuning the same host.
 
@@ -273,7 +264,7 @@ Each decision is logged: `experiments.jsonl` for swarm steps, `results/README.md
 
 ## Challenges we ran into
 
-- **Mining takes time.** Users will ask for models in many domains: legal, literature, biology, medicine. Each domain needs its donor models mined and its parts tested before anything can be compiled from them. The skill map of Qwen3-30B-A3B alone took 1,352 GPU-seconds, every candidate part then needs an ablation pass plus five random-part controls, and our mining agents ran with 3-hour caps. Over the weekend twelve agents ran in parallel across three Modal workspaces until all three hit their 10-container GPU limit, and the library still covers 76 models. Mining has to run ahead of demand, so the parts already exist when a request arrives.
+- **Mining takes time.** Users will ask for models in many domains: legal, literature, biology, medicine. Each domain needs its donor models mined and its parts tested before anything can be compiled from them. The skill map of Qwen3-30B-A3B alone took 1,352 GPU-seconds, every candidate part then needs an ablation pass plus five random-part controls, and our mining agents ran with 3-hour caps. Even with twelve agents running in parallel, the library covers 76 models. Mining has to run ahead of demand, so the parts already exist when a request arrives.
 - **Models are built differently.** A donor and a host rarely match. Llama-3.2-1B has 16 layers and a 2,048-wide hidden state; Qwen2.5-7B has 28 layers and a 3,584-wide one. They split text into different tokens, use different numbers of attention heads, scale their hidden states differently, and park attention on the first token in different ways. Some models route tokens to MoE experts and some (Liquid's LFM) mix in convolution or linear-attention layers. A donor slice fed the host's raw states keeps 1.1% of its own accuracy. The compiler bridges this with a learned encoder and decoder between the two hidden sizes, positions matched across tokenizers by character offsets, the donor's own first-token state fed at position 0, and inputs rescaled to the size the donor expects. That brings the donor back to 89.6%.
 - **Choosing benchmarks.** At first we picked benchmarks by hand, and the right ones for a request were hard to find: domains do not map neatly to benchmarks. A telecom support model needs tau-bench's telecom split; a legal helper needs LegalBench and CaseHOLD. Exa turned out to be good at scanning the web for the benchmarks that fit a request and the published scores to compare against. The first version still pulled the wrong number from a results table half the time (29 of 59 checked scores fully right), so we added a checker that opens every cited page and keeps a score only when it appears there for that benchmark and that model: 24 of 24 after the fix.
 - **Domains with no right answer.** Sapien's mining gate and its evaluations both need an answer that can be checked: a multiple-choice letter, a unit test, a final number. Creative writing has none. The closest signals are likelihood on held-out text or a judge model's opinion, and neither shows that the writing got better. A request like "a model that is great at creative writing" is the hardest one Sapien gets, and we do not yet have a score for it we would stand behind.
