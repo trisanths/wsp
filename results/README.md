@@ -422,3 +422,32 @@ Reading:
   The first sign of a composite beating its source.
 - Across tokenizers the downstream objective closes a third to a half of
   the gap; position mismatch remains.
+
+## Run 15 (2026-11-14): carving a model to half its depth fails
+
+Written model = one plain model carved from a bigger one: keep N layers
+(first and last always), chosen by block influence (1 - cosine of layer
+input and output on WikiText) or uniformly; optionally heal with a LoRA r64
+for 1000 steps on WikiText plus MMLU aux plus GSM8K text, merged. Raw rows:
+round15_rows.json (the trisanths shard failed).
+
+| Model | Params | MMLU dev | MMLU held-out | MedMCQA | GSM8K raw |
+|---|---|---|---|---|---|
+| Official Qwen2.5-7B-Instruct | 7.62B | 71.5 | 70.9 | 56.5 | 76.5 |
+| 14B carved to 22/48, uniform, LoRA | 7.61B | 33.6 | 35.8 | 30.9 | 12.5 |
+| 14B carved to 22/48, influence, LoRA | 7.61B | 25.5 | 25.4 | 32.7 | 5.5 |
+| 14B carved, no heal (influence) | 7.61B | 21.9 | 23.3 | 25.8 | 0.5 |
+| Official Qwen2.5-14B-Instruct | 14.77B | 78.5 | 77.9 | 63.8 | 68.5 |
+| 32B carved to 27/64, influence, LoRA (2 seeds) | 14.72B | 40.3, 41.2 | 39.4, 39.7 | 33.5, 33.1 | 18.5, 16.0 |
+| 32B carved, uniform, LoRA | 14.72B | 36.0 | 36.2 | 32.2 | 18.5 |
+| 32B carved, no heal | 14.72B | 24.2 to 25.5 | 25.0 to 25.5 | 27 | 0.5 to 4.5 |
+| Official Qwen2.5-32B-Instruct | 32.76B | 82.9 | 79.5 | 66.8 | 80.0 |
+
+Reading: removing more than half the layers destroys the model and a short
+heal recovers little; ranking by block influence is no better than uniform.
+Carving is a size knob for modest cuts only. With run 14 (blocks written
+into a 0.5B base did not help when only the seam glue trained), the lesson
+is that a component helps only if what is downstream of it can read it.
+Next: skills as experts in one MoE network (each layer's MLP becomes a
+router over the same layer's MLP from several specialists), and run 14b
+(the base learns to read written-in blocks through a host LoRA in the heal).
