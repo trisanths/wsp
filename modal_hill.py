@@ -311,7 +311,7 @@ def medmcqa_items(n=1000):
     return items
 
 
-MMMLU_LANGS = {"zh": "ZH_CN", "es": "ES_LA", "hi": "HI_IN", "ar": "AR_XA", "ja": "JA_JP"}
+MMMLU_LANGS = {"zh": "ZH_CN", "es": "ES_LA", "hi": "HI_IN", "ar": "AR_XY", "ja": "JA_JP"}
 
 
 def bench_items(n=500):
