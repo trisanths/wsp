@@ -1,0 +1,1020 @@
+{
+ "name": "object_color",
+ "description": "Name the typical colour of a common object (banana -> yellow). Control: same format, but the colour is given in the line and must be repeated, so no world knowledge of colour is needed.",
+ "hash": "d4e44cc43bcc79db",
+ "agent_items": false,
+ "generator_code": "\nimport random, json\nrandom.seed(0)\nO={\"banana\":\"yellow\",\"grass\":\"green\",\"snow\":\"white\",\"coal\":\"black\",\"blood\":\"red\",\"sky\":\"blue\",\"lemon\":\"yellow\",\"tomato\":\"red\",\"milk\":\"white\",\"crow\":\"black\",\"emerald\":\"green\",\"sapphire\":\"blue\",\"ruby\":\"red\",\"pumpkin\":\"orange\",\"carrot\":\"orange\",\"strawberry\":\"red\",\"lime\":\"green\",\"ivory\":\"white\",\"charcoal\":\"black\",\"cherry\":\"red\",\"ocean\":\"blue\",\"frog\":\"green\",\"flamingo\":\"pink\",\"eggplant\":\"purple\",\"chocolate\":\"brown\",\"cucumber\":\"green\",\"sunflower\":\"yellow\",\"polar bear\":\"white\",\"raven\":\"black\",\"lettuce\":\"green\",\"corn\":\"yellow\",\"orange\":\"orange\",\"fire truck\":\"red\",\"broccoli\":\"green\",\"cotton\":\"white\",\"ink\":\"black\",\"blueberry\":\"blue\",\"lavender\":\"purple\",\"coffee\":\"brown\",\"salmon\":\"pink\",\"tangerine\":\"orange\",\"jade\":\"green\",\"mustard\":\"yellow\",\"cloud\":\"white\",\"tar\":\"black\",\"lobster (cooked)\":\"red\",\"pine tree\":\"green\",\"canary\":\"yellow\",\"plum\":\"purple\",\"cinnamon\":\"brown\"}\nobjs=list(O)\ndef make(ctrl):\n    out=[]\n    for rep in range(2):\n        for o in objs:\n            shots=random.sample([x for x in objs if x!=o],3)\n            if ctrl:\n                p=\"\".join(f\"The {s} is {O[s]}. Its colour: {O[s]}\\n\" for s in shots)+f\"The {o} is {O[o]}. Its colour:\"\n            else:\n                p=\"\".join(f\"The {s}. Its colour: {O[s]}\\n\" for s in shots)+f\"The {o}. Its colour:\"\n            out.append({\"prompt\":p,\"answer\":\" \"+O[o]})\n    return out\njson.dump({\"items\":make(False),\"control\":make(True)},open(\"/work/skill.json\",\"w\"))\n",
+ "items": {
+  "search": [
+   {
+    "context": "The lettuce. Its colour: green\nThe sky. Its colour: blue\nThe ocean. Its colour: blue\nThe eggplant. Its colour:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The emerald. Its colour: green\nThe ocean. Its colour: blue\nThe lemon. Its colour: yellow\nThe milk. Its colour:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The lemon. Its colour: yellow\nThe eggplant. Its colour: purple\nThe raven. Its colour: black\nThe sapphire. Its colour:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The ink. Its colour: black\nThe pine tree. Its colour: green\nThe salmon. Its colour: pink\nThe tomato. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The ivory. Its colour: white\nThe tomato. Its colour: red\nThe lobster (cooked). Its colour: red\nThe plum. Its colour:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The carrot. Its colour: orange\nThe blueberry. Its colour: blue\nThe orange. Its colour: orange\nThe pumpkin. Its colour:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The coal. Its colour: black\nThe ivory. Its colour: white\nThe broccoli. Its colour: green\nThe grass. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The mustard. Its colour: yellow\nThe sky. Its colour: blue\nThe banana. Its colour: yellow\nThe jade. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The carrot. Its colour: orange\nThe tangerine. Its colour: orange\nThe raven. Its colour: black\nThe tar. Its colour:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The tar. Its colour: black\nThe sky. Its colour: blue\nThe grass. Its colour: green\nThe blood. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The sky. Its colour: blue\nThe canary. Its colour: yellow\nThe sunflower. Its colour: yellow\nThe lime. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The raven. Its colour: black\nThe tangerine. Its colour: orange\nThe lemon. Its colour: yellow\nThe pumpkin. Its colour:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The strawberry. Its colour: red\nThe coal. Its colour: black\nThe lavender. Its colour: purple\nThe snow. Its colour:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The sunflower. Its colour: yellow\nThe lavender. Its colour: purple\nThe ivory. Its colour: white\nThe jade. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The chocolate. Its colour: brown\nThe cloud. Its colour: white\nThe lime. Its colour: green\nThe corn. Its colour:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The fire truck. Its colour: red\nThe sunflower. Its colour: yellow\nThe ocean. Its colour: blue\nThe snow. Its colour:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The strawberry. Its colour: red\nThe grass. Its colour: green\nThe pine tree. Its colour: green\nThe canary. Its colour:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The charcoal. Its colour: black\nThe tar. Its colour: black\nThe flamingo. Its colour: pink\nThe lavender. Its colour:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The sunflower. Its colour: yellow\nThe lavender. Its colour: purple\nThe broccoli. Its colour: green\nThe raven. Its colour:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The eggplant. Its colour: purple\nThe raven. Its colour: black\nThe sapphire. Its colour: blue\nThe lime. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The flamingo. Its colour: pink\nThe strawberry. Its colour: red\nThe canary. Its colour: yellow\nThe cherry. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The tomato. Its colour: red\nThe tangerine. Its colour: orange\nThe ivory. Its colour: white\nThe lemon. Its colour:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The broccoli. Its colour: green\nThe fire truck. Its colour: red\nThe lemon. Its colour: yellow\nThe chocolate. Its colour:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "The flamingo. Its colour: pink\nThe orange. Its colour: orange\nThe blueberry. Its colour: blue\nThe emerald. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The grass. Its colour: green\nThe pumpkin. Its colour: orange\nThe ruby. Its colour: red\nThe crow. Its colour:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The salmon. Its colour: pink\nThe chocolate. Its colour: brown\nThe ocean. Its colour: blue\nThe corn. Its colour:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The strawberry. Its colour: red\nThe crow. Its colour: black\nThe ink. Its colour: black\nThe flamingo. Its colour:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "The charcoal. Its colour: black\nThe raven. Its colour: black\nThe sky. Its colour: blue\nThe lettuce. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The sky. Its colour: blue\nThe frog. Its colour: green\nThe plum. Its colour: purple\nThe broccoli. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The lobster (cooked). Its colour: red\nThe cotton. Its colour: white\nThe tar. Its colour: black\nThe lavender. Its colour:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The frog. Its colour: green\nThe emerald. Its colour: green\nThe strawberry. Its colour: red\nThe cloud. Its colour:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The crow. Its colour: black\nThe blueberry. Its colour: blue\nThe lobster (cooked). Its colour: red\nThe orange. Its colour:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The jade. Its colour: green\nThe lobster (cooked). Its colour: red\nThe flamingo. Its colour: pink\nThe cloud. Its colour:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The snow. Its colour: white\nThe emerald. Its colour: green\nThe raven. Its colour: black\nThe cinnamon. Its colour:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "The corn. Its colour: yellow\nThe flamingo. Its colour: pink\nThe tangerine. Its colour: orange\nThe blueberry. Its colour:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The salmon. Its colour: pink\nThe blueberry. Its colour: blue\nThe coffee. Its colour: brown\nThe raven. Its colour:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The corn. Its colour: yellow\nThe blood. Its colour: red\nThe sky. Its colour: blue\nThe cotton. Its colour:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The lavender. Its colour: purple\nThe jade. Its colour: green\nThe tangerine. Its colour: orange\nThe coffee. Its colour:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "The sky. Its colour: blue\nThe ocean. Its colour: blue\nThe salmon. Its colour: pink\nThe tar. Its colour:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The lettuce. Its colour: green\nThe cotton. Its colour: white\nThe ivory. Its colour: white\nThe carrot. Its colour:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The snow. Its colour: white\nThe ink. Its colour: black\nThe ivory. Its colour: white\nThe cotton. Its colour:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The lime. Its colour: green\nThe eggplant. Its colour: purple\nThe canary. Its colour: yellow\nThe ocean. Its colour:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The carrot. Its colour: orange\nThe broccoli. Its colour: green\nThe crow. Its colour: black\nThe blood. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The frog. Its colour: green\nThe pine tree. Its colour: green\nThe blood. Its colour: red\nThe ocean. Its colour:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The coal. Its colour: black\nThe blueberry. Its colour: blue\nThe banana. Its colour: yellow\nThe strawberry. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The ruby. Its colour: red\nThe lavender. Its colour: purple\nThe carrot. Its colour: orange\nThe frog. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The lavender. Its colour: purple\nThe strawberry. Its colour: red\nThe charcoal. Its colour: black\nThe orange. Its colour:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The lettuce. Its colour: green\nThe cloud. Its colour: white\nThe sapphire. Its colour: blue\nThe sunflower. Its colour:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The sunflower. Its colour: yellow\nThe sky. Its colour: blue\nThe chocolate. Its colour: brown\nThe tomato. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The coal. Its colour: black\nThe broccoli. Its colour: green\nThe corn. Its colour: yellow\nThe ivory. Its colour:",
+    "continuation": " white",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The coal. Its colour: black\nThe tar. Its colour: black\nThe emerald. Its colour: green\nThe eggplant. Its colour:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The flamingo. Its colour: pink\nThe raven. Its colour: black\nThe blood. Its colour: red\nThe banana. Its colour:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The lobster (cooked). Its colour: red\nThe sunflower. Its colour: yellow\nThe ruby. Its colour: red\nThe cherry. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The cherry. Its colour: red\nThe blueberry. Its colour: blue\nThe charcoal. Its colour: black\nThe cucumber. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The sunflower. Its colour: yellow\nThe mustard. Its colour: yellow\nThe lobster (cooked). Its colour: red\nThe plum. Its colour:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The tangerine. Its colour: orange\nThe frog. Its colour: green\nThe ruby. Its colour: red\nThe pine tree. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The blueberry. Its colour: blue\nThe sunflower. Its colour: yellow\nThe snow. Its colour: white\nThe pine tree. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The cucumber. Its colour: green\nThe cinnamon. Its colour: brown\nThe polar bear. Its colour: white\nThe banana. Its colour:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The lobster (cooked). Its colour: red\nThe tar. Its colour: black\nThe pumpkin. Its colour: orange\nThe flamingo. Its colour:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "The tar. Its colour: black\nThe cinnamon. Its colour: brown\nThe milk. Its colour: white\nThe ink. Its colour:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The tomato. Its colour: red\nThe snow. Its colour: white\nThe salmon. Its colour: pink\nThe milk. Its colour:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The coffee. Its colour: brown\nThe ruby. Its colour: red\nThe lobster (cooked). Its colour: red\nThe mustard. Its colour:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The orange. Its colour: orange\nThe eggplant. Its colour: purple\nThe coffee. Its colour: brown\nThe coal. Its colour:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The chocolate. Its colour: brown\nThe pine tree. Its colour: green\nThe cloud. Its colour: white\nThe lobster (cooked). Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The salmon. Its colour: pink\nThe lavender. Its colour: purple\nThe milk. Its colour: white\nThe lemon. Its colour:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The chocolate. Its colour: brown\nThe plum. Its colour: purple\nThe sunflower. Its colour: yellow\nThe tangerine. Its colour:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The pine tree. Its colour: green\nThe tomato. Its colour: red\nThe blueberry. Its colour: blue\nThe sunflower. Its colour:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The pumpkin. Its colour: orange\nThe tar. Its colour: black\nThe lavender. Its colour: purple\nThe tangerine. Its colour:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The milk. Its colour: white\nThe jade. Its colour: green\nThe pumpkin. Its colour: orange\nThe sky. Its colour:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The milk. Its colour: white\nThe pine tree. Its colour: green\nThe cherry. Its colour: red\nThe salmon. Its colour:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "The lime. Its colour: green\nThe tomato. Its colour: red\nThe salmon. Its colour: pink\nThe cucumber. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The orange. Its colour: orange\nThe lavender. Its colour: purple\nThe emerald. Its colour: green\nThe frog. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The pine tree. Its colour: green\nThe tomato. Its colour: red\nThe orange. Its colour: orange\nThe emerald. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The raven. Its colour: black\nThe orange. Its colour: orange\nThe cloud. Its colour: white\nThe mustard. Its colour:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The canary. Its colour: yellow\nThe blood. Its colour: red\nThe tar. Its colour: black\nThe crow. Its colour:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The banana. Its colour: yellow\nThe lettuce. Its colour: green\nThe plum. Its colour: purple\nThe fire truck. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The ivory. Its colour: white\nThe broccoli. Its colour: green\nThe strawberry. Its colour: red\nThe salmon. Its colour:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "The banana. Its colour: yellow\nThe tangerine. Its colour: orange\nThe fire truck. Its colour: red\nThe charcoal. Its colour:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The banana. Its colour: yellow\nThe orange. Its colour: orange\nThe tar. Its colour: black\nThe polar bear. Its colour:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The snow. Its colour: white\nThe salmon. Its colour: pink\nThe lemon. Its colour: yellow\nThe charcoal. Its colour:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The sapphire. Its colour: blue\nThe ruby. Its colour: red\nThe snow. Its colour: white\nThe fire truck. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The cherry. Its colour: red\nThe mustard. Its colour: yellow\nThe flamingo. Its colour: pink\nThe lettuce. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The frog. Its colour: green\nThe tangerine. Its colour: orange\nThe jade. Its colour: green\nThe ruby. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The milk. Its colour: white\nThe strawberry. Its colour: red\nThe cinnamon. Its colour: brown\nThe ink. Its colour:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The crow. Its colour: black\nThe snow. Its colour: white\nThe sky. Its colour: blue\nThe blueberry. Its colour:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The pine tree. Its colour: green\nThe cloud. Its colour: white\nThe jade. Its colour: green\nThe ivory. Its colour:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The ivory. Its colour: white\nThe blood. Its colour: red\nThe strawberry. Its colour: red\nThe carrot. Its colour:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The frog. Its colour: green\nThe ink. Its colour: black\nThe pumpkin. Its colour: orange\nThe polar bear. Its colour:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The emerald. Its colour: green\nThe frog. Its colour: green\nThe cotton. Its colour: white\nThe chocolate. Its colour:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "The tomato. Its colour: red\nThe orange. Its colour: orange\nThe lavender. Its colour: purple\nThe lobster (cooked). Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The carrot. Its colour: orange\nThe canary. Its colour: yellow\nThe coal. Its colour: black\nThe sapphire. Its colour:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The cucumber. Its colour: green\nThe pine tree. Its colour: green\nThe broccoli. Its colour: green\nThe coffee. Its colour:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "The tomato. Its colour: red\nThe emerald. Its colour: green\nThe lobster (cooked). Its colour: red\nThe grass. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The tar. Its colour: black\nThe grass. Its colour: green\nThe ink. Its colour: black\nThe ruby. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The blood. Its colour: red\nThe mustard. Its colour: yellow\nThe ocean. Its colour: blue\nThe strawberry. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The tangerine. Its colour: orange\nThe cloud. Its colour: white\nThe lime. Its colour: green\nThe broccoli. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The cherry. Its colour: red\nThe crow. Its colour: black\nThe cinnamon. Its colour: brown\nThe sky. Its colour:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The jade. Its colour: green\nThe ink. Its colour: black\nThe salmon. Its colour: pink\nThe coal. Its colour:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The cucumber. Its colour: green\nThe tar. Its colour: black\nThe blueberry. Its colour: blue\nThe canary. Its colour:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The carrot. Its colour: orange\nThe eggplant. Its colour: purple\nThe emerald. Its colour: green\nThe cinnamon. Its colour:",
+    "continuation": " brown",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "The banana is yellow. Its colour: yellow\nThe tomato is red. Its colour: red\nThe sunflower is yellow. Its colour: yellow\nThe coal is black. Its colour:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The ink is black. Its colour: black\nThe milk is white. Its colour: white\nThe charcoal is black. Its colour: black\nThe lavender is purple. Its colour:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The mustard is yellow. Its colour: yellow\nThe snow is white. Its colour: white\nThe pumpkin is orange. Its colour: orange\nThe strawberry is red. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The lemon is yellow. Its colour: yellow\nThe pumpkin is orange. Its colour: orange\nThe plum is purple. Its colour: purple\nThe grass is green. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The fire truck is red. Its colour: red\nThe frog is green. Its colour: green\nThe ocean is blue. Its colour: blue\nThe blood is red. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The cotton is white. Its colour: white\nThe mustard is yellow. Its colour: yellow\nThe eggplant is purple. Its colour: purple\nThe ocean is blue. Its colour:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The tomato is red. Its colour: red\nThe corn is yellow. Its colour: yellow\nThe canary is yellow. Its colour: yellow\nThe coffee is brown. Its colour:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "The polar bear is white. Its colour: white\nThe frog is green. Its colour: green\nThe banana is yellow. Its colour: yellow\nThe crow is black. Its colour:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The carrot is orange. Its colour: orange\nThe banana is yellow. Its colour: yellow\nThe pine tree is green. Its colour: green\nThe emerald is green. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The blood is red. Its colour: red\nThe sky is blue. Its colour: blue\nThe cotton is white. Its colour: white\nThe orange is orange. Its colour:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The corn is yellow. Its colour: yellow\nThe frog is green. Its colour: green\nThe tomato is red. Its colour: red\nThe tar is black. Its colour:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The charcoal is black. Its colour: black\nThe eggplant is purple. Its colour: purple\nThe cucumber is green. Its colour: green\nThe blueberry is blue. Its colour:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The banana is yellow. Its colour: yellow\nThe cinnamon is brown. Its colour: brown\nThe raven is black. Its colour: black\nThe cotton is white. Its colour:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The jade is green. Its colour: green\nThe lemon is yellow. Its colour: yellow\nThe sky is blue. Its colour: blue\nThe banana is yellow. Its colour:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The banana is yellow. Its colour: yellow\nThe plum is purple. Its colour: purple\nThe sapphire is blue. Its colour: blue\nThe pine tree is green. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The cinnamon is brown. Its colour: brown\nThe coffee is brown. Its colour: brown\nThe blood is red. Its colour: red\nThe tangerine is orange. Its colour:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The tangerine is orange. Its colour: orange\nThe crow is black. Its colour: black\nThe lemon is yellow. Its colour: yellow\nThe lime is green. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The lemon is yellow. Its colour: yellow\nThe orange is orange. Its colour: orange\nThe sunflower is yellow. Its colour: yellow\nThe lime is green. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The charcoal is black. Its colour: black\nThe pine tree is green. Its colour: green\nThe orange is orange. Its colour: orange\nThe corn is yellow. Its colour:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The pine tree is green. Its colour: green\nThe sky is blue. Its colour: blue\nThe frog is green. Its colour: green\nThe broccoli is green. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The ocean is blue. Its colour: blue\nThe eggplant is purple. Its colour: purple\nThe lavender is purple. Its colour: purple\nThe chocolate is brown. Its colour:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "The strawberry is red. Its colour: red\nThe blood is red. Its colour: red\nThe cucumber is green. Its colour: green\nThe snow is white. Its colour:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The plum is purple. Its colour: purple\nThe polar bear is white. Its colour: white\nThe cinnamon is brown. Its colour: brown\nThe jade is green. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The orange is orange. Its colour: orange\nThe lime is green. Its colour: green\nThe cherry is red. Its colour: red\nThe cinnamon is brown. Its colour:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "The sunflower is yellow. Its colour: yellow\nThe ivory is white. Its colour: white\nThe pumpkin is orange. Its colour: orange\nThe carrot is orange. Its colour:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The corn is yellow. Its colour: yellow\nThe coal is black. Its colour: black\nThe polar bear is white. Its colour: white\nThe sky is blue. Its colour:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The strawberry is red. Its colour: red\nThe ivory is white. Its colour: white\nThe coffee is brown. Its colour: brown\nThe milk is white. Its colour:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The frog is green. Its colour: green\nThe pine tree is green. Its colour: green\nThe plum is purple. Its colour: purple\nThe sunflower is yellow. Its colour:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The strawberry is red. Its colour: red\nThe coal is black. Its colour: black\nThe cherry is red. Its colour: red\nThe salmon is pink. Its colour:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "The crow is black. Its colour: black\nThe chocolate is brown. Its colour: brown\nThe coffee is brown. Its colour: brown\nThe lettuce is green. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The tar is black. Its colour: black\nThe lime is green. Its colour: green\nThe blueberry is blue. Its colour: blue\nThe eggplant is purple. Its colour:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The chocolate is brown. Its colour: brown\nThe coffee is brown. Its colour: brown\nThe lavender is purple. Its colour: purple\nThe tar is black. Its colour:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The chocolate is brown. Its colour: brown\nThe coffee is brown. Its colour: brown\nThe charcoal is black. Its colour: black\nThe corn is yellow. Its colour:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The ocean is blue. Its colour: blue\nThe fire truck is red. Its colour: red\nThe jade is green. Its colour: green\nThe eggplant is purple. Its colour:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The snow is white. Its colour: white\nThe plum is purple. Its colour: purple\nThe lobster (cooked) is red. Its colour: red\nThe cucumber is green. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The cherry is red. Its colour: red\nThe frog is green. Its colour: green\nThe plum is purple. Its colour: purple\nThe canary is yellow. Its colour:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The banana is yellow. Its colour: yellow\nThe milk is white. Its colour: white\nThe crow is black. Its colour: black\nThe orange is orange. Its colour:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The corn is yellow. Its colour: yellow\nThe tomato is red. Its colour: red\nThe tar is black. Its colour: black\nThe lobster (cooked) is red. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The lime is green. Its colour: green\nThe milk is white. Its colour: white\nThe mustard is yellow. Its colour: yellow\nThe cherry is red. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The fire truck is red. Its colour: red\nThe chocolate is brown. Its colour: brown\nThe broccoli is green. Its colour: green\nThe lavender is purple. Its colour:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The frog is green. Its colour: green\nThe cherry is red. Its colour: red\nThe sunflower is yellow. Its colour: yellow\nThe mustard is yellow. Its colour:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The chocolate is brown. Its colour: brown\nThe ink is black. Its colour: black\nThe crow is black. Its colour: black\nThe charcoal is black. Its colour:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The carrot is orange. Its colour: orange\nThe grass is green. Its colour: green\nThe mustard is yellow. Its colour: yellow\nThe lobster (cooked) is red. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The tomato is red. Its colour: red\nThe crow is black. Its colour: black\nThe ivory is white. Its colour: white\nThe frog is green. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The sky is blue. Its colour: blue\nThe canary is yellow. Its colour: yellow\nThe crow is black. Its colour: black\nThe tomato is red. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The ruby is red. Its colour: red\nThe corn is yellow. Its colour: yellow\nThe cucumber is green. Its colour: green\nThe ivory is white. Its colour:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The orange is orange. Its colour: orange\nThe polar bear is white. Its colour: white\nThe snow is white. Its colour: white\nThe pine tree is green. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The snow is white. Its colour: white\nThe blood is red. Its colour: red\nThe carrot is orange. Its colour: orange\nThe fire truck is red. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The cinnamon is brown. Its colour: brown\nThe banana is yellow. Its colour: yellow\nThe tar is black. Its colour: black\nThe sapphire is blue. Its colour:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The pumpkin is orange. Its colour: orange\nThe blueberry is blue. Its colour: blue\nThe jade is green. Its colour: green\nThe lemon is yellow. Its colour:",
+    "continuation": " yellow",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The blood is red. Its colour: red\nThe cherry is red. Its colour: red\nThe cucumber is green. Its colour: green\nThe jade is green. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The mustard is yellow. Its colour: yellow\nThe lettuce is green. Its colour: green\nThe eggplant is purple. Its colour: purple\nThe blueberry is blue. Its colour:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The fire truck is red. Its colour: red\nThe snow is white. Its colour: white\nThe blueberry is blue. Its colour: blue\nThe coffee is brown. Its colour:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "The crow is black. Its colour: black\nThe lavender is purple. Its colour: purple\nThe sunflower is yellow. Its colour: yellow\nThe ocean is blue. Its colour:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The ivory is white. Its colour: white\nThe lettuce is green. Its colour: green\nThe tomato is red. Its colour: red\nThe charcoal is black. Its colour:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The crow is black. Its colour: black\nThe lime is green. Its colour: green\nThe salmon is pink. Its colour: pink\nThe raven is black. Its colour:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The jade is green. Its colour: green\nThe tar is black. Its colour: black\nThe raven is black. Its colour: black\nThe frog is green. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The sapphire is blue. Its colour: blue\nThe raven is black. Its colour: black\nThe pumpkin is orange. Its colour: orange\nThe crow is black. Its colour:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The lemon is yellow. Its colour: yellow\nThe ink is black. Its colour: black\nThe corn is yellow. Its colour: yellow\nThe cloud is white. Its colour:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The lobster (cooked) is red. Its colour: red\nThe grass is green. Its colour: green\nThe cotton is white. Its colour: white\nThe sapphire is blue. Its colour:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The grass is green. Its colour: green\nThe snow is white. Its colour: white\nThe pumpkin is orange. Its colour: orange\nThe flamingo is pink. Its colour:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "The mustard is yellow. Its colour: yellow\nThe ruby is red. Its colour: red\nThe ocean is blue. Its colour: blue\nThe carrot is orange. Its colour:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The emerald is green. Its colour: green\nThe crow is black. Its colour: black\nThe coffee is brown. Its colour: brown\nThe ink is black. Its colour:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The coffee is brown. Its colour: brown\nThe sunflower is yellow. Its colour: yellow\nThe corn is yellow. Its colour: yellow\nThe cloud is white. Its colour:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The pine tree is green. Its colour: green\nThe tar is black. Its colour: black\nThe carrot is orange. Its colour: orange\nThe lemon is yellow. Its colour:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The jade is green. Its colour: green\nThe polar bear is white. Its colour: white\nThe eggplant is purple. Its colour: purple\nThe raven is black. Its colour:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The lime is green. Its colour: green\nThe frog is green. Its colour: green\nThe blood is red. Its colour: red\nThe plum is purple. Its colour:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The blueberry is blue. Its colour: blue\nThe cotton is white. Its colour: white\nThe cherry is red. Its colour: red\nThe blood is red. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The pine tree is green. Its colour: green\nThe mustard is yellow. Its colour: yellow\nThe corn is yellow. Its colour: yellow\nThe polar bear is white. Its colour:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The sky is blue. Its colour: blue\nThe tar is black. Its colour: black\nThe broccoli is green. Its colour: green\nThe salmon is pink. Its colour:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "The sapphire is blue. Its colour: blue\nThe lettuce is green. Its colour: green\nThe cotton is white. Its colour: white\nThe grass is green. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The lemon is yellow. Its colour: yellow\nThe salmon is pink. Its colour: pink\nThe fire truck is red. Its colour: red\nThe cherry is red. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The cloud is white. Its colour: white\nThe ruby is red. Its colour: red\nThe ink is black. Its colour: black\nThe chocolate is brown. Its colour:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "The fire truck is red. Its colour: red\nThe blueberry is blue. Its colour: blue\nThe salmon is pink. Its colour: pink\nThe snow is white. Its colour:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The frog is green. Its colour: green\nThe emerald is green. Its colour: green\nThe crow is black. Its colour: black\nThe ink is black. Its colour:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The sapphire is blue. Its colour: blue\nThe broccoli is green. Its colour: green\nThe canary is yellow. Its colour: yellow\nThe tangerine is orange. Its colour:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The ruby is red. Its colour: red\nThe tomato is red. Its colour: red\nThe salmon is pink. Its colour: pink\nThe pumpkin is orange. Its colour:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The tangerine is orange. Its colour: orange\nThe carrot is orange. Its colour: orange\nThe banana is yellow. Its colour: yellow\nThe cucumber is green. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The ink is black. Its colour: black\nThe sapphire is blue. Its colour: blue\nThe pumpkin is orange. Its colour: orange\nThe lettuce is green. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The tangerine is orange. Its colour: orange\nThe snow is white. Its colour: white\nThe ivory is white. Its colour: white\nThe cotton is white. Its colour:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The pumpkin is orange. Its colour: orange\nThe charcoal is black. Its colour: black\nThe cotton is white. Its colour: white\nThe mustard is yellow. Its colour:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The sky is blue. Its colour: blue\nThe ivory is white. Its colour: white\nThe lobster (cooked) is red. Its colour: red\nThe banana is yellow. Its colour:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The ocean is blue. Its colour: blue\nThe snow is white. Its colour: white\nThe cotton is white. Its colour: white\nThe polar bear is white. Its colour:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The lettuce is green. Its colour: green\nThe fire truck is red. Its colour: red\nThe coffee is brown. Its colour: brown\nThe sky is blue. Its colour:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The tangerine is orange. Its colour: orange\nThe blueberry is blue. Its colour: blue\nThe chocolate is brown. Its colour: brown\nThe cinnamon is brown. Its colour:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "The cinnamon is brown. Its colour: brown\nThe banana is yellow. Its colour: yellow\nThe snow is white. Its colour: white\nThe coal is black. Its colour:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The lettuce is green. Its colour: green\nThe cinnamon is brown. Its colour: brown\nThe tar is black. Its colour: black\nThe ruby is red. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The cotton is white. Its colour: white\nThe tangerine is orange. Its colour: orange\nThe lemon is yellow. Its colour: yellow\nThe ruby is red. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The salmon is pink. Its colour: pink\nThe mustard is yellow. Its colour: yellow\nThe fire truck is red. Its colour: red\nThe sunflower is yellow. Its colour:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The cloud is white. Its colour: white\nThe crow is black. Its colour: black\nThe emerald is green. Its colour: green\nThe plum is purple. Its colour:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The milk is white. Its colour: white\nThe snow is white. Its colour: white\nThe cherry is red. Its colour: red\nThe broccoli is green. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The eggplant is purple. Its colour: purple\nThe tomato is red. Its colour: red\nThe blood is red. Its colour: red\nThe emerald is green. Its colour:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The raven is black. Its colour: black\nThe sky is blue. Its colour: blue\nThe chocolate is brown. Its colour: brown\nThe tomato is red. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The ruby is red. Its colour: red\nThe tomato is red. Its colour: red\nThe fire truck is red. Its colour: red\nThe pumpkin is orange. Its colour:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The charcoal is black. Its colour: black\nThe lobster (cooked) is red. Its colour: red\nThe sapphire is blue. Its colour: blue\nThe strawberry is red. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The ivory is white. Its colour: white\nThe frog is green. Its colour: green\nThe eggplant is purple. Its colour: purple\nThe fire truck is red. Its colour:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The banana is yellow. Its colour: yellow\nThe sunflower is yellow. Its colour: yellow\nThe tar is black. Its colour: black\nThe milk is white. Its colour:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The cherry is red. Its colour: red\nThe fire truck is red. Its colour: red\nThe blueberry is blue. Its colour: blue\nThe canary is yellow. Its colour:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The cotton is white. Its colour: white\nThe fire truck is red. Its colour: red\nThe tar is black. Its colour: black\nThe flamingo is pink. Its colour:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "The jade is green. Its colour: green\nThe sky is blue. Its colour: blue\nThe grass is green. Its colour: green\nThe ivory is white. Its colour:",
+    "continuation": " white",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 10.865
+}

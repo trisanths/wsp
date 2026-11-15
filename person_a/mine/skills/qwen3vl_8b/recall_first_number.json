@@ -1,0 +1,1220 @@
+{
+ "name": "recall_first_number",
+ "description": "Recall the first element written in a Python list of numbers, prompted by a comment ('# first element written:'). Control: identical format but the list holds English words, so recall is of a word rather than a number.",
+ "hash": "cbb84108219e0fcd",
+ "agent_items": false,
+ "generator_code": "\nimport random, json\nrandom.seed(0)\nW=[\"apple\",\"river\",\"stone\",\"cloud\",\"tiger\",\"piano\",\"lemon\",\"house\",\"chair\",\"glass\",\"bread\",\"green\",\"mouse\",\"train\",\"plant\",\"sugar\",\"candle\",\"forest\",\"window\",\"silver\",\"garden\",\"orange\",\"pencil\",\"rocket\",\"castle\",\"dragon\",\"guitar\",\"jacket\",\"marble\",\"planet\"]\ndef make(ctrl,n=120):\n    out=[]\n    for _ in range(n):\n        if ctrl:\n            xs=random.sample(W,5); lit=\"[\"+\", \".join(repr(x) for x in xs)+\"]\"\n            p=f\">>> xs = ['cat', 'dog']\\n# first element written: 'cat'\\n>>> xs = {lit}\\n# first element written:\"\n            a=f\" '{xs[0]}'\"\n        else:\n            xs=random.sample(range(10,99),5)\n            p=f\">>> xs = [1, 2]\\n# first element written: 1\\n>>> xs = {xs}\\n# first element written:\"\n            a=f\" {xs[0]}\"\n        out.append({\"prompt\":p,\"answer\":a})\n    return out\njson.dump({\"items\":make(False),\"control\":make(True)},open(\"/work/skill.json\",\"w\"))\n",
+ "items": {
+  "search": [
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [63, 34, 80, 91, 20]\n# first element written:",
+    "continuation": " 63",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [77, 74, 14, 83, 21]\n# first element written:",
+    "continuation": " 77",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [47, 70, 18, 20, 76]\n# first element written:",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [27, 22, 89, 42, 78]\n# first element written:",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [40, 46, 52, 17, 14]\n# first element written:",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [50, 10, 37, 11, 96]\n# first element written:",
+    "continuation": " 50",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [15, 44, 30, 29, 84]\n# first element written:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [37, 96, 85, 63, 84]\n# first element written:",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [13, 25, 91, 34, 87]\n# first element written:",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [72, 85, 90, 52, 34]\n# first element written:",
+    "continuation": " 72",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [71, 55, 88, 46, 96]\n# first element written:",
+    "continuation": " 71",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [68, 91, 65, 57, 78]\n# first element written:",
+    "continuation": " 68",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [45, 67, 73, 94, 92]\n# first element written:",
+    "continuation": " 45",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [43, 81, 50, 56, 82]\n# first element written:",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [47, 24, 71, 40, 16]\n# first element written:",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [66, 21, 86, 59, 50]\n# first element written:",
+    "continuation": " 66",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [72, 84, 96, 37, 64]\n# first element written:",
+    "continuation": " 72",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [91, 78, 87, 97, 19]\n# first element written:",
+    "continuation": " 91",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [84, 37, 74, 27, 46]\n# first element written:",
+    "continuation": " 84",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [49, 32, 76, 19, 48]\n# first element written:",
+    "continuation": " 49",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [43, 17, 80, 11, 21]\n# first element written:",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [12, 94, 10, 33, 48]\n# first element written:",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [82, 75, 49, 93, 55]\n# first element written:",
+    "continuation": " 82",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [60, 81, 76, 47, 67]\n# first element written:",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [42, 87, 29, 58, 84]\n# first element written:",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [59, 94, 42, 29, 81]\n# first element written:",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [15, 79, 45, 27, 40]\n# first element written:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [16, 22, 70, 29, 12]\n# first element written:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [64, 14, 48, 52, 97]\n# first element written:",
+    "continuation": " 64",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [17, 74, 69, 15, 86]\n# first element written:",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [73, 52, 41, 51, 18]\n# first element written:",
+    "continuation": " 73",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [55, 20, 51, 88, 24]\n# first element written:",
+    "continuation": " 55",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [55, 85, 91, 89, 26]\n# first element written:",
+    "continuation": " 55",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [10, 86, 34, 52, 30]\n# first element written:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [96, 76, 86, 19, 64]\n# first element written:",
+    "continuation": " 96",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [72, 28, 82, 61, 91]\n# first element written:",
+    "continuation": " 72",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [75, 72, 23, 48, 80]\n# first element written:",
+    "continuation": " 75",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [96, 82, 63, 14, 61]\n# first element written:",
+    "continuation": " 96",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [60, 77, 45, 76, 40]\n# first element written:",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [71, 63, 28, 72, 87]\n# first element written:",
+    "continuation": " 71",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [53, 57, 21, 89, 14]\n# first element written:",
+    "continuation": " 53",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [28, 23, 35, 68, 58]\n# first element written:",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [22, 43, 18, 38, 19]\n# first element written:",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [70, 18, 21, 96, 26]\n# first element written:",
+    "continuation": " 70",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [55, 65, 50, 88, 91]\n# first element written:",
+    "continuation": " 55",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [93, 68, 57, 74, 58]\n# first element written:",
+    "continuation": " 93",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [51, 73, 91, 95, 35]\n# first element written:",
+    "continuation": " 51",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [29, 14, 20, 79, 97]\n# first element written:",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [34, 59, 72, 24, 17]\n# first element written:",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [14, 88, 69, 59, 68]\n# first element written:",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [22, 28, 38, 15, 83]\n# first element written:",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [96, 12, 79, 64, 89]\n# first element written:",
+    "continuation": " 96",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [67, 18, 43, 30, 77]\n# first element written:",
+    "continuation": " 67",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [18, 13, 77, 67, 96]\n# first element written:",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [97, 64, 76, 73, 96]\n# first element written:",
+    "continuation": " 97",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [36, 87, 80, 85, 46]\n# first element written:",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [47, 25, 80, 52, 79]\n# first element written:",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [73, 43, 48, 62, 59]\n# first element written:",
+    "continuation": " 73",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [26, 11, 61, 96, 63]\n# first element written:",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [38, 17, 59, 11, 22]\n# first element written:",
+    "continuation": " 38",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [87, 28, 49, 22, 19]\n# first element written:",
+    "continuation": " 87",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [29, 31, 90, 82, 58]\n# first element written:",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [91, 21, 18, 20, 35]\n# first element written:",
+    "continuation": " 91",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [42, 25, 86, 66, 95]\n# first element written:",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [83, 25, 60, 21, 57]\n# first element written:",
+    "continuation": " 83",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [20, 57, 38, 43, 84]\n# first element written:",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [90, 20, 12, 45, 67]\n# first element written:",
+    "continuation": " 90",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [59, 63, 15, 43, 75]\n# first element written:",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [59, 17, 30, 92, 26]\n# first element written:",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [34, 82, 38, 40, 28]\n# first element written:",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [72, 61, 48, 71, 55]\n# first element written:",
+    "continuation": " 72",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [56, 79, 29, 23, 86]\n# first element written:",
+    "continuation": " 56",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [36, 80, 71, 66, 76]\n# first element written:",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [14, 86, 89, 26, 90]\n# first element written:",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [45, 12, 15, 36, 97]\n# first element written:",
+    "continuation": " 45",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [73, 51, 49, 69, 16]\n# first element written:",
+    "continuation": " 73",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [88, 69, 90, 53, 93]\n# first element written:",
+    "continuation": " 88",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [32, 36, 58, 85, 47]\n# first element written:",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [41, 12, 44, 24, 38]\n# first element written:",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [22, 81, 71, 70, 53]\n# first element written:",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [17, 96, 30, 53, 77]\n# first element written:",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [72, 81, 87, 10, 14]\n# first element written:",
+    "continuation": " 72",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [36, 47, 78, 86, 63]\n# first element written:",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [35, 25, 73, 60, 42]\n# first element written:",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [11, 27, 29, 44, 52]\n# first element written:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [77, 88, 22, 34, 25]\n# first element written:",
+    "continuation": " 77",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [32, 11, 70, 97, 62]\n# first element written:",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [31, 65, 34, 55, 24]\n# first element written:",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [61, 95, 90, 10, 88]\n# first element written:",
+    "continuation": " 61",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [51, 23, 80, 93, 54]\n# first element written:",
+    "continuation": " 51",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [70, 82, 31, 96, 36]\n# first element written:",
+    "continuation": " 70",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [33, 14, 88, 94, 43]\n# first element written:",
+    "continuation": " 33",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [61, 52, 48, 63, 23]\n# first element written:",
+    "continuation": " 61",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [36, 92, 15, 37, 89]\n# first element written:",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [15, 87, 93, 73, 92]\n# first element written:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [24, 14, 87, 12, 34]\n# first element written:",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [53, 25, 71, 24, 73]\n# first element written:",
+    "continuation": " 53",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [79, 67, 21, 20, 50]\n# first element written:",
+    "continuation": " 79",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [79, 88, 38, 11, 53]\n# first element written:",
+    "continuation": " 79",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [11, 67, 52, 30, 29]\n# first element written:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [92, 48, 54, 65, 33]\n# first element written:",
+    "continuation": " 92",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [83, 40, 47, 33, 34]\n# first element written:",
+    "continuation": " 83",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [24, 42, 27, 93, 76]\n# first element written:",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [57, 31, 52, 64, 17]\n# first element written:",
+    "continuation": " 57",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [47, 56, 60, 80, 26]\n# first element written:",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [98, 11, 68, 20, 52]\n# first element written:",
+    "continuation": " 98",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [87, 93, 35, 48, 45]\n# first element written:",
+    "continuation": " 87",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [22, 60, 35, 43, 55]\n# first element written:",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [71, 59, 87, 85, 39]\n# first element written:",
+    "continuation": " 71",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [15, 18, 38, 26, 48]\n# first element written:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [40, 38, 91, 67, 58]\n# first element written:",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [98, 33, 22, 70, 60]\n# first element written:",
+    "continuation": " 98",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [93, 92, 54, 24, 29]\n# first element written:",
+    "continuation": " 93",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [33, 25, 71, 36, 17]\n# first element written:",
+    "continuation": " 33",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [97, 52, 70, 81, 22]\n# first element written:",
+    "continuation": " 97",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [82, 63, 94, 15, 31]\n# first element written:",
+    "continuation": " 82",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [20, 96, 29, 55, 62]\n# first element written:",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [50, 51, 14, 77, 28]\n# first element written:",
+    "continuation": " 50",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [49, 59, 63, 93, 20]\n# first element written:",
+    "continuation": " 49",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = [1, 2]\n# first element written: 1\n>>> xs = [74, 82, 42, 52, 18]\n# first element written:",
+    "continuation": " 74",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['pencil', 'glass', 'castle', 'plant', 'candle']\n# first element written:",
+    "continuation": " 'pencil'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['marble', 'orange', 'train', 'tiger', 'plant']\n# first element written:",
+    "continuation": " 'marble'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['tiger', 'lemon', 'apple', 'orange', 'rocket']\n# first element written:",
+    "continuation": " 'tiger'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['silver', 'glass', 'stone', 'pencil', 'jacket']\n# first element written:",
+    "continuation": " 'silver'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['garden', 'sugar', 'rocket', 'train', 'lemon']\n# first element written:",
+    "continuation": " 'garden'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['cloud', 'forest', 'silver', 'pencil', 'tiger']\n# first element written:",
+    "continuation": " 'cloud'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['dragon', 'lemon', 'river', 'mouse', 'plant']\n# first element written:",
+    "continuation": " 'dragon'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['lemon', 'cloud', 'train', 'plant', 'pencil']\n# first element written:",
+    "continuation": " 'lemon'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['apple', 'train', 'rocket', 'marble', 'bread']\n# first element written:",
+    "continuation": " 'apple'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['marble', 'garden', 'castle', 'candle', 'pencil']\n# first element written:",
+    "continuation": " 'marble'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['tiger', 'rocket', 'apple', 'dragon', 'plant']\n# first element written:",
+    "continuation": " 'tiger'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['sugar', 'chair', 'pencil', 'lemon', 'bread']\n# first element written:",
+    "continuation": " 'sugar'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['green', 'pencil', 'apple', 'planet', 'silver']\n# first element written:",
+    "continuation": " 'green'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['house', 'tiger', 'castle', 'window', 'glass']\n# first element written:",
+    "continuation": " 'house'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['forest', 'castle', 'marble', 'guitar', 'mouse']\n# first element written:",
+    "continuation": " 'forest'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['sugar', 'river', 'marble', 'silver', 'lemon']\n# first element written:",
+    "continuation": " 'sugar'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['apple', 'jacket', 'candle', 'stone', 'orange']\n# first element written:",
+    "continuation": " 'apple'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['apple', 'cloud', 'chair', 'marble', 'orange']\n# first element written:",
+    "continuation": " 'apple'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['rocket', 'planet', 'train', 'window', 'plant']\n# first element written:",
+    "continuation": " 'rocket'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['house', 'stone', 'castle', 'guitar', 'marble']\n# first element written:",
+    "continuation": " 'house'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['planet', 'pencil', 'tiger', 'candle', 'bread']\n# first element written:",
+    "continuation": " 'planet'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['guitar', 'jacket', 'chair', 'planet', 'green']\n# first element written:",
+    "continuation": " 'guitar'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['chair', 'river', 'piano', 'green', 'apple']\n# first element written:",
+    "continuation": " 'chair'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['candle', 'orange', 'garden', 'forest', 'planet']\n# first element written:",
+    "continuation": " 'candle'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['plant', 'lemon', 'green', 'glass', 'sugar']\n# first element written:",
+    "continuation": " 'plant'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['stone', 'house', 'plant', 'garden', 'green']\n# first element written:",
+    "continuation": " 'stone'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['orange', 'rocket', 'glass', 'candle', 'jacket']\n# first element written:",
+    "continuation": " 'orange'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['sugar', 'stone', 'orange', 'castle', 'house']\n# first element written:",
+    "continuation": " 'sugar'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['jacket', 'bread', 'rocket', 'chair', 'stone']\n# first element written:",
+    "continuation": " 'jacket'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['stone', 'pencil', 'tiger', 'train', 'glass']\n# first element written:",
+    "continuation": " 'stone'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['cloud', 'sugar', 'green', 'pencil', 'chair']\n# first element written:",
+    "continuation": " 'cloud'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['garden', 'stone', 'river', 'marble', 'planet']\n# first element written:",
+    "continuation": " 'garden'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['green', 'dragon', 'mouse', 'train', 'sugar']\n# first element written:",
+    "continuation": " 'green'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['green', 'castle', 'lemon', 'plant', 'dragon']\n# first element written:",
+    "continuation": " 'green'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['window', 'train', 'glass', 'garden', 'green']\n# first element written:",
+    "continuation": " 'window'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['jacket', 'stone', 'orange', 'rocket', 'planet']\n# first element written:",
+    "continuation": " 'jacket'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['candle', 'train', 'glass', 'cloud', 'tiger']\n# first element written:",
+    "continuation": " 'candle'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['candle', 'green', 'lemon', 'guitar', 'chair']\n# first element written:",
+    "continuation": " 'candle'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['piano', 'castle', 'train', 'house', 'plant']\n# first element written:",
+    "continuation": " 'piano'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['tiger', 'train', 'marble', 'planet', 'lemon']\n# first element written:",
+    "continuation": " 'tiger'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['bread', 'candle', 'house', 'castle', 'piano']\n# first element written:",
+    "continuation": " 'bread'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['pencil', 'cloud', 'mouse', 'window', 'plant']\n# first element written:",
+    "continuation": " 'pencil'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['bread', 'train', 'cloud', 'forest', 'marble']\n# first element written:",
+    "continuation": " 'bread'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['tiger', 'apple', 'lemon', 'green', 'bread']\n# first element written:",
+    "continuation": " 'tiger'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['forest', 'castle', 'mouse', 'chair', 'garden']\n# first element written:",
+    "continuation": " 'forest'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['glass', 'green', 'train', 'orange', 'river']\n# first element written:",
+    "continuation": " 'glass'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['dragon', 'train', 'orange', 'house', 'silver']\n# first element written:",
+    "continuation": " 'dragon'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['jacket', 'house', 'marble', 'planet', 'castle']\n# first element written:",
+    "continuation": " 'jacket'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['guitar', 'green', 'stone', 'silver', 'marble']\n# first element written:",
+    "continuation": " 'guitar'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['dragon', 'chair', 'glass', 'plant', 'green']\n# first element written:",
+    "continuation": " 'dragon'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['dragon', 'pencil', 'plant', 'planet', 'mouse']\n# first element written:",
+    "continuation": " 'dragon'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['window', 'garden', 'tiger', 'piano', 'cloud']\n# first element written:",
+    "continuation": " 'window'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['bread', 'mouse', 'piano', 'train', 'garden']\n# first element written:",
+    "continuation": " 'bread'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['plant', 'silver', 'stone', 'guitar', 'train']\n# first element written:",
+    "continuation": " 'plant'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['plant', 'garden', 'stone', 'sugar', 'castle']\n# first element written:",
+    "continuation": " 'plant'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['glass', 'candle', 'tiger', 'window', 'garden']\n# first element written:",
+    "continuation": " 'glass'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['marble', 'cloud', 'rocket', 'apple', 'glass']\n# first element written:",
+    "continuation": " 'marble'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['plant', 'silver', 'apple', 'lemon', 'glass']\n# first element written:",
+    "continuation": " 'plant'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['river', 'sugar', 'chair', 'marble', 'apple']\n# first element written:",
+    "continuation": " 'river'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['green', 'piano', 'apple', 'guitar', 'house']\n# first element written:",
+    "continuation": " 'green'",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['mouse', 'forest', 'planet', 'house', 'plant']\n# first element written:",
+    "continuation": " 'mouse'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['lemon', 'glass', 'apple', 'guitar', 'pencil']\n# first element written:",
+    "continuation": " 'lemon'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['stone', 'jacket', 'piano', 'green', 'river']\n# first element written:",
+    "continuation": " 'stone'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['house', 'jacket', 'tiger', 'piano', 'plant']\n# first element written:",
+    "continuation": " 'house'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['river', 'lemon', 'green', 'stone', 'jacket']\n# first element written:",
+    "continuation": " 'river'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['river', 'apple', 'chair', 'mouse', 'candle']\n# first element written:",
+    "continuation": " 'river'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['plant', 'lemon', 'window', 'pencil', 'river']\n# first element written:",
+    "continuation": " 'plant'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['garden', 'candle', 'river', 'mouse', 'train']\n# first element written:",
+    "continuation": " 'garden'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['glass', 'forest', 'bread', 'cloud', 'candle']\n# first element written:",
+    "continuation": " 'glass'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['cloud', 'silver', 'apple', 'chair', 'jacket']\n# first element written:",
+    "continuation": " 'cloud'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['glass', 'silver', 'forest', 'dragon', 'lemon']\n# first element written:",
+    "continuation": " 'glass'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['bread', 'planet', 'candle', 'tiger', 'green']\n# first element written:",
+    "continuation": " 'bread'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['candle', 'castle', 'glass', 'marble', 'green']\n# first element written:",
+    "continuation": " 'candle'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['river', 'plant', 'glass', 'tiger', 'rocket']\n# first element written:",
+    "continuation": " 'river'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['stone', 'house', 'cloud', 'guitar', 'castle']\n# first element written:",
+    "continuation": " 'stone'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['jacket', 'castle', 'orange', 'planet', 'lemon']\n# first element written:",
+    "continuation": " 'jacket'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['cloud', 'forest', 'window', 'glass', 'piano']\n# first element written:",
+    "continuation": " 'cloud'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['tiger', 'forest', 'orange', 'glass', 'green']\n# first element written:",
+    "continuation": " 'tiger'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['mouse', 'rocket', 'house', 'dragon', 'lemon']\n# first element written:",
+    "continuation": " 'mouse'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['marble', 'window', 'pencil', 'mouse', 'plant']\n# first element written:",
+    "continuation": " 'marble'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['garden', 'bread', 'piano', 'window', 'stone']\n# first element written:",
+    "continuation": " 'garden'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['mouse', 'chair', 'sugar', 'green', 'jacket']\n# first element written:",
+    "continuation": " 'mouse'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['dragon', 'jacket', 'tiger', 'planet', 'mouse']\n# first element written:",
+    "continuation": " 'dragon'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['sugar', 'pencil', 'candle', 'bread', 'garden']\n# first element written:",
+    "continuation": " 'sugar'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['pencil', 'house', 'river', 'glass', 'planet']\n# first element written:",
+    "continuation": " 'pencil'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['marble', 'mouse', 'river', 'house', 'garden']\n# first element written:",
+    "continuation": " 'marble'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['dragon', 'glass', 'planet', 'rocket', 'jacket']\n# first element written:",
+    "continuation": " 'dragon'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['stone', 'dragon', 'bread', 'forest', 'plant']\n# first element written:",
+    "continuation": " 'stone'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['stone', 'piano', 'dragon', 'cloud', 'chair']\n# first element written:",
+    "continuation": " 'stone'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['planet', 'cloud', 'train', 'stone', 'castle']\n# first element written:",
+    "continuation": " 'planet'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['orange', 'mouse', 'apple', 'green', 'river']\n# first element written:",
+    "continuation": " 'orange'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['mouse', 'marble', 'tiger', 'dragon', 'house']\n# first element written:",
+    "continuation": " 'mouse'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['train', 'plant', 'river', 'garden', 'pencil']\n# first element written:",
+    "continuation": " 'train'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['forest', 'train', 'rocket', 'planet', 'tiger']\n# first element written:",
+    "continuation": " 'forest'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['rocket', 'plant', 'river', 'planet', 'dragon']\n# first element written:",
+    "continuation": " 'rocket'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['rocket', 'garden', 'orange', 'piano', 'house']\n# first element written:",
+    "continuation": " 'rocket'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['cloud', 'orange', 'pencil', 'silver', 'glass']\n# first element written:",
+    "continuation": " 'cloud'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['train', 'sugar', 'plant', 'cloud', 'stone']\n# first element written:",
+    "continuation": " 'train'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['garden', 'pencil', 'glass', 'rocket', 'marble']\n# first element written:",
+    "continuation": " 'garden'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['cloud', 'rocket', 'chair', 'green', 'glass']\n# first element written:",
+    "continuation": " 'cloud'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['silver', 'tiger', 'train', 'pencil', 'castle']\n# first element written:",
+    "continuation": " 'silver'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['orange', 'dragon', 'cloud', 'candle', 'jacket']\n# first element written:",
+    "continuation": " 'orange'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['lemon', 'forest', 'cloud', 'train', 'garden']\n# first element written:",
+    "continuation": " 'lemon'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['train', 'marble', 'window', 'planet', 'stone']\n# first element written:",
+    "continuation": " 'train'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['sugar', 'glass', 'planet', 'marble', 'forest']\n# first element written:",
+    "continuation": " 'sugar'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['lemon', 'bread', 'silver', 'cloud', 'marble']\n# first element written:",
+    "continuation": " 'lemon'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['cloud', 'castle', 'garden', 'glass', 'forest']\n# first element written:",
+    "continuation": " 'cloud'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['tiger', 'lemon', 'planet', 'piano', 'plant']\n# first element written:",
+    "continuation": " 'tiger'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['piano', 'stone', 'train', 'jacket', 'glass']\n# first element written:",
+    "continuation": " 'piano'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['silver', 'stone', 'river', 'dragon', 'chair']\n# first element written:",
+    "continuation": " 'silver'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['river', 'piano', 'house', 'sugar', 'tiger']\n# first element written:",
+    "continuation": " 'river'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['forest', 'mouse', 'rocket', 'castle', 'marble']\n# first element written:",
+    "continuation": " 'forest'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['train', 'orange', 'apple', 'sugar', 'planet']\n# first element written:",
+    "continuation": " 'train'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['jacket', 'tiger', 'silver', 'apple', 'mouse']\n# first element written:",
+    "continuation": " 'jacket'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['candle', 'orange', 'window', 'marble', 'lemon']\n# first element written:",
+    "continuation": " 'candle'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['glass', 'garden', 'apple', 'tiger', 'stone']\n# first element written:",
+    "continuation": " 'glass'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['marble', 'bread', 'chair', 'apple', 'candle']\n# first element written:",
+    "continuation": " 'marble'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['forest', 'stone', 'apple', 'plant', 'sugar']\n# first element written:",
+    "continuation": " 'forest'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['apple', 'green', 'sugar', 'mouse', 'marble']\n# first element written:",
+    "continuation": " 'apple'",
+    "digits_only": false
+   },
+   {
+    "context": ">>> xs = ['cat', 'dog']\n# first element written: 'cat'\n>>> xs = ['green', 'stone', 'cloud', 'pencil', 'apple']\n# first element written:",
+    "continuation": " 'green'",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 3.4096
+}

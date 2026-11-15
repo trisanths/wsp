@@ -1,0 +1,1220 @@
+{
+ "name": "times_table",
+ "description": "Single-digit by 1-2 digit multiplication (a in 2..9, b in 2..19), few-shot 'a x b = c'. Control: same format, answer copies the larger operand ('larger of a and b is ...').",
+ "hash": "6e2a241b9a0a70fe",
+ "agent_items": false,
+ "generator_code": "\nimport random, json\nrandom.seed(0)\ndef make(ctrl,n=120):\n    out=[]\n    for _ in range(n):\n        shots=[(random.randint(2,9),random.randint(2,19)) for _ in range(3)]\n        a,b=random.randint(2,9),random.randint(2,19)\n        if ctrl:\n            p=\"\".join(f\"larger of {x} and {y} is {max(x,y)}\\n\" for x,y in shots)+f\"larger of {a} and {b} is\"; ans=f\" {max(a,b)}\"\n        else:\n            p=\"\".join(f\"{x} x {y} = {x*y}\\n\" for x,y in shots)+f\"{a} x {b} =\"; ans=f\" {a*b}\"\n        out.append({\"prompt\":p,\"answer\":ans})\n    return out\njson.dump({\"items\":make(False),\"control\":make(True)},open(\"/work/skill.json\",\"w\"))\n",
+ "items": {
+  "search": [
+   {
+    "context": "7 x 8 = 56\n8 x 17 = 136\n3 x 3 = 9\n9 x 12 =",
+    "continuation": " 108",
+    "digits_only": false
+   },
+   {
+    "context": "8 x 17 = 136\n9 x 16 = 144\n3 x 4 = 12\n3 x 9 =",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "7 x 12 = 84\n9 x 12 = 108\n6 x 2 = 12\n2 x 8 =",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "8 x 12 = 96\n5 x 19 = 95\n9 x 16 = 144\n6 x 3 =",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "9 x 11 = 99\n4 x 6 = 24\n2 x 19 = 38\n7 x 13 =",
+    "continuation": " 91",
+    "digits_only": false
+   },
+   {
+    "context": "8 x 16 = 128\n7 x 8 = 56\n9 x 13 = 117\n3 x 3 =",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "7 x 18 = 126\n2 x 14 = 28\n8 x 2 = 16\n8 x 12 =",
+    "continuation": " 96",
+    "digits_only": false
+   },
+   {
+    "context": "6 x 6 = 36\n5 x 17 = 85\n7 x 11 = 77\n7 x 6 =",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "3 x 2 = 6\n6 x 16 = 96\n3 x 10 = 30\n4 x 18 =",
+    "continuation": " 72",
+    "digits_only": false
+   },
+   {
+    "context": "2 x 7 = 14\n9 x 4 = 36\n6 x 7 = 42\n9 x 18 =",
+    "continuation": " 162",
+    "digits_only": false
+   },
+   {
+    "context": "7 x 12 = 84\n7 x 3 = 21\n4 x 10 = 40\n4 x 14 =",
+    "continuation": " 56",
+    "digits_only": false
+   },
+   {
+    "context": "6 x 7 = 42\n8 x 6 = 48\n4 x 9 = 36\n7 x 18 =",
+    "continuation": " 126",
+    "digits_only": false
+   },
+   {
+    "context": "6 x 14 = 84\n8 x 4 = 32\n2 x 8 = 16\n7 x 7 =",
+    "continuation": " 49",
+    "digits_only": false
+   },
+   {
+    "context": "3 x 17 = 51\n7 x 10 = 70\n4 x 2 = 8\n5 x 13 =",
+    "continuation": " 65",
+    "digits_only": false
+   },
+   {
+    "context": "6 x 5 = 30\n4 x 16 = 64\n8 x 7 = 56\n8 x 15 =",
+    "continuation": " 120",
+    "digits_only": false
+   },
+   {
+    "context": "2 x 2 = 4\n8 x 5 = 40\n6 x 4 = 24\n5 x 4 =",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "8 x 16 = 128\n4 x 19 = 76\n6 x 13 = 78\n9 x 15 =",
+    "continuation": " 135",
+    "digits_only": false
+   },
+   {
+    "context": "3 x 8 = 24\n6 x 10 = 60\n4 x 5 = 20\n9 x 14 =",
+    "continuation": " 126",
+    "digits_only": false
+   },
+   {
+    "context": "4 x 11 = 44\n3 x 4 = 12\n7 x 17 = 119\n3 x 13 =",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "4 x 9 = 36\n9 x 12 = 108\n4 x 13 = 52\n9 x 4 =",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "7 x 9 = 63\n6 x 7 = 42\n5 x 7 = 35\n2 x 10 =",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "9 x 18 = 162\n9 x 19 = 171\n6 x 10 = 60\n5 x 2 =",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "3 x 2 = 6\n9 x 8 = 72\n3 x 17 = 51\n8 x 10 =",
+    "continuation": " 80",
+    "digits_only": false
+   },
+   {
+    "context": "6 x 16 = 96\n7 x 6 = 42\n4 x 5 = 20\n3 x 14 =",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "8 x 19 = 152\n5 x 16 = 80\n5 x 12 = 60\n3 x 4 =",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "5 x 3 = 15\n5 x 6 = 30\n3 x 8 = 24\n9 x 14 =",
+    "continuation": " 126",
+    "digits_only": false
+   },
+   {
+    "context": "9 x 12 = 108\n9 x 17 = 153\n5 x 19 = 95\n5 x 2 =",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "2 x 9 = 18\n4 x 17 = 68\n9 x 19 = 171\n7 x 4 =",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "2 x 10 = 20\n8 x 18 = 144\n8 x 16 = 128\n3 x 10 =",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "3 x 11 = 33\n8 x 12 = 96\n6 x 15 = 90\n3 x 5 =",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "8 x 18 = 144\n6 x 18 = 108\n5 x 8 = 40\n8 x 10 =",
+    "continuation": " 80",
+    "digits_only": false
+   },
+   {
+    "context": "5 x 9 = 45\n9 x 14 = 126\n8 x 3 = 24\n8 x 15 =",
+    "continuation": " 120",
+    "digits_only": false
+   },
+   {
+    "context": "6 x 17 = 102\n3 x 4 = 12\n2 x 4 = 8\n5 x 6 =",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "7 x 18 = 126\n8 x 18 = 144\n2 x 4 = 8\n3 x 15 =",
+    "continuation": " 45",
+    "digits_only": false
+   },
+   {
+    "context": "3 x 6 = 18\n8 x 8 = 64\n9 x 4 = 36\n8 x 19 =",
+    "continuation": " 152",
+    "digits_only": false
+   },
+   {
+    "context": "9 x 8 = 72\n2 x 14 = 28\n2 x 9 = 18\n3 x 7 =",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "7 x 15 = 105\n2 x 5 = 10\n4 x 9 = 36\n2 x 19 =",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "4 x 11 = 44\n6 x 12 = 72\n3 x 17 = 51\n6 x 11 =",
+    "continuation": " 66",
+    "digits_only": false
+   },
+   {
+    "context": "4 x 19 = 76\n2 x 16 = 32\n3 x 12 = 36\n2 x 19 =",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "2 x 6 = 12\n8 x 6 = 48\n4 x 18 = 72\n3 x 6 =",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "8 x 6 = 48\n8 x 11 = 88\n7 x 4 = 28\n5 x 16 =",
+    "continuation": " 80",
+    "digits_only": false
+   },
+   {
+    "context": "8 x 6 = 48\n9 x 6 = 54\n7 x 6 = 42\n5 x 7 =",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "2 x 10 = 20\n4 x 6 = 24\n6 x 13 = 78\n8 x 19 =",
+    "continuation": " 152",
+    "digits_only": false
+   },
+   {
+    "context": "2 x 7 = 14\n4 x 12 = 48\n6 x 5 = 30\n9 x 7 =",
+    "continuation": " 63",
+    "digits_only": false
+   },
+   {
+    "context": "3 x 12 = 36\n9 x 5 = 45\n6 x 19 = 114\n6 x 5 =",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "6 x 19 = 114\n3 x 2 = 6\n9 x 17 = 153\n9 x 3 =",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "8 x 16 = 128\n2 x 18 = 36\n8 x 16 = 128\n9 x 10 =",
+    "continuation": " 90",
+    "digits_only": false
+   },
+   {
+    "context": "2 x 17 = 34\n8 x 18 = 144\n6 x 13 = 78\n8 x 10 =",
+    "continuation": " 80",
+    "digits_only": false
+   },
+   {
+    "context": "7 x 7 = 49\n6 x 2 = 12\n7 x 19 = 133\n2 x 6 =",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "4 x 17 = 68\n3 x 2 = 6\n7 x 17 = 119\n9 x 11 =",
+    "continuation": " 99",
+    "digits_only": false
+   },
+   {
+    "context": "8 x 12 = 96\n2 x 8 = 16\n2 x 2 = 4\n3 x 8 =",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "4 x 10 = 40\n7 x 12 = 84\n7 x 4 = 28\n7 x 3 =",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "7 x 3 = 21\n2 x 17 = 34\n8 x 6 = 48\n9 x 4 =",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "8 x 2 = 16\n3 x 4 = 12\n8 x 2 = 16\n7 x 3 =",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "7 x 3 = 21\n4 x 9 = 36\n6 x 4 = 24\n6 x 13 =",
+    "continuation": " 78",
+    "digits_only": false
+   },
+   {
+    "context": "3 x 3 = 9\n2 x 8 = 16\n4 x 5 = 20\n9 x 8 =",
+    "continuation": " 72",
+    "digits_only": false
+   },
+   {
+    "context": "3 x 2 = 6\n3 x 8 = 24\n3 x 14 = 42\n3 x 13 =",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "8 x 3 = 24\n3 x 14 = 42\n6 x 5 = 30\n7 x 9 =",
+    "continuation": " 63",
+    "digits_only": false
+   },
+   {
+    "context": "3 x 11 = 33\n4 x 14 = 56\n6 x 5 = 30\n5 x 3 =",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "4 x 18 = 72\n5 x 19 = 95\n3 x 15 = 45\n8 x 10 =",
+    "continuation": " 80",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "2 x 4 = 8\n8 x 2 = 16\n9 x 12 = 108\n5 x 12 =",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": "7 x 11 = 77\n5 x 4 = 20\n2 x 4 = 8\n6 x 11 =",
+    "continuation": " 66",
+    "digits_only": false
+   },
+   {
+    "context": "7 x 5 = 35\n5 x 7 = 35\n3 x 15 = 45\n6 x 11 =",
+    "continuation": " 66",
+    "digits_only": false
+   },
+   {
+    "context": "8 x 19 = 152\n6 x 16 = 96\n9 x 8 = 72\n8 x 4 =",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "7 x 5 = 35\n4 x 10 = 40\n2 x 3 = 6\n2 x 8 =",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "5 x 17 = 85\n9 x 18 = 162\n7 x 17 = 119\n2 x 16 =",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "8 x 15 = 120\n2 x 17 = 34\n7 x 10 = 70\n3 x 13 =",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "8 x 15 = 120\n2 x 10 = 20\n9 x 14 = 126\n6 x 17 =",
+    "continuation": " 102",
+    "digits_only": false
+   },
+   {
+    "context": "6 x 9 = 54\n5 x 4 = 20\n6 x 12 = 72\n5 x 13 =",
+    "continuation": " 65",
+    "digits_only": false
+   },
+   {
+    "context": "9 x 17 = 153\n7 x 4 = 28\n7 x 5 = 35\n9 x 12 =",
+    "continuation": " 108",
+    "digits_only": false
+   },
+   {
+    "context": "7 x 8 = 56\n4 x 11 = 44\n4 x 5 = 20\n6 x 19 =",
+    "continuation": " 114",
+    "digits_only": false
+   },
+   {
+    "context": "9 x 13 = 117\n8 x 15 = 120\n9 x 14 = 126\n5 x 8 =",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "7 x 19 = 133\n5 x 19 = 95\n6 x 16 = 96\n3 x 14 =",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "6 x 6 = 36\n8 x 8 = 64\n7 x 11 = 77\n8 x 3 =",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "2 x 11 = 22\n7 x 2 = 14\n5 x 6 = 30\n4 x 16 =",
+    "continuation": " 64",
+    "digits_only": false
+   },
+   {
+    "context": "3 x 17 = 51\n4 x 2 = 8\n2 x 6 = 12\n7 x 5 =",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "7 x 2 = 14\n9 x 3 = 27\n2 x 9 = 18\n2 x 2 =",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "5 x 9 = 45\n4 x 11 = 44\n7 x 15 = 105\n2 x 6 =",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "9 x 19 = 171\n2 x 3 = 6\n9 x 12 = 108\n6 x 16 =",
+    "continuation": " 96",
+    "digits_only": false
+   },
+   {
+    "context": "6 x 5 = 30\n6 x 19 = 114\n4 x 15 = 60\n9 x 4 =",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "3 x 4 = 12\n5 x 9 = 45\n2 x 14 = 28\n2 x 5 =",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "4 x 13 = 52\n8 x 3 = 24\n9 x 14 = 126\n9 x 3 =",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "8 x 3 = 24\n4 x 9 = 36\n9 x 9 = 81\n4 x 10 =",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "3 x 2 = 6\n6 x 11 = 66\n5 x 6 = 30\n6 x 8 =",
+    "continuation": " 48",
+    "digits_only": false
+   },
+   {
+    "context": "2 x 14 = 28\n3 x 4 = 12\n4 x 15 = 60\n6 x 19 =",
+    "continuation": " 114",
+    "digits_only": false
+   },
+   {
+    "context": "2 x 17 = 34\n6 x 2 = 12\n5 x 9 = 45\n3 x 18 =",
+    "continuation": " 54",
+    "digits_only": false
+   },
+   {
+    "context": "7 x 9 = 63\n6 x 7 = 42\n8 x 8 = 64\n7 x 5 =",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "6 x 6 = 36\n9 x 3 = 27\n5 x 2 = 10\n7 x 17 =",
+    "continuation": " 119",
+    "digits_only": false
+   },
+   {
+    "context": "9 x 4 = 36\n3 x 6 = 18\n4 x 3 = 12\n3 x 19 =",
+    "continuation": " 57",
+    "digits_only": false
+   },
+   {
+    "context": "5 x 3 = 15\n7 x 9 = 63\n7 x 16 = 112\n5 x 10 =",
+    "continuation": " 50",
+    "digits_only": false
+   },
+   {
+    "context": "8 x 3 = 24\n6 x 12 = 72\n4 x 7 = 28\n8 x 4 =",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "3 x 14 = 42\n5 x 10 = 50\n7 x 17 = 119\n4 x 8 =",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "9 x 8 = 72\n6 x 2 = 12\n9 x 16 = 144\n2 x 8 =",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "3 x 15 = 45\n9 x 12 = 108\n8 x 7 = 56\n7 x 15 =",
+    "continuation": " 105",
+    "digits_only": false
+   },
+   {
+    "context": "7 x 17 = 119\n6 x 11 = 66\n7 x 7 = 49\n3 x 5 =",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "6 x 19 = 114\n7 x 13 = 91\n2 x 17 = 34\n9 x 15 =",
+    "continuation": " 135",
+    "digits_only": false
+   },
+   {
+    "context": "9 x 9 = 81\n8 x 10 = 80\n2 x 5 = 10\n6 x 3 =",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "5 x 9 = 45\n2 x 10 = 20\n3 x 9 = 27\n7 x 7 =",
+    "continuation": " 49",
+    "digits_only": false
+   },
+   {
+    "context": "9 x 8 = 72\n7 x 10 = 70\n2 x 3 = 6\n2 x 7 =",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "6 x 11 = 66\n8 x 10 = 80\n9 x 13 = 117\n5 x 3 =",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "4 x 11 = 44\n3 x 17 = 51\n5 x 3 = 15\n6 x 7 =",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "6 x 13 = 78\n8 x 7 = 56\n2 x 18 = 36\n9 x 3 =",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "3 x 5 = 15\n7 x 2 = 14\n7 x 13 = 91\n4 x 2 =",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "2 x 15 = 30\n5 x 19 = 95\n3 x 6 = 18\n2 x 14 =",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "9 x 8 = 72\n7 x 11 = 77\n9 x 4 = 36\n4 x 5 =",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "7 x 19 = 133\n4 x 5 = 20\n9 x 6 = 54\n8 x 15 =",
+    "continuation": " 120",
+    "digits_only": false
+   },
+   {
+    "context": "8 x 18 = 144\n6 x 5 = 30\n4 x 15 = 60\n8 x 4 =",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "9 x 17 = 153\n7 x 12 = 84\n3 x 17 = 51\n3 x 17 =",
+    "continuation": " 51",
+    "digits_only": false
+   },
+   {
+    "context": "7 x 12 = 84\n8 x 5 = 40\n6 x 19 = 114\n5 x 11 =",
+    "continuation": " 55",
+    "digits_only": false
+   },
+   {
+    "context": "7 x 4 = 28\n5 x 18 = 90\n7 x 8 = 56\n5 x 10 =",
+    "continuation": " 50",
+    "digits_only": false
+   },
+   {
+    "context": "5 x 11 = 55\n8 x 17 = 136\n8 x 9 = 72\n2 x 2 =",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "3 x 15 = 45\n3 x 5 = 15\n8 x 6 = 48\n2 x 16 =",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "5 x 13 = 65\n3 x 6 = 18\n5 x 2 = 10\n5 x 5 =",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "7 x 19 = 133\n4 x 8 = 32\n8 x 11 = 88\n2 x 6 =",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "3 x 8 = 24\n5 x 9 = 45\n4 x 19 = 76\n9 x 4 =",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "8 x 14 = 112\n8 x 3 = 24\n4 x 6 = 24\n5 x 11 =",
+    "continuation": " 55",
+    "digits_only": false
+   },
+   {
+    "context": "5 x 17 = 85\n5 x 9 = 45\n4 x 9 = 36\n8 x 13 =",
+    "continuation": " 104",
+    "digits_only": false
+   },
+   {
+    "context": "7 x 2 = 14\n6 x 2 = 12\n4 x 4 = 16\n8 x 9 =",
+    "continuation": " 72",
+    "digits_only": false
+   },
+   {
+    "context": "2 x 11 = 22\n2 x 16 = 32\n7 x 7 = 49\n4 x 16 =",
+    "continuation": " 64",
+    "digits_only": false
+   },
+   {
+    "context": "3 x 5 = 15\n4 x 15 = 60\n5 x 8 = 40\n6 x 2 =",
+    "continuation": " 12",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "larger of 5 and 16 is 16\nlarger of 7 and 7 is 7\nlarger of 6 and 13 is 13\nlarger of 5 and 8 is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 7 and 14 is 14\nlarger of 6 and 5 is 6\nlarger of 9 and 11 is 11\nlarger of 3 and 16 is",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 7 and 17 is 17\nlarger of 2 and 9 is 9\nlarger of 5 and 10 is 10\nlarger of 4 and 15 is",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 2 and 10 is 10\nlarger of 2 and 13 is 13\nlarger of 7 and 12 is 12\nlarger of 9 and 6 is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 4 and 2 is 4\nlarger of 4 and 18 is 18\nlarger of 8 and 8 is 8\nlarger of 9 and 14 is",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 9 and 19 is 19\nlarger of 9 and 17 is 17\nlarger of 3 and 3 is 3\nlarger of 8 and 10 is",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 7 and 9 is 9\nlarger of 4 and 9 is 9\nlarger of 2 and 7 is 7\nlarger of 4 and 4 is",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 6 and 8 is 8\nlarger of 9 and 13 is 13\nlarger of 6 and 14 is 14\nlarger of 4 and 5 is",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 2 and 16 is 16\nlarger of 7 and 10 is 10\nlarger of 6 and 16 is 16\nlarger of 8 and 7 is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 2 and 2 is 2\nlarger of 6 and 3 is 6\nlarger of 6 and 11 is 11\nlarger of 5 and 18 is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 2 and 6 is 6\nlarger of 2 and 16 is 16\nlarger of 4 and 12 is 12\nlarger of 2 and 17 is",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 9 and 9 is 9\nlarger of 7 and 17 is 17\nlarger of 8 and 2 is 8\nlarger of 9 and 2 is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 3 and 15 is 15\nlarger of 8 and 10 is 10\nlarger of 6 and 15 is 15\nlarger of 7 and 12 is",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 3 and 11 is 11\nlarger of 8 and 9 is 9\nlarger of 7 and 14 is 14\nlarger of 4 and 9 is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 3 and 15 is 15\nlarger of 5 and 3 is 5\nlarger of 6 and 10 is 10\nlarger of 8 and 5 is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 6 and 18 is 18\nlarger of 9 and 19 is 19\nlarger of 8 and 17 is 17\nlarger of 6 and 7 is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 3 and 17 is 17\nlarger of 8 and 15 is 15\nlarger of 3 and 10 is 10\nlarger of 9 and 9 is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 9 and 14 is 14\nlarger of 3 and 10 is 10\nlarger of 6 and 18 is 18\nlarger of 7 and 19 is",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 7 and 6 is 7\nlarger of 8 and 10 is 10\nlarger of 8 and 4 is 8\nlarger of 7 and 9 is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 6 and 3 is 6\nlarger of 9 and 14 is 14\nlarger of 3 and 14 is 14\nlarger of 7 and 17 is",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 4 and 13 is 13\nlarger of 5 and 7 is 7\nlarger of 7 and 17 is 17\nlarger of 5 and 5 is",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 9 and 2 is 9\nlarger of 6 and 12 is 12\nlarger of 4 and 13 is 13\nlarger of 3 and 19 is",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 8 and 16 is 16\nlarger of 5 and 15 is 15\nlarger of 5 and 10 is 10\nlarger of 9 and 17 is",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 3 and 17 is 17\nlarger of 3 and 18 is 18\nlarger of 9 and 17 is 17\nlarger of 4 and 16 is",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 2 and 16 is 16\nlarger of 6 and 8 is 8\nlarger of 8 and 4 is 8\nlarger of 7 and 5 is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 2 and 7 is 7\nlarger of 4 and 2 is 4\nlarger of 7 and 8 is 8\nlarger of 2 and 15 is",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 8 and 16 is 16\nlarger of 7 and 16 is 16\nlarger of 3 and 6 is 6\nlarger of 5 and 5 is",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 5 and 19 is 19\nlarger of 8 and 4 is 8\nlarger of 4 and 15 is 15\nlarger of 7 and 5 is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 4 and 4 is 4\nlarger of 4 and 5 is 5\nlarger of 8 and 15 is 15\nlarger of 6 and 11 is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 9 and 18 is 18\nlarger of 4 and 12 is 12\nlarger of 4 and 17 is 17\nlarger of 2 and 19 is",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 8 and 15 is 15\nlarger of 8 and 3 is 8\nlarger of 9 and 13 is 13\nlarger of 4 and 10 is",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 2 and 3 is 3\nlarger of 9 and 4 is 9\nlarger of 7 and 11 is 11\nlarger of 4 and 16 is",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 6 and 17 is 17\nlarger of 5 and 12 is 12\nlarger of 2 and 4 is 4\nlarger of 9 and 12 is",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 8 and 5 is 8\nlarger of 9 and 6 is 9\nlarger of 2 and 10 is 10\nlarger of 7 and 14 is",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 9 and 12 is 12\nlarger of 8 and 18 is 18\nlarger of 7 and 5 is 7\nlarger of 4 and 12 is",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 3 and 11 is 11\nlarger of 4 and 13 is 13\nlarger of 3 and 6 is 6\nlarger of 2 and 6 is",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 7 and 14 is 14\nlarger of 6 and 8 is 8\nlarger of 3 and 12 is 12\nlarger of 5 and 19 is",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 7 and 17 is 17\nlarger of 5 and 7 is 7\nlarger of 7 and 19 is 19\nlarger of 7 and 16 is",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 2 and 6 is 6\nlarger of 6 and 3 is 6\nlarger of 2 and 14 is 14\nlarger of 7 and 7 is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 2 and 6 is 6\nlarger of 7 and 17 is 17\nlarger of 3 and 18 is 18\nlarger of 9 and 15 is",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 3 and 19 is 19\nlarger of 4 and 10 is 10\nlarger of 5 and 10 is 10\nlarger of 7 and 10 is",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 3 and 3 is 3\nlarger of 2 and 5 is 5\nlarger of 7 and 17 is 17\nlarger of 7 and 5 is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 8 and 4 is 8\nlarger of 6 and 5 is 6\nlarger of 3 and 6 is 6\nlarger of 9 and 3 is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 7 and 2 is 7\nlarger of 8 and 17 is 17\nlarger of 4 and 3 is 4\nlarger of 3 and 13 is",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 8 and 15 is 15\nlarger of 5 and 17 is 17\nlarger of 8 and 9 is 9\nlarger of 8 and 9 is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 6 and 18 is 18\nlarger of 9 and 6 is 9\nlarger of 9 and 19 is 19\nlarger of 4 and 3 is",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 3 and 8 is 8\nlarger of 6 and 18 is 18\nlarger of 3 and 3 is 3\nlarger of 4 and 12 is",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 7 and 6 is 7\nlarger of 4 and 5 is 5\nlarger of 7 and 7 is 7\nlarger of 2 and 15 is",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 2 and 19 is 19\nlarger of 8 and 9 is 9\nlarger of 2 and 13 is 13\nlarger of 4 and 8 is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 8 and 17 is 17\nlarger of 6 and 15 is 15\nlarger of 8 and 5 is 8\nlarger of 4 and 6 is",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 2 and 18 is 18\nlarger of 3 and 4 is 4\nlarger of 7 and 13 is 13\nlarger of 3 and 17 is",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 2 and 18 is 18\nlarger of 3 and 8 is 8\nlarger of 3 and 10 is 10\nlarger of 4 and 14 is",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 8 and 13 is 13\nlarger of 9 and 9 is 9\nlarger of 7 and 13 is 13\nlarger of 8 and 10 is",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 7 and 14 is 14\nlarger of 2 and 5 is 5\nlarger of 8 and 6 is 8\nlarger of 4 and 2 is",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 8 and 3 is 8\nlarger of 5 and 9 is 9\nlarger of 6 and 12 is 12\nlarger of 4 and 9 is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 4 and 8 is 8\nlarger of 4 and 9 is 9\nlarger of 2 and 18 is 18\nlarger of 4 and 17 is",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 3 and 16 is 16\nlarger of 5 and 16 is 16\nlarger of 3 and 8 is 8\nlarger of 4 and 16 is",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 2 and 7 is 7\nlarger of 2 and 14 is 14\nlarger of 4 and 6 is 6\nlarger of 2 and 2 is",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 5 and 18 is 18\nlarger of 7 and 7 is 7\nlarger of 8 and 12 is 12\nlarger of 6 and 17 is",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 5 and 15 is 15\nlarger of 4 and 2 is 4\nlarger of 4 and 14 is 14\nlarger of 7 and 16 is",
+    "continuation": " 16",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "larger of 2 and 12 is 12\nlarger of 4 and 16 is 16\nlarger of 8 and 8 is 8\nlarger of 8 and 17 is",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 7 and 9 is 9\nlarger of 4 and 15 is 15\nlarger of 9 and 13 is 13\nlarger of 4 and 14 is",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 3 and 16 is 16\nlarger of 5 and 2 is 5\nlarger of 8 and 4 is 8\nlarger of 4 and 9 is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 3 and 11 is 11\nlarger of 2 and 17 is 17\nlarger of 2 and 10 is 10\nlarger of 5 and 14 is",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 4 and 9 is 9\nlarger of 9 and 9 is 9\nlarger of 3 and 18 is 18\nlarger of 8 and 11 is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 2 and 17 is 17\nlarger of 5 and 10 is 10\nlarger of 2 and 12 is 12\nlarger of 8 and 5 is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 5 and 12 is 12\nlarger of 4 and 5 is 5\nlarger of 4 and 13 is 13\nlarger of 2 and 9 is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 2 and 11 is 11\nlarger of 8 and 3 is 8\nlarger of 4 and 13 is 13\nlarger of 3 and 15 is",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 6 and 19 is 19\nlarger of 8 and 3 is 8\nlarger of 8 and 10 is 10\nlarger of 8 and 8 is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 7 and 12 is 12\nlarger of 3 and 2 is 3\nlarger of 5 and 9 is 9\nlarger of 9 and 11 is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 5 and 13 is 13\nlarger of 3 and 19 is 19\nlarger of 5 and 7 is 7\nlarger of 5 and 14 is",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 4 and 7 is 7\nlarger of 4 and 7 is 7\nlarger of 5 and 12 is 12\nlarger of 2 and 17 is",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 3 and 10 is 10\nlarger of 3 and 5 is 5\nlarger of 6 and 2 is 6\nlarger of 4 and 6 is",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 3 and 14 is 14\nlarger of 7 and 9 is 9\nlarger of 9 and 3 is 9\nlarger of 9 and 5 is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 6 and 9 is 9\nlarger of 8 and 14 is 14\nlarger of 7 and 9 is 9\nlarger of 6 and 4 is",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 6 and 18 is 18\nlarger of 3 and 13 is 13\nlarger of 7 and 6 is 7\nlarger of 7 and 17 is",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 4 and 14 is 14\nlarger of 6 and 18 is 18\nlarger of 2 and 7 is 7\nlarger of 4 and 6 is",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 9 and 13 is 13\nlarger of 6 and 17 is 17\nlarger of 5 and 7 is 7\nlarger of 3 and 18 is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 8 and 9 is 9\nlarger of 8 and 3 is 8\nlarger of 2 and 15 is 15\nlarger of 3 and 10 is",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 2 and 6 is 6\nlarger of 8 and 2 is 8\nlarger of 8 and 14 is 14\nlarger of 8 and 5 is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 7 and 2 is 7\nlarger of 7 and 14 is 14\nlarger of 4 and 10 is 10\nlarger of 8 and 6 is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 4 and 14 is 14\nlarger of 9 and 19 is 19\nlarger of 5 and 13 is 13\nlarger of 2 and 2 is",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 9 and 15 is 15\nlarger of 4 and 13 is 13\nlarger of 6 and 7 is 7\nlarger of 7 and 15 is",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 6 and 2 is 6\nlarger of 4 and 14 is 14\nlarger of 4 and 16 is 16\nlarger of 2 and 14 is",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 8 and 8 is 8\nlarger of 3 and 15 is 15\nlarger of 8 and 19 is 19\nlarger of 5 and 2 is",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 2 and 2 is 2\nlarger of 8 and 19 is 19\nlarger of 2 and 6 is 6\nlarger of 3 and 8 is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 8 and 2 is 8\nlarger of 8 and 10 is 10\nlarger of 9 and 3 is 9\nlarger of 3 and 15 is",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 4 and 18 is 18\nlarger of 8 and 6 is 8\nlarger of 9 and 8 is 9\nlarger of 9 and 3 is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 3 and 2 is 3\nlarger of 7 and 2 is 7\nlarger of 4 and 14 is 14\nlarger of 2 and 12 is",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 7 and 11 is 11\nlarger of 6 and 12 is 12\nlarger of 9 and 14 is 14\nlarger of 8 and 7 is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 5 and 2 is 5\nlarger of 2 and 14 is 14\nlarger of 9 and 5 is 9\nlarger of 9 and 19 is",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 9 and 3 is 9\nlarger of 2 and 19 is 19\nlarger of 8 and 7 is 8\nlarger of 7 and 4 is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 8 and 8 is 8\nlarger of 7 and 8 is 8\nlarger of 8 and 18 is 18\nlarger of 3 and 19 is",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 3 and 18 is 18\nlarger of 7 and 2 is 7\nlarger of 3 and 5 is 5\nlarger of 8 and 13 is",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 9 and 2 is 9\nlarger of 5 and 15 is 15\nlarger of 7 and 11 is 11\nlarger of 3 and 2 is",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 5 and 15 is 15\nlarger of 8 and 17 is 17\nlarger of 2 and 15 is 15\nlarger of 5 and 14 is",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 5 and 12 is 12\nlarger of 3 and 3 is 3\nlarger of 7 and 15 is 15\nlarger of 4 and 8 is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 5 and 2 is 5\nlarger of 7 and 6 is 7\nlarger of 9 and 10 is 10\nlarger of 3 and 16 is",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 6 and 9 is 9\nlarger of 2 and 17 is 17\nlarger of 7 and 18 is 18\nlarger of 7 and 4 is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 9 and 16 is 16\nlarger of 4 and 7 is 7\nlarger of 7 and 17 is 17\nlarger of 8 and 7 is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 8 and 2 is 8\nlarger of 8 and 15 is 15\nlarger of 7 and 9 is 9\nlarger of 4 and 13 is",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 8 and 7 is 8\nlarger of 2 and 18 is 18\nlarger of 4 and 18 is 18\nlarger of 4 and 4 is",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 7 and 11 is 11\nlarger of 7 and 5 is 7\nlarger of 8 and 10 is 10\nlarger of 4 and 12 is",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 7 and 7 is 7\nlarger of 4 and 12 is 12\nlarger of 2 and 3 is 3\nlarger of 4 and 13 is",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 7 and 2 is 7\nlarger of 3 and 8 is 8\nlarger of 3 and 19 is 19\nlarger of 9 and 3 is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 5 and 7 is 7\nlarger of 8 and 3 is 8\nlarger of 7 and 18 is 18\nlarger of 5 and 12 is",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 7 and 18 is 18\nlarger of 2 and 3 is 3\nlarger of 2 and 5 is 5\nlarger of 4 and 6 is",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 8 and 14 is 14\nlarger of 9 and 18 is 18\nlarger of 9 and 9 is 9\nlarger of 8 and 18 is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 8 and 16 is 16\nlarger of 3 and 4 is 4\nlarger of 8 and 19 is 19\nlarger of 4 and 7 is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 2 and 8 is 8\nlarger of 6 and 7 is 7\nlarger of 7 and 11 is 11\nlarger of 8 and 3 is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 7 and 11 is 11\nlarger of 7 and 8 is 8\nlarger of 2 and 12 is 12\nlarger of 2 and 7 is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 7 and 19 is 19\nlarger of 4 and 14 is 14\nlarger of 6 and 9 is 9\nlarger of 8 and 13 is",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 6 and 8 is 8\nlarger of 3 and 19 is 19\nlarger of 8 and 10 is 10\nlarger of 4 and 18 is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 4 and 18 is 18\nlarger of 2 and 12 is 12\nlarger of 3 and 8 is 8\nlarger of 9 and 9 is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 8 and 2 is 8\nlarger of 6 and 18 is 18\nlarger of 6 and 19 is 19\nlarger of 9 and 3 is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 4 and 9 is 9\nlarger of 9 and 11 is 11\nlarger of 7 and 17 is 17\nlarger of 4 and 18 is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 5 and 17 is 17\nlarger of 7 and 19 is 19\nlarger of 5 and 2 is 5\nlarger of 2 and 3 is",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 4 and 18 is 18\nlarger of 9 and 11 is 11\nlarger of 8 and 19 is 19\nlarger of 3 and 4 is",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 5 and 19 is 19\nlarger of 7 and 7 is 7\nlarger of 6 and 6 is 6\nlarger of 9 and 4 is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "larger of 6 and 2 is 6\nlarger of 8 and 10 is 10\nlarger of 6 and 19 is 19\nlarger of 7 and 12 is",
+    "continuation": " 12",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 3.3261
+}
