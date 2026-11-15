@@ -43,7 +43,7 @@ image = (
         "numpy",
     )
     .env({"HF_HOME": "/vol/hf", "WSP_ROOT": "/vol/eval", "WSP_CATALOG": "/vol/eval/catalog.jsonl",
-          "WSP_BACKEND": "vllm"})
+          "WSP_BACKEND": "vllm", "WSP_HF_BATCH_SIZE": "64"})
     .add_local_python_source("wsp", "wsp_eval")
     .add_local_file("catalog.jsonl", "/root/catalog.jsonl")
     .add_local_dir("scripts", "/root/scripts")
