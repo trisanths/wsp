@@ -19,6 +19,7 @@ def main():
     ap.add_argument("--max-hours", type=float, default=3.0)
     ap.add_argument("--max-screens", type=int, default=60)
     ap.add_argument("--effort", default="high")
+    ap.add_argument("--person", default=None)
     args = ap.parse_args()
 
     donors = common.load_donors()
@@ -38,6 +39,8 @@ def main():
                "--max-screens", str(args.max_screens), "--effort", args.effort]
         if args.smoke:
             cmd.append("--smoke")
+        if args.person:
+            cmd = cmd + ["--person", args.person]
         os.makedirs(common.logs_dir(m), exist_ok=True)
         log = open(os.path.join(common.logs_dir(m), "console.log"), "a")
         log.write("\n===== " + time.strftime("%Y-%m-%d %H:%M:%S") + " " + " ".join(cmd) + "\n")

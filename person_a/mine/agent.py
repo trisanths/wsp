@@ -11,6 +11,7 @@ from openai import OpenAI
 import common
 import skills
 from client import Miner, agent_view, part_brief
+from shared_memory import SharedMemory
 from weight_sandbox import WeightSandbox
 
 PLANNER_MODEL = "gpt-6-astra"
@@ -20,9 +21,12 @@ PRICE_IN = 10.0 / 1e6
 PRICE_OUT = 50.0 / 1e6
 WORKER_PRICE_IN = 0.75 / 1e6   # rough; only used for the short end-of-run lesson summary
 WORKER_PRICE_OUT = 4.5 / 1e6
-GPU_PRICE_PER_HOUR = {"L4": 0.80, "L40S": 1.95, "A100-40GB": 2.10, "H100": 3.95, "H200": 4.54}
+# price of the FIRST-choice GPU of each engine tier (fallback GPUs may cost more)
+GPU_PRICE_PER_HOUR = {"EngineL4": 0.80, "EngineL40S": 1.95, "EngineH100": 3.95, "EngineH200": 4.54}
 
 MAX_PYTHON_RUNS = 60
+CONTEXT_RESTART_TOKENS = 60000   # when one turn's input passes this, summarise and restart the conversation
+CACHED_PRICE_FRACTION = 1.0      # cost estimate treats cached input tokens at full price (conservative)
 UNLOCK_AFTER_PY = 5
 MAX_SCAN_UNITS = 4096
 
@@ -97,6 +101,10 @@ TOOLS = [
          "kind": {"type": "string", "enum": ["mlp_cluster", "attn_heads", "expert"]},
          "skills": {"type": "array", "items": {"type": "string"}},
          "layers": {"type": "array", "items": {"type": "integer"}}}, "required": ["kind", "skills"]}},
+    {"type": "function", "name": "recall_shared",
+     "description": "Search the team's shared mining memory (past.dev): what other teammates' agents tried on "
+                    "other models, with results. Use it to transfer hypotheses across architectures.",
+     "parameters": {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]}},
     {"type": "function", "name": "finish", "description": "End the run with a short summary.",
      "parameters": {"type": "object", "properties": {"summary": {"type": "string"}}, "required": ["summary"]}},
 ]
@@ -146,6 +154,34 @@ def instructions(miner, use_notes):
     return text
 
 
+def compact_drops(drops):
+    # search-split drops only, rounded; the agent never sees held-out numbers
+    out = {}
+    for key in drops:
+        name = key
+        if "|" in key:
+            name, split = key.split("|")
+            if split != "search":
+                continue
+        v = drops[key]
+        out[name] = None if v is None else round(v, 3)
+    return out
+
+
+def compact_units(units, n=8):
+    out = []
+    for u in units[:n]:
+        out.append([u["layer"], u["unit"], round(u["score"], 3)])
+    return out
+
+
+def attempt_text(short, part, label, target, rationale, evidence, view):
+    return ("Model " + short + ": " + json.dumps(part_brief(part)) + " labelled '" + str(label) + "' (target skill "
+            + str(target) + "), evidence " + "+".join(evidence or []) + ". Weight rationale: " + str(rationale)[:300]
+            + " Result: " + ("PASSED" if view.get("passed") else ("not passed: " + "; ".join(view.get("reasons", [])) if "passed" in view else "ablation only"))
+            + ". Drops: " + json.dumps(view.get("drops", {})))
+
+
 def read_notes(short, limit=25):
     notes = []
     logs_root = os.path.join(common.ROOT, "logs")
@@ -171,7 +207,8 @@ def read_notes(short, limit=25):
 
 
 class Session:
-    def __init__(self, short, budget_usd, max_hours, max_screens):
+    def __init__(self, short, budget_usd, max_hours, max_screens, memory=None):
+        self.memory = memory
         self.miner = Miner(short)
         self.short = short
         self.budget_usd = budget_usd
@@ -182,7 +219,8 @@ class Session:
         self.weight_proposals = 0
         self.screens = 0
         self.scans = {}
-        self.usage = {"input_tokens": 0, "output_tokens": 0, "worker_input_tokens": 0, "worker_output_tokens": 0}
+        self.usage = {"input_tokens": 0, "cached_input_tokens": 0, "output_tokens": 0,
+                      "worker_input_tokens": 0, "worker_output_tokens": 0, "restarts": 0}
 
     def sandbox(self):
         if self.box is None:
@@ -192,7 +230,9 @@ class Session:
         return self.box
 
     def cost(self):
-        return (self.usage["input_tokens"] * PRICE_IN + self.usage["output_tokens"] * PRICE_OUT
+        uncached = self.usage["input_tokens"] - self.usage["cached_input_tokens"]
+        cached = self.usage["cached_input_tokens"] * CACHED_PRICE_FRACTION
+        return ((uncached + cached) * PRICE_IN + self.usage["output_tokens"] * PRICE_OUT
                 + self.usage["worker_input_tokens"] * WORKER_PRICE_IN + self.usage["worker_output_tokens"] * WORKER_PRICE_OUT)
 
     def unlocked(self):
@@ -264,8 +304,18 @@ class Session:
                     "layers_with": m.structure()["layers_with"], "base_scores_search": scores,
                     "skipped": m.state.get("skipped"), "agent_skills": list(m.agent_skills().keys())}
         if name == "define_skill":
-            return skills.define(m, self.sandbox, args.get("name", ""), args.get("description", ""),
-                                 args.get("generator_code"), args.get("items"), args.get("control_items"))
+            res = skills.define(m, self.sandbox, args.get("name", ""), args.get("description", ""),
+                                args.get("generator_code"), args.get("items"), args.get("control_items"))
+            if res.get("accepted") and self.memory is not None:
+                self.memory.record("skill", "Model " + self.short + ": accepted agent skill '" + res["name"] + "' - "
+                                   + str(args.get("description", ""))[:300] + ". Base score " + str(res["base_score_search"])
+                                   + ", margin " + str(res["margin_nats"]) + " nats over shuffled answers.",
+                                   {"hash": res["hash"]})
+            return res
+        if name == "recall_shared":
+            if self.memory is None or not self.memory.enabled:
+                return {"results": "", "note": "shared memory is off (no PAST_API_KEY)"}
+            return {"results": self.memory.recall_text(args.get("query", ""))}
         if name in ["activation_scan", "attribution_scan"]:
             if not self.unlocked():
                 return {"error": "locked: needs " + str(UNLOCK_AFTER_PY) + " run_python calls (have " + str(self.py_runs)
@@ -289,10 +339,11 @@ class Session:
             self.scans[sid] = {"kind": args["kind"], "full": res["stats"]}
             brief = {}
             for sname in res["stats"]:
-                brief[sname] = res["stats"][sname][:12]
+                if sname != "general_text":
+                    brief[sname] = compact_units(res["stats"][sname])  # [layer, unit, score]
             common.log_event(self.short, name, {"kind": args["kind"], "skills": wanted, "layers": layers},
                              {"seconds": res["seconds"]})
-            return {"scan_id": sid, "top_units": brief, "seconds": res["seconds"],
+            return {"scan_id": sid, "top_units_[layer,unit,score]": brief,
                     "use": "part={'kind': '" + args["kind"] + "', 'layer': L, 'handle': '" + sid + ":SKILL:K'}"}
         if name in ["ablate", "screen"]:
             part = self.resolve(args.get("part"))
@@ -303,11 +354,11 @@ class Session:
             if name == "ablate":
                 self.weight_proposals += 1
                 res = m.ablate(part)
-                drops = {}
-                for key in res["drops"]:
-                    if key.endswith("|search"):
-                        drops[key.split("|")[0]] = res["drops"][key]
-                return {"part": part_brief(part), "drops": drops, "seconds": res["seconds"]}
+                view = {"drops": compact_drops(res["drops"])}
+                if self.memory is not None:
+                    self.memory.record("attempt", attempt_text(self.short, part, None, None, args["weight_rationale"],
+                                                               ["weights", "ablation"], view), {"part": part_brief(part)})
+                return {"part": part_brief(part), "drops": view["drops"]}
             if self.screens >= self.max_screens:
                 return {"error": "screen budget used up"}
             target = args.get("target_skill")
@@ -319,6 +370,14 @@ class Session:
             self.screens += 1
             res = m.screen(part, target)
             view = agent_view(res)
+            view["drops"] = compact_drops(view["drops"])
+            rnd = []
+            for r in view["random_drops_target"]:
+                rnd.append(None if r is None else round(r, 3))
+            view["random_drops_target"] = rnd
+            if self.memory is not None:
+                self.memory.record("attempt", attempt_text(self.short, part, args["label"], target, args["weight_rationale"],
+                                                           args.get("evidence_used"), view), {"part": part_brief(part)})
             if res["gate"]["passed"]:
                 rec = m.write_part(part, args["label"], target, res, args.get("evidence_used") or [],
                                    args["weight_rationale"], "screened")
@@ -361,29 +420,38 @@ class Session:
         return {"error": "unknown tool " + name}
 
 
-def run(short, budget_usd=25.0, max_hours=3.0, max_screens=60, use_notes=True, effort=REASONING_EFFORT):
+def run(short, budget_usd=25.0, max_hours=3.0, max_screens=60, use_notes=True, effort=REASONING_EFFORT,
+        person=None):
     load_dotenv(os.path.join(common.ROOT, ".env"), override=True)
-    session = Session(short, budget_usd, max_hours, max_screens)
-    miner = session.miner
-    miner.structure()
-    miner.base()
     run_id = "run-" + time.strftime("%Y%m%d-%H%M%S")
+    person = person or os.environ.get("WSP_PERSON") or "unknown"
+    memory = SharedMemory(person, short, run_id)
+    session = Session(short, budget_usd, max_hours, max_screens, memory)
+    miner = session.miner
+    structure = miner.structure()
+    miner.base()
     log_dir = common.logs_dir(short)
     transcript_path = os.path.join(log_dir, run_id + ".jsonl")
     llm = OpenAI()
     system_text = instructions(miner, use_notes)
+    if memory.enabled:
+        arch = structure.get("model_class", "") + " " + miner.row.get("architecture", "")
+        recalled = memory.recall_text("parts found in " + arch + " " + miner.row.get("kind", "") + " models; "
+                                      "what worked and failed in weight-space dissection")
+        if recalled:
+            system_text = system_text + "\nShared memory from teammates' runs (past.dev):\n" + recalled + "\n"
     summary = None
     stop_reason = None
     turns = 0
-    print("[" + short + "] run", run_id, "GPU", miner.gpu, "revision", miner.revision[:10])
+    print("[" + short + "] run", run_id, "GPU", miner.gpu, "revision", miner.revision[:10], "| shared memory",
+          "on" if memory.enabled else "off")
     try:
         response = llm.responses.create(model=PLANNER_MODEL, instructions=system_text, tools=TOOLS,
                                         reasoning={"effort": effort},
                                         input="Begin dissecting " + miner.hf_id + ".")
         while True:
             turns += 1
-            session.usage["input_tokens"] += response.usage.input_tokens
-            session.usage["output_tokens"] += response.usage.output_tokens
+            add_usage(session, response)
             outputs = []
             for item in response.output:
                 if item.type == "message":
@@ -406,7 +474,8 @@ def run(short, budget_usd=25.0, max_hours=3.0, max_screens=60, use_notes=True, e
                 text = json.dumps(result)
                 print("[" + short + "][tool]", item.name, text[:240])
                 common.append_jsonl(transcript_path, {"tool": item.name, "args": args, "result": result})
-                outputs.append({"type": "function_call_output", "call_id": item.call_id, "output": text[:30000]})
+                outputs.append({"type": "function_call_output", "call_id": item.call_id, "output": text[:15000],
+                                "_name": item.name, "_args": args})
             if summary is not None:
                 stop_reason = "finished"
                 break
@@ -419,14 +488,35 @@ def run(short, budget_usd=25.0, max_hours=3.0, max_screens=60, use_notes=True, e
             if time.time() >= session.deadline:
                 stop_reason = "time limit reached"
                 break
-            if session.screens >= max_screens:
-                outputs.append({"type": "message", "role": "user", "content": "Screen budget used up. Call finish."})
             if turns > 400:
                 stop_reason = "turn cap"
                 break
+            nudge = None
+            if session.screens >= max_screens:
+                nudge = "Screen budget used up. Call finish."
+            if response.usage.input_tokens > CONTEXT_RESTART_TOKENS:
+                # summarise-and-restart: the next turn would re-send the whole history
+                digest = summarize_progress(llm, session, transcript_path)
+                session.usage["restarts"] += 1
+                pending = []
+                for o in outputs:
+                    pending.append({"tool": o["_name"], "args": o["_args"], "result": o["output"][:4000]})
+                text_in = ("Context was compacted. Summary of your work so far:\n" + digest +
+                           "\n\nResults of your last tool calls:\n" + json.dumps(pending))
+                if nudge:
+                    text_in = text_in + "\n" + nudge
+                print("[" + short + "] context restart", session.usage["restarts"], "at", response.usage.input_tokens, "tokens")
+                response = llm.responses.create(model=PLANNER_MODEL, instructions=system_text, tools=TOOLS,
+                                                reasoning={"effort": effort}, input=text_in)
+                continue
+            clean = []
+            for o in outputs:
+                clean.append({"type": "function_call_output", "call_id": o["call_id"], "output": o["output"]})
+            if nudge:
+                clean.append({"type": "message", "role": "user", "content": nudge})
             response = llm.responses.create(model=PLANNER_MODEL, instructions=system_text, tools=TOOLS,
                                             reasoning={"effort": effort},
-                                            input=outputs, previous_response_id=response.id)
+                                            input=clean, previous_response_id=response.id)
     finally:
         if session.box is not None:
             session.box.stop()
@@ -434,23 +524,53 @@ def run(short, budget_usd=25.0, max_hours=3.0, max_screens=60, use_notes=True, e
     lessons = summarize_lessons(llm, session, transcript_path)
     for lesson in lessons:
         common.append_jsonl(os.path.join(log_dir, "notes.jsonl"), {"run_id": run_id, "model": miner.hf_id, "lesson": lesson})
-    gpu_cost = miner.modal_seconds / 3600.0 * GPU_PRICE_PER_HOUR.get(miner.gpu, 4.0)
+        memory.record("lesson", "Model " + short + " (" + miner.row.get("architecture", "") + "): " + lesson)
+    memory.flush()
+    gpu_cost = miner.modal_seconds / 3600.0 * GPU_PRICE_PER_HOUR.get(miner.gpu, 5.0)
     n_parts = 0
     if os.path.exists(common.catalog_path(short)):
         with open(common.catalog_path(short)) as f:
             for line in f:
                 if line.strip():
                     n_parts += 1
-    cost = {"run_id": run_id, "openai_usd_est": round(session.cost(), 2),
+    cost = {"run_id": run_id, "person": person, "openai_usd_est": round(session.cost(), 2),
             "modal_gpu_usd_est": round(gpu_cost, 2), "modal_busy_seconds": round(miner.modal_seconds),
-            "gpu": miner.gpu, "note": "modal estimate counts busy call time only (not idle keep-warm or first load)",
-            "usage": session.usage, "python_runs": session.py_runs, "screens": session.screens,
-            "stop_reason": stop_reason, "summary": summary, "parts_in_catalog": n_parts}
+            "gpu": miner.gpu, "note": "modal estimate counts busy call time only (not idle keep-warm or first load); "
+            "OpenAI estimate prices cached input tokens at full rate",
+            "usage": session.usage, "turns": turns, "python_runs": session.py_runs, "screens": session.screens,
+            "stop_reason": stop_reason, "summary": summary, "parts_in_catalog": n_parts,
+            "shared_memory": {"enabled": memory.enabled, "records": memory.count}}
     common.append_jsonl(os.path.join(log_dir, "costs.jsonl"), cost)
     common.log_event(short, "agent_run", {"run_id": run_id, "budget_usd": budget_usd, "max_hours": max_hours,
                                           "effort": effort}, cost)
     print("[" + short + "] DONE", json.dumps(cost)[:1500])
     return cost
+
+
+def add_usage(session, response):
+    u = response.usage
+    session.usage["input_tokens"] += u.input_tokens
+    session.usage["output_tokens"] += u.output_tokens
+    details = getattr(u, "input_tokens_details", None)
+    cached = getattr(details, "cached_tokens", 0) if details is not None else 0
+    session.usage["cached_input_tokens"] += cached or 0
+
+
+def summarize_progress(llm, session, transcript_path):
+    with open(transcript_path) as f:
+        text = f.read()[-60000:]
+    prompt = ("You are compacting the working memory of a weight-space dissection agent working on "
+              + session.miner.hf_id + ". From the log below, write a dense summary (max 700 words) with: weight "
+              "findings so far (layers/units/heads/experts and what their weights promote, with numbers), skills "
+              "defined, every ablate/screen tried with its result, parts that passed (catalog ids), open hypotheses "
+              "and the next steps the agent was about to take. Keep exact indices.\n\n" + text)
+    try:
+        resp = llm.responses.create(model=WORKER_MODEL, input=prompt)
+        session.usage["worker_input_tokens"] += resp.usage.input_tokens
+        session.usage["worker_output_tokens"] += resp.usage.output_tokens
+        return resp.output_text[:6000]
+    except Exception as e:
+        return "(summary failed: " + repr(e)[:150] + ") Last log lines: " + text[-3000:]
 
 
 def summarize_lessons(llm, session, transcript_path):

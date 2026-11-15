@@ -37,7 +37,7 @@ class Miner:
             self.state["model"] = self.hf_id
             self.save()
         self.revision = self.state["revision"]
-        cls = modal.Cls.from_name(common.APP_NAME, "Engine").with_options(gpu=self.gpu)
+        cls = modal.Cls.from_name(common.APP_NAME, self.gpu)
         self.engine = cls(model_key=short, hf_id=self.hf_id, revision=self.revision)
         self.modal_seconds = 0.0
 

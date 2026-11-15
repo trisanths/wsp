@@ -40,9 +40,9 @@ def rel_drop(base, ablated):
     return round((base - ablated) / base, 4)
 
 
-@app.cls(image=image, gpu="L4", volumes={"/models": volume}, secrets=[modal.Secret.from_name("hf-token")],
-         timeout=3600, startup_timeout=3600, scaledown_window=600)
-class Engine:
+class EngineBase:
+    # Shared implementation. Concrete GPU tiers are declared at the bottom of this file
+    # (EngineL4, EngineL40S, EngineH100, EngineH200), each with Modal GPU fallbacks.
     model_key: str = modal.parameter()
     hf_id: str = modal.parameter()
     revision: str = modal.parameter()
@@ -602,3 +602,27 @@ class Engine:
             self.adapter.remove_all(handles)
         return {"base_accuracy": round(base, 4), "ablated_accuracy": round(abl, 4),
                 "drop": rel_drop(base, abl), "n": len(prompts), "seconds": round(time.time() - start, 1)}
+
+
+COMMON = {"image": image, "volumes": {"/models": volume}, "secrets": [modal.Secret.from_name("hf-token")],
+          "timeout": 3600, "startup_timeout": 3600, "scaledown_window": 600}
+
+
+@app.cls(gpu="L4", **COMMON)
+class EngineL4(EngineBase):
+    pass
+
+
+@app.cls(gpu=["L40S", "A100-40GB"], **COMMON)
+class EngineL40S(EngineBase):
+    pass
+
+
+@app.cls(gpu=["H100", "H200"], **COMMON)
+class EngineH100(EngineBase):
+    pass
+
+
+@app.cls(gpu=["H200", "B200"], **COMMON)
+class EngineH200(EngineBase):
+    pass

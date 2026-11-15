@@ -58,6 +58,7 @@ def main():
     ap.add_argument("--max-hours", type=float, default=3.0)
     ap.add_argument("--max-screens", type=int, default=60)
     ap.add_argument("--no-notes", action="store_true")
+    ap.add_argument("--person", default=None, help="your name for the shared memory (else env WSP_PERSON)")
     ap.add_argument("--effort", default="high", choices=["low", "medium", "high", "xhigh"],
                     help="Astra reasoning effort (high = the blog's setting; medium is cheaper)")
     args = ap.parse_args()
@@ -67,7 +68,7 @@ def main():
     import agent
 
     agent.run(args.model, budget_usd=args.budget_usd, max_hours=args.max_hours, max_screens=args.max_screens,
-              use_notes=not args.no_notes, effort=args.effort)
+              use_notes=not args.no_notes, effort=args.effort, person=args.person)
 
 
 if __name__ == "__main__":
