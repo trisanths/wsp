@@ -47,7 +47,7 @@ class Graft(nn.Module):
     the part keeps its own cache in step with it.
     """
 
-    def __init__(self, d_host, d_donor, part, rank=None):
+    def __init__(self, d_host, d_donor, part, rank=None, w_in=None):
         super().__init__()
         self.rank = rank
         if rank is None:
@@ -58,25 +58,48 @@ class Graft(nn.Module):
             self.w_in = LowRankLinear(d_host, d_donor, rank)
             self.w_out = LowRankLinear(d_donor, d_host, rank)
             nn.init.zeros_(self.w_out.up.weight)
+        if w_in is not None:
+            # Any module can be w_in, for example a trained stitch from
+            # wsp.stitch. A module with host_layers (a multi stitch) gets a
+            # list of host states, one per layer; attach_grafts captures them.
+            self.w_in = w_in
         self.part = part
         self.pad_mask = None
         self.host_uses_cache = False
         self.host_cache_len = 0
+        self.host_layer = None
+        self.stitch_inputs = {}
 
     def set_w_in(self, w):
-        """Start w_in from a full (d_donor, d_host) matrix, for example a ridge fit.
+        """Start w_in from a full (d_donor, d_in) matrix, for example a ridge fit.
 
-        A low-rank w_in takes the best rank-r approximation of w.
+        A low-rank w_in takes the best rank-r approximation of w. Any other
+        module must have a set_from_full(w) method.
         """
         with torch.no_grad():
-            if self.rank is None:
+            if isinstance(self.w_in, nn.Linear):
                 self.w_in.weight.copy_(w.to(self.w_in.weight.dtype))
             else:
                 self.w_in.set_from_full(w)
 
+    def map_in(self, h):
+        """Apply w_in to the host state h, or to the host states of every layer it reads."""
+        stitch_layers = getattr(self.w_in, "host_layers", None)
+        if stitch_layers is None:
+            return self.w_in(h.to(torch.float32))
+        states = []
+        for layer in stitch_layers:
+            if layer == self.host_layer:
+                states.append(h.to(torch.float32))
+            else:
+                states.append(self.stitch_inputs[layer].to(torch.float32))
+        # Drop the captured states, so they do not outlive this call.
+        self.stitch_inputs = {}
+        return self.w_in(states)
+
     def forward(self, h):
         part_dtype = next(self.part.parameters()).dtype
-        x = self.w_in(h.to(torch.float32))
+        x = self.map_in(h)
         if isinstance(self.part, (AttnHeadsPart, BlockPart)):
             if self.host_uses_cache:
                 x = self.part(x.to(part_dtype), attention_mask=self.pad_mask, cache_len=self.host_cache_len)
@@ -113,6 +136,15 @@ def attach_grafts(host_model, placements):
     attn_heads and block parts keep their own KV caches in step with the
     host cache. To run without any cache, call disable_cache(host_model).
     """
+    for layer_index, graft in placements:
+        stitch_layers = getattr(getattr(graft, "w_in", None), "host_layers", None)
+        if stitch_layers is None:
+            continue
+        for source in stitch_layers:
+            if source > layer_index:
+                raise ValueError(f"a graft at host layer {layer_index} cannot read host layer {source}: "
+                                 "a multi stitch reads only its own layer and earlier ones")
+
     handles = []
     grafts = []
     for layer_index, graft in placements:
@@ -123,6 +155,25 @@ def attach_grafts(host_model, placements):
 
         handles.append(layers[layer_index].register_forward_hook(hook))
         grafts.append(graft)
+        graft.host_layer = layer_index
+    # A multi stitch also reads earlier host layers. These hooks come after
+    # the graft hooks, so they see each layer's output after its grafts,
+    # the same residual stream a graft at that layer would see.
+    for layer_index, graft in placements:
+        stitch_layers = getattr(getattr(graft, "w_in", None), "host_layers", None)
+        if stitch_layers is None:
+            continue
+        for source in stitch_layers:
+            if source == layer_index:
+                continue
+            _, layers = find_decoder_layers(host_model, source)
+
+            def capture(module, inputs, output, graft=graft, source=source):
+                if isinstance(output, tuple):
+                    output = output[0]
+                graft.stitch_inputs[source] = output
+
+            handles.append(layers[source].register_forward_hook(capture))
     host_model.wsp_grafts = nn.ModuleList(grafts)
     # follow["cache"] is a weak reference to the host cache that the part
     # caches are in step with, or None. Only attn_heads and block parts
@@ -304,7 +355,11 @@ def disable_cache(model):
 
 
 def glue_parameters(host_model):
-    """Return the w_in and w_out parameters of every graft."""
+    """Return the w_in and w_out parameters of every graft.
+
+    w_in can be any module (a trained stitch, for example), so all of its
+    parameters count as glue and train during heal.
+    """
     params = []
     for graft in host_model.wsp_grafts:
         for param in graft.w_in.parameters():

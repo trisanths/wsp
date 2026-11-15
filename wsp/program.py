@@ -155,9 +155,23 @@ class GraftSpec:
     control: None, or "random" to replace the part's units with random
         units of the same count from the same donor layer (the control).
     glue_rank: None for full-rank glue, or r for rank-r w_in and w_out.
+    stitch: None, or a dict that trains w_in as a stitch before heal, for
+        example {"kind": "mlp", "objective": "donor_lm", "steps": 500,
+        "lr": 1e-3}. Keys:
+        kind       "linear", "lowrank", "mlp", or "multi".
+        objective  "mse", "donor_lm" (same tokenizer only), or
+                   "downstream". Default "donor_lm".
+        steps, lr, batch_size, seq_len, seed
+                   training settings (default 500, 1e-3, 8, 256, 0).
+        rank       lowrank only (default: glue_rank).
+        hidden     mlp only (default 2 * d_donor).
+        offsets    multi only: host layers relative to the graft's host
+                   layer, all 0 or less (default [-2, 0]).
+        end_layer  downstream only (default min(donor_layer + 4, last)).
+        The compiler trains the stitch on the align texts.
     """
 
-    def __init__(self, component_id, at=None, control=None, control_seed=0, glue_rank=None):
+    def __init__(self, component_id, at=None, control=None, control_seed=0, glue_rank=None, stitch=None):
         if control not in (None, "random"):
             raise ValueError(f"unknown control: {control!r}")
         self.component_id = component_id
@@ -165,10 +179,33 @@ class GraftSpec:
         self.control = control
         self.control_seed = control_seed
         self.glue_rank = glue_rank
+        self.stitch = None
+        if stitch is not None:
+            check_stitch(stitch)
+            self.stitch = dict(stitch)
 
     def to_dict(self):
-        return {"id": self.component_id, "at": self.at, "control": self.control,
+        data = {"id": self.component_id, "at": self.at, "control": self.control,
                 "control_seed": self.control_seed, "glue_rank": self.glue_rank}
+        # Only a graft with a stitch writes the key, so older programs keep
+        # the same JSON.
+        if self.stitch is not None:
+            data["stitch"] = dict(self.stitch)
+        return data
+
+
+STITCH_KINDS = ("linear", "lowrank", "mlp", "multi")
+STITCH_OBJECTIVES = ("mse", "donor_lm", "downstream")
+
+
+def check_stitch(stitch):
+    """Raise ValueError for a stitch dict with an unknown kind or objective."""
+    if not isinstance(stitch, dict):
+        raise ValueError(f"a stitch is a dict, got {type(stitch).__name__}")
+    if stitch.get("kind", "linear") not in STITCH_KINDS:
+        raise ValueError(f"unknown stitch kind: {stitch.get('kind')!r}")
+    if stitch.get("objective", "donor_lm") not in STITCH_OBJECTIVES:
+        raise ValueError(f"unknown stitch objective: {stitch.get('objective')!r}")
 
 
 class HealSpec:
@@ -255,9 +292,9 @@ class Program:
         self.task_vectors.append(TaskVector(component_id, weight, layers, modules))
         return self
 
-    def graft(self, component_id, at=None, control=None, control_seed=0, glue_rank=None):
+    def graft(self, component_id, at=None, control=None, control_seed=0, glue_rank=None, stitch=None):
         """Add a graft. Returns self so calls can chain."""
-        self.grafts.append(GraftSpec(component_id, at, control, control_seed, glue_rank))
+        self.grafts.append(GraftSpec(component_id, at, control, control_seed, glue_rank, stitch))
         return self
 
     def heal(self, steps=300, data="gsm8k_train", lr=3e-4, batch_size=8, seq_len=384):
@@ -315,7 +352,7 @@ class Program:
         grafts = []
         for graft in data.get("grafts", []):
             grafts.append(GraftSpec(graft["id"], graft.get("at"), graft.get("control"), graft.get("control_seed", 0),
-                                   graft.get("glue_rank")))
+                                   graft.get("glue_rank"), graft.get("stitch")))
         heal = None
         if data.get("heal") is not None:
             heal = HealSpec(**data["heal"])

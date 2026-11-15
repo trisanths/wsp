@@ -24,6 +24,12 @@ Tuning are in [VERIFY.md](VERIFY.md).
   tensors are fetched from safetensors by HTTP range request.
 - `W_in` can start from a ridge fit on host and donor hidden states matched
   by token end offsets. The compile report gives the fit's R squared.
+- `stitch={...}` on a graft trains `W_in` as a stitch before heal
+  (`wsp/stitch.py`). Kinds: linear, lowrank, mlp, multi (several host
+  layers). Objectives: `mse` on matched states, `donor_lm` (the donor's own
+  next-token loss, same tokenizer only), and `downstream` (match the
+  donor's own states a few layers later, any tokenizers). The compile
+  report records the stitch penalty or loss before and after.
 - A heal pass trains only the glue. `control="random"` swaps in a random part
   of the same size from the same donor layer.
 - Mask algebra and task vectors on the host, as before.

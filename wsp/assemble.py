@@ -8,7 +8,8 @@ A catalog record of type mlp_cluster has:
 Only the tensors the part needs are fetched from the donor. W_in starts
 from a ridge fit on offset-matched hidden states when alignment texts are
 given and the donor is small enough to run. Otherwise it starts random and
-the heal pass trains it.
+the heal pass trains it. A GraftSpec with a stitch dict then trains W_in as
+a stitch (wsp.stitch) on the align texts, before heal.
 """
 
 import os
@@ -76,12 +77,9 @@ def resolve_host_layer(spec, donor_layer, donor_layers, host_layers):
     return host_layer
 
 
-def fit_w_in(host_model, host_tokenizer, host_layer, donor_id, donor_layer, align_texts, device, norm_prefix=None,
-             layer_input=False):
-    """Fit W_in on offset-matched hidden states. Return (w, r2, r2_dim, pairs)."""
+def load_donor(donor_id, device):
+    """Load the whole donor in bf16 on device, in eval mode. Return (model, tokenizer)."""
     import transformers
-
-    from wsp.align import collect_pairs, mlp_input_capture, ridge_fit
 
     try:
         donor_model = transformers.AutoModelForCausalLM.from_pretrained(donor_id, dtype=torch.bfloat16)
@@ -92,6 +90,15 @@ def fit_w_in(host_model, host_tokenizer, host_layer, donor_id, donor_layer, alig
     donor_model.to(device)
     donor_model.eval()
     donor_tokenizer = transformers.AutoTokenizer.from_pretrained(donor_id)
+    return donor_model, donor_tokenizer
+
+
+def fit_w_in(host_model, host_tokenizer, host_layer, donor_id, donor_layer, align_texts, device, norm_prefix=None,
+             layer_input=False):
+    """Fit W_in on offset-matched hidden states. Return (w, r2, r2_dim, pairs)."""
+    from wsp.align import collect_pairs, mlp_input_capture, ridge_fit
+
+    donor_model, donor_tokenizer = load_donor(donor_id, device)
     if norm_prefix is None:
         modules = find_layer_modules(donor_model.config, donor_layer)
         norm_prefix = modules["pre_norm_prefix"]
@@ -108,6 +115,108 @@ def fit_w_in(host_model, host_tokenizer, host_layer, donor_id, donor_layer, alig
     if device == "cuda":
         torch.cuda.empty_cache()
     return w, r2, r2_dim, x.shape[0]
+
+
+STITCH_DEFAULTS = {"objective": "donor_lm", "steps": 500, "lr": 1e-3, "batch_size": 8, "seq_len": 256, "seed": 0}
+
+
+def stitch_settings(spec, graft, host_layer, d_donor):
+    """Return the full stitch settings for a spec: its dict plus defaults.
+
+    The settings hold what rebuild_graft needs to build the module again:
+    kind, rank (lowrank), hidden (mlp), and host_layers (multi, absolute).
+    """
+    settings = {"kind": "linear"}
+    for key in STITCH_DEFAULTS:
+        settings[key] = STITCH_DEFAULTS[key]
+    for key in spec.stitch:
+        settings[key] = spec.stitch[key]
+    kind = settings["kind"]
+    if kind == "lowrank" and settings.get("rank") is None:
+        settings["rank"] = graft.rank
+        if settings["rank"] is None:
+            raise ValueError(f"{spec.component_id}: a lowrank stitch needs a rank or a glue_rank")
+    if kind == "mlp" and settings.get("hidden") is None:
+        settings["hidden"] = 2 * d_donor
+    if kind == "multi":
+        if "host_layers" in spec.stitch:
+            # host_layers would be replaced by the offsets below without a word.
+            raise ValueError(f"{spec.component_id}: a multi stitch in a program takes offsets from the "
+                             "graft layer (0 or less), not host_layers")
+        offsets = settings.get("offsets")
+        if offsets is None:
+            offsets = [-2, 0]
+            settings["offsets"] = offsets
+        host_layers = []
+        for offset in offsets:
+            if offset > 0:
+                raise ValueError(f"{spec.component_id}: multi stitch offset {offset} reads a host layer after "
+                                 "the graft; offsets must be 0 or less")
+            layer = host_layer + int(offset)
+            if layer < 0:
+                layer = 0
+            if layer not in host_layers:
+                host_layers.append(layer)
+        host_layers.sort()
+        settings["host_layers"] = host_layers
+    return settings
+
+
+def stitch_graft(spec, graft, meta, host_model, host_tokenizer, align_texts, device, ridge_w, norm_prefix=None):
+    """Train a stitch for the graft and install it as the graft's w_in.
+
+    The stitch starts from ridge_w, the graft's ridge fit (a multi stitch
+    gets its own ridge fit on its concatenated host layers), and trains
+    with wsp.stitch.train_stitch on the align texts. With 10 or more texts,
+    the last tenth is held out for the before and after metrics.
+    norm_prefix is the donor's pre-MLP norm for mlp_cluster and expert
+    parts, or None when the part reads the donor layer input. Records
+    meta["stitch"] and updates meta["glue_params"].
+    """
+    from wsp.stitch import build_stitch, init_from_ridge, ridge_init, train_stitch
+
+    if align_texts is None:
+        raise ValueError(f"{spec.component_id}: a stitch trains on align_texts, and none were given")
+    host_layer = meta["host_layer"]
+    donor_layer = meta["donor_layer"]
+    settings = stitch_settings(spec, graft, host_layer, meta["d_donor"])
+    stitch = build_stitch(settings, meta["d_host"], meta["d_donor"])
+
+    texts = list(align_texts)
+    eval_texts = None
+    if len(texts) >= 10:
+        n_eval = len(texts) // 10
+        eval_texts = texts[len(texts) - n_eval:]
+        texts = texts[:len(texts) - n_eval]
+
+    donor_model, donor_tokenizer = load_donor(meta["donor"], device)
+    if settings["kind"] == "multi":
+        fit = ridge_init(stitch, host_model, host_tokenizer, host_layer, donor_model, donor_tokenizer, donor_layer,
+                         list(align_texts), donor_norm_prefix=norm_prefix)
+        settings["fit_r2"] = fit["r2"]
+        settings["fit_r2_dim"] = fit["r2_dim"]
+    else:
+        init_from_ridge(stitch, ridge_w)
+    result = train_stitch(host_model, host_tokenizer, host_layer, donor_model, donor_tokenizer, donor_layer, stitch,
+                          texts, objective=settings["objective"], steps=settings["steps"], lr=settings["lr"],
+                          batch_size=settings["batch_size"], seq_len=settings["seq_len"], seed=settings["seed"],
+                          end_layer=settings.get("end_layer"), eval_texts=eval_texts, donor_norm_prefix=norm_prefix)
+    del donor_model
+    if device == "cuda":
+        torch.cuda.empty_cache()
+
+    graft.w_in = stitch.float().cpu()
+    settings["end_layer"] = result.get("end_layer", settings.get("end_layer"))
+    settings["donor_norm_prefix"] = norm_prefix
+    settings["params"] = count_params(stitch)
+    settings["before"] = result["before"]
+    settings["after"] = result["after"]
+    settings["losses"] = result["losses"]
+    settings["seconds"] = result["seconds"]
+    settings["train_texts"] = result["train_texts"]
+    settings["eval_texts"] = result["eval_texts"]
+    meta["stitch"] = settings
+    meta["glue_params"] = count_params(graft.w_in) + count_params(graft.w_out)
 
 
 def build_graft(spec, catalog, host_model, host_tokenizer, align_texts=None, device="cpu", cache_dir=None):
@@ -160,6 +269,7 @@ def build_graft(spec, catalog, host_model, host_tokenizer, align_texts=None, dev
         "fit": "skipped",
     }
 
+    w = None
     if align_texts is not None:
         w, r2, r2_dim, pairs = fit_w_in(host_model, host_tokenizer, host_layer, donor_id, donor_layer,
                                         align_texts, device)
@@ -169,11 +279,28 @@ def build_graft(spec, catalog, host_model, host_tokenizer, align_texts=None, dev
         meta["fit_r2_dim"] = r2_dim
         meta["fit_pairs"] = pairs
         meta["fit"] = "ridge"
+    if getattr(spec, "stitch", None) is not None:
+        norm_prefix = find_layer_modules(config, donor_layer)["pre_norm_prefix"]
+        stitch_graft(spec, graft, meta, host_model, host_tokenizer, align_texts, device, w, norm_prefix)
     return host_layer, graft, meta
 
 
 def rebuild_graft(meta, graft_state, index):
     """Rebuild one saved graft without fetching donor weights.
+
+    A graft with meta["stitch"] gets its stitch module back as w_in. The
+    caller loads the saved weights into it.
+    """
+    graft = rebuild_part_graft(meta, graft_state, index)
+    if meta.get("stitch") is not None:
+        from wsp.stitch import build_stitch
+
+        graft.w_in = build_stitch(meta["stitch"], meta["d_host"], meta["d_donor"])
+    return graft
+
+
+def rebuild_part_graft(meta, graft_state, index):
+    """Rebuild one saved graft with the default glue.
 
     The saved part holds the sliced tensors, so we build the part with a
     config whose intermediate size already equals the cluster size and
@@ -262,6 +389,7 @@ def build_expert_graft(spec, record, catalog, host_model, host_tokenizer, align_
         "fit": "skipped",
     }
 
+    w = None
     if align_texts is not None:
         w, r2, r2_dim, pairs = fit_w_in(host_model, host_tokenizer, host_layer, donor_id, donor_layer,
                                         align_texts, device, norm_prefix=found["pre_norm_prefix"])
@@ -271,6 +399,9 @@ def build_expert_graft(spec, record, catalog, host_model, host_tokenizer, align_
         meta["fit_r2_dim"] = r2_dim
         meta["fit_pairs"] = pairs
         meta["fit"] = "ridge"
+    if getattr(spec, "stitch", None) is not None:
+        stitch_graft(spec, graft, meta, host_model, host_tokenizer, align_texts, device, w,
+                     found["pre_norm_prefix"])
     return host_layer, graft, meta
 
 
@@ -350,6 +481,7 @@ def build_attn_graft(spec, record, catalog, host_model, host_tokenizer, align_te
         "fit_pairs": 0,
         "fit": "skipped",
     }
+    w = None
     if align_texts is not None:
         w, r2, r2_dim, pairs = fit_w_in(host_model, host_tokenizer, host_layer, donor_id, donor_layer,
                                         align_texts, device, layer_input=True)
@@ -359,6 +491,8 @@ def build_attn_graft(spec, record, catalog, host_model, host_tokenizer, align_te
         meta["fit_r2_dim"] = r2_dim
         meta["fit_pairs"] = pairs
         meta["fit"] = "ridge"
+    if getattr(spec, "stitch", None) is not None:
+        stitch_graft(spec, graft, meta, host_model, host_tokenizer, align_texts, device, w)
     return host_layer, graft, meta
 
 
@@ -482,6 +616,7 @@ def build_block_graft(spec, record, catalog, host_model, host_tokenizer, align_t
         "fit_pairs": 0,
         "fit": "skipped",
     }
+    w = None
     if align_texts is not None:
         w, r2, r2_dim, pairs = fit_w_in(host_model, host_tokenizer, host_layer, donor_id, first,
                                         align_texts, device, layer_input=True)
@@ -491,6 +626,8 @@ def build_block_graft(spec, record, catalog, host_model, host_tokenizer, align_t
         meta["fit_r2_dim"] = r2_dim
         meta["fit_pairs"] = pairs
         meta["fit"] = "ridge"
+    if getattr(spec, "stitch", None) is not None:
+        stitch_graft(spec, graft, meta, host_model, host_tokenizer, align_texts, device, w)
     return host_layer, graft, meta
 
 
