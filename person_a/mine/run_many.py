@@ -32,6 +32,7 @@ def main():
     ap.add_argument("--effort", default="high")
     ap.add_argument("--person", default=None)
     ap.add_argument("--llm", default="openai", choices=["openai", "claude"])
+    ap.add_argument("--focus", default=None, help="focus text for every agent when --agents is 1")
     ap.add_argument("--agents", type=int, default=1, help="parallel agents per model (each gets a different focus)")
     args = ap.parse_args()
 
@@ -61,6 +62,8 @@ def main():
             env = dict(os.environ)
             name = m
             log_name = "console.log"
+            if n_agents == 1 and args.focus and not args.smoke:
+                cmd = cmd + ["--focus", args.focus]
             if n_agents > 1:
                 cmd = cmd + ["--focus", FOCUSES[i % len(FOCUSES)]]
                 env["WSP_LANE"] = str(i)
