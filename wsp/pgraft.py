@@ -107,10 +107,19 @@ class ResidualMLP(nn.Module):
 
 
 class Enc(nn.Module):
-    """Host state -> donor layer-k input: a linear map on rms(h), residual MLPs, a learned output scale."""
+    """Host state -> donor layer-k input: a linear map on rms(h), residual MLPs, a learned output scale.
 
-    def __init__(self, d_host, d_donor, depth=1, hidden=None, out_rms=1.0):
+    host_layers: read a learned softmax mix of these host layers' outputs
+    (each RMS-normed) instead of the state at the graft's own layer. The
+    graft still writes after its own layer, which must be at or after every
+    layer it reads (attach_grafts checks). Graft.map_in passes the states.
+    """
+
+    def __init__(self, d_host, d_donor, depth=1, hidden=None, out_rms=1.0, host_layers=None):
         super().__init__()
+        if host_layers:
+            self.host_layers = list(host_layers)
+            self.mix = nn.Parameter(torch.zeros(len(self.host_layers)))
         self.proj = nn.Linear(d_host, d_donor)
         if hidden is None:
             hidden = d_donor // 4
@@ -122,6 +131,9 @@ class Enc(nn.Module):
         self.log_scale = nn.Parameter(torch.tensor(math.log(max(out_rms, 1e-3) * math.sqrt(3.0))))
 
     def forward(self, h):
+        if isinstance(h, (list, tuple)):
+            weights = torch.softmax(self.mix, dim=0)
+            h = sum(w * rms(x.to(torch.float32)) for w, x in zip(weights, h))
         y = self.proj(rms(h.to(torch.float32)))
         for block in self.blocks:
             y = block(y)
@@ -281,7 +293,7 @@ def num_layers(model):
 
 
 def build(base, donor, host_layer, first, last, control=None, enc_depth=1, dec_rank=64, dec_depth=1,
-          gate_bias=0.0, out_rms=1.0, d_donor=None):
+          gate_bias=0.0, out_rms=1.0, d_donor=None, read_layers=None):
     """Make one ParallelGraft that runs donor layers first..last, and attach it after base layer host_layer.
 
     The block is the donor's own decoder layer code, built from the loaded
@@ -299,7 +311,9 @@ def build(base, donor, host_layer, first, last, control=None, enc_depth=1, dec_r
         part = build_block_part(donor.config, first, last, tensors).to(device_of(donor))
     else:
         part = nn.Identity()
-    enc = Enc(d_host, d_donor, depth=enc_depth, out_rms=out_rms)
+    if read_layers is not None and list(read_layers) == [host_layer]:
+        read_layers = None
+    enc = Enc(d_host, d_donor, depth=enc_depth, out_rms=out_rms, host_layers=read_layers)
     dec = Dec(d_donor, d_host, rank=dec_rank, depth=dec_depth)
     graft = ParallelGraft(d_host, d_donor, part, enc, dec, control=control, gate_bias=gate_bias)
     graft.donor_span = (first, last)
@@ -409,7 +423,8 @@ def functional_loss(base, base_tok, donor, donor_tok, graft, texts, cfg, geo_wei
         return None, {}
     native_final, native_in = _donor_native(donor, ids_d, mask_d, layer)
     h = _host_state(base, ids_h, mask_h, host_layer)
-    x = graft.enc(h)
+    # map_in reads the host layers the encoder asks for (filled by the stitch hooks during _host_state).
+    x = graft.map_in(h)
     # encode pads on the right, so position 0 is every row's first real token.
     x = with_sink(x, graft.sink)
     final = _grafted_final(donor, layer, x, mask_h)

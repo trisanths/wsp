@@ -324,13 +324,50 @@ which is built from MedMCQA and MedQA questions. It is now in
 longer train on the benchmark they report. The h1 and h2 medicine rows
 used it and are not evidence.
 
-### h3: confirm and climb (running)
+### h3: confirm and climb
 
-Seeds 1 and 2 of the 4..20 block against seeded identity and LoRA;
-mutations (span 2..20 and 4..24, the stage-1 alignment loss kept as a
-stage-2 regularizer, host 5, LoRA for 2000 steps); and the same span on
-medicine (leak-free) and Qwen2.5-Math-7B-Instruct. Rows are saved on the
-Modal volume per cell, so a local disconnect no longer loses them.
+New seeds for the h2 winner, against controls run on the same seeds.
+Selection is on MMLU dev, and held-out is reported to confirm. Base
+Llama-3.2-1B-Instruct scores 48.0 on dev and 44.6 on held-out.
+
+**Knowledge** (Qwen2.5-7B-Instruct, block 4..20 at host layer 7,
+answer-letter training on CommonsenseQA, OpenBookQA, QASC, and LogiQA2.0):
+
+| cell | MMLU dev | MMLU held-out | in-dist. MC | law drift KL | survival |
+|---|---|---|---|---|---|
+| graft, seed 1 | 53.8 | 52.8 | 70.0 | 0.009 | 0.88 |
+| graft, seed 2 | 52.6 | **54.4** | 69.0 | 0.011 | 0.87 |
+| LoRA, seed 1 | 46.8 | 46.6 | 64.5 | 0.035 | |
+| LoRA, seed 2 | 46.6 | 46.4 | 65.2 | 0.038 | |
+| LoRA, 2000 steps | 44.0 | 46.0 | 65.2 | 0.048 | |
+| identity, seed 1 | 44.9 | 46.2 | 57.5 | 0.007 | |
+| identity, seed 2 | 47.1 | 46.2 | 59.0 | 0.007 | |
+| span 2..20 | 51.8 | 52.6 | 70.0 | 0.009 | 0.88 |
+| span 4..24 | 52.3 | 51.1 | 67.2 | 0.009 | 0.88 |
+| + alignment regularizer | 53.7 | 52.9 | 69.0 | 0.009 | 0.89 |
+| host layer 5 | 52.1 | 53.8 | 67.0 | 0.010 | 0.88 |
+
+The gain holds up on new seeds. The graft scores 8 to 10 points above the
+base on held-out MMLU and 6 to 8 points above a LoRA with the same
+trainable budget. It also drifts about a quarter as much on law text. On
+dev, LoRA and identity land below the untrained base, so answer-letter
+training alone does not lift MMLU; the donor's layers do. The other
+mutations sit within about a point of the winner.
+
+**Medicine** (Apollo2-7B, block 4..20; healdata without the MedMCQA leak):
+
+| cell | MedMCQA val (1000) | MMLU dev | MMLU held-out |
+|---|---|---|---|
+| graft, MC objective | **46.2** | 53.0 | 51.6 |
+| graft, distill then MC | 44.3 | 52.6 | 50.9 |
+| LoRA | 41.4 | 46.7 | 47.3 |
+| identity | 43.0 | 47.5 | 46.1 |
+| base | 41.4 | 48.0 | 44.6 |
+
+**Caveat on size.** The grafted network holds 16 frozen donor layers
+(about 3.5B parameters) beside the 1B host. The matched LoRA matches the
+trainable budget, not the total size. h6 adds Llama-3.2-3B-Instruct as a
+host, untrained, with LoRA, and grafted, to compare at a similar total size.
 
 ## Also fixed
 
@@ -350,10 +387,11 @@ answer options, and 2 rows are not valid JSON. Those rows are now skipped.
   from fine-tuning. Under LM loss on dataset text, a LoRA at the same budget
   matches or beats every graft arm. Graft + LoRA ties LoRA alone, and more
   LoRA beats both. No graft arm here beats the base on MMLU.
-- **Now works, with a caveat:** with an answer-letter signal, the graft
-  beats the base (44.6) and the matched LoRA on MMLU held-out: 48.3 to 49.2
-  in round 23 (2 seeds), 50.3 for the wider 4..20 block in h2 (1 seed). The
-  selection used held-out, so h3 confirms with new seeds.
+- **Works:** with an answer-letter signal, the graft beats the base and a
+  budget-matched LoRA. On MMLU held-out it scores 52.8 and 54.4 on new
+  seeds (selected on dev), against 46.4 to 46.6 for LoRA and 44.6 for the
+  base. With Apollo2 as the donor, MedMCQA goes from 41.4 to 46.2, and LoRA
+  stays at 41.4.
 - **Does not work:** library parts lifted out of their model. Fed a
   translated input, they do not align. Fed native inputs from the donor's
   own trunk, they are no better than random units.
