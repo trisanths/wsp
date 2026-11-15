@@ -53,7 +53,7 @@ BASE_CFG = {
     "steps": 4000, "batch": 16, "align_steps": 600, "kd_w": 1.0, "preserve": 1.0, "align_reg": 1.0,
     "enc_depth": 2, "dec_rank": 256, "lora_rank": 16, "lora_lr": 2e-4,
     "glue_lr": 3e-4, "gate_lr": 1e-4, "enc_lr": 1e-4, "ft_lr": 3e-6, "match_extra": True,
-    "decode": True, "tag": "", "ckpt": False,
+    "decode": True, "tag": "", "ckpt": True,
 }
 PRESETS = {
     "graft": {},
