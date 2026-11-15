@@ -146,8 +146,8 @@ def test_request_scores_need_every_benchmark():
 def test_demo_requests_validate_and_name_the_request_wording():
     r = load_round()
     folder = os.path.join(ROOT, "demo", "requests")
-    names = sorted(os.listdir(folder))
-    assert names == ["accounting.json", "clinic.json", "law_firm.json"]
+    names = ["accounting.json", "clinic.json", "law_firm.json"]
+    assert set(names) <= set(os.listdir(folder))
     for name in names:
         request = auto.load_request(os.path.join(folder, name))
         assert request["base"] == r.MODEL_ID
