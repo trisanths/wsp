@@ -25,6 +25,8 @@ async function req(method, path, body, isForm) {
   return data;
 }
 
+const pathOf = (s) => String(s).split('/').map(encodeURIComponent).join('/');
+
 const real = {
   health: () => req('GET', '/api/health'),
   draftSpec(prompt, files) {
@@ -83,6 +85,13 @@ const real = {
   measured: () => req('GET', '/api/measured'),
   specRequest: (id) => req('GET', '/api/spec/' + id + '/request'),
   specPlan: (id) => req('POST', '/api/spec/' + id + '/plan', {}),
+  // mining: model and part ids hold slashes, so each segment is encoded and the slashes stay
+  mine: () => req('GET', '/api/mine'),
+  mineLookup: (model) => req('GET', '/api/mine/lookup?model=' + encodeURIComponent(model)),
+  mineSubmit: (body) => req('POST', '/api/mine', body),
+  mineReq: (id) => req('GET', '/api/mine/req/' + encodeURIComponent(id)),
+  modelDetail: (model) => req('GET', '/api/models/' + pathOf(model)),
+  partDetail: (id) => req('GET', '/api/parts/' + pathOf(id)),
 };
 
 let impl = real;

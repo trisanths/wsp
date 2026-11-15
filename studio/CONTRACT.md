@@ -550,3 +550,47 @@ Runs `wsp.auto.plan()` on that request in a worker thread with a 90 second timeo
 `{ "plan": {...as the front door returns it}, "seconds", "offline": bool, "offline_reason"?: str, "verified": false, "note": "...", "unmapped": [...] }`
 
 The plan is cached per spec and request. A front door failure never gives a 500: the body is `{"error": "..."}` with 400 (invalid request), 408 (timeout), 422 (the compiler could not plan) or 404 (unknown spec). The traceback goes to the server log.
+
+## Mining routes
+
+Files: `server/mining.py` (all routes, registered from `app.py`), `tests/test_studio_mining.py`. CPU only, no GPU calls. The studio does not start mining. A request is written to `mine_requests.json` in the studio output dir (`WSP_STUDIO_OUT`) as `{"requests": [Request, ...]}`, oldest first, and the mining team reads that file as its queue. They update `status` (`queued`, `running`, `done`, `failed`) and each stage `status` in place. A queued or running model cannot be requested again.
+
+### GET /api/mine
+
+`{ "requests": [Request], "models": [ModelSummary] }`. Requests are newest first. Models are every donor model the library has parts or masks for, most parts first.
+
+ModelSummary: `{ model, short, params_b, layers, experts (null for dense), kind: "dense"|"moe", parts: { total, by_kind: {kind: n} }, skills: {skill: n}, status: "mined" }`. `params_b` and `experts` are null when the library has no profile for the model.
+
+### GET /api/mine/lookup?model=<hf id>
+
+`{ model, found, params_b, architecture, layers, experts, license, gated, downloads, likes, in_library, mined_parts, error }`. It asks the Hub with a 6 second timeout and no token, and caches the answer for 10 minutes. When the Hub fails and the library has a profile, it answers from the profile with `found: true` and an `error` that says so. When neither has the model, `found` is false and `error` says why. The route always answers 200.
+
+### POST /api/mine
+
+Body `{ model, skills: [string], effort: "smoke"|"medium"|"full", note }`. Skills may be empty (mine everything), at most 20. Note at most 500 characters. Effort defaults to medium.
+
+Returns a Request: `{ id ("mine_" + 8 hex), model, skills, effort, note, status: "queued", created (UTC ISO), stages, estimate }`. Stages in order, each `{ id, name, status: "waiting"|"running"|"done", sponsor }`: `fetch` (modal), `read` (openai), `scan` (modal), `ablate` (modal), `gate` (modal), `publish` (pastdev). `estimate` is `{ gpu_min, cost_usd, gpu, is_estimate: true, note }`, a rough figure from parameter count and effort.
+
+400 with `{ "error": "plain message" }` for a bad model id, bad skills, bad effort, a long note, a body that is not JSON, or a model already queued or running.
+
+### GET /api/mine/req/{id}
+
+The Request, or 404.
+
+### GET /api/models/{model}
+
+`model` has a slash (`Qwen/Qwen3-30B-A3B`). Returns ModelSummary plus `{ parts: [palette item], layer_map: [{ layer, kind, count, to }], techniques: [id], findings: [...], recipes: [{ id, title, status, host, builds, skills, evidence }], part_counts }`. Palette items have the shape of `GET /api/catalog` parts. `layer_map` puts each part at its first layer, and `to` is the last layer of the longest range there. `techniques` are ids from `web/techniques.js` (`weight-read`, `activation-scan`, `attribution`, `saliency`, `skill-map`, `weight-delta`, `deletion-mask`, `ablation`, `gate`) read from each part's method, source and fields. 404 when the library has nothing for the model.
+
+### GET /api/parts/{id}
+
+`id` may contain slashes (atlas parts). Returns the palette item fields plus:
+
+```
+raw: { signature: { skill: { search, heldout, control_search, control_heldout } } | null,
+       z, z_heldout, random_mean, random_std, random_n }
+num_units, tier, skill (library skill record or name), selection: { skill, source, datasets } | null,
+units_file, technique: [id], evidence: [library evidence records] | null, evidence_line, findings, stitches,
+recipes: [{ id, title }]
+```
+
+Drops are relative drops in skill score when the part is switched off. `z` and `z_heldout` compare the main skill's search and held-out drop with the mean and sample standard deviation of `random_n` same-size random parts. Fields the library does not hold are null. 404 when unknown.

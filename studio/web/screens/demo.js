@@ -9,11 +9,15 @@ export const SCENES = [
   { id: 'spec-research', section: 'Start', title: 'Spec with research working', line: 'A new spec while the benchmark research agent is still searching and reading sources.', hash: '#/spec/sp_demo_legal' },
   { id: 'spec-ready', section: 'Start', title: 'Spec ready with sliders and benchmarks', line: 'A finished spec with the limits set and recommended benchmarks with their sources.', hash: '#/spec/sp_demo_math' },
   { id: 'run-live', section: 'Agents build it', title: 'Live run overview', line: 'A run partway through its evals, with new leaders appearing as agents score proposals.', hash: '#/run/run_demo_live' },
+  { id: 'run-pipeline', section: 'Agents build it', title: 'Autoresearch pipeline', line: 'The whole pipeline live: a 3D brain being grafted, cut and healed, the seven stages, every agent and the techniques they use.', hash: '#/run/run_demo_live/pipeline' },
   { id: 'run-activity', section: 'Agents build it', title: 'Live run activity', line: 'The running feed of what every agent is thinking, proposing and scoring.', hash: '#/run/run_demo_live/activity' },
   { id: 'run-agent', section: 'Agents build it', title: 'One agent at work', line: 'A single agent: its reasoning, the parts it picked and the attempts it scored.', hash: '#/run/run_demo_live/agents/planner-1' },
   { id: 'run-results', section: 'Agents build it', title: 'Results leaderboard', line: 'The finished run ranked against the comparison rows: base, LoRA, distillation and random parts.', hash: '#/run/run_demo_done/results' },
   { id: 'run-done', section: 'Agents build it', title: 'Finished run overview', line: 'A completed run with a clear winner that beats every comparison row.', hash: '#/run/run_demo_done' },
   { id: 'run-empty', section: 'Agents build it', title: 'Run that scored nothing', line: 'What you see when every proposal was refused by the limits, and what to try next.', hash: '#/run/run_demo_empty' },
+  { id: 'mine-home', section: 'Mine open models', title: 'Mine a model', line: 'Point the miners at an open model and watch parts lift out of it, each tested against random parts.', hash: '#/mine' },
+  { id: 'mine-request', section: 'Mine open models', title: 'A request being mined', line: 'The miners working through donors for one request, with the parts they found so far.', hash: '#/mine/req/mr_demo_live' },
+  { id: 'mine-model', section: 'Mine open models', title: 'One model in full detail', line: 'A 30B mixture-of-experts model scanned layer by layer, with every part found in it.', hash: '#/mine/model/Qwen/Qwen3-30B-A3B-Instruct-2507' },
   { id: 'build-canvas', section: 'Build it yourself', title: 'Builder canvas', line: 'A placed program of parts on the canvas, with scored attempts and the comparison.', hash: '#/build/b_demo?spec=sp_demo_math' },
   { id: 'build-code', section: 'Build it yourself', title: 'Builder code view', line: 'The same program as code, with the result of each stage.', hash: '#/build/b_demo?spec=sp_demo_math&view=code' },
   { id: 'shrink-spec', section: 'Shrink a model', title: 'Shrink spec', line: 'Keep the code skill of a larger model and cut it under a size limit.', hash: '#/spec/sp_demo_code' },
@@ -23,7 +27,7 @@ export const SCENES = [
   { id: 'measured', section: 'Library', title: 'Measured results', line: 'Numbers measured by the compiler, kept apart from the sample data.', hash: '#/parts?tab=results' },
   { id: 'runs', section: 'Library', title: 'Runs page', line: 'Every run and builder session in one list.', hash: '#/runs' },
 ];
-const SECTIONS = ['Start', 'Agents build it', 'Build it yourself', 'Shrink a model', 'Library'];
+const SECTIONS = ['Start', 'Agents build it', 'Mine open models', 'Build it yourself', 'Shrink a model', 'Library'];
 
 function norm(h) {
   const s = (h || '').replace(/^#/, '') || '/';

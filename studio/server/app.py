@@ -20,6 +20,7 @@ from studio.server import programs
 from studio.server import runs as runs_mod
 from studio.server import settings
 from studio.server import shrink as shrink_mod
+from studio.server import mining
 from studio.server import routes_extra
 from studio.server import specs as specs_mod
 
@@ -516,6 +517,7 @@ async def shrink_run(shrink_id: str, request: Request):
 
 
 routes_extra.register(app)
+mining.register(app)
 
 
 # The web app.

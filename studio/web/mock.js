@@ -1235,7 +1235,7 @@ export const mockApi = {
 };
 
 import { makeExtra } from './mock-extra.js';
-Object.assign(mockApi, makeExtra({ getSpec }));
+Object.assign(mockApi, makeExtra({ getSpec, getParts: () => PARTS, getRecipes: () => RECIPES }));
 
 /* ---------- demo mode: fixed objects that open by URL ---------- */
 function withSeed(seed, fn) {

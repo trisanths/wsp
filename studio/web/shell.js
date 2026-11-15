@@ -33,6 +33,9 @@ export function Sidebar({ rail, onToggle, route }) {
   };
   const isRecent = (r) => (r.kind === 'spec' && route.name === 'spec' && route.id === r.id) || (r.kind === 'run' && route.name === 'run' && route.id === r.id) || (r.kind === 'shrink' && route.name === 'shrink' && route.id === r.id);
   const shownRecent = recent.slice(0, 12);
+  // Autoresearch opens the pipeline view of the newest agent run (the live demo run in demo mode)
+  const lastRun = recent.find((r) => r.kind === 'run');
+  const autoHref = DEMO ? '#/run/run_demo_live/pipeline' : lastRun ? '#/run/' + lastRun.id + '/pipeline' : '#/runs';
   const suffix = rowSuffixes(shownRecent);
   const hrefOf = (r) => '#/' + r.kind + '/' + r.id + (r.kind === 'shrink' && r.spec ? '?spec=' + r.spec : '');
   return html`<aside class=${'sidebar' + (rail ? ' rail' : '')} aria-label="Sidebar">
@@ -45,6 +48,8 @@ export function Sidebar({ rail, onToggle, route }) {
       <${Row} icon="runs" label="Runs" href="#/runs" on=${route.name === 'runs'} rail=${rail} />
       <${Row} icon="cube" label="Builder" onClick=${openBuilder} on=${route.name === 'build'} rail=${rail} />
       <${Row} icon="grid" label="Parts library" href="#/parts" on=${route.name === 'parts'} rail=${rail} />
+      <${Row} icon="bolt" label="Autoresearch" href=${autoHref} on=${route.name === 'run' && route.page === 'pipeline'} rail=${rail} />
+      <${Row} icon="layers" label="Mine a model" href="#/mine" on=${route.name === 'mine'} rail=${rail} />
       ${DEMO && html`<${Row} icon="play" label="Demo tour" href="#/demo" on=${route.name === 'demo'} rail=${rail} />`}
     </nav>
     <div class="sb-label sb-text">Recent</div>

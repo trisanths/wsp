@@ -9,6 +9,8 @@ import { RunScreen } from './screens/run.js';
 import { BuilderScreen } from './screens/builder.js';
 import { ShrinkScreen } from './screens/shrink.js';
 import { RunsScreen, PartsScreen } from './screens/pages.js';
+import { MineScreen } from './screens/mine.js';
+import { PartDetailHost } from './screens/part-detail.js';
 import { PageSwap, initTooltips } from './motion.js';
 import { DEMO } from './demo-flag.js';
 import { DemoScreen, DemoControl, useDemoShortcut } from './screens/demo.js';
@@ -27,6 +29,7 @@ function App() {
   else if (r.name === 'shrink') screen = html`<${ShrinkScreen} key=${r.id} id=${r.id} specId=${r.q.get('spec')} />`;
   else if (r.name === 'runs') screen = html`<${RunsScreen} />`;
   else if (r.name === 'parts') screen = html`<${PartsScreen} />`;
+  else if (r.name === 'mine') screen = html`<${MineScreen} key=${(r.sub || '') + ':' + (r.id || '')} sub=${r.sub} id=${r.id} />`;
   else if (r.name === 'demo') screen = html`<${DemoScreen} />`;
   else screen = html`<${PromptScreen} />`;
   return html`<${Shell}><${PageSwap} pageKey=${r.name + ':' + (r.id || '')} depth=${DEPTH[r.name] ?? 0}>${screen}<//><//><${Toasts} />${DEMO && html`<${DemoControl} />`}`;
