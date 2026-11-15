@@ -323,3 +323,39 @@ def test_a_malformed_row_is_skipped_not_an_error():
     assert healdata.row_pair({"text": '{"text": "t", "question": "q", "answer": 0}'}, "logiqa") is None
     assert healdata.row_pair({"question": "q"}, "mc") is None
     assert healdata.row_pair({}, "qa") is None
+
+
+def _fake_sources(monkeypatch, sizes):
+    names = list(sizes)
+    monkeypatch.setitem(healdata.SOURCES, "fakepool", [(name, None, "train", "qa") for name in names])
+
+    def fake_load(dataset_id, config, split, stream=False, seed=0):
+        return [{"question": dataset_id + " q" + str(i), "answer": "a" + str(i)} for i in range(sizes[dataset_id])]
+
+    monkeypatch.setattr(healdata, "_load", fake_load)
+    monkeypatch.setattr(healdata, "_features", lambda rows: None)
+
+
+def test_a_small_source_does_not_leave_the_pool_short(monkeypatch):
+    # Round 22 died on this: SVAMP has 700 rows, and an even share per source left the math pool at 4168 of 5096.
+    _fake_sources(monkeypatch, {"big/one": 5000, "tiny/two": 50, "big/three": 5000})
+    got = healdata.pairs("fakepool", 3000)
+    assert len(got) == 3000
+    assert len(set(got)) == 3000
+    assert sum(1 for user, _ in got if user.startswith("tiny/two")) == 50
+
+
+def test_pairs_order_is_prefix_stable_so_skips_are_disjoint(monkeypatch):
+    _fake_sources(monkeypatch, {"big/one": 900, "tiny/two": 40, "big/three": 900})
+    short = healdata.pairs("fakepool", 200)
+    long = healdata.pairs("fakepool", 700)
+    assert long[:200] == short
+    first = healdata.pairs("fakepool", 300, skip=0)
+    second = healdata.pairs("fakepool", 300, skip=300)
+    assert set(first).isdisjoint(set(second))
+    assert healdata.pairs("fakepool", 100, skip=250) == long[250:350]
+
+
+def test_pairs_is_short_only_when_every_source_is_spent(monkeypatch):
+    _fake_sources(monkeypatch, {"a/x": 30, "b/y": 20})
+    assert len(healdata.pairs("fakepool", 100)) == 50

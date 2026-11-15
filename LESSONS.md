@@ -96,3 +96,8 @@ something fails. Each entry: what went wrong, then the rule.
   {context, continuation, digits_only} under "search" and "heldout", and
   the owner of the format corrected me. Ask the owning session for the
   format, or open two real files, before writing the brief.
+- Test data helpers at the sizes real scripts ask for. healdata.pairs took
+  an even share from each source, so a 700-row source (SVAMP) left the math
+  pool at 4168 pairs when round 22 asked for 5096, and every cell died. Its
+  order also depended on the count, so two calls with different skip values
+  were not disjoint. Pools now read round robin in a fixed order.
