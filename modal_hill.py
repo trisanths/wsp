@@ -1,0 +1,585 @@
+"""Hill-climb parallel grafts over parts, translators and domains (wsp/pgraft.py).
+
+Every cell is one config: a domain (its donor, training text and eval sets),
+a part (a donor block, or a bundle of donor subnetworks: library parts,
+whole-layer MLPs or attention), an arm, and the translator shape. Base is
+always unsloth/Llama-3.2-1B-Instruct, read and written after layer 7.
+
+Arms, all at one trainable budget per config:
+  real      the parts as named
+  random    the same kinds, layers and sizes with random units (bundles only)
+  identity  the same Enc, Dec and gate with no donor part
+  lora      LoRA on the base, rank matched to the real arm's trainable count
+
+Training: stage 1 aligns Enc (functional KL through the donor's head for a
+block, part output matching for a bundle); stage 2 distills the donor into
+the grafted base over the shared vocabulary (wsp.pgraft.kd_loss) on the
+domain's healdata text plus the donor's skill-screen prompts (search split,
+unlabeled: the donor's own predictions are the target). The identity and
+LoRA arms spend the alignment steps in stage 2.
+
+Scored without training on any of it: the distillation gap to the donor on
+held-out domain text (graft on and off), the donor's library skill screens
+(held-out split: continuation NLL, transfer = share of the base-to-donor gap
+closed), MedMCQA for medicine and MMLU held-out for every domain, and KL to
+the frozen base on legal text no arm trains on.
+
+    modal run modal_hill.py --batch h1
+"""
+
+import json
+import os
+import random
+import time
+
+import modal
+
+app = modal.App("wsp-hill")
+volume = modal.Volume.from_name("wsp-models", create_if_missing=True)
+
+image = (
+    modal.Image.debian_slim(python_version="3.12")
+    .pip_install(
+        "torch==2.7.1", "transformers==4.57.1", "accelerate", "huggingface_hub", "requests",
+        "safetensors", "zstandard", "numpy", "datasets", "sentencepiece", "protobuf",
+    )
+    .env({"HF_HOME": "/vol/hf"})
+    .add_local_python_source("wsp")
+    .add_local_file("modal_graft.py", "/root/modal_graft.py")
+    .add_local_file("modal_round5.py", "/root/modal_round5.py")
+    .add_local_file("modal_round6.py", "/root/modal_round6.py")
+    .add_local_file("modal_round7.py", "/root/modal_round7.py")
+    .add_local_dir("library", "/root/library")
+    .add_local_dir("person_a/mine/skills", "/root/skills")
+)
+
+HOST = "unsloth/Llama-3.2-1B-Instruct"
+HOST_LAYER = 7
+DOMAINS = {
+    "medicine": {"donor": "FreedomIntelligence/Apollo2-7B", "skills": "apollo2_7b", "pools": ["medicine"]},
+    "code": {"donor": "Qwen/Qwen2.5-Coder-7B-Instruct", "skills": "qwencoder7b", "pools": ["code"]},
+    "math": {"donor": "Qwen/Qwen2.5-Math-1.5B", "skills": "qwenmath1.5b", "pools": ["math"]},
+    "knowledge": {"donor": "Qwen/Qwen2.5-7B-Instruct", "skills": None, "pools": ["knowledge"],
+                  "align_pools": ["prose", "knowledge", "medicine"]},
+    "math7b": {"donor": "Qwen/Qwen2.5-Math-7B-Instruct", "skills": "qwenmath7b_inst", "pools": ["math"]},
+}
+DEFAULT = {
+    "host_layer": HOST_LAYER, "enc_depth": 3, "dec_rank": 256, "dec_depth": 1,
+    "align_steps": 400, "kd_steps": 300, "task_steps": 600, "seed": 0, "objective": "kd_mc", "preserve": 1.0,
+    "align_reg": 0.0,
+    "lr": {"align": 1e-3, "glue": 3e-4, "gate": 1e-4, "enc2": 1e-4, "lora": 2e-4},
+}
+
+
+# ------------------------------------------------------------------ data
+
+
+def domain_data(domain):
+    from wsp import healdata
+
+    path = f"/vol/hill/data3_{domain}.json"
+    if os.path.exists(path):
+        with open(path) as f:
+            return json.load(f)
+    pools = DOMAINS[domain]["pools"]
+    align_pools = DOMAINS[domain].get("align_pools", ["prose"] + pools)
+    data = {
+        "align": healdata.mix(align_pools, 1000, seed=0),
+        "align_eval": healdata.mix(align_pools, 24, seed=0, skip=1000),
+        "domain": healdata.mix(pools, 2000, seed=1, skip=1100),
+        "domain_eval": healdata.mix(pools, 60, seed=1, skip=3200),
+        "law": healdata.pool("law", 60, seed=5),
+        "general": healdata.mix(["general", "prose"], 1500, seed=2, skip=1200),
+    }
+    os.makedirs("/vol/hill", exist_ok=True)
+    tmp = f"{path}.{os.getpid()}.tmp"
+    with open(tmp, "w") as f:
+        json.dump(data, f)
+    os.replace(tmp, path)
+    volume.commit()
+    return data
+
+
+def skill_sets(key):
+    """{name: {"search": [(context, continuation)], "heldout": [...]}} for the donor's skill screens."""
+    out = {}
+    if key is None:
+        return out
+    folder = os.path.join("/root/skills", key)
+    for name in sorted(os.listdir(folder)):
+        with open(os.path.join(folder, name)) as f:
+            d = json.load(f)
+        sets = {}
+        for split in ("search", "heldout"):
+            sets[split] = [(it["context"], it["continuation"]) for it in d["items"].get(split, [])]
+        out[name[:-5]] = sets
+    return out
+
+
+def mc_items():
+    """4-option items in MMLU prompt format from non-benchmark train splits (CommonsenseQA, OpenBookQA, QASC,
+    LogiQA2.0), cached: {"train": [...], "eval": [...]}. Same construction as round 23."""
+    from modal_round6 import mmlu_prompt
+    from wsp import healdata
+
+    path = "/vol/hill/mc.json"
+    if os.path.exists(path):
+        with open(path) as f:
+            return json.load(f)
+    sources = [s for s in healdata.SOURCES["reasoning"] if s[3] in ("mc", "logiqa")]
+    healdata.check_sources([s[0] for s in sources])
+    rng = random.Random(0)
+    items = []
+    for dataset_id, config, split, kind in sources:
+        rows = healdata._load(dataset_id, config, split)
+        order = list(range(len(rows)))
+        rng.shuffle(order)
+        taken = 0
+        for index in order:
+            if taken >= 3000:
+                break
+            row = rows[index]
+            if kind == "mc":
+                question = row.get("question") or row.get("question_stem")
+                labels = list(row["choices"]["label"])
+                texts = list(row["choices"]["text"])
+                if row["answerKey"] not in labels or not question:
+                    continue
+                gold = texts[labels.index(row["answerKey"])]
+            else:
+                try:
+                    data = json.loads(row["text"])
+                except ValueError:
+                    continue
+                if "options" not in data or "question" not in data:
+                    continue
+                question = data["text"].strip() + "\n\n" + data["question"].strip()
+                texts = list(data["options"])
+                gold = texts[int(data["answer"])]
+            others = [t for t in texts if t != gold]
+            if len(others) < 3:
+                continue
+            choices = rng.sample(others, 3) + [gold]
+            rng.shuffle(choices)
+            items.append([mmlu_prompt(question, choices), choices.index(gold)])
+            taken += 1
+    rng.shuffle(items)
+    out = {"train": items[400:], "eval": items[:400]}
+    os.makedirs("/vol/hill", exist_ok=True)
+    with open(path, "w") as f:
+        json.dump(out, f)
+    volume.commit()
+    return out
+
+
+def library_specs(model_id, pgraft):
+    """Every library part of one donor, resolved to plain specs."""
+    specs = []
+    with open("/root/library/catalog.jsonl") as f:
+        for line in f:
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            if row["model"] == model_id and row["type"] in ("mlp_cluster", "attn_heads"):
+                specs.append(pgraft.resolve_library({"id": row["id"]}, root="/root"))
+    return specs
+
+
+# --------------------------------------------------------------- scoring
+
+
+def continuation_nll(model, tok, items, batch=16):
+    """Mean over items of the summed NLL (nats) of the continuation after the context."""
+    import torch
+    import torch.nn.functional as F
+
+    if tok.pad_token is None:
+        tok.pad_token = tok.eos_token
+    tok.padding_side = "right"
+    device = next(model.parameters()).device
+    totals = []
+    for start in range(0, len(items), batch):
+        chunk = items[start:start + batch]
+        rows = []
+        for context, cont in chunk:
+            c = tok(context)["input_ids"]
+            full = tok(context + cont)["input_ids"]
+            rows.append((full, len(c)))
+        longest = max(len(r[0]) for r in rows)
+        ids = torch.full((len(rows), longest), tok.pad_token_id, dtype=torch.long)
+        mask = torch.zeros((len(rows), longest), dtype=torch.long)
+        for i, (full, _) in enumerate(rows):
+            ids[i, :len(full)] = torch.tensor(full)
+            mask[i, :len(full)] = 1
+        with torch.no_grad():
+            with torch.autocast("cuda", dtype=torch.bfloat16):
+                logits = model(input_ids=ids.to(device), attention_mask=mask.to(device), use_cache=False).logits
+        logp = F.log_softmax(logits.float(), dim=-1)
+        for i, (full, n_ctx) in enumerate(rows):
+            nll = 0.0
+            for pos in range(max(1, n_ctx), len(full)):
+                nll -= float(logp[i, pos - 1, full[pos]])
+            totals.append(nll)
+    return sum(totals) / max(1, len(totals))
+
+
+def score_skills(model, tok, skills):
+    return {name: round(continuation_nll(model, tok, sets["heldout"]), 4) for name, sets in skills.items()}
+
+
+# ------------------------------------------------------------------ cell
+
+
+@app.function(image=image, volumes={"/vol": volume}, gpu="H100", memory=131072, timeout=4 * 3600)
+def cell(config):
+    import gc
+
+    import torch
+    import transformers
+
+    from modal_round6 import letter_ids, score_mmlu
+    from modal_round7 import mmlu_split
+    from wsp import pgraft
+    from wsp.lora import apply_lora, default_alpha, rank_for_budget
+
+    start = time.time()
+    c = dict(DEFAULT, **config)
+    c["lr"] = dict(DEFAULT["lr"], **config.get("lr", {}))
+    seed = c["seed"]
+    torch.manual_seed(seed)
+    dom = DOMAINS[c["domain"]]
+    data = domain_data(c["domain"])
+    skills = skill_sets(dom["skills"])
+    if c.get("smoke"):
+        c["align_steps"], c["task_steps"] = 3, 3
+        data = {k: v[:12] for k, v in data.items()}
+        skills = {k: {s: v[:6] for s, v in sets.items()} for k, sets in list(skills.items())[:3]}
+    cfg = dict(pgraft.DEFAULTS)
+
+    tok = transformers.AutoTokenizer.from_pretrained(HOST)
+    base = transformers.AutoModelForCausalLM.from_pretrained(HOST, dtype=torch.bfloat16).to("cuda").eval()
+    ref = transformers.AutoModelForCausalLM.from_pretrained(HOST, dtype=torch.bfloat16).to("cuda").eval()
+    dtok = transformers.AutoTokenizer.from_pretrained(dom["donor"])
+    donor = transformers.AutoModelForCausalLM.from_pretrained(dom["donor"], dtype=torch.bfloat16).to("cuda").eval()
+    for m in (base, ref, donor):
+        for p in m.parameters():
+            p.requires_grad_(False)
+    vmap = pgraft.vocab_map(tok, dtok)
+    row = {"config": config, "shared_vocab": int(vmap[0].numel())}
+
+    row["base_skills"] = score_skills(base, tok, skills)
+    row["donor_skills"] = score_skills(donor, dtok, skills)
+    row["base_kd_gap"] = pgraft.kd_report(base, tok, donor, dtok, data["domain_eval"], vmap, cfg)
+
+    part = c["part"]
+    arm = c["arm"]
+    d_donor = donor.config.hidden_size
+    d_host = base.config.hidden_size
+    specs = None
+    if part["type"] in ("bundle", "trunk_bundle"):
+        specs = []
+        for spec in part["specs"]:
+            if spec["kind"] == "library_all":
+                specs += library_specs(dom["donor"] if c["domain"] != "math" else "Qwen/Qwen2.5-Math-1.5B", pgraft)
+            elif spec["kind"] == "library":
+                specs.append(pgraft.resolve_library(spec, root="/root"))
+            else:
+                specs.append(spec)
+        specs = pgraft.expand_specs(specs, donor.config, control="random" if arm == "random" else None, seed=seed)
+        row["parts"] = [{k: (v if k not in ("indices", "heads") else len(v)) for k, v in s.items()} for s in specs]
+        row["part_params"] = None
+
+    # The real arm's trainable count sets every arm's budget.
+    budget = (pgraft.count(pgraft.Enc(d_host, d_donor, depth=c["enc_depth"]).parameters())
+              + pgraft.count(pgraft.Dec(d_donor, d_host, rank=c["dec_rank"], depth=c["dec_depth"]).parameters())
+              + d_host + 1)
+    row["budget"] = budget
+    graft = None
+    lora_params = None
+    if arm == "lora":
+        rank = rank_for_budget(base, budget)
+        lora_params = apply_lora(base, rank, default_alpha(rank))
+        for p in lora_params:
+            p.requires_grad_(True)
+        row["lora_rank"] = rank
+    else:
+        control = "identity" if arm == "identity" else None
+        if part["type"] == "trunk_bundle" and arm != "identity":
+            graft = pgraft.build_trunk_bundle_graft(base, donor, c["host_layer"], part["first"], specs,
+                                                    enc_depth=c["enc_depth"], dec_rank=c["dec_rank"],
+                                                    dec_depth=c["dec_depth"])
+            row["parts"] = [p for p in row["parts"] if p["layer"] >= part["first"]]
+        elif part["type"] == "block" or arm == "identity":
+            first = part.get("first", 10)
+            last = part.get("last", 20)
+            graft = pgraft.build(base, donor if control is None else None, c["host_layer"], first, last,
+                                 control=control, enc_depth=c["enc_depth"], dec_rank=c["dec_rank"],
+                                 dec_depth=c["dec_depth"], d_donor=d_donor)
+        else:
+            graft = pgraft.build_bundle_graft(base, donor, c["host_layer"], specs, enc_depth=c["enc_depth"],
+                                              dec_rank=c["dec_rank"], dec_depth=c["dec_depth"])
+        pgraft.attach(base, [graft])
+        if control is None:
+            first_layer = part.get("first") if part["type"] in ("block", "trunk_bundle") else \
+                min(s["layer"] for s in specs)
+            pgraft.set_sink(graft, donor, dtok, first_layer, data["align"][:128])
+            acfg = dict(cfg, align_steps=c["align_steps"], align_lr=c["lr"]["align"])
+            if part["type"] in ("block", "trunk_bundle"):
+                pgraft.align(base, tok, donor, dtok, graft, data["align"], acfg, seed=seed, log_every=100)
+                row["alignment"] = pgraft.alignment_report(base, tok, donor, dtok, graft, data["align_eval"], cfg)
+            else:
+                row["bundle_in_rms"] = pgraft.bundle_input_rms(graft.part, donor, dtok, data["align"], cfg)
+                row["part_r2_before"] = pgraft.part_report(base, tok, donor, dtok, graft, data["align_eval"], cfg)
+                pgraft.align_parts(base, tok, donor, dtok, graft, data["align"], acfg, seed=seed, log_every=100)
+                row["part_r2"] = pgraft.part_report(base, tok, donor, dtok, graft, data["align_eval"], cfg)
+                row["part_params"] = sum(p.numel() for p in graft.part.parts.parameters())
+            print("alignment", row.get("alignment") or row.get("part_r2"))
+        row["calib_rms"] = pgraft.calibrate_scale(base, tok, graft, data["align"], cfg)
+
+    lr = c["lr"]
+    if arm == "lora":
+        groups = [{"params": lora_params, "lr": lr["lora"]}]
+    elif arm == "identity":
+        groups = [{"params": list(graft.enc.parameters()) + list(graft.dec.parameters()), "lr": lr["glue"]},
+                  {"params": list(graft.token_gate.parameters()), "lr": lr["gate"]}]
+    else:
+        enc = list(graft.enc.parameters())
+        if isinstance(graft.part, pgraft.PartBundle):
+            enc.append(graft.part.gains)
+        for p in enc:
+            p.requires_grad_(True)
+        groups = [{"params": list(graft.dec.parameters()), "lr": lr["glue"]},
+                  {"params": list(graft.token_gate.parameters()), "lr": lr["gate"]},
+                  {"params": enc, "lr": lr["enc2"]}]
+    row["trainable"] = pgraft.count([p for g in groups for p in g["params"]])
+
+    skill_texts = []
+    for sets in skills.values():
+        for context, cont in sets["search"]:
+            skill_texts.append(context + cont)
+    kd_texts = data["domain"] + skill_texts
+    feed = pgraft._batches(kd_texts, 4, seed + 21)
+
+    def note_gate(info):
+        if graft is not None:
+            g = pgraft.mean_gate([graft])
+            if g is not None:
+                info["gate"] = float(g.detach())
+
+    align_feed = pgraft._batches(data["align"], 4, seed + 11)
+
+    def reg(step, info):
+        # Keep the stage-1 functional KL as a stage-2 regularizer (blocks and trunk bundles, every 2nd step).
+        if c["align_reg"] <= 0 or graft is None or arm != "real" or part["type"] == "bundle" or step % 2:
+            return 0.0
+        loss, _ = pgraft.functional_loss(base, tok, donor, dtok, graft, next(align_feed), cfg)
+        info["reg"] = float(loss.detach())
+        return c["align_reg"] * loss
+
+    def kd_step(step):
+        loss, info = pgraft.kd_loss(base, tok, donor, dtok, next(feed), vmap, cfg)
+        note_gate(info)
+        return loss + reg(step, info), info
+
+    mc = mc_items()
+    if c.get("smoke"):
+        mc = {"train": mc["train"][:32], "eval": mc["eval"][:16]}
+    letters = letter_ids(tok)
+    mc_feed = pgraft._batches(mc["train"], 8, seed + 31)
+    gen_feed = pgraft._batches(data["general"], 4, seed + 41)
+    device = torch.device("cuda")
+
+    def mc_step(step):
+        loss, info = pgraft.mc_loss(base, tok, [tuple(x) for x in next(mc_feed)], letters, device)
+        note_gate(info)
+        enc_batch = pgraft._tok_batch(tok, next(gen_feed), cfg["seq_len"], device)
+        _, logits = pgraft.seq_lm_loss(base, enc_batch, return_logits=True)
+        drift = pgraft.drift_kl(ref, enc_batch, logits)
+        info["drift"] = float(drift.detach())
+        return loss + c["preserve"] * drift + reg(step, info), info
+
+    # The controls spend the alignment steps in their first stage, so every arm takes the same step count.
+    extra = c["align_steps"] if arm in ("identity", "lora") else 0
+    if c.get("smoke"):
+        c["kd_steps"] = 3
+    logs = {}
+    if "kd" in c["objective"]:
+        logs["kd"] = pgraft.train(base, groups, c["kd_steps"] + extra, kd_step, seed=seed, log_every=100)
+        extra = 0
+    if "mc" in c["objective"]:
+        logs["mc"] = pgraft.train(base, groups, c["task_steps"] + extra, mc_step, seed=seed + 1, log_every=100)
+    for name, log in logs.items():
+        row[name + "_first50"] = sum(r["loss"] for r in log[:50]) / len(log[:50])
+        row[name + "_last50"] = sum(r["loss"] for r in log[-50:]) / len(log[-50:])
+        gates = [round(r["gate"], 4) for r in log if "gate" in r and r["step"] % 100 == 0]
+        if gates:
+            row[name + "_gate_curve"] = gates
+
+    base.eval()
+    row["kd_gap"] = pgraft.kd_report(base, tok, donor, dtok, data["domain_eval"], vmap, cfg)
+    row["skills"] = score_skills(base, tok, skills)
+    row["law"] = pgraft.heldout_utility(base, tok, data["law"], cfg, ref=ref)
+    if graft is not None:
+        with pgraft.grafts_off(base):
+            row["kd_gap_off"] = pgraft.kd_report(base, tok, donor, dtok, data["domain_eval"], vmap, cfg)
+            row["skills_off"] = score_skills(base, tok, skills)
+        if row.get("part_r2") is not None or row.get("alignment") is not None:
+            if part["type"] in ("block", "trunk_bundle"):
+                row["alignment_end"] = pgraft.alignment_report(base, tok, donor, dtok, graft, data["align_eval"], cfg)
+            else:
+                row["part_r2_end"] = pgraft.part_report(base, tok, donor, dtok, graft, data["align_eval"], cfg)
+    row["mc_eval"] = score_mmlu(base, tok, [tuple(x) for x in mc["eval"]], batch_size=16)
+    del donor, ref
+    gc.collect()
+    torch.cuda.empty_cache()
+
+    # Skill transfer: share of the base-to-donor NLL gap closed, on skills where the donor is clearly better.
+    closes = []
+    for name, b in row["base_skills"].items():
+        d = row["donor_skills"][name]
+        if b - d > 0.3:
+            closes.append((b - row["skills"][name]) / (b - d))
+    row["skill_transfer"] = sum(closes) / len(closes) if closes else None
+    row["skill_gap_count"] = len(closes)
+
+    # Select configs on dev; held-out is reported but reserved for confirming a winner with new seeds.
+    _, dev = mmlu_split(tok, heldout=False)
+    _, held = mmlu_split(tok, heldout=True)
+    if c.get("smoke"):
+        dev, held = dev[:32], held[:32]
+    row["mmlu_dev"] = score_mmlu(base, tok, dev, batch_size=16)
+    row["mmlu_heldout"] = score_mmlu(base, tok, held, batch_size=16)
+    if graft is not None:
+        with pgraft.grafts_off(base):
+            row["mmlu_dev_off"] = score_mmlu(base, tok, dev, batch_size=16)
+    if c["domain"] == "medicine":
+        from datasets import load_dataset
+
+        from modal_round6 import mmlu_prompt
+
+        med = load_dataset("openlifescienceai/medmcqa", split="validation")
+        order = list(range(len(med)))
+        random.Random(7).shuffle(order)
+        items = []
+        for index in order[:(32 if c.get("smoke") else 1000)]:
+            r = med[index]
+            items.append((mmlu_prompt(r["question"], [r["opa"], r["opb"], r["opc"], r["opd"]]), int(r["cop"])))
+        row["medmcqa"] = score_mmlu(base, tok, items, batch_size=16)
+        if graft is not None:
+            with pgraft.grafts_off(base):
+                row["medmcqa_off"] = score_mmlu(base, tok, items, batch_size=16)
+    row["seconds"] = round(time.time() - start, 1)
+    print(json.dumps(row))
+    # Save on the volume, so a local disconnect does not lose the row.
+    folder = f"/vol/hill/rows/{config.get('batch', 'adhoc')}"
+    os.makedirs(folder, exist_ok=True)
+    with open(f"{folder}/{config['name']}.json", "w") as f:
+        json.dump(row, f)
+    volume.commit()
+    return row
+
+
+# --------------------------------------------------------------- batches
+
+
+def batch_h1():
+    """First sweep: per domain, a donor block, the donor's library parts (real and random units), whole-layer
+    MLPs, and the identity and LoRA controls. One seed; winners get more seeds."""
+    out = []
+    plan = {
+        "medicine": {"block": (10, 20), "mlp_layers": [14, 18, 22]},
+        "code": {"block": (10, 20), "mlp_layers": [14, 18, 22]},
+        "math": {"block": (8, 20), "mlp_layers": [12, 16, 20]},
+    }
+    for domain, p in plan.items():
+        first, last = p["block"]
+        out.append({"name": f"{domain}-block", "domain": domain, "part": {"type": "block", "first": first, "last": last},
+                    "arm": "real"})
+        out.append({"name": f"{domain}-identity", "domain": domain, "part": {"type": "block"}, "arm": "identity"})
+        out.append({"name": f"{domain}-lora", "domain": domain, "part": {"type": "block"}, "arm": "lora"})
+        lib = {"type": "bundle", "specs": [{"kind": "library_all"}]}
+        out.append({"name": f"{domain}-library", "domain": domain, "part": lib, "arm": "real"})
+        out.append({"name": f"{domain}-library-random", "domain": domain, "part": lib, "arm": "random"})
+        mlps = {"type": "bundle", "specs": [{"kind": "mlp_layer", "layer": L} for L in p["mlp_layers"]]}
+        out.append({"name": f"{domain}-mlp-layers", "domain": domain, "part": mlps, "arm": "real"})
+    return out
+
+
+def batch_h2():
+    """Trunk bundles: the donor's own layers build each subnetwork's input, only the subnetworks come back.
+    Plus an architecture climb around round 23's winner on knowledge (answer-letter training, MMLU)."""
+    out = []
+    for domain, first, mlps in (("medicine", 10, [20, 23, 26]), ("code", 10, [20, 23, 26]), ("math", 8, [16, 20, 24])):
+        lib = {"type": "trunk_bundle", "first": first, "specs": [{"kind": "library_all"}]}
+        out.append({"name": f"{domain}-tb-library", "domain": domain, "part": lib, "arm": "real"})
+        out.append({"name": f"{domain}-tb-library-random", "domain": domain, "part": lib, "arm": "random"})
+        whole = {"type": "trunk_bundle", "first": first, "specs": [{"kind": "mlp_layer", "layer": L} for L in mlps]}
+        out.append({"name": f"{domain}-tb-mlp", "domain": domain, "part": whole, "arm": "real"})
+    k = {"domain": "knowledge", "objective": "mc", "align_steps": 600, "task_steps": 1000, "enc_depth": 2}
+    blk = {"type": "block", "first": 10, "last": 20}
+    out.append(dict(k, name="k-base", part=blk, arm="real"))
+    out.append(dict(k, name="k-identity", part=blk, arm="identity"))
+    out.append(dict(k, name="k-lora", part=blk, arm="lora"))
+    out.append(dict(k, name="k-enc3", part=blk, arm="real", enc_depth=3))
+    out.append(dict(k, name="k-host5", part=blk, arm="real", host_layer=5))
+    out.append(dict(k, name="k-host9", part=blk, arm="real", host_layer=9))
+    out.append(dict(k, name="k-span4-20", part={"type": "block", "first": 4, "last": 20}, arm="real"))
+    out.append(dict(k, name="k-span10-24", part={"type": "block", "first": 10, "last": 24}, arm="real"))
+    out.append(dict(k, name="k-dec1024", part=blk, arm="real", dec_rank=1024))
+    out.append(dict(k, name="k-steps2000", part=blk, arm="real", task_steps=2000))
+    out.append(dict(k, name="k-lora-steps2000", part=blk, arm="lora", task_steps=2000))
+    return out
+
+
+def batch_h3():
+    """Confirm h2's knowledge winner (span 4..20) with new seeds against seeded controls, climb around it
+    (span, alignment regularizer, host layer, longer LoRA), and carry the span to medicine (leak-free data)
+    and to the new library donor Qwen2.5-Math-7B-Instruct. Select on MMLU dev; held-out confirms."""
+    out = []
+    k = {"domain": "knowledge", "objective": "mc", "align_steps": 600, "task_steps": 1000, "enc_depth": 2}
+    win = {"type": "block", "first": 4, "last": 20}
+    for seed in (1, 2):
+        out.append(dict(k, name=f"k-span4-20-s{seed}", part=win, arm="real", seed=seed))
+        out.append(dict(k, name=f"k-identity-s{seed}", part=win, arm="identity", seed=seed))
+        out.append(dict(k, name=f"k-lora-s{seed}", part=win, arm="lora", seed=seed))
+    out.append(dict(k, name="k-lora-steps2000", part=win, arm="lora", task_steps=2000))
+    out.append(dict(k, name="k-span4-20-reg", part=win, arm="real", align_reg=0.5))
+    out.append(dict(k, name="k-span2-20", part={"type": "block", "first": 2, "last": 20}, arm="real"))
+    out.append(dict(k, name="k-span4-24", part={"type": "block", "first": 4, "last": 24}, arm="real"))
+    out.append(dict(k, name="k-span4-20-host5", part=win, arm="real", host_layer=5))
+    for domain in ("medicine", "math7b"):
+        out.append({"name": f"{domain}-span4-20", "domain": domain, "part": win, "arm": "real"})
+        out.append({"name": f"{domain}-span4-20-mc", "domain": domain, "part": win, "arm": "real", "objective": "mc",
+                    "align_steps": 600, "task_steps": 1000, "enc_depth": 2})
+        out.append({"name": f"{domain}-identity", "domain": domain, "part": win, "arm": "identity"})
+        out.append({"name": f"{domain}-lora", "domain": domain, "part": win, "arm": "lora"})
+    return out
+
+
+BATCHES = {"h1": batch_h1, "h2": batch_h2, "h3": batch_h3}
+
+
+@app.local_entrypoint()
+def main(batch: str = "h1", only: str = "", smoke: bool = False, extra: str = ""):
+    configs = BATCHES[batch]() if batch in BATCHES else []
+    if extra:
+        with open(extra) as f:
+            configs = json.load(f)
+    if only:
+        keep = set(only.split(","))
+        configs = [c for c in configs if c["name"] in keep]
+    if smoke:
+        configs = [dict(c, smoke=True) for c in configs]
+    configs = [dict(c, batch=batch + ("_smoke" if smoke else "")) for c in configs]
+    print(f"{len(configs)} cells:", [c["name"] for c in configs])
+    rows = []
+    for row in cell.map(configs, return_exceptions=True):
+        if isinstance(row, Exception):
+            print("cell failed:", repr(row)[:1000])
+            continue
+        rows.append(row)
+    os.makedirs("results/hill", exist_ok=True)
+    name = f"results/hill/{batch}{'_smoke' if smoke else ''}_rows.json"
+    with open(name, "w") as f:
+        json.dump(rows, f, indent=2)
+    print("wrote", name)
