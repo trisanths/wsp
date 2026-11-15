@@ -543,3 +543,68 @@ Reading:
   all Coder MLPs, whole Math layers) to see whether an MLP-only expert
   carries the specialist's skill at all, and a router started from a
   ridge fit on domain labels instead of the base bias.
+
+## Run 14c (2026-11-14): distillation heal with a written-in block (diagnostic)
+
+Base Qwen2.5-0.5B-Instruct, donor and teacher Qwen2.5-14B-Instruct. The
+heal is KL to the teacher's logits plus LM loss, 1500 steps, LoRA r16
+on the base plus the seam glue. The heal text includes MMLU auxiliary
+items, so this run is a diagnostic, not evidence under the heal data
+rule. MMLU dev 1000 / held-out 2000. Raw rows: round14c_rows.json (two
+cells still running when this was written).
+
+| Arm | Params | Dev | Held-out |
+|---|---|---|---|
+| Distill into LoRA only (seed 1) | 0.50B | 45.8 | 46.0 |
+| + Qwen-14B layers 14..34, distill (seeds 0, 1) | 6.35B | 51.8, 51.0 | 51.0, 50.1 |
+| + another 20-layer range of Qwen-14B, distill (seed 0) | 6.35B | 57.4 | 55.2 |
+
+Reading:
+- Distillation alone does nothing for the 0.5B base (46.0 against 45.8
+  untrained). The base has no room to take the teacher's knowledge.
+- With 20 frozen donor layers written in, the same distillation gives
+  +4 to +9 points. The donor layers are frozen, so this is their
+  pretrained computation being used, not new capacity being trained.
+- Which 20 layers does not matter (the other range scored higher). The
+  "random block" control in runs 14, 14b, and 14c is another range of
+  the same pretrained donor, so it tests block choice, not whether donor
+  knowledge is used. A control with no knowledge (shuffled or
+  spectrum-matched weights) is still missing.
+- Cost: 6.35B parameters for 51 to 55 points, where Qwen2.5-7B itself
+  scores about 71. Usable, but far from efficient.
+
+## Run 16c (2026-11-14, partial): where the specialists' skill lives
+
+Base Qwen2.5-1.5B-Instruct with Qwen2.5-Math and -Coder 1.5B experts,
+forced routing, no training. Raw rows: round16c_partial_rows.json. The
+generation scores of the whole-layer cells came from a build with a
+cache bug (fixed in 25e68d8) and are being rerun; multiple-choice
+scores are valid.
+
+| Cell | GSM8K | MBPP | MMLU | MedMCQA |
+|---|---|---|---|---|
+| Base | 68.7 | 59.0 | 58.8 | 44.6 |
+| Math specialist | 83.3 | 34.5 | 36.9 | 32.1 |
+| Coder specialist | 59.7 | 66.0 | 46.2 | 37.9 |
+| All MLPs from Math, base attention | 1.7 | 0.0 | 25.2 | 22.6 |
+| All MLPs from Coder, base attention | 0.0 | 0.0 | 25.6 | 28.1 |
+| Upper-half MLPs from Math | 0.3 | 0.0 | 22.7 | 26.3 |
+| All layers from Math, base embeddings and head | (rerun) | (rerun) | 25.9 | 23.2 |
+| All layers from Coder, base embeddings and head | (rerun) | (rerun) | 28.6 | 24.0 |
+| All layers, embeddings, and head from Math | (rerun) | (rerun) | 36.9 | 32.1 |
+| Ridge router over MLP experts, top-1 | 0.3 | 0.0 | 49.3 | 29.7 |
+| TIES merge against the Instruct base | 0.7 | 0.0 | 24.3 | 26.4 |
+
+Reading:
+- Qwen2.5-Math and -Coder are not weight-compatible with
+  Qwen2.5-Instruct. Their MLPs under the base's attention give chance,
+  and so do their whole layers on the base's embeddings. Only the whole
+  specialist, with its own embeddings and head, reproduces its scores.
+- A Hub weight probe agrees: these specialists sit at cosine 0.2 to 0.5
+  from the Instruct model (a true fine-tune sits near 1.0). They were
+  pretrained further from the shared base.
+- So no expert, layer, or merge of these two works without a seam. This
+  explains run 16b (the router was right to stay on the base) and the
+  TIES collapse. Their components must go through translation layers
+  (wsp/synth.py), and per-layer weight mixing is only for true
+  fine-tunes (wsp/weave.py lists verified ones from 7B to 32B).
