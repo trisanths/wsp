@@ -67,6 +67,33 @@ Cells (one per family; the lineage notes come from the 2026-11-14 scout):
             no benchmark scorer here; it enters as a member with no target
             skill, and the probe scores it on the "law" pool).
 
+Small and new cells (2026-11-15 scout; evidence per member in docs/weave.md).
+Every member passed `python -m wsp.lineage relation HOST MEMBER` as fine_tune or
+fine_tune_of_ancestor with mean cosine 0.97 or more, the host's rope_theta, and
+relative L2 0.01 or more. A member marked "unscored" has a skill with no
+scorer and no probe pool of its own (it gets general text, a weak proxy); a
+cell marked exploratory never gets a go. A member with a "ref" is a true
+fine-tune of that reference, not of the host. A member marked "mlp_only" writes
+MLP tensors only and is read without attention tensors, so the gate measures
+the MLP alone.
+  gemma2_2b    Gemma-2-2B-it with MergeBench math and coding fine-tunes.
+  llama3b      Llama-3.2-3B-Instruct with MergeBench math and Hermes-3 (from
+               the Llama-3.2-3B base).
+  llama1b      Llama-3.2-1B-Instruct with a math and a Python coding fine-tune.
+  qwen3_4b     Qwen3-4B with Pythagoras-Prover-4B and a medical SFT.
+  qwen3_1p7b   Qwen3-1.7B with MedPsy-1.7B and hito-1.7b (reasoning).
+  qwen25_3b    Qwen2.5-3B-Instruct with SmallThinker-3B and a medical and math
+               fine-tune.
+  smollm3      SmolLM3-3B with a medical SFT and Open-MOPD math (parent: the
+               SmolLM3-3B base).
+  gemma3_4b    Gemma-3-4B-it with biomed, text-to-Cypher, and MamayLM.
+  gemma3_1b, qwen25_15b, qwen25_05b, lfm2_350m, lfm2_700m, lfm2_2b
+               Exploratory cells: language, tool, and extraction members with
+               no scorer here.
+  gemma27_mlp  The gemma27 cell with MedGemma forced to MLP only (its
+               attention fails the gate, its MLP passes).
+`--family all` runs every cell above. Name the cells you want.
+
 Benchmark targets are the members' skills: math (GSM8K, MATH-500), code (MBPP;
 HumanEval is scored on the final test only, as transfer), medicine
 (MedMCQA). The guard skill is MMLU. Final test sets match round 16b: GSM8K 300
@@ -251,8 +278,147 @@ FAMILIES = {
         ],
         "memory_gib": 256, "gpu": "H200",
     },
+    "gemma2_2b": {
+        "host": "unsloth/gemma-2-2b-it", "params_b": 2.6, "targets": ["gsm8k", "mbpp"], "guards": ["mmlu"],
+        "transfer": ["humaneval"], "refs": {},
+        "members": [
+            {"name": "math", "id": "MergeBench/gemma-2-2b-it_math", "skill": "gsm8k", "ref": None},
+            {"name": "coding", "id": "MergeBench/gemma-2-2b-it_coding", "skill": "mbpp", "ref": None},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "llama3b": {
+        "host": "unsloth/Llama-3.2-3B-Instruct", "params_b": 3.2, "targets": ["gsm8k"], "guards": ["mmlu"],
+        "transfer": [], "refs": {"base3b": "unsloth/Llama-3.2-3B"},
+        "members": [
+            {"name": "math", "id": "MergeBench/Llama-3.2-3B-Instruct_math", "skill": "gsm8k", "ref": None},
+            {"name": "hermes3", "id": "NousResearch/Hermes-3-Llama-3.2-3B", "skill": "chat", "unscored": True, "ref": "base3b"},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "llama1b": {
+        "host": "unsloth/Llama-3.2-1B-Instruct", "params_b": 1.2, "targets": ["gsm8k", "mbpp"], "guards": ["mmlu"],
+        "transfer": ["humaneval"], "refs": {},
+        "members": [
+            {"name": "math", "id": "AryanK123/Llama-3.2-1B-Instruct_SFT_Math-220kv00.04", "skill": "gsm8k", "ref": None},
+            {"name": "coder", "id": "MDDDDR/Llama-3.2-1B-Instruct-FFT-coder-python", "skill": "mbpp", "ref": None},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "qwen3_4b": {
+        "host": "Qwen/Qwen3-4B", "params_b": 4.0, "targets": ["medmcqa"], "guards": ["mmlu"],
+        "transfer": ["gsm8k"], "refs": {},
+        "members": [
+            {"name": "pythagoras", "id": "Pythagoras-LM/Pythagoras-Prover-4B", "skill": "math", "ref": None},
+            {"name": "popit_medical", "id": "Hoshino-Yumetsuki/PopiT-Qwen3-4B-Medical-SFT-1128", "skill": "medmcqa", "ref": None},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "qwen3_1p7b": {
+        "host": "Qwen/Qwen3-1.7B", "params_b": 1.7, "targets": ["medmcqa"], "guards": ["mmlu"],
+        "transfer": [], "refs": {},
+        "members": [
+            {"name": "medpsy", "id": "qvac/MedPsy-1.7B", "skill": "medmcqa", "ref": None},
+            {"name": "hito", "id": "hitonet/hito-1.7b", "skill": "reasoning", "reasoning": True, "unscored": True, "ref": None},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "qwen25_3b": {
+        "host": "Qwen/Qwen2.5-3B-Instruct", "params_b": 3.1, "targets": ["gsm8k", "medmcqa"], "guards": ["mmlu"],
+        "transfer": [], "refs": {},
+        "members": [
+            {"name": "smallthinker", "id": "Tiiny/SmallThinker-3B-Preview", "skill": "gsm8k", "reasoning": True, "ref": None},
+            {"name": "medmath", "id": "calebking/qwen2.5-3b-instruct-medical-math-full", "skill": "medmcqa", "ref": None},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "smollm3": {
+        "host": "HuggingFaceTB/SmolLM3-3B", "params_b": 3.1, "targets": ["gsm8k", "medmcqa"], "guards": ["mmlu"],
+        "transfer": [], "refs": {"base": "HuggingFaceTB/SmolLM3-3B-Base"},
+        "members": [
+            {"name": "medical", "id": "vinayp27/smollm3-medical", "skill": "medmcqa", "ref": None},
+            {"name": "mopd_math", "id": "BytedTsinghua-SIA/Open-MOPD-SmolLM3-3B-RL-Math", "skill": "gsm8k", "ref": "base"},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "gemma3_4b": {
+        "host": "unsloth/gemma-3-4b-it", "params_b": 4.3, "targets": ["medmcqa"], "guards": ["mmlu"],
+        "transfer": [], "refs": {},
+        "members": [
+            {"name": "biomed", "id": "AdaptLLM/biomed-gemma-3-4b-it", "skill": "medmcqa", "ref": None},
+            {"name": "cypher", "id": "neo4j/text-to-cypher-Gemma-3-4B-Instruct-2025.04.0", "skill": "cypher", "unscored": True, "ref": None},
+            {"name": "mamaylm", "id": "INSAIT-Institute/MamayLM-Gemma-3-4B-IT-v1.0", "skill": "ukrainian", "unscored": True, "ref": None},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "gemma3_1b": {
+        "host": "unsloth/gemma-3-1b-it", "params_b": 1.0, "targets": ["gsm8k"], "guards": ["mmlu"],
+        "transfer": [], "refs": {}, "exploratory": True,
+        "members": [
+            {"name": "borealis", "id": "NbAiLab/borealis-1b", "skill": "norwegian", "ref": None},
+            {"name": "swahili", "id": "CraneAILabs/swahili-gemma-1b", "skill": "swahili", "ref": None},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "qwen25_15b": {
+        "host": "Qwen/Qwen2.5-1.5B-Instruct", "params_b": 1.5, "targets": ["gsm8k"], "guards": ["mmlu"],
+        "transfer": [], "refs": {}, "exploratory": True,
+        "members": [
+            {"name": "vikhr", "id": "Vikhrmodels/Vikhr-Qwen-2.5-1.5B-Instruct", "skill": "russian", "ref": None},
+            {"name": "tooltuned", "id": "asheeee24/tooltuned-qwen2.5-1.5b", "skill": "tool", "ref": None},
+            {"name": "correction", "id": "shibing624/chinese-text-correction-1.5b", "skill": "correction", "ref": None},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "qwen25_05b": {
+        "host": "Qwen/Qwen2.5-0.5B-Instruct", "params_b": 0.5, "targets": ["gsm8k"], "guards": ["mmlu"],
+        "transfer": [], "refs": {}, "exploratory": True,
+        "members": [
+            {"name": "hammer", "id": "MadeAgents/Hammer2.0-0.5b", "skill": "tool", "ref": None},
+            {"name": "vikhr", "id": "Vikhrmodels/Vikhr-Qwen-2.5-0.5b-Instruct", "skill": "russian", "ref": None},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "lfm2_350m": {
+        "host": "LiquidAI/LFM2-350M", "params_b": 0.35, "targets": ["gsm8k"], "guards": ["mmlu"],
+        "transfer": [], "refs": {}, "exploratory": True,
+        "members": [
+            {"name": "extract", "id": "LiquidAI/LFM2-350M-Extract", "skill": "extract", "ref": None},
+            {"name": "luth", "id": "kurakurai/Luth-LFM2-350M", "skill": "french", "ref": None},
+            {"name": "hala", "id": "hammh0a/Hala-350M", "skill": "arabic", "ref": None},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "lfm2_700m": {
+        "host": "LiquidAI/LFM2-700M", "params_b": 0.74, "targets": ["gsm8k"], "guards": ["mmlu"],
+        "transfer": [], "refs": {}, "exploratory": True,
+        "members": [
+            {"name": "luth", "id": "kurakurai/Luth-LFM2-700M", "skill": "french", "ref": None},
+            {"name": "tashkeel", "id": "Etherll/Tashkeel-700M", "skill": "arabic_diacritics", "ref": None},
+            {"name": "hala", "id": "hammh0a/Hala-700M", "skill": "arabic", "ref": None},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "lfm2_2b": {
+        "host": "LiquidAI/LFM2-2.6B", "params_b": 2.6, "targets": ["gsm8k"], "guards": ["mmlu"],
+        "transfer": [], "refs": {}, "exploratory": True,
+        "members": [
+            {"name": "transcript", "id": "LiquidAI/LFM2-2.6B-Transcript", "skill": "transcript", "ref": None},
+            {"name": "longevity", "id": "LiquidAI/LFM2-2.6B-Longevity", "skill": "longevity", "ref": None},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "gemma27_mlp": {
+        "host": "unsloth/gemma-3-27b-it", "params_b": 27.4, "targets": ["medmcqa"], "guards": ["mmlu"],
+        "transfer": [], "refs": {},
+        "members": [
+            {"name": "medgemma", "id": "unsloth/medgemma-27b-text-it", "skill": "medmcqa", "mlp_only": True, "ref": None},
+            {"name": "meditron", "id": "EPFLiGHT/Gemma-3-27B-MeditronFO", "skill": "medmcqa", "ref": None},
+        ],
+        "memory_gib": 576, "gpu": "H200",
+    },
 }
-BIG = ["gemma27", "qwen32b"]
+BIG = ["gemma27", "gemma27_mlp", "qwen32b"]
 
 
 # ---------------------------------------------------------------- plan (no torch)

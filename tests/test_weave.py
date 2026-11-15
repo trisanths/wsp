@@ -818,3 +818,83 @@ def test_cache_stage_frees_the_member_after_an_error(tmp_path):
 def test_memory_report_runs_without_cuda():
     out = weave.memory_report("test", log=lambda *_: None)
     assert out["stage"] == "test"
+
+
+# ---------------------------------------------------------------- the round 21 FAMILIES table
+
+
+def round21():
+    import importlib
+    import pathlib
+    import sys
+
+    root = str(pathlib.Path(__file__).resolve().parents[1])
+    if root not in sys.path:
+        sys.path.insert(0, root)
+    return importlib.import_module("modal_round21")
+
+
+FAMILY_KEYS = {"host", "params_b", "targets", "guards", "transfer", "refs", "members", "memory_gib", "gpu"}
+MEMBER_KEYS = {"name", "id", "skill", "ref"}
+MEMBER_OPTIONAL = {"reasoning", "mlp_only", "unscored"}
+
+
+def test_every_family_has_the_required_keys():
+    module = round21()
+    for name, fam in module.FAMILIES.items():
+        assert FAMILY_KEYS <= set(fam), name
+        assert set(fam) - FAMILY_KEYS <= {"exploratory"}, name
+        assert isinstance(fam["host"], str) and "/" in fam["host"], name
+        assert fam["params_b"] > 0 and fam["memory_gib"] > 0 and fam["gpu"], name
+        assert len(fam["members"]) >= 2, name + ": a family needs two members"
+        names = [m["name"] for m in fam["members"]]
+        ids = [m["id"] for m in fam["members"]]
+        assert len(set(names)) == len(names), name
+        assert len(set(ids)) == len(ids) and fam["host"] not in ids, name
+        for member in fam["members"]:
+            assert MEMBER_KEYS <= set(member), (name, member)
+            assert set(member) - MEMBER_KEYS <= MEMBER_OPTIONAL, (name, member)
+            assert member["ref"] is None or member["ref"] in fam["refs"], (name, member)
+        for key, repo in fam["refs"].items():
+            assert any(m["ref"] == key for m in fam["members"]), name + ": unused reference " + key
+
+
+def test_every_member_skill_has_a_scorer_a_pool_or_is_marked():
+    module = round21()
+    scorers = set(module.FINAL_COUNTS)
+    for name, fam in module.FAMILIES.items():
+        for skill in fam["targets"] + fam["guards"] + fam["transfer"]:
+            assert skill in scorers, (name, skill)
+        scored = False
+        for member in fam["members"]:
+            skill = member["skill"]
+            known = skill in scorers or skill in module.POOL_BY_SKILL
+            marked = bool(fam.get("exploratory")) or bool(member.get("unscored")) or bool(member.get("reasoning"))
+            assert known or marked, (name, member["name"], skill)
+            if member.get("unscored") or fam.get("exploratory"):
+                assert skill not in scorers, (name, member["name"], "a scored skill is marked unscored")
+            if skill in fam["targets"]:
+                scored = True
+        assert scored or fam.get("exploratory"), name + ": no member has a target skill"
+
+
+def test_every_family_has_a_plan_that_fits_its_budget():
+    module = round21()
+    for name in module.FAMILIES:
+        plan = module.make_plan(name, 20.0 if name in module.BIG else 10.0)
+        assert plan["fits_budget"], name
+    for name in module.BIG:
+        assert name in module.FAMILIES
+
+
+def test_a_member_can_be_forced_to_mlp_only():
+    module = round21()
+    forced = [m for fam in module.FAMILIES.values() for m in fam["members"] if m.get("mlp_only")]
+    assert forced and all(m["skill"] == "medmcqa" for m in forced)
+    text = open(module.__file__).read()
+    start = text.index("def run_family")
+    body = text[start:text.index("\n@app.function", start)]
+    assert 'spec.get("mlp_only")' in body
+    assert '("mlp", "norm")' in body
+    member = weave.Member("m", "s", {"model.layers.0.self_attn.q_proj.weight": torch.zeros(2, 2)}, mlp_only=True)
+    assert not member.covers("model.layers.0.self_attn.q_proj.weight", "attn")
