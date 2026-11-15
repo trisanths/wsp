@@ -1,0 +1,980 @@
+{
+ "name": "legal_terms",
+ "description": "Retrieve legal roles, contract and tort elements, and procedure terms from a fixed definition table; matched non-legal definition retrieval controls.",
+ "hash": "994fccc48e70ffe1",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nlegal=[('a legally enforceable agreement','contract'),('a proposal to enter a contract on specified terms','offer'),('unqualified assent to the terms of an offer','acceptance'),('the bargained-for exchange of value supporting a contract','consideration'),('failure to perform a contractual obligation','breach'),('money awarded to compensate a claimant for loss','damages'),('a civil wrong other than breach of contract','tort'),('failure to exercise reasonable care','negligence'),('the legal obligation to exercise reasonable care','duty'),('the causal connection between conduct and injury','causation'),('the party who brings a civil lawsuit','plaintiff'),('the party against whom a lawsuit is brought','defendant'),('a lawyer who represents a client','attorney'),('the official who presides over a court proceeding','judge'),('the group of citizens that decides disputed facts at trial','jury'),('the formal decision returned by a jury','verdict'),('a request for a higher court to review a lower court decision','appeal'),('a law enacted by a legislature','statute'),('a court order requiring a person to testify or produce documents','subpoena'),('a court order requiring or prohibiting specified conduct','injunction'),('a written statement sworn to be true','affidavit'),('the pretrial process for exchanging relevant information','discovery'),('a prior judicial decision used as authority in a later case','precedent'),('a court\\'s authority to hear and decide a case','jurisdiction'),('the geographic location where a case is tried','venue'),('a negotiated resolution ending a dispute','settlement'),('a formal request asking a court to issue an order','motion'),('a court proceeding in which evidence is presented to decide a case','trial'),('information offered to establish facts in a legal proceeding','evidence'),('a witness\\'s sworn statements in court','testimony'),('the person who makes a will','testator'),('a person who holds property for the benefit of another','trustee')]\ncontrol=[('the star at the center of our solar system','sun'),('the natural satellite of Earth','moon'),('a scientist who studies living organisms','biologist'),('the organ that pumps blood','heart'),('the process by which plants use sunlight to make food','photosynthesis'),('the freezing point of water in Celsius','zero'),('a shape with three sides','triangle'),('a shape with four equal sides and four right angles','square'),('an instrument used to measure temperature','thermometer'),('an instrument used to view distant stars','telescope'),('an instrument used to magnify tiny objects','microscope'),('the largest ocean on Earth','Pacific'),('the largest planet in our solar system','Jupiter'),('the chemical element with symbol O','oxygen'),('the chemical element with symbol Fe','iron'),('a person who writes books','author'),('a person who cooks professionally','chef'),('a person who designs buildings','architect'),('an animal with a long trunk','elephant'),('a young dog','puppy'),('a young cat','kitten'),('the opposite of north','south'),('the opposite of east','west'),('the season following spring','summer'),('the season following summer','autumn'),('the number of days in a week','seven'),('the number of months in a year','twelve'),('the language traditionally spoken in France','French'),('the capital city of Japan','Tokyo'),('the currency of Japan','yen'),('the branch of mathematics concerned with shapes','geometry'),('the force that attracts objects toward Earth','gravity')]\ntemplates=['Give the standard term for this definition: {d}.\\nAnswer:','Vocabulary quiz. Definition: {d}.\\nTerm:','What word means {d}?\\nAnswer:']\ndef make(table):\n rows=[{'prompt':t.format(d=d),'answer':' '+a} for t in templates for d,a in table];random.shuffle(rows);return rows\njson.dump({'items':make(legal),'control':make(control)},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Give the standard term for this definition: the party who brings a civil lawsuit.\nAnswer:",
+    "continuation": " plaintiff",
+    "digits_only": false
+   },
+   {
+    "context": "What word means a court proceeding in which evidence is presented to decide a case?\nAnswer:",
+    "continuation": " trial",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: a person who holds property for the benefit of another.\nTerm:",
+    "continuation": " trustee",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the geographic location where a case is tried?\nAnswer:",
+    "continuation": " venue",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: a negotiated resolution ending a dispute.\nTerm:",
+    "continuation": " settlement",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the causal connection between conduct and injury.\nTerm:",
+    "continuation": " causation",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the legal obligation to exercise reasonable care.\nAnswer:",
+    "continuation": " duty",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: a civil wrong other than breach of contract.\nTerm:",
+    "continuation": " tort",
+    "digits_only": false
+   },
+   {
+    "context": "What word means a proposal to enter a contract on specified terms?\nAnswer:",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the person who makes a will?\nAnswer:",
+    "continuation": " testator",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the formal decision returned by a jury.\nTerm:",
+    "continuation": " verdict",
+    "digits_only": false
+   },
+   {
+    "context": "What word means information offered to establish facts in a legal proceeding?\nAnswer:",
+    "continuation": " evidence",
+    "digits_only": false
+   },
+   {
+    "context": "What word means money awarded to compensate a claimant for loss?\nAnswer:",
+    "continuation": " damages",
+    "digits_only": false
+   },
+   {
+    "context": "What word means a civil wrong other than breach of contract?\nAnswer:",
+    "continuation": " tort",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: a legally enforceable agreement.\nTerm:",
+    "continuation": " contract",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the party against whom a lawsuit is brought.\nAnswer:",
+    "continuation": " defendant",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the party against whom a lawsuit is brought?\nAnswer:",
+    "continuation": " defendant",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: a court proceeding in which evidence is presented to decide a case.\nAnswer:",
+    "continuation": " trial",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: a court order requiring a person to testify or produce documents.\nAnswer:",
+    "continuation": " subpoena",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: a formal request asking a court to issue an order.\nAnswer:",
+    "continuation": " motion",
+    "digits_only": false
+   },
+   {
+    "context": "What word means unqualified assent to the terms of an offer?\nAnswer:",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: a proposal to enter a contract on specified terms.\nAnswer:",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: a court proceeding in which evidence is presented to decide a case.\nTerm:",
+    "continuation": " trial",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: a request for a higher court to review a lower court decision.\nAnswer:",
+    "continuation": " appeal",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the bargained-for exchange of value supporting a contract.\nTerm:",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "What word means a formal request asking a court to issue an order?\nAnswer:",
+    "continuation": " motion",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the geographic location where a case is tried.\nAnswer:",
+    "continuation": " venue",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: money awarded to compensate a claimant for loss.\nTerm:",
+    "continuation": " damages",
+    "digits_only": false
+   },
+   {
+    "context": "What word means a court order requiring a person to testify or produce documents?\nAnswer:",
+    "continuation": " subpoena",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the causal connection between conduct and injury?\nAnswer:",
+    "continuation": " causation",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the person who makes a will.\nTerm:",
+    "continuation": " testator",
+    "digits_only": false
+   },
+   {
+    "context": "What word means failure to perform a contractual obligation?\nAnswer:",
+    "continuation": " breach",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: a written statement sworn to be true.\nAnswer:",
+    "continuation": " affidavit",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: a law enacted by a legislature.\nTerm:",
+    "continuation": " statute",
+    "digits_only": false
+   },
+   {
+    "context": "What word means a legally enforceable agreement?\nAnswer:",
+    "continuation": " contract",
+    "digits_only": false
+   },
+   {
+    "context": "What word means a request for a higher court to review a lower court decision?\nAnswer:",
+    "continuation": " appeal",
+    "digits_only": false
+   },
+   {
+    "context": "What word means a court order requiring or prohibiting specified conduct?\nAnswer:",
+    "continuation": " injunction",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the causal connection between conduct and injury.\nAnswer:",
+    "continuation": " causation",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the formal decision returned by a jury.\nAnswer:",
+    "continuation": " verdict",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the group of citizens that decides disputed facts at trial?\nAnswer:",
+    "continuation": " jury",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: failure to perform a contractual obligation.\nTerm:",
+    "continuation": " breach",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the pretrial process for exchanging relevant information?\nAnswer:",
+    "continuation": " discovery",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: a request for a higher court to review a lower court decision.\nTerm:",
+    "continuation": " appeal",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: a court order requiring or prohibiting specified conduct.\nAnswer:",
+    "continuation": " injunction",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: unqualified assent to the terms of an offer.\nAnswer:",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: a civil wrong other than breach of contract.\nAnswer:",
+    "continuation": " tort",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the official who presides over a court proceeding?\nAnswer:",
+    "continuation": " judge",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: failure to exercise reasonable care.\nTerm:",
+    "continuation": " negligence",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Give the standard term for this definition: a legally enforceable agreement.\nAnswer:",
+    "continuation": " contract",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the legal obligation to exercise reasonable care.\nTerm:",
+    "continuation": " duty",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the party who brings a civil lawsuit.\nTerm:",
+    "continuation": " plaintiff",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the legal obligation to exercise reasonable care?\nAnswer:",
+    "continuation": " duty",
+    "digits_only": false
+   },
+   {
+    "context": "What word means a prior judicial decision used as authority in a later case?\nAnswer:",
+    "continuation": " precedent",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the person who makes a will.\nAnswer:",
+    "continuation": " testator",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the pretrial process for exchanging relevant information.\nTerm:",
+    "continuation": " discovery",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: a person who holds property for the benefit of another.\nAnswer:",
+    "continuation": " trustee",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: money awarded to compensate a claimant for loss.\nAnswer:",
+    "continuation": " damages",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: a court's authority to hear and decide a case.\nAnswer:",
+    "continuation": " jurisdiction",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: information offered to establish facts in a legal proceeding.\nTerm:",
+    "continuation": " evidence",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: information offered to establish facts in a legal proceeding.\nAnswer:",
+    "continuation": " evidence",
+    "digits_only": false
+   },
+   {
+    "context": "What word means failure to exercise reasonable care?\nAnswer:",
+    "continuation": " negligence",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: a court order requiring or prohibiting specified conduct.\nTerm:",
+    "continuation": " injunction",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: failure to exercise reasonable care.\nAnswer:",
+    "continuation": " negligence",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: a proposal to enter a contract on specified terms.\nTerm:",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "What word means a witness's sworn statements in court?\nAnswer:",
+    "continuation": " testimony",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: a witness's sworn statements in court.\nTerm:",
+    "continuation": " testimony",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: a prior judicial decision used as authority in a later case.\nAnswer:",
+    "continuation": " precedent",
+    "digits_only": false
+   },
+   {
+    "context": "What word means a law enacted by a legislature?\nAnswer:",
+    "continuation": " statute",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the group of citizens that decides disputed facts at trial.\nTerm:",
+    "continuation": " jury",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the official who presides over a court proceeding.\nTerm:",
+    "continuation": " judge",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the party who brings a civil lawsuit?\nAnswer:",
+    "continuation": " plaintiff",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: a formal request asking a court to issue an order.\nTerm:",
+    "continuation": " motion",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: failure to perform a contractual obligation.\nAnswer:",
+    "continuation": " breach",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: a prior judicial decision used as authority in a later case.\nTerm:",
+    "continuation": " precedent",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: a lawyer who represents a client.\nAnswer:",
+    "continuation": " attorney",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the group of citizens that decides disputed facts at trial.\nAnswer:",
+    "continuation": " jury",
+    "digits_only": false
+   },
+   {
+    "context": "What word means a lawyer who represents a client?\nAnswer:",
+    "continuation": " attorney",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: a court's authority to hear and decide a case.\nTerm:",
+    "continuation": " jurisdiction",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the party against whom a lawsuit is brought.\nTerm:",
+    "continuation": " defendant",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: a written statement sworn to be true.\nTerm:",
+    "continuation": " affidavit",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: a law enacted by a legislature.\nAnswer:",
+    "continuation": " statute",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: unqualified assent to the terms of an offer.\nTerm:",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "What word means a written statement sworn to be true?\nAnswer:",
+    "continuation": " affidavit",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the geographic location where a case is tried.\nTerm:",
+    "continuation": " venue",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: a witness's sworn statements in court.\nAnswer:",
+    "continuation": " testimony",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the formal decision returned by a jury?\nAnswer:",
+    "continuation": " verdict",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the pretrial process for exchanging relevant information.\nAnswer:",
+    "continuation": " discovery",
+    "digits_only": false
+   },
+   {
+    "context": "What word means a negotiated resolution ending a dispute?\nAnswer:",
+    "continuation": " settlement",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: a lawyer who represents a client.\nTerm:",
+    "continuation": " attorney",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: a court order requiring a person to testify or produce documents.\nTerm:",
+    "continuation": " subpoena",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the bargained-for exchange of value supporting a contract.\nAnswer:",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "What word means a court's authority to hear and decide a case?\nAnswer:",
+    "continuation": " jurisdiction",
+    "digits_only": false
+   },
+   {
+    "context": "What word means a person who holds property for the benefit of another?\nAnswer:",
+    "continuation": " trustee",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the official who presides over a court proceeding.\nAnswer:",
+    "continuation": " judge",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: a negotiated resolution ending a dispute.\nAnswer:",
+    "continuation": " settlement",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the bargained-for exchange of value supporting a contract?\nAnswer:",
+    "continuation": " consideration",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "What word means the branch of mathematics concerned with shapes?\nAnswer:",
+    "continuation": " geometry",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the season following spring.\nTerm:",
+    "continuation": " summer",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: a shape with four equal sides and four right angles.\nTerm:",
+    "continuation": " square",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the star at the center of our solar system?\nAnswer:",
+    "continuation": " sun",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the capital city of Japan?\nAnswer:",
+    "continuation": " Tokyo",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the freezing point of water in Celsius.\nTerm:",
+    "continuation": " zero",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the star at the center of our solar system.\nTerm:",
+    "continuation": " sun",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the currency of Japan?\nAnswer:",
+    "continuation": " yen",
+    "digits_only": false
+   },
+   {
+    "context": "What word means an instrument used to magnify tiny objects?\nAnswer:",
+    "continuation": " microscope",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the largest planet in our solar system.\nTerm:",
+    "continuation": " Jupiter",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the organ that pumps blood.\nAnswer:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the largest ocean on Earth.\nTerm:",
+    "continuation": " Pacific",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: a person who cooks professionally.\nAnswer:",
+    "continuation": " chef",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the natural satellite of Earth?\nAnswer:",
+    "continuation": " moon",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: a person who writes books.\nTerm:",
+    "continuation": " author",
+    "digits_only": false
+   },
+   {
+    "context": "What word means a shape with four equal sides and four right angles?\nAnswer:",
+    "continuation": " square",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: an instrument used to view distant stars.\nAnswer:",
+    "continuation": " telescope",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the chemical element with symbol Fe.\nAnswer:",
+    "continuation": " iron",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: a person who designs buildings.\nAnswer:",
+    "continuation": " architect",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the largest ocean on Earth.\nAnswer:",
+    "continuation": " Pacific",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the language traditionally spoken in France?\nAnswer:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "What word means an instrument used to measure temperature?\nAnswer:",
+    "continuation": " thermometer",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: a scientist who studies living organisms.\nTerm:",
+    "continuation": " biologist",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the chemical element with symbol O.\nTerm:",
+    "continuation": " oxygen",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the number of days in a week.\nAnswer:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the opposite of north?\nAnswer:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: a shape with three sides.\nTerm:",
+    "continuation": " triangle",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the process by which plants use sunlight to make food.\nAnswer:",
+    "continuation": " photosynthesis",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the language traditionally spoken in France.\nAnswer:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: a person who designs buildings.\nTerm:",
+    "continuation": " architect",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the number of days in a week.\nTerm:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "What word means an animal with a long trunk?\nAnswer:",
+    "continuation": " elephant",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the season following summer?\nAnswer:",
+    "continuation": " autumn",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the opposite of north.\nAnswer:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: a shape with four equal sides and four right angles.\nAnswer:",
+    "continuation": " square",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the chemical element with symbol O.\nAnswer:",
+    "continuation": " oxygen",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the organ that pumps blood.\nTerm:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the chemical element with symbol Fe.\nTerm:",
+    "continuation": " iron",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: a scientist who studies living organisms.\nAnswer:",
+    "continuation": " biologist",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: a young dog.\nAnswer:",
+    "continuation": " puppy",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the star at the center of our solar system.\nAnswer:",
+    "continuation": " sun",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the number of months in a year.\nAnswer:",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "What word means a young dog?\nAnswer:",
+    "continuation": " puppy",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the number of months in a year?\nAnswer:",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the currency of Japan.\nAnswer:",
+    "continuation": " yen",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: a young cat.\nAnswer:",
+    "continuation": " kitten",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: a person who cooks professionally.\nTerm:",
+    "continuation": " chef",
+    "digits_only": false
+   },
+   {
+    "context": "What word means a person who designs buildings?\nAnswer:",
+    "continuation": " architect",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "What word means the organ that pumps blood?\nAnswer:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the season following summer.\nAnswer:",
+    "continuation": " autumn",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the number of months in a year.\nTerm:",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the force that attracts objects toward Earth.\nTerm:",
+    "continuation": " gravity",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the season following spring?\nAnswer:",
+    "continuation": " summer",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the largest ocean on Earth?\nAnswer:",
+    "continuation": " Pacific",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the natural satellite of Earth.\nAnswer:",
+    "continuation": " moon",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the opposite of north.\nTerm:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the language traditionally spoken in France.\nTerm:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the process by which plants use sunlight to make food?\nAnswer:",
+    "continuation": " photosynthesis",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the freezing point of water in Celsius.\nAnswer:",
+    "continuation": " zero",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the chemical element with symbol Fe?\nAnswer:",
+    "continuation": " iron",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the freezing point of water in Celsius?\nAnswer:",
+    "continuation": " zero",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: an instrument used to magnify tiny objects.\nAnswer:",
+    "continuation": " microscope",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the force that attracts objects toward Earth.\nAnswer:",
+    "continuation": " gravity",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the opposite of east.\nAnswer:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the branch of mathematics concerned with shapes.\nTerm:",
+    "continuation": " geometry",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the currency of Japan.\nTerm:",
+    "continuation": " yen",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the season following summer.\nTerm:",
+    "continuation": " autumn",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: an animal with a long trunk.\nTerm:",
+    "continuation": " elephant",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: a young dog.\nTerm:",
+    "continuation": " puppy",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: an instrument used to magnify tiny objects.\nTerm:",
+    "continuation": " microscope",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the opposite of east?\nAnswer:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the force that attracts objects toward Earth?\nAnswer:",
+    "continuation": " gravity",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the branch of mathematics concerned with shapes.\nAnswer:",
+    "continuation": " geometry",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the largest planet in our solar system.\nAnswer:",
+    "continuation": " Jupiter",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the capital city of Japan.\nTerm:",
+    "continuation": " Tokyo",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the chemical element with symbol O?\nAnswer:",
+    "continuation": " oxygen",
+    "digits_only": false
+   },
+   {
+    "context": "What word means a shape with three sides?\nAnswer:",
+    "continuation": " triangle",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the number of days in a week?\nAnswer:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "What word means a person who writes books?\nAnswer:",
+    "continuation": " author",
+    "digits_only": false
+   },
+   {
+    "context": "What word means a young cat?\nAnswer:",
+    "continuation": " kitten",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: a shape with three sides.\nAnswer:",
+    "continuation": " triangle",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the process by which plants use sunlight to make food.\nTerm:",
+    "continuation": " photosynthesis",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: an animal with a long trunk.\nAnswer:",
+    "continuation": " elephant",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the season following spring.\nAnswer:",
+    "continuation": " summer",
+    "digits_only": false
+   },
+   {
+    "context": "What word means the largest planet in our solar system?\nAnswer:",
+    "continuation": " Jupiter",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: a person who writes books.\nAnswer:",
+    "continuation": " author",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: an instrument used to measure temperature.\nTerm:",
+    "continuation": " thermometer",
+    "digits_only": false
+   },
+   {
+    "context": "What word means a scientist who studies living organisms?\nAnswer:",
+    "continuation": " biologist",
+    "digits_only": false
+   },
+   {
+    "context": "What word means an instrument used to view distant stars?\nAnswer:",
+    "continuation": " telescope",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: a young cat.\nTerm:",
+    "continuation": " kitten",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: the capital city of Japan.\nAnswer:",
+    "continuation": " Tokyo",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the natural satellite of Earth.\nTerm:",
+    "continuation": " moon",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: the opposite of east.\nTerm:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "What word means a person who cooks professionally?\nAnswer:",
+    "continuation": " chef",
+    "digits_only": false
+   },
+   {
+    "context": "Vocabulary quiz. Definition: an instrument used to view distant stars.\nTerm:",
+    "continuation": " telescope",
+    "digits_only": false
+   },
+   {
+    "context": "Give the standard term for this definition: an instrument used to measure temperature.\nAnswer:",
+    "continuation": " thermometer",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 3.1874
+}

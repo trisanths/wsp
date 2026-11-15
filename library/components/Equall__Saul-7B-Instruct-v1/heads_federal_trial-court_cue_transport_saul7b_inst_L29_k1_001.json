@@ -1,0 +1,104 @@
+{
+  "id": "heads_federal_trial-court_cue_transport_saul7b_inst_L29_k1_001",
+  "kind": "attn_heads",
+  "title": "Saul-7B-Instruct-v1 layer 29, federal trial-court cue transport",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/saul7b_inst.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "federal_courts"
+  ],
+  "models": [
+    "Equall/Saul-7B-Instruct-v1"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'federal_courts' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2632,
+      "control_value": -0.0017,
+      "split": "person_a held-out skill items (federal_courts)",
+      "seeds": null,
+      "source": "person_a/catalog/saul7b_inst.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0146"
+    }
+  ],
+  "generated": true,
+  "model": "Equall/Saul-7B-Instruct-v1",
+  "layer": 29,
+  "layers": [
+    29
+  ],
+  "units_file": "components/Equall__Saul-7B-Instruct-v1/heads_federal_trial-court_cue_transport_saul7b_inst_L29_k1_001.pt",
+  "units_remote": "person_a/parts\\saul7b_inst\\heads_federal_trial-court_cue_transport_saul7b_inst_L29_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'federal_courts'",
+    "label": "federal trial-court cue transport",
+    "num_units": 1,
+    "d_model": 4096,
+    "effect": {
+      "math|search": 0.0002,
+      "math|heldout": -0.0004,
+      "code|search": -0.0011,
+      "code|heldout": -0.0021,
+      "facts|search": -0.0036,
+      "facts|heldout": -0.0037,
+      "multilingual|search": 0.0004,
+      "multilingual|heldout": 0.0009,
+      "general_text|search": 0.0009,
+      "general_text|heldout": 0.0009,
+      "legal_terms|search": 0.0,
+      "legal_terms__control|search": -0.0229,
+      "legal_terms|heldout": -0.0134,
+      "legal_terms__control|heldout": -0.0136,
+      "contract_elements|search": 0.0068,
+      "contract_elements__control|search": 0.0029,
+      "contract_elements|heldout": 0.0087,
+      "contract_elements__control|heldout": 0.0,
+      "contract_formation|search": 0.0,
+      "contract_formation__control|search": 0.0,
+      "contract_formation|heldout": 0.0,
+      "contract_formation__control|heldout": 0.0051,
+      "civil_criminal|search": 0.0123,
+      "civil_criminal__control|search": 0.002,
+      "civil_criminal|heldout": 0.0309,
+      "civil_criminal__control|heldout": 0.0016,
+      "federal_courts|search": 0.2176,
+      "federal_courts__control|search": 0.0109,
+      "federal_courts|heldout": 0.2632,
+      "federal_courts__control|heldout": 0.0146
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0725,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0187,
+      0.0109,
+      -0.0023,
+      0.0016,
+      0.0
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Static legal OV ranking finds L29H22 best mean court-level mapping .0287, especially trial->district .097 and witnesses->district .091. Tests trial-court factual cue retrieval."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine\\skills\\saul7b_inst\\federal_courts.json",
+    "hash": "94952b3bdeec529d",
+    "description": "Retrieve the federal court level (district, appellate, Supreme) from a fixed table of institutional roles and facts; matched nonlegal plant anatomy classification.",
+    "name": "federal_courts"
+  },
+  "catalog_id": "heads_federal_trial-court_cue_transport_saul7b_inst_L29_k1_001",
+  "exported_copy": null,
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}
