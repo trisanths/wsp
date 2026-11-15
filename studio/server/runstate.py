@@ -11,6 +11,8 @@ import time
 from wsp.swarm import program_schema as ps
 from wsp.swarm import space
 
+from studio.server import compare
+from studio.server import library
 from studio.server import programs
 
 ACTIVITY_LIMIT = 200
@@ -18,10 +20,13 @@ THINKING_LIMIT = 100
 TOOLS_LIMIT = 100
 HISTORY_LIMIT = 60
 LEADERBOARD_LIMIT = 30
+REFUSED_LOG_LIMIT = 40
 
 PLANNER_BLURBS = ["refines the leading programs", "mixes new parts into the leaders", "explores untried parts"]
 FAILED_STATUSES = ["collapsed", "rejected_fit", "compile_error", "invalid", "infra_error"]
 SCORED_STATUSES = ["ok", "collapsed"]
+FAIL_REASONS = {"rejected_fit": "the part fits the host too poorly", "compile_error": "it did not compile",
+                "invalid": "the program is not valid", "infra_error": "the GPU job failed"}
 
 
 def clip_text(text, limit):
@@ -60,6 +65,8 @@ class RunState:
         self.targets = list(targets)
         self.env = None
         self.catalog = None
+        self.size_ctx = None
+        self.refused = 0           # proposals the studio dropped for a limit or a tap
         self.status = "starting"
         self.error = None
         self.started_at = time.time()
@@ -71,6 +78,7 @@ class RunState:
             blurb = PLANNER_BLURBS[index % len(PLANNER_BLURBS)]
             self.add_agent(new_agent("planner-" + str(index + 1), "Planner " + str(index + 1), "planner", blurb))
         self.add_agent(new_agent("judge", "Judge", "judge", "ranks results and retires weak patterns"))
+        self.models = library.get()["models"]
         self.pending = {}          # agent id -> program hashes sent to eval and not yet scored
         self.programs = {}         # program hash -> {"row": compact best row, "donors": [...]}
         self.heldout = {}          # program hash -> held-out scores
@@ -78,6 +86,8 @@ class RunState:
         self.curve = []
         self.best_target = None
         self.activity = []
+        self.activity_seq = 0
+        self.round_seen = None
         self.eval_rows = 0
 
     # Small helpers.
@@ -115,6 +125,30 @@ class RunState:
         if count == 0:
             return None
         return total / count
+
+    def readable(self, program, fallback=None):
+        """A readable name for a program; fallback (the swarm's describe) when there is no program."""
+        if program is None:
+            return str(fallback)
+        try:
+            return programs.readable(program, self.catalog)
+        except Exception:
+            return str(fallback)
+
+    def guard_report(self, scores):
+        """[{id, name, score, floor, ok}] for each guard benchmark in the spec that has a score."""
+        out = []
+        for item in self.spec.get("benchmarks") or []:
+            if item.get("kind") != "guard":
+                continue
+            value = (scores or {}).get(item["id"])
+            if value is None:
+                continue
+            floor = item.get("floor")
+            ok = floor is None or value >= floor
+            out.append({"id": item["id"], "name": item.get("name") or item["id"], "score": number(value),
+                        "floor": floor, "ok": ok})
+        return out
 
     def params_b_of(self, row):
         params = (row.get("extra") or {}).get("params")
@@ -182,12 +216,33 @@ class RunState:
                 agent["lessons"] = count
                 self.touch()
 
-    def add_activity(self, agent_id, kind, status, text):
+    def add_activity(self, agent_id, kind, status, text, data=None, round_index=None):
+        """One activity item: a plain sentence in text, and structured fields in data.
+
+        kind groups items on the Activity page: "eval", "probe", "plan", "map",
+        "verdict", "heldout", "milestone", "nudge", "error". round is the swarm
+        round, or the last round seen when the row has none.
+        """
         with self.lock:
-            self.activity.append({"ts": time.time(), "agent": agent_id, "kind": kind, "status": status,
-                                  "text": clip_text(text, 400)})
+            if round_index is not None:
+                self.round_seen = round_index
+            self.activity_seq += 1
+            self.activity.append({"id": self.activity_seq, "ts": time.time(), "agent": agent_id, "kind": kind,
+                                  "status": status, "text": clip_text(text, 400), "data": data,
+                                  "round": self.round_seen})
             del self.activity[:-ACTIVITY_LIMIT]
             self.touch()
+
+    def note_refused(self, agent_id, describe, problems):
+        """Count a proposal dropped for a limit or a tap, and log the first ones."""
+        with self.lock:
+            self.refused += 1
+            count = self.refused
+            self.touch()
+        if count <= REFUSED_LOG_LIMIT:
+            text = "Refused " + describe + ". " + " ".join(problems)
+            self.add_activity(agent_id, "refused", "bad", text)
+            self.add_tool(agent_id, "check_limits(" + describe + ")", problems[0], "bad")
 
     def set_run_status(self, status, error=None):
         with self.lock:
@@ -209,7 +264,7 @@ class RunState:
             agent["nudges"].append({"ts": time.time(), "text": text, "applied": False})
             agent["nudges_pending"] += 1
             self.touch()
-        self.add_activity(agent_id, "nudge", "info", "Nudge for " + self.display_name(agent_id) + ": " + text)
+        self.add_activity("you", "nudge", "info", text, {"to": agent_id, "to_name": self.display_name(agent_id)})
         return True
 
     def take_nudges(self, agent_id):
@@ -227,8 +282,8 @@ class RunState:
             if len(texts) > 0:
                 self.touch()
         for text in texts:
-            self.add_activity(agent_id, "nudge_applied", "ok",
-                              self.display_name(agent_id) + " read the nudge: " + text)
+            self.add_activity(agent_id, "nudge_applied", "ok", "Read your nudge and will use it next round",
+                              {"nudge": text})
         return texts
 
     # Candidates sent to eval.
@@ -239,7 +294,7 @@ class RunState:
             for candidate in candidates:
                 agent_id = self.agent_id_for(candidate.get("agent"))
                 program = candidate["program"]
-                describe = space.describe(program)
+                describe = self.readable(program, space.describe(program))
                 key = space.program_hash(program)
                 if agent_id not in self.pending:
                     self.pending[agent_id] = []
@@ -295,9 +350,19 @@ class RunState:
         bad = row.get("status") not in ("ok", "cache_hit")
         status = "bad" if bad else "ok"
         self.add_tool(agent_id, call, result, status)
-        self.set_status(agent_id, "probing", "Probing fit of " + str(row.get("describe")))
-        self.add_activity(agent_id, "probe", status, self.display_name(agent_id) + " probed " +
-                          str(row.get("describe")) + ": " + result)
+        name = self.readable(row.get("program"), row.get("describe"))
+        self.set_status(agent_id, "probing", "Checking fit of " + name)
+        fit_values = []
+        for key in sorted(row.get("fit_r2") or {}):
+            if row["fit_r2"][key] is not None:
+                fit_values.append(number(row["fit_r2"][key]))
+        if bad:
+            text = "Fit check failed for " + name
+        else:
+            text = "Checked fit of " + name
+        self.add_activity(agent_id, "probe", status, text,
+                          {"name": name, "fits": fit_values, "program_hash": row.get("program_hash")},
+                          row.get("round"))
 
     def record_eval(self, row):
         agent_id = self.agent_id_for(row.get("agent"))
@@ -316,12 +381,13 @@ class RunState:
                 agent["attempts"] += 1
                 if status == "collapsed":
                     agent["collapses"] += 1
-                history = {"program_hash": key, "describe": describe, "scores": dict(scores),
+                history = {"program_hash": key, "describe": describe,
+                           "name": self.readable(row.get("program"), describe), "scores": dict(scores),
                            "combined": number(row.get("combined")), "status": status}
                 agent["history"].append(history)
                 del agent["history"][:-HISTORY_LIMIT]
                 agent["status"] = "scoring"
-                agent["now"] = clip_text("Scoring " + describe, 200)
+                agent["now"] = clip_text("Scoring " + self.readable(row.get("program"), describe), 200)
             if status in SCORED_STATUSES:
                 self.add_scored_locked(row, agent_id, agent)
             self.touch()
@@ -361,6 +427,7 @@ class RunState:
             compile_status = "bad"
             compile_result = str((row.get("extra") or {}).get("error") or status)
         self.add_tool(agent_id, "compile(" + describe + ")", compile_result, compile_status)
+        readable = self.readable(row.get("program"), describe)
         if status in SCORED_STATUSES:
             parts = []
             for task in sorted(scores):
@@ -371,10 +438,31 @@ class RunState:
                 eval_status = "bad"
                 eval_result = eval_result + " (collapsed)"
             self.add_tool(agent_id, "eval(search)", eval_result, eval_status)
-            line = name + " scored " + describe + ": " + eval_result + ", combined " + "%.3f" % row["combined"]
-            self.add_activity(agent_id, "eval", eval_status, line)
+            target = self.target_score(scores)
+            guards = self.guard_report(scores)
+            with self.lock:
+                is_best = target is not None and self.best_target is not None and target >= self.best_target
+            if status == "collapsed":
+                failed = []
+                for guard in guards:
+                    if not guard["ok"]:
+                        failed.append(guard["name"])
+                text = readable + " collapsed"
+                if len(failed) > 0:
+                    text = text + ": " + ", ".join(failed) + " fell below the floor"
+            elif is_best:
+                text = "New best: " + readable
+            else:
+                text = "Scored " + readable
+            data = {"name": readable, "program_hash": row.get("program_hash"), "target": number(target),
+                    "best": number(self.best_target), "is_best": is_best, "guards": guards,
+                    "scores": dict(scores), "result": status}
+            self.add_activity(agent_id, "eval", eval_status, text, data, row.get("round"))
         else:
-            self.add_activity(agent_id, "eval", "bad", name + " could not score " + describe + " (" + status + ")")
+            reason = FAIL_REASONS.get(status, status)
+            self.add_activity(agent_id, "eval", "bad", "Could not score " + readable + ": " + reason,
+                              {"name": readable, "program_hash": row.get("program_hash"), "result": status},
+                              row.get("round"))
 
     def record_heldout(self, row):
         key = row.get("program_hash")
@@ -388,10 +476,10 @@ class RunState:
             self.touch()
         if row.get("status") in SCORED_STATUSES:
             target = self.target_score(row.get("scores"))
-            text = "Held-out check of " + str(row.get("describe")) + ": "
-            if target is not None:
-                text = text + "target " + "%.3f" % target
-            self.add_activity("judge", "heldout", "info", text)
+            readable = self.readable(row.get("program"), row.get("describe"))
+            self.add_activity("judge", "heldout", "info", "Held-out check of " + readable,
+                              {"name": readable, "program_hash": key, "target": number(target),
+                               "scores": dict(row.get("scores") or {})}, row.get("round"))
 
     def record_event(self, row):
         kind = row.get("kind")
@@ -402,11 +490,85 @@ class RunState:
         if kind in ("llm_error", "exa_error", "memory_lag", "compute_overshoot"):
             status = "bad"
         text = str(row.get("text"))
+        extra = row.get("extra") or {}
+        round_index = row.get("round")
         if kind == "analyst_map":
-            agent_id = "analyst"
+            # The scripted analyst writes a terse table; an LLM analyst writes prose. Keep the
+            # raw text as detail and lead with a plain sentence.
+            if self.looks_terse(text):
+                self.add_activity("analyst", "map", status, "Updated the map of which parts look most useful",
+                                  {"detail": text}, round_index)
+            else:
+                self.add_activity("analyst", "map", status, text, None, round_index)
+            return
         if kind == "judge_verdict":
-            agent_id = "judge"
-        self.add_activity(agent_id, kind, status, text)
+            self.add_activity("judge", "verdict", status, self.verdict_text(extra), self.verdict_data(extra),
+                              round_index)
+            return
+        if kind == "llm_plan":
+            count = extra.get("proposals")
+            if count is None:
+                count = 0
+            plan_text = "Proposed " + str(count) + " program" + ("" if count == 1 else "s")
+            if extra.get("repaired"):
+                plan_text = plan_text + " (fixed one bad reply)"
+            self.add_activity(agent_id, "plan", status, plan_text, {"count": count}, round_index)
+            return
+        if kind == "search_end":
+            self.add_activity("judge", "milestone", "info", "Search finished. Checking the top programs on held-out data.",
+                              None, round_index)
+            return
+        if kind == "stall":
+            self.add_activity("judge", "milestone", "info", "No new programs this round", None, round_index)
+            return
+        if kind == "stop":
+            self.add_activity("judge", "milestone", "info", "Search stopped: " + text, None, round_index)
+            return
+        if status == "bad":
+            self.add_activity(agent_id, "error", status, text, None, round_index)
+            return
+        self.add_activity(agent_id, "system", status, text, None, round_index)
+
+    def looks_terse(self, text):
+        """True for machine-style text (estimates, brackets, ids), False for sentences."""
+        hits = 0
+        for marker in ["est ", "evals,", "at [", ".blk", ".c0", "@"]:
+            if marker in text:
+                hits += 1
+        return hits >= 2
+
+    def verdict_text(self, extra):
+        """The judge's verdict as one plain sentence."""
+        frontier = extra.get("frontier") or []
+        retired = extra.get("retired") or []
+        if len(frontier) == 0:
+            return "No program is good enough to keep yet"
+        with self.lock:
+            top = self.programs.get(frontier[0])
+        if top is None:
+            sentence = "Kept the top " + str(len(frontier)) + " programs"
+        else:
+            name = self.readable(top["row"].get("program"), top["row"].get("describe"))
+            target = self.target_score(top["row"].get("scores"))
+            sentence = "Leading: " + name
+            if target is not None:
+                sentence = sentence + " (" + "%.1f" % (target * 100) + "%)"
+        if len(retired) > 0:
+            sentence = sentence + ". Retired " + str(len(retired)) + " weak pattern" + ("" if len(retired) == 1 else "s")
+        return sentence
+
+    def verdict_data(self, extra):
+        """The frontier as [{program_hash, name, target}] for the Activity page."""
+        rows = []
+        with self.lock:
+            for key in (extra.get("frontier") or [])[:5]:
+                item = self.programs.get(key)
+                if item is None:
+                    continue
+                rows.append({"program_hash": key,
+                             "name": self.readable(item["row"].get("program"), item["row"].get("describe")),
+                             "target": number(self.target_score(item["row"].get("scores")))})
+        return {"frontier": rows, "retired": len(extra.get("retired") or []), "killed": len(extra.get("killed") or [])}
 
     def agent_after_row(self, row):
         """Set the agent's status after a row has been shown for a while."""
@@ -461,17 +623,30 @@ class RunState:
             key = entries[position][1]
             item = self.programs[key]
             row = item["row"]
-            out.append({"rank": position + 1, "program_hash": key, "describe": row["describe"],
-                        "agent": item["agent"], "scores": dict(row["scores"]),
-                        "combined": number(row["combined"]), "status": row["status"],
-                        "vs_control": self.vs_control_of(key), "params_b": self.params_b_of(row),
-                        "program": row.get("program")})
+            entry = {"rank": position + 1, "program_hash": key, "describe": row["describe"],
+                     "name": self.readable(row.get("program"), row["describe"]),
+                     "agent": item["agent"], "scores": dict(row["scores"]),
+                     "combined": number(row["combined"]), "status": row["status"],
+                     "vs_control": self.vs_control_of(key), "params_b": self.params_b_of(row),
+                     "program": row.get("program")}
+            entry["comparison"] = self.comparison_locked(entry)
+            out.append(entry)
         return out
+
+    def comparison_locked(self, entry):
+        """The comparison set for one leaderboard entry. The random reference is the held-out control."""
+        key = entry["program_hash"]
+        comparison = compare.build(self.spec, entry["scores"], entry["params_b"], self.heldout.get(key),
+                                   self.controls.get(key), "heldout", self.stub, self.models)
+        if entry["status"] != "ok":
+            comparison["verdict"] = "failed"
+            comparison["headline"] = "Failed attempt. The build ended with status " + str(entry["status"]) + "."
+        return comparison
 
     def best_locked(self, leaderboard):
         for entry in leaderboard:
             if entry["status"] == "ok":
-                return {"program_hash": entry["program_hash"], "describe": entry["describe"],
+                return {"program_hash": entry["program_hash"], "describe": entry["describe"], "name": entry["name"],
                         "scores": entry["scores"], "combined": entry["combined"], "agent": entry["agent"],
                         "program": entry["program"]}
         return None
@@ -512,6 +687,12 @@ class RunState:
             for agent_id in self.order:
                 agents.append(self.agent_public(self.agents[agent_id]))
             leaderboard = self.leaderboard_locked()
+            best = self.best_locked(leaderboard)
+            comparison = None
+            if best is not None:
+                for entry in leaderboard:
+                    if entry["program_hash"] == best["program_hash"]:
+                        comparison = entry["comparison"]
             snapshot = {
                 "run_id": self.run_id,
                 "spec": self.spec,
@@ -522,7 +703,10 @@ class RunState:
                 "elapsed_s": round(end - self.started_at, 1),
                 "budget": budget,
                 "base_scores": base_scores,
-                "best": self.best_locked(leaderboard),
+                "best": best,
+                "limits": self.spec.get("limits"),
+                "comparison": comparison,
+                "refused": self.refused,
                 "agents": agents,
                 "leaderboard": leaderboard,
                 "activity": list(self.activity),

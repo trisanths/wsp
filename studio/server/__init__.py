@@ -1,1 +1,1 @@
-"""The wsp studio server."""
+"""The Sapien server (studio/)."""

@@ -1,0 +1,65 @@
+{
+  "id": "LiquidAI__LFM2-350M-Math",
+  "kind": "model",
+  "title": "LFM2-350M-Math (0.35B)",
+  "status": "validated",
+  "added_by": "Trisanth",
+  "source": "profiles.json, atlas/zoo.json, docs/donors.md",
+  "updated": "2026-11-14",
+  "skills": [
+    "math"
+  ],
+  "models": [
+    "LiquidAI/LFM2-350M-Math"
+  ],
+  "evidence": [],
+  "generated": true,
+  "hf_id": "LiquidAI/LFM2-350M-Math",
+  "family": "lfm2",
+  "params_b": 0.354,
+  "active_params_b": 0.354,
+  "layers": 16,
+  "hidden": 1024,
+  "vocab": 65536,
+  "vocab_source": "docs/donors.md",
+  "tokenizer_family": "lfm2",
+  "license": "lfm1.0",
+  "experts": null,
+  "experts_per_token": null,
+  "needs": {
+    "transformers": "4.57.1",
+    "trust_remote_code": false,
+    "multi_gpu": false,
+    "gpu": "H200"
+  },
+  "scores": {
+    "gsm8k_search_raw": {
+      "value": 0.01,
+      "split": "GSM8K search split (200 items from GSM8K train)",
+      "prompt": "raw 'Question: ... Answer:' prompt, greedy generation (wsp_eval harness)",
+      "source": "results/baselines_rows.json"
+    }
+  },
+  "structure_notes": [
+    {
+      "note": "tap read at layer 8 of 16 into Llama-1B layer 8: 32.7 GSM8K search vs host 25.0, the only tap above noise in run 5; needs its chat template (1.0 alone on the raw prompt)",
+      "source": "results/round5_rows.json"
+    },
+    {
+      "note": "docs/donors.md: type lfm2, layers (conv / attn) 16 (10 / 6), needs transformers 4.55+",
+      "source": "docs/donors.md"
+    },
+    {
+      "note": "conv layers: block parts with conv layers need the conv state cache, which the part cache does not handle yet; taps work",
+      "source": "docs/donors.md"
+    }
+  ],
+  "components": [
+    "tapread_lfm2_350m_math_l8"
+  ],
+  "arch_sources": [
+    "profiles.json",
+    "atlas/zoo.json",
+    "docs/donors.md"
+  ]
+}

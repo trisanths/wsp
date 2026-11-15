@@ -22,12 +22,13 @@ PRICE_OUT = 50.0 / 1e6
 WORKER_PRICE_IN = 0.75 / 1e6   # rough; only used for the short end-of-run lesson summary
 WORKER_PRICE_OUT = 4.5 / 1e6
 # price of the FIRST-choice GPU of each engine tier (fallback GPUs may cost more)
-GPU_PRICE_PER_HOUR = {"EngineL4": 0.80, "EngineL40S": 1.95, "EngineH100": 3.95, "EngineH200": 4.54}
+GPU_PRICE_PER_HOUR = {"EngineL4": 0.80, "EngineL40S": 1.95, "EngineH100": 3.95, "EngineH200": 4.54, "EngineH200x2": 2 * 4.54, "EngineH200x4": 4 * 4.54, "EngineH200x8": 8 * 4.54}
+# EngineB200x8 has no entry: its rate is not known here, so the estimate uses the 5.0 default. Check Modal billing.
 
 MAX_PYTHON_RUNS = 60
 CONTEXT_RESTART_TOKENS = 60000   # when one turn's input passes this, summarise and restart the conversation
 CACHED_PRICE_FRACTION = 1.0      # cost estimate treats cached input tokens at full price (conservative)
-UNLOCK_AFTER_PY = 5
+UNLOCK_AFTER_PY = 2  # weight-first: 2 weight-reading runs + 1 weight-justified proposal unlock the scans
 MAX_SCAN_UNITS = 4096
 
 PART_SCHEMA = {
@@ -128,7 +129,7 @@ def instructions(miner, use_notes):
         "generator that computes answers, plus a matched control.\n"
         "3. ablate to check cheaply, then screen the best parts with a label. Screens are cheap: try many candidates "
         "across many labels and layers rather than polishing one.\n"
-        "4. activation_scan / attribution_scan unlock after 5 run_python calls and one weight-justified proposal; use "
+        "4. activation_scan / attribution_scan unlock after 2 run_python calls and one weight-justified proposal; use "
         "them as a second, independent line of evidence, not as the main source.\n"
         "Never run the network in the sandbox. Prefer small, selective parts. Part kinds: mlp_cluster (columns of "
         "one layer's MLP down-projection input), attn_heads (heads of one layer), expert (routed experts of one MoE "
@@ -449,6 +450,7 @@ def run(short, budget_usd=25.0, max_hours=3.0, max_screens=60, use_notes=True, e
             system_text = system_text + "\nShared memory from teammates' runs (past.dev):\n" + recalled + "\n"
     summary = None
     stop_reason = None
+    finish_refused = 0
     turns = 0
     print("[" + short + "] run", run_id, "GPU", miner.gpu, "revision", miner.revision[:10], "| shared memory",
           "on" if memory.enabled else "off")
@@ -470,7 +472,17 @@ def run(short, budget_usd=25.0, max_hours=3.0, max_screens=60, use_notes=True, e
                     args = json.loads(item.arguments or "{}")
                 except Exception:
                     args = {}
-                if item.name == "finish":
+                if item.name == "finish" and finish_refused < 6 and session.cost() < 0.85 * budget_usd \
+                        and session.screens < max_screens and time.time() < session.deadline - 600:
+                    # use the full budget: keep exploring instead of stopping early
+                    finish_refused += 1
+                    left = round(budget_usd - session.cost(), 2)
+                    result = {"error": "Not yet: $" + str(left) + " of the OpenAI budget and "
+                              + str(max_screens - session.screens) + " screens are left. Keep mining: try layers, "
+                              "part kinds and skills you have not covered yet (check recall_shared for what "
+                              "teammates already found, and avoid repeating it), define new skills from what the "
+                              "weights suggest, and screen more candidates."}
+                elif item.name == "finish":
                     summary = args.get("summary", "")
                     result = {"ok": True}
                 else:

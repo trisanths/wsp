@@ -1,0 +1,1220 @@
+{
+ "name": "boolean_negation",
+ "description": "Evaluate Boolean expressions containing not; matched controls evaluate the same Boolean variables without negation.",
+ "hash": "753da4847a02ab3e",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\na=[];c=[]\nfor i in range(120):\n x=bool(random.randrange(2));y=bool(random.randrange(2));op=random.choice(['and','or']);side=random.randrange(3)\n e=[f'(not x) {op} y',f'x {op} (not y)',f'not (x {op} y)'][side]\n ec=f'x {op} y'\n stem=f'Python: x = {x}; y = {y}. '\n a.append({'prompt':stem+f'What is {e}? Answer:', 'answer':' '+str(eval(e,{},dict(x=x,y=y)))})\n c.append({'prompt':stem+f'What is {ec}? Answer:', 'answer':' '+str(eval(ec,{},dict(x=x,y=y)))})\njson.dump({'items':a,'control':c},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Python: x = True; y = True. What is (not x) and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is not (x and y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is (not x) and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is not (x or y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and (not y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x or (not y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and (not y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is not (x or y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is not (x and y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and (not y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is not (x and y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or (not y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is (not x) or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is (not x) and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or (not y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x and (not y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and (not y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is (not x) and y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and (not y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is (not x) and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is (not x) and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or (not y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is not (x and y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is not (x or y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is (not x) and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and (not y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is not (x or y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is (not x) or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is not (x and y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is not (x and y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is (not x) and y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is (not x) or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is (not x) and y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is not (x or y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is not (x or y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is not (x or y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is not (x or y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and (not y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x or (not y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is not (x or y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or (not y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or (not y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is (not x) or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is (not x) and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or (not y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is not (x or y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x and (not y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is (not x) and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is (not x) and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or (not y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x and (not y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or (not y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is (not x) or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is (not x) and y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is not (x or y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is (not x) or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is not (x or y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is (not x) or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is (not x) and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is not (x or y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Python: x = False; y = True. What is not (x and y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is (not x) and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x and (not y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x or (not y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is not (x and y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and (not y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and (not y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x and (not y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x and (not y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is not (x and y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x or (not y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is (not x) or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is not (x or y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is not (x and y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is not (x or y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is not (x or y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is not (x and y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is not (x or y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is (not x) and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is not (x and y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and (not y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is not (x and y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is not (x or y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is (not x) or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is (not x) or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x or (not y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and (not y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is (not x) and y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x or (not y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is (not x) or y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is not (x and y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is (not x) and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x or (not y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is (not x) and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is (not x) and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is not (x or y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x and (not y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and (not y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is not (x and y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is not (x and y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and (not y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is (not x) and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is (not x) and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is (not x) and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is (not x) or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is not (x or y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x or (not y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is (not x) and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is not (x and y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and (not y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and (not y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is not (x and y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is not (x or y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is (not x) and y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is not (x or y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and (not y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x or (not y)? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and (not y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is not (x or y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or (not y)? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Python: x = True; y = True. What is x and y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x and y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x and y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x and y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x or y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x and y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x and y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x and y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x or y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x or y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x or y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x and y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x or y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x or y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x or y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x and y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Python: x = False; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x and y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x and y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x and y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x or y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x and y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x or y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x and y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x or y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x or y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x or y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x and y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x or y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x or y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = True; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = True. What is x or y? Answer:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python: x = False; y = False. What is x and y? Answer:",
+    "continuation": " False",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 1.0292
+}

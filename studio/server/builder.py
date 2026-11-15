@@ -13,9 +13,11 @@ from wsp.swarm import program_schema as ps
 from wsp.swarm import space
 
 from studio.server import catalog as catalog_mod
+from studio.server import compare
 from studio.server import envs
 from studio.server import programs
 from studio.server import settings
+from studio.server import sizing
 from studio.server import specs as specs_mod
 from studio.server.runstate import number
 
@@ -47,6 +49,10 @@ class Session:
         self.target_scores = {}      # program hash -> target score of its last score job
         self.last_result = None      # the last score result, shown to the LLM for suggestions
         self.host_params_b = catalog_mod.host_params_b(config["host"])
+        self.size_ctx = sizing.SizeContext(config, self.catalog, self.host_params_b)
+
+    def limits(self):
+        return self.spec.get("limits")
 
     def budget_dict(self):
         budget = self.env.budget
@@ -130,38 +136,40 @@ def submit_action(session, program, action):
     return job["job_id"]
 
 
-def check_program(session, program):
+def check_program(session, program, enforce_limits=True):
+    """Return the normalized program, or raise BuilderError.
+
+    A program with taps is always refused. With enforce_limits, a program whose estimated size or heal time is
+    over a limit of the spec is refused too, with a message that says which limit.
+    """
     try:
         clean = programs.normalize(program)
     except programs.ProgramError as error:
         raise BuilderError("the program is not valid: " + error.message)
+    forbidden = sizing.forbidden_problems(clean)
+    if len(forbidden) > 0:
+        raise BuilderError(" ".join(forbidden))
     errors = space.validate(clean, session.catalog, session.config)
-    errors.extend(tap_errors(session, clean))
     if len(errors) > 0:
         raise BuilderError("the program is not valid: " + "; ".join(errors))
+    if enforce_limits:
+        estimate = sizing.estimate(clean, session.size_ctx)
+        problems = sizing.limit_problems(session.limits(), estimate)
+        if len(problems) > 0:
+            raise BuilderError(" ".join(problems))
     return clean
 
 
-# The pair sets wsp/pairs.py can build for tap training.
-TAP_DATA = ["mmlu_aux", "gsm8k_train", "trivia_train"]
-
-
-def tap_errors(session, program):
-    """Problems with a program's taps that the compiler would reject, found before any compute is spent."""
-    taps = program.get("taps") or []
-    errors = []
-    if len(taps) > 0 and program.get("tap_train") is None:
-        errors.append("a program with taps needs a tap_train line")
-    if len(taps) == 0 and program.get("tap_train") is not None:
-        errors.append("tap_train needs at least one tap")
-    train = program.get("tap_train")
-    if train is not None and train.get("data") not in TAP_DATA:
-        errors.append("tap_train data must be one of " + ", ".join(TAP_DATA))
-    n_host = space.host_layers(session.config, session.catalog)
-    for tap in taps:
-        if tap["at"] < 0 or tap["at"] > n_host - 1:
-            errors.append("tap at " + str(tap["at"]) + " is outside 0.." + str(n_host - 1))
-    return errors
+def size_report(session, program):
+    """The size estimate of a program and the limit messages, for the canvas. Never raises for a limit."""
+    try:
+        clean = programs.normalize(program)
+    except programs.ProgramError as error:
+        raise BuilderError("the program is not valid: " + error.message)
+    estimate = sizing.estimate(clean, session.size_ctx)
+    problems = sizing.forbidden_problems(clean)
+    problems.extend(sizing.limit_problems(session.limits(), estimate))
+    return {"estimate": estimate, "limits": session.limits(), "problems": problems, "ok": len(problems) == 0}
 
 
 def work_job(session, job, program):
@@ -183,14 +191,10 @@ def work_job(session, job, program):
 # Actions.
 
 def with_default_heal(session, program):
-    """Add a default heal when the program has none. With taps, heal reads the tap training data when allowed."""
+    """Add a default heal when the program has none."""
     if ps.heal(program) is not None:
         return program
     heal = space.heal_with_steps(DEFAULT_HEAL_STEPS, session.config)
-    tap_train = program.get("tap_train")
-    if len(program.get("taps") or []) > 0 and tap_train is not None:
-        if tap_train.get("data") in space.heal_data_allowed(session.config):
-            heal["data"] = tap_train["data"]
     return ps.with_heal(program, heal)
 
 
@@ -245,9 +249,11 @@ def compile_result(session, program):
         detail = "; ".join(probe.get("errors") or [])
         raise BuilderError("compile failed: " + probe["status"] + (" " + detail if detail else ""))
     report = probe["graft_report"]
-    return {"fit": fit_dict(report), "scores": None, "combined": None, "control": None,
-            "params_b": params_b_of(session, report), "compute_s": number(probe["compute_s"]), "status": "ok",
-            "program": program}
+    result = {"fit": fit_dict(report), "scores": None, "combined": None, "control": None,
+              "params_b": params_b_of(session, report), "compute_s": number(probe["compute_s"]), "status": "ok",
+              "program": program, "comparison": None}
+    add_size(session, result)
+    return result
 
 
 def row_compute_s(row):
@@ -266,7 +272,8 @@ def score_result(session, program):
     report = real_report(session, program, row.get("graft_report") or [])
     result = {"fit": fit_dict(report), "scores": None, "combined": None, "control": None,
               "params_b": params_b_of(session, report), "compute_s": number(row_compute_s(row)),
-              "status": status, "program": program}
+              "status": status, "program": program, "comparison": None}
+    add_size(session, result)
     if row.get("scores"):
         result["scores"] = dict(row["scores"])
         result["combined"] = number(row["combined"])
@@ -275,7 +282,33 @@ def score_result(session, program):
             session.target_scores[space.program_hash(program)] = target
     if status in ("ok", "collapsed"):
         result["control"] = control_result(session, program)
+    result["comparison"] = comparison_for(session, result)
     return result
+
+
+def add_size(session, result):
+    """Attach the size estimate of the program and any limit the measured size is over."""
+    result["size"] = sizing.estimate(result["program"], session.size_ctx)
+    result["limit_problems"] = sizing.measured_problems(session.limits(), result["params_b"])
+
+
+def comparison_for(session, result):
+    """The honest comparison set for a scored result. A collapsed or oversize build is a failed attempt."""
+    scores = result.get("scores")
+    if scores is None:
+        return None
+    control = None
+    if result.get("control") is not None:
+        control = result["control"].get("scores")
+    comparison = compare.build(session.spec, scores, result.get("params_b"), None, control, "search",
+                               session.env.is_stub())
+    if result["status"] != "ok":
+        comparison["verdict"] = "failed"
+        comparison["headline"] = "Failed attempt. The build ended with status " + str(result["status"]) + "."
+    elif len(result["limit_problems"]) > 0:
+        comparison["verdict"] = "failed"
+        comparison["headline"] = "Failed attempt. " + " ".join(result["limit_problems"])
+    return comparison
 
 
 def real_report(session, program, report):
@@ -316,7 +349,7 @@ def zlib_seed(program):
 
 def suggest(session, program):
     """Return a list of rule-based suggestions for a program."""
-    program = check_program(session, program)
+    program = check_program(session, program, enforce_limits=False)
     with session.lock:
         suggestions = []
         suggestions.extend(add_part_suggestions(session, program))
@@ -328,46 +361,18 @@ def suggest(session, program):
         suggestions.extend(llm_suggestions(session, program))
     out = []
     for item in suggestions:
-        if len(space.validate(item["program"], session.catalog, session.config)) == 0:
-            out.append(item)
+        if len(space.validate(item["program"], session.catalog, session.config)) != 0:
+            continue
+        item["size"] = size_report(session, item["program"])
+        if not item["size"]["ok"]:
+            continue
+        out.append(item)
     return out
 
 
 def best_depth(session):
     n_host = space.host_layers(session.config, session.catalog)
     return int(round(BEST_DEPTH_FRACTION * n_host))
-
-
-# The tap with a held-out result (results/README.md run 7): Qwen2.5-7B layer 20
-# into host layer 10 scored 68.3 held out against 47.7 for LoRA.
-STARTER_TAP = "tap:Qwen/Qwen2.5-7B-Instruct@20"
-
-
-def tap_suggestion(session, program):
-    """For an empty knowledge draft on real GPUs, suggest the measured starter tap."""
-    if settings.is_stub():
-        return None
-    main = None
-    for item in session.spec["benchmarks"]:
-        if item["kind"] == "target":
-            main = item["id"]
-            break
-    if main != "mmlu":
-        return None
-    part = None
-    for item in catalog_mod.tap_parts():
-        if item["id"] == STARTER_TAP:
-            part = item
-    if part is None:
-        return None
-    changed = json.loads(json.dumps(program))
-    changed["taps"] = [{"donor": part["donor"], "donor_layer": part["donor_layer"], "at": part["default_at"],
-                        "attn_dim": 256, "heads": 8, "tap_id": None}]
-    changed["tap_train"] = dict(catalog_mod.TAP_TRAIN_DEFAULT)
-    detail = ("Tap Qwen2.5-7B layer 20 into host layer 10 and train it for 500 steps on MMLU auxiliary "
-              "questions. In run 7 this scored 68.3 on held-out MMLU against 47.7 for LoRA. The donor "
-              "stays in memory, so the model is about 8.8B parameters, and decoding stays near host speed.")
-    return {"title": "Add a Qwen2.5-7B knowledge tap", "detail": detail, "tag": "measured", "program": changed}
 
 
 def add_part_suggestions(session, program):
@@ -377,11 +382,8 @@ def add_part_suggestions(session, program):
     points at a placement the fit gate would reject.
     """
     grafts = ps.grafts(program)
-    if len(grafts) > 0 or len(program.get("taps") or []) > 0:
+    if len(grafts) > 0:
         return []
-    tap = tap_suggestion(session, program)
-    if tap is not None:
-        return [tap]
     if session.config["max_grafts"] < 1:
         return []
     ingredients = specs_mod.ingredients_for(session.config, session.catalog, session.spec["benchmarks"])
@@ -397,6 +399,8 @@ def add_part_suggestions(session, program):
         for at in layers:
             graft = ps.make_graft(item["part_id"], at, glue_rank=64)
             changed = ps.with_grafts(program, [graft])
+            if len(sizing.limit_problems(session.limits(), sizing.estimate(changed, session.size_ctx))) > 0:
+                continue
             try:
                 probe = session.env.probe(changed, "you", None, "suggest: starting part")
             except Exception:
@@ -615,13 +619,8 @@ def allowed_text(session):
     graft_ids = []
     for record in space.graftable_parts(session.catalog):
         graft_ids.append(record["id"])
-    tap_rows = []
-    if not settings.is_stub():
-        for part in catalog_mod.tap_parts():
-            tap_rows.append(part["donor"] + " layer " + str(part["donor_layer"]))
     heal_data = session.config["task_types"][session.config["task_type"]]["heal_data"]
-    return ("graft part ids: " + ", ".join(graft_ids[:40]) + ". tap donors: " + "; ".join(tap_rows) +
-            ". tap_train data: " + ", ".join(TAP_DATA) + ". heal data: " + ", ".join(heal_data) +
+    return ("graft part ids: " + ", ".join(graft_ids[:40]) + ". heal data: " + ", ".join(heal_data) +
             ". host layers 0 to " + str(space.host_layers(session.config, session.catalog) - 1) + ".")
 
 
@@ -641,7 +640,7 @@ def llm_suggestions(session, program):
         system = ("You suggest one change to a wsp program that should raise its score on the goal's benchmarks. "
                   "Reply with a JSON object with title, detail (one or two plain sentences that say why, citing "
                   "the scores you were given) and program_text (the full changed program in wsp text). Use only "
-                  "the parts, tap donors and data names listed. Do not invent datasets. Do not use dashes as "
+                  "the parts and data names listed. Do not invent datasets. Do not use dashes as "
                   "punctuation.")
         user = ("Program:\n" + programs.render_or_empty(program) + "\nGoal: " + str(session.spec["title"]) +
                 "\nBenchmarks: " + benchmark_text(session) + "\nLast scores: " + last_scores_text(session) +

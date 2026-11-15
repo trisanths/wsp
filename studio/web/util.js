@@ -19,17 +19,18 @@ export function clock(ts) {
 export const sgn = (x, d = 1) => (x >= 0 ? '+' : '-') + Math.abs(x * 100).toFixed(d);
 
 /* ---------- colors ---------- */
-const PALETTE = ['#b38bff', '#4fd1ff', '#ffb547', '#3ddc97', '#ff8fb1', '#7c8cff', '#f2e35c', '#8bd3ff'];
+// Data colours come from the theme tokens, so they follow light and dark.
+const PALETTE = ['var(--purple)', 'var(--amber)', 'var(--green)', 'var(--red)', 'var(--text-3)'];
 function hash(s) {
   let x = 7;
   for (let i = 0; i < s.length; i++) x = (x * 31 + s.charCodeAt(i)) >>> 0;
   return x;
 }
 export function agentColor(id) {
-  if (id === 'analyst') return '#7c8cff';
-  if (id === 'judge') return '#ff6b7a';
+  if (id === 'analyst') return 'var(--blue)';
+  if (id === 'judge') return 'var(--red)';
   const m = /^planner-(\d+)$/.exec(id || '');
-  if (m) return ['#b38bff', '#4fd1ff', '#ffb547', '#3ddc97', '#ff8fb1', '#f2e35c'][(Number(m[1]) - 1) % 6];
+  if (m) return ['var(--purple)', 'var(--green)', 'var(--amber)', 'var(--blue)', 'var(--red)', 'var(--text-3)'][(Number(m[1]) - 1) % 6];
   return PALETTE[hash(id || '') % PALETTE.length];
 }
 export function agentInitials(a) {
@@ -40,7 +41,7 @@ export function agentInitials(a) {
   return name.slice(0, 2).replace(/^./, (c) => c.toUpperCase());
 }
 export function donorColor(donor) {
-  if (!donor) return '#8b93a7';
+  if (!donor) return 'var(--text-3)';
   return PALETTE[hash(donor.split('/').pop().toLowerCase().replace(/[^a-z]/g, '').slice(0, 5)) % PALETTE.length];
 }
 export function donorLetter(donor, label) {
@@ -48,8 +49,8 @@ export function donorLetter(donor, label) {
   return name.charAt(0).toUpperCase();
 }
 export const STATUS_COLOR = {
-  thinking: 'var(--cyan)', probing: 'var(--warn)', compiling: 'var(--warn)', scoring: 'var(--good)',
-  idle: 'var(--faint)', paused: 'var(--faint)', done: 'var(--faint)',
+  thinking: 'var(--blue)', probing: 'var(--amber)', compiling: 'var(--amber)', scoring: 'var(--green)',
+  idle: 'var(--text-4)', paused: 'var(--text-4)', done: 'var(--text-4)',
 };
 export const STATUS_ACTIVE = { thinking: 1, probing: 1, compiling: 1, scoring: 1 };
 
@@ -76,12 +77,16 @@ export function specProgress(spec, scores) {
 
 /* ---------- program helpers ---------- */
 export function emptyProgram(host) {
-  return { host, seed: 0, masks: null, task_vectors: [], grafts: [], heal: null, lora: null, taps: [], tap_train: null };
+  return { host, seed: 0, masks: null, task_vectors: [], grafts: [], heal: null, lora: null };
 }
-// older saved programs and server replies may lack the tap fields
+// Sapien builds one network: drop any tap fields from saved programs and server replies
+export function hasTaps(p) {
+  return !!p && ((p.taps && p.taps.length > 0) || p.tap_train != null);
+}
 export function normProgram(p) {
   if (!p) return p;
-  return { ...p, taps: p.taps || [], tap_train: p.tap_train == null ? null : p.tap_train };
+  const { taps, tap_train, ...rest } = p;
+  return rest;
 }
 // "Qwen/Qwen2.5-7B-Instruct" -> "Qwen2.5-7B"
 export function donorShort(d) {
@@ -106,8 +111,8 @@ export function buildMask(ids) {
 export const clone = (x) => JSON.parse(JSON.stringify(x));
 
 /* ---------- wsp text highlight ---------- */
-const STATEMENTS = new Set(['host', 'seed', 'mask', 'tv', 'graft', 'lora', 'heal', 'tap', 'tap_train']);
-const OPTIONS = new Set(['at', 'rank', 'glue_rank', 'control', 'seed', 'steps', 'data', 'lr', 'batch_size', 'seq_len', 'weight', 'layers', 'modules', 'targets', 'budget', 'alpha', 'stitch', 'objective', 'sink', 'restrict', 'layer', 'attn_dim', 'heads', 'branch_lr', 'gate_lr']);
+const STATEMENTS = new Set(['host', 'seed', 'mask', 'tv', 'graft', 'lora', 'heal']);
+const OPTIONS = new Set(['at', 'rank', 'glue_rank', 'control', 'seed', 'steps', 'data', 'lr', 'batch_size', 'seq_len', 'weight', 'layers', 'modules', 'targets', 'budget', 'alpha', 'stitch', 'objective', 'sink', 'restrict']);
 export function tokenizeLine(line) {
   const ci = line.indexOf('#');
   const code = ci >= 0 ? line.slice(0, ci) : line;
@@ -139,10 +144,21 @@ export function parseHash() {
   if (!parts.length) return { name: 'prompt', q };
   if (parts[0] === 'spec' && parts[1]) return { name: 'spec', id: parts[1], q };
   if (parts[0] === 'run' && parts[1]) {
-    if (parts[2] === 'agent' && parts[3]) return { name: 'run', id: parts[1], agent: parts[3], q };
-    return { name: 'run', id: parts[1], q };
+    const id = parts[1];
+    // the old single-agent route moves to the agent page
+    if (parts[2] === 'agent' && parts[3]) {
+      try { history.replaceState(null, '', '#/run/' + id + '/agents/' + parts[3]); } catch (e) { /* ignore */ }
+      return { name: 'run', id, page: 'agent', agent: parts[3], q };
+    }
+    if (parts[2] === 'agents' && parts[3]) return { name: 'run', id, page: 'agent', agent: parts[3], q };
+    if (parts[2] === 'agents') return { name: 'run', id, page: 'agents', q };
+    if (parts[2] === 'activity') return { name: 'run', id, page: 'activity', q };
+    if (parts[2] === 'results') return { name: 'run', id, page: 'results', q };
+    return { name: 'run', id, page: 'overview', q };
   }
   if (parts[0] === 'build' && parts[1]) return { name: 'build', id: parts[1], q };
+  if (parts[0] === 'runs') return { name: 'runs', q };
+  if (parts[0] === 'parts') return { name: 'parts', q };
   return { name: 'prompt', q };
 }
 export function go(path) { location.hash = '#' + path; }
@@ -181,17 +197,10 @@ const toastListeners = new Set();
 export function toast(text, kind = 'info') {
   toastListeners.forEach((f) => f({ id: Math.random(), text, kind }));
 }
-export function useToasts() {
-  const [list, setList] = useState([]);
-  useEffect(() => {
-    const f = (t) => {
-      setList((l) => [...l, t]);
-      setTimeout(() => setList((l) => l.filter((x) => x.id !== t.id)), 3800);
-    };
-    toastListeners.add(f);
-    return () => toastListeners.delete(f);
-  }, []);
-  return list;
+// The toast stack in components.js listens here and owns the timers and the exit motion.
+export function subscribeToasts(fn) {
+  toastListeners.add(fn);
+  return () => toastListeners.delete(fn);
 }
 
 /* ---------- hooks ---------- */
@@ -222,3 +231,60 @@ export function usePrev(v) {
   useEffect(() => { r.current = v; });
   return r.current;
 }
+
+/* ---------- theme ---------- */
+const themeListeners = new Set();
+export function currentTheme() { return document.documentElement.classList.contains('dark') ? 'dark' : 'light'; }
+export function setTheme(t, save = true) {
+  const el = document.documentElement;
+  el.classList.remove('light', 'dark');
+  el.classList.add(t);
+  if (save) { try { localStorage.setItem('wsp.theme', t); } catch (e) { /* storage can be off */ } }
+  themeListeners.forEach((f) => f(t));
+}
+export function useTheme() {
+  const [t, setT] = useState(currentTheme());
+  useEffect(() => {
+    themeListeners.add(setT);
+    let mq = null, f = null;
+    let saved = null;
+    try { saved = localStorage.getItem('wsp.theme'); } catch (e) { /* ignore */ }
+    if (!saved && window.matchMedia) {
+      mq = window.matchMedia('(prefers-color-scheme: dark)');
+      f = (e) => setTheme(e.matches ? 'dark' : 'light', false);
+      if (mq.addEventListener) mq.addEventListener('change', f);
+    }
+    return () => { themeListeners.delete(setT); if (mq && f && mq.removeEventListener) mq.removeEventListener('change', f); };
+  }, []);
+  return [t, () => setTheme(currentTheme() === 'dark' ? 'light' : 'dark')];
+}
+
+/* ---------- recent specs, runs and the last builder ---------- */
+const recentListeners = new Set();
+export function getRecent() {
+  try { const a = JSON.parse(localStorage.getItem('wsp.recent') || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; }
+}
+export function addRecent(item) {
+  const list = getRecent();
+  const old = list.find((x) => x.kind === item.kind && x.id === item.id);
+  const next = { ...(old || {}), ...item, ts: old && !item.touch ? old.ts : Date.now() };
+  delete next.touch;
+  const out = [next, ...list.filter((x) => !(x.kind === item.kind && x.id === item.id))].slice(0, 16);
+  try { localStorage.setItem('wsp.recent', JSON.stringify(out)); } catch (e) { /* storage can be off */ }
+  recentListeners.forEach((f) => f(out));
+}
+export function patchRecent(kind, id, patch) {
+  const list = getRecent();
+  const i = list.findIndex((x) => x.kind === kind && x.id === id);
+  if (i < 0) return;
+  list[i] = { ...list[i], ...patch };
+  try { localStorage.setItem('wsp.recent', JSON.stringify(list)); } catch (e) { /* ignore */ }
+  recentListeners.forEach((f) => f(list));
+}
+export function useRecent() {
+  const [l, setL] = useState(getRecent());
+  useEffect(() => { recentListeners.add(setL); setL(getRecent()); return () => recentListeners.delete(setL); }, []);
+  return l;
+}
+export function getLastBuild() { try { return JSON.parse(localStorage.getItem('wsp.lastBuild')); } catch (e) { return null; } }
+export function setLastBuild(v) { try { localStorage.setItem('wsp.lastBuild', JSON.stringify(v)); } catch (e) { /* ignore */ } }

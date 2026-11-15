@@ -1,0 +1,1220 @@
+{
+ "name": "sentence_count",
+ "description": "Count sentences marked by period, exclamation mark or question mark; matched control copies an explicit count in the same prompt.",
+ "hash": "1482ad45bb9dfa40",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nitems=[]; control=[]\nsubjects=['Cats','Dogs','Birds','Horses','Children','People','Ducks','Bears']; verbs=['run','sleep','eat','play','move','rest','walk']\nfor i in range(120):\n n=random.randint(1,6); tag=random.randint(1,6)\n text=' '.join(random.choice(subjects)+' '+random.choice(verbs)+random.choice(['.','!','?']) for _ in range(n))\n ctx=f'Tag: {tag}\\nText: {text}\\n'\n items.append({'prompt':ctx+'How many sentences are in the text? Answer:', 'answer':' '+str(n)})\n control.append({'prompt':ctx+'What number is the tag? Answer:', 'answer':' '+str(tag)})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Tag: 5\nText: Horses sleep. Children eat! Cats walk.\nHow many sentences are in the text? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: People sleep. People walk? Cats move.\nHow many sentences are in the text? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Cats eat! Ducks run? Cats play. People eat? Birds play.\nHow many sentences are in the text? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Children run? Cats run? Ducks rest? Cats move!\nHow many sentences are in the text? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Ducks play! Ducks rest. Bears eat?\nHow many sentences are in the text? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Bears rest!\nHow many sentences are in the text? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: People sleep. Birds play! Ducks play! Ducks rest. Horses play. Cats play.\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Birds run!\nHow many sentences are in the text? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Bears run? Bears play. Children eat?\nHow many sentences are in the text? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: People eat? Cats walk? Bears rest? Bears rest! People walk? Birds sleep!\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Dogs move. Cats walk! Bears eat. Bears eat?\nHow many sentences are in the text? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Children sleep?\nHow many sentences are in the text? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: People run. Cats rest. Dogs sleep. Horses walk! Children rest. Dogs play!\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Children eat! People move? Birds sleep. Dogs play!\nHow many sentences are in the text? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Birds sleep? Children move. Children walk! Ducks play. Ducks move! Bears eat?\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: People play? Children sleep? Cats play?\nHow many sentences are in the text? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Horses run. Dogs sleep? Ducks sleep.\nHow many sentences are in the text? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Bears play!\nHow many sentences are in the text? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Dogs eat! People move? Horses move!\nHow many sentences are in the text? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: People eat. Cats run. People run! Cats sleep.\nHow many sentences are in the text? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Children move. Horses rest? Ducks move! Bears play? People run! Dogs play?\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Children run! Children eat? People eat.\nHow many sentences are in the text? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Bears walk? Dogs rest? Birds walk! Ducks run?\nHow many sentences are in the text? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Children walk! Bears move?\nHow many sentences are in the text? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Bears rest.\nHow many sentences are in the text? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Bears run. Bears walk. Cats run? Birds rest!\nHow many sentences are in the text? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Cats move? Bears move? People rest. Children walk.\nHow many sentences are in the text? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Ducks sleep?\nHow many sentences are in the text? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Children move! Children play! Horses run! Dogs run! Bears rest! Cats walk!\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Ducks move! Bears run. Cats run. Birds run! Cats walk!\nHow many sentences are in the text? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Dogs run. Horses move? Dogs play. People walk. Cats move. Horses sleep?\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Cats eat! Dogs walk! Birds rest? People run. Children walk. Cats run.\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Cats play!\nHow many sentences are in the text? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Ducks move! Dogs sleep! Ducks run. Ducks run. Ducks walk. Cats walk!\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: People eat! Children eat! Ducks move! Birds run. Cats play.\nHow many sentences are in the text? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: People walk! Horses eat! Birds eat. People move? Cats rest? Birds eat.\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Horses eat! Bears walk? Birds rest? Horses walk. Birds walk. People move!\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: People sleep.\nHow many sentences are in the text? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Cats run! People eat! Cats walk! Horses move?\nHow many sentences are in the text? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Children eat. Ducks play?\nHow many sentences are in the text? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Horses sleep? Children sleep. Ducks play? People play. People play? Ducks sleep!\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Bears run? Cats move? People play! Children run. Birds rest!\nHow many sentences are in the text? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Horses run! People walk!\nHow many sentences are in the text? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Birds rest! Ducks rest! Dogs run? Horses rest! Birds sleep.\nHow many sentences are in the text? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Children play. Ducks eat? Horses eat. Horses walk. Cats move?\nHow many sentences are in the text? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Children rest. People play! Horses run?\nHow many sentences are in the text? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Bears play. People eat.\nHow many sentences are in the text? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Ducks rest? Ducks run! Ducks walk? Cats sleep! Dogs eat? Birds play?\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Ducks sleep! Dogs run? Birds walk! Horses walk! People rest? Children walk!\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Dogs rest? Bears run!\nHow many sentences are in the text? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Horses run! Birds walk? Dogs eat! People eat!\nHow many sentences are in the text? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Dogs move! Birds move! Ducks move! People walk! Bears rest?\nHow many sentences are in the text? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Dogs rest. Children eat? Cats move. Birds sleep! Dogs play! Children sleep.\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: People sleep! Bears eat? Birds sleep.\nHow many sentences are in the text? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Cats run. Cats run. People run. People rest!\nHow many sentences are in the text? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Ducks move?\nHow many sentences are in the text? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Bears rest.\nHow many sentences are in the text? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Bears run? Horses move. Children sleep! Dogs move! Horses rest? Bears walk?\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Ducks run? Dogs sleep! Children move! Birds move! Children rest!\nHow many sentences are in the text? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Children move?\nHow many sentences are in the text? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Tag: 2\nText: People rest. Horses move. Horses walk.\nHow many sentences are in the text? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Bears run. Dogs sleep. Birds play. Bears move.\nHow many sentences are in the text? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Ducks run. Horses play. Birds walk! People eat!\nHow many sentences are in the text? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Birds eat? Children eat. Bears walk! Children walk! Ducks walk! Cats sleep?\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Birds rest? Ducks walk? Dogs run. Horses rest. Cats play. Dogs play?\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Cats rest? Ducks walk. Dogs play?\nHow many sentences are in the text? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Bears run? Bears walk.\nHow many sentences are in the text? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Cats eat? Bears play! Bears eat? Horses move.\nHow many sentences are in the text? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Horses sleep! Dogs play? Ducks eat! Ducks walk! People run! Cats play.\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Horses rest.\nHow many sentences are in the text? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Dogs move! Birds eat. Dogs walk?\nHow many sentences are in the text? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: People rest. Children sleep? Ducks rest. People walk! Ducks run. Cats eat?\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Dogs run? Birds sleep. Dogs rest?\nHow many sentences are in the text? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Birds move. Ducks walk! Cats sleep.\nHow many sentences are in the text? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Birds move? Horses move. Ducks rest?\nHow many sentences are in the text? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Dogs run? Children sleep! Birds sleep.\nHow many sentences are in the text? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Birds walk! Birds run? Birds rest? Cats walk! Dogs sleep?\nHow many sentences are in the text? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Horses run! Bears play. Dogs rest. Ducks run!\nHow many sentences are in the text? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Cats sleep. Children eat! People rest. People walk? Cats run!\nHow many sentences are in the text? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Bears eat! Cats move. Horses eat.\nHow many sentences are in the text? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Ducks walk. Children move? Ducks walk! Ducks move? Horses walk.\nHow many sentences are in the text? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: People play! Children move?\nHow many sentences are in the text? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Bears rest? Children rest? Horses run?\nHow many sentences are in the text? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: People eat? Cats walk. Ducks sleep. Dogs sleep. Bears move?\nHow many sentences are in the text? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Cats eat?\nHow many sentences are in the text? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Cats play! Cats play? People play. People eat! Dogs sleep. Children run?\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Children rest! Cats run!\nHow many sentences are in the text? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: People sleep? Children sleep? Horses run?\nHow many sentences are in the text? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Horses sleep. Children run? Horses eat. People play. Dogs walk. Horses run?\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Cats rest? Cats walk?\nHow many sentences are in the text? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Dogs rest?\nHow many sentences are in the text? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Bears eat? Children rest!\nHow many sentences are in the text? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Horses move! Horses play. People move. Dogs walk!\nHow many sentences are in the text? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Birds walk. Ducks eat?\nHow many sentences are in the text? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Birds move? Children eat? Bears rest! Horses play! People play?\nHow many sentences are in the text? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Bears play? Horses play. People sleep! Birds play. People run.\nHow many sentences are in the text? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: People sleep. Children rest?\nHow many sentences are in the text? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Ducks move. Children run. Dogs rest! People play. Cats move! Cats move.\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Ducks play. Ducks eat? Bears walk. Dogs play! Birds run? Birds move?\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Children rest. Bears play? Dogs play! Bears run. Children rest.\nHow many sentences are in the text? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Birds walk!\nHow many sentences are in the text? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Cats move!\nHow many sentences are in the text? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Children rest. Dogs eat? Cats run! Ducks move? Ducks play.\nHow many sentences are in the text? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Children eat! Birds eat.\nHow many sentences are in the text? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Dogs walk. People run?\nHow many sentences are in the text? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: People sleep!\nHow many sentences are in the text? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Birds walk? Bears play. Ducks play. Horses play! Birds eat!\nHow many sentences are in the text? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Birds walk? Bears eat? Ducks move?\nHow many sentences are in the text? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Birds move. Dogs rest? Birds move. Ducks walk!\nHow many sentences are in the text? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Birds rest! People eat! Ducks run! Children move! Cats walk?\nHow many sentences are in the text? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Ducks run! People rest! Dogs eat. Dogs eat?\nHow many sentences are in the text? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Dogs play. Children run? Bears move! Cats sleep! Dogs walk? Children move?\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: People eat? Horses move. Cats run! Children move! Dogs move. Birds run!\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Bears walk? Horses run! Ducks eat. Cats walk. Birds run. Bears play!\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Dogs run! Bears run! Children rest. People walk? Horses walk?\nHow many sentences are in the text? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Dogs move. Horses run.\nHow many sentences are in the text? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Dogs move! People run.\nHow many sentences are in the text? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Birds run! Horses walk. Horses run. Birds rest. Ducks walk?\nHow many sentences are in the text? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Horses sleep.\nHow many sentences are in the text? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Birds walk. Birds walk? Ducks eat! Cats move! Horses run! Birds rest.\nHow many sentences are in the text? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Tag: 4\nText: Birds walk! Birds run? Birds rest? Cats walk! Dogs sleep?\nWhat number is the tag? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Bears run. Dogs sleep. Birds play. Bears move.\nWhat number is the tag? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Ducks rest? Ducks run! Ducks walk? Cats sleep! Dogs eat? Birds play?\nWhat number is the tag? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Birds walk. Ducks eat?\nWhat number is the tag? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Birds move? Children eat? Bears rest! Horses play! People play?\nWhat number is the tag? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Birds eat? Children eat. Bears walk! Children walk! Ducks walk! Cats sleep?\nWhat number is the tag? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: People rest. Horses move. Horses walk.\nWhat number is the tag? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: People sleep. Children rest?\nWhat number is the tag? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Birds walk? Bears eat? Ducks move?\nWhat number is the tag? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Dogs run. Horses move? Dogs play. People walk. Cats move. Horses sleep?\nWhat number is the tag? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Bears rest.\nWhat number is the tag? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Bears play. People eat.\nWhat number is the tag? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Birds run!\nWhat number is the tag? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Bears eat! Cats move. Horses eat.\nWhat number is the tag? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Dogs rest? Bears run!\nWhat number is the tag? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Cats eat?\nWhat number is the tag? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: People sleep. Birds play! Ducks play! Ducks rest. Horses play. Cats play.\nWhat number is the tag? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: People sleep.\nWhat number is the tag? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Cats run. Cats run. People run. People rest!\nWhat number is the tag? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Horses sleep. Children run? Horses eat. People play. Dogs walk. Horses run?\nWhat number is the tag? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Ducks run. Horses play. Birds walk! People eat!\nWhat number is the tag? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Birds move. Ducks walk! Cats sleep.\nWhat number is the tag? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Ducks play. Ducks eat? Bears walk. Dogs play! Birds run? Birds move?\nWhat number is the tag? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: People walk! Horses eat! Birds eat. People move? Cats rest? Birds eat.\nWhat number is the tag? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Dogs rest?\nWhat number is the tag? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Birds walk!\nWhat number is the tag? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Bears rest? Children rest? Horses run?\nWhat number is the tag? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Ducks move! Dogs sleep! Ducks run. Ducks run. Ducks walk. Cats walk!\nWhat number is the tag? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: People play? Children sleep? Cats play?\nWhat number is the tag? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Bears walk? Horses run! Ducks eat. Cats walk. Birds run. Bears play!\nWhat number is the tag? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Cats eat! Dogs walk! Birds rest? People run. Children walk. Cats run.\nWhat number is the tag? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Children play. Ducks eat? Horses eat. Horses walk. Cats move?\nWhat number is the tag? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Children walk! Bears move?\nWhat number is the tag? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Dogs run! Bears run! Children rest. People walk? Horses walk?\nWhat number is the tag? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Horses run! People walk!\nWhat number is the tag? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Dogs walk. People run?\nWhat number is the tag? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Horses rest.\nWhat number is the tag? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: People eat! Children eat! Ducks move! Birds run. Cats play.\nWhat number is the tag? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Bears walk? Dogs rest? Birds walk! Ducks run?\nWhat number is the tag? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Children eat. Ducks play?\nWhat number is the tag? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Bears run? Bears play. Children eat?\nWhat number is the tag? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Birds move? Horses move. Ducks rest?\nWhat number is the tag? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Cats rest? Cats walk?\nWhat number is the tag? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: People eat? Cats walk? Bears rest? Bears rest! People walk? Birds sleep!\nWhat number is the tag? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Ducks run! People rest! Dogs eat. Dogs eat?\nWhat number is the tag? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Birds rest? Ducks walk? Dogs run. Horses rest. Cats play. Dogs play?\nWhat number is the tag? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Bears rest.\nWhat number is the tag? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Bears rest!\nWhat number is the tag? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Birds rest! Ducks rest! Dogs run? Horses rest! Birds sleep.\nWhat number is the tag? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Children rest. Dogs eat? Cats run! Ducks move? Ducks play.\nWhat number is the tag? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Children rest! Cats run!\nWhat number is the tag? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: People eat? Horses move. Cats run! Children move! Dogs move. Birds run!\nWhat number is the tag? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Children move! Children play! Horses run! Dogs run! Bears rest! Cats walk!\nWhat number is the tag? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Dogs move! People run.\nWhat number is the tag? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: People sleep!\nWhat number is the tag? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Birds walk? Bears play. Ducks play. Horses play! Birds eat!\nWhat number is the tag? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Cats run! People eat! Cats walk! Horses move?\nWhat number is the tag? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Dogs move. Cats walk! Bears eat. Bears eat?\nWhat number is the tag? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Dogs run? Birds sleep. Dogs rest?\nWhat number is the tag? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Bears eat? Children rest!\nWhat number is the tag? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Tag: 5\nText: Cats eat! Ducks run? Cats play. People eat? Birds play.\nWhat number is the tag? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Cats move? Bears move? People rest. Children walk.\nWhat number is the tag? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: People sleep! Bears eat? Birds sleep.\nWhat number is the tag? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: People run. Cats rest. Dogs sleep. Horses walk! Children rest. Dogs play!\nWhat number is the tag? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: People sleep. People walk? Cats move.\nWhat number is the tag? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Dogs move. Horses run.\nWhat number is the tag? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Cats rest? Ducks walk. Dogs play?\nWhat number is the tag? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Ducks move! Bears run. Cats run. Birds run! Cats walk!\nWhat number is the tag? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Ducks run? Dogs sleep! Children move! Birds move! Children rest!\nWhat number is the tag? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: People eat. Cats run. People run! Cats sleep.\nWhat number is the tag? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Ducks sleep! Dogs run? Birds walk! Horses walk! People rest? Children walk!\nWhat number is the tag? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Bears run. Bears walk. Cats run? Birds rest!\nWhat number is the tag? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Bears run? Cats move? People play! Children run. Birds rest!\nWhat number is the tag? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Horses run! Bears play. Dogs rest. Ducks run!\nWhat number is the tag? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Ducks play! Ducks rest. Bears eat?\nWhat number is the tag? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Dogs run? Children sleep! Birds sleep.\nWhat number is the tag? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Horses run! Birds walk? Dogs eat! People eat!\nWhat number is the tag? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Children eat! People move? Birds sleep. Dogs play!\nWhat number is the tag? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Horses run. Dogs sleep? Ducks sleep.\nWhat number is the tag? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Dogs rest. Children eat? Cats move. Birds sleep! Dogs play! Children sleep.\nWhat number is the tag? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Children eat! Birds eat.\nWhat number is the tag? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Birds move. Dogs rest? Birds move. Ducks walk!\nWhat number is the tag? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Dogs move! Birds eat. Dogs walk?\nWhat number is the tag? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Children sleep?\nWhat number is the tag? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Children run! Children eat? People eat.\nWhat number is the tag? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: People sleep? Children sleep? Horses run?\nWhat number is the tag? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Dogs eat! People move? Horses move!\nWhat number is the tag? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Children rest. Bears play? Dogs play! Bears run. Children rest.\nWhat number is the tag? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Ducks walk. Children move? Ducks walk! Ducks move? Horses walk.\nWhat number is the tag? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Horses eat! Bears walk? Birds rest? Horses walk. Birds walk. People move!\nWhat number is the tag? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Birds sleep? Children move. Children walk! Ducks play. Ducks move! Bears eat?\nWhat number is the tag? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Bears play!\nWhat number is the tag? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: People rest. Children sleep? Ducks rest. People walk! Ducks run. Cats eat?\nWhat number is the tag? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 2\nText: Dogs move! Birds move! Ducks move! People walk! Bears rest?\nWhat number is the tag? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Bears run? Horses move. Children sleep! Dogs move! Horses rest? Bears walk?\nWhat number is the tag? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: People eat? Cats walk. Ducks sleep. Dogs sleep. Bears move?\nWhat number is the tag? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Cats eat? Bears play! Bears eat? Horses move.\nWhat number is the tag? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Horses sleep! Dogs play? Ducks eat! Ducks walk! People run! Cats play.\nWhat number is the tag? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Horses move! Horses play. People move. Dogs walk!\nWhat number is the tag? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: People play! Children move?\nWhat number is the tag? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Horses sleep.\nWhat number is the tag? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Children run? Cats run? Ducks rest? Cats move!\nWhat number is the tag? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Dogs play. Children run? Bears move! Cats sleep! Dogs walk? Children move?\nWhat number is the tag? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Ducks move. Children run. Dogs rest! People play. Cats move! Cats move.\nWhat number is the tag? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Cats sleep. Children eat! People rest. People walk? Cats run!\nWhat number is the tag? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Birds rest! People eat! Ducks run! Children move! Cats walk?\nWhat number is the tag? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 1\nText: Cats play!\nWhat number is the tag? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Children move?\nWhat number is the tag? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Cats play! Cats play? People play. People eat! Dogs sleep. Children run?\nWhat number is the tag? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 5\nText: Horses sleep. Children eat! Cats walk.\nWhat number is the tag? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Ducks sleep?\nWhat number is the tag? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Bears run? Bears walk.\nWhat number is the tag? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Ducks move?\nWhat number is the tag? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Bears play? Horses play. People sleep! Birds play. People run.\nWhat number is the tag? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Children move. Horses rest? Ducks move! Bears play? People run! Dogs play?\nWhat number is the tag? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Birds run! Horses walk. Horses run. Birds rest. Ducks walk?\nWhat number is the tag? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 6\nText: Children rest. People play! Horses run?\nWhat number is the tag? Answer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 4\nText: Birds walk. Birds walk? Ducks eat! Cats move! Horses run! Birds rest.\nWhat number is the tag? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Horses sleep? Children sleep. Ducks play? People play. People play? Ducks sleep!\nWhat number is the tag? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: 3\nText: Cats move!\nWhat number is the tag? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 1.3104
+}

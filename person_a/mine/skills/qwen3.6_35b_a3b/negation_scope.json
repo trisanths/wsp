@@ -1,0 +1,1220 @@
+{
+ "name": "negation_scope",
+ "description": "Resolve whether an explicitly negated property holds; matched control asks which entity was named in the same sentence.",
+ "hash": "ad208cf481d2cda2",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nnames=['Alice','Bob','Clara','David','Emma','Felix','Grace','Henry']\nprops=['awake','ready','hungry','tired','calm','busy','happy','cold']\nitems=[]; control=[]\nfor i in range(120):\n n=random.choice(names); p=random.choice(props); neg=random.choice([True,False]); phrase=('not ' if neg else '')+p\n text=f'Statement: {n} is {phrase}. '\n items.append({'prompt':text+f'Is {n} {p}? Answer yes or no:','answer':' '+('no' if neg else 'yes')})\n control.append({'prompt':text+'Who is mentioned? Answer with the name:','answer':' '+n})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Statement: Grace is not happy. Is Grace happy? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is not cold. Is Henry cold? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Grace is not ready. Is Grace ready? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is hungry. Is David hungry? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is not ready. Is Clara ready? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is not tired. Is Clara tired? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is ready. Is Clara ready? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is not ready. Is Henry ready? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is not ready. Is Emma ready? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is tired. Is David tired? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Alice is not hungry. Is Alice hungry? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Grace is not busy. Is Grace busy? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is not hungry. Is Clara hungry? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Grace is not tired. Is Grace tired? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is not cold. Is Emma cold? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is calm. Is Bob calm? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Felix is not busy. Is Felix busy? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is not tired. Is David tired? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is cold. Is Emma cold? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is hungry. Is Emma hungry? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Felix is tired. Is Felix tired? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is not ready. Is Bob ready? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is awake. Is Clara awake? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is calm. Is Clara calm? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Felix is not hungry. Is Felix hungry? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Alice is ready. Is Alice ready? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is not hungry. Is Henry hungry? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is busy. Is Henry busy? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Felix is awake. Is Felix awake? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Alice is not awake. Is Alice awake? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Alice is ready. Is Alice ready? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is happy. Is Bob happy? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Felix is not calm. Is Felix calm? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is happy. Is Henry happy? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Grace is ready. Is Grace ready? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is not happy. Is Emma happy? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is not tired. Is David tired? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is awake. Is Clara awake? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is awake. Is Clara awake? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is happy. Is Henry happy? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is calm. Is David calm? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is not hungry. Is Emma hungry? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is ready. Is David ready? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Grace is not busy. Is Grace busy? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is busy. Is Bob busy? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is happy. Is Bob happy? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Felix is not busy. Is Felix busy? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is not hungry. Is Emma hungry? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Felix is not awake. Is Felix awake? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is happy. Is Clara happy? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is cold. Is Bob cold? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is not awake. Is Bob awake? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is not hungry. Is Emma hungry? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is busy. Is Emma busy? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is cold. Is Bob cold? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is busy. Is Bob busy? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is not cold. Is Clara cold? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is happy. Is Henry happy? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Alice is tired. Is Alice tired? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is not awake. Is Emma awake? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Statement: Clara is ready. Is Clara ready? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is happy. Is Henry happy? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is tired. Is Clara tired? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is not tired. Is Bob tired? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Felix is hungry. Is Felix hungry? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Felix is not awake. Is Felix awake? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is not calm. Is Bob calm? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Grace is not happy. Is Grace happy? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is not awake. Is David awake? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Alice is cold. Is Alice cold? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is cold. Is Emma cold? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is happy. Is Emma happy? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is busy. Is Bob busy? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is not tired. Is Henry tired? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is not cold. Is Emma cold? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Felix is hungry. Is Felix hungry? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is hungry. Is Emma hungry? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is not awake. Is David awake? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is cold. Is Emma cold? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Alice is not awake. Is Alice awake? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Grace is ready. Is Grace ready? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is busy. Is Henry busy? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is not calm. Is David calm? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is not calm. Is Clara calm? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is not tired. Is Bob tired? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is happy. Is Henry happy? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is busy. Is Emma busy? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is not hungry. Is Emma hungry? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is not calm. Is Henry calm? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Alice is busy. Is Alice busy? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is not awake. Is David awake? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is not cold. Is Emma cold? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is hungry. Is Bob hungry? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is not tired. Is Henry tired? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is awake. Is Clara awake? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Grace is not awake. Is Grace awake? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is calm. Is David calm? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is not busy. Is David busy? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is ready. Is Henry ready? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Alice is not happy. Is Alice happy? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is not busy. Is Bob busy? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is not busy. Is Bob busy? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is not cold. Is Henry cold? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Felix is ready. Is Felix ready? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Grace is not ready. Is Grace ready? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is calm. Is David calm? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Alice is happy. Is Alice happy? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is ready. Is Clara ready? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Grace is tired. Is Grace tired? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is not tired. Is Bob tired? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Felix is happy. Is Felix happy? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Alice is hungry. Is Alice hungry? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Alice is cold. Is Alice cold? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is not tired. Is Clara tired? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is not calm. Is Clara calm? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is not busy. Is Bob busy? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is ready. Is Clara ready? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Grace is awake. Is Grace awake? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is not hungry. Is Henry hungry? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is not tired. Is Henry tired? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Statement: Emma is hungry. Who is mentioned? Answer with the name:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is happy. Who is mentioned? Answer with the name:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is not hungry. Who is mentioned? Answer with the name:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is not tired. Who is mentioned? Answer with the name:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is awake. Who is mentioned? Answer with the name:",
+    "continuation": " Clara",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is not tired. Who is mentioned? Answer with the name:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is ready. Who is mentioned? Answer with the name:",
+    "continuation": " Clara",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is calm. Who is mentioned? Answer with the name:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is ready. Who is mentioned? Answer with the name:",
+    "continuation": " Clara",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Alice is ready. Who is mentioned? Answer with the name:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is not cold. Who is mentioned? Answer with the name:",
+    "continuation": " Clara",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Felix is not busy. Who is mentioned? Answer with the name:",
+    "continuation": " Felix",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is not ready. Who is mentioned? Answer with the name:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Alice is not awake. Who is mentioned? Answer with the name:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is happy. Who is mentioned? Answer with the name:",
+    "continuation": " Clara",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is not tired. Who is mentioned? Answer with the name:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is ready. Who is mentioned? Answer with the name:",
+    "continuation": " Clara",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is awake. Who is mentioned? Answer with the name:",
+    "continuation": " Clara",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is cold. Who is mentioned? Answer with the name:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is not calm. Who is mentioned? Answer with the name:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is tired. Who is mentioned? Answer with the name:",
+    "continuation": " Clara",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is not tired. Who is mentioned? Answer with the name:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is ready. Who is mentioned? Answer with the name:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is not happy. Who is mentioned? Answer with the name:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is not awake. Who is mentioned? Answer with the name:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is not busy. Who is mentioned? Answer with the name:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is not calm. Who is mentioned? Answer with the name:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is happy. Who is mentioned? Answer with the name:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is calm. Who is mentioned? Answer with the name:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is not tired. Who is mentioned? Answer with the name:",
+    "continuation": " Clara",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is happy. Who is mentioned? Answer with the name:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is busy. Who is mentioned? Answer with the name:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is calm. Who is mentioned? Answer with the name:",
+    "continuation": " Clara",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is not calm. Who is mentioned? Answer with the name:",
+    "continuation": " Clara",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is ready. Who is mentioned? Answer with the name:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Grace is not ready. Who is mentioned? Answer with the name:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Alice is cold. Who is mentioned? Answer with the name:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Grace is ready. Who is mentioned? Answer with the name:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is awake. Who is mentioned? Answer with the name:",
+    "continuation": " Clara",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is happy. Who is mentioned? Answer with the name:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is not ready. Who is mentioned? Answer with the name:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is not cold. Who is mentioned? Answer with the name:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Alice is busy. Who is mentioned? Answer with the name:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is tired. Who is mentioned? Answer with the name:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Felix is happy. Who is mentioned? Answer with the name:",
+    "continuation": " Felix",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Felix is hungry. Who is mentioned? Answer with the name:",
+    "continuation": " Felix",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Felix is not hungry. Who is mentioned? Answer with the name:",
+    "continuation": " Felix",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is not tired. Who is mentioned? Answer with the name:",
+    "continuation": " Clara",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Grace is not busy. Who is mentioned? Answer with the name:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is not cold. Who is mentioned? Answer with the name:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is busy. Who is mentioned? Answer with the name:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Alice is cold. Who is mentioned? Answer with the name:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Felix is awake. Who is mentioned? Answer with the name:",
+    "continuation": " Felix",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is ready. Who is mentioned? Answer with the name:",
+    "continuation": " Clara",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is calm. Who is mentioned? Answer with the name:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Alice is happy. Who is mentioned? Answer with the name:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is awake. Who is mentioned? Answer with the name:",
+    "continuation": " Clara",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Alice is not hungry. Who is mentioned? Answer with the name:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is busy. Who is mentioned? Answer with the name:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is not cold. Who is mentioned? Answer with the name:",
+    "continuation": " Emma",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Statement: Grace is not ready. Who is mentioned? Answer with the name:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is not hungry. Who is mentioned? Answer with the name:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is busy. Who is mentioned? Answer with the name:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is not hungry. Who is mentioned? Answer with the name:",
+    "continuation": " Clara",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is not cold. Who is mentioned? Answer with the name:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is not busy. Who is mentioned? Answer with the name:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Felix is not awake. Who is mentioned? Answer with the name:",
+    "continuation": " Felix",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Alice is not awake. Who is mentioned? Answer with the name:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Alice is tired. Who is mentioned? Answer with the name:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is hungry. Who is mentioned? Answer with the name:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Felix is not awake. Who is mentioned? Answer with the name:",
+    "continuation": " Felix",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Alice is ready. Who is mentioned? Answer with the name:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is not hungry. Who is mentioned? Answer with the name:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is not awake. Who is mentioned? Answer with the name:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is not ready. Who is mentioned? Answer with the name:",
+    "continuation": " Clara",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Felix is hungry. Who is mentioned? Answer with the name:",
+    "continuation": " Felix",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is cold. Who is mentioned? Answer with the name:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Grace is not tired. Who is mentioned? Answer with the name:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Felix is not busy. Who is mentioned? Answer with the name:",
+    "continuation": " Felix",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is not hungry. Who is mentioned? Answer with the name:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Felix is ready. Who is mentioned? Answer with the name:",
+    "continuation": " Felix",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Grace is tired. Who is mentioned? Answer with the name:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is cold. Who is mentioned? Answer with the name:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Grace is not busy. Who is mentioned? Answer with the name:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is not ready. Who is mentioned? Answer with the name:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is not hungry. Who is mentioned? Answer with the name:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is cold. Who is mentioned? Answer with the name:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Alice is not happy. Who is mentioned? Answer with the name:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Grace is ready. Who is mentioned? Answer with the name:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is not tired. Who is mentioned? Answer with the name:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is not cold. Who is mentioned? Answer with the name:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is not tired. Who is mentioned? Answer with the name:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is happy. Who is mentioned? Answer with the name:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is not awake. Who is mentioned? Answer with the name:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is happy. Who is mentioned? Answer with the name:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Clara is not calm. Who is mentioned? Answer with the name:",
+    "continuation": " Clara",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Grace is not happy. Who is mentioned? Answer with the name:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is not awake. Who is mentioned? Answer with the name:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is hungry. Who is mentioned? Answer with the name:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is busy. Who is mentioned? Answer with the name:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is not hungry. Who is mentioned? Answer with the name:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is hungry. Who is mentioned? Answer with the name:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Alice is hungry. Who is mentioned? Answer with the name:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is not busy. Who is mentioned? Answer with the name:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is cold. Who is mentioned? Answer with the name:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is not tired. Who is mentioned? Answer with the name:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Felix is not calm. Who is mentioned? Answer with the name:",
+    "continuation": " Felix",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Emma is not awake. Who is mentioned? Answer with the name:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is happy. Who is mentioned? Answer with the name:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Grace is not happy. Who is mentioned? Answer with the name:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is busy. Who is mentioned? Answer with the name:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is not calm. Who is mentioned? Answer with the name:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is busy. Who is mentioned? Answer with the name:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Grace is not awake. Who is mentioned? Answer with the name:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Felix is tired. Who is mentioned? Answer with the name:",
+    "continuation": " Felix",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Grace is awake. Who is mentioned? Answer with the name:",
+    "continuation": " Grace",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is happy. Who is mentioned? Answer with the name:",
+    "continuation": " Bob",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Henry is not tired. Who is mentioned? Answer with the name:",
+    "continuation": " Henry",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: David is calm. Who is mentioned? Answer with the name:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Statement: Bob is not busy. Who is mentioned? Answer with the name:",
+    "continuation": " Bob",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 0.7687
+}

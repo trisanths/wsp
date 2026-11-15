@@ -1,0 +1,1220 @@
+{
+ "name": "closing_bracket",
+ "description": "Complete a single missing closing delimiter in balanced nested brackets; matched control retrieves nesting depth.",
+ "hash": "d5bbe5f0b49fa94f",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nitems=[];control=[]; pairs={'(':')','[':']','{':'}'}\nfor i in range(120):\n n=random.randint(1,5); opens=[random.choice(list(pairs)) for _ in range(n)]; text=''.join(opens)+'x'+''.join(pairs[o] for o in opens[:0:-1]); ans=pairs[opens[0]]\n items.append({'prompt':f'Add the one missing closing bracket.\\nSequence: {text}\\nMissing bracket:', 'answer':' '+ans})\n control.append({'prompt':f'Add the one missing closing bracket.\\nSequence: {text}\\nHow many opening brackets are present? Answer:', 'answer':' '+str(n)})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ([x]\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [x\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [[{x}]\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {(((x)))\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [{[x]}\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ([{{x}}]\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [{([x])}\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [[[{{x}}]]\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [((x))\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {([(x)])\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ((x)\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[x]\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ([{(x)}]\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: (x\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ([x]\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: (({{[x]}})\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ({([(x)])}\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[{{x}}]\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [[{x}]\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ({[[x]]}\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: (x\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [[x]\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: (({x})\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ((({(x)}))\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{[[x]]}\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ([x]\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {(x)\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[({x})]\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ({x}\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [[[(x)]]\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [{((x))}\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [[({[x]})]\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ([[{x}]]\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[[({x})]]\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {(x)\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [{{{x}}}\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [[{({x})}]\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ([[x]]\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{x}\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [[x]\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {({x})\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ([([(x)])]\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: (x\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[{{[x]}}]\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ({(x)}\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ({x}\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{[((x))]}\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[((x))]\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ((({[x]}))\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: (x\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{(x)}\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{[{x}]}\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {((({x})))\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{{x}}\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [(((x)))\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [x\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ([{x}]\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {(([x]))\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [([{x}])\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{x}\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: (x\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [[[[x]]]\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[{{[x]}}]\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [{(x)}\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{{(x)}}\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{{x}}\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [({[{x}]})\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[x]\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ((x)\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [[[(x)]]\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{x}\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ([x]\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: (((x))\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ((x)\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{x}\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [x\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ([({x})]\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[x]\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ([([x])]\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{(((x)))}\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[{x}]\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: (x\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[x]\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[{(x)}]\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [x\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ({{(x)}}\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{{(x)}}\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [{(x)}\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {(([x]))\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: (x\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[(x)]\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: (([x])\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{((x))}\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ({({x})}\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [x\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [[[(x)]]\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [(x)\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ({({x})}\nMissing bracket:",
+    "continuation": " )",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [x\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[{x}]\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[(((x)))]\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [(x)\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {({{x}})\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [x\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {((x))\nMissing bracket:",
+    "continuation": " }",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [[(x)]\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [x\nMissing bracket:",
+    "continuation": " ]",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [(((x)))\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {({x})\nHow many opening brackets are present? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[x]\nHow many opening brackets are present? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[{(x)}]\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{{x}}\nHow many opening brackets are present? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ({{(x)}}\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[({x})]\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: (x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [[x]\nHow many opening brackets are present? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [{([x])}\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [[[(x)]]\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: (x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ((x)\nHow many opening brackets are present? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ([{{x}}]\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ([[{x}]]\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[((x))]\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[x]\nHow many opening brackets are present? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{{(x)}}\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [{(x)}\nHow many opening brackets are present? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [{((x))}\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{(((x)))}\nHow many opening brackets are present? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: (x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: (x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[(((x)))]\nHow many opening brackets are present? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [[x]\nHow many opening brackets are present? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [(x)\nHow many opening brackets are present? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ([[x]]\nHow many opening brackets are present? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{((x))}\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: (x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [[[(x)]]\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: (x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {(x)\nHow many opening brackets are present? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [[[{{x}}]]\nHow many opening brackets are present? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{{x}}\nHow many opening brackets are present? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ([([x])]\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [((x))\nHow many opening brackets are present? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ({({x})}\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ([{x}]\nHow many opening brackets are present? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: (({x})\nHow many opening brackets are present? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [{[x]}\nHow many opening brackets are present? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: (([x])\nHow many opening brackets are present? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[{x}]\nHow many opening brackets are present? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ([x]\nHow many opening brackets are present? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ({({x})}\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[[({x})]]\nHow many opening brackets are present? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {([(x)])\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [{(x)}\nHow many opening brackets are present? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[{x}]\nHow many opening brackets are present? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [[{x}]\nHow many opening brackets are present? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{[((x))]}\nHow many opening brackets are present? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ((x)\nHow many opening brackets are present? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {({{x}})\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {(([x]))\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {(x)\nHow many opening brackets are present? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{[{x}]}\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[{{x}}]\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ([([(x)])]\nHow many opening brackets are present? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ((({(x)}))\nHow many opening brackets are present? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [[{({x})}]\nHow many opening brackets are present? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[x]\nHow many opening brackets are present? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {(((x)))\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [({[{x}]})\nHow many opening brackets are present? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[{{[x]}}]\nHow many opening brackets are present? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[x]\nHow many opening brackets are present? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ([x]\nHow many opening brackets are present? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ({x}\nHow many opening brackets are present? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [[[(x)]]\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [[[[x]]]\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ({[[x]]}\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ([({x})]\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ({([(x)])}\nHow many opening brackets are present? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {(([x]))\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{x}\nHow many opening brackets are present? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [[({[x]})]\nHow many opening brackets are present? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ([{(x)}]\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: (({{[x]}})\nHow many opening brackets are present? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[{{[x]}}]\nHow many opening brackets are present? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ({(x)}\nHow many opening brackets are present? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{(x)}\nHow many opening brackets are present? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: (((x))\nHow many opening brackets are present? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [([{x}])\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{x}\nHow many opening brackets are present? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: (x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ([x]\nHow many opening brackets are present? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [[(x)]\nHow many opening brackets are present? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{{(x)}}\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ((x)\nHow many opening brackets are present? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [(x)\nHow many opening brackets are present? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ({x}\nHow many opening brackets are present? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {((({x})))\nHow many opening brackets are present? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{x}\nHow many opening brackets are present? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ([x]\nHow many opening brackets are present? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{[[x]]}\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: ((({[x]}))\nHow many opening brackets are present? Answer:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [[{x}]\nHow many opening brackets are present? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {((x))\nHow many opening brackets are present? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {{x}\nHow many opening brackets are present? Answer:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [x\nHow many opening brackets are present? Answer:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: [{{{x}}}\nHow many opening brackets are present? Answer:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Add the one missing closing bracket.\nSequence: {[(x)]\nHow many opening brackets are present? Answer:",
+    "continuation": " 3",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 1.0729
+}

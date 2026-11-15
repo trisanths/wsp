@@ -1,0 +1,980 @@
+{
+ "name": "language_name",
+ "description": "Expand common two-letter language codes into English language names; matched control copies the code.",
+ "hash": "06edfca1e7cd757f",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nmapping=dict(zip('en fr es de it zh ja ru pt nl ko tr'.split(),'English French Spanish German Italian Chinese Japanese Russian Portuguese Dutch Korean Turkish'.split()))\nitems=[];controls=[]\nfor i in range(96):\n code=list(mapping)[i%len(mapping)]; noun=random.choice(['document','book','article','message'])\n stem=f'The {noun} has ISO 639-1 language code \"{code}\". '\n items.append({'prompt':stem+'The English name of this language is','answer':' '+mapping[code]})\n controls.append({'prompt':stem+'The two-letter code is','answer':' '+code})\njson.dump({'items':items,'control':controls},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "The message has ISO 639-1 language code \"tr\". The English name of this language is",
+    "continuation": " Turkish",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"pt\". The English name of this language is",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"tr\". The English name of this language is",
+    "continuation": " Turkish",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"ru\". The English name of this language is",
+    "continuation": " Russian",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"en\". The English name of this language is",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"fr\". The English name of this language is",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"fr\". The English name of this language is",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"it\". The English name of this language is",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"ru\". The English name of this language is",
+    "continuation": " Russian",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"ja\". The English name of this language is",
+    "continuation": " Japanese",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"it\". The English name of this language is",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"de\". The English name of this language is",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"it\". The English name of this language is",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"zh\". The English name of this language is",
+    "continuation": " Chinese",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"ja\". The English name of this language is",
+    "continuation": " Japanese",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"es\". The English name of this language is",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"tr\". The English name of this language is",
+    "continuation": " Turkish",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"en\". The English name of this language is",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"it\". The English name of this language is",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"ja\". The English name of this language is",
+    "continuation": " Japanese",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"ru\". The English name of this language is",
+    "continuation": " Russian",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"ja\". The English name of this language is",
+    "continuation": " Japanese",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"en\". The English name of this language is",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"ko\". The English name of this language is",
+    "continuation": " Korean",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"tr\". The English name of this language is",
+    "continuation": " Turkish",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"ja\". The English name of this language is",
+    "continuation": " Japanese",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"ko\". The English name of this language is",
+    "continuation": " Korean",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"zh\". The English name of this language is",
+    "continuation": " Chinese",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"pt\". The English name of this language is",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"fr\". The English name of this language is",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"ja\". The English name of this language is",
+    "continuation": " Japanese",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"zh\". The English name of this language is",
+    "continuation": " Chinese",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"ru\". The English name of this language is",
+    "continuation": " Russian",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"tr\". The English name of this language is",
+    "continuation": " Turkish",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"tr\". The English name of this language is",
+    "continuation": " Turkish",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"it\". The English name of this language is",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"ko\". The English name of this language is",
+    "continuation": " Korean",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"fr\". The English name of this language is",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"pt\". The English name of this language is",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"es\". The English name of this language is",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"nl\". The English name of this language is",
+    "continuation": " Dutch",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"ko\". The English name of this language is",
+    "continuation": " Korean",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"it\". The English name of this language is",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"pt\". The English name of this language is",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"de\". The English name of this language is",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"nl\". The English name of this language is",
+    "continuation": " Dutch",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"ru\". The English name of this language is",
+    "continuation": " Russian",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"de\". The English name of this language is",
+    "continuation": " German",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The message has ISO 639-1 language code \"nl\". The English name of this language is",
+    "continuation": " Dutch",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"ru\". The English name of this language is",
+    "continuation": " Russian",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"en\". The English name of this language is",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"es\". The English name of this language is",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"nl\". The English name of this language is",
+    "continuation": " Dutch",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"fr\". The English name of this language is",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"ko\". The English name of this language is",
+    "continuation": " Korean",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"ko\". The English name of this language is",
+    "continuation": " Korean",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"nl\". The English name of this language is",
+    "continuation": " Dutch",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"en\". The English name of this language is",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"tr\". The English name of this language is",
+    "continuation": " Turkish",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"tr\". The English name of this language is",
+    "continuation": " Turkish",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"ko\". The English name of this language is",
+    "continuation": " Korean",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"zh\". The English name of this language is",
+    "continuation": " Chinese",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"de\". The English name of this language is",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"pt\". The English name of this language is",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"pt\". The English name of this language is",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"de\". The English name of this language is",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"es\". The English name of this language is",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"it\". The English name of this language is",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"ru\". The English name of this language is",
+    "continuation": " Russian",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"es\". The English name of this language is",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"fr\". The English name of this language is",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"en\". The English name of this language is",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"ja\". The English name of this language is",
+    "continuation": " Japanese",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"nl\". The English name of this language is",
+    "continuation": " Dutch",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"ru\". The English name of this language is",
+    "continuation": " Russian",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"de\". The English name of this language is",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"ja\". The English name of this language is",
+    "continuation": " Japanese",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"pt\". The English name of this language is",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"pt\". The English name of this language is",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"en\". The English name of this language is",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"ko\". The English name of this language is",
+    "continuation": " Korean",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"en\". The English name of this language is",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"zh\". The English name of this language is",
+    "continuation": " Chinese",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"it\". The English name of this language is",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"de\". The English name of this language is",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"es\". The English name of this language is",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"nl\". The English name of this language is",
+    "continuation": " Dutch",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"fr\". The English name of this language is",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"es\". The English name of this language is",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"de\". The English name of this language is",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"es\". The English name of this language is",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"zh\". The English name of this language is",
+    "continuation": " Chinese",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"nl\". The English name of this language is",
+    "continuation": " Dutch",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"zh\". The English name of this language is",
+    "continuation": " Chinese",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"zh\". The English name of this language is",
+    "continuation": " Chinese",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"fr\". The English name of this language is",
+    "continuation": " French",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "The book has ISO 639-1 language code \"fr\". The two-letter code is",
+    "continuation": " fr",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"ja\". The two-letter code is",
+    "continuation": " ja",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"ko\". The two-letter code is",
+    "continuation": " ko",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"de\". The two-letter code is",
+    "continuation": " de",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"it\". The two-letter code is",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"nl\". The two-letter code is",
+    "continuation": " nl",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"it\". The two-letter code is",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"nl\". The two-letter code is",
+    "continuation": " nl",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"ja\". The two-letter code is",
+    "continuation": " ja",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"it\". The two-letter code is",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"pt\". The two-letter code is",
+    "continuation": " pt",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"nl\". The two-letter code is",
+    "continuation": " nl",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"nl\". The two-letter code is",
+    "continuation": " nl",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"tr\". The two-letter code is",
+    "continuation": " tr",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"en\". The two-letter code is",
+    "continuation": " en",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"it\". The two-letter code is",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"zh\". The two-letter code is",
+    "continuation": " zh",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"tr\". The two-letter code is",
+    "continuation": " tr",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"pt\". The two-letter code is",
+    "continuation": " pt",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"tr\". The two-letter code is",
+    "continuation": " tr",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"pt\". The two-letter code is",
+    "continuation": " pt",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"zh\". The two-letter code is",
+    "continuation": " zh",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"zh\". The two-letter code is",
+    "continuation": " zh",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"es\". The two-letter code is",
+    "continuation": " es",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"en\". The two-letter code is",
+    "continuation": " en",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"tr\". The two-letter code is",
+    "continuation": " tr",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"ko\". The two-letter code is",
+    "continuation": " ko",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"ru\". The two-letter code is",
+    "continuation": " ru",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"nl\". The two-letter code is",
+    "continuation": " nl",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"es\". The two-letter code is",
+    "continuation": " es",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"it\". The two-letter code is",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"fr\". The two-letter code is",
+    "continuation": " fr",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"fr\". The two-letter code is",
+    "continuation": " fr",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"tr\". The two-letter code is",
+    "continuation": " tr",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"ja\". The two-letter code is",
+    "continuation": " ja",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"ru\". The two-letter code is",
+    "continuation": " ru",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"en\". The two-letter code is",
+    "continuation": " en",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"de\". The two-letter code is",
+    "continuation": " de",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"ja\". The two-letter code is",
+    "continuation": " ja",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"pt\". The two-letter code is",
+    "continuation": " pt",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"nl\". The two-letter code is",
+    "continuation": " nl",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"ru\". The two-letter code is",
+    "continuation": " ru",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"es\". The two-letter code is",
+    "continuation": " es",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"fr\". The two-letter code is",
+    "continuation": " fr",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"tr\". The two-letter code is",
+    "continuation": " tr",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"ja\". The two-letter code is",
+    "continuation": " ja",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"zh\". The two-letter code is",
+    "continuation": " zh",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"ko\". The two-letter code is",
+    "continuation": " ko",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The message has ISO 639-1 language code \"fr\". The two-letter code is",
+    "continuation": " fr",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"pt\". The two-letter code is",
+    "continuation": " pt",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"ja\". The two-letter code is",
+    "continuation": " ja",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"de\". The two-letter code is",
+    "continuation": " de",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"de\". The two-letter code is",
+    "continuation": " de",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"pt\". The two-letter code is",
+    "continuation": " pt",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"ru\". The two-letter code is",
+    "continuation": " ru",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"ru\". The two-letter code is",
+    "continuation": " ru",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"ko\". The two-letter code is",
+    "continuation": " ko",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"es\". The two-letter code is",
+    "continuation": " es",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"tr\". The two-letter code is",
+    "continuation": " tr",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"ru\". The two-letter code is",
+    "continuation": " ru",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"it\". The two-letter code is",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"ja\". The two-letter code is",
+    "continuation": " ja",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"ru\". The two-letter code is",
+    "continuation": " ru",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"it\". The two-letter code is",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"ko\". The two-letter code is",
+    "continuation": " ko",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"ja\". The two-letter code is",
+    "continuation": " ja",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"de\". The two-letter code is",
+    "continuation": " de",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"es\". The two-letter code is",
+    "continuation": " es",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"fr\". The two-letter code is",
+    "continuation": " fr",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"nl\". The two-letter code is",
+    "continuation": " nl",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"ko\". The two-letter code is",
+    "continuation": " ko",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"es\". The two-letter code is",
+    "continuation": " es",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"ko\". The two-letter code is",
+    "continuation": " ko",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"it\". The two-letter code is",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"fr\". The two-letter code is",
+    "continuation": " fr",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"zh\". The two-letter code is",
+    "continuation": " zh",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"ko\". The two-letter code is",
+    "continuation": " ko",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"zh\". The two-letter code is",
+    "continuation": " zh",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"en\". The two-letter code is",
+    "continuation": " en",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"zh\". The two-letter code is",
+    "continuation": " zh",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"ru\". The two-letter code is",
+    "continuation": " ru",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"fr\". The two-letter code is",
+    "continuation": " fr",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"de\". The two-letter code is",
+    "continuation": " de",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"es\". The two-letter code is",
+    "continuation": " es",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"en\". The two-letter code is",
+    "continuation": " en",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"es\". The two-letter code is",
+    "continuation": " es",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"en\". The two-letter code is",
+    "continuation": " en",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"tr\". The two-letter code is",
+    "continuation": " tr",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"en\". The two-letter code is",
+    "continuation": " en",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"nl\". The two-letter code is",
+    "continuation": " nl",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"de\". The two-letter code is",
+    "continuation": " de",
+    "digits_only": false
+   },
+   {
+    "context": "The book has ISO 639-1 language code \"de\". The two-letter code is",
+    "continuation": " de",
+    "digits_only": false
+   },
+   {
+    "context": "The message has ISO 639-1 language code \"pt\". The two-letter code is",
+    "continuation": " pt",
+    "digits_only": false
+   },
+   {
+    "context": "The article has ISO 639-1 language code \"pt\". The two-letter code is",
+    "continuation": " pt",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"en\". The two-letter code is",
+    "continuation": " en",
+    "digits_only": false
+   },
+   {
+    "context": "The document has ISO 639-1 language code \"zh\". The two-letter code is",
+    "continuation": " zh",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 9.0788
+}

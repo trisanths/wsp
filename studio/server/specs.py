@@ -13,6 +13,7 @@ from wsp.swarm import factory
 from wsp.swarm import space
 
 from studio.server import catalog as catalog_mod
+from studio.server import library
 from studio.server import settings
 
 # Fine-tuning bars measured on the Llama-1B host (results/README.md), by task.
@@ -21,8 +22,7 @@ from studio.server import settings
 # guide, not an exact bar for the harness's MMLU path.
 LORA_BARS = {"gsm8k": 0.467, "mmlu": 0.503}
 
-# Task types the studio adds to the swarm config. Taps help knowledge
-# questions (results/README.md runs 6 to 8); they did not help GSM8K.
+# Task types the studio adds to the swarm config.
 EXTRA_TASK_TYPES = {
     "knowledge": {"tasks": {"mmlu": 1.0}, "guards": ["if_guard"], "heal_data": ["gsm8k_train"]},
 }
@@ -55,8 +55,11 @@ DEFAULT_BUDGET = {"evals": 30, "compute_min": 45, "min_evals": 5, "max_evals": 1
 MIN_COMPUTE_MIN = 5
 MAX_COMPUTE_MIN = 600
 SIZE_MIN_B = 0.5
-SIZE_MAX_B = 8.0
+SIZE_MAX_B = 32.0
 DEFAULT_SIZE_B = 1.5
+DEFAULT_HEAL_MIN = 20
+MIN_HEAL_MIN = 1
+MAX_HEAL_MIN = 600
 
 BENCHMARK_NAMES = {
     "gsm8k": "GSM8K",
@@ -286,30 +289,6 @@ def available_benchmarks(config, chosen):
 
 # Ingredients.
 
-def tap_ingredients(config):
-    """The three taps with the best measured MMLU score, labeled with the total size in memory."""
-    parts = catalog_mod.tap_parts()
-    ranked = []
-    for part in parts:
-        score = (part.get("measured") or {}).get("score") or 0.0
-        ranked.append((-score, part["id"]))
-    ranked.sort()
-    host_b = catalog_mod.host_params_b(config["host"])
-    out = []
-    for pair in ranked[:3]:
-        for part in parts:
-            if part["id"] != pair[1]:
-                continue
-            label = part["label"]
-            score = (part.get("measured") or {}).get("score")
-            if score is not None:
-                label = label + ", MMLU " + "%.1f" % (score * 100)
-            if part.get("donor_params_b") is not None:
-                label = label + ", " + "%.1f" % (host_b + part["donor_params_b"]) + "B total"
-            out.append({"part_id": part["id"], "label": label, "donor": part["donor"], "kind": "tap"})
-    return out
-
-
 def ingredients_for(config, catalog, benchmarks):
     """Up to three parts whose signature hints help the main target, one per donor and kind."""
     main = None
@@ -319,8 +298,6 @@ def ingredients_for(config, catalog, benchmarks):
             break
     if main is None:
         return []
-    if main == "mmlu" and not settings.is_stub():
-        return tap_ingredients(config)
     scored = []
     for record in space.graftable_parts(catalog):
         effect = (record.get("signature") or {}).get("effect") or {}
@@ -345,6 +322,40 @@ def ingredients_for(config, catalog, benchmarks):
                     "donor": record.get("model"), "kind": record.get("type")})
         if len(out) >= 3:
             break
+    if len(out) == 0:
+        out = library_ingredients(main)
+    return out
+
+
+# Library skill tags that belong to a benchmark.
+TASK_SKILLS = {"gsm8k": ["math", "gsm8k"], "mmlu": ["knowledge", "mmlu"], "humaneval": ["code"],
+               "bbeh_mini": ["reasoning"]}
+
+
+def library_ingredients(task_id):
+    """Up to three library parts (not rejected) tagged with the benchmark's skills, one per donor and kind."""
+    wanted = TASK_SKILLS.get(task_id, [])
+    if task_id.startswith("mmlupro:"):
+        wanted = ["knowledge", "mmlu"]
+    out = []
+    seen = []
+    for entry in library.get()["parts"]:
+        if entry["status"] == "rejected" or entry["tap_only"]:
+            continue
+        hit = False
+        for skill in entry["skills"]:
+            if skill in wanted:
+                hit = True
+        if not hit:
+            continue
+        key = (entry["model"], entry["kind"])
+        if key in seen:
+            continue
+        seen.append(key)
+        out.append({"part_id": entry["catalog_id"], "label": entry["title"], "donor": entry["model"],
+                    "kind": entry["kind"], "status": entry["status"]})
+        if len(out) >= 3:
+            break
     return out
 
 
@@ -364,6 +375,48 @@ def size_from_prompt(prompt, host_params):
         if re.search(r"\b" + word + r"\b", text):
             return clamp_size(value, host_params)
     return clamp_size(DEFAULT_SIZE_B, host_params)
+
+
+RUN_PATTERNS = [
+    r"(\d+(?:\.\d+)?)\s*b\s+(?:params\s+|parameters\s+)?(?:per[ -]token|active)",
+    r"(?:per[ -]token|active|runs?|running)\D{0,16}?(\d+(?:\.\d+)?)\s*b\b",
+]
+HEAL_PATTERNS = [
+    r"(?:heal|healing|train|training)\D{0,24}?(\d+(?:\.\d+)?)\s*(minutes?|mins?|hours?|hrs?|h)\b",
+    r"(\d+(?:\.\d+)?)\s*(minutes?|mins?|hours?|hrs?|h)\s+(?:of\s+|to\s+)?(?:heal|healing|train|training)",
+]
+
+
+def run_limit_from_prompt(prompt, total_b, host_params):
+    """The per-token limit in billions: words like '1B per token', else the total limit."""
+    text = clean_prompt(prompt).lower()
+    for pattern in RUN_PATTERNS:
+        match = re.search(pattern, text)
+        if match is not None:
+            return clamp_run(float(match.group(1)), total_b, host_params)
+    return clamp_run(total_b, total_b, host_params)
+
+
+def heal_limit_from_prompt(prompt):
+    """The heal limit in minutes: words like 'heal for 30 minutes', else the default."""
+    text = clean_prompt(prompt).lower()
+    for pattern in HEAL_PATTERNS:
+        match = re.search(pattern, text)
+        if match is not None:
+            value = float(match.group(1))
+            if match.group(2).startswith("h"):
+                value = value * 60.0
+            return clamp_heal(value)
+    return DEFAULT_HEAL_MIN
+
+
+def clamp_run(value, total_b, host_params):
+    """Keep the per-token limit between the host size and the total limit."""
+    return round(clamp(float(value), host_params, max(host_params, total_b)), 2)
+
+
+def clamp_heal(value):
+    return int(round(clamp(float(value), MIN_HEAL_MIN, MAX_HEAL_MIN)))
 
 
 def clamp_size(value, host_params):
@@ -427,6 +480,8 @@ DRAFT_SCHEMA = {
         "title": {"type": "string"},
         "summary": {"type": "string"},
         "max_params_b": {"type": "number"},
+        "max_run_params_b": {"type": "number"},
+        "max_heal_min": {"type": "number"},
         "benchmarks": {"type": "array", "items": {"type": "string"}},
     },
     "required": ["title", "summary", "max_params_b", "benchmarks"],
@@ -459,8 +514,9 @@ def llm_draft(config, prompt, files, known_ids, host_params):
     for item in files:
         file_lines.append(item["name"] + ": " + str(item["rows"]) + " rows")
     system = ("You draft a small model spec from a plain request. Reply with one JSON object with the keys "
-              "title (at most 6 words), summary (one or two plain sentences), max_params_b (a number between 0.5 "
-              "and 8), and benchmarks (a list of ids from the allowed list; the first id is the main target). "
+              "title (at most 6 words), summary (one or two plain sentences), max_params_b (total parameters, a "
+              "number between 0.5 and 32), optional max_run_params_b (parameters run per token, at most the total), "
+              "optional max_heal_min (minutes of heal), and benchmarks (a list of ids from the allowed list; the first id is the main target). "
               "Write plain text without dashes used as punctuation.")
     user = ("Request: " + clean_prompt(prompt) + "\nUploaded files: " + (", ".join(file_lines) or "none") +
             "\nAllowed benchmark ids: " + ", ".join(known_ids))
@@ -480,6 +536,15 @@ def apply_llm_draft(spec, config, draft, host_params):
     size = draft.get("max_params_b")
     if isinstance(size, (int, float)) and not isinstance(size, bool):
         spec["size"]["max_params_b"] = clamp_size(size, host_params)
+        spec["limits"]["max_total_params_b"] = spec["size"]["max_params_b"]
+        spec["limits"]["max_run_params_b"] = clamp_run(spec["limits"]["max_run_params_b"],
+                                                       spec["limits"]["max_total_params_b"], host_params)
+    run = draft.get("max_run_params_b")
+    if isinstance(run, (int, float)) and not isinstance(run, bool):
+        spec["limits"]["max_run_params_b"] = clamp_run(run, spec["limits"]["max_total_params_b"], host_params)
+    heal = draft.get("max_heal_min")
+    if isinstance(heal, (int, float)) and not isinstance(heal, bool):
+        spec["limits"]["max_heal_min"] = clamp_heal(heal)
     ids = draft.get("benchmarks")
     if isinstance(ids, list):
         known = known_benchmark_ids(config)
@@ -555,6 +620,8 @@ def draft_spec(prompt, uploads):
     spec_id = new_spec_id()
     files = save_uploads(spec_id, uploads)
     size_b = size_from_prompt(prompt, host_params)
+    limits = {"max_total_params_b": size_b, "max_run_params_b": run_limit_from_prompt(prompt, size_b, host_params),
+              "max_heal_min": heal_limit_from_prompt(prompt)}
     benchmarks = default_benchmarks(config)
     spec = {
         "id": spec_id,
@@ -565,6 +632,8 @@ def draft_spec(prompt, uploads):
         "task_type": config["task_type"],
         "host": config["host"],
         "size": {"max_params_b": size_b, "min_b": SIZE_MIN_B, "max_b": SIZE_MAX_B, "host_params_b": host_params},
+        "limits": limits,
+        "comparators": {"distill": {}},
         "budget": dict(DEFAULT_BUDGET),
         "benchmarks": benchmarks,
         "available_benchmarks": [],
@@ -585,6 +654,30 @@ def draft_spec(prompt, uploads):
     spec["ingredients"] = ingredients_for(config, catalog, spec["benchmarks"])
     store(spec)
     return spec
+
+
+def default_limits(size, host_params):
+    """Limits for a stored spec that has none: the old size limit as the total, no tighter run or heal limit."""
+    total = size.get("max_params_b", DEFAULT_SIZE_B)
+    return {"max_total_params_b": total, "max_run_params_b": clamp_run(total, total, host_params),
+            "max_heal_min": DEFAULT_HEAL_MIN}
+
+
+def clean_comparators(incoming, old):
+    """The measured reference scores a person adds to a spec: {"distill": {task id: score in 0..1}}."""
+    out = {"distill": {}}
+    source = old
+    if isinstance(incoming, dict):
+        source = incoming
+    if not isinstance(source, dict):
+        return out
+    distill = source.get("distill")
+    if isinstance(distill, dict):
+        for task_id in distill:
+            value = distill[task_id]
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                out["distill"][str(task_id)] = clamp(float(value), 0.0, 1.0)
+    return out
 
 
 def clean_benchmark(config, item):
@@ -636,11 +729,28 @@ def normalize_spec(body, old):
     spec["title"] = clip(spec["title"], 80) or "Untitled model"
 
     size = dict(old["size"])
+    limits = dict(old.get("limits") or default_limits(size, host_params))
+    previous_total = limits["max_total_params_b"]
     if isinstance(body.get("size"), dict):
         value = body["size"].get("max_params_b")
         if value is not None:
-            size["max_params_b"] = clamp_size(to_float(value, size["max_params_b"]), host_params)
+            limits["max_total_params_b"] = clamp_size(to_float(value, previous_total), host_params)
+    if isinstance(body.get("limits"), dict):
+        incoming = body["limits"]
+        # The old size field is also sent by older pages. A changed limit wins over a changed size.
+        if incoming.get("max_total_params_b") is not None:
+            wanted = clamp_size(to_float(incoming["max_total_params_b"], previous_total), host_params)
+            if wanted != previous_total or limits["max_total_params_b"] == previous_total:
+                limits["max_total_params_b"] = wanted
+        if incoming.get("max_run_params_b") is not None:
+            limits["max_run_params_b"] = to_float(incoming["max_run_params_b"], limits["max_run_params_b"])
+        if incoming.get("max_heal_min") is not None:
+            limits["max_heal_min"] = clamp_heal(to_float(incoming["max_heal_min"], limits["max_heal_min"]))
+    limits["max_run_params_b"] = clamp_run(limits["max_run_params_b"], limits["max_total_params_b"], host_params)
+    size["max_params_b"] = limits["max_total_params_b"]
     spec["size"] = size
+    spec["limits"] = limits
+    spec["comparators"] = clean_comparators(body.get("comparators"), old.get("comparators"))
 
     budget = dict(old["budget"])
     if isinstance(body.get("budget"), dict):
@@ -703,9 +813,20 @@ def get_spec(spec_id):
         return None
     with open(path, encoding="utf-8") as handle:
         spec = json.load(handle)
+    add_missing_fields(spec)
     with _lock:
         _specs[spec_id] = spec
     return spec
+
+
+def add_missing_fields(spec):
+    """Give a spec saved by an older studio the fields it lacks (limits, comparators)."""
+    if "limits" not in spec:
+        size = spec.get("size") or {}
+        host_params = size.get("host_params_b", catalog_mod.DEFAULT_HOST_PARAMS_B)
+        spec["limits"] = default_limits(size, host_params)
+    if "comparators" not in spec:
+        spec["comparators"] = {"distill": {}}
 
 
 def update_spec(spec_id, body):

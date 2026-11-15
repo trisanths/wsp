@@ -1,0 +1,1220 @@
+{
+ "name": "vertical_relation",
+ "description": "Infer whether an object is above or below another from a stated vertical relation; control copies the explicitly stated relation.",
+ "hash": "5b7d72d2ca08b45b",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nitems=[]; control=[]\nobjects=['red cube','blue ball','green box','gold star','black ring','white cone','silver disk','orange cup']\nfor i in range(120):\n a,b=random.sample(objects,2); r=random.choice(['above','below']); reverse=bool(i%2)\n x,y=(b,a) if reverse else (a,b)\n ans=({'above':'below','below':'above'}[r] if reverse else r)\n context=f'The {a} is {r} the {b}. '\n items.append({'prompt':context+f'Is the {x} above or below the {y}? Answer:', 'answer':' '+ans})\n control.append({'prompt':context+'Which relation word is explicitly written in the sentence? Answer:', 'answer':' '+r})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "The green box is below the orange cup. Is the orange cup above or below the green box? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is above the green box. Is the green box above or below the red cube? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is above the blue ball. Is the blue ball above or below the red cube? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is above the green box. Is the green box above or below the orange cup? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is below the black ring. Is the black ring above or below the blue ball? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The green box is below the red cube. Is the red cube above or below the green box? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is below the gold star. Is the gold star above or below the red cube? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is below the silver disk. Is the gold star above or below the silver disk? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is above the orange cup. Is the black ring above or below the orange cup? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is above the blue ball. Is the blue ball above or below the black ring? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is below the black ring. Is the black ring above or below the red cube? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is above the red cube. Is the red cube above or below the blue ball? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is below the red cube. Is the red cube above or below the orange cup? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is above the black ring. Is the black ring above or below the white cone? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is above the green box. Is the green box above or below the blue ball? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is above the orange cup. Is the blue ball above or below the orange cup? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is below the silver disk. Is the silver disk above or below the gold star? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is below the white cone. Is the white cone above or below the blue ball? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The silver disk is below the orange cup. Is the silver disk above or below the orange cup? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is below the black ring. Is the orange cup above or below the black ring? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is above the black ring. Is the orange cup above or below the black ring? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is below the red cube. Is the red cube above or below the gold star? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is above the silver disk. Is the silver disk above or below the white cone? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is above the orange cup. Is the blue ball above or below the orange cup? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is below the orange cup. Is the gold star above or below the orange cup? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is above the black ring. Is the red cube above or below the black ring? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is above the blue ball. Is the orange cup above or below the blue ball? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is above the green box. Is the green box above or below the black ring? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is above the black ring. Is the gold star above or below the black ring? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is above the silver disk. Is the silver disk above or below the white cone? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is below the black ring. Is the gold star above or below the black ring? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is above the black ring. Is the white cone above or below the black ring? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is below the silver disk. Is the blue ball above or below the silver disk? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is below the green box. Is the black ring above or below the green box? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The green box is below the black ring. Is the green box above or below the black ring? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is above the orange cup. Is the orange cup above or below the red cube? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is below the white cone. Is the white cone above or below the blue ball? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is above the black ring. Is the red cube above or below the black ring? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is below the black ring. Is the black ring above or below the blue ball? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is below the green box. Is the orange cup above or below the green box? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The silver disk is below the white cone. Is the silver disk above or below the white cone? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is above the silver disk. Is the silver disk above or below the blue ball? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is above the blue ball. Is the blue ball above or below the gold star? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is below the black ring. Is the black ring above or below the white cone? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The green box is above the orange cup. Is the green box above or below the orange cup? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is above the silver disk. Is the white cone above or below the silver disk? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is above the black ring. Is the black ring above or below the white cone? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is below the green box. Is the blue ball above or below the green box? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is above the white cone. Is the gold star above or below the white cone? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is above the gold star. Is the orange cup above or below the gold star? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The green box is above the blue ball. Is the green box above or below the blue ball? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is below the gold star. Is the blue ball above or below the gold star? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is below the orange cup. Is the white cone above or below the orange cup? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is below the red cube. Is the blue ball above or below the red cube? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is below the orange cup. Is the black ring above or below the orange cup? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is below the blue ball. Is the blue ball above or below the white cone? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is below the black ring. Is the red cube above or below the black ring? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is below the gold star. Is the gold star above or below the black ring? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is below the black ring. Is the blue ball above or below the black ring? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is above the red cube. Is the red cube above or below the gold star? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The green box is above the orange cup. Is the green box above or below the orange cup? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The green box is below the red cube. Is the red cube above or below the green box? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The silver disk is above the green box. Is the silver disk above or below the green box? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is above the orange cup. Is the orange cup above or below the red cube? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is below the white cone. Is the white cone above or below the gold star? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is above the white cone. Is the black ring above or below the white cone? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is above the white cone. Is the white cone above or below the orange cup? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The silver disk is below the orange cup. Is the silver disk above or below the orange cup? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is above the gold star. Is the black ring above or below the gold star? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is below the silver disk. Is the silver disk above or below the orange cup? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is below the green box. Is the green box above or below the red cube? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is above the silver disk. Is the black ring above or below the silver disk? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is below the silver disk. Is the silver disk above or below the blue ball? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The green box is below the white cone. Is the green box above or below the white cone? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is below the green box. Is the orange cup above or below the green box? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is above the silver disk. Is the red cube above or below the silver disk? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is above the gold star. Is the gold star above or below the red cube? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is above the blue ball. Is the white cone above or below the blue ball? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The green box is below the red cube. Is the green box above or below the red cube? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is below the green box. Is the white cone above or below the green box? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is above the red cube. Is the gold star above or below the red cube? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The green box is above the white cone. Is the white cone above or below the green box? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is above the gold star. Is the gold star above or below the white cone? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is above the silver disk. Is the silver disk above or below the orange cup? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is below the white cone. Is the white cone above or below the gold star? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The silver disk is below the black ring. Is the silver disk above or below the black ring? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is above the gold star. Is the blue ball above or below the gold star? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is below the gold star. Is the gold star above or below the blue ball? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is below the gold star. Is the gold star above or below the white cone? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is above the red cube. Is the red cube above or below the blue ball? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is above the silver disk. Is the silver disk above or below the blue ball? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is above the red cube. Is the orange cup above or below the red cube? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is below the orange cup. Is the orange cup above or below the red cube? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is below the blue ball. Is the black ring above or below the blue ball? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is below the gold star. Is the black ring above or below the gold star? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is below the gold star. Is the black ring above or below the gold star? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is below the silver disk. Is the silver disk above or below the red cube? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is above the silver disk. Is the red cube above or below the silver disk? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is below the white cone. Is the orange cup above or below the white cone? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is above the orange cup. Is the orange cup above or below the white cone? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is above the red cube. Is the black ring above or below the red cube? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is above the silver disk. Is the silver disk above or below the gold star? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is above the orange cup. Is the white cone above or below the orange cup? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is above the red cube. Is the red cube above or below the orange cup? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is below the blue ball. Is the red cube above or below the blue ball? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is above the blue ball. Is the blue ball above or below the gold star? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is below the gold star. Is the gold star above or below the white cone? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is above the gold star. Is the white cone above or below the gold star? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is below the red cube. Is the black ring above or below the red cube? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is below the green box. Is the black ring above or below the green box? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The green box is below the red cube. Is the red cube above or below the green box? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The green box is above the black ring. Is the green box above or below the black ring? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is above the blue ball. Is the blue ball above or below the black ring? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is below the red cube. Is the red cube above or below the white cone? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is below the black ring. Is the black ring above or below the blue ball? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The silver disk is below the blue ball. Is the blue ball above or below the silver disk? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is above the gold star. Is the gold star above or below the blue ball? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The silver disk is above the green box. Is the green box above or below the silver disk? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is above the orange cup. Is the orange cup above or below the blue ball? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The green box is above the silver disk. Is the green box above or below the silver disk? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "The red cube is above the gold star. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The green box is below the red cube. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is below the green box. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is below the blue ball. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is below the gold star. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is above the orange cup. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The green box is above the orange cup. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is below the silver disk. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is above the gold star. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is below the black ring. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is below the black ring. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is above the black ring. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is below the silver disk. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is below the green box. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is above the gold star. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is below the white cone. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is below the gold star. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is above the black ring. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is below the orange cup. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is below the gold star. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The silver disk is above the green box. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The green box is below the white cone. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is below the white cone. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is above the orange cup. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is above the silver disk. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is above the red cube. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is above the gold star. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is below the green box. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is above the orange cup. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is below the red cube. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is above the black ring. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The green box is above the orange cup. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is above the orange cup. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is below the black ring. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is above the blue ball. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is below the blue ball. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is below the silver disk. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The green box is below the black ring. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is above the silver disk. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is below the green box. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is above the orange cup. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is below the green box. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is above the red cube. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is above the blue ball. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The green box is below the red cube. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is below the white cone. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is below the orange cup. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The green box is below the red cube. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is below the black ring. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is above the orange cup. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is above the gold star. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is above the blue ball. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is above the black ring. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is above the gold star. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is above the blue ball. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is below the gold star. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is below the black ring. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is below the black ring. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is below the silver disk. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is above the red cube. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The red cube is above the blue ball. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is above the blue ball. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is below the red cube. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is below the red cube. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is above the green box. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The silver disk is below the blue ball. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is above the white cone. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is above the silver disk. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is below the black ring. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is below the black ring. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is above the white cone. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is above the black ring. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is above the silver disk. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is above the blue ball. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is below the black ring. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is above the silver disk. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The green box is above the blue ball. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is above the black ring. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is below the silver disk. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is below the orange cup. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is above the red cube. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is below the red cube. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is below the green box. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is above the red cube. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is below the red cube. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is below the gold star. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The silver disk is below the orange cup. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is above the orange cup. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is above the red cube. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is below the white cone. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is above the green box. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is below the white cone. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is above the silver disk. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is below the gold star. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is below the gold star. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is above the silver disk. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The silver disk is below the orange cup. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is above the gold star. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is below the orange cup. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The green box is above the white cone. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is above the orange cup. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is above the green box. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The green box is above the black ring. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The red cube is above the silver disk. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The green box is below the red cube. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is below the green box. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The blue ball is below the silver disk. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is above the red cube. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The silver disk is below the black ring. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The green box is below the orange cup. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is above the green box. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is above the white cone. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is below the blue ball. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The black ring is below the gold star. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The orange cup is above the black ring. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The silver disk is above the green box. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The white cone is above the silver disk. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The green box is above the silver disk. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   },
+   {
+    "context": "The silver disk is below the white cone. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " below",
+    "digits_only": false
+   },
+   {
+    "context": "The gold star is above the silver disk. Which relation word is explicitly written in the sentence? Answer:",
+    "continuation": " above",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 0.8646
+}

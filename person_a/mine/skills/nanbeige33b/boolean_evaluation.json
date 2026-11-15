@@ -1,0 +1,980 @@
+{
+ "name": "boolean_evaluation",
+ "description": "Evaluate short Python Boolean expressions containing True, False, not, and, or. Control copies a Boolean tag, with identical expression format.",
+ "hash": "f79a5c6202288199",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nitems=[];control=[]\nfor i in range(96):\n a=random.choice(['True','False']);b=random.choice(['True','False']);op=random.choice(['and','or']); expr=random.choice([f'not {a}',f'{a} {op} {b}',f'not ({a} {op} {b})',f'(not {a}) {op} {b}']);tag=random.choice(['True','False'])\n prefix=f'Python expression: {expr}\\nTag: {tag}\\n'\n items.append({'prompt':prefix+'What is the value of the expression? Answer True or False:', 'answer':' '+str(eval(expr))})\n control.append({'prompt':prefix+'What is the tag? Answer True or False:', 'answer':' '+tag})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Python expression: not True\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not True) and True\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False or True)\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) or True\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False or False)\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: False and False\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False and True)\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False and False)\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not True) and False\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: True and False\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True or False)\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True or False)\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True and True)\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) and True\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True and False)\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: True and True\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: False or True\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False or False)\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: True and True\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: False or True\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: False and True\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) and True\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True or True)\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) and False\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: True and True\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not True) and True\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True or True)\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) or True\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True or True)\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) and True\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Python expression: (not False) and False\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True or False)\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True and True)\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) or False\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not True) or False\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: True or True\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False and True)\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False and False)\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: True or True\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: True and False\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False and False)\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True or False)\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) and True\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True or False)\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) or True\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True and True)\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) or False\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True or False)\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False and True)\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not True) and False\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: False or True\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: False and True\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: False and False\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not True) or False\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: True or False\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False and False)\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True or True)\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) or True\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False and False)\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not True) or True\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False or False)\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True or False)\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False and False)\nTag: True\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) and True\nTag: False\nWhat is the value of the expression? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Python expression: not (True or True)\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False or False)\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: False or True\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False and False)\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) or True\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False or False)\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False and False)\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True or False)\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: True and False\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) and True\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False and False)\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True and True)\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False and False)\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: True or True\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True or False)\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not True) or True\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: True or False\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False and True)\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: False and False\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) or True\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True and False)\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not True) or False\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) and True\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) and True\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True or False)\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: True and True\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True and True)\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False or True)\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True or False)\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False and False)\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Python expression: not (True and True)\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not True) and False\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False and True)\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: False and True\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True or True)\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) or False\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: True and True\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not True) and True\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: True and False\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) and True\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True or False)\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: True and True\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True or True)\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False and True)\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not True) or False\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) or True\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False or False)\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) or False\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: True or True\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: False or True\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True or False)\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (False and False)\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True or False)\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) and True\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: False and True\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) or True\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) and False\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not True\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not False) and False\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not True) and False\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not (True or True)\nTag: False\nWhat is the tag? Answer True or False:",
+    "continuation": " False",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: False or True\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: (not True) and True\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: not False\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   },
+   {
+    "context": "Python expression: False and False\nTag: True\nWhat is the tag? Answer True or False:",
+    "continuation": " True",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 0.5625
+}

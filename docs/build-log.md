@@ -107,3 +107,17 @@ Both waves ran as workflows. Each builder got an independent reviewer and, when 
   - a 50-step heal at low fidelity, which cut stub cascade compute per FEE by about 40%.
 - **Exa priors pack:** `data/priors.json` (sha 43180a66). 11 live calls cost $0.117, giving 5 cites for each of the 8 pilot parts and 30 topical claims.
 - **Upstream:** Trisanth's rounds 3 to 12 show grafts are flat on GSM8K (no part beats random or a rank-1 LoRA), while taps carry donor knowledge on MMLU (Llama-1B 47.5 to 72.9 with a Gemma-9B tap). Asked Rex which setting the first real swarm test should use.
+
+## 2026-11-14, step 10: the Modal bridge (`wsp/swarm/modal_backend.py`)
+
+- `ModalCompileEval` connects WspEnv to the deployed wsp-swarm app, so `--backend modal` runs. `compile` is the fit-only probe (`probe_candidate`, read from the run's probe cache when present), `heal` is deferred, and `evaluate` runs `run_candidate` (compile, heal and grade in one container) with the token the env spent. Fidelity maps to nested question counts: check 32, low 68, full 200. `base_scores` uses `host_baseline`, the same interim scorer as the candidates.
+- Scores are INTERIM, GSM8K only, so Modal runs use the new task type `math_interim` (no guard). Person B's harness with `if_guard` is a follow-up.
+- No ModalBudget: the search loop runs in one process here, so budget `local` holds the counters, and the containers' write-once rows in `wsp-ledger` are the Modal-side audit.
+- Small edits: `env.eval_job` takes `heal_loss` from evaluate when the heal was deferred; `run_swarm.py` gets `--catalog` and `--task-type`.
+- Tests: `tests/test_swarm_modal_backend.py`, 18 of 18 pass with Modal faked. Full suite: 639 pass. The failures are unrelated: Linux-only `fcntl` in Person B's eval tests, `fastapi` not installed for the studio tests, two baseline tests broken by uncommitted `evolve.py` work, and one cascade pricing test that already fails at HEAD.
+- Redeployed wsp-swarm (v4) from the working tree, then ran a live check on an L4 (run `bridge-live-1794711809`) [SEARCH][INTERIM]:
+  - probe ok, fit_r2 0.676 (pilot_qmath15_l6_top512 at host layer 3);
+  - step at check fidelity ok: GSM8K 0.281 on 32 items, 50-step heal with 50 losses logged, 0.16 FEE spent;
+  - compute 59.31 s on the local ledger and 59.31 s on the Modal ledger;
+  - host base on the search split 0.225 (interim).
+- Wall time is far above charged GPU-seconds: 7 min for the step against 41 s charged. The gap is the cold start, untimed setup and the first host baseline (now cached for every run). Modal bills container time, so the real spend runs above the ledger.

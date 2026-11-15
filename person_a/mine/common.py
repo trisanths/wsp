@@ -15,7 +15,18 @@ APP_NAME = "swarmy-mine"
 VOLUME_NAME = "swarmy-models"
 
 # Custom-code donors: only these may use trust_remote_code (always with a pinned revision)
-CUSTOM_CODE = ["k2horizon7b", "k2mova36b", "g9v3_39a5b"]
+CUSTOM_CODE = ["k2horizon7b", "k2mova36b", "g9v3_39a5b", "mimo2.6_flash", "mimo2.6_pro"]
+
+# Engine tier by checkpoint size, for models whose stored weights are smaller than 2 bytes per param
+# (FP8 and packed formats). Others pick a tier from params_b in pick_gpu.
+TIER_OVERRIDE = {
+    "deepseek_v4_flash": "EngineH200x2",   # 166 GB on disk
+    "mimo2.6_flash": "EngineH200x2",       # 177 GB
+    "minimax_m3.1_flash": "EngineH200x4",  # 252 GB
+    "ling3.1_flash": "EngineH200x8",       # 573 GB
+    "mimo2.6_pro": "EngineH200x8",         # 573 GB
+    "mistral_large4": "EngineB200x8",      # 1060 GB
+}
 
 BUILTIN_TARGETS = ["math", "code", "facts", "multilingual"]
 CONTROL_ONLY = ["general_text"]
@@ -53,17 +64,23 @@ def load_donors():
     return donors
 
 
-def pick_gpu(params_b):
+def pick_gpu(params_b, short=None):
+    if short in TIER_OVERRIDE:
+        return TIER_OVERRIDE[short]
     # bf16 weights take ~2 GB per billion params, plus room for activations / attribution.
     # Returns the engine class for that tier; each class has Modal GPU fallbacks (see engine_app.py):
     #   EngineL4: L4 | EngineL40S: L40S, then A100-40GB | EngineH100: H100, then H200 | EngineH200: H200, then B200
+    #   EngineH200x8: 8 x H200, then 8 x B200 (above 80B params)
     if params_b <= 3:
         return "EngineL4"
     if params_b <= 16:
         return "EngineL40S"
     if params_b <= 34:
         return "EngineH100"
-    return "EngineH200"
+    if params_b <= 80:
+        return "EngineH200"
+    # frontier models: 8 x H200 (or B200), layers spread over the GPUs
+    return "EngineH200x8"
 
 
 def scan_token_budget(params_b):

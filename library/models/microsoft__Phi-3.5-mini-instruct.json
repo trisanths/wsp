@@ -1,0 +1,78 @@
+{
+  "id": "microsoft__Phi-3.5-mini-instruct",
+  "kind": "model",
+  "title": "Phi-3.5-mini-instruct (3.82B)",
+  "status": "validated",
+  "added_by": "Trisanth",
+  "source": "profiles.json, atlas/zoo.json",
+  "updated": "2026-11-14",
+  "skills": [
+    "knowledge",
+    "reasoning"
+  ],
+  "models": [
+    "microsoft/Phi-3.5-mini-instruct"
+  ],
+  "evidence": [],
+  "generated": true,
+  "hf_id": "microsoft/Phi-3.5-mini-instruct",
+  "family": "phi3",
+  "params_b": 3.821,
+  "active_params_b": 3.821,
+  "layers": 32,
+  "hidden": 3072,
+  "vocab": 32064,
+  "vocab_source": "composer/sizes.py VOCAB by tokenizer family",
+  "tokenizer_family": "phi3",
+  "license": "mit",
+  "experts": null,
+  "experts_per_token": null,
+  "needs": {
+    "transformers": "4.57.1",
+    "trust_remote_code": false,
+    "multi_gpu": false,
+    "gpu": "H200"
+  },
+  "scores": {
+    "mmlu_dev": {
+      "value": 0.686,
+      "split": "MMLU test, 1000 seeded items (round 6 dev)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round10_rows.json",
+      "n": 1000
+    },
+    "mmlu_heldout": {
+      "value": 0.69,
+      "split": "MMLU test, 2000 seeded items disjoint from dev (round 7 held-out)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round10_rows.json",
+      "n": 2000
+    },
+    "medmcqa": {
+      "value": 0.517,
+      "split": "MedMCQA validation, 1000 seeded items (round 10)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round10_rows.json",
+      "n": 1000
+    },
+    "mmlu_dev_round8": {
+      "value": 0.685,
+      "split": "MMLU test, 1000 seeded items (round 6 dev)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round8_rows.json"
+    }
+  },
+  "structure_notes": [
+    {
+      "note": "tap read at layer 22 of 32: 66.3 MMLU dev vs 68.5 alone (run 8)",
+      "source": "results/round8_rows.json"
+    }
+  ],
+  "components": [
+    "tapread_phi_35_mini_l22"
+  ],
+  "arch_sources": [
+    "profiles.json",
+    "atlas/zoo.json"
+  ]
+}

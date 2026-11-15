@@ -6,7 +6,7 @@ evaluate. A backend only does the work; it never touches a budget.
 
 - StubCompileEval: the STUB world in stub.py.
 - LocalCompileEval: Trisanth's compile on this machine plus Person B's eval.
-- ModalCompileEval lives in wsp/swarm/modal_backend.py (modal wave).
+- ModalCompileEval lives in wsp/swarm/modal_backend.py: the deployed wsp-swarm app (modal_swarm.py).
 """
 
 import importlib
@@ -69,6 +69,7 @@ class CompileEval:
         backend passes it through (for example as a cache or log key) and
         never spends one itself. Retries must reuse the same token.
         Returns {"ok", "error", "scores": {task: float in [0, 1]}, "compute_s": {"eval": s}}.
+        A backend that deferred its heal to this call also returns "heal_loss": [floats].
         """
         raise NotImplementedError
 

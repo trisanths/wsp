@@ -1,0 +1,91 @@
+{
+  "id": "tapread_gemma_2_9b_it_l29",
+  "kind": "block",
+  "title": "gemma-2-9b-it layers 0..29, tap read point for knowledge",
+  "status": "candidate",
+  "added_by": "Trisanth",
+  "source": "results/round8_rows.json (run 8)",
+  "updated": "2026-11-14",
+  "skills": [
+    "knowledge",
+    "mmlu"
+  ],
+  "models": [
+    "unsloth/gemma-2-9b-it"
+  ],
+  "evidence": [
+    {
+      "claim": "Llama-1B + tap reading layer 29 at host layer 10 vs the host alone",
+      "metric": "MMLU dev accuracy, mean over seeds",
+      "value": 0.7295,
+      "control_value": 0.475,
+      "split": "MMLU test, 1000 seeded items (round 6 dev)",
+      "seeds": [
+        0,
+        1
+      ],
+      "source": "results/round8_rows.json",
+      "generated": true,
+      "control": "host alone, no training",
+      "note": "donor alone 0.726"
+    },
+    {
+      "claim": "Qwen-0.5B + tap reading layer 29 at host layer 15 vs the host alone",
+      "metric": "MMLU dev accuracy, mean over seeds",
+      "value": 0.727,
+      "control_value": 0.48,
+      "split": "MMLU test, 1000 seeded items (round 6 dev)",
+      "seeds": [
+        0,
+        1
+      ],
+      "source": "results/round8_rows.json",
+      "generated": true,
+      "control": "host alone, no training",
+      "note": "donor alone 0.726"
+    }
+  ],
+  "generated": true,
+  "model": "unsloth/gemma-2-9b-it",
+  "layer": null,
+  "layers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29
+  ],
+  "units_file": null,
+  "units_remote": null,
+  "signature": {
+    "method": "tap read point: the donor runs layers 0..29 on the prompt and a gated cross-attention branch in the host reads layer 29",
+    "read_layer": 29
+  },
+  "status_reason": "read point measured on MMLU dev items only",
+  "use": "tap unsloth/gemma-2-9b-it layer 29 at <host layer>"
+}

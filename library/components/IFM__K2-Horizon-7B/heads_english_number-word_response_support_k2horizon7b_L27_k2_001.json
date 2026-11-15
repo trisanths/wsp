@@ -1,0 +1,100 @@
+{
+  "id": "heads_english_number-word_response_support_k2horizon7b_L27_k2_001",
+  "kind": "attn_heads",
+  "title": "K2-Horizon-7B layer 27, English number-word response support",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/k2horizon7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "digit_to_word"
+  ],
+  "models": [
+    "IFM/K2-Horizon-7B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'digit_to_word' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2027,
+      "control_value": -0.0142,
+      "split": "person_a held-out skill items (digit_to_word)",
+      "seeds": null,
+      "source": "person_a/catalog/k2horizon7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0015"
+    }
+  ],
+  "generated": true,
+  "model": "IFM/K2-Horizon-7B",
+  "layer": 27,
+  "layers": [
+    27
+  ],
+  "units_file": "components/IFM__K2-Horizon-7B/heads_english_number-word_response_support_k2horizon7b_L27_k2_001.pt",
+  "units_remote": "person_a/parts/k2horizon7b/heads_english_number-word_response_support_k2horizon7b_L27_k2_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'digit_to_word'",
+    "label": "English number-word response support",
+    "num_units": 2,
+    "d_model": 4096,
+    "effect": {
+      "math|search": 0.0008,
+      "math|heldout": 0.0002,
+      "code|search": 0.0015,
+      "code|heldout": 0.0013,
+      "facts|search": 0.0026,
+      "facts|heldout": -0.0185,
+      "multilingual|search": -0.0007,
+      "multilingual|heldout": -0.0003,
+      "general_text|search": -0.0009,
+      "general_text|heldout": -0.0012,
+      "digit_copy|search": -0.0015,
+      "digit_copy__control|search": -0.0031,
+      "digit_copy|heldout": -0.0002,
+      "digit_copy__control|heldout": 0.0022,
+      "digit_to_word|search": 0.1702,
+      "digit_to_word__control|search": 0.0005,
+      "digit_to_word|heldout": 0.2027,
+      "digit_to_word__control|heldout": -0.0015,
+      "product_sign|search": 0.0032,
+      "product_sign__control|search": -0.0009,
+      "product_sign|heldout": 0.0049,
+      "product_sign__control|heldout": -0.0038,
+      "bracket_completion|search": 0.0242,
+      "bracket_completion__control|search": 0.0396,
+      "bracket_completion|heldout": 0.0411,
+      "bracket_completion__control|heldout": 0.032
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0567,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0277,
+      -0.0055,
+      -0.0067,
+      -0.0097,
+      -0.0215
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Static OV survey motivated digit lexicalization testing. Follow-up weight inspection shows H2 maps digits toward yes/False and H9 toward closing delimiters, unlike direct copying heads; label is task support, not intrinsic number encoding. Attribution independently ranked H2/H9 .069/.057, and joint ablation causes .170 digit-to-word drop with .001 matched control and <=.040 other-task drops."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/k2horizon7b/digit_to_word.json",
+    "hash": "b8ee943e9a4a35ff",
+    "description": "Map a single digit to its English cardinal or ordinal word, motivated by L28H0 value/output projections promoting four/fourth and seven/seventh. Controls copy the provided answer word.",
+    "name": "digit_to_word"
+  },
+  "catalog_id": "heads_english_number-word_response_support_k2horizon7b_L27_k2_001",
+  "exported_copy": "library/k2horizon7b/heads_english_number-word_response_support_k2horizon7b_L27_k2_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

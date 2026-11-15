@@ -1,0 +1,905 @@
+/* Motion for Sapien. Every rule below adapts a free transition from transitions.dev.
+   The attribution comment above each block names the transition.
+   Colours come from the studio tokens in styles.css, so both themes work. */
+
+:root {
+  /* page side-by-side */
+  --page-slide-dur: 250ms;
+  --page-fade-dur: 250ms;
+  --page-slide-distance: 8px;
+  --page-blur: 3px;
+  --page-stagger: 0ms;
+  --page-exit-enabled: 1;
+  --page-slide-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --page-fade-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* toast and banner stacking */
+  --toast-open: 350ms;
+  --toast-close: 250ms;
+  --toast-distance: 16px;
+  --toast-blur: 2px;
+  --toast-scale: 0.97;
+  --toast-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --stack-open: 350ms;
+  --stack-close: 250ms;
+  --stack-rise: 80px;
+  --stack-blur: 2px;
+  --stack-scale: 0.97;
+  --stack-peek: 12px;
+  --stack-spread-gap: 8px;
+  --stack-depth-scale: 0.06;
+  --stack-depth-fade: 0.4;
+  --stack-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* menu dropdown */
+  --dropdown-open-dur: 250ms;
+  --dropdown-close-dur: 150ms;
+  --dropdown-pre-scale: 0.97;
+  --dropdown-closing-scale: 0.99;
+  --dropdown-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* modal (the builder uses its open clock for dropped nodes) */
+  --modal-open-dur: 250ms;
+  --modal-close-dur: 150ms;
+  --modal-scale: 0.96;
+  --modal-scale-close: 0.96;
+  --modal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* tooltip */
+  --tt-in-dur: 150ms;
+  --tt-out-dur: 50ms;
+  --tt-scale: 0.98;
+  --tt-delay: 80ms;
+  --tt-in-ease: ease-out;
+  --tt-out-ease: ease-out;
+  --tt-bg: var(--bg-raised);
+  --tt-fg: var(--text-1);
+  /* panel reveal (the sidebar labels use it) */
+  --panel-open-dur: 400ms;
+  --panel-close-dur: 350ms;
+  --panel-translate-y: 100px;
+  --panel-blur: 2px;
+  --panel-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --sb-dur: 250ms;
+  /* tabs sliding */
+  --tabs-dur: 250ms;
+  --tabs-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --tabs-pill-bg: var(--fill-2);
+  /* icon swap */
+  --icon-swap-dur: 250ms;
+  --icon-swap-blur: 2px;
+  --icon-swap-start-scale: 0.25;
+  --icon-swap-ease: ease-in-out;
+  /* text states swap */
+  --text-swap-dur: 150ms;
+  --text-swap-translate-y: 4px;
+  --text-swap-blur: 2px;
+  --text-swap-ease: ease-in-out;
+  /* skeleton reveal */
+  --pulse-dur: 1000ms;
+  --pulse-count: 1;
+  --pulse-min: 0.5;
+  --reveal-dur: 400ms;
+  --reveal-blur: 2px;
+  --reveal-ease: ease-in-out;
+  /* card resize */
+  --resize-dur: 300ms;
+  --resize-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* bars and the ring ease to new values */
+  --bar-dur: 500ms;
+  --bar-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* texts reveal */
+  --stagger-dur: 500ms;
+  --stagger-distance: 12px;
+  --stagger-stagger: 40ms;
+  --stagger-blur: 3px;
+  --stagger-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* learn more hover */
+  --learn-shift: 2px;
+  --learn-spread: 8deg;
+  --learn-in: 350ms;
+  --learn-out: 350ms;
+  --learn-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* input clear dissolve */
+  --clear-dur: 1000ms;
+  --clear-out-dur: 400ms;
+  --clear-in-dur: 400ms;
+  --clear-out-fly: 12px;
+  --clear-in-fly: 12px;
+  --clear-out-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --clear-in-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --clear-blur: 2px;
+  --glow-delay: 50ms;
+  --glow-peak-at: 0.15;
+  --glow-opacity: 0.42;
+  --glow-spread: 1.5;
+  /* thinking states and shimmer text */
+  --think-hold: 2000ms;
+  --think-swap: 150ms;
+  --think-gap: 50ms;
+  --think-distance: 8px;
+  --think-blur: 2px;
+  --think-shimmer: 2000ms;
+  --think-base: var(--text-3);
+  --think-highlight: var(--text-1);
+  --think-ease: ease-in-out;
+  --shimmer-dur: 2000ms;
+  --shimmer-base: var(--text-3);
+  --shimmer-highlight: var(--text-1);
+  --shimmer-band: 400%;
+  --shimmer-ease: linear;
+  /* streaming text */
+  --stream-gap: 60ms;
+  --stream-fade: 350ms;
+  --stream-blur: 1px;
+  --stream-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* number subtle change */
+  --subtle-dur: 455ms;
+  --subtle-distance: 0.14em;
+  --subtle-blur: 0.042em;
+  --subtle-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* number pop-in */
+  --digit-dur: 600ms;
+  --digit-exit-dur: 155ms;
+  --digit-enter-delay: 50ms;
+  --digit-stagger: 40ms;
+  --digit-distance: 0.52em;
+  --digit-exit-distance: 0.52em;
+  --digit-blur: max(0.067em, 0.171em - 2.1px);
+  --digit-lift: 0.125em;
+  --digit-start-scale: 0.7;
+  --digit-peak: 1.03;
+  /* spinning counter */
+  --reel-step-dur: 130ms;
+  --reel-stagger: 90ms;
+  --reel-ease: cubic-bezier(0.35, -0.02, 0.43, 1);
+  --reel-cell: 1.2em;
+  --reel-side-scale: 0.7;
+  --reel-side-offset: 0.52em;
+  --reel-side-blur: max(0.067em, 0.171em - 2.1px);
+  --reel-side-opacity: 0.17;
+  --reel-center-scale: 0.9;
+  --reel-center-blur: 0.042em;
+  --reel-antic-dur: 100ms;
+  --reel-antic-scale: 0.94;
+  --reel-antic-lift: 0.125em;
+  --reel-land-dur: 740ms;
+  --reel-land-peak: 1.03;
+  /* error state shake */
+  --shake-distance: 6px;
+  --shake-overshoot: 4px;
+  --shake-dur-a: 80ms;
+  --shake-dur-b: 60ms;
+  --shake-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --revert-hold: 3000ms;
+  --revert-dur: 280ms;
+  /* success check */
+  --check-opacity-dur: 500ms;
+  --check-rotate-dur: 500ms;
+  --check-rotate-from: 80deg;
+  --check-bob-dur: 500ms;
+  --check-y-amount: 12px;
+  --check-blur-dur: 500ms;
+  --check-blur-from: 6px;
+  --check-path-dur: 500ms;
+  --check-path-delay: 80ms;
+  --check-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --check-ease-opacity: cubic-bezier(0.22, 1, 0.36, 1);
+  --check-ease-rotate: cubic-bezier(0.22, 1, 0.36, 1);
+  --check-ease-bob: cubic-bezier(0.34, 1.35, 0.64, 1);
+  --check-ease-path: cubic-bezier(0.22, 1, 0.36, 1);
+  /* notification badge */
+  --badge-slide-dur: 260ms;
+  --badge-pop-dur: 500ms;
+  --badge-pop-close-dur: 180ms;
+  --badge-fade-dur: 400ms;
+  --badge-fade-close-dur: 180ms;
+  --badge-blur: 2px;
+  --badge-offset-x: -8.2px;
+  --badge-offset-y: 12.4px;
+  --badge-slide-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --badge-pop-ease: cubic-bezier(0.34, 1.36, 0.64, 1);
+  --badge-close-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  /* accordion */
+  --acc-expand: 250ms;
+  --acc-collapse: 250ms;
+  --acc-chevron: 250ms;
+  --acc-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* matrix loader */
+  --matrix-cycle: 1200ms;
+  --matrix-base: var(--line-3);
+  --matrix-active: var(--text-3);
+  --matrix-ease: ease-in-out;
+}
+
+/* transitions.dev: page side-by-side
+   Adapted: the direction is set per navigation (--t-page-dir) instead of per page number. */
+.t-page-slide { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.t-page-slide .t-page {
+  flex: 1; min-height: 0; display: flex; flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(calc(var(--page-slide-distance) * var(--t-page-dir, 0) * var(--page-exit-enabled)));
+  filter: blur(calc(var(--page-blur) * var(--page-exit-enabled)));
+  transition:
+    opacity   var(--page-fade-dur)  var(--page-fade-ease),
+    transform var(--page-slide-dur) var(--page-slide-ease),
+    filter    var(--page-slide-dur) var(--page-slide-ease);
+  will-change: opacity, transform, filter;
+}
+.t-page-slide .t-page.is-exit { position: absolute; inset: 0; }
+.t-page-slide .t-page.is-active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+  filter: none;
+  transition-delay: var(--page-stagger);
+}
+/* once the slide ends, drop the transform so fixed and sticky children behave */
+.t-page-slide .t-page.is-active.is-settled { transform: none; filter: none; transition: none; will-change: auto; }
+@media (prefers-reduced-motion: reduce) {
+  .t-page-slide .t-page { transition: none !important; }
+}
+
+/* transitions.dev: toast, and banner stacking
+   Adapted: the stack hangs from the top edge (the studio shows toasts at the top), so older
+   banners step down instead of up. --stack-sign is 1 for down. Banners share one grid cell. */
+.toasts { top: 12px; }
+.toasts .t-stack { --stack-sign: 1; position: relative; display: grid; justify-items: center; }
+.t-stack-banner.toast {
+  grid-area: 1 / 1;
+  animation: none;
+  transform-origin: 50% 0;
+  filter: none;
+  will-change: transform, opacity, filter;
+  transition:
+    transform var(--stack-open) var(--stack-ease),
+    opacity var(--stack-open) var(--stack-ease),
+    filter var(--stack-open) var(--stack-ease);
+}
+.t-stack-banner[data-depth="0"] { z-index: 3; transform: translateY(0) scale(1); opacity: 1; }
+.t-stack-banner[data-depth="1"] {
+  z-index: 2;
+  transform: translateY(calc(var(--stack-peek) * var(--stack-sign))) scale(calc(1 - var(--stack-depth-scale)));
+  opacity: calc(1 - var(--stack-depth-fade));
+}
+.t-stack-banner[data-depth="2"] {
+  z-index: 1;
+  transform: translateY(calc(var(--stack-peek) * var(--stack-sign) * 2)) scale(calc(1 - var(--stack-depth-scale) * 2));
+  opacity: calc(1 - var(--stack-depth-fade) * 1.6);
+}
+.t-stack.is-spread .t-stack-banner[data-depth="1"],
+.t-stack.is-spread .t-stack-banner[data-depth="2"] { opacity: 1; }
+.t-stack.is-spread .t-stack-banner[data-depth="1"] { transform: translateY(calc((100% + var(--stack-spread-gap)) * var(--stack-sign))) scale(1); }
+.t-stack.is-spread .t-stack-banner[data-depth="2"] { transform: translateY(calc((100% + var(--stack-spread-gap)) * var(--stack-sign) * 2)) scale(1); }
+.t-stack-banner.is-enter {
+  transition: none;
+  transform: translateY(calc(var(--stack-rise) * var(--stack-sign) * -1)) scale(var(--stack-scale));
+  opacity: 0;
+  filter: blur(var(--stack-blur));
+}
+.t-stack-banner.is-leaving {
+  z-index: 0;
+  transform: translateY(calc(var(--stack-peek) * var(--stack-sign) * 3)) scale(calc(1 - var(--stack-depth-scale) * 3));
+  opacity: 0;
+  filter: blur(var(--stack-blur));
+  transition:
+    transform var(--stack-close) var(--stack-ease),
+    opacity var(--stack-close) var(--stack-ease),
+    filter var(--stack-close) var(--stack-ease);
+}
+/* a banner that times out fades in place, on the toast close clock */
+.t-stack-banner.is-dismiss {
+  z-index: 3;
+  opacity: 0;
+  transform: translateY(0) scale(var(--toast-scale));
+  filter: blur(var(--toast-blur));
+  transition:
+    transform var(--toast-close) var(--toast-ease),
+    opacity var(--toast-close) var(--toast-ease),
+    filter var(--toast-close) var(--toast-ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .t-stack-banner { transition: none !important; transform: none !important; filter: none !important; }
+}
+
+/* transitions.dev: menu dropdown */
+.menu.t-dropdown {
+  animation: none;
+  transform-origin: top left;
+  transform: scale(var(--dropdown-pre-scale));
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--dropdown-open-dur) var(--dropdown-ease),
+    opacity   var(--dropdown-open-dur) var(--dropdown-ease);
+  will-change: transform, opacity;
+}
+.t-dropdown[data-origin="top-right"]     { transform-origin: top right; }
+.t-dropdown[data-origin="top-center"]    { transform-origin: top center; }
+.t-dropdown[data-origin="bottom-left"]   { transform-origin: bottom left; }
+.t-dropdown[data-origin="bottom-center"] { transform-origin: bottom center; }
+.t-dropdown[data-origin="bottom-right"]  { transform-origin: bottom right; }
+.menu.t-dropdown.is-open { transform: scale(1); opacity: 1; pointer-events: auto; }
+.menu.t-dropdown.is-closing {
+  transform: scale(var(--dropdown-closing-scale));
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--dropdown-close-dur) var(--dropdown-ease),
+    opacity   var(--dropdown-close-dur) var(--dropdown-ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .t-dropdown { transition: none !important; }
+}
+
+/* transitions.dev: tooltip
+   Adapted: one shared tooltip is placed with fixed coordinates (see initTooltips), because
+   the sidebar clips overflow. The delay sits only on the show rule, so it hides at once. */
+.t-tt {
+  position: fixed;
+  left: var(--tt-x, 0);
+  top: var(--tt-y, 0);
+  z-index: 200;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--tt-bg);
+  color: var(--tt-fg);
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+  box-shadow: var(--shadow-float), 0 0 0 1px var(--line-2);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -100%) scale(var(--tt-scale));
+  transform-origin: 50% 100%;
+  transition:
+    opacity   var(--tt-out-dur) var(--tt-out-ease),
+    transform var(--tt-out-dur) var(--tt-out-ease);
+}
+.t-tt[data-side="right"] { transform: translate(0, -50%) scale(var(--tt-scale)); transform-origin: 0 50%; }
+.t-tt[data-side="bottom"] { transform: translate(-50%, 0) scale(var(--tt-scale)); transform-origin: 50% 0; }
+.t-tt.is-on {
+  opacity: 1;
+  transform: translate(-50%, -100%) scale(1);
+  transition-duration: var(--tt-in-dur);
+  transition-timing-function: var(--tt-in-ease);
+  transition-delay: var(--tt-delay);
+}
+.t-tt.is-on[data-side="right"] { transform: translate(0, -50%) scale(1); }
+.t-tt.is-on[data-side="bottom"] { transform: translate(-50%, 0) scale(1); }
+@media (prefers-reduced-motion: reduce) {
+  .t-tt { transition: none !important; }
+}
+
+/* transitions.dev: panel reveal
+   Adapted: the sidebar labels slide sideways with a cross-blur when the sidebar collapses,
+   while the width follows the card resize clock. */
+.sidebar { transition: width var(--sb-dur) var(--resize-ease); }
+.sidebar .sb-row { transition: background .12s, width var(--sb-dur) var(--resize-ease), padding var(--sb-dur) var(--resize-ease), gap var(--sb-dur) var(--resize-ease); }
+.sidebar .sb-status { transition: width var(--sb-dur) var(--resize-ease), padding var(--sb-dur) var(--resize-ease), gap var(--sb-dur) var(--resize-ease); }
+.sidebar .sb-row .sb-text, .sidebar .logotext, .sidebar .sb-status .sb-text {
+  max-width: 240px;
+  overflow: hidden;
+  transform: translateX(0);
+  filter: none;
+  opacity: 1;
+  transition:
+    max-width var(--sb-dur) var(--panel-ease),
+    transform var(--sb-dur) var(--panel-ease),
+    opacity   var(--sb-dur) var(--panel-ease),
+    filter    var(--sb-dur) var(--panel-ease);
+}
+.sidebar .sb-row .sb-text.sb-title { max-width: none; }
+.sidebar .sb-label.sb-text, .sidebar .sb-recent.sb-text {
+  max-height: 600px;
+  transition:
+    max-height var(--sb-dur) var(--panel-ease),
+    opacity    var(--sb-dur) var(--panel-ease),
+    filter     var(--sb-dur) var(--panel-ease),
+    padding    var(--sb-dur) var(--panel-ease);
+}
+.sidebar .sb-label.sb-text { max-height: 60px; }
+.sidebar.rail .sb-row .sb-text, .sidebar.rail .logotext, .sidebar.rail .sb-status .sb-text {
+  max-width: 0;
+  transform: translateX(-8px);
+  filter: blur(var(--panel-blur));
+  opacity: 0;
+  pointer-events: none;
+}
+.sidebar.rail .sb-label.sb-text, .sidebar.rail .sb-recent.sb-text {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
+  filter: blur(var(--panel-blur));
+  overflow: hidden;
+  pointer-events: none;
+}
+.sidebar.rail .sb-row, .sidebar.rail .sb-status { padding: 0 11px; gap: 0; justify-content: flex-start; }
+@media (prefers-reduced-motion: reduce) {
+  .sidebar, .sidebar .sb-row, .sidebar .sb-status, .sidebar .sb-text, .sidebar .logotext { transition: none !important; }
+}
+
+/* transitions.dev: tabs sliding
+   Adapted: the pill is measured from the active child (.on or aria-selected), so one bar
+   works for segmented controls and underline tabs. */
+.t-slide { position: relative; }
+.t-slide > :not(.t-tabs-pill) { position: relative; z-index: 1; }
+.t-tabs-pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  background: var(--tabs-pill-bg);
+  border-radius: 7px;
+  transform: translate(0, 0);
+  transition:
+    transform var(--tabs-dur) var(--tabs-ease),
+    width     var(--tabs-dur) var(--tabs-ease),
+    height    var(--tabs-dur) var(--tabs-ease);
+  will-change: transform, width;
+  z-index: 0;
+  pointer-events: none;
+}
+.t-slide .on, .t-slide [aria-selected="true"] { background: transparent !important; }
+.t-slide > * { transition: color var(--tabs-dur) var(--tabs-ease); }
+.tabs.t-slide .t-tabs-pill { background: transparent; border-radius: 0; }
+.tabs.t-slide .t-tabs-pill::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; border-radius: 1px; background: var(--text-1); }
+.tabs.t-slide .tab.on { border-color: transparent; }
+@media (prefers-reduced-motion: reduce) {
+  .t-tabs-pill, .t-slide > * { transition: none !important; }
+}
+
+/* transitions.dev: icon swap */
+.t-icon-swap { position: relative; display: inline-grid; }
+.t-icon-swap .t-icon {
+  grid-area: 1 / 1;
+  display: grid;
+  place-items: center;
+  transition:
+    opacity   var(--icon-swap-dur) var(--icon-swap-ease),
+    filter    var(--icon-swap-dur) var(--icon-swap-ease),
+    transform var(--icon-swap-dur) var(--icon-swap-ease);
+  will-change: opacity, filter, transform;
+}
+.t-icon-swap[data-state="a"] .t-icon[data-icon="a"],
+.t-icon-swap[data-state="b"] .t-icon[data-icon="b"] { opacity: 1; filter: none; transform: scale(1); }
+.t-icon-swap[data-state="a"] .t-icon[data-icon="b"],
+.t-icon-swap[data-state="b"] .t-icon[data-icon="a"] { opacity: 0; filter: blur(var(--icon-swap-blur)); transform: scale(var(--icon-swap-start-scale)); }
+@media (prefers-reduced-motion: reduce) {
+  .t-icon-swap .t-icon { transition: none !important; }
+}
+
+/* transitions.dev: text states swap */
+.t-text-swap {
+  display: inline-block;
+  transform: translateY(0);
+  filter: none;
+  opacity: 1;
+  transition:
+    transform var(--text-swap-dur) var(--text-swap-ease),
+    filter    var(--text-swap-dur) var(--text-swap-ease),
+    opacity   var(--text-swap-dur) var(--text-swap-ease);
+}
+.t-text-swap.is-exit { transform: translateY(calc(var(--text-swap-translate-y) * -1)); filter: blur(var(--text-swap-blur)); opacity: 0; }
+.t-text-swap.is-enter-start { transform: translateY(var(--text-swap-translate-y)); filter: blur(var(--text-swap-blur)); opacity: 0; transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  .t-text-swap { transition: none !important; }
+}
+
+/* transitions.dev: skeleton reveal
+   Adapted: the skeleton stays in the page flow while loading, then overlays the content and
+   fades out as the content fades in, because the content height is not known up front. */
+.t-skel { position: relative; }
+.t-skel.fill { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.t-skel.fill > .t-skel-content { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.t-skel.ph-load > .t-skel-content { display: none; }
+.t-skel.fill.ph-load > .t-skel-skeleton { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.t-skel-skeleton {
+  z-index: 2;
+  opacity: 1;
+  filter: none;
+  transition: opacity var(--reveal-dur) var(--reveal-ease), filter var(--reveal-dur) var(--reveal-ease);
+}
+.t-skel.ph-a > .t-skel-skeleton, .t-skel.ph-b > .t-skel-skeleton { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.t-skel-content { transition: opacity var(--reveal-dur) var(--reveal-ease), filter var(--reveal-dur) var(--reveal-ease); }
+.t-skel.ph-a > .t-skel-content { opacity: 0; filter: blur(var(--reveal-blur)); transition: none; }
+.t-skel.ph-b > .t-skel-content { opacity: 1; filter: none; }
+.t-skel.ph-b > .t-skel-skeleton { opacity: 0; filter: blur(var(--reveal-blur)); }
+.t-skel-skeleton.is-pulsing .skeleton { animation: t-skel-pulse var(--pulse-dur) ease-in-out var(--pulse-count); }
+.t-skel-skeleton .skeleton { animation: none; }
+@keyframes t-skel-pulse { 0%, 100% { opacity: 1; } 50% { opacity: var(--pulse-min); } }
+@media (prefers-reduced-motion: reduce) {
+  .t-skel-skeleton, .t-skel-content { transition: none !important; }
+  .t-skel-skeleton.is-pulsing .skeleton { animation: none !important; }
+}
+
+/* transitions.dev: card resize
+   Adapted: AutoHeight sets the height in px from the content, and this tweens it. */
+.t-autoh { overflow: hidden; }
+.t-autoh > div { display: flow-root; }
+.t-resize {
+  transition:
+    width  var(--resize-dur) var(--resize-ease),
+    height var(--resize-dur) var(--resize-ease);
+  will-change: width, height;
+}
+@media (prefers-reduced-motion: reduce) {
+  .t-resize { transition: none !important; }
+}
+
+/* a row that is added or removed, on the card resize clock */
+.t-row-in { animation: t-row-in var(--resize-dur) var(--resize-ease) both; }
+.t-row-out { opacity: 0; filter: blur(var(--toast-blur)); transform: translateY(-4px); transition: opacity 160ms var(--resize-ease), filter 160ms var(--resize-ease), transform 160ms var(--resize-ease); }
+@keyframes t-row-in { from { opacity: 0; transform: translateY(8px); filter: blur(var(--toast-blur)); } }
+@media (prefers-reduced-motion: reduce) {
+  .t-row-in { animation: none !important; }
+  .t-row-out { transition: none !important; }
+}
+
+/* transitions.dev: texts reveal
+   Adapted: lines keep their own display so grids and flex rows work as lines. */
+.t-stagger-line {
+  opacity: 0;
+  transform: translateY(var(--stagger-distance));
+  filter: blur(var(--stagger-blur));
+  transition:
+    opacity   var(--stagger-dur) var(--stagger-ease),
+    transform var(--stagger-dur) var(--stagger-ease),
+    filter    var(--stagger-dur) var(--stagger-ease);
+  will-change: transform, opacity, filter;
+}
+.t-stagger-line--2 { transition-delay: var(--stagger-stagger); }
+.t-stagger-line--3 { transition-delay: calc(var(--stagger-stagger) * 2); }
+.t-stagger.is-shown .t-stagger-line { opacity: 1; transform: translateY(0); filter: none; }
+.t-stagger { display: flex; flex-direction: column; align-items: center; width: 100%; }
+.t-stagger.is-settled .t-stagger-line { transform: none; filter: none; will-change: auto; }
+@media (prefers-reduced-motion: reduce) {
+  .t-stagger-line { transition: none !important; }
+}
+
+/* transitions.dev: learn more hover
+   Adapted: a chevron in the corner of each entry card. The card is the hover target. */
+.entry { position: relative; }
+.entry .t-learn-chevron { position: absolute; top: 14px; right: 12px; color: var(--text-4); transition: transform var(--learn-out) var(--learn-ease), color var(--learn-out) var(--learn-ease); }
+.entry .t-learn-chevron svg { display: block; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.t-learn-chevron {
+  display: inline-flex;
+  transform: translateX(0);
+  transition: transform var(--learn-out) var(--learn-ease);
+}
+.t-learn-arm {
+  transform-box: view-box;
+  transform-origin: 10px 8px;
+  vector-effect: non-scaling-stroke;
+  transition: transform var(--learn-out) var(--learn-ease);
+}
+.t-learn:hover .t-learn-chevron { transform: translateX(var(--learn-shift)); transition-duration: var(--learn-in); color: var(--text-1); }
+.t-learn:hover .t-learn-arm { transition-duration: var(--learn-in); }
+.t-learn:hover .t-learn-arm-top { transform: rotate(var(--learn-spread)); }
+.t-learn:hover .t-learn-arm-bot { transform: rotate(calc(var(--learn-spread) * -1)); }
+@media (prefers-reduced-motion: reduce) {
+  .t-learn-chevron, .t-learn-arm { transition: none !important; }
+}
+
+/* transitions.dev: input clear dissolve
+   Adapted: wraps the composer textarea. The mirror shows the sent text while it dissolves. */
+.t-clear { position: relative; overflow: hidden; }
+.t-clear-mirror, .t-clear-placeholder {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 2;
+  font: 400 16px/24px var(--sans);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.t-clear-mirror { opacity: 0; color: var(--text-1); }
+.t-clear-placeholder { opacity: 0; color: var(--text-4); }
+.t-clear.is-clearing .t-clear-mirror { opacity: 1; }
+.t-clear.is-clearing textarea::placeholder { opacity: 0; }
+.t-clear-glow { position: absolute; inset: 0; pointer-events: none; opacity: 0; z-index: 3; mix-blend-mode: multiply; }
+@media (prefers-reduced-motion: reduce) {
+  .t-clear-glow { opacity: 0 !important; }
+}
+
+/* transitions.dev: thinking states */
+.t-think { position: relative; display: inline-block; text-align: left; }
+.t-think-sizer { display: block; visibility: hidden; white-space: nowrap; }
+.t-think-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: block;
+  color: var(--think-base);
+  white-space: nowrap;
+  opacity: 1;
+  transition:
+    transform var(--think-swap) var(--think-ease),
+    filter var(--think-swap) var(--think-ease),
+    opacity var(--think-swap) var(--think-ease);
+  /* No transform, filter or will-change at rest: they move the text onto its own layer at a
+     fractional offset, and the shimmer copy in ::before then sits a pixel off, so the line looks doubled. */
+}
+.t-think-text::before {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(90deg, transparent 0%, transparent 40%, var(--think-highlight) 50%, transparent 60%, transparent 100%);
+  background-size: 400% 100%;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: t-think-shimmer var(--think-shimmer) linear infinite;
+}
+@keyframes t-think-shimmer { 0% { background-position: 100% 0; } 100% { background-position: 0% 0; } }
+.t-think-text.is-exit { transform: translateY(calc(var(--think-distance) * -1)); filter: blur(var(--think-blur)); opacity: 0; }
+.t-think-text.is-enter-start { transition: none; transform: translateY(var(--think-distance)); filter: blur(var(--think-blur)); opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .t-think-text { transition: none !important; transform: none !important; filter: none !important; }
+  .t-think-text::before { display: none !important; }
+}
+
+.t-think.is-still .t-think-text::before { display: none; }
+.t-think.fluid { display: block; min-width: 0; max-width: 100%; }
+.t-think.fluid .t-think-text, .t-think.fluid .t-think-text::before { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.t-think.fluid .t-think-sizer { overflow: hidden; white-space: nowrap; height: 1lh; }
+
+/* transitions.dev: shimmer text */
+.t-shimmer { position: relative; display: inline-block; color: var(--shimmer-base); }
+.pill .t-shimmer { color: var(--shimmer-base); }
+.t-shimmer::before {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(90deg, transparent 0%, transparent 40%, var(--shimmer-highlight) 50%, transparent 60%, transparent 100%);
+  background-size: var(--shimmer-band) 100%;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: t-shimmer var(--shimmer-dur) var(--shimmer-ease) infinite;
+}
+@keyframes t-shimmer { 0% { background-position: 100% 0; } 100% { background-position: 0% 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .t-shimmer::before { animation: none !important; }
+}
+
+/* transitions.dev: streaming text */
+.t-stream-w {
+  opacity: 0;
+  filter: blur(var(--stream-blur));
+  transition: opacity var(--stream-fade) var(--stream-ease), filter var(--stream-fade) var(--stream-ease);
+}
+.t-stream-w.is-in { opacity: 1; filter: none; }
+@media (prefers-reduced-motion: reduce) {
+  .t-stream-w { transition: none !important; filter: none !important; opacity: 1 !important; }
+}
+
+/* transitions.dev: number subtle change */
+.t-subtle-number { display: inline-flex; align-items: baseline; font-variant-numeric: tabular-nums; }
+.t-subtle-slot { position: relative; display: inline-block; }
+.t-subtle-new { display: inline-block; }
+.t-subtle-old { position: absolute; inset: 0; text-align: center; pointer-events: none; }
+.t-subtle-number.is-animating .t-subtle-new { animation: t-subtle-in var(--subtle-dur) var(--subtle-ease) both; }
+.t-subtle-number.is-animating .t-subtle-old { animation: t-subtle-out var(--subtle-dur) var(--subtle-ease) both; }
+@keyframes t-subtle-in { from { transform: translateY(calc(var(--subtle-distance) * var(--subtle-dir, 1))); opacity: 0; filter: blur(var(--subtle-blur)); } }
+@keyframes t-subtle-out { to { transform: translateY(calc(var(--subtle-distance) * var(--subtle-dir, 1) * -1)); opacity: 0; filter: blur(var(--subtle-blur)); } }
+@media (prefers-reduced-motion: reduce) {
+  .t-subtle-number .t-subtle-new { animation: none !important; }
+  .t-subtle-number .t-subtle-old { display: none; }
+}
+
+/* transitions.dev: number pop-in */
+.t-digit-group { display: inline-flex; align-items: baseline; font-variant-numeric: tabular-nums; }
+.t-digit-slot { position: relative; display: inline-block; }
+.t-digit-old { position: absolute; inset: 0; text-align: center; pointer-events: none; }
+.t-digit { display: inline-block; will-change: transform, opacity, filter; }
+.t-digit-group.is-animating .t-digit { animation: t-digit-in var(--digit-dur) linear both; animation-delay: calc(var(--digit-stagger) * var(--digit-i, 0) + var(--digit-enter-delay)); }
+.t-digit-group.is-animating .t-digit-old { animation: t-digit-out var(--digit-exit-dur) linear both; animation-delay: calc(var(--digit-stagger) * var(--digit-i, 0)); }
+.t-digit-group.is-animating [data-stagger="1"] { --digit-i: 1; }
+.t-digit-group.is-animating [data-stagger="2"] { --digit-i: 2; }
+.t-digit-group.is-animating .t-digit[data-same] { animation: none; }
+@keyframes t-digit-in {
+  0% { transform: translateY(calc(var(--digit-distance) * 1 + var(--digit-lift) * 0)) scale(var(--digit-start-scale)); opacity: 0; filter: blur(calc(var(--digit-blur) * 1)); }
+  10% { transform: translateY(calc(var(--digit-distance) * 0.755 + var(--digit-lift) * 0.648)) scale(var(--digit-start-scale)); opacity: 0.245; filter: blur(calc(var(--digit-blur) * 1)); }
+  20% { transform: translateY(calc(var(--digit-distance) * 0.206 + var(--digit-lift) * 0.792)) scale(calc(1 + (var(--digit-start-scale) - 1) * 0.792)); opacity: 0.794; filter: blur(calc(var(--digit-blur) * 0.9)); }
+  30% { transform: translateY(calc(var(--digit-lift) * 0.033)) scale(calc(1 + (var(--digit-start-scale) - 1) * 0.033)); opacity: 1; filter: blur(calc(var(--digit-blur) * 0.6)); }
+  40% { transform: translateY(calc(var(--digit-lift) * -0.272)) scale(calc(1 + (var(--digit-peak) - 1) * 0.997)); opacity: 1; filter: blur(calc(var(--digit-blur) * 0.3)); }
+  50% { transform: translateY(calc(var(--digit-lift) * -0.146)) scale(calc(1 + (var(--digit-peak) - 1) * 0.535)); opacity: 1; filter: none; }
+  60% { transform: translateY(calc(var(--digit-lift) * 0.019)) scale(calc(1 + (var(--digit-peak) - 1) * -0.069)); opacity: 1; filter: none; }
+  70% { transform: translateY(calc(var(--digit-lift) * 0.051)) scale(calc(1 + (var(--digit-peak) - 1) * -0.187)); opacity: 1; filter: none; }
+  80% { transform: translateY(calc(var(--digit-lift) * 0.016)) scale(calc(1 + (var(--digit-peak) - 1) * -0.057)); opacity: 1; filter: none; }
+  90% { transform: translateY(calc(var(--digit-lift) * -0.004)) scale(calc(1 + (var(--digit-peak) - 1) * 0.013)); opacity: 1; filter: none; }
+  100% { transform: translateY(0) scale(1); opacity: 1; filter: none; }
+}
+@keyframes t-digit-out {
+  0% { transform: translateY(0) scale(1); opacity: 1; filter: none; }
+  30% { transform: translateY(calc(var(--digit-exit-distance) * -0.112)) scale(calc(1 + (var(--digit-start-scale) - 1) * 0.112)); opacity: 1; filter: blur(calc(var(--digit-blur) * 0.112)); }
+  50% { transform: translateY(calc(var(--digit-exit-distance) * -0.5)) scale(calc(1 + (var(--digit-start-scale) - 1) * 0.5)); opacity: 0.833; filter: blur(calc(var(--digit-blur) * 0.5)); }
+  70% { transform: translateY(calc(var(--digit-exit-distance) * -0.888)) scale(calc(1 + (var(--digit-start-scale) - 1) * 0.888)); opacity: 0.187; filter: blur(calc(var(--digit-blur) * 0.888)); }
+  100% { transform: translateY(calc(var(--digit-exit-distance) * -1)) scale(var(--digit-start-scale)); opacity: 0; filter: blur(var(--digit-blur)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .t-digit-group .t-digit { animation: none !important; }
+  .t-digit-group .t-digit-old { display: none; }
+}
+
+/* transitions.dev: spinning counter */
+.t-reel { display: inline-flex; align-items: center; height: var(--reel-cell); font-variant-numeric: tabular-nums; }
+.t-reel-col { position: relative; display: inline-block; height: var(--reel-cell); line-height: var(--reel-cell); }
+.t-reel-sizer { visibility: hidden; }
+.t-reel-digit { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; will-change: transform, filter, opacity; }
+.t-reel-sep { display: inline-block; height: var(--reel-cell); line-height: var(--reel-cell); }
+@media (prefers-reduced-motion: reduce) {
+  .t-reel-digit { filter: none !important; }
+}
+
+/* transitions.dev: error state shake
+   Adapted: the keyframes shake any element. Dots get a smaller distance. */
+.t-shakable { will-change: transform; }
+.is-shaking { animation: t-input-shake calc(var(--shake-dur-a) * 2 + var(--shake-dur-b) * 2) linear; }
+.dot.is-shaking { --shake-distance: 3px; --shake-overshoot: 2px; }
+@keyframes t-input-shake {
+  0%      { transform: translateX(0);                                 animation-timing-function: var(--shake-ease); }
+  28.57%  { transform: translateX(var(--shake-distance));             animation-timing-function: var(--shake-ease); }
+  57.14%  { transform: translateX(calc(var(--shake-distance) * -1));  animation-timing-function: var(--shake-ease); }
+  78.57%  { transform: translateX(var(--shake-overshoot));            animation-timing-function: var(--shake-ease); }
+  100%    { transform: translateX(0); }
+}
+/* the error line fades in on the revert clock */
+.errline.is-shaking { animation-name: t-input-shake; }
+@media (prefers-reduced-motion: reduce) {
+  .is-shaking { animation: none !important; transform: none !important; }
+}
+
+/* transitions.dev: success check */
+.t-success-check { display: inline-block; transform-origin: center; opacity: 0; will-change: transform, opacity, filter; }
+.t-success-check svg { display: block; overflow: visible; }
+.t-success-check svg path { stroke-dasharray: 24; stroke-dashoffset: 24; }
+.t-success-check[data-state="in"] {
+  animation:
+    t-check-fade   var(--check-opacity-dur) var(--check-ease-opacity) forwards,
+    t-check-rotate var(--check-rotate-dur)  var(--check-ease-rotate)  forwards,
+    t-check-blur   var(--check-blur-dur)    var(--check-ease-out)     forwards,
+    t-check-bob    var(--check-bob-dur)     var(--check-ease-bob)     forwards;
+}
+.t-success-check[data-state="in"] svg path { animation: t-check-draw var(--check-path-dur) var(--check-ease-path) var(--check-path-delay, 0ms) forwards; }
+.t-success-check.is-static, .t-success-check.is-static svg path { animation: none !important; opacity: 1; stroke-dashoffset: 0; }
+@keyframes t-check-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes t-check-rotate { from { transform: rotate(var(--check-rotate-from)); } to { transform: rotate(0deg); } }
+@keyframes t-check-blur { from { filter: blur(var(--check-blur-from)); } to { filter: none; } }
+@keyframes t-check-bob { from { translate: 0 var(--check-y-amount); } to { translate: 0 0; } }
+@keyframes t-check-draw { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .t-success-check { animation: none !important; opacity: 1; }
+  .t-success-check svg path { animation: none !important; stroke-dashoffset: 0 !important; }
+}
+
+/* transitions.dev: matrix loader
+   Adapted: dot colours follow the button they sit in. */
+.t-matrix { display: inline-grid; grid-template-columns: repeat(4, 2px); grid-auto-rows: 2px; gap: 2px; flex: none; }
+.t-matrix i { display: block; background: var(--matrix-base); animation: t-matrix-pulse var(--matrix-cycle) var(--matrix-ease) infinite; animation-delay: calc(var(--d, 0) * 1ms); }
+.t-matrix i.is-gap { visibility: hidden; animation: none; }
+.btn.primary .t-matrix { --matrix-base: color-mix(in srgb, var(--btn-fg) 35%, transparent); --matrix-active: var(--btn-fg); }
+@keyframes t-matrix-pulse { 0%, 45%, 100% { background-color: var(--matrix-base); } 15% { background-color: var(--matrix-active); } }
+@media (prefers-reduced-motion: reduce) {
+  .t-matrix i { animation: none !important; }
+}
+
+/* builder: nodes and wires that are dropped in use the modal open clock */
+.node.is-new { animation: t-node-in var(--modal-open-dur) var(--modal-ease) both; }
+@keyframes t-node-in { from { opacity: 0; transform: scale(var(--modal-scale)); } }
+.wires g.is-new { animation: t-wire-in var(--modal-open-dur) var(--modal-ease) both; transform-box: fill-box; transform-origin: 0 50%; }
+@keyframes t-wire-in { from { opacity: 0; transform: scale(var(--modal-scale)); } }
+.btn.is-busy:disabled { opacity: 1; }
+.btrack i { transition: width var(--bar-dur) var(--bar-ease); }
+.ring .ring-fg { transition: stroke-dashoffset var(--bar-dur) var(--bar-ease); }
+.ringwrap { position: relative; flex: none; }
+.ringwrap .ring { display: block; }
+.ring-c { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; text-align: center; }
+.ring-c .ring-v { font: 400 20px/24px var(--serif); color: var(--text-1); }
+.ring-c .ring-l { font-size: 7.5px; line-height: 10px; color: var(--text-3); margin-top: 2px; }
+.btn .t-success-check { color: inherit; }
+.fb-icon { display: inline-flex; }
+@media (prefers-reduced-motion: reduce) {
+  .node.is-new, .wires g.is-new { animation: none !important; }
+}
+
+/* Reduced motion. The media query is the real switch. The html.reduce-motion class mirrors it
+   so the page can be tested without changing the OS setting. Both turn animation and
+   transitions into an instant change. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+}
+html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+html.reduce-motion .t-page-slide .t-page, html.reduce-motion .t-stack-banner, html.reduce-motion .t-dropdown, html.reduce-motion .t-tt { transition: none !important; }
+html.reduce-motion .t-think-text::before, html.reduce-motion .t-shimmer::before, html.reduce-motion .t-matrix i { animation: none !important; }
+html.reduce-motion .t-stream-w { opacity: 1 !important; filter: none !important; }
+html.reduce-motion .t-subtle-old, html.reduce-motion .t-digit-old { display: none; }
+html.reduce-motion .t-clear-glow { opacity: 0 !important; }
+html.reduce-motion .t-success-check { opacity: 1; }
+html.reduce-motion .t-success-check svg path { stroke-dashoffset: 0 !important; }
+
+/* transitions.dev: notification badge */
+@keyframes t-badge-slide-in { from { transform: translate(var(--badge-offset-x), var(--badge-offset-y)); } to { transform: translate(0, 0); } }
+.t-badge { position: absolute; top: -7px; right: -8px; pointer-events: none; will-change: transform; }
+.t-badge[data-open="true"] { animation: t-badge-slide-in var(--badge-slide-dur) var(--badge-slide-ease); }
+.t-badge-dot {
+  display: block;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 11px;
+  line-height: 18px;
+  font-weight: 500;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  transform-origin: center;
+  transform: scale(1);
+  opacity: 1;
+  filter: none;
+  transition:
+    transform var(--badge-pop-dur)  var(--badge-pop-ease),
+    opacity   var(--badge-fade-dur) var(--badge-pop-ease),
+    filter    var(--badge-pop-dur)  var(--badge-pop-ease);
+  will-change: transform, opacity, filter;
+}
+.t-badge[data-open="false"] .t-badge-dot {
+  transform: scale(0);
+  opacity: 0;
+  filter: blur(var(--badge-blur));
+  transition:
+    transform var(--badge-pop-close-dur)  var(--badge-close-ease),
+    opacity   var(--badge-fade-close-dur) var(--badge-close-ease),
+    filter    var(--badge-pop-close-dur)  var(--badge-close-ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .t-badge, .t-badge-dot { animation: none !important; transition: none !important; }
+}
+
+/* transitions.dev: accordion */
+.t-acc-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--acc-collapse) var(--acc-ease); }
+.t-acc[data-open="true"] .t-acc-panel { grid-template-rows: 1fr; transition: grid-template-rows var(--acc-expand) var(--acc-ease); }
+.t-acc-panel-inner { overflow: hidden; min-height: 0; opacity: 0; filter: blur(2px); transition: opacity var(--acc-collapse) var(--acc-ease), filter var(--acc-collapse) var(--acc-ease); }
+.t-acc[data-open="true"] .t-acc-panel-inner { opacity: 1; filter: none; transition: opacity var(--acc-expand) var(--acc-ease), filter var(--acc-expand) var(--acc-ease); }
+.t-acc-chevron { display: inline-flex; transform: scaleY(1); transform-origin: center; transition: transform var(--acc-chevron) var(--acc-ease); }
+.t-acc-chevron path { vector-effect: non-scaling-stroke; }
+.t-acc[data-open="true"] .t-acc-chevron { transform: scaleY(-1); }
+@media (prefers-reduced-motion: reduce) {
+  .t-acc-panel, .t-acc-panel-inner, .t-acc-chevron { transition: none !important; }
+}
+
+/* transitions.dev: toast
+   Adapted: the "New updates" pill uses the toast rise, blur and scale. */
+.t-toast {
+  opacity: 0;
+  transform: translateY(var(--toast-distance)) scale(var(--toast-scale));
+  filter: blur(var(--toast-blur));
+  will-change: transform, opacity, filter;
+  transition:
+    opacity var(--toast-close) var(--toast-ease),
+    transform var(--toast-close) var(--toast-ease),
+    filter var(--toast-close) var(--toast-ease);
+}
+.t-toast.is-open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: none;
+  transition:
+    opacity var(--toast-open) var(--toast-ease),
+    transform var(--toast-open) var(--toast-ease),
+    filter var(--toast-open) var(--toast-ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .t-toast { transition: none !important; }
+}

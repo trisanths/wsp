@@ -13,6 +13,15 @@ A program file has one statement per line, and # starts a comment:
     tap_train data mmlu_aux steps 500 batch_size 8 seq_len 256 branch_lr 3e-4 gate_lr 3e-2
     heal steps 300 data gsm8k_train lr 3e-4
 
+A written program makes one plain model from source models:
+
+    from Qwen/Qwen2.5-14B-Instruct
+    carve target 7.6b select influence width mlp 0.75 heads 0.75
+    lora rank 64
+    heal steps 1000 data mmlu_aux lr 1e-4
+
+    splice base q sources q=Qwen/Qwen2.5-7B-Instruct,m=Qwen/Qwen2.5-Math-7B-Instruct plan q:0..13, m:14..27
+
 parse(text) returns a wsp.program.Program, the same object agents send as
 JSON. format_program(program) returns the text, and
 parse(format_program(p)).to_dict() == p.to_dict().
@@ -33,8 +42,9 @@ import os
 import re
 import sys
 
-from wsp.program import (STITCH_KINDS, Difference, GraftSpec, HealSpec, Intersect, LoraSpec, Program, Restrict,
-                         TapSpec, TapTrainSpec, TaskVector, Union, Use)
+from wsp.program import (CARVE_SELECTS, SOURCE_KEY, STITCH_KINDS, CarveSpec, Difference, GraftSpec, HealSpec,
+                         Intersect, LoraSpec, Program, Restrict, SpliceSpec, TapSpec, TapTrainSpec, TaskVector, Union,
+                         Use)
 
 # An id is a catalog id, a model name, a local path, a module name, or a
 # data name. It may start with . or / so a local path such as
@@ -43,7 +53,7 @@ ID_PATTERN = re.compile(r"^[A-Za-z0-9_./][A-Za-z0-9_./\-]*$")
 INT_PATTERN = re.compile(r"^-?[0-9]+$")
 FLOAT_PATTERN = re.compile(r"^-?([0-9]+\.[0-9]*|\.[0-9]+|[0-9]+)([eE][-+]?[0-9]+)?$")
 
-STATEMENTS = ["host", "seed", "mask", "tv", "graft", "lora", "tap", "tap_train", "heal"]
+STATEMENTS = ["host", "from", "seed", "mask", "tv", "graft", "lora", "tap", "tap_train", "splice", "carve", "heal"]
 
 # Options for each statement: the written name, then the field it sets.
 # Some fields have a second, longer name that matches the JSON key.
@@ -80,6 +90,8 @@ TAP_OPTIONS = {
 }
 TAP_TRAIN_OPTIONS = {"data": "data", "steps": "steps", "batch_size": "batch_size", "seq_len": "seq_len",
                      "branch_lr": "branch_lr", "gate_lr": "gate_lr"}
+SPLICE_OPTIONS = {"base": "base", "sources": "sources", "plan": "plan"}
+CARVE_WORDS = ["keep", "target", "select", "domain", "weight", "width"]
 
 # Mask operators, from loosest to tightest binding. This is Python's order.
 MASK_LEVELS = {"union": 1, "intersect": 2, "difference": 3}
@@ -490,6 +502,96 @@ def parse_tap_train(tokens, line):
     return TapTrainSpec(**options)
 
 
+def read_target(token, line):
+    """Read a size in billions of parameters, written 7.6b or 7.6."""
+    text = token
+    if text.endswith("b") or text.endswith("B"):
+        text = text[:-1]
+    value = read_number(text, line, "target")
+    if value <= 0:
+        raise LangError(line, f"target is a size above 0, got {token!r}")
+    return value
+
+
+def parse_carve(tokens, line):
+    """Read "carve keep N | target 7.6b select RULE [domain NAME] [weight W] [width mlp F heads F]"."""
+    options = {}
+    i = 0
+    while i < len(tokens):
+        name = tokens[i]
+        if name not in CARVE_WORDS:
+            raise LangError(line, f"unknown carve option {name!r}; the options are {', '.join(CARVE_WORDS)}")
+        if name in options or (name == "target" and "keep" in options) or (name == "keep" and "target" in options):
+            raise LangError(line, f"carve sets {name!r} twice, or both keep and target")
+        if name == "width":
+            width = {}
+            i += 1
+            while i < len(tokens) and tokens[i] in ("mlp", "heads"):
+                part = tokens[i]
+                field = "keep_mlp" if part == "mlp" else "keep_heads"
+                if field in width:
+                    raise LangError(line, f"width sets {part!r} twice")
+                if i + 1 >= len(tokens):
+                    raise LangError(line, f"width {part} needs a fraction")
+                width[field] = read_number(tokens[i + 1], line, f"width {part}")
+                i += 2
+            if len(width) == 0:
+                raise LangError(line, "width needs mlp F, heads F, or both")
+            options["width"] = width
+            continue
+        if i + 1 >= len(tokens):
+            raise LangError(line, f"{name} needs a value")
+        value = tokens[i + 1]
+        if name == "keep":
+            options["keep"] = read_int(value, line, "keep")
+        elif name == "target":
+            options["target"] = read_target(value, line)
+        elif name == "select":
+            if value not in CARVE_SELECTS:
+                raise LangError(line, f"select is one of {', '.join(CARVE_SELECTS)}, got {value!r}")
+            options["select"] = value
+        elif name == "domain":
+            options["domain"] = read_id(value, line, "domain")
+        else:
+            options["weight"] = read_number(value, line, "weight")
+        i += 2
+    return CarveSpec(keep=options.get("keep"), target_params_b=options.get("target"),
+                     select=options.get("select", "influence"), domain_data=options.get("domain"),
+                     width=options.get("width"), domain_weight=options.get("weight", 0.75))
+
+
+def read_key(token, line, what):
+    if SOURCE_KEY.match(token) is None:
+        raise LangError(line, f"{what} uses only letters, digits, and _, got {token!r}")
+    return token
+
+
+def parse_splice(tokens, line):
+    """Read "splice base KEY sources KEY=ID,... plan KEY:A..B, KEY:C"."""
+    fields, rest = read_options(tokens, line, "splice", SPLICE_OPTIONS)
+    for name in ["base", "sources", "plan"]:
+        if name not in fields:
+            raise LangError(line, f"splice needs {name}, as in: splice base a sources a=X,b=Y plan a:0..3, b:4..7")
+    sources = {}
+    for item in fields["sources"].split(","):
+        if "=" not in item:
+            raise LangError(line, f"a splice source is KEY=MODEL, got {item!r}")
+        key, name = item.split("=", 1)
+        key = read_key(key, line, "a splice source key")
+        if key in sources:
+            raise LangError(line, f"splice source {key} appears twice")
+        sources[key] = read_id(name, line, f"splice source {key}")
+    plan = []
+    for item in fields["plan"].split(","):
+        if ":" not in item:
+            raise LangError(line, f"a splice plan item is KEY:A..B or KEY:A, got {item!r}")
+        key, layers = item.split(":", 1)
+        key = read_key(key, line, "a splice plan key")
+        for layer in read_layers(layers, line, "splice plan layers"):
+            plan.append([key, layer])
+    return SpliceSpec(sources, read_key(fields["base"], line, "splice base"), plan)
+
+
 def parse(text):
     """Parse program text into a wsp.program.Program. Raise LangError on a problem."""
     host = None
@@ -501,6 +603,9 @@ def parse(text):
     lora = None
     taps = []
     tap_train = None
+    base_source = None
+    carve = None
+    splice = None
     # The line where each single statement first appeared.
     first_line = {}
 
@@ -515,7 +620,7 @@ def parse(text):
         rest = tokens[1:]
         if head == "base":
             head = "host"
-        if head in ("host", "seed", "mask", "lora", "heal", "tap_train"):
+        if head in ("host", "from", "seed", "mask", "lora", "heal", "tap_train", "splice", "carve"):
             if head in first_line:
                 raise LangError(line, f"{head} appears twice (first on line {first_line[head]})")
             first_line[head] = line
@@ -545,6 +650,14 @@ def parse(text):
                 taps.append(parse_tap(rest, line))
             elif head == "tap_train":
                 tap_train = parse_tap_train(rest, line)
+            elif head == "from":
+                if len(rest) != 1:
+                    raise LangError(line, "from takes one model name, as in: from Qwen/Qwen2.5-14B-Instruct")
+                base_source = {"model": read_id(rest[0], line, "from")}
+            elif head == "carve":
+                carve = parse_carve(rest, line)
+            elif head == "splice":
+                splice = parse_splice(rest, line)
             else:
                 raise LangError(line, f"unknown statement {head!r}; the statements are {', '.join(STATEMENTS)}")
         except LangError:
@@ -553,10 +666,15 @@ def parse(text):
             # Checks inside wsp.program (for example an unknown control).
             raise LangError(line, str(error))
 
-    if host is None:
-        raise LangError(None, "a program needs a host line, as in: host unsloth/Llama-3.2-1B-Instruct")
-    return Program(host=host, masks=masks, task_vectors=task_vectors, seed=seed, grafts=grafts, heal=heal,
-                   lora=lora, taps=taps, tap_train=tap_train)
+    if host is None and base_source is None and splice is None:
+        raise LangError(None, "a program needs a host line (or a from or splice line), as in: "
+                              "host unsloth/Llama-3.2-1B-Instruct")
+    try:
+        return Program(host=host, masks=masks, task_vectors=task_vectors, seed=seed, grafts=grafts, heal=heal,
+                       lora=lora, taps=taps, tap_train=tap_train, base_source=base_source, carve=carve,
+                       splice=splice)
+    except ValueError as error:
+        raise LangError(None, str(error))
 
 
 def load_program(path):
@@ -570,13 +688,18 @@ def load_program(path):
 
 # The keys Program.from_dict reads. A key outside these lists would be
 # dropped without a word, so program_from_dict refuses it.
-PROGRAM_KEYS = ["host", "base", "seed", "masks", "task_vectors", "grafts", "heal", "lora", "taps", "tap_train"]
+PROGRAM_KEYS = ["host", "base", "seed", "masks", "task_vectors", "grafts", "heal", "lora", "taps", "tap_train",
+                "base_source", "carve", "splice"]
 TV_KEYS = ["id", "weight", "layers", "modules"]
 GRAFT_KEYS = ["id", "at", "control", "control_seed", "glue_rank", "stitch", "sink", "rms_match", "part_lora_rank"]
 LORA_KEYS = ["rank", "budget_params", "targets", "alpha", "layers"]
 HEAL_KEYS = ["steps", "data", "lr", "batch_size", "seq_len"]
 TAP_KEYS = ["donor", "donor_layer", "at", "attn_dim", "heads", "tap_id"]
 TAP_TRAIN_KEYS = ["data", "steps", "batch_size", "seq_len", "branch_lr", "gate_lr"]
+BASE_SOURCE_KEYS = ["model"]
+CARVE_KEYS = ["keep", "target_params_b", "select", "domain_data", "width", "domain_weight"]
+WIDTH_KEYS = ["keep_mlp", "keep_heads"]
+SPLICE_KEYS = ["sources", "base", "plan"]
 MASK_KEYS = {
     "use": ["op", "id"],
     "union": ["op", "a", "b"],
@@ -616,6 +739,14 @@ def program_from_dict(data):
         check_keys(tap, TAP_KEYS, "tap")
     if data.get("tap_train") is not None:
         check_keys(data["tap_train"], TAP_TRAIN_KEYS, "tap_train")
+    if data.get("base_source") is not None:
+        check_keys(data["base_source"], BASE_SOURCE_KEYS, "base_source")
+    if data.get("carve") is not None:
+        check_keys(data["carve"], CARVE_KEYS, "carve")
+        if data["carve"].get("width") is not None:
+            check_keys(data["carve"]["width"], WIDTH_KEYS, "carve width")
+    if data.get("splice") is not None:
+        check_keys(data["splice"], SPLICE_KEYS, "splice")
     try:
         return Program.from_dict(data)
     except KeyError as error:
@@ -853,18 +984,74 @@ def tap_train_text(data):
     return " ".join(words)
 
 
+def carve_text(data):
+    check_keys(data, CARVE_KEYS, "carve")
+    words = ["carve"]
+    if data.get("keep") is not None:
+        words.append("keep " + int_text(data["keep"], "keep"))
+    if data.get("target_params_b") is not None:
+        words.append("target " + number_text(data["target_params_b"], "target_params_b") + "b")
+    words.append("select " + id_text(data["select"], "select"))
+    if data.get("domain_data") is not None:
+        words.append("domain " + id_text(data["domain_data"], "domain_data"))
+    if "domain_weight" in data:
+        words.append("weight " + number_text(data["domain_weight"], "domain_weight"))
+    if data.get("width") is not None:
+        check_keys(data["width"], WIDTH_KEYS, "carve width")
+        words.append("width mlp " + number_text(data["width"]["keep_mlp"], "keep_mlp") + " heads " +
+                     number_text(data["width"]["keep_heads"], "keep_heads"))
+    return " ".join(words)
+
+
+def plan_text(plan):
+    """Write a splice plan as runs, so [[a, 0], [a, 1], [a, 2], [b, 5]] becomes a:0..2, b:5."""
+    parts = []
+    i = 0
+    while i < len(plan):
+        key, start = plan[i]
+        end = start
+        j = i + 1
+        while j < len(plan) and plan[j][0] == key and plan[j][1] == end + 1:
+            end = plan[j][1]
+            j += 1
+        if start == end:
+            parts.append(f"{key}:{int_text(start, 'plan layer')}")
+        else:
+            parts.append(f"{key}:{int_text(start, 'plan layer')}..{int_text(end, 'plan layer')}")
+        i = j
+    return ", ".join(parts)
+
+
+def splice_text(data):
+    check_keys(data, SPLICE_KEYS, "splice")
+    sources = []
+    for key in data["sources"]:
+        sources.append(key + "=" + id_text(data["sources"][key], f"splice source {key}"))
+    return "splice base " + data["base"] + " sources " + ",".join(sources) + " plan " + plan_text(data["plan"])
+
+
 def format_program(program):
     """Write a Program (or its to_dict() form) as text, one statement per line."""
     if isinstance(program, dict):
         program = program_from_dict(program)
     data = program.to_dict()
-    check_keys(data, ["host", "seed", "masks", "task_vectors", "grafts", "heal", "lora", "taps", "tap_train"],
-               "program")
-    lines = ["host " + id_text(data["host"], "host"), "seed " + int_text(data["seed"], "seed")]
+    check_keys(data, ["host", "seed", "masks", "task_vectors", "grafts", "heal", "lora", "taps", "tap_train",
+                      "base_source", "carve", "splice"], "program")
+    lines = []
+    if data.get("base_source") is not None:
+        # The host of a written program is its source.
+        lines.append("from " + id_text(data["base_source"]["model"], "from"))
+    elif data.get("splice") is None:
+        lines.append("host " + id_text(data["host"], "host"))
+    lines.append("seed " + int_text(data["seed"], "seed"))
     if data["masks"] is not None:
         lines.append("mask " + mask_text(data["masks"]))
     for tv in data["task_vectors"]:
         lines.append(tv_text(tv))
+    if data.get("splice") is not None:
+        lines.append(splice_text(data["splice"]))
+    if data.get("carve") is not None:
+        lines.append(carve_text(data["carve"]))
     if data.get("lora") is not None:
         lines.append(lora_text(data["lora"]))
     for graft in data["grafts"]:
@@ -886,7 +1073,11 @@ def compile_file(program, out_dir, catalog_path, align, device):
     from wsp.catalog import Catalog
     from wsp.compiler import compile_program
 
-    catalog = Catalog.load(catalog_path)
+    catalog = None
+    if catalog_path is not None:
+        catalog = Catalog.load(catalog_path)
+    elif not program.is_written():
+        raise ValueError("this program needs --catalog")
     align_texts = None
     heal_texts = None
     if len(program.grafts) > 0 and align > 0:
@@ -931,7 +1122,7 @@ def main(argv=None):
     build = commands.add_parser("compile", help="compile a program file into out_dir")
     build.add_argument("path")
     build.add_argument("out_dir")
-    build.add_argument("--catalog", required=True, help="catalog.jsonl")
+    build.add_argument("--catalog", default=None, help="catalog.jsonl (not needed for a written program)")
     build.add_argument("--align", type=int, default=200,
                        help="number of heal texts for the W_in fit when the program has grafts (0 skips the fit)")
     build.add_argument("--device", default=None, help="cpu or cuda (default: cuda if present)")
@@ -957,6 +1148,9 @@ def main(argv=None):
             return 1
         sys.stdout.write(text)
         return 0
+    if args.catalog is None and not program.is_written():
+        print(f"{args.path}: this program needs --catalog", file=sys.stderr)
+        return 1
     report = compile_file(program, args.out_dir, args.catalog, args.align, args.device)
     print(json.dumps(report, indent=2))
     return 0

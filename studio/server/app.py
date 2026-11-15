@@ -1,9 +1,10 @@
-"""The wsp studio FastAPI app: the API under /api and the web app from studio/web/ at /."""
+"""The Sapien studio FastAPI app: the API under /api and the web app from studio/web/ at /."""
 
 import asyncio
 import json
 import os
 import time
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -13,6 +14,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from studio.server import builder as builder_mod
 from studio.server import catalog as catalog_mod
+from studio.server import library
 from studio.server import programs
 from studio.server import runs as runs_mod
 from studio.server import settings
@@ -20,7 +22,14 @@ from studio.server import specs as specs_mod
 
 settings.load_env()
 
-app = FastAPI(title="wsp studio")
+@asynccontextmanager
+async def lifespan(app):
+    """Read the library and the atlas once, when the server starts."""
+    library.get(reload=True)
+    yield
+
+
+app = FastAPI(title="Sapien studio", lifespan=lifespan)
 
 STREAM_TICK_S = 0.5
 STREAM_HEARTBEAT_S = 5.0
@@ -56,8 +65,8 @@ async def read_json(request):
 
 
 def health_body():
-    return {"ok": True, "backend": settings.backend(), "llm": settings.llm(), "llm_model": settings.llm_model(),
-            "stub": settings.is_stub()}
+    return {"ok": True, "product": "Sapien", "backend": settings.backend(), "llm": settings.llm(),
+            "llm_model": settings.llm_model(), "stub": settings.is_stub()}
 
 
 @app.get("/api/health")
@@ -307,7 +316,22 @@ async def create_builder(request: Request):
     if problem is not None:
         return problem
     session = await run_in_threadpool(builder_mod.create_session, spec)
-    return {"builder_id": session.id, "budget": session.budget_dict(), "stub": session.env.is_stub()}
+    return {"builder_id": session.id, "budget": session.budget_dict(), "stub": session.env.is_stub(),
+            "limits": spec.get("limits")}
+
+
+@app.post("/api/builder/{builder_id}/size")
+async def builder_size(builder_id: str, request: Request):
+    session, problem = find_session(builder_id)
+    if problem is not None:
+        return problem
+    body, problem = await read_json(request)
+    if problem is not None:
+        return problem
+    try:
+        return await run_in_threadpool(builder_mod.size_report, session, body.get("program"))
+    except builder_mod.BuilderError as error:
+        return fail(str(error))
 
 
 @app.post("/api/builder/{builder_id}/action")

@@ -62,21 +62,43 @@ def main():
     ap.add_argument("--focus", default=None, help="what this agent should concentrate on (set by run_many --agents)")
     ap.add_argument("--effort", default="high", choices=["low", "medium", "high", "xhigh"],
                     help="Astra reasoning effort (high = the blog's setting; medium is cheaper)")
+    ap.add_argument("--llm", default="openai", choices=["openai", "claude"],
+                    help="agent LLM: openai (gpt-6-astra, API key) or claude (Claude Agent SDK, your Claude login)")
     args = ap.parse_args()
     if args.smoke:
         smoke(args.model)
         return
     import shutil
 
-    import agent
+    if args.llm == "claude":
+        import agent_claude as agent
+    else:
+        import agent
 
     # a new parallel lane starts from the model's main state (pinned revision, base scores, skipped skills)
     lane_state = common.state_path(args.model)
     main_state = os.path.join(common.logs_dir(args.model), "state.json")
     if lane_state != main_state and not os.path.exists(lane_state) and os.path.exists(main_state):
         shutil.copyfile(main_state, lane_state)
-    agent.run(args.model, budget_usd=args.budget_usd, max_hours=args.max_hours, max_screens=args.max_screens,
-              use_notes=not args.no_notes, effort=args.effort, person=args.person, focus=args.focus)
+    # Keep going until the budget, time or screen limit is really used: if the agent stops early,
+    # start a fresh round with what is left (state, skills and shared memory carry over).
+    start = time.time()
+    spent = 0.0
+    screens = 0
+    for round_no in range(1, 6):
+        budget_left = args.budget_usd - spent
+        hours_left = args.max_hours - (time.time() - start) / 3600.0
+        if budget_left < 0.15 * args.budget_usd or hours_left < 0.1 or screens >= args.max_screens:
+            break
+        print("[" + args.model + "] round", round_no, "| budget left $" + str(round(budget_left, 2)),
+              "| hours left", round(hours_left, 2))
+        cost = agent.run(args.model, budget_usd=budget_left, max_hours=hours_left,
+                         max_screens=args.max_screens - screens, use_notes=not args.no_notes, effort=args.effort,
+                         person=args.person, focus=args.focus)
+        spent = spent + float(cost.get("openai_usd_est") or 0)
+        screens = screens + int(cost.get("screens") or 0)
+        if cost.get("stop_reason") not in ["finished", "no tool call"]:
+            break  # budget, time or turn cap reached
 
 
 if __name__ == "__main__":

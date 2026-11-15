@@ -1,0 +1,62 @@
+{
+  "id": "lora_r16_mmlu_llama1b",
+  "kind": "recipe",
+  "title": "Llama-1B rank-16 LoRA on MMLU aux (fine-tuning baseline)",
+  "status": "validated",
+  "added_by": "Trisanth",
+  "source": "results/round7_rows.json (run 7)",
+  "updated": "2026-11-14",
+  "skills": [
+    "knowledge",
+    "mmlu",
+    "lora",
+    "baseline"
+  ],
+  "models": [
+    "unsloth/Llama-3.2-1B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "Llama-1B LoRA r16 on MMLU aux vs the host alone",
+      "metric": "MMLU held-out accuracy, mean over seeds",
+      "value": 0.4768,
+      "control_value": 0.4465,
+      "split": "MMLU test, 2000 seeded items disjoint from dev (round 7 held-out)",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "source": "results/round7_rows.json",
+      "generated": true,
+      "control": "host alone"
+    }
+  ],
+  "generated": true,
+  "host": "unsloth/Llama-3.2-1B-Instruct",
+  "program": {
+    "host": "unsloth/Llama-3.2-1B-Instruct",
+    "seed": 0,
+    "masks": null,
+    "task_vectors": [],
+    "grafts": [],
+    "heal": {
+      "steps": 500,
+      "data": "mmlu_aux",
+      "lr": 0.0001,
+      "batch_size": 8,
+      "seq_len": 256
+    },
+    "lora": {
+      "rank": 16,
+      "budget_params": null,
+      "targets": null,
+      "alpha": null,
+      "layers": null
+    }
+  },
+  "text": "host unsloth/Llama-3.2-1B-Instruct\nseed 0\nlora rank 16\nheal steps 500 data mmlu_aux lr 0.0001 batch_size 8 seq_len 256\n",
+  "program_file": "recipes/lora_r16_mmlu_llama1b.wsp",
+  "syntax_gap": null,
+  "components": []
+}

@@ -1,0 +1,83 @@
+{
+  "id": "heads_math_reasoning_l22_heads_6_9_11_qwenmath1.5b_L22_k3_001",
+  "kind": "attn_heads",
+  "title": "Qwen2.5-Math-1.5B layer 22, math_reasoning_L22_heads_6_9_11",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "gsm8k"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Math-1.5B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops GSM8K generation accuracy in the donor more than random same-size parts",
+      "metric": "relative drop in GSM8K generation accuracy",
+      "value": 0.4524,
+      "control_value": null,
+      "split": "GSM8K held-out ablation items (person_a mining)",
+      "seeds": null,
+      "source": "person_a/catalog.jsonl",
+      "generated": true,
+      "control": "random same-size parts",
+      "note": "zero ablation in the donor; controls trivia 0.0282, wiki 0.0068; random percentile 1.0; checks passed: zero_target, zero_heldout, zero_controls, mean_target, mean_heldout, mean_controls, beats_random"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Math-1.5B",
+  "layer": 22,
+  "layers": [
+    22
+  ],
+  "units_file": "components/Qwen__Qwen2.5-Math-1.5B/heads_math_reasoning_l22_heads_6_9_11_qwenmath1.5b_L22_k3_001.pt",
+  "units_remote": "person_a/parts/qwenmath1.5b/heads_math_reasoning_l22_heads_6_9_11_qwenmath1.5b_L22_k3_001.pt",
+  "signature": {
+    "method": "GSM8K ablation (gate: generation-accuracy drop under zero+mean ablation incl. held-out, log-prob controls trivia/wiki/wiki_digits, random same-size baseline)",
+    "label": "math_reasoning_L22_heads_6_9_11",
+    "num_units": 3,
+    "d_model": 1536,
+    "effect": {
+      "zero": {
+        "gsm8k": 0.0731,
+        "gsm8k_heldout": 0.0648,
+        "trivia": 0.0282,
+        "wiki": 0.0068,
+        "wiki_digits": -0.0003,
+        "gsm8k_gen": 0.4047,
+        "gsm8k_gen_heldout": 0.4524
+      },
+      "mean": {
+        "gsm8k": 0.0709,
+        "gsm8k_heldout": 0.0623,
+        "trivia": 0.0319,
+        "wiki": 0.0072,
+        "wiki_digits": 0.0012,
+        "gsm8k_gen": 0.4286,
+        "gsm8k_gen_heldout": 0.4524
+      }
+    },
+    "gate": null,
+    "random_drops": null,
+    "random_percentile": 1.0,
+    "checks": {
+      "zero_target": true,
+      "zero_heldout": true,
+      "zero_controls": true,
+      "mean_target": true,
+      "mean_heldout": true,
+      "mean_controls": true,
+      "beats_random": true
+    },
+    "weight_rationale": null
+  },
+  "tier": "provisional",
+  "pipeline": "v1-dissect",
+  "skill": null,
+  "catalog_id": "heads_math_reasoning_l22_heads_6_9_11_qwenmath1.5b_L22_k3_001",
+  "exported_copy": "library/qwenmath1.5b/heads_math_reasoning_l22_heads_6_9_11_qwenmath1.5b_L22_k3_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

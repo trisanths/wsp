@@ -20,6 +20,10 @@ Steps:
    taps.json and tap_weights.safetensors. A tap program also writes
    grafts.json (an empty list when it has no grafts), so tools that look
    for grafts.json load it with wsp.load.
+
+A written program (base_source, carve, or splice) takes another path,
+compile_written: load the sources, splice, carve layers, carve width, heal
+a LoRA and merge it, and save one plain Hugging Face model.
 """
 
 import json
@@ -124,8 +128,12 @@ def remove_stale_outputs(output_dir):
 
 
 def compile_program(program, catalog, output_dir, align_texts=None, heal_texts=None, device=None, cache_dir=None,
-                    tap_pairs=None, heal_pairs=None):
+                    tap_pairs=None, heal_pairs=None, calib_texts=None, domain_texts=None):
     """Build the program's model and save it to output_dir. Return output_dir.
+
+    A written program (base_source, carve, or splice) goes to
+    compile_written, which uses heal_texts, heal_pairs, calib_texts, and
+    domain_texts, and needs no catalog.
 
     align_texts: texts for the W_in ridge fit. None skips the fit, so W_in
         starts random and the heal pass trains it.
@@ -139,6 +147,9 @@ def compile_program(program, catalog, output_dir, align_texts=None, heal_texts=N
     """
     import transformers
 
+    if program.is_written():
+        return compile_written(program, output_dir, heal_texts=heal_texts, heal_pairs=heal_pairs,
+                               calib_texts=calib_texts, domain_texts=domain_texts, device=device)
     check_same_base(program, catalog)
     if program.lora_spec is not None and program.heal_spec is None:
         raise CompileError("a program with a LoRA needs a heal spec: call .heal(...) to train it")
@@ -565,3 +576,235 @@ def compile_taps(program, catalog, model, tokenizer, output_dir, report, align_t
     save_grafts(model, output_dir, metas)
     save_program_taps(model, output_dir, report)
     report["taps"]["cost"] = tap_cost(model)
+
+
+# Written programs: one plain model from source models.
+
+
+def pair_texts(pairs):
+    """Join (prompt, completion) pairs into training texts."""
+    texts = []
+    for prompt, completion in pairs:
+        texts.append(prompt + completion)
+    return texts
+
+
+def written_heal_texts(spec, tokenizer, heal_texts, heal_pairs, seed):
+    """Texts for the heal of a written program: given texts, given pairs, a wsp.pairs name, or a wsp.data name."""
+    if heal_texts is not None:
+        return list(heal_texts)
+    if heal_pairs is not None:
+        return pair_texts(heal_pairs)
+    from wsp.pairs import pair_names
+
+    if spec.data in pair_names():
+        return pair_texts(pairs_by_name(spec.data, tokenizer, seed=seed))
+    from wsp.data import task_texts
+
+    return task_texts(spec.data, seed=seed)
+
+
+def check_written(program):
+    """Raise CompileError for parts a written program cannot hold."""
+    if len(program.grafts) > 0 or len(program.taps) > 0 or program.tap_train_spec is not None:
+        raise CompileError("a written program is one plain model, so it cannot have grafts or taps")
+    if program.masks is not None or len(program.task_vectors) > 0:
+        raise CompileError("a written program does not take masks or task vectors")
+    if program.lora_spec is not None and program.heal_spec is None:
+        raise CompileError("a program with a LoRA needs a heal spec: call .heal(...) to train it")
+    if program.heal_spec is not None and program.lora_spec is None:
+        raise CompileError("in a written program, heal trains a LoRA that is merged at the end: add .lora(...)")
+
+
+def load_written_sources(program):
+    """Load the source models in bf16. Return ({key: model}, base key)."""
+    import transformers
+
+    if program.splice_spec is None:
+        model = transformers.AutoModelForCausalLM.from_pretrained(program.host, dtype=torch.bfloat16)
+        return {"base": model}, "base"
+    spec = program.splice_spec
+    models = {}
+    loaded = {}
+    for key in spec.sources:
+        name = spec.sources[key]
+        # Keys that name one model share it; splice copies a layer used twice.
+        if name not in loaded:
+            loaded[name] = transformers.AutoModelForCausalLM.from_pretrained(name, dtype=torch.bfloat16)
+        models[key] = loaded[name]
+    return models, spec.base
+
+
+def carve_written(spec, model, tokenizer, calib_texts, domain_texts, seed):
+    """Apply a CarveSpec: choose and keep layers, then cut the width. Return the carve report."""
+    from wsp import carve as carve_ops
+
+    _, layers = carve_ops.find_decoder_layers(model, 0)
+    layers_before = len(layers)
+    keep_mlp = 1.0
+    keep_heads = 1.0
+    if spec.width is not None:
+        keep_mlp = spec.width["keep_mlp"]
+        keep_heads = spec.width["keep_heads"]
+
+    keep = layers_before
+    if spec.keep is not None:
+        keep = min(spec.keep, layers_before)
+    elif spec.target_params_b is not None:
+        try:
+            keep = carve_ops.layers_for_budget(model, spec.target_params_b * 1e9, keep_mlp, keep_heads)
+        except ValueError as error:
+            raise CompileError(str(error))
+
+    report = {"spec": spec.to_dict(), "layers_before": layers_before, "layers_after": keep, "keep_layers": None,
+              "influence": None, "width": None}
+    if keep < layers_before:
+        if spec.select == "uniform":
+            scores = layers_before
+        elif spec.select == "domain":
+            if domain_texts is None:
+                if spec.domain_data is None:
+                    raise CompileError("carve select domain needs domain_data or domain_texts")
+                domain_texts = pair_texts(pairs_by_name(spec.domain_data, tokenizer, seed=seed))
+            if calib_texts is None:
+                raise CompileError("carve select domain needs general texts: pass calib_texts or heal texts")
+            scores = carve_ops.domain_influence(model, tokenizer, domain_texts[:256], calib_texts)
+            report["influence"] = scores
+        else:
+            if calib_texts is None:
+                raise CompileError("carve select influence needs calibration texts: pass calib_texts or heal texts")
+            scores = carve_ops.layer_influence(model, tokenizer, calib_texts)
+            report["influence"] = scores
+        keep_layers = carve_ops.choose_layers(scores, keep, spec.select, spec.domain_weight)
+        carve_ops.carve_layers(model, keep_layers)
+        report["keep_layers"] = keep_layers
+    else:
+        report["keep_layers"] = list(range(layers_before))
+
+    if spec.width is not None:
+        scores = None
+        texts = calib_texts
+        if domain_texts is not None:
+            texts = list(domain_texts[:256]) + list(calib_texts or [])
+        if texts is not None and (keep_mlp < 1 or keep_heads < 1):
+            scores = carve_ops.unit_scores(model, tokenizer, texts)
+        _, width_report = carve_ops.carve_width(model, keep_mlp, keep_heads, scores)
+        # Leave out the kept unit lists, which are long for a big model.
+        summary = {}
+        for name in width_report:
+            if name != "layers":
+                summary[name] = width_report[name]
+        first = width_report["layers"][0]
+        for name in ["mlp_before", "mlp_after", "q_heads_before", "q_heads_after", "kv_heads_before",
+                     "kv_heads_after"]:
+            summary[name] = first[name]
+        summary["scores"] = "weights" if scores is None else "activations"
+        report["width"] = summary
+    return report
+
+
+def compile_written(program, output_dir, heal_texts=None, heal_pairs=None, calib_texts=None, domain_texts=None,
+                    device=None):
+    """Write one plain model: splice, then carve (layers, then width), then a merged LoRA heal. Return output_dir.
+
+    heal_texts or heal_pairs: the heal data. None loads the heal data name
+        (a wsp.pairs name, or a wsp.data name such as gsm8k_train).
+    calib_texts: general texts for layer influence and unit scores. None
+        uses the first 256 heal texts, when there is a heal.
+    domain_texts: domain texts for select domain. None loads the carve's
+        domain_data pairs.
+    The output directory holds a plain Hugging Face model and tokenizer,
+    program.json, and compile_report.json. No wsp code runs at load time.
+    """
+    import time
+
+    import transformers
+
+    from wsp import carve as carve_ops
+    from wsp.lora import merge_lora
+
+    check_written(program)
+    start = time.time()
+    seconds = {}
+    torch.manual_seed(program.seed)
+    if device is None:
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+
+    sources, base_key = load_written_sources(program)
+    tokenizer = transformers.AutoTokenizer.from_pretrained(program.host)
+    model = sources[base_key]
+    report = {"host": program.host, "written": True, "params_before": carve_ops.count_params(model),
+              "layers_before": len(carve_ops.find_decoder_layers(model, 0)[1]), "splice": None, "carve": None,
+              "lora": None, "heal": None}
+    seconds["load"] = round(time.time() - start, 1)
+
+    if program.splice_spec is not None:
+        step = time.time()
+        spec = program.splice_spec
+        configs = {}
+        for key in sources:
+            configs[key] = sources[key].config
+        plan = []
+        for key, layer in spec.plan:
+            plan.append((key, layer))
+        try:
+            carve_ops.splice(sources, plan, base_key)
+        except ValueError as error:
+            raise CompileError(str(error))
+        report["splice"] = {"spec": spec.to_dict(), "layers": len(plan),
+                            "config_differences": carve_ops.config_differences(configs, base_key)}
+        # Only the spliced model stays.
+        sources = {base_key: model}
+        seconds["splice"] = round(time.time() - step, 1)
+
+    model.to(device)
+    model.eval()
+    texts = None
+    if program.heal_spec is not None:
+        texts = written_heal_texts(program.heal_spec, tokenizer, heal_texts, heal_pairs, program.seed)
+    if calib_texts is None and texts is not None:
+        calib_texts = texts[:256]
+
+    if program.carve_spec is not None:
+        step = time.time()
+        report["carve"] = carve_written(program.carve_spec, model, tokenizer, calib_texts, domain_texts,
+                                        program.seed)
+        seconds["carve"] = round(time.time() - step, 1)
+        # Check the size before the heal, so an over-budget carve stops early.
+        # Merging the LoRA does not change the parameter count.
+        spec = program.carve_spec
+        size = carve_ops.count_params(model)
+        if spec.target_params_b is not None and size > spec.target_params_b * 1e9:
+            raise CompileError(f"the written model has {size} parameters, over the target {spec.target_params_b}b")
+
+    if program.lora_spec is not None:
+        step = time.time()
+        lora_params = add_lora(program.lora_spec, model, report)
+        for param in model.parameters():
+            param.requires_grad_(False)
+        for param in lora_params:
+            param.requires_grad_(True)
+        run_heal(program, model, tokenizer, texts, lora_params, report)
+        # Fold the LoRA into the weights, so the output is a plain HF model.
+        merge_lora(model)
+        report["lora"]["merged"] = True
+        seconds["heal"] = round(time.time() - step, 1)
+
+    for param in model.parameters():
+        param.requires_grad_(False)
+    report["params_after"] = carve_ops.count_params(model)
+    report["layers_after"] = len(carve_ops.find_decoder_layers(model, 0)[1])
+
+    step = time.time()
+    os.makedirs(output_dir, exist_ok=True)
+    remove_stale_outputs(output_dir)
+    tokenizer.save_pretrained(output_dir)
+    model.save_pretrained(output_dir)
+    with open(os.path.join(output_dir, "program.json"), "w") as f:
+        json.dump(program.to_dict(), f, indent=2)
+    seconds["save"] = round(time.time() - step, 1)
+    seconds["total"] = round(time.time() - start, 1)
+    report["seconds"] = seconds
+    with open(os.path.join(output_dir, "compile_report.json"), "w") as f:
+        json.dump(report, f, indent=2)
+    return output_dir

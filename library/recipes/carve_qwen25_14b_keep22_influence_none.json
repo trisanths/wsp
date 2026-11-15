@@ -1,0 +1,57 @@
+{
+  "id": "carve_qwen25_14b_keep22_influence_none",
+  "kind": "recipe",
+  "title": "Qwen2.5-14B-Instruct carved to 22 layers, influence, heal none",
+  "status": "rejected",
+  "added_by": "Trisanth",
+  "source": "results/round15_rows.json (run 15)",
+  "updated": "2026-11-14",
+  "skills": [
+    "carve",
+    "written-model"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-14B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "carved model vs the official model of the same size",
+      "metric": "MMLU held-out accuracy, mean over seeds",
+      "value": 0.233,
+      "control_value": 0.7085,
+      "split": "MMLU test, 2000 seeded items disjoint from dev (round 7 held-out)",
+      "seeds": [
+        0
+      ],
+      "source": "results/round15_rows.json",
+      "generated": true,
+      "control": "official Qwen/Qwen2.5-7B-Instruct",
+      "note": "params 7.613B, kept layers [0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 34, 35, 46, 47]"
+    }
+  ],
+  "generated": true,
+  "host": "Qwen/Qwen2.5-14B-Instruct",
+  "program": {
+    "host": "Qwen/Qwen2.5-14B-Instruct",
+    "seed": 0,
+    "masks": null,
+    "task_vectors": [],
+    "grafts": [],
+    "heal": null,
+    "base_source": {
+      "model": "Qwen/Qwen2.5-14B-Instruct"
+    },
+    "carve": {
+      "keep": 22,
+      "target_params_b": null,
+      "select": "influence",
+      "domain_data": null,
+      "width": null
+    }
+  },
+  "text": "from Qwen/Qwen2.5-14B-Instruct\nseed 0\ncarve keep 22 select influence\n",
+  "program_file": "recipes/carve_qwen25_14b_keep22_influence_none.wsp",
+  "syntax_gap": null,
+  "components": [],
+  "status_reason": "far below the official model of the same size"
+}

@@ -1,0 +1,1220 @@
+{
+ "name": "digit_to_word",
+ "description": "Map a single digit to its English cardinal or ordinal word, motivated by L28H0 value/output projections promoting four/fourth and seven/seventh. Controls copy the provided answer word.",
+ "hash": "b8ee943e9a4a35ff",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\ncard=['zero','one','two','three','four','five','six','seven','eight','nine']; ordinal=['zeroth','first','second','third','fourth','fifth','sixth','seventh','eighth','ninth']\nitems=[];control=[]\nfor i in range(120):\n n=random.randrange(1,10); ord=i%2==0; word=(ordinal if ord else card)[n]; kind='ordinal' if ord else 'cardinal'\n prefix=random.choice(['Write the English {} word for this digit.','Convert the digit to its English {} word.','Give the English {} spelling of the digit.']).format(kind)\n items.append({'prompt':prefix+'\\nDigit: '+str(n)+'\\nWord:','answer':' '+word})\n control.append({'prompt':prefix+'\\nDigit: '+str(n)+'\\nCopy this word: '+word+'\\nWord:','answer':' '+word})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 6\nWord:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 5\nWord:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 8\nWord:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 7\nWord:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 5\nWord:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 6\nWord:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 2\nWord:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 1\nWord:",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 2\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 6\nWord:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 1\nWord:",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 2\nWord:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 8\nWord:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 9\nWord:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 3\nWord:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 4\nWord:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 7\nWord:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 8\nWord:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 9\nWord:",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 2\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 5\nWord:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 1\nWord:",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 3\nWord:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 5\nWord:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 3\nWord:",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 5\nWord:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 3\nWord:",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 7\nWord:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 7\nWord:",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 9\nWord:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 2\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 4\nWord:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 9\nWord:",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 9\nWord:",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 9\nWord:",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 4\nWord:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 9\nWord:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 4\nWord:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 7\nWord:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 6\nWord:",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 2\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 8\nWord:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 6\nWord:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 1\nWord:",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 3\nWord:",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 6\nWord:",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 6\nWord:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 1\nWord:",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 6\nWord:",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 5\nWord:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 3\nWord:",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 2\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 5\nWord:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 2\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 3\nWord:",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 6\nWord:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 6\nWord:",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 4\nWord:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 2\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 2\nWord:",
+    "continuation": " two",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 8\nWord:",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 2\nWord:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 2\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 4\nWord:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 9\nWord:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 1\nWord:",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 3\nWord:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 7\nWord:",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 6\nWord:",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 2\nWord:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 1\nWord:",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 3\nWord:",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 3\nWord:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 2\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 4\nWord:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 6\nWord:",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 4\nWord:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 4\nWord:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 2\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 1\nWord:",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 7\nWord:",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 8\nWord:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 1\nWord:",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 7\nWord:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 2\nWord:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 4\nWord:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 3\nWord:",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 8\nWord:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 3\nWord:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 4\nWord:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 2\nWord:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 9\nWord:",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 4\nWord:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 5\nWord:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 2\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 2\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 1\nWord:",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 6\nWord:",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 5\nWord:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 9\nWord:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 4\nWord:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 8\nWord:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 7\nWord:",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 4\nWord:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 1\nWord:",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 2\nWord:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 5\nWord:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 5\nWord:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 2\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 7\nWord:",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 9\nWord:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 4\nWord:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 2\nWord:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 9\nWord:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 4\nWord:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 7\nWord:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 3\nWord:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 8\nWord:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 7\nWord:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 5\nWord:",
+    "continuation": " fifth",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 4\nCopy this word: four\nWord:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 2\nCopy this word: two\nWord:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 1\nCopy this word: first\nWord:",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 5\nCopy this word: fifth\nWord:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 2\nCopy this word: second\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 4\nCopy this word: four\nWord:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 8\nCopy this word: eighth\nWord:",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 1\nCopy this word: one\nWord:",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 5\nCopy this word: fifth\nWord:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 2\nCopy this word: second\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 6\nCopy this word: sixth\nWord:",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 6\nCopy this word: six\nWord:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 1\nCopy this word: first\nWord:",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 1\nCopy this word: first\nWord:",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 5\nCopy this word: fifth\nWord:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 2\nCopy this word: two\nWord:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 2\nCopy this word: two\nWord:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 4\nCopy this word: fourth\nWord:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 3\nCopy this word: third\nWord:",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 3\nCopy this word: three\nWord:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 2\nCopy this word: second\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 2\nCopy this word: second\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 5\nCopy this word: fifth\nWord:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 4\nCopy this word: four\nWord:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 2\nCopy this word: two\nWord:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 4\nCopy this word: fourth\nWord:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 1\nCopy this word: one\nWord:",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 9\nCopy this word: ninth\nWord:",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 4\nCopy this word: fourth\nWord:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 9\nCopy this word: nine\nWord:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 4\nCopy this word: fourth\nWord:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 3\nCopy this word: third\nWord:",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 5\nCopy this word: fifth\nWord:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 4\nCopy this word: four\nWord:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 6\nCopy this word: six\nWord:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 1\nCopy this word: first\nWord:",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 2\nCopy this word: two\nWord:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 9\nCopy this word: ninth\nWord:",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 3\nCopy this word: three\nWord:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 6\nCopy this word: sixth\nWord:",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 2\nCopy this word: second\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 4\nCopy this word: fourth\nWord:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 4\nCopy this word: four\nWord:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 6\nCopy this word: six\nWord:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 9\nCopy this word: nine\nWord:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 9\nCopy this word: nine\nWord:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 3\nCopy this word: third\nWord:",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 6\nCopy this word: six\nWord:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 1\nCopy this word: one\nWord:",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 7\nCopy this word: seventh\nWord:",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 3\nCopy this word: third\nWord:",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 2\nCopy this word: two\nWord:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 7\nCopy this word: seventh\nWord:",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 3\nCopy this word: three\nWord:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 2\nCopy this word: two\nWord:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 5\nCopy this word: five\nWord:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 7\nCopy this word: seven\nWord:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 1\nCopy this word: one\nWord:",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 3\nCopy this word: three\nWord:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 9\nCopy this word: ninth\nWord:",
+    "continuation": " ninth",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 8\nCopy this word: eight\nWord:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 3\nCopy this word: third\nWord:",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 2\nCopy this word: second\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 8\nCopy this word: eight\nWord:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 5\nCopy this word: five\nWord:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 7\nCopy this word: seven\nWord:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 1\nCopy this word: first\nWord:",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 9\nCopy this word: nine\nWord:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 2\nCopy this word: second\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 2\nCopy this word: second\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 6\nCopy this word: sixth\nWord:",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 5\nCopy this word: fifth\nWord:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 8\nCopy this word: eight\nWord:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 4\nCopy this word: fourth\nWord:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 5\nCopy this word: five\nWord:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 6\nCopy this word: sixth\nWord:",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 3\nCopy this word: third\nWord:",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 9\nCopy this word: nine\nWord:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 7\nCopy this word: seven\nWord:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 5\nCopy this word: fifth\nWord:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 4\nCopy this word: four\nWord:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 2\nCopy this word: second\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 1\nCopy this word: one\nWord:",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 2\nCopy this word: two\nWord:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 1\nCopy this word: one\nWord:",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 8\nCopy this word: eight\nWord:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 9\nCopy this word: ninth\nWord:",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 9\nCopy this word: nine\nWord:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 7\nCopy this word: seventh\nWord:",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 9\nCopy this word: nine\nWord:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 3\nCopy this word: three\nWord:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 8\nCopy this word: eight\nWord:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 3\nCopy this word: third\nWord:",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 2\nCopy this word: second\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 4\nCopy this word: four\nWord:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English cardinal word for this digit.\nDigit: 7\nCopy this word: seven\nWord:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 7\nCopy this word: seventh\nWord:",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 6\nCopy this word: sixth\nWord:",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 4\nCopy this word: four\nWord:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 8\nCopy this word: eight\nWord:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 7\nCopy this word: seven\nWord:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 7\nCopy this word: seven\nWord:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 4\nCopy this word: fourth\nWord:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 6\nCopy this word: sixth\nWord:",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 2\nCopy this word: second\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 7\nCopy this word: seventh\nWord:",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 9\nCopy this word: ninth\nWord:",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 2\nCopy this word: two\nWord:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 4\nCopy this word: fourth\nWord:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 6\nCopy this word: six\nWord:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 7\nCopy this word: seven\nWord:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 3\nCopy this word: three\nWord:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 6\nCopy this word: six\nWord:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 2\nCopy this word: second\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English ordinal spelling of the digit.\nDigit: 5\nCopy this word: fifth\nWord:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Give the English cardinal spelling of the digit.\nDigit: 8\nCopy this word: eight\nWord:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 6\nCopy this word: sixth\nWord:",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English ordinal word for this digit.\nDigit: 5\nCopy this word: fifth\nWord:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English ordinal word.\nDigit: 2\nCopy this word: second\nWord:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Convert the digit to its English cardinal word.\nDigit: 8\nCopy this word: eight\nWord:",
+    "continuation": " eight",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 8.7609
+}

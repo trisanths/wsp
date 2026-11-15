@@ -1,0 +1,1220 @@
+{
+ "name": "tense_label",
+ "description": "Classify temporal reference as past, present, or future; matched control identifies the grammatical subject.",
+ "hash": "0e0790d63ff8e699",
+ "agent_items": false,
+ "generator_code": "import json,random\nrandom.seed(0)\nitems=[];control=[]\nsubjects=['I','you','we','they'];verbs=['walk','work','play','talk','wait','cook','jump','help'];labels=['past','present','future']\nfor i in range(120):\n subj=random.choice(subjects);v=random.choice(verbs);t=i%3\n sentence=[f'{subj} {v}ed yesterday.',f'{subj} {v} every day.',f'{subj} will {v} tomorrow.'][t]\n prefix=f'Sentence: \"{sentence}\" '\n items.append({'prompt':prefix+'Is its tense past, present, or future? Answer:', 'answer':' '+labels[t]})\n control.append({'prompt':prefix+'What is its subject pronoun? Answer:', 'answer':' '+subj})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Sentence: \"you worked yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they jump every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we helped yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we helped yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they worked yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I will walk tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I help every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I work every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we played yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we work every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will cook tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they played yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we will help tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they talk every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they jumped yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they walk every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we jump every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we will talk tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they will jump tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we cook every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we will work tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will work tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we talk every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we played yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they will cook tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will walk tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you cook every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we work every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we will walk tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we talk every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they work every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I waited yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they walked yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will walk tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we will walk tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I played yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they help every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I talk every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you helped yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I wait every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we waited yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they walk every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will walk tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I talk every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you worked yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you walked yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we will play tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will talk tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I talk every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we played yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I jump every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I play every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I cooked yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we play every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they work every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I worked yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we will walk tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we play every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they talk every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we will wait tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Sentence: \"we talk every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we played yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you help every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I will cook tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you play every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they will work tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we cooked yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they jumped yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I will help tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we will jump tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I wait every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they will jump tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we play every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will wait tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I worked yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I will talk tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we will cook tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you walk every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we will talk tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you walked yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they cook every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I walk every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you walked yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will talk tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will play tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they worked yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I helped yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I talked yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I cooked yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I walked yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we helped yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you cooked yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they will wait tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they jumped yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we will cook tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I will wait tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they work every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we talked yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they helped yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will work tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I jumped yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they will cook tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they play every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we helped yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will walk tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we worked yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we work every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will jump tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I work every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I jump every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I walked yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will work tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I will help tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they worked yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will wait tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I will jump tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they will work tomorrow.\" Is its tense past, present, or future? Answer:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I walk every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I play every day.\" Is its tense past, present, or future? Answer:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you waited yesterday.\" Is its tense past, present, or future? Answer:",
+    "continuation": " past",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Sentence: \"we will cook tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we played yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will talk tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they jumped yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we will cook tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I will cook tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we talk every day.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they work every day.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will jump tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they work every day.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we will walk tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we will play tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I work every day.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you walked yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we played yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will play tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I help every day.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I talk every day.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they work every day.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I cooked yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you help every day.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will wait tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they helped yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I played yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we helped yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I jumped yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you walked yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will walk tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they walk every day.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they worked yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I waited yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you worked yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we played yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will wait tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will walk tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will walk tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we will jump tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we will walk tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we talk every day.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I wait every day.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we played yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I worked yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I walked yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we work every day.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I walked yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you play every day.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they will cook tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I will walk tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I talk every day.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they play every day.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I helped yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I will help tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we will walk tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they will work tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we worked yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we work every day.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you helped yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will cook tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we play every day.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you cooked yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Sentence: \"we helped yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you cook every day.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we play every day.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we will help tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they jump every day.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I will jump tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they will work tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we talk every day.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they talk every day.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we cook every day.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I talk every day.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will walk tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they walk every day.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you walk every day.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they worked yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I will talk tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I jump every day.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they talk every day.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we jump every day.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I cooked yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we helped yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I work every day.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I wait every day.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they played yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will work tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I talked yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they will jump tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will work tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they cook every day.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they help every day.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they jumped yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we will talk tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they will jump tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I play every day.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we play every day.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will talk tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they jumped yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I will help tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they will wait tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I walk every day.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I play every day.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we helped yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you will work tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we talked yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we will talk tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I jump every day.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they walked yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we will wait tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they worked yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you worked yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we work every day.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we cooked yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I worked yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I will wait tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we will work tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"I walk every day.\" What is its subject pronoun? Answer:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you walked yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"you waited yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"we waited yesterday.\" What is its subject pronoun? Answer:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Sentence: \"they will cook tomorrow.\" What is its subject pronoun? Answer:",
+    "continuation": " they",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 4.7375
+}

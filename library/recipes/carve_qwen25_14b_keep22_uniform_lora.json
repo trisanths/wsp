@@ -1,0 +1,70 @@
+{
+  "id": "carve_qwen25_14b_keep22_uniform_lora",
+  "kind": "recipe",
+  "title": "Qwen2.5-14B-Instruct carved to 22 layers, uniform, heal lora",
+  "status": "rejected",
+  "added_by": "Trisanth",
+  "source": "results/round15_rows.json (run 15)",
+  "updated": "2026-11-14",
+  "skills": [
+    "carve",
+    "written-model"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-14B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "carved model vs the official model of the same size",
+      "metric": "MMLU held-out accuracy, mean over seeds",
+      "value": 0.358,
+      "control_value": 0.7085,
+      "split": "MMLU test, 2000 seeded items disjoint from dev (round 7 held-out)",
+      "seeds": [
+        0
+      ],
+      "source": "results/round15_rows.json",
+      "generated": true,
+      "control": "official Qwen/Qwen2.5-7B-Instruct",
+      "note": "params 7.613B, kept layers [0, 2, 4, 7, 9, 11, 13, 16, 18, 20, 22, 25, 27, 29, 31, 34, 36, 38, 40, 43, 45, 47]"
+    }
+  ],
+  "generated": true,
+  "host": "Qwen/Qwen2.5-14B-Instruct",
+  "program": {
+    "host": "Qwen/Qwen2.5-14B-Instruct",
+    "seed": 0,
+    "masks": null,
+    "task_vectors": [],
+    "grafts": [],
+    "heal": {
+      "steps": 1000,
+      "data": "mmlu_aux",
+      "lr": 0.0001,
+      "batch_size": 8,
+      "seq_len": 512
+    },
+    "lora": {
+      "rank": 64,
+      "budget_params": null,
+      "targets": null,
+      "alpha": null,
+      "layers": null
+    },
+    "base_source": {
+      "model": "Qwen/Qwen2.5-14B-Instruct"
+    },
+    "carve": {
+      "keep": 22,
+      "target_params_b": null,
+      "select": "uniform",
+      "domain_data": null,
+      "width": null
+    }
+  },
+  "text": null,
+  "program_file": null,
+  "syntax_gap": "the heal used a WikiText + MMLU aux + GSM8K text mix (modal_round15.heal_texts), which has no pairs name; the program field is the closest program, with data mmlu_aux",
+  "components": [],
+  "status_reason": "far below the official model of the same size"
+}

@@ -21,6 +21,7 @@ Mask algebra works on deletions:
 """
 
 import math
+import re
 
 from wsp import masks as mask_ops
 
@@ -381,21 +382,184 @@ class TapTrainSpec:
         return cls(**data)
 
 
+CARVE_SELECTS = ("influence", "uniform", "domain")
+SOURCE_KEY = re.compile(r"^[A-Za-z0-9_]+$")
+
+
+def check_fraction(value, what):
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not (0 < value <= 1):
+        raise ValueError(f"{what} is a fraction in (0, 1], got {value!r}")
+
+
+class CarveSpec:
+    """Cut the source model down to a smaller plain model.
+
+    keep: how many decoder layers to keep (2 or more), or None.
+    target_params_b: a size budget in billions of parameters, or None. The
+        compiler keeps the most layers that fit (after width, if set).
+        Give keep or target_params_b, not both. With neither, only the
+        width changes.
+    select: "influence" (highest block influence, always the first and
+        last layer), "uniform" (evenly spaced), or "domain" (rank by
+        domain_weight * domain influence + (1 - domain_weight) * general
+        influence).
+    domain_data: a wsp.pairs name for the domain texts of "domain", or None
+        (then the compile needs domain_texts).
+    width: None, or {"keep_mlp": f, "keep_heads": f}: the fraction of MLP
+        neurons and query heads every layer keeps.
+    domain_weight: the weight of domain influence for "domain" (default
+        0.75). It is written to JSON only when it is not the default.
+    """
+
+    def __init__(self, keep=None, target_params_b=None, select="influence", domain_data=None, width=None,
+                 domain_weight=0.75):
+        if keep is not None:
+            check_int(keep, "carve keep", 2)
+        if target_params_b is not None:
+            if isinstance(target_params_b, bool) or not isinstance(target_params_b, (int, float)):
+                raise ValueError(f"target_params_b is a number, got {target_params_b!r}")
+            if not math.isfinite(target_params_b) or target_params_b <= 0:
+                raise ValueError(f"target_params_b is a number above 0, got {target_params_b!r}")
+        if keep is not None and target_params_b is not None:
+            raise ValueError("a carve takes keep or target_params_b, not both")
+        if keep is None and target_params_b is None and width is None:
+            raise ValueError("a carve needs keep, target_params_b, or width")
+        if select not in CARVE_SELECTS:
+            raise ValueError(f"unknown carve select {select!r}; the rules are {', '.join(CARVE_SELECTS)}")
+        if domain_data is not None and (not isinstance(domain_data, str) or domain_data == ""):
+            raise ValueError(f"domain_data is None or a pairs name, got {domain_data!r}")
+        if domain_data is not None and select != "domain":
+            raise ValueError("domain_data is only for select domain")
+        if isinstance(domain_weight, bool) or not isinstance(domain_weight, (int, float)) or \
+                not (0 <= domain_weight <= 1):
+            raise ValueError(f"domain_weight is a number in [0, 1], got {domain_weight!r}")
+        if domain_weight != 0.75 and select != "domain":
+            raise ValueError("domain_weight is only for select domain")
+        self.width = None
+        if width is not None:
+            if not isinstance(width, dict):
+                raise ValueError(f"carve width is a dict with keep_mlp and keep_heads, got {width!r}")
+            for name in width:
+                if name not in ("keep_mlp", "keep_heads"):
+                    raise ValueError(f"unknown carve width key {name!r}")
+            keep_mlp = width.get("keep_mlp", 1.0)
+            keep_heads = width.get("keep_heads", 1.0)
+            check_fraction(keep_mlp, "keep_mlp")
+            check_fraction(keep_heads, "keep_heads")
+            self.width = {"keep_mlp": keep_mlp, "keep_heads": keep_heads}
+        self.keep = keep
+        self.target_params_b = target_params_b
+        self.select = select
+        self.domain_data = domain_data
+        self.domain_weight = domain_weight
+
+    def to_dict(self):
+        data = {"keep": self.keep, "target_params_b": self.target_params_b, "select": self.select,
+                "domain_data": self.domain_data, "width": None}
+        if self.width is not None:
+            data["width"] = dict(self.width)
+        if self.domain_weight != 0.75:
+            data["domain_weight"] = self.domain_weight
+        return data
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(data.get("keep"), data.get("target_params_b"), data.get("select", "influence"),
+                   data.get("domain_data"), data.get("width"), data.get("domain_weight", 0.75))
+
+
+class SpliceSpec:
+    """Build one model from layer segments of several models of one architecture and hidden size.
+
+    sources: {key: model id}. A key uses letters, digits, and _.
+    base: the key whose embeddings, final norm, head, and config the new
+        model keeps.
+    plan: a list of [key, layer] in the new model's order.
+    """
+
+    def __init__(self, sources, base, plan):
+        if not isinstance(sources, dict) or len(sources) == 0:
+            raise ValueError(f"splice sources is a dict of key to model id, got {sources!r}")
+        for key in sources:
+            if not isinstance(key, str) or SOURCE_KEY.match(key) is None:
+                raise ValueError(f"a splice source key uses letters, digits, and _, got {key!r}")
+            if not isinstance(sources[key], str) or sources[key] == "":
+                raise ValueError(f"splice source {key} is a model id, got {sources[key]!r}")
+        if base not in sources:
+            raise ValueError(f"the splice base {base!r} is not a source key")
+        if not isinstance(plan, (list, tuple)) or len(plan) == 0:
+            raise ValueError("a splice plan is a list of [key, layer], with at least one item")
+        items = []
+        for item in plan:
+            if not isinstance(item, (list, tuple)) or len(item) != 2:
+                raise ValueError(f"a splice plan item is [key, layer], got {item!r}")
+            key, layer = item
+            if key not in sources:
+                raise ValueError(f"the splice plan names {key!r}, which is not a source key")
+            check_int(layer, "a splice plan layer", 0)
+            items.append([key, layer])
+        self.sources = dict(sources)
+        self.base = base
+        self.plan = items
+
+    def to_dict(self):
+        plan = []
+        for key, layer in self.plan:
+            plan.append([key, layer])
+        return {"sources": dict(self.sources), "base": self.base, "plan": plan}
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(data["sources"], data["base"], data["plan"])
+
+
 class Program:
     """A model described as a host plus components.
 
     Compile order: task vectors, then the mask, then the LoRA, then grafts,
     then taps (trained first), then heal. `base` is an older name for
     `host` and still works.
+
+    A written program (base_source, carve, or splice) compiles to one plain
+    model: splice, then carve (layers, then width), then a LoRA heal that
+    is merged at the end. Its host is the source model (the splice base).
     """
 
     def __init__(self, host=None, masks=None, task_vectors=None, seed=0, base=None, grafts=None, heal=None,
-                 lora=None, taps=None, tap_train=None):
+                 lora=None, taps=None, tap_train=None, base_source=None, carve=None, splice=None):
         if host is None:
             host = base
+        if isinstance(base_source, str):
+            base_source = {"model": base_source}
+        if base_source is not None:
+            if not isinstance(base_source, dict) or list(base_source) != ["model"] or \
+                    not isinstance(base_source["model"], str) or base_source["model"] == "":
+                raise ValueError(f"base_source is {{'model': model id}}, got {base_source!r}")
+            base_source = dict(base_source)
+        if isinstance(carve, dict):
+            carve = CarveSpec.from_dict(carve)
+        if isinstance(splice, dict):
+            splice = SpliceSpec.from_dict(splice)
+        # A written program names its source with base_source or a splice;
+        # the host is that source.
+        source = None
+        if base_source is not None:
+            source = base_source["model"]
+        if splice is not None:
+            splice_base = splice.sources[splice.base]
+            if source is not None and source != splice_base:
+                raise ValueError(f"base_source {source} is not the splice base {splice_base}")
+            source = splice_base
+        if host is None:
+            host = source
         if host is None:
             raise ValueError("a program needs a host model")
+        if source is not None and host != source:
+            raise ValueError(f"the host {host} is not the program's source model {source}")
         self.host = host
+        self.base_source = base_source
+        self.carve_spec = carve
+        self.splice_spec = splice
         self.masks = masks
         self.task_vectors = []
         if task_vectors is not None:
@@ -436,6 +600,27 @@ class Program:
         """Add a LoRA on the host. Returns self so calls can chain."""
         self.lora_spec = LoraSpec(rank, budget_params, targets, alpha, layers)
         return self
+
+    def carve(self, keep=None, target_params_b=None, select="influence", domain_data=None, width=None,
+              domain_weight=0.75):
+        """Cut the source to a smaller plain model (see CarveSpec). Returns self so calls can chain."""
+        self.carve_spec = CarveSpec(keep, target_params_b, select, domain_data, width, domain_weight)
+        return self
+
+    def splice(self, sources, base, plan):
+        """Build the model from layer segments of several sources (see SpliceSpec). Returns self.
+
+        sources[base] must be the program's host.
+        """
+        spec = SpliceSpec(sources, base, plan)
+        if spec.sources[spec.base] != self.host:
+            raise ValueError(f"the splice base {spec.sources[spec.base]} is not the program host {self.host}")
+        self.splice_spec = spec
+        return self
+
+    def is_written(self):
+        """True for a program that writes one plain model from source models (base_source, carve, or splice)."""
+        return self.base_source is not None or self.carve_spec is not None or self.splice_spec is not None
 
     def tap(self, donor, donor_layer, at, attn_dim=256, heads=8, tap_id=None):
         """Add a tap from a donor model's layer into host layer at. Returns self so calls can chain."""
@@ -487,6 +672,13 @@ class Program:
                 data["taps"].append(tap.to_dict())
         if self.tap_train_spec is not None:
             data["tap_train"] = self.tap_train_spec.to_dict()
+        # The written-model keys too.
+        if self.base_source is not None:
+            data["base_source"] = dict(self.base_source)
+        if self.splice_spec is not None:
+            data["splice"] = self.splice_spec.to_dict()
+        if self.carve_spec is not None:
+            data["carve"] = self.carve_spec.to_dict()
         return data
 
     @classmethod
@@ -512,17 +704,28 @@ class Program:
         tap_train = None
         if data.get("tap_train") is not None:
             tap_train = TapTrainSpec.from_dict(data["tap_train"])
+        carve = None
+        if data.get("carve") is not None:
+            carve = CarveSpec.from_dict(data["carve"])
+        splice = None
+        if data.get("splice") is not None:
+            splice = SpliceSpec.from_dict(data["splice"])
         host = data.get("host")
         if host is None:
-            host = data["base"]
+            host = data.get("base")
+        if host is None and data.get("base_source") is None and splice is None:
+            host = data["host"]
         return cls(host=host, masks=masks, task_vectors=task_vectors, seed=data.get("seed", 0),
-                   grafts=grafts, heal=heal, lora=lora, taps=taps, tap_train=tap_train)
+                   grafts=grafts, heal=heal, lora=lora, taps=taps, tap_train=tap_train,
+                   base_source=data.get("base_source"), carve=carve, splice=splice)
 
     def compile(self, output_dir, catalog, **options):
         """Build the model and save it to output_dir. Return output_dir.
 
         options pass through to wsp.compiler.compile_program
-        (align_texts, heal_texts, device, cache_dir, tap_pairs, heal_pairs).
+        (align_texts, heal_texts, device, cache_dir, tap_pairs, heal_pairs,
+        calib_texts, domain_texts). A written program needs no catalog, so
+        catalog may be None.
         """
         from wsp.compiler import compile_program
 

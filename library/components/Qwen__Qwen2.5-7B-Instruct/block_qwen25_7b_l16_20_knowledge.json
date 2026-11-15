@@ -1,0 +1,94 @@
+{
+  "id": "block_qwen25_7b_l16_20_knowledge",
+  "kind": "block",
+  "title": "Qwen2.5-7B-Instruct layers 16 to 20, the knowledge block read by taps",
+  "status": "candidate",
+  "added_by": "Trisanth",
+  "source": "results/round7_rows.json (run 7 layer map)",
+  "updated": "2026-11-14",
+  "skills": [
+    "knowledge",
+    "mmlu"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-7B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "a tap reading donor layers 16 to 20 vs a tap reading layers 8 or 12",
+      "metric": "MMLU dev accuracy, best host layer",
+      "value": 0.685,
+      "control_value": 0.494,
+      "split": "MMLU test, 1000 seeded items (round 6 dev)",
+      "seeds": [
+        0
+      ],
+      "source": "results/round7_rows.json",
+      "generated": true,
+      "control": "same tap reading an earlier layer",
+      "note": "layer map: {\"12->10\": 0.486, \"12->14\": 0.489, \"12->6\": 0.479, \"16->10\": 0.593, \"16->14\": 0.563, \"16->6\": 0.638, \"20->10\": 0.677, \"20->14\": 0.671, \"20->6\": 0.685, \"24->10\": 0.639, \"24->14\": 0.609, \"24->6\": 0.536, \"8->10\": 0.483, \"8->14\": 0.494, \"8->6\": 0.485}"
+    },
+    {
+      "claim": "Llama-1B + tap reading layer 20 at host layer 10 vs a rank-16 LoRA",
+      "metric": "MMLU held-out accuracy, mean over seeds",
+      "value": 0.6825,
+      "control_value": 0.4768,
+      "split": "MMLU test, 2000 seeded items disjoint from dev (round 7 held-out)",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "source": "results/round7_rows.json",
+      "generated": true,
+      "control": "host LoRA rank 16, same data",
+      "note": "host alone 0.4465; donor alone 0.7085"
+    },
+    {
+      "claim": "a tap reading layer 27 vs the same tap reading mismatched questions",
+      "metric": "MMLU dev accuracy, mean over seeds",
+      "value": 0.656,
+      "control_value": 0.4857,
+      "split": "MMLU test, 1000 seeded items (round 6 dev)",
+      "seeds": null,
+      "source": "results/round6_mmlu_rows.json",
+      "generated": true,
+      "control": "mismatched-message control"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "layer": null,
+  "layers": [
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "units_file": null,
+  "units_remote": null,
+  "signature": {
+    "method": "run 7 layer map: tap read layer vs MMLU accuracy",
+    "data": "MMLU dev items",
+    "layer_map": {
+      "8->6": 0.485,
+      "8->10": 0.483,
+      "8->14": 0.494,
+      "12->6": 0.479,
+      "12->10": 0.486,
+      "12->14": 0.489,
+      "16->6": 0.638,
+      "16->10": 0.593,
+      "16->14": 0.563,
+      "20->6": 0.685,
+      "20->10": 0.677,
+      "20->14": 0.671,
+      "24->6": 0.536,
+      "24->10": 0.639,
+      "24->14": 0.609
+    }
+  },
+  "catalog_id": "block/Qwen/Qwen2.5-7B-Instruct/16-20",
+  "status_reason": "taps read it on held-out MMLU, but no in-stream block graft of these layers has been scored against a random same-length block"
+}
