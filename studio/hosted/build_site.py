@@ -33,11 +33,22 @@ SNAPSHOTS = {
 HOSTED_FLAG = '<script>window.SAPIEN_HOSTED = true;</script>'
 
 
+def scrub(value):
+    """Replace this checkout's absolute path with a repo-relative one, so no local path is published."""
+    if isinstance(value, str):
+        return value.replace(ROOT + os.sep, "").replace(ROOT, ".")
+    if isinstance(value, list):
+        return [scrub(item) for item in value]
+    if isinstance(value, dict):
+        return {key: scrub(item) for key, item in value.items()}
+    return value
+
+
 def snapshot(client, path):
     response = client.get(path)
     if response.status_code != 200:
         raise SystemExit("GET " + path + " returned " + str(response.status_code))
-    return response.json()
+    return scrub(response.json())
 
 
 def vercel_config():
