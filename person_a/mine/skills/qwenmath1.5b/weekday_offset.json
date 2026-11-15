@@ -1,0 +1,860 @@
+{
+ "name": "weekday_offset",
+ "description": "Find the weekday one or two days after a named weekday, with few-shot demonstrations and matched marker-copy controls.",
+ "hash": "d9bc78e46abd92a7",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\ndays=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];items=[];controls=[]\np='Find the resulting weekday.\\n1 day after Monday is Tuesday.\\n2 days after Friday is Sunday.\\n1 day after Sunday is Monday.\\n'\ncp='Read the marker.\\n1 day after Monday; marker red. Marker: red\\n2 days after Friday; marker blue. Marker: blue\\n1 day after Sunday; marker gold. Marker: gold\\n'\nfor i in range(84):\n d=i%7;n=random.choice([1,2]);tag=random.choice(['red','blue','gold','green'])\n items.append({'prompt':p+f'{n} '+('day' if n==1 else 'days')+f' after {days[d]} is','answer':' '+days[(d+n)%7]})\n controls.append({'prompt':cp+f'{n} '+('day' if n==1 else 'days')+f' after {days[d]}; marker {tag}. Marker:','answer':' '+tag})\njson.dump({'items':items,'control':controls},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Tuesday is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Monday is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Sunday is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Thursday is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Friday is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Wednesday is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Thursday is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Monday is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Tuesday is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Friday is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Saturday is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Thursday is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Sunday is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Tuesday is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Tuesday is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Wednesday is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Friday is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Saturday is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Saturday is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Monday is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Wednesday is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Sunday is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Friday is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Thursday is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Saturday is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Wednesday is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Friday is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Sunday is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Sunday is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Sunday is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Monday is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Monday is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Monday is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Wednesday is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Friday is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Saturday is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Tuesday is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Thursday is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Thursday is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Monday is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Friday is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Friday is",
+    "continuation": " Sunday",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Monday is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Sunday is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Thursday is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Wednesday is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Thursday is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Monday is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Wednesday is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Tuesday is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Sunday is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Saturday is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Wednesday is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Sunday is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Thursday is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Tuesday is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Sunday is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Monday is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Wednesday is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Monday is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Tuesday is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Saturday is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Tuesday is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Wednesday is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Saturday is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Friday is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Friday is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Friday is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Saturday is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Tuesday is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Tuesday is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Thursday is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Tuesday is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Sunday is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Thursday is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Saturday is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Thursday is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Wednesday is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Sunday is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Wednesday is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n2 days after Saturday is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Saturday is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Friday is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Find the resulting weekday.\n1 day after Monday is Tuesday.\n2 days after Friday is Sunday.\n1 day after Sunday is Monday.\n1 day after Monday is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Sunday; marker blue. Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Sunday; marker blue. Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Thursday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Thursday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Friday; marker blue. Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Thursday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Friday; marker blue. Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Friday; marker blue. Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Saturday; marker gold. Marker:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Wednesday; marker green. Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Wednesday; marker blue. Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Tuesday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Sunday; marker gold. Marker:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Wednesday; marker blue. Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Tuesday; marker blue. Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Saturday; marker blue. Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Thursday; marker green. Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Thursday; marker green. Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Friday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Wednesday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Monday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Wednesday; marker blue. Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Wednesday; marker gold. Marker:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Tuesday; marker green. Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Wednesday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Thursday; marker blue. Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Friday; marker green. Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Wednesday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Saturday; marker gold. Marker:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Wednesday; marker green. Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Saturday; marker gold. Marker:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Monday; marker green. Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Monday; marker blue. Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Friday; marker green. Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Friday; marker green. Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Sunday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Thursday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Friday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Tuesday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Friday; marker gold. Marker:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Wednesday; marker green. Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Monday; marker green. Marker:",
+    "continuation": " green",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Wednesday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Tuesday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Saturday; marker green. Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Monday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Thursday; marker blue. Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Monday; marker green. Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Monday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Saturday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Sunday; marker gold. Marker:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Friday; marker gold. Marker:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Sunday; marker green. Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Tuesday; marker blue. Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Tuesday; marker blue. Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Thursday; marker gold. Marker:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Monday; marker blue. Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Saturday; marker gold. Marker:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Thursday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Sunday; marker gold. Marker:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Saturday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Saturday; marker green. Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Tuesday; marker gold. Marker:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Saturday; marker gold. Marker:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Sunday; marker green. Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Tuesday; marker blue. Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Sunday; marker blue. Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Monday; marker gold. Marker:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Monday; marker green. Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Sunday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Monday; marker blue. Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Thursday; marker green. Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Sunday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Saturday; marker blue. Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Saturday; marker blue. Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Sunday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Friday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Tuesday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Monday; marker gold. Marker:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Tuesday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n1 day after Friday; marker gold. Marker:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Tuesday; marker red. Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Wednesday; marker gold. Marker:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Read the marker.\n1 day after Monday; marker red. Marker: red\n2 days after Friday; marker blue. Marker: blue\n1 day after Sunday; marker gold. Marker: gold\n2 days after Thursday; marker gold. Marker:",
+    "continuation": " gold",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 5.3676
+}

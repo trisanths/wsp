@@ -1,0 +1,1220 @@
+{
+ "name": "primality_label",
+ "description": "Prime/composite classification of small integers in few-shot completion format; matched integer-copying controls.",
+ "hash": "c1cfee536775be52",
+ "agent_items": false,
+ "generator_code": "import random,json,math\nrandom.seed(0)\ndef isp(n):return all(n%d for d in range(2,math.isqrt(n)+1))\npools={True:[n for n in range(2,100) if isp(n)],False:[n for n in range(2,100) if not isp(n)]};items=[];controls=[]\np='Classify each integer as prime or composite.\\nInteger: 2. Type: prime\\nInteger: 4. Type: composite\\nInteger: 7. Type: prime\\nInteger: 9. Type: composite\\n'\ncp='Copy each integer.\\nInteger: 2. Copy: 2\\nInteger: 4. Copy: 4\\nInteger: 7. Copy: 7\\nInteger: 9. Copy: 9\\n'\nfor i in range(120):\n n=random.choice(pools[i%2==0])\n items.append({'prompt':p+f'Integer: {n}. Type:','answer':' '+('prime' if isp(n) else 'composite')})\n controls.append({'prompt':cp+f'Integer: {n}. Copy:','answer':' '+str(n)})\njson.dump({'items':items,'control':controls},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 99. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 72. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 10. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 50. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 76. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 46. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 26. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 29. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 7. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 18. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 4. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 56. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 22. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 87. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 62. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 97. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 70. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 98. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 3. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 61. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 53. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 92. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 6. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 71. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 11. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 5. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 83. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 88. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 67. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 86. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 67. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 89. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 71. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 31. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 83. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 50. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 28. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 89. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 30. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 67. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 83. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 36. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 40. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 49. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 41. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 79. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 16. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 61. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 5. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 47. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 53. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 71. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 83. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 29. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 53. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 28. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 29. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 42. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 19. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 21. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 59. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 54. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 47. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 15. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 65. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 31. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 21. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 41. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 79. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 42. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 76. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 3. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 56. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 79. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 59. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 17. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 60. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 61. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 79. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 71. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 23. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 16. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 93. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 36. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 55. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 11. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 61. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 46. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 65. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 65. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 92. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 71. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 40. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 17. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 7. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 43. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 96. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 59. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 5. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 95. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 61. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 22. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 5. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 62. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 61. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 74. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 95. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 47. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 23. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 5. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 48. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 47. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 58. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 58. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 87. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 60. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 52. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 27. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 88. Type:",
+    "continuation": " composite",
+    "digits_only": false
+   },
+   {
+    "context": "Classify each integer as prime or composite.\nInteger: 2. Type: prime\nInteger: 4. Type: composite\nInteger: 7. Type: prime\nInteger: 9. Type: composite\nInteger: 19. Type:",
+    "continuation": " prime",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 60. Copy:",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 54. Copy:",
+    "continuation": " 54",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 61. Copy:",
+    "continuation": " 61",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 17. Copy:",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 7. Copy:",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 15. Copy:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 59. Copy:",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 96. Copy:",
+    "continuation": " 96",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 47. Copy:",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 67. Copy:",
+    "continuation": " 67",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 29. Copy:",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 16. Copy:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 29. Copy:",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 71. Copy:",
+    "continuation": " 71",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 47. Copy:",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 55. Copy:",
+    "continuation": " 55",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 26. Copy:",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 89. Copy:",
+    "continuation": " 89",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 53. Copy:",
+    "continuation": " 53",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 65. Copy:",
+    "continuation": " 65",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 47. Copy:",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 79. Copy:",
+    "continuation": " 79",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 5. Copy:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 50. Copy:",
+    "continuation": " 50",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 92. Copy:",
+    "continuation": " 92",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 61. Copy:",
+    "continuation": " 61",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 93. Copy:",
+    "continuation": " 93",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 31. Copy:",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 97. Copy:",
+    "continuation": " 97",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 58. Copy:",
+    "continuation": " 58",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 89. Copy:",
+    "continuation": " 89",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 41. Copy:",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 71. Copy:",
+    "continuation": " 71",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 87. Copy:",
+    "continuation": " 87",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 40. Copy:",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 61. Copy:",
+    "continuation": " 61",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 42. Copy:",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 83. Copy:",
+    "continuation": " 83",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 6. Copy:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 67. Copy:",
+    "continuation": " 67",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 7. Copy:",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 59. Copy:",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 65. Copy:",
+    "continuation": " 65",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 18. Copy:",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 48. Copy:",
+    "continuation": " 48",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 65. Copy:",
+    "continuation": " 65",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 11. Copy:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 46. Copy:",
+    "continuation": " 46",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 49. Copy:",
+    "continuation": " 49",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 5. Copy:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 61. Copy:",
+    "continuation": " 61",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 58. Copy:",
+    "continuation": " 58",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 67. Copy:",
+    "continuation": " 67",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 52. Copy:",
+    "continuation": " 52",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 74. Copy:",
+    "continuation": " 74",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 95. Copy:",
+    "continuation": " 95",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 30. Copy:",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 4. Copy:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 56. Copy:",
+    "continuation": " 56",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 71. Copy:",
+    "continuation": " 71",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 10. Copy:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 83. Copy:",
+    "continuation": " 83",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 29. Copy:",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 22. Copy:",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 72. Copy:",
+    "continuation": " 72",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 60. Copy:",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 31. Copy:",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 86. Copy:",
+    "continuation": " 86",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 19. Copy:",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 61. Copy:",
+    "continuation": " 61",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 5. Copy:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 5. Copy:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 36. Copy:",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 61. Copy:",
+    "continuation": " 61",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 76. Copy:",
+    "continuation": " 76",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 17. Copy:",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 53. Copy:",
+    "continuation": " 53",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 87. Copy:",
+    "continuation": " 87",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 70. Copy:",
+    "continuation": " 70",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 83. Copy:",
+    "continuation": " 83",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 62. Copy:",
+    "continuation": " 62",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 23. Copy:",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 76. Copy:",
+    "continuation": " 76",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 56. Copy:",
+    "continuation": " 56",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 92. Copy:",
+    "continuation": " 92",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 46. Copy:",
+    "continuation": " 46",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 3. Copy:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 95. Copy:",
+    "continuation": " 95",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 23. Copy:",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 28. Copy:",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 62. Copy:",
+    "continuation": " 62",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 98. Copy:",
+    "continuation": " 98",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 3. Copy:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 71. Copy:",
+    "continuation": " 71",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 42. Copy:",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 36. Copy:",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 41. Copy:",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 79. Copy:",
+    "continuation": " 79",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 40. Copy:",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 16. Copy:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 88. Copy:",
+    "continuation": " 88",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 50. Copy:",
+    "continuation": " 50",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 47. Copy:",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 59. Copy:",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 79. Copy:",
+    "continuation": " 79",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 5. Copy:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 71. Copy:",
+    "continuation": " 71",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 21. Copy:",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 11. Copy:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 99. Copy:",
+    "continuation": " 99",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 88. Copy:",
+    "continuation": " 88",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 21. Copy:",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 28. Copy:",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 43. Copy:",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 53. Copy:",
+    "continuation": " 53",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 27. Copy:",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 79. Copy:",
+    "continuation": " 79",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 19. Copy:",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 83. Copy:",
+    "continuation": " 83",
+    "digits_only": false
+   },
+   {
+    "context": "Copy each integer.\nInteger: 2. Copy: 2\nInteger: 4. Copy: 4\nInteger: 7. Copy: 7\nInteger: 9. Copy: 9\nInteger: 22. Copy:",
+    "continuation": " 22",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 2.9448
+}
