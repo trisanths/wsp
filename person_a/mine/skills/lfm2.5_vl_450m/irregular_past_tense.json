@@ -1,0 +1,1020 @@
+{
+ "name": "irregular_past_tense",
+ "description": "Map an English verb to its irregular past tense in few-shot format (e.g. 'eat -> ate, see -> saw, go ->' -> ' went'). Control: same few-shot format with identity mapping.",
+ "hash": "2503e9d5562d81b8",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nV={'go':'went','eat':'ate','see':'saw','take':'took','give':'gave','write':'wrote','speak':'spoke','run':'ran','come':'came','know':'knew','drink':'drank','sing':'sang','swim':'swam','begin':'began','break':'broke','choose':'chose','drive':'drove','fly':'flew','grow':'grew','throw':'threw','ride':'rode','rise':'rose','sit':'sat','stand':'stood','tell':'told','sell':'sold','buy':'bought','bring':'brought','think':'thought','teach':'taught','catch':'caught','fight':'fought','find':'found','feel':'felt','keep':'kept','sleep':'slept','leave':'left','make':'made','pay':'paid','say':'said','win':'won','lose':'lost','hold':'held','meet':'met','send':'sent','spend':'spent','build':'built','fall':'fell','forget':'forgot','get':'got'}\nks=list(V); items=[];ctrl=[]\nfor t in ks:\n    for r in range(2):\n        shots=random.sample([k for k in ks if k!=t],3)\n        items.append({'prompt':', '.join(f'{s} -> {V[s]}' for s in shots)+f', {t} ->','answer':' '+V[t]})\n        ctrl.append({'prompt':', '.join(f'{s} -> {s}' for s in shots)+f', {t} ->','answer':' '+t})\njson.dump({'items':items,'control':ctrl},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "teach -> taught, write -> wrote, rise -> rose, sing ->",
+    "continuation": " sang",
+    "digits_only": false
+   },
+   {
+    "context": "drink -> drank, ride -> rode, run -> ran, give ->",
+    "continuation": " gave",
+    "digits_only": false
+   },
+   {
+    "context": "run -> ran, stand -> stood, think -> thought, write ->",
+    "continuation": " wrote",
+    "digits_only": false
+   },
+   {
+    "context": "sleep -> slept, build -> built, say -> said, take ->",
+    "continuation": " took",
+    "digits_only": false
+   },
+   {
+    "context": "fly -> flew, run -> ran, build -> built, tell ->",
+    "continuation": " told",
+    "digits_only": false
+   },
+   {
+    "context": "break -> broke, leave -> left, fight -> fought, speak ->",
+    "continuation": " spoke",
+    "digits_only": false
+   },
+   {
+    "context": "take -> took, fly -> flew, feel -> felt, go ->",
+    "continuation": " went",
+    "digits_only": false
+   },
+   {
+    "context": "lose -> lost, write -> wrote, go -> went, spend ->",
+    "continuation": " spent",
+    "digits_only": false
+   },
+   {
+    "context": "break -> broke, win -> won, think -> thought, fall ->",
+    "continuation": " fell",
+    "digits_only": false
+   },
+   {
+    "context": "send -> sent, give -> gave, eat -> ate, bring ->",
+    "continuation": " brought",
+    "digits_only": false
+   },
+   {
+    "context": "write -> wrote, fall -> fell, buy -> bought, come ->",
+    "continuation": " came",
+    "digits_only": false
+   },
+   {
+    "context": "bring -> brought, win -> won, speak -> spoke, fight ->",
+    "continuation": " fought",
+    "digits_only": false
+   },
+   {
+    "context": "break -> broke, see -> saw, make -> made, buy ->",
+    "continuation": " bought",
+    "digits_only": false
+   },
+   {
+    "context": "bring -> brought, pay -> paid, fly -> flew, ride ->",
+    "continuation": " rode",
+    "digits_only": false
+   },
+   {
+    "context": "tell -> told, meet -> met, drive -> drove, win ->",
+    "continuation": " won",
+    "digits_only": false
+   },
+   {
+    "context": "find -> found, buy -> bought, ride -> rode, eat ->",
+    "continuation": " ate",
+    "digits_only": false
+   },
+   {
+    "context": "choose -> chose, eat -> ate, fall -> fell, stand ->",
+    "continuation": " stood",
+    "digits_only": false
+   },
+   {
+    "context": "grow -> grew, send -> sent, sit -> sat, meet ->",
+    "continuation": " met",
+    "digits_only": false
+   },
+   {
+    "context": "buy -> bought, leave -> left, find -> found, say ->",
+    "continuation": " said",
+    "digits_only": false
+   },
+   {
+    "context": "sit -> sat, bring -> brought, sing -> sang, feel ->",
+    "continuation": " felt",
+    "digits_only": false
+   },
+   {
+    "context": "sit -> sat, drive -> drove, fall -> fell, know ->",
+    "continuation": " knew",
+    "digits_only": false
+   },
+   {
+    "context": "run -> ran, win -> won, fly -> flew, take ->",
+    "continuation": " took",
+    "digits_only": false
+   },
+   {
+    "context": "feel -> felt, find -> found, speak -> spoke, swim ->",
+    "continuation": " swam",
+    "digits_only": false
+   },
+   {
+    "context": "sit -> sat, fight -> fought, leave -> left, write ->",
+    "continuation": " wrote",
+    "digits_only": false
+   },
+   {
+    "context": "eat -> ate, swim -> swam, sing -> sang, teach ->",
+    "continuation": " taught",
+    "digits_only": false
+   },
+   {
+    "context": "say -> said, sell -> sold, rise -> rose, choose ->",
+    "continuation": " chose",
+    "digits_only": false
+   },
+   {
+    "context": "drive -> drove, know -> knew, sleep -> slept, sing ->",
+    "continuation": " sang",
+    "digits_only": false
+   },
+   {
+    "context": "throw -> threw, teach -> taught, write -> wrote, break ->",
+    "continuation": " broke",
+    "digits_only": false
+   },
+   {
+    "context": "write -> wrote, rise -> rose, forget -> forgot, lose ->",
+    "continuation": " lost",
+    "digits_only": false
+   },
+   {
+    "context": "spend -> spent, sleep -> slept, send -> sent, grow ->",
+    "continuation": " grew",
+    "digits_only": false
+   },
+   {
+    "context": "rise -> rose, drink -> drank, choose -> chose, build ->",
+    "continuation": " built",
+    "digits_only": false
+   },
+   {
+    "context": "know -> knew, sleep -> slept, spend -> spent, win ->",
+    "continuation": " won",
+    "digits_only": false
+   },
+   {
+    "context": "hold -> held, spend -> spent, stand -> stood, rise ->",
+    "continuation": " rose",
+    "digits_only": false
+   },
+   {
+    "context": "see -> saw, drink -> drank, think -> thought, get ->",
+    "continuation": " got",
+    "digits_only": false
+   },
+   {
+    "context": "catch -> caught, sit -> sat, say -> said, meet ->",
+    "continuation": " met",
+    "digits_only": false
+   },
+   {
+    "context": "say -> said, leave -> left, pay -> paid, break ->",
+    "continuation": " broke",
+    "digits_only": false
+   },
+   {
+    "context": "fight -> fought, give -> gave, write -> wrote, fly ->",
+    "continuation": " flew",
+    "digits_only": false
+   },
+   {
+    "context": "make -> made, win -> won, say -> said, send ->",
+    "continuation": " sent",
+    "digits_only": false
+   },
+   {
+    "context": "write -> wrote, ride -> rode, win -> won, sit ->",
+    "continuation": " sat",
+    "digits_only": false
+   },
+   {
+    "context": "teach -> taught, keep -> kept, fly -> flew, run ->",
+    "continuation": " ran",
+    "digits_only": false
+   },
+   {
+    "context": "see -> saw, keep -> kept, fly -> flew, hold ->",
+    "continuation": " held",
+    "digits_only": false
+   },
+   {
+    "context": "drive -> drove, sit -> sat, fall -> fell, sleep ->",
+    "continuation": " slept",
+    "digits_only": false
+   },
+   {
+    "context": "break -> broke, feel -> felt, know -> knew, see ->",
+    "continuation": " saw",
+    "digits_only": false
+   },
+   {
+    "context": "rise -> rose, build -> built, give -> gave, drink ->",
+    "continuation": " drank",
+    "digits_only": false
+   },
+   {
+    "context": "take -> took, leave -> left, go -> went, run ->",
+    "continuation": " ran",
+    "digits_only": false
+   },
+   {
+    "context": "begin -> began, make -> made, choose -> chose, drink ->",
+    "continuation": " drank",
+    "digits_only": false
+   },
+   {
+    "context": "make -> made, drive -> drove, throw -> threw, choose ->",
+    "continuation": " chose",
+    "digits_only": false
+   },
+   {
+    "context": "think -> thought, meet -> met, sing -> sang, pay ->",
+    "continuation": " paid",
+    "digits_only": false
+   },
+   {
+    "context": "sell -> sold, write -> wrote, stand -> stood, think ->",
+    "continuation": " thought",
+    "digits_only": false
+   },
+   {
+    "context": "take -> took, find -> found, teach -> taught, feel ->",
+    "continuation": " felt",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "take -> took, send -> sent, drink -> drank, leave ->",
+    "continuation": " left",
+    "digits_only": false
+   },
+   {
+    "context": "rise -> rose, think -> thought, take -> took, sell ->",
+    "continuation": " sold",
+    "digits_only": false
+   },
+   {
+    "context": "spend -> spent, sell -> sold, swim -> swam, keep ->",
+    "continuation": " kept",
+    "digits_only": false
+   },
+   {
+    "context": "ride -> rode, leave -> left, throw -> threw, swim ->",
+    "continuation": " swam",
+    "digits_only": false
+   },
+   {
+    "context": "buy -> bought, hold -> held, spend -> spent, get ->",
+    "continuation": " got",
+    "digits_only": false
+   },
+   {
+    "context": "lose -> lost, rise -> rose, swim -> swam, stand ->",
+    "continuation": " stood",
+    "digits_only": false
+   },
+   {
+    "context": "leave -> left, buy -> bought, see -> saw, forget ->",
+    "continuation": " forgot",
+    "digits_only": false
+   },
+   {
+    "context": "sell -> sold, get -> got, bring -> brought, go ->",
+    "continuation": " went",
+    "digits_only": false
+   },
+   {
+    "context": "spend -> spent, send -> sent, begin -> began, leave ->",
+    "continuation": " left",
+    "digits_only": false
+   },
+   {
+    "context": "send -> sent, get -> got, come -> came, fly ->",
+    "continuation": " flew",
+    "digits_only": false
+   },
+   {
+    "context": "run -> ran, see -> saw, say -> said, teach ->",
+    "continuation": " taught",
+    "digits_only": false
+   },
+   {
+    "context": "pay -> paid, swim -> swam, send -> sent, build ->",
+    "continuation": " built",
+    "digits_only": false
+   },
+   {
+    "context": "fight -> fought, stand -> stood, pay -> paid, eat ->",
+    "continuation": " ate",
+    "digits_only": false
+   },
+   {
+    "context": "tell -> told, spend -> spent, meet -> met, fall ->",
+    "continuation": " fell",
+    "digits_only": false
+   },
+   {
+    "context": "say -> said, make -> made, run -> ran, think ->",
+    "continuation": " thought",
+    "digits_only": false
+   },
+   {
+    "context": "tell -> told, forget -> forgot, buy -> bought, spend ->",
+    "continuation": " spent",
+    "digits_only": false
+   },
+   {
+    "context": "build -> built, run -> ran, leave -> left, begin ->",
+    "continuation": " began",
+    "digits_only": false
+   },
+   {
+    "context": "begin -> began, send -> sent, pay -> paid, ride ->",
+    "continuation": " rode",
+    "digits_only": false
+   },
+   {
+    "context": "run -> ran, lose -> lost, swim -> swam, bring ->",
+    "continuation": " brought",
+    "digits_only": false
+   },
+   {
+    "context": "come -> came, build -> built, throw -> threw, send ->",
+    "continuation": " sent",
+    "digits_only": false
+   },
+   {
+    "context": "drive -> drove, run -> ran, say -> said, make ->",
+    "continuation": " made",
+    "digits_only": false
+   },
+   {
+    "context": "catch -> caught, make -> made, drink -> drank, sleep ->",
+    "continuation": " slept",
+    "digits_only": false
+   },
+   {
+    "context": "build -> built, run -> ran, fight -> fought, catch ->",
+    "continuation": " caught",
+    "digits_only": false
+   },
+   {
+    "context": "teach -> taught, find -> found, meet -> met, rise ->",
+    "continuation": " rose",
+    "digits_only": false
+   },
+   {
+    "context": "fall -> fell, write -> wrote, send -> sent, give ->",
+    "continuation": " gave",
+    "digits_only": false
+   },
+   {
+    "context": "go -> went, teach -> taught, forget -> forgot, lose ->",
+    "continuation": " lost",
+    "digits_only": false
+   },
+   {
+    "context": "fly -> flew, keep -> kept, choose -> chose, throw ->",
+    "continuation": " threw",
+    "digits_only": false
+   },
+   {
+    "context": "go -> went, win -> won, find -> found, know ->",
+    "continuation": " knew",
+    "digits_only": false
+   },
+   {
+    "context": "go -> went, catch -> caught, send -> sent, pay ->",
+    "continuation": " paid",
+    "digits_only": false
+   },
+   {
+    "context": "see -> saw, say -> said, speak -> spoke, keep ->",
+    "continuation": " kept",
+    "digits_only": false
+   },
+   {
+    "context": "sing -> sang, swim -> swam, see -> saw, drive ->",
+    "continuation": " drove",
+    "digits_only": false
+   },
+   {
+    "context": "throw -> threw, hold -> held, sit -> sat, say ->",
+    "continuation": " said",
+    "digits_only": false
+   },
+   {
+    "context": "rise -> rose, win -> won, lose -> lost, speak ->",
+    "continuation": " spoke",
+    "digits_only": false
+   },
+   {
+    "context": "come -> came, choose -> chose, get -> got, hold ->",
+    "continuation": " held",
+    "digits_only": false
+   },
+   {
+    "context": "know -> knew, see -> saw, write -> wrote, grow ->",
+    "continuation": " grew",
+    "digits_only": false
+   },
+   {
+    "context": "build -> built, meet -> met, lose -> lost, come ->",
+    "continuation": " came",
+    "digits_only": false
+   },
+   {
+    "context": "drive -> drove, give -> gave, break -> broke, find ->",
+    "continuation": " found",
+    "digits_only": false
+   },
+   {
+    "context": "sit -> sat, sleep -> slept, break -> broke, begin ->",
+    "continuation": " began",
+    "digits_only": false
+   },
+   {
+    "context": "drink -> drank, rise -> rose, feel -> felt, make ->",
+    "continuation": " made",
+    "digits_only": false
+   },
+   {
+    "context": "run -> ran, find -> found, pay -> paid, sit ->",
+    "continuation": " sat",
+    "digits_only": false
+   },
+   {
+    "context": "begin -> began, fall -> fell, take -> took, catch ->",
+    "continuation": " caught",
+    "digits_only": false
+   },
+   {
+    "context": "buy -> bought, build -> built, keep -> kept, throw ->",
+    "continuation": " threw",
+    "digits_only": false
+   },
+   {
+    "context": "speak -> spoke, know -> knew, spend -> spent, sell ->",
+    "continuation": " sold",
+    "digits_only": false
+   },
+   {
+    "context": "send -> sent, eat -> ate, sleep -> slept, fight ->",
+    "continuation": " fought",
+    "digits_only": false
+   },
+   {
+    "context": "give -> gave, hold -> held, throw -> threw, find ->",
+    "continuation": " found",
+    "digits_only": false
+   },
+   {
+    "context": "win -> won, meet -> met, fly -> flew, drive ->",
+    "continuation": " drove",
+    "digits_only": false
+   },
+   {
+    "context": "throw -> threw, know -> knew, get -> got, see ->",
+    "continuation": " saw",
+    "digits_only": false
+   },
+   {
+    "context": "lose -> lost, sleep -> slept, say -> said, buy ->",
+    "continuation": " bought",
+    "digits_only": false
+   },
+   {
+    "context": "sell -> sold, send -> sent, leave -> left, forget ->",
+    "continuation": " forgot",
+    "digits_only": false
+   },
+   {
+    "context": "break -> broke, stand -> stood, drink -> drank, tell ->",
+    "continuation": " told",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "lose -> lose, sleep -> sleep, say -> say, buy ->",
+    "continuation": " buy",
+    "digits_only": false
+   },
+   {
+    "context": "spend -> spend, sleep -> sleep, send -> send, grow ->",
+    "continuation": " grow",
+    "digits_only": false
+   },
+   {
+    "context": "give -> give, hold -> hold, throw -> throw, find ->",
+    "continuation": " find",
+    "digits_only": false
+   },
+   {
+    "context": "speak -> speak, know -> know, spend -> spend, sell ->",
+    "continuation": " sell",
+    "digits_only": false
+   },
+   {
+    "context": "break -> break, feel -> feel, know -> know, see ->",
+    "continuation": " see",
+    "digits_only": false
+   },
+   {
+    "context": "rise -> rise, build -> build, give -> give, drink ->",
+    "continuation": " drink",
+    "digits_only": false
+   },
+   {
+    "context": "buy -> buy, build -> build, keep -> keep, throw ->",
+    "continuation": " throw",
+    "digits_only": false
+   },
+   {
+    "context": "fall -> fall, write -> write, send -> send, give ->",
+    "continuation": " give",
+    "digits_only": false
+   },
+   {
+    "context": "sit -> sit, fight -> fight, leave -> leave, write ->",
+    "continuation": " write",
+    "digits_only": false
+   },
+   {
+    "context": "know -> know, sleep -> sleep, spend -> spend, win ->",
+    "continuation": " win",
+    "digits_only": false
+   },
+   {
+    "context": "write -> write, ride -> ride, win -> win, sit ->",
+    "continuation": " sit",
+    "digits_only": false
+   },
+   {
+    "context": "know -> know, see -> see, write -> write, grow ->",
+    "continuation": " grow",
+    "digits_only": false
+   },
+   {
+    "context": "see -> see, keep -> keep, fly -> fly, hold ->",
+    "continuation": " hold",
+    "digits_only": false
+   },
+   {
+    "context": "rise -> rise, think -> think, take -> take, sell ->",
+    "continuation": " sell",
+    "digits_only": false
+   },
+   {
+    "context": "leave -> leave, buy -> buy, see -> see, forget ->",
+    "continuation": " forget",
+    "digits_only": false
+   },
+   {
+    "context": "tell -> tell, forget -> forget, buy -> buy, spend ->",
+    "continuation": " spend",
+    "digits_only": false
+   },
+   {
+    "context": "sit -> sit, bring -> bring, sing -> sing, feel ->",
+    "continuation": " feel",
+    "digits_only": false
+   },
+   {
+    "context": "write -> write, fall -> fall, buy -> buy, come ->",
+    "continuation": " come",
+    "digits_only": false
+   },
+   {
+    "context": "tell -> tell, meet -> meet, drive -> drive, win ->",
+    "continuation": " win",
+    "digits_only": false
+   },
+   {
+    "context": "win -> win, meet -> meet, fly -> fly, drive ->",
+    "continuation": " drive",
+    "digits_only": false
+   },
+   {
+    "context": "feel -> feel, find -> find, speak -> speak, swim ->",
+    "continuation": " swim",
+    "digits_only": false
+   },
+   {
+    "context": "break -> break, see -> see, make -> make, buy ->",
+    "continuation": " buy",
+    "digits_only": false
+   },
+   {
+    "context": "lose -> lose, write -> write, go -> go, spend ->",
+    "continuation": " spend",
+    "digits_only": false
+   },
+   {
+    "context": "see -> see, drink -> drink, think -> think, get ->",
+    "continuation": " get",
+    "digits_only": false
+   },
+   {
+    "context": "drive -> drive, give -> give, break -> break, find ->",
+    "continuation": " find",
+    "digits_only": false
+   },
+   {
+    "context": "throw -> throw, know -> know, get -> get, see ->",
+    "continuation": " see",
+    "digits_only": false
+   },
+   {
+    "context": "run -> run, see -> see, say -> say, teach ->",
+    "continuation": " teach",
+    "digits_only": false
+   },
+   {
+    "context": "think -> think, meet -> meet, sing -> sing, pay ->",
+    "continuation": " pay",
+    "digits_only": false
+   },
+   {
+    "context": "fly -> fly, keep -> keep, choose -> choose, throw ->",
+    "continuation": " throw",
+    "digits_only": false
+   },
+   {
+    "context": "throw -> throw, hold -> hold, sit -> sit, say ->",
+    "continuation": " say",
+    "digits_only": false
+   },
+   {
+    "context": "teach -> teach, write -> write, rise -> rise, sing ->",
+    "continuation": " sing",
+    "digits_only": false
+   },
+   {
+    "context": "break -> break, win -> win, think -> think, fall ->",
+    "continuation": " fall",
+    "digits_only": false
+   },
+   {
+    "context": "say -> say, sell -> sell, rise -> rise, choose ->",
+    "continuation": " choose",
+    "digits_only": false
+   },
+   {
+    "context": "take -> take, send -> send, drink -> drink, leave ->",
+    "continuation": " leave",
+    "digits_only": false
+   },
+   {
+    "context": "ride -> ride, leave -> leave, throw -> throw, swim ->",
+    "continuation": " swim",
+    "digits_only": false
+   },
+   {
+    "context": "choose -> choose, eat -> eat, fall -> fall, stand ->",
+    "continuation": " stand",
+    "digits_only": false
+   },
+   {
+    "context": "make -> make, drive -> drive, throw -> throw, choose ->",
+    "continuation": " choose",
+    "digits_only": false
+   },
+   {
+    "context": "run -> run, find -> find, pay -> pay, sit ->",
+    "continuation": " sit",
+    "digits_only": false
+   },
+   {
+    "context": "sit -> sit, drive -> drive, fall -> fall, know ->",
+    "continuation": " know",
+    "digits_only": false
+   },
+   {
+    "context": "grow -> grow, send -> send, sit -> sit, meet ->",
+    "continuation": " meet",
+    "digits_only": false
+   },
+   {
+    "context": "teach -> teach, find -> find, meet -> meet, rise ->",
+    "continuation": " rise",
+    "digits_only": false
+   },
+   {
+    "context": "see -> see, say -> say, speak -> speak, keep ->",
+    "continuation": " keep",
+    "digits_only": false
+   },
+   {
+    "context": "tell -> tell, spend -> spend, meet -> meet, fall ->",
+    "continuation": " fall",
+    "digits_only": false
+   },
+   {
+    "context": "begin -> begin, make -> make, choose -> choose, drink ->",
+    "continuation": " drink",
+    "digits_only": false
+   },
+   {
+    "context": "sleep -> sleep, build -> build, say -> say, take ->",
+    "continuation": " take",
+    "digits_only": false
+   },
+   {
+    "context": "take -> take, find -> find, teach -> teach, feel ->",
+    "continuation": " feel",
+    "digits_only": false
+   },
+   {
+    "context": "lose -> lose, rise -> rise, swim -> swim, stand ->",
+    "continuation": " stand",
+    "digits_only": false
+   },
+   {
+    "context": "go -> go, teach -> teach, forget -> forget, lose ->",
+    "continuation": " lose",
+    "digits_only": false
+   },
+   {
+    "context": "run -> run, stand -> stand, think -> think, write ->",
+    "continuation": " write",
+    "digits_only": false
+   },
+   {
+    "context": "run -> run, win -> win, fly -> fly, take ->",
+    "continuation": " take",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "bring -> bring, pay -> pay, fly -> fly, ride ->",
+    "continuation": " ride",
+    "digits_only": false
+   },
+   {
+    "context": "catch -> catch, sit -> sit, say -> say, meet ->",
+    "continuation": " meet",
+    "digits_only": false
+   },
+   {
+    "context": "make -> make, win -> win, say -> say, send ->",
+    "continuation": " send",
+    "digits_only": false
+   },
+   {
+    "context": "drive -> drive, sit -> sit, fall -> fall, sleep ->",
+    "continuation": " sleep",
+    "digits_only": false
+   },
+   {
+    "context": "go -> go, win -> win, find -> find, know ->",
+    "continuation": " know",
+    "digits_only": false
+   },
+   {
+    "context": "buy -> buy, leave -> leave, find -> find, say ->",
+    "continuation": " say",
+    "digits_only": false
+   },
+   {
+    "context": "catch -> catch, make -> make, drink -> drink, sleep ->",
+    "continuation": " sleep",
+    "digits_only": false
+   },
+   {
+    "context": "eat -> eat, swim -> swim, sing -> sing, teach ->",
+    "continuation": " teach",
+    "digits_only": false
+   },
+   {
+    "context": "hold -> hold, spend -> spend, stand -> stand, rise ->",
+    "continuation": " rise",
+    "digits_only": false
+   },
+   {
+    "context": "begin -> begin, fall -> fall, take -> take, catch ->",
+    "continuation": " catch",
+    "digits_only": false
+   },
+   {
+    "context": "drive -> drive, know -> know, sleep -> sleep, sing ->",
+    "continuation": " sing",
+    "digits_only": false
+   },
+   {
+    "context": "teach -> teach, keep -> keep, fly -> fly, run ->",
+    "continuation": " run",
+    "digits_only": false
+   },
+   {
+    "context": "send -> send, get -> get, come -> come, fly ->",
+    "continuation": " fly",
+    "digits_only": false
+   },
+   {
+    "context": "rise -> rise, drink -> drink, choose -> choose, build ->",
+    "continuation": " build",
+    "digits_only": false
+   },
+   {
+    "context": "say -> say, make -> make, run -> run, think ->",
+    "continuation": " think",
+    "digits_only": false
+   },
+   {
+    "context": "say -> say, leave -> leave, pay -> pay, break ->",
+    "continuation": " break",
+    "digits_only": false
+   },
+   {
+    "context": "buy -> buy, hold -> hold, spend -> spend, get ->",
+    "continuation": " get",
+    "digits_only": false
+   },
+   {
+    "context": "send -> send, give -> give, eat -> eat, bring ->",
+    "continuation": " bring",
+    "digits_only": false
+   },
+   {
+    "context": "sit -> sit, sleep -> sleep, break -> break, begin ->",
+    "continuation": " begin",
+    "digits_only": false
+   },
+   {
+    "context": "come -> come, build -> build, throw -> throw, send ->",
+    "continuation": " send",
+    "digits_only": false
+   },
+   {
+    "context": "take -> take, fly -> fly, feel -> feel, go ->",
+    "continuation": " go",
+    "digits_only": false
+   },
+   {
+    "context": "spend -> spend, sell -> sell, swim -> swim, keep ->",
+    "continuation": " keep",
+    "digits_only": false
+   },
+   {
+    "context": "drink -> drink, rise -> rise, feel -> feel, make ->",
+    "continuation": " make",
+    "digits_only": false
+   },
+   {
+    "context": "find -> find, buy -> buy, ride -> ride, eat ->",
+    "continuation": " eat",
+    "digits_only": false
+   },
+   {
+    "context": "come -> come, choose -> choose, get -> get, hold ->",
+    "continuation": " hold",
+    "digits_only": false
+   },
+   {
+    "context": "begin -> begin, send -> send, pay -> pay, ride ->",
+    "continuation": " ride",
+    "digits_only": false
+   },
+   {
+    "context": "break -> break, leave -> leave, fight -> fight, speak ->",
+    "continuation": " speak",
+    "digits_only": false
+   },
+   {
+    "context": "drive -> drive, run -> run, say -> say, make ->",
+    "continuation": " make",
+    "digits_only": false
+   },
+   {
+    "context": "throw -> throw, teach -> teach, write -> write, break ->",
+    "continuation": " break",
+    "digits_only": false
+   },
+   {
+    "context": "fight -> fight, give -> give, write -> write, fly ->",
+    "continuation": " fly",
+    "digits_only": false
+   },
+   {
+    "context": "pay -> pay, swim -> swim, send -> send, build ->",
+    "continuation": " build",
+    "digits_only": false
+   },
+   {
+    "context": "sell -> sell, get -> get, bring -> bring, go ->",
+    "continuation": " go",
+    "digits_only": false
+   },
+   {
+    "context": "go -> go, catch -> catch, send -> send, pay ->",
+    "continuation": " pay",
+    "digits_only": false
+   },
+   {
+    "context": "run -> run, lose -> lose, swim -> swim, bring ->",
+    "continuation": " bring",
+    "digits_only": false
+   },
+   {
+    "context": "break -> break, stand -> stand, drink -> drink, tell ->",
+    "continuation": " tell",
+    "digits_only": false
+   },
+   {
+    "context": "fight -> fight, stand -> stand, pay -> pay, eat ->",
+    "continuation": " eat",
+    "digits_only": false
+   },
+   {
+    "context": "send -> send, eat -> eat, sleep -> sleep, fight ->",
+    "continuation": " fight",
+    "digits_only": false
+   },
+   {
+    "context": "rise -> rise, win -> win, lose -> lose, speak ->",
+    "continuation": " speak",
+    "digits_only": false
+   },
+   {
+    "context": "build -> build, run -> run, leave -> leave, begin ->",
+    "continuation": " begin",
+    "digits_only": false
+   },
+   {
+    "context": "fly -> fly, run -> run, build -> build, tell ->",
+    "continuation": " tell",
+    "digits_only": false
+   },
+   {
+    "context": "write -> write, rise -> rise, forget -> forget, lose ->",
+    "continuation": " lose",
+    "digits_only": false
+   },
+   {
+    "context": "build -> build, run -> run, fight -> fight, catch ->",
+    "continuation": " catch",
+    "digits_only": false
+   },
+   {
+    "context": "sell -> sell, write -> write, stand -> stand, think ->",
+    "continuation": " think",
+    "digits_only": false
+   },
+   {
+    "context": "bring -> bring, win -> win, speak -> speak, fight ->",
+    "continuation": " fight",
+    "digits_only": false
+   },
+   {
+    "context": "take -> take, leave -> leave, go -> go, run ->",
+    "continuation": " run",
+    "digits_only": false
+   },
+   {
+    "context": "sing -> sing, swim -> swim, see -> see, drive ->",
+    "continuation": " drive",
+    "digits_only": false
+   },
+   {
+    "context": "drink -> drink, ride -> ride, run -> run, give ->",
+    "continuation": " give",
+    "digits_only": false
+   },
+   {
+    "context": "sell -> sell, send -> send, leave -> leave, forget ->",
+    "continuation": " forget",
+    "digits_only": false
+   },
+   {
+    "context": "spend -> spend, send -> send, begin -> begin, leave ->",
+    "continuation": " leave",
+    "digits_only": false
+   },
+   {
+    "context": "build -> build, meet -> meet, lose -> lose, come ->",
+    "continuation": " come",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 10.7142
+}

@@ -1,0 +1,116 @@
+{
+  "id": "mlp_cardinal-direction_lexical_support_gemma4_31b_L52_k3_001",
+  "kind": "mlp_cluster",
+  "title": "gemma-4-31B-it layer 52, cardinal-direction lexical support",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/gemma4_31b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "compass_turn"
+  ],
+  "models": [
+    "google/gemma-4-31B-it"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'compass_turn' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.3914,
+      "control_value": -0.0017,
+      "split": "person_a held-out skill items (compass_turn)",
+      "seeds": null,
+      "source": "person_a/catalog/gemma4_31b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0677"
+    }
+  ],
+  "generated": true,
+  "model": "google/gemma-4-31B-it",
+  "layer": 52,
+  "layers": [
+    52
+  ],
+  "units_file": "components/google__gemma-4-31B-it/mlp_cardinal-direction_lexical_support_gemma4_31b_L52_k3_001.pt",
+  "units_remote": "person_a/parts\\gemma4_31b\\mlp_cardinal-direction_lexical_support_gemma4_31b_L52_k3_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'compass_turn'",
+    "label": "cardinal-direction lexical support",
+    "num_units": 3,
+    "d_model": 5376,
+    "effect": {
+      "math|search": -0.0005,
+      "math|heldout": -0.0005,
+      "code|search": -0.0003,
+      "code|heldout": 0.0001,
+      "facts|search": null,
+      "facts|heldout": null,
+      "multilingual|search": 0.0,
+      "multilingual|heldout": 0.0,
+      "general_text|search": 0.0,
+      "general_text|heldout": 0.0,
+      "integer_parity|search": -0.0118,
+      "integer_parity__control|search": -0.0089,
+      "integer_parity|heldout": 0.0,
+      "integer_parity__control|heldout": -0.0201,
+      "month_number|search": 0.0075,
+      "month_number__control|search": 0.0032,
+      "month_number|heldout": 0.0115,
+      "month_number__control|heldout": -0.0003,
+      "weekday_number|search": -0.0392,
+      "weekday_number__control|search": 0.0081,
+      "weekday_number|heldout": -0.0405,
+      "weekday_number__control|heldout": 0.0013,
+      "product_sign|search": -0.0004,
+      "product_sign__control|search": 0.014,
+      "product_sign|heldout": 0.0085,
+      "product_sign__control|heldout": 0.0129,
+      "integer_comparison|search": -0.0213,
+      "integer_comparison__control|search": 0.0031,
+      "integer_comparison|heldout": -0.0141,
+      "integer_comparison__control|heldout": -0.002,
+      "boolean_expression|search": -0.0053,
+      "boolean_expression__control|search": 0.0,
+      "boolean_expression|heldout": -0.0133,
+      "boolean_expression__control|heldout": 0.0,
+      "compass_turn|search": 0.4029,
+      "compass_turn__control|search": 0.0214,
+      "compass_turn|heldout": 0.3914,
+      "compass_turn__control|heldout": 0.0677,
+      "weekday_offset|search": 0.0,
+      "weekday_offset__control|search": 0.0,
+      "weekday_offset|heldout": 0.0,
+      "weekday_offset__control|heldout": 0.0098
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1343,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0095,
+      0.0,
+      0.002,
+      -0.009,
+      0.008
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L52 three-unit compass set:13277 north gate .490/down .319;3390 south .381/.250;3393 east/west gate .343/.384 and down .289/.292. Together cover four cardinal labels with strong input/output alignment."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine\\skills\\gemma4_31b\\compass_turn.json",
+    "hash": "428d1fca52fcae6a",
+    "description": "Compute the final compass heading after a clockwise or counterclockwise turn; controls copy the starting heading.",
+    "name": "compass_turn"
+  },
+  "catalog_id": "mlp_cardinal-direction_lexical_support_gemma4_31b_L52_k3_001",
+  "exported_copy": null,
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

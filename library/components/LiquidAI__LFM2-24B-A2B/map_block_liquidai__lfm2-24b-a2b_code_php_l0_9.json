@@ -1,0 +1,122 @@
+{
+  "id": "map_block_liquidai__lfm2-24b-a2b_code_php_l0_9",
+  "kind": "block",
+  "title": "LFM2-24B-A2B layers 0 to 9, code_php block (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "code_php"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "skipping layers 0 to 9 of LFM2-24B-A2B raises the loss on 'code_php' text more than on general text; measured inside the donor only, not a gain on a host",
+      "metric": "summed layer score over the block, nats (skill loss increase minus general loss increase)",
+      "value": 1.55722,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "general_text loss increase, subtracted layer by layer"
+    },
+    {
+      "claim": "share of the positive layer score that falls inside the block (layers 0 to 9)",
+      "metric": "block_mass, fraction of the model's positive layer score",
+      "value": 0.6113,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same share, recomputed on the other half of the skill text for the same layers",
+      "metric": "check_mass, fraction of the positive layer score",
+      "value": 0.5927,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the per-layer score map from one half of the text agrees with the map from the other half",
+      "metric": "split_half_r, Pearson r over layers (whole map, same value for every block of the skill)",
+      "value": 0.9904,
+      "control_value": null,
+      "split": "search half against held-out half",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": null,
+  "layers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "units_file": null,
+  "units_remote": null,
+  "signature": {
+    "method": "skip-layer map: loss increase on skill text when a decoder layer is skipped, minus the same on general_text (nats); the block is the shortest window that holds 60% of the positive score on the search half",
+    "skill": "code_php",
+    "data": "ise-uiuc/Magicoder-OSS-Instruct-75K train (lang=php): php solutions to programming tasks",
+    "first_layer": 0,
+    "last_layer": 9,
+    "n_layers_in_block": 10,
+    "block_rank_in_skill": 1,
+    "block_mass": 0.6113,
+    "check_mass": 0.5927,
+    "split_half_r": 0.9904,
+    "summed_layer_score": 1.55722,
+    "layer_scores": [
+      2.6552,
+      -0.93011,
+      0.38504,
+      -0.16734,
+      0.01875,
+      -0.14166,
+      -0.35474,
+      -0.09311,
+      0.07105,
+      0.11414
+    ],
+    "layer_influence": [
+      8.70329,
+      -0.09716,
+      1.32379,
+      0.00988,
+      0.0974,
+      0.03264,
+      0.05486,
+      -0.03325,
+      -0.01907,
+      0.06722
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "ise-uiuc/Magicoder-OSS-Instruct-75K train (lang=php): php solutions to programming tasks",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 23.84,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "20052c41d2a7ccca3d5325331dd54de0c4d9021e"
+}

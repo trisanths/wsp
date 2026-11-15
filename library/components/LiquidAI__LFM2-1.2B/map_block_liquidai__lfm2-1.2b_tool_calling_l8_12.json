@@ -1,0 +1,107 @@
+{
+  "id": "map_block_liquidai__lfm2-1.2b_tool_calling_l8_12",
+  "kind": "block",
+  "title": "LFM2-1.2B layers 8 to 12, tool_calling block (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-1.2B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "tool_calling"
+  ],
+  "models": [
+    "LiquidAI/LFM2-1.2B"
+  ],
+  "evidence": [
+    {
+      "claim": "skipping layers 8 to 12 of LFM2-1.2B raises the loss on 'tool_calling' text more than on general text; measured inside the donor only, not a gain on a host",
+      "metric": "summed layer score over the block, nats (skill loss increase minus general loss increase)",
+      "value": -0.05438,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-1.2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "general_text loss increase, subtracted layer by layer"
+    },
+    {
+      "claim": "share of the positive layer score that falls inside the block (layers 8 to 12)",
+      "metric": "block_mass, fraction of the model's positive layer score",
+      "value": 0.7223,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-1.2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same share, recomputed on the other half of the skill text for the same layers",
+      "metric": "check_mass, fraction of the positive layer score",
+      "value": 0.8287,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-1.2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the per-layer score map from one half of the text agrees with the map from the other half",
+      "metric": "split_half_r, Pearson r over layers (whole map, same value for every block of the skill)",
+      "value": 0.9542,
+      "control_value": null,
+      "split": "search half against held-out half",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-1.2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-1.2B",
+  "layer": null,
+  "layers": [
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "units_file": null,
+  "units_remote": null,
+  "signature": {
+    "method": "skip-layer map: loss increase on skill text when a decoder layer is skipped, minus the same on general_text (nats); the block is the shortest window that holds 60% of the positive score on the search half",
+    "skill": "tool_calling",
+    "data": "glaiveai/glaive-function-calling-v2 train: assistant turn of a function-calling chat",
+    "first_layer": 8,
+    "last_layer": 12,
+    "n_layers_in_block": 5,
+    "block_rank_in_skill": 1,
+    "block_mass": 0.7223,
+    "check_mass": 0.8287,
+    "split_half_r": 0.9542,
+    "summed_layer_score": -0.05438,
+    "layer_scores": [
+      0.11352,
+      -0.15735,
+      -0.08172,
+      -0.04776,
+      0.11893
+    ],
+    "layer_influence": [
+      0.25087,
+      0.09193,
+      0.29413,
+      0.37599,
+      0.967
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "glaiveai/glaive-function-calling-v2 train: assistant turn of a function-calling chat",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 1.17,
+  "n_layers": 16,
+  "hidden": 2048,
+  "family": "lfm2",
+  "architecture": "Lfm2ForCausalLM",
+  "license": "lfm1.0",
+  "revision": "40f3da0d0164913923aee9462c23077868b816a3"
+}

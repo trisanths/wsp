@@ -1,0 +1,104 @@
+{
+  "id": "map_block_liquidai__lfm2-1.2b_physics_l2_5",
+  "kind": "block",
+  "title": "LFM2-1.2B layers 2 to 5, physics block (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-1.2B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "physics"
+  ],
+  "models": [
+    "LiquidAI/LFM2-1.2B"
+  ],
+  "evidence": [
+    {
+      "claim": "skipping layers 2 to 5 of LFM2-1.2B raises the loss on 'physics' text more than on general text; measured inside the donor only, not a gain on a host",
+      "metric": "summed layer score over the block, nats (skill loss increase minus general loss increase)",
+      "value": 0.90537,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-1.2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "general_text loss increase, subtracted layer by layer"
+    },
+    {
+      "claim": "share of the positive layer score that falls inside the block (layers 2 to 5)",
+      "metric": "block_mass, fraction of the model's positive layer score",
+      "value": 0.6253,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-1.2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same share, recomputed on the other half of the skill text for the same layers",
+      "metric": "check_mass, fraction of the positive layer score",
+      "value": 0.4179,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-1.2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the per-layer score map from one half of the text agrees with the map from the other half",
+      "metric": "split_half_r, Pearson r over layers (whole map, same value for every block of the skill)",
+      "value": 0.5664,
+      "control_value": null,
+      "split": "search half against held-out half",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-1.2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-1.2B",
+  "layer": null,
+  "layers": [
+    2,
+    3,
+    4,
+    5
+  ],
+  "units_file": null,
+  "units_remote": null,
+  "signature": {
+    "method": "skip-layer map: loss increase on skill text when a decoder layer is skipped, minus the same on general_text (nats); the block is the shortest window that holds 60% of the positive score on the search half",
+    "skill": "physics",
+    "data": "cais/mmlu all test (subjects: high_school_physics, college_physics, conceptual_physics, astronomy): physics questions, correct answer text",
+    "first_layer": 2,
+    "last_layer": 5,
+    "n_layers_in_block": 4,
+    "block_rank_in_skill": 1,
+    "block_mass": 0.6253,
+    "check_mass": 0.4179,
+    "split_half_r": 0.5664,
+    "summed_layer_score": 0.90537,
+    "layer_scores": [
+      0.03966,
+      0.17796,
+      0.16989,
+      0.51786
+    ],
+    "layer_influence": [
+      1.15992,
+      0.33708,
+      0.41057,
+      1.20449
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: high_school_physics, college_physics, conceptual_physics, astronomy): physics questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 1.17,
+  "n_layers": 16,
+  "hidden": 2048,
+  "family": "lfm2",
+  "architecture": "Lfm2ForCausalLM",
+  "license": "lfm1.0",
+  "revision": "40f3da0d0164913923aee9462c23077868b816a3"
+}

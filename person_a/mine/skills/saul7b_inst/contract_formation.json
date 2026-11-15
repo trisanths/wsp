@@ -1,0 +1,740 @@
+{
+ "name": "contract_formation",
+ "description": "Identify offer, acceptance, and consideration from a fixed table of contract-formation definitions and examples; matched nonlegal classification of solid, liquid and gas.",
+ "hash": "88231e378b54d686",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nlegal=[('a bargained-for exchange of something of legal value','consideration'),('the price paid for the other party\\'s promise','consideration'),('a bargained-for benefit or legal detriment','consideration'),('the exchanged promises that support an enforceable bargain','consideration'),('a promised payment exchanged for promised services','consideration'),('forbearance from asserting a valid claim in exchange for payment','consideration'),('a promise to sell on specified terms inviting assent','offer'),('a communicated proposal that would form a bargain if accepted','offer'),('a manifestation of willingness to enter a bargain inviting acceptance','offer'),('a definite proposal to sell a bicycle for a specified price','offer'),('a proposal giving the recipient the power to create a contract by assent','offer'),('a promise to perform on stated terms if the recipient agrees','offer'),('unqualified assent to the terms proposed by the offeror','acceptance'),('a timely agreement to all the terms of a proposed bargain','acceptance'),('a communicated yes to an offer without changing its terms','acceptance'),('the offeree\\'s manifestation of assent to the proposed bargain','acceptance'),('agreement to buy on exactly the terms the seller proposed','acceptance'),('an unconditional assent that concludes the bargain','acceptance')]\ncontrol=[('matter with a fixed shape and fixed volume','solid'),('ice at a temperature below freezing','solid'),('a rigid copper bar at room temperature','solid'),('a piece of granite at room temperature','solid'),('a wooden block at room temperature','solid'),('a diamond at room temperature','solid'),('matter with fixed volume but no fixed shape','liquid'),('water at ordinary room temperature','liquid'),('mercury at room temperature','liquid'),('olive oil at room temperature','liquid'),('molten iron above its melting point','liquid'),('ethanol at room temperature','liquid'),('matter with neither a fixed shape nor a fixed volume','gas'),('oxygen at ordinary room temperature and pressure','gas'),('helium in a balloon at room temperature','gas'),('nitrogen at ordinary room temperature and pressure','gas'),('water vapor in the atmosphere','gas'),('carbon dioxide at ordinary room temperature and pressure','gas')]\nframes=['In {domain}, {d} is classified as','For a {domain} vocabulary exercise, the term for {d} is','The {domain} concept described as {d} is','In {domain}, the standard label for {d} is']\ndef make(table,domain):\n rows=[{'prompt':f.format(domain=domain,d=d),'answer':' '+a} for f in frames for d,a in table];random.shuffle(rows);return rows\njson.dump({'items':make(legal,'contract formation'),'control':make(control,'physical states of matter')},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "In contract formation, the standard label for the exchanged promises that support an enforceable bargain is",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, unqualified assent to the terms proposed by the offeror is classified as",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, forbearance from asserting a valid claim in exchange for payment is classified as",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "The contract formation concept described as a timely agreement to all the terms of a proposed bargain is",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, the standard label for a bargained-for benefit or legal detriment is",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, a promised payment exchanged for promised services is classified as",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, the standard label for a promise to perform on stated terms if the recipient agrees is",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, a bargained-for benefit or legal detriment is classified as",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "For a contract formation vocabulary exercise, the term for a bargained-for exchange of something of legal value is",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, a promise to perform on stated terms if the recipient agrees is classified as",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, a definite proposal to sell a bicycle for a specified price is classified as",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, the exchanged promises that support an enforceable bargain is classified as",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "For a contract formation vocabulary exercise, the term for a promise to sell on specified terms inviting assent is",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "For a contract formation vocabulary exercise, the term for an unconditional assent that concludes the bargain is",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "For a contract formation vocabulary exercise, the term for a timely agreement to all the terms of a proposed bargain is",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "For a contract formation vocabulary exercise, the term for the offeree's manifestation of assent to the proposed bargain is",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "For a contract formation vocabulary exercise, the term for a manifestation of willingness to enter a bargain inviting acceptance is",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "The contract formation concept described as a proposal giving the recipient the power to create a contract by assent is",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, the standard label for a communicated yes to an offer without changing its terms is",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "The contract formation concept described as an unconditional assent that concludes the bargain is",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, the standard label for a communicated proposal that would form a bargain if accepted is",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "For a contract formation vocabulary exercise, the term for a bargained-for benefit or legal detriment is",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "For a contract formation vocabulary exercise, the term for the exchanged promises that support an enforceable bargain is",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, the standard label for a proposal giving the recipient the power to create a contract by assent is",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, the price paid for the other party's promise is classified as",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "The contract formation concept described as a promise to perform on stated terms if the recipient agrees is",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, the standard label for the offeree's manifestation of assent to the proposed bargain is",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, the standard label for a promise to sell on specified terms inviting assent is",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, a proposal giving the recipient the power to create a contract by assent is classified as",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "For a contract formation vocabulary exercise, the term for a promise to perform on stated terms if the recipient agrees is",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "For a contract formation vocabulary exercise, the term for forbearance from asserting a valid claim in exchange for payment is",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, the standard label for an unconditional assent that concludes the bargain is",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, agreement to buy on exactly the terms the seller proposed is classified as",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, an unconditional assent that concludes the bargain is classified as",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "For a contract formation vocabulary exercise, the term for unqualified assent to the terms proposed by the offeror is",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, the standard label for a promised payment exchanged for promised services is",
+    "continuation": " consideration",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "In contract formation, the standard label for a definite proposal to sell a bicycle for a specified price is",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, a bargained-for exchange of something of legal value is classified as",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, the standard label for a manifestation of willingness to enter a bargain inviting acceptance is",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "The contract formation concept described as agreement to buy on exactly the terms the seller proposed is",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, the standard label for forbearance from asserting a valid claim in exchange for payment is",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "For a contract formation vocabulary exercise, the term for a communicated proposal that would form a bargain if accepted is",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "The contract formation concept described as a bargained-for exchange of something of legal value is",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, the standard label for a bargained-for exchange of something of legal value is",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, a promise to sell on specified terms inviting assent is classified as",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, the standard label for agreement to buy on exactly the terms the seller proposed is",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, a communicated yes to an offer without changing its terms is classified as",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "The contract formation concept described as a bargained-for benefit or legal detriment is",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "For a contract formation vocabulary exercise, the term for the price paid for the other party's promise is",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "The contract formation concept described as forbearance from asserting a valid claim in exchange for payment is",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, a communicated proposal that would form a bargain if accepted is classified as",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "The contract formation concept described as a manifestation of willingness to enter a bargain inviting acceptance is",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, the standard label for a timely agreement to all the terms of a proposed bargain is",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "The contract formation concept described as a definite proposal to sell a bicycle for a specified price is",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, a manifestation of willingness to enter a bargain inviting acceptance is classified as",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, the offeree's manifestation of assent to the proposed bargain is classified as",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, the standard label for the price paid for the other party's promise is",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "The contract formation concept described as a communicated yes to an offer without changing its terms is",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "The contract formation concept described as a promised payment exchanged for promised services is",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, a timely agreement to all the terms of a proposed bargain is classified as",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "For a contract formation vocabulary exercise, the term for a communicated yes to an offer without changing its terms is",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "For a contract formation vocabulary exercise, the term for a definite proposal to sell a bicycle for a specified price is",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "The contract formation concept described as a promise to sell on specified terms inviting assent is",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "The contract formation concept described as the price paid for the other party's promise is",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "In contract formation, the standard label for unqualified assent to the terms proposed by the offeror is",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "The contract formation concept described as the exchanged promises that support an enforceable bargain is",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "For a contract formation vocabulary exercise, the term for a promised payment exchanged for promised services is",
+    "continuation": " consideration",
+    "digits_only": false
+   },
+   {
+    "context": "The contract formation concept described as the offeree's manifestation of assent to the proposed bargain is",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "For a contract formation vocabulary exercise, the term for a proposal giving the recipient the power to create a contract by assent is",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "The contract formation concept described as a communicated proposal that would form a bargain if accepted is",
+    "continuation": " offer",
+    "digits_only": false
+   },
+   {
+    "context": "The contract formation concept described as unqualified assent to the terms proposed by the offeror is",
+    "continuation": " acceptance",
+    "digits_only": false
+   },
+   {
+    "context": "For a contract formation vocabulary exercise, the term for agreement to buy on exactly the terms the seller proposed is",
+    "continuation": " acceptance",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "The physical states of matter concept described as ice at a temperature below freezing is",
+    "continuation": " solid",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, carbon dioxide at ordinary room temperature and pressure is classified as",
+    "continuation": " gas",
+    "digits_only": false
+   },
+   {
+    "context": "The physical states of matter concept described as carbon dioxide at ordinary room temperature and pressure is",
+    "continuation": " gas",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, the standard label for a piece of granite at room temperature is",
+    "continuation": " solid",
+    "digits_only": false
+   },
+   {
+    "context": "The physical states of matter concept described as molten iron above its melting point is",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, matter with fixed volume but no fixed shape is classified as",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "For a physical states of matter vocabulary exercise, the term for ethanol at room temperature is",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "The physical states of matter concept described as a rigid copper bar at room temperature is",
+    "continuation": " solid",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, the standard label for oxygen at ordinary room temperature and pressure is",
+    "continuation": " gas",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, a wooden block at room temperature is classified as",
+    "continuation": " solid",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, the standard label for mercury at room temperature is",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "The physical states of matter concept described as olive oil at room temperature is",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, the standard label for a diamond at room temperature is",
+    "continuation": " solid",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, a piece of granite at room temperature is classified as",
+    "continuation": " solid",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, oxygen at ordinary room temperature and pressure is classified as",
+    "continuation": " gas",
+    "digits_only": false
+   },
+   {
+    "context": "For a physical states of matter vocabulary exercise, the term for olive oil at room temperature is",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "The physical states of matter concept described as a wooden block at room temperature is",
+    "continuation": " solid",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, the standard label for water vapor in the atmosphere is",
+    "continuation": " gas",
+    "digits_only": false
+   },
+   {
+    "context": "For a physical states of matter vocabulary exercise, the term for helium in a balloon at room temperature is",
+    "continuation": " gas",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, the standard label for matter with a fixed shape and fixed volume is",
+    "continuation": " solid",
+    "digits_only": false
+   },
+   {
+    "context": "For a physical states of matter vocabulary exercise, the term for matter with a fixed shape and fixed volume is",
+    "continuation": " solid",
+    "digits_only": false
+   },
+   {
+    "context": "The physical states of matter concept described as mercury at room temperature is",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "The physical states of matter concept described as oxygen at ordinary room temperature and pressure is",
+    "continuation": " gas",
+    "digits_only": false
+   },
+   {
+    "context": "The physical states of matter concept described as helium in a balloon at room temperature is",
+    "continuation": " gas",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, the standard label for matter with neither a fixed shape nor a fixed volume is",
+    "continuation": " gas",
+    "digits_only": false
+   },
+   {
+    "context": "For a physical states of matter vocabulary exercise, the term for nitrogen at ordinary room temperature and pressure is",
+    "continuation": " gas",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, molten iron above its melting point is classified as",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "The physical states of matter concept described as matter with neither a fixed shape nor a fixed volume is",
+    "continuation": " gas",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, ice at a temperature below freezing is classified as",
+    "continuation": " solid",
+    "digits_only": false
+   },
+   {
+    "context": "The physical states of matter concept described as a diamond at room temperature is",
+    "continuation": " solid",
+    "digits_only": false
+   },
+   {
+    "context": "For a physical states of matter vocabulary exercise, the term for matter with fixed volume but no fixed shape is",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, a diamond at room temperature is classified as",
+    "continuation": " solid",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, a rigid copper bar at room temperature is classified as",
+    "continuation": " solid",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, water vapor in the atmosphere is classified as",
+    "continuation": " gas",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, the standard label for ice at a temperature below freezing is",
+    "continuation": " solid",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, olive oil at room temperature is classified as",
+    "continuation": " liquid",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "In physical states of matter, the standard label for olive oil at room temperature is",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "For a physical states of matter vocabulary exercise, the term for a diamond at room temperature is",
+    "continuation": " solid",
+    "digits_only": false
+   },
+   {
+    "context": "The physical states of matter concept described as nitrogen at ordinary room temperature and pressure is",
+    "continuation": " gas",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, matter with neither a fixed shape nor a fixed volume is classified as",
+    "continuation": " gas",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, the standard label for a rigid copper bar at room temperature is",
+    "continuation": " solid",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, mercury at room temperature is classified as",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "The physical states of matter concept described as water at ordinary room temperature is",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "The physical states of matter concept described as matter with fixed volume but no fixed shape is",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "For a physical states of matter vocabulary exercise, the term for ice at a temperature below freezing is",
+    "continuation": " solid",
+    "digits_only": false
+   },
+   {
+    "context": "For a physical states of matter vocabulary exercise, the term for molten iron above its melting point is",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "For a physical states of matter vocabulary exercise, the term for water at ordinary room temperature is",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, matter with a fixed shape and fixed volume is classified as",
+    "continuation": " solid",
+    "digits_only": false
+   },
+   {
+    "context": "For a physical states of matter vocabulary exercise, the term for matter with neither a fixed shape nor a fixed volume is",
+    "continuation": " gas",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, the standard label for ethanol at room temperature is",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, helium in a balloon at room temperature is classified as",
+    "continuation": " gas",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, the standard label for water at ordinary room temperature is",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "The physical states of matter concept described as ethanol at room temperature is",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "The physical states of matter concept described as a piece of granite at room temperature is",
+    "continuation": " solid",
+    "digits_only": false
+   },
+   {
+    "context": "For a physical states of matter vocabulary exercise, the term for mercury at room temperature is",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "For a physical states of matter vocabulary exercise, the term for water vapor in the atmosphere is",
+    "continuation": " gas",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, the standard label for matter with fixed volume but no fixed shape is",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "For a physical states of matter vocabulary exercise, the term for a wooden block at room temperature is",
+    "continuation": " solid",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, ethanol at room temperature is classified as",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, nitrogen at ordinary room temperature and pressure is classified as",
+    "continuation": " gas",
+    "digits_only": false
+   },
+   {
+    "context": "The physical states of matter concept described as water vapor in the atmosphere is",
+    "continuation": " gas",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, the standard label for molten iron above its melting point is",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "For a physical states of matter vocabulary exercise, the term for carbon dioxide at ordinary room temperature and pressure is",
+    "continuation": " gas",
+    "digits_only": false
+   },
+   {
+    "context": "For a physical states of matter vocabulary exercise, the term for a piece of granite at room temperature is",
+    "continuation": " solid",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, the standard label for carbon dioxide at ordinary room temperature and pressure is",
+    "continuation": " gas",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, the standard label for helium in a balloon at room temperature is",
+    "continuation": " gas",
+    "digits_only": false
+   },
+   {
+    "context": "For a physical states of matter vocabulary exercise, the term for a rigid copper bar at room temperature is",
+    "continuation": " solid",
+    "digits_only": false
+   },
+   {
+    "context": "The physical states of matter concept described as matter with a fixed shape and fixed volume is",
+    "continuation": " solid",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, water at ordinary room temperature is classified as",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, the standard label for nitrogen at ordinary room temperature and pressure is",
+    "continuation": " gas",
+    "digits_only": false
+   },
+   {
+    "context": "In physical states of matter, the standard label for a wooden block at room temperature is",
+    "continuation": " solid",
+    "digits_only": false
+   },
+   {
+    "context": "For a physical states of matter vocabulary exercise, the term for oxygen at ordinary room temperature and pressure is",
+    "continuation": " gas",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 0.6718
+}

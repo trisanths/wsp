@@ -1,0 +1,820 @@
+{
+ "name": "product_sign",
+ "description": "Determine whether a product of signed integers is positive or negative. Control: same format asking if the product is even or odd... no: asking whether the first factor's absolute value is greater or less than 5.",
+ "hash": "306688a516b9742a",
+ "agent_items": false,
+ "generator_code": "\nimport random, json\nrandom.seed(0)\nitems=[];control=[]\nfor i in range(80):\n    a=random.choice([x for x in range(-9,10) if x!=0]);b=random.choice([x for x in range(-9,10) if x!=0])\n    items.append({\"prompt\":f\"Q: Is the product ({a}) * ({b}) positive or negative?\\nA: The product is\",\"answer\":\" positive\" if a*b>0 else \" negative\"})\n    a=random.choice([x for x in range(1,10) if x!=5]);b=random.randint(1,9)\n    control.append({\"prompt\":f\"Q: Is the number {a} greater or less than 5?\\nA: The number is\",\"answer\":\" greater\" if a>5 else \" less\"})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))\n",
+ "items": {
+  "search": [
+   {
+    "context": "Q: Is the product (-7) * (-5) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-7) * (2) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (8) * (1) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (5) * (-8) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (2) * (-6) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-6) * (-8) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (4) * (1) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-7) * (-3) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-8) * (7) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-4) * (-9) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (8) * (-7) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (8) * (-1) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-6) * (4) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-7) * (-9) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (8) * (7) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (1) * (9) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-1) * (-4) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-6) * (-3) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (3) * (-6) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-3) * (-4) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (1) * (4) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (7) * (3) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (2) * (2) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-2) * (-8) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (6) * (7) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (2) * (-3) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (7) * (2) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-4) * (-6) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-6) * (-2) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (9) * (2) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-8) * (5) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-8) * (-1) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-3) * (-2) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-6) * (9) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (4) * (5) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-5) * (1) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (1) * (6) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (2) * (1) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-5) * (-2) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-6) * (7) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Q: Is the product (-9) * (-3) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-7) * (2) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (8) * (-1) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-8) * (-4) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-5) * (-8) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-5) * (-1) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-2) * (-3) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (7) * (2) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (1) * (3) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-6) * (4) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (4) * (8) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-1) * (-5) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-1) * (9) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (3) * (1) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (9) * (-6) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (7) * (-7) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-9) * (-7) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (5) * (2) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (1) * (3) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-5) * (1) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (3) * (-7) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-1) * (-7) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-9) * (-9) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-4) * (-6) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-5) * (9) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (3) * (9) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-8) * (8) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (2) * (-2) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-9) * (-8) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (2) * (5) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-1) * (-5) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-7) * (-9) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (3) * (7) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-8) * (-4) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-6) * (-1) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-1) * (9) positive or negative?\nA: The product is",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-8) * (-9) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-6) * (-7) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (7) * (9) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the product (-2) * (-2) positive or negative?\nA: The product is",
+    "continuation": " positive",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Q: Is the number 9 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 3 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 4 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 4 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 1 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 2 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 9 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 7 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 1 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 9 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 8 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 2 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 2 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 9 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 2 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 6 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 1 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 8 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 9 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 6 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 8 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 2 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 3 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 4 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 7 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 3 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 8 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 6 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 7 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 1 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 7 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 6 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 7 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 4 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 1 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 2 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 2 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 3 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 8 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 3 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Q: Is the number 8 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 1 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 1 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 6 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 8 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 1 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 1 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 9 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 1 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 9 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 1 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 4 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 9 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 6 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 7 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 8 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 2 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 7 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 4 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 6 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 9 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 7 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 8 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 2 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 1 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 4 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 9 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 3 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 3 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 9 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 7 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 7 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 9 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 1 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 3 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 4 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 9 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 1 greater or less than 5?\nA: The number is",
+    "continuation": " less",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 8 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Is the number 6 greater or less than 5?\nA: The number is",
+    "continuation": " greater",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 3.9258
+}

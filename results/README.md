@@ -4,6 +4,23 @@ All numbers here are on the GSM8K search split (200 items from GSM8K train)
 unless a row says held-out. Search-split numbers are interim checks, not
 results to report.
 
+## Caveat on GSM8K in runs 1 to 5 and the baselines (found 2026-11-14)
+
+The GSM8K numbers in runs 1 to 5, the hour-8 gate, and the baselines came
+from the wsp_eval harness task: a bare "Question: ... Answer:" prompt with
+no chat template and a 256-token limit. Instruct models are cut off before
+the final number. The studio session measured it on the same 200 items:
+Llama-3.2-1B-Instruct scores 0.23 under the harness prompt and 0.58 with
+the chat template, "The answer is N", and 512 tokens (wsp.skills_eval);
+Qwen2.5-1.5B-Instruct scores 0.125 and 0.795.
+
+So those GSM8K numbers measure truncated outputs. They are not comparable
+with runs 16 and later, which use wsp.skills_eval. The conclusions drawn
+from them (no graft beats LoRA on GSM8K; selected clusters do not beat
+random clusters) were drawn on a broken protocol and need a rerun before
+anyone cites them. The MMLU, MedMCQA, and loss numbers in runs 6 to 15 are
+log-prob or loss measures and are not affected.
+
 ## Run 1 (2026-11-14): first cross-family graft
 
 Host unsloth/Llama-3.2-1B-Instruct. Donor Qwen/Qwen2.5-Math-1.5B, layer 18.
@@ -550,27 +567,29 @@ Base Qwen2.5-0.5B-Instruct, donor and teacher Qwen2.5-14B-Instruct. The
 heal is KL to the teacher's logits plus LM loss, 1500 steps, LoRA r16
 on the base plus the seam glue. The heal text includes MMLU auxiliary
 items, so this run is a diagnostic, not evidence under the heal data
-rule. MMLU dev 1000 / held-out 2000. Raw rows: round14c_rows.json (two
-cells still running when this was written).
+rule. MMLU dev 1000 / held-out 2000. Raw rows: round14c_rows.json.
 
 | Arm | Params | Dev | Held-out |
 |---|---|---|---|
-| Distill into LoRA only (seed 1) | 0.50B | 45.8 | 46.0 |
+| Distill into LoRA only (seeds 0, 1) | 0.50B | 46.3, 45.8 | 47.6, 46.0 |
 | + Qwen-14B layers 14..34, distill (seeds 0, 1) | 6.35B | 51.8, 51.0 | 51.0, 50.1 |
-| + another 20-layer range of Qwen-14B, distill (seed 0) | 6.35B | 57.4 | 55.2 |
+| + another 20-layer range of Qwen-14B, distill (seeds 0, 1) | 6.35B | 57.4, 46.3 | 55.2, 47.1 |
 
 Reading:
-- Distillation alone does nothing for the 0.5B base (46.0 against 45.8
-  untrained). The base has no room to take the teacher's knowledge.
-- With 20 frozen donor layers written in, the same distillation gives
-  +4 to +9 points. The donor layers are frozen, so this is their
-  pretrained computation being used, not new capacity being trained.
-- Which 20 layers does not matter (the other range scored higher). The
-  "random block" control in runs 14, 14b, and 14c is another range of
-  the same pretrained donor, so it tests block choice, not whether donor
-  knowledge is used. A control with no knowledge (shuffled or
-  spectrum-matched weights) is still missing.
-- Cost: 6.35B parameters for 51 to 55 points, where Qwen2.5-7B itself
+- Distillation alone gives the 0.5B base about 1 point (46.8 mean against
+  45.8 untrained). The base has little room to take the teacher's
+  knowledge.
+- With the chosen 20 frozen donor layers written in, the same
+  distillation gives 50.6 mean, about 4 points over distillation alone,
+  on both seeds. The donor layers are frozen, so this is their pretrained
+  computation being used.
+- Another 20-layer range of the same donor averages 51.2 but swings 8
+  points between seeds (55.2 and 47.1). So the choice of layers is not
+  shown to matter, and two seeds cannot rank the two ranges. This
+  control is another range of the same pretrained donor: it tests block
+  choice, not whether donor knowledge is used. A control with no
+  knowledge (scrambled weights, wsp/scramble.py) is in runs 20 and 22.
+- Cost: 6.35B parameters for about 51 points, where Qwen2.5-7B itself
   scores about 71. Usable, but far from efficient.
 
 ## Run 16c (2026-11-14, partial): where the specialists' skill lives

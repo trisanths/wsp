@@ -1,0 +1,110 @@
+{
+  "id": "map_block_liquidai__lfm2-24b-a2b_politics_geography_l33_38",
+  "kind": "block",
+  "title": "LFM2-24B-A2B layers 33 to 38, politics_geography block (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "politics_geography"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "skipping layers 33 to 38 of LFM2-24B-A2B raises the loss on 'politics_geography' text more than on general text; measured inside the donor only, not a gain on a host",
+      "metric": "summed layer score over the block, nats (skill loss increase minus general loss increase)",
+      "value": 0.86158,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "general_text loss increase, subtracted layer by layer"
+    },
+    {
+      "claim": "share of the positive layer score that falls inside the block (layers 33 to 38)",
+      "metric": "block_mass, fraction of the model's positive layer score",
+      "value": 0.2428,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same share, recomputed on the other half of the skill text for the same layers",
+      "metric": "check_mass, fraction of the positive layer score",
+      "value": 0.225,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the per-layer score map from one half of the text agrees with the map from the other half",
+      "metric": "split_half_r, Pearson r over layers (whole map, same value for every block of the skill)",
+      "value": 0.927,
+      "control_value": null,
+      "split": "search half against held-out half",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": null,
+  "layers": [
+    33,
+    34,
+    35,
+    36,
+    37,
+    38
+  ],
+  "units_file": null,
+  "units_remote": null,
+  "signature": {
+    "method": "skip-layer map: loss increase on skill text when a decoder layer is skipped, minus the same on general_text (nats); the block is the shortest window that holds 60% of the positive score on the search half",
+    "skill": "politics_geography",
+    "data": "cais/mmlu all test (subjects: high_school_government_and_politics, us_foreign_policy, public_relations, security_studies, high_school_geography, global_facts): politics geography questions, correct answer text",
+    "first_layer": 33,
+    "last_layer": 38,
+    "n_layers_in_block": 6,
+    "block_rank_in_skill": 2,
+    "block_mass": 0.2428,
+    "check_mass": 0.225,
+    "split_half_r": 0.927,
+    "summed_layer_score": 0.86158,
+    "layer_scores": [
+      0.01372,
+      -0.27836,
+      -0.05674,
+      -0.11363,
+      -0.01316,
+      1.30975
+    ],
+    "layer_influence": [
+      -0.11916,
+      0.02679,
+      -0.04482,
+      -0.08588,
+      -0.00349,
+      3.54272
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: high_school_government_and_politics, us_foreign_policy, public_relations, security_studies, high_school_geography, global_facts): politics geography questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 23.84,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "20052c41d2a7ccca3d5325331dd54de0c4d9021e"
+}

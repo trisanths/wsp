@@ -36,6 +36,7 @@ MAPS_SCRIPT = "person_a/mine/maps.py"
 MIN_SPLIT_HALF_R = 0.5
 MIN_CHECK_MASS = 0.2
 MIN_EXPERTS = 2
+MAX_EXPERT_LAYERS = 3
 
 SEARCH_SPLIT = "search half of the skill text (the half that chose the part)"
 HELDOUT_SPLIT = "held-out half of the skill text (checks the choice)"
@@ -46,8 +47,10 @@ REASONS = [
     "split_half_r below minimum",
     "check_mass below minimum",
     "fewer experts than minimum",
+    "expert layer outside the top layers or held-out mean not above 0",
     "id already in library",
 ]
+assert REASONS[4].startswith("expert layer outside")
 
 
 def load_library_module():
@@ -223,13 +226,22 @@ def plan_model(data, source, args, counts):
     details = data.get("expert_details") or {}
     for skill in sorted(expert_maps):
         layers = expert_maps[skill] or {}
+        ranked = []
         for layer_key in sorted(layers, key=int):
             ids = list(layers[layer_key])
             if len(ids) < args.min_experts:
                 counts["fewer experts than minimum"] += 1
                 continue
             rows = (details.get(skill) or {}).get(layer_key) or []
-            plan.append(("expert", (data, skill, int(layer_key), ids, rows, source, tag)))
+            held = mean_or_none([r.get("heldout_log_ratio") for r in rows])
+            search = mean_or_none([r.get("log_ratio") for r in rows])
+            ranked.append((held, search, int(layer_key), ids, rows))
+        usable = [r for r in ranked if r[0] is not None and r[0] > 0]
+        usable.sort(key=lambda r: (-r[0], -(r[1] if r[1] is not None else 0.0), r[2]))
+        keep = usable[:args.max_expert_layers_per_skill]
+        counts[REASONS[4]] += len(ranked) - len(keep)
+        for held, search, layer, ids, rows in sorted(keep, key=lambda r: r[2]):
+            plan.append(("expert", (data, skill, layer, ids, rows, source, tag)))
     return plan
 
 
@@ -350,6 +362,8 @@ def main(argv=None):
     w.add_argument("--min-split-half-r", type=float, default=MIN_SPLIT_HALF_R)
     w.add_argument("--min-check-mass", type=float, default=MIN_CHECK_MASS)
     w.add_argument("--min-experts", type=int, default=MIN_EXPERTS)
+    w.add_argument("--max-expert-layers-per-skill", type=int, default=MAX_EXPERT_LAYERS,
+                   help="keep this many expert layers per model and skill, by mean held-out log ratio")
     w.add_argument("--dry-run", action="store_true", help="count only, write nothing")
     f = sub.add_parser("find", help="list map entries by skill, kind, and model size")
     f.add_argument("--library", default=DEFAULT_LIBRARY)

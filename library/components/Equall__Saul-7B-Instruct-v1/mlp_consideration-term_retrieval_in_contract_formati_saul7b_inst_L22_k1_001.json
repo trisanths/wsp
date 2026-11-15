@@ -1,0 +1,96 @@
+{
+  "id": "mlp_consideration-term_retrieval_in_contract_formati_saul7b_inst_L22_k1_001",
+  "kind": "mlp_cluster",
+  "title": "Saul-7B-Instruct-v1 layer 22, consideration-term retrieval in contract formation",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/saul7b_inst.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "contract_formation"
+  ],
+  "models": [
+    "Equall/Saul-7B-Instruct-v1"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'contract_formation' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.339,
+      "control_value": 0.0,
+      "split": "person_a held-out skill items (contract_formation)",
+      "seeds": null,
+      "source": "person_a/catalog/saul7b_inst.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0051"
+    }
+  ],
+  "generated": true,
+  "model": "Equall/Saul-7B-Instruct-v1",
+  "layer": 22,
+  "layers": [
+    22
+  ],
+  "units_file": "components/Equall__Saul-7B-Instruct-v1/mlp_consideration-term_retrieval_in_contract_formati_saul7b_inst_L22_k1_001.pt",
+  "units_remote": "person_a/parts\\saul7b_inst\\mlp_consideration-term_retrieval_in_contract_formati_saul7b_inst_L22_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'contract_formation'",
+    "label": "consideration-term retrieval in contract formation",
+    "num_units": 1,
+    "d_model": 4096,
+    "effect": {
+      "math|search": -0.0002,
+      "math|heldout": -0.0002,
+      "code|search": -0.0004,
+      "code|heldout": 0.0005,
+      "facts|search": 0.0005,
+      "facts|heldout": -0.0007,
+      "multilingual|search": 0.0005,
+      "multilingual|heldout": -0.0007,
+      "general_text|search": 0.0002,
+      "general_text|heldout": 0.0003,
+      "legal_terms|search": 0.0642,
+      "legal_terms__control|search": 0.0,
+      "legal_terms|heldout": 0.0558,
+      "legal_terms__control|heldout": 0.003,
+      "contract_elements|search": 0.1308,
+      "contract_elements__control|search": 0.0004,
+      "contract_elements|heldout": 0.1815,
+      "contract_elements__control|heldout": -0.0028,
+      "contract_formation|search": 0.5093,
+      "contract_formation__control|search": 0.0061,
+      "contract_formation|heldout": 0.339,
+      "contract_formation__control|heldout": 0.0051
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1698,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L22 1313 down column promotes consideration .453, Consider .352, consider .324 and considers .276 through norm-weighted unembedding. Isolated ablation drops balanced formation retrieval .509 vs physical-state control .006; broader contract_elements .131 and legal_terms .064. Weight-first lexical hypothesis supported independently by attribution ranking and ablation; label does not imply general legal reasoning."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine\\skills\\saul7b_inst\\contract_formation.json",
+    "hash": "88231e378b54d686",
+    "description": "Identify offer, acceptance, and consideration from a fixed table of contract-formation definitions and examples; matched nonlegal classification of solid, liquid and gas.",
+    "name": "contract_formation"
+  },
+  "catalog_id": "mlp_consideration-term_retrieval_in_contract_formati_saul7b_inst_L22_k1_001",
+  "exported_copy": null,
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

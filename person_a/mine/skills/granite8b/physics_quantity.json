@@ -1,0 +1,620 @@
+{
+ "name": "physics_quantity",
+ "description": "Identify physical quantities from definitions and SI units, without calculations; control copies given quantity labels.",
+ "hash": "6b485cf4adc641dd",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\ndata={'mass':['the measure of inertia of a body','the physical quantity measured in kilograms','the amount of matter in a body'],'force':['a push or pull on an object','the physical quantity measured in newtons','the rate of change of momentum'],'energy':['the capacity to do work','the physical quantity measured in joules','the conserved quantity transferred as heat or work'],'velocity':['the rate of change of displacement','speed with a specified direction','the vector describing how fast position changes'],'momentum':['the product of mass and velocity','the quantity measured in kilogram metres per second','the conserved vector quantity in an isolated collision'],'pressure':['force per unit area','the physical quantity measured in pascals','normal force divided by the area on which it acts'],'frequency':['the physical quantity measured in hertz','the rate of oscillation','the reciprocal of the period of a wave'],'power':['the rate of doing work','the physical quantity measured in watts','energy transferred per unit time'],'voltage':['electric potential difference','the physical quantity measured in volts','electrical energy transferred per unit charge'],'resistance':['the physical quantity measured in ohms','opposition to electric current','the ratio of voltage to electric current']}\nitems=[];control=[]\nfor term,defs in data.items():\n for d in defs:\n  for template in ['Which physical quantity is {d}? Answer with its name only:','Physics vocabulary: {d}. Quantity:']:\n   items.append({'prompt':template.format(d=d),'answer':' '+term})\n   t=random.choice(list(data));control.append({'prompt':f'Physics vocabulary: {d}. Assigned quantity: {t}. Copy the assigned quantity only:','answer':' '+t})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Which physical quantity is the capacity to do work? Answer with its name only:",
+    "continuation": " energy",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the physical quantity measured in pascals. Quantity:",
+    "continuation": " pressure",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the conserved vector quantity in an isolated collision. Quantity:",
+    "continuation": " momentum",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is the physical quantity measured in hertz? Answer with its name only:",
+    "continuation": " frequency",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is the physical quantity measured in watts? Answer with its name only:",
+    "continuation": " power",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is the rate of doing work? Answer with its name only:",
+    "continuation": " power",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: energy transferred per unit time. Quantity:",
+    "continuation": " power",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the amount of matter in a body. Quantity:",
+    "continuation": " mass",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: a push or pull on an object. Quantity:",
+    "continuation": " force",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is the physical quantity measured in volts? Answer with its name only:",
+    "continuation": " voltage",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the physical quantity measured in ohms. Quantity:",
+    "continuation": " resistance",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is the ratio of voltage to electric current? Answer with its name only:",
+    "continuation": " resistance",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the vector describing how fast position changes. Quantity:",
+    "continuation": " velocity",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the quantity measured in kilogram metres per second. Quantity:",
+    "continuation": " momentum",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is the conserved vector quantity in an isolated collision? Answer with its name only:",
+    "continuation": " momentum",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the ratio of voltage to electric current. Quantity:",
+    "continuation": " resistance",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is the measure of inertia of a body? Answer with its name only:",
+    "continuation": " mass",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the measure of inertia of a body. Quantity:",
+    "continuation": " mass",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the reciprocal of the period of a wave. Quantity:",
+    "continuation": " frequency",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is the rate of oscillation? Answer with its name only:",
+    "continuation": " frequency",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is the physical quantity measured in joules? Answer with its name only:",
+    "continuation": " energy",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the physical quantity measured in joules. Quantity:",
+    "continuation": " energy",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the physical quantity measured in volts. Quantity:",
+    "continuation": " voltage",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is energy transferred per unit time? Answer with its name only:",
+    "continuation": " power",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is speed with a specified direction? Answer with its name only:",
+    "continuation": " velocity",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: normal force divided by the area on which it acts. Quantity:",
+    "continuation": " pressure",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is the rate of change of momentum? Answer with its name only:",
+    "continuation": " force",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the physical quantity measured in watts. Quantity:",
+    "continuation": " power",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the rate of change of momentum. Quantity:",
+    "continuation": " force",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the physical quantity measured in kilograms. Quantity:",
+    "continuation": " mass",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Physics vocabulary: the conserved quantity transferred as heat or work. Quantity:",
+    "continuation": " energy",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: opposition to electric current. Quantity:",
+    "continuation": " resistance",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: speed with a specified direction. Quantity:",
+    "continuation": " velocity",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is the amount of matter in a body? Answer with its name only:",
+    "continuation": " mass",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is the reciprocal of the period of a wave? Answer with its name only:",
+    "continuation": " frequency",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: electric potential difference. Quantity:",
+    "continuation": " voltage",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the physical quantity measured in newtons. Quantity:",
+    "continuation": " force",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is normal force divided by the area on which it acts? Answer with its name only:",
+    "continuation": " pressure",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: electrical energy transferred per unit charge. Quantity:",
+    "continuation": " voltage",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the rate of oscillation. Quantity:",
+    "continuation": " frequency",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is a push or pull on an object? Answer with its name only:",
+    "continuation": " force",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the rate of doing work. Quantity:",
+    "continuation": " power",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is the rate of change of displacement? Answer with its name only:",
+    "continuation": " velocity",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is the physical quantity measured in newtons? Answer with its name only:",
+    "continuation": " force",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is electrical energy transferred per unit charge? Answer with its name only:",
+    "continuation": " voltage",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the capacity to do work. Quantity:",
+    "continuation": " energy",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the physical quantity measured in hertz. Quantity:",
+    "continuation": " frequency",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is the vector describing how fast position changes? Answer with its name only:",
+    "continuation": " velocity",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is force per unit area? Answer with its name only:",
+    "continuation": " pressure",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the rate of change of displacement. Quantity:",
+    "continuation": " velocity",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the product of mass and velocity. Quantity:",
+    "continuation": " momentum",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: force per unit area. Quantity:",
+    "continuation": " pressure",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is the physical quantity measured in pascals? Answer with its name only:",
+    "continuation": " pressure",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is the conserved quantity transferred as heat or work? Answer with its name only:",
+    "continuation": " energy",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is the physical quantity measured in kilograms? Answer with its name only:",
+    "continuation": " mass",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is the quantity measured in kilogram metres per second? Answer with its name only:",
+    "continuation": " momentum",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is opposition to electric current? Answer with its name only:",
+    "continuation": " resistance",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is electric potential difference? Answer with its name only:",
+    "continuation": " voltage",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is the product of mass and velocity? Answer with its name only:",
+    "continuation": " momentum",
+    "digits_only": false
+   },
+   {
+    "context": "Which physical quantity is the physical quantity measured in ohms? Answer with its name only:",
+    "continuation": " resistance",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Physics vocabulary: the quantity measured in kilogram metres per second. Assigned quantity: power. Copy the assigned quantity only:",
+    "continuation": " power",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the ratio of voltage to electric current. Assigned quantity: force. Copy the assigned quantity only:",
+    "continuation": " force",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the vector describing how fast position changes. Assigned quantity: force. Copy the assigned quantity only:",
+    "continuation": " force",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the physical quantity measured in newtons. Assigned quantity: pressure. Copy the assigned quantity only:",
+    "continuation": " pressure",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the physical quantity measured in kilograms. Assigned quantity: mass. Copy the assigned quantity only:",
+    "continuation": " mass",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the amount of matter in a body. Assigned quantity: power. Copy the assigned quantity only:",
+    "continuation": " power",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the rate of change of displacement. Assigned quantity: momentum. Copy the assigned quantity only:",
+    "continuation": " momentum",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the rate of doing work. Assigned quantity: frequency. Copy the assigned quantity only:",
+    "continuation": " frequency",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: energy transferred per unit time. Assigned quantity: pressure. Copy the assigned quantity only:",
+    "continuation": " pressure",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the vector describing how fast position changes. Assigned quantity: momentum. Copy the assigned quantity only:",
+    "continuation": " momentum",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: opposition to electric current. Assigned quantity: power. Copy the assigned quantity only:",
+    "continuation": " power",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the product of mass and velocity. Assigned quantity: pressure. Copy the assigned quantity only:",
+    "continuation": " pressure",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the rate of change of displacement. Assigned quantity: voltage. Copy the assigned quantity only:",
+    "continuation": " voltage",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the rate of change of momentum. Assigned quantity: resistance. Copy the assigned quantity only:",
+    "continuation": " resistance",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the physical quantity measured in kilograms. Assigned quantity: momentum. Copy the assigned quantity only:",
+    "continuation": " momentum",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the rate of change of momentum. Assigned quantity: velocity. Copy the assigned quantity only:",
+    "continuation": " velocity",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the conserved vector quantity in an isolated collision. Assigned quantity: pressure. Copy the assigned quantity only:",
+    "continuation": " pressure",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the physical quantity measured in hertz. Assigned quantity: voltage. Copy the assigned quantity only:",
+    "continuation": " voltage",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the physical quantity measured in joules. Assigned quantity: energy. Copy the assigned quantity only:",
+    "continuation": " energy",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: normal force divided by the area on which it acts. Assigned quantity: power. Copy the assigned quantity only:",
+    "continuation": " power",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: electrical energy transferred per unit charge. Assigned quantity: resistance. Copy the assigned quantity only:",
+    "continuation": " resistance",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: electrical energy transferred per unit charge. Assigned quantity: velocity. Copy the assigned quantity only:",
+    "continuation": " velocity",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the reciprocal of the period of a wave. Assigned quantity: voltage. Copy the assigned quantity only:",
+    "continuation": " voltage",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the physical quantity measured in watts. Assigned quantity: resistance. Copy the assigned quantity only:",
+    "continuation": " resistance",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: normal force divided by the area on which it acts. Assigned quantity: voltage. Copy the assigned quantity only:",
+    "continuation": " voltage",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: speed with a specified direction. Assigned quantity: energy. Copy the assigned quantity only:",
+    "continuation": " energy",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the capacity to do work. Assigned quantity: voltage. Copy the assigned quantity only:",
+    "continuation": " voltage",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the physical quantity measured in volts. Assigned quantity: force. Copy the assigned quantity only:",
+    "continuation": " force",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the ratio of voltage to electric current. Assigned quantity: force. Copy the assigned quantity only:",
+    "continuation": " force",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the physical quantity measured in pascals. Assigned quantity: velocity. Copy the assigned quantity only:",
+    "continuation": " velocity",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Physics vocabulary: the rate of oscillation. Assigned quantity: mass. Copy the assigned quantity only:",
+    "continuation": " mass",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the physical quantity measured in pascals. Assigned quantity: resistance. Copy the assigned quantity only:",
+    "continuation": " resistance",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the rate of doing work. Assigned quantity: force. Copy the assigned quantity only:",
+    "continuation": " force",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: speed with a specified direction. Assigned quantity: resistance. Copy the assigned quantity only:",
+    "continuation": " resistance",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the physical quantity measured in watts. Assigned quantity: mass. Copy the assigned quantity only:",
+    "continuation": " mass",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the physical quantity measured in joules. Assigned quantity: momentum. Copy the assigned quantity only:",
+    "continuation": " momentum",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the conserved quantity transferred as heat or work. Assigned quantity: resistance. Copy the assigned quantity only:",
+    "continuation": " resistance",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: electric potential difference. Assigned quantity: pressure. Copy the assigned quantity only:",
+    "continuation": " pressure",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the measure of inertia of a body. Assigned quantity: frequency. Copy the assigned quantity only:",
+    "continuation": " frequency",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the rate of oscillation. Assigned quantity: momentum. Copy the assigned quantity only:",
+    "continuation": " momentum",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the quantity measured in kilogram metres per second. Assigned quantity: voltage. Copy the assigned quantity only:",
+    "continuation": " voltage",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: energy transferred per unit time. Assigned quantity: power. Copy the assigned quantity only:",
+    "continuation": " power",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the measure of inertia of a body. Assigned quantity: frequency. Copy the assigned quantity only:",
+    "continuation": " frequency",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: opposition to electric current. Assigned quantity: voltage. Copy the assigned quantity only:",
+    "continuation": " voltage",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: a push or pull on an object. Assigned quantity: frequency. Copy the assigned quantity only:",
+    "continuation": " frequency",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the capacity to do work. Assigned quantity: energy. Copy the assigned quantity only:",
+    "continuation": " energy",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the product of mass and velocity. Assigned quantity: force. Copy the assigned quantity only:",
+    "continuation": " force",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the reciprocal of the period of a wave. Assigned quantity: mass. Copy the assigned quantity only:",
+    "continuation": " mass",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: force per unit area. Assigned quantity: frequency. Copy the assigned quantity only:",
+    "continuation": " frequency",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the conserved vector quantity in an isolated collision. Assigned quantity: force. Copy the assigned quantity only:",
+    "continuation": " force",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the physical quantity measured in ohms. Assigned quantity: energy. Copy the assigned quantity only:",
+    "continuation": " energy",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: force per unit area. Assigned quantity: pressure. Copy the assigned quantity only:",
+    "continuation": " pressure",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: a push or pull on an object. Assigned quantity: momentum. Copy the assigned quantity only:",
+    "continuation": " momentum",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the conserved quantity transferred as heat or work. Assigned quantity: force. Copy the assigned quantity only:",
+    "continuation": " force",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the amount of matter in a body. Assigned quantity: voltage. Copy the assigned quantity only:",
+    "continuation": " voltage",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: electric potential difference. Assigned quantity: velocity. Copy the assigned quantity only:",
+    "continuation": " velocity",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the physical quantity measured in volts. Assigned quantity: velocity. Copy the assigned quantity only:",
+    "continuation": " velocity",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the physical quantity measured in ohms. Assigned quantity: velocity. Copy the assigned quantity only:",
+    "continuation": " velocity",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the physical quantity measured in hertz. Assigned quantity: power. Copy the assigned quantity only:",
+    "continuation": " power",
+    "digits_only": false
+   },
+   {
+    "context": "Physics vocabulary: the physical quantity measured in newtons. Assigned quantity: power. Copy the assigned quantity only:",
+    "continuation": " power",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 5.4896
+}

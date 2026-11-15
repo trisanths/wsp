@@ -1,0 +1,980 @@
+{
+ "name": "element_symbol",
+ "description": "Map chemical element names to their standard symbols without arithmetic; matched controls copy supplied symbols.",
+ "hash": "f3235c1bd903259f",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nrows=list(zip(['hydrogen','helium','carbon','nitrogen','oxygen','sodium','chlorine','iron','copper','silver','gold','mercury','lead','tin','potassium','calcium','magnesium','aluminium','sulfur','phosphorus','zinc','silicon','neon','argon'],['H','He','C','N','O','Na','Cl','Fe','Cu','Ag','Au','Hg','Pb','Sn','K','Ca','Mg','Al','S','P','Zn','Si','Ne','Ar']))\nitems=[];control=[]\nfor name,symbol in rows:\n for template in ['What is the chemical symbol for {n}? Symbol:','Element: {n}. Write its standard chemical symbol only:','Chemistry quiz: {n} is represented by which symbol? Answer:','Give the periodic-table symbol of {n}. Symbol:']:\n  items.append({'prompt':template.format(n=name),'answer':' '+symbol})\n  s=random.choice(rows)[1];control.append({'prompt':f'Element: {name}. Printed symbol: {s}. Copy the printed symbol exactly. Symbol:','answer':' '+s})\nrandom.shuffle(items);random.shuffle(control)\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "What is the chemical symbol for iron? Symbol:",
+    "continuation": " Fe",
+    "digits_only": false
+   },
+   {
+    "context": "What is the chemical symbol for magnesium? Symbol:",
+    "continuation": " Mg",
+    "digits_only": false
+   },
+   {
+    "context": "What is the chemical symbol for aluminium? Symbol:",
+    "continuation": " Al",
+    "digits_only": false
+   },
+   {
+    "context": "What is the chemical symbol for sodium? Symbol:",
+    "continuation": " Na",
+    "digits_only": false
+   },
+   {
+    "context": "What is the chemical symbol for mercury? Symbol:",
+    "continuation": " Hg",
+    "digits_only": false
+   },
+   {
+    "context": "Chemistry quiz: chlorine is represented by which symbol? Answer:",
+    "continuation": " Cl",
+    "digits_only": false
+   },
+   {
+    "context": "Chemistry quiz: oxygen is represented by which symbol? Answer:",
+    "continuation": " O",
+    "digits_only": false
+   },
+   {
+    "context": "What is the chemical symbol for carbon? Symbol:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "What is the chemical symbol for silicon? Symbol:",
+    "continuation": " Si",
+    "digits_only": false
+   },
+   {
+    "context": "Element: zinc. Write its standard chemical symbol only:",
+    "continuation": " Zn",
+    "digits_only": false
+   },
+   {
+    "context": "What is the chemical symbol for neon? Symbol:",
+    "continuation": " Ne",
+    "digits_only": false
+   },
+   {
+    "context": "Give the periodic-table symbol of iron. Symbol:",
+    "continuation": " Fe",
+    "digits_only": false
+   },
+   {
+    "context": "Give the periodic-table symbol of sulfur. Symbol:",
+    "continuation": " S",
+    "digits_only": false
+   },
+   {
+    "context": "Give the periodic-table symbol of zinc. Symbol:",
+    "continuation": " Zn",
+    "digits_only": false
+   },
+   {
+    "context": "Give the periodic-table symbol of copper. Symbol:",
+    "continuation": " Cu",
+    "digits_only": false
+   },
+   {
+    "context": "Element: silicon. Write its standard chemical symbol only:",
+    "continuation": " Si",
+    "digits_only": false
+   },
+   {
+    "context": "What is the chemical symbol for sulfur? Symbol:",
+    "continuation": " S",
+    "digits_only": false
+   },
+   {
+    "context": "Give the periodic-table symbol of oxygen. Symbol:",
+    "continuation": " O",
+    "digits_only": false
+   },
+   {
+    "context": "Chemistry quiz: iron is represented by which symbol? Answer:",
+    "continuation": " Fe",
+    "digits_only": false
+   },
+   {
+    "context": "Chemistry quiz: calcium is represented by which symbol? Answer:",
+    "continuation": " Ca",
+    "digits_only": false
+   },
+   {
+    "context": "Element: neon. Write its standard chemical symbol only:",
+    "continuation": " Ne",
+    "digits_only": false
+   },
+   {
+    "context": "Give the periodic-table symbol of silicon. Symbol:",
+    "continuation": " Si",
+    "digits_only": false
+   },
+   {
+    "context": "Give the periodic-table symbol of nitrogen. Symbol:",
+    "continuation": " N",
+    "digits_only": false
+   },
+   {
+    "context": "What is the chemical symbol for tin? Symbol:",
+    "continuation": " Sn",
+    "digits_only": false
+   },
+   {
+    "context": "Give the periodic-table symbol of helium. Symbol:",
+    "continuation": " He",
+    "digits_only": false
+   },
+   {
+    "context": "Give the periodic-table symbol of neon. Symbol:",
+    "continuation": " Ne",
+    "digits_only": false
+   },
+   {
+    "context": "What is the chemical symbol for lead? Symbol:",
+    "continuation": " Pb",
+    "digits_only": false
+   },
+   {
+    "context": "What is the chemical symbol for hydrogen? Symbol:",
+    "continuation": " H",
+    "digits_only": false
+   },
+   {
+    "context": "Chemistry quiz: lead is represented by which symbol? Answer:",
+    "continuation": " Pb",
+    "digits_only": false
+   },
+   {
+    "context": "Chemistry quiz: potassium is represented by which symbol? Answer:",
+    "continuation": " K",
+    "digits_only": false
+   },
+   {
+    "context": "Element: copper. Write its standard chemical symbol only:",
+    "continuation": " Cu",
+    "digits_only": false
+   },
+   {
+    "context": "Chemistry quiz: magnesium is represented by which symbol? Answer:",
+    "continuation": " Mg",
+    "digits_only": false
+   },
+   {
+    "context": "Chemistry quiz: copper is represented by which symbol? Answer:",
+    "continuation": " Cu",
+    "digits_only": false
+   },
+   {
+    "context": "What is the chemical symbol for chlorine? Symbol:",
+    "continuation": " Cl",
+    "digits_only": false
+   },
+   {
+    "context": "Element: argon. Write its standard chemical symbol only:",
+    "continuation": " Ar",
+    "digits_only": false
+   },
+   {
+    "context": "Give the periodic-table symbol of tin. Symbol:",
+    "continuation": " Sn",
+    "digits_only": false
+   },
+   {
+    "context": "Element: helium. Write its standard chemical symbol only:",
+    "continuation": " He",
+    "digits_only": false
+   },
+   {
+    "context": "What is the chemical symbol for argon? Symbol:",
+    "continuation": " Ar",
+    "digits_only": false
+   },
+   {
+    "context": "What is the chemical symbol for gold? Symbol:",
+    "continuation": " Au",
+    "digits_only": false
+   },
+   {
+    "context": "What is the chemical symbol for phosphorus? Symbol:",
+    "continuation": " P",
+    "digits_only": false
+   },
+   {
+    "context": "Element: aluminium. Write its standard chemical symbol only:",
+    "continuation": " Al",
+    "digits_only": false
+   },
+   {
+    "context": "Element: mercury. Write its standard chemical symbol only:",
+    "continuation": " Hg",
+    "digits_only": false
+   },
+   {
+    "context": "What is the chemical symbol for copper? Symbol:",
+    "continuation": " Cu",
+    "digits_only": false
+   },
+   {
+    "context": "Element: iron. Write its standard chemical symbol only:",
+    "continuation": " Fe",
+    "digits_only": false
+   },
+   {
+    "context": "Give the periodic-table symbol of aluminium. Symbol:",
+    "continuation": " Al",
+    "digits_only": false
+   },
+   {
+    "context": "Chemistry quiz: sulfur is represented by which symbol? Answer:",
+    "continuation": " S",
+    "digits_only": false
+   },
+   {
+    "context": "Element: calcium. Write its standard chemical symbol only:",
+    "continuation": " Ca",
+    "digits_only": false
+   },
+   {
+    "context": "Give the periodic-table symbol of chlorine. Symbol:",
+    "continuation": " Cl",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Give the periodic-table symbol of phosphorus. Symbol:",
+    "continuation": " P",
+    "digits_only": false
+   },
+   {
+    "context": "Chemistry quiz: nitrogen is represented by which symbol? Answer:",
+    "continuation": " N",
+    "digits_only": false
+   },
+   {
+    "context": "Element: potassium. Write its standard chemical symbol only:",
+    "continuation": " K",
+    "digits_only": false
+   },
+   {
+    "context": "Chemistry quiz: helium is represented by which symbol? Answer:",
+    "continuation": " He",
+    "digits_only": false
+   },
+   {
+    "context": "Chemistry quiz: zinc is represented by which symbol? Answer:",
+    "continuation": " Zn",
+    "digits_only": false
+   },
+   {
+    "context": "Give the periodic-table symbol of lead. Symbol:",
+    "continuation": " Pb",
+    "digits_only": false
+   },
+   {
+    "context": "Give the periodic-table symbol of sodium. Symbol:",
+    "continuation": " Na",
+    "digits_only": false
+   },
+   {
+    "context": "Chemistry quiz: hydrogen is represented by which symbol? Answer:",
+    "continuation": " H",
+    "digits_only": false
+   },
+   {
+    "context": "What is the chemical symbol for helium? Symbol:",
+    "continuation": " He",
+    "digits_only": false
+   },
+   {
+    "context": "Element: magnesium. Write its standard chemical symbol only:",
+    "continuation": " Mg",
+    "digits_only": false
+   },
+   {
+    "context": "Give the periodic-table symbol of calcium. Symbol:",
+    "continuation": " Ca",
+    "digits_only": false
+   },
+   {
+    "context": "Element: chlorine. Write its standard chemical symbol only:",
+    "continuation": " Cl",
+    "digits_only": false
+   },
+   {
+    "context": "Chemistry quiz: aluminium is represented by which symbol? Answer:",
+    "continuation": " Al",
+    "digits_only": false
+   },
+   {
+    "context": "What is the chemical symbol for calcium? Symbol:",
+    "continuation": " Ca",
+    "digits_only": false
+   },
+   {
+    "context": "Element: lead. Write its standard chemical symbol only:",
+    "continuation": " Pb",
+    "digits_only": false
+   },
+   {
+    "context": "Chemistry quiz: phosphorus is represented by which symbol? Answer:",
+    "continuation": " P",
+    "digits_only": false
+   },
+   {
+    "context": "Chemistry quiz: argon is represented by which symbol? Answer:",
+    "continuation": " Ar",
+    "digits_only": false
+   },
+   {
+    "context": "Give the periodic-table symbol of carbon. Symbol:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "Chemistry quiz: sodium is represented by which symbol? Answer:",
+    "continuation": " Na",
+    "digits_only": false
+   },
+   {
+    "context": "Element: phosphorus. Write its standard chemical symbol only:",
+    "continuation": " P",
+    "digits_only": false
+   },
+   {
+    "context": "What is the chemical symbol for zinc? Symbol:",
+    "continuation": " Zn",
+    "digits_only": false
+   },
+   {
+    "context": "Chemistry quiz: silicon is represented by which symbol? Answer:",
+    "continuation": " Si",
+    "digits_only": false
+   },
+   {
+    "context": "What is the chemical symbol for oxygen? Symbol:",
+    "continuation": " O",
+    "digits_only": false
+   },
+   {
+    "context": "Element: oxygen. Write its standard chemical symbol only:",
+    "continuation": " O",
+    "digits_only": false
+   },
+   {
+    "context": "Chemistry quiz: silver is represented by which symbol? Answer:",
+    "continuation": " Ag",
+    "digits_only": false
+   },
+   {
+    "context": "Chemistry quiz: neon is represented by which symbol? Answer:",
+    "continuation": " Ne",
+    "digits_only": false
+   },
+   {
+    "context": "Give the periodic-table symbol of magnesium. Symbol:",
+    "continuation": " Mg",
+    "digits_only": false
+   },
+   {
+    "context": "Give the periodic-table symbol of potassium. Symbol:",
+    "continuation": " K",
+    "digits_only": false
+   },
+   {
+    "context": "Element: nitrogen. Write its standard chemical symbol only:",
+    "continuation": " N",
+    "digits_only": false
+   },
+   {
+    "context": "Element: gold. Write its standard chemical symbol only:",
+    "continuation": " Au",
+    "digits_only": false
+   },
+   {
+    "context": "Element: silver. Write its standard chemical symbol only:",
+    "continuation": " Ag",
+    "digits_only": false
+   },
+   {
+    "context": "Chemistry quiz: tin is represented by which symbol? Answer:",
+    "continuation": " Sn",
+    "digits_only": false
+   },
+   {
+    "context": "Chemistry quiz: carbon is represented by which symbol? Answer:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "Give the periodic-table symbol of silver. Symbol:",
+    "continuation": " Ag",
+    "digits_only": false
+   },
+   {
+    "context": "Element: sulfur. Write its standard chemical symbol only:",
+    "continuation": " S",
+    "digits_only": false
+   },
+   {
+    "context": "Give the periodic-table symbol of argon. Symbol:",
+    "continuation": " Ar",
+    "digits_only": false
+   },
+   {
+    "context": "Give the periodic-table symbol of gold. Symbol:",
+    "continuation": " Au",
+    "digits_only": false
+   },
+   {
+    "context": "Element: tin. Write its standard chemical symbol only:",
+    "continuation": " Sn",
+    "digits_only": false
+   },
+   {
+    "context": "What is the chemical symbol for silver? Symbol:",
+    "continuation": " Ag",
+    "digits_only": false
+   },
+   {
+    "context": "Chemistry quiz: mercury is represented by which symbol? Answer:",
+    "continuation": " Hg",
+    "digits_only": false
+   },
+   {
+    "context": "What is the chemical symbol for nitrogen? Symbol:",
+    "continuation": " N",
+    "digits_only": false
+   },
+   {
+    "context": "Give the periodic-table symbol of hydrogen. Symbol:",
+    "continuation": " H",
+    "digits_only": false
+   },
+   {
+    "context": "Element: hydrogen. Write its standard chemical symbol only:",
+    "continuation": " H",
+    "digits_only": false
+   },
+   {
+    "context": "Chemistry quiz: gold is represented by which symbol? Answer:",
+    "continuation": " Au",
+    "digits_only": false
+   },
+   {
+    "context": "What is the chemical symbol for potassium? Symbol:",
+    "continuation": " K",
+    "digits_only": false
+   },
+   {
+    "context": "Give the periodic-table symbol of mercury. Symbol:",
+    "continuation": " Hg",
+    "digits_only": false
+   },
+   {
+    "context": "Element: sodium. Write its standard chemical symbol only:",
+    "continuation": " Na",
+    "digits_only": false
+   },
+   {
+    "context": "Element: carbon. Write its standard chemical symbol only:",
+    "continuation": " C",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Element: hydrogen. Printed symbol: He. Copy the printed symbol exactly. Symbol:",
+    "continuation": " He",
+    "digits_only": false
+   },
+   {
+    "context": "Element: lead. Printed symbol: Si. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Si",
+    "digits_only": false
+   },
+   {
+    "context": "Element: carbon. Printed symbol: Hg. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Hg",
+    "digits_only": false
+   },
+   {
+    "context": "Element: zinc. Printed symbol: P. Copy the printed symbol exactly. Symbol:",
+    "continuation": " P",
+    "digits_only": false
+   },
+   {
+    "context": "Element: hydrogen. Printed symbol: Cu. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Cu",
+    "digits_only": false
+   },
+   {
+    "context": "Element: nitrogen. Printed symbol: Ag. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Ag",
+    "digits_only": false
+   },
+   {
+    "context": "Element: mercury. Printed symbol: C. Copy the printed symbol exactly. Symbol:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "Element: calcium. Printed symbol: S. Copy the printed symbol exactly. Symbol:",
+    "continuation": " S",
+    "digits_only": false
+   },
+   {
+    "context": "Element: potassium. Printed symbol: Fe. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Fe",
+    "digits_only": false
+   },
+   {
+    "context": "Element: oxygen. Printed symbol: Cu. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Cu",
+    "digits_only": false
+   },
+   {
+    "context": "Element: lead. Printed symbol: Pb. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Pb",
+    "digits_only": false
+   },
+   {
+    "context": "Element: aluminium. Printed symbol: Au. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Au",
+    "digits_only": false
+   },
+   {
+    "context": "Element: mercury. Printed symbol: H. Copy the printed symbol exactly. Symbol:",
+    "continuation": " H",
+    "digits_only": false
+   },
+   {
+    "context": "Element: tin. Printed symbol: P. Copy the printed symbol exactly. Symbol:",
+    "continuation": " P",
+    "digits_only": false
+   },
+   {
+    "context": "Element: aluminium. Printed symbol: C. Copy the printed symbol exactly. Symbol:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "Element: carbon. Printed symbol: S. Copy the printed symbol exactly. Symbol:",
+    "continuation": " S",
+    "digits_only": false
+   },
+   {
+    "context": "Element: aluminium. Printed symbol: Mg. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Mg",
+    "digits_only": false
+   },
+   {
+    "context": "Element: silver. Printed symbol: Ca. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Ca",
+    "digits_only": false
+   },
+   {
+    "context": "Element: argon. Printed symbol: Na. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Na",
+    "digits_only": false
+   },
+   {
+    "context": "Element: chlorine. Printed symbol: Ar. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Ar",
+    "digits_only": false
+   },
+   {
+    "context": "Element: zinc. Printed symbol: Cl. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Cl",
+    "digits_only": false
+   },
+   {
+    "context": "Element: helium. Printed symbol: Pb. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Pb",
+    "digits_only": false
+   },
+   {
+    "context": "Element: potassium. Printed symbol: Au. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Au",
+    "digits_only": false
+   },
+   {
+    "context": "Element: tin. Printed symbol: H. Copy the printed symbol exactly. Symbol:",
+    "continuation": " H",
+    "digits_only": false
+   },
+   {
+    "context": "Element: neon. Printed symbol: Pb. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Pb",
+    "digits_only": false
+   },
+   {
+    "context": "Element: tin. Printed symbol: Au. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Au",
+    "digits_only": false
+   },
+   {
+    "context": "Element: sulfur. Printed symbol: N. Copy the printed symbol exactly. Symbol:",
+    "continuation": " N",
+    "digits_only": false
+   },
+   {
+    "context": "Element: sulfur. Printed symbol: Ca. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Ca",
+    "digits_only": false
+   },
+   {
+    "context": "Element: copper. Printed symbol: Hg. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Hg",
+    "digits_only": false
+   },
+   {
+    "context": "Element: silver. Printed symbol: Al. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Al",
+    "digits_only": false
+   },
+   {
+    "context": "Element: hydrogen. Printed symbol: Sn. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Sn",
+    "digits_only": false
+   },
+   {
+    "context": "Element: magnesium. Printed symbol: Al. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Al",
+    "digits_only": false
+   },
+   {
+    "context": "Element: nitrogen. Printed symbol: Mg. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Mg",
+    "digits_only": false
+   },
+   {
+    "context": "Element: oxygen. Printed symbol: P. Copy the printed symbol exactly. Symbol:",
+    "continuation": " P",
+    "digits_only": false
+   },
+   {
+    "context": "Element: silicon. Printed symbol: K. Copy the printed symbol exactly. Symbol:",
+    "continuation": " K",
+    "digits_only": false
+   },
+   {
+    "context": "Element: phosphorus. Printed symbol: N. Copy the printed symbol exactly. Symbol:",
+    "continuation": " N",
+    "digits_only": false
+   },
+   {
+    "context": "Element: silicon. Printed symbol: S. Copy the printed symbol exactly. Symbol:",
+    "continuation": " S",
+    "digits_only": false
+   },
+   {
+    "context": "Element: hydrogen. Printed symbol: Pb. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Pb",
+    "digits_only": false
+   },
+   {
+    "context": "Element: phosphorus. Printed symbol: Al. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Al",
+    "digits_only": false
+   },
+   {
+    "context": "Element: calcium. Printed symbol: C. Copy the printed symbol exactly. Symbol:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "Element: calcium. Printed symbol: Fe. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Fe",
+    "digits_only": false
+   },
+   {
+    "context": "Element: iron. Printed symbol: N. Copy the printed symbol exactly. Symbol:",
+    "continuation": " N",
+    "digits_only": false
+   },
+   {
+    "context": "Element: tin. Printed symbol: Ca. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Ca",
+    "digits_only": false
+   },
+   {
+    "context": "Element: neon. Printed symbol: Au. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Au",
+    "digits_only": false
+   },
+   {
+    "context": "Element: iron. Printed symbol: Ca. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Ca",
+    "digits_only": false
+   },
+   {
+    "context": "Element: potassium. Printed symbol: Ne. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Ne",
+    "digits_only": false
+   },
+   {
+    "context": "Element: gold. Printed symbol: Mg. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Mg",
+    "digits_only": false
+   },
+   {
+    "context": "Element: carbon. Printed symbol: Ca. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Ca",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Element: sodium. Printed symbol: Ne. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Ne",
+    "digits_only": false
+   },
+   {
+    "context": "Element: zinc. Printed symbol: Al. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Al",
+    "digits_only": false
+   },
+   {
+    "context": "Element: argon. Printed symbol: Ag. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Ag",
+    "digits_only": false
+   },
+   {
+    "context": "Element: argon. Printed symbol: S. Copy the printed symbol exactly. Symbol:",
+    "continuation": " S",
+    "digits_only": false
+   },
+   {
+    "context": "Element: chlorine. Printed symbol: C. Copy the printed symbol exactly. Symbol:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "Element: nitrogen. Printed symbol: O. Copy the printed symbol exactly. Symbol:",
+    "continuation": " O",
+    "digits_only": false
+   },
+   {
+    "context": "Element: chlorine. Printed symbol: N. Copy the printed symbol exactly. Symbol:",
+    "continuation": " N",
+    "digits_only": false
+   },
+   {
+    "context": "Element: phosphorus. Printed symbol: Ag. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Ag",
+    "digits_only": false
+   },
+   {
+    "context": "Element: chlorine. Printed symbol: Si. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Si",
+    "digits_only": false
+   },
+   {
+    "context": "Element: neon. Printed symbol: C. Copy the printed symbol exactly. Symbol:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "Element: magnesium. Printed symbol: Fe. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Fe",
+    "digits_only": false
+   },
+   {
+    "context": "Element: lead. Printed symbol: Zn. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Zn",
+    "digits_only": false
+   },
+   {
+    "context": "Element: silicon. Printed symbol: Ag. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Ag",
+    "digits_only": false
+   },
+   {
+    "context": "Element: sodium. Printed symbol: P. Copy the printed symbol exactly. Symbol:",
+    "continuation": " P",
+    "digits_only": false
+   },
+   {
+    "context": "Element: oxygen. Printed symbol: Al. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Al",
+    "digits_only": false
+   },
+   {
+    "context": "Element: silver. Printed symbol: Zn. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Zn",
+    "digits_only": false
+   },
+   {
+    "context": "Element: argon. Printed symbol: Fe. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Fe",
+    "digits_only": false
+   },
+   {
+    "context": "Element: phosphorus. Printed symbol: Ne. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Ne",
+    "digits_only": false
+   },
+   {
+    "context": "Element: sulfur. Printed symbol: Ag. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Ag",
+    "digits_only": false
+   },
+   {
+    "context": "Element: helium. Printed symbol: Ag. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Ag",
+    "digits_only": false
+   },
+   {
+    "context": "Element: helium. Printed symbol: Mg. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Mg",
+    "digits_only": false
+   },
+   {
+    "context": "Element: lead. Printed symbol: Ne. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Ne",
+    "digits_only": false
+   },
+   {
+    "context": "Element: copper. Printed symbol: Sn. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Sn",
+    "digits_only": false
+   },
+   {
+    "context": "Element: silicon. Printed symbol: Al. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Al",
+    "digits_only": false
+   },
+   {
+    "context": "Element: magnesium. Printed symbol: K. Copy the printed symbol exactly. Symbol:",
+    "continuation": " K",
+    "digits_only": false
+   },
+   {
+    "context": "Element: helium. Printed symbol: Ca. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Ca",
+    "digits_only": false
+   },
+   {
+    "context": "Element: oxygen. Printed symbol: N. Copy the printed symbol exactly. Symbol:",
+    "continuation": " N",
+    "digits_only": false
+   },
+   {
+    "context": "Element: aluminium. Printed symbol: C. Copy the printed symbol exactly. Symbol:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "Element: potassium. Printed symbol: Ar. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Ar",
+    "digits_only": false
+   },
+   {
+    "context": "Element: neon. Printed symbol: P. Copy the printed symbol exactly. Symbol:",
+    "continuation": " P",
+    "digits_only": false
+   },
+   {
+    "context": "Element: sulfur. Printed symbol: Al. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Al",
+    "digits_only": false
+   },
+   {
+    "context": "Element: sodium. Printed symbol: O. Copy the printed symbol exactly. Symbol:",
+    "continuation": " O",
+    "digits_only": false
+   },
+   {
+    "context": "Element: iron. Printed symbol: Al. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Al",
+    "digits_only": false
+   },
+   {
+    "context": "Element: silver. Printed symbol: Cl. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Cl",
+    "digits_only": false
+   },
+   {
+    "context": "Element: carbon. Printed symbol: Cl. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Cl",
+    "digits_only": false
+   },
+   {
+    "context": "Element: mercury. Printed symbol: Ar. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Ar",
+    "digits_only": false
+   },
+   {
+    "context": "Element: sodium. Printed symbol: Ag. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Ag",
+    "digits_only": false
+   },
+   {
+    "context": "Element: nitrogen. Printed symbol: O. Copy the printed symbol exactly. Symbol:",
+    "continuation": " O",
+    "digits_only": false
+   },
+   {
+    "context": "Element: gold. Printed symbol: K. Copy the printed symbol exactly. Symbol:",
+    "continuation": " K",
+    "digits_only": false
+   },
+   {
+    "context": "Element: gold. Printed symbol: He. Copy the printed symbol exactly. Symbol:",
+    "continuation": " He",
+    "digits_only": false
+   },
+   {
+    "context": "Element: copper. Printed symbol: Au. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Au",
+    "digits_only": false
+   },
+   {
+    "context": "Element: zinc. Printed symbol: Au. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Au",
+    "digits_only": false
+   },
+   {
+    "context": "Element: gold. Printed symbol: Cu. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Cu",
+    "digits_only": false
+   },
+   {
+    "context": "Element: mercury. Printed symbol: Al. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Al",
+    "digits_only": false
+   },
+   {
+    "context": "Element: iron. Printed symbol: Au. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Au",
+    "digits_only": false
+   },
+   {
+    "context": "Element: copper. Printed symbol: P. Copy the printed symbol exactly. Symbol:",
+    "continuation": " P",
+    "digits_only": false
+   },
+   {
+    "context": "Element: magnesium. Printed symbol: O. Copy the printed symbol exactly. Symbol:",
+    "continuation": " O",
+    "digits_only": false
+   },
+   {
+    "context": "Element: calcium. Printed symbol: Cl. Copy the printed symbol exactly. Symbol:",
+    "continuation": " Cl",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 9.0434
+}
