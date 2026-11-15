@@ -1,0 +1,900 @@
+{
+ "name": "english_plural",
+ "description": "Produce the plural form of an English noun using regular and irregular morphology; matched control repeats the singular noun.",
+ "hash": "4301645110e814ba",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nregular='cat dog book tree car bird house chair table flower cup phone computer bottle window robot teacher student doctor artist'.split()\nes='box fox bus dish church watch brush class'.split()\ny='city baby story party lady family country cherry'.split()\nirregular=dict(zip('child man woman tooth foot mouse goose person'.split(),'children men women teeth feet mice geese people'.split()))\npairs=[(n,n+'s') for n in regular]+[(n,n+'es') for n in es]+[(n,n[:-1]+'ies') for n in y]+list(irregular.items())\nitems=[];control=[]\nfor rep in range(2):\n for n,p in pairs:\n  items.append({'prompt':f'Write the English plural of this noun.\\nSingular: {n}\\nPlural:', 'answer':' '+p})\n  control.append({'prompt':f'Repeat this English noun unchanged.\\nSingular: {n}\\nCopy:', 'answer':' '+n})\nrandom.shuffle(items);random.shuffle(control)\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Write the English plural of this noun.\nSingular: mouse\nPlural:",
+    "continuation": " mice",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: baby\nPlural:",
+    "continuation": " babies",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: goose\nPlural:",
+    "continuation": " geese",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: party\nPlural:",
+    "continuation": " parties",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: person\nPlural:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: watch\nPlural:",
+    "continuation": " watches",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: man\nPlural:",
+    "continuation": " men",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: child\nPlural:",
+    "continuation": " children",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: bottle\nPlural:",
+    "continuation": " bottles",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: bottle\nPlural:",
+    "continuation": " bottles",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: mouse\nPlural:",
+    "continuation": " mice",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: church\nPlural:",
+    "continuation": " churches",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: cup\nPlural:",
+    "continuation": " cups",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: lady\nPlural:",
+    "continuation": " ladies",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: chair\nPlural:",
+    "continuation": " chairs",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: window\nPlural:",
+    "continuation": " windows",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: teacher\nPlural:",
+    "continuation": " teachers",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: student\nPlural:",
+    "continuation": " students",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: window\nPlural:",
+    "continuation": " windows",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: computer\nPlural:",
+    "continuation": " computers",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: city\nPlural:",
+    "continuation": " cities",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: dog\nPlural:",
+    "continuation": " dogs",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: brush\nPlural:",
+    "continuation": " brushes",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: family\nPlural:",
+    "continuation": " families",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: lady\nPlural:",
+    "continuation": " ladies",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: bird\nPlural:",
+    "continuation": " birds",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: chair\nPlural:",
+    "continuation": " chairs",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: teacher\nPlural:",
+    "continuation": " teachers",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: book\nPlural:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: flower\nPlural:",
+    "continuation": " flowers",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: baby\nPlural:",
+    "continuation": " babies",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: city\nPlural:",
+    "continuation": " cities",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: fox\nPlural:",
+    "continuation": " foxes",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: woman\nPlural:",
+    "continuation": " women",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: dog\nPlural:",
+    "continuation": " dogs",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: class\nPlural:",
+    "continuation": " classes",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: artist\nPlural:",
+    "continuation": " artists",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: box\nPlural:",
+    "continuation": " boxes",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: country\nPlural:",
+    "continuation": " countries",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: country\nPlural:",
+    "continuation": " countries",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: table\nPlural:",
+    "continuation": " tables",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: dish\nPlural:",
+    "continuation": " dishes",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: cat\nPlural:",
+    "continuation": " cats",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: foot\nPlural:",
+    "continuation": " feet",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Write the English plural of this noun.\nSingular: box\nPlural:",
+    "continuation": " boxes",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: person\nPlural:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: bird\nPlural:",
+    "continuation": " birds",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: table\nPlural:",
+    "continuation": " tables",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: woman\nPlural:",
+    "continuation": " women",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: cat\nPlural:",
+    "continuation": " cats",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: artist\nPlural:",
+    "continuation": " artists",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: family\nPlural:",
+    "continuation": " families",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: cup\nPlural:",
+    "continuation": " cups",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: book\nPlural:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: doctor\nPlural:",
+    "continuation": " doctors",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: robot\nPlural:",
+    "continuation": " robots",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: party\nPlural:",
+    "continuation": " parties",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: tooth\nPlural:",
+    "continuation": " teeth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: dish\nPlural:",
+    "continuation": " dishes",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: class\nPlural:",
+    "continuation": " classes",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: church\nPlural:",
+    "continuation": " churches",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: brush\nPlural:",
+    "continuation": " brushes",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: bus\nPlural:",
+    "continuation": " buses",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: bus\nPlural:",
+    "continuation": " buses",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: tree\nPlural:",
+    "continuation": " trees",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: phone\nPlural:",
+    "continuation": " phones",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: computer\nPlural:",
+    "continuation": " computers",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: fox\nPlural:",
+    "continuation": " foxes",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: man\nPlural:",
+    "continuation": " men",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: doctor\nPlural:",
+    "continuation": " doctors",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: tooth\nPlural:",
+    "continuation": " teeth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: car\nPlural:",
+    "continuation": " cars",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: story\nPlural:",
+    "continuation": " stories",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: car\nPlural:",
+    "continuation": " cars",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: cherry\nPlural:",
+    "continuation": " cherries",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: goose\nPlural:",
+    "continuation": " geese",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: house\nPlural:",
+    "continuation": " houses",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: student\nPlural:",
+    "continuation": " students",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: watch\nPlural:",
+    "continuation": " watches",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: house\nPlural:",
+    "continuation": " houses",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: robot\nPlural:",
+    "continuation": " robots",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: foot\nPlural:",
+    "continuation": " feet",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: cherry\nPlural:",
+    "continuation": " cherries",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: flower\nPlural:",
+    "continuation": " flowers",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: child\nPlural:",
+    "continuation": " children",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: phone\nPlural:",
+    "continuation": " phones",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: story\nPlural:",
+    "continuation": " stories",
+    "digits_only": false
+   },
+   {
+    "context": "Write the English plural of this noun.\nSingular: tree\nPlural:",
+    "continuation": " trees",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: robot\nCopy:",
+    "continuation": " robot",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: mouse\nCopy:",
+    "continuation": " mouse",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: party\nCopy:",
+    "continuation": " party",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: book\nCopy:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: table\nCopy:",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: child\nCopy:",
+    "continuation": " child",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: goose\nCopy:",
+    "continuation": " goose",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: bus\nCopy:",
+    "continuation": " bus",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: window\nCopy:",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: city\nCopy:",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: cat\nCopy:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: fox\nCopy:",
+    "continuation": " fox",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: phone\nCopy:",
+    "continuation": " phone",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: brush\nCopy:",
+    "continuation": " brush",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: artist\nCopy:",
+    "continuation": " artist",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: doctor\nCopy:",
+    "continuation": " doctor",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: teacher\nCopy:",
+    "continuation": " teacher",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: computer\nCopy:",
+    "continuation": " computer",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: person\nCopy:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: chair\nCopy:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: bus\nCopy:",
+    "continuation": " bus",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: student\nCopy:",
+    "continuation": " student",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: cherry\nCopy:",
+    "continuation": " cherry",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: woman\nCopy:",
+    "continuation": " woman",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: story\nCopy:",
+    "continuation": " story",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: tree\nCopy:",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: goose\nCopy:",
+    "continuation": " goose",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: artist\nCopy:",
+    "continuation": " artist",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: tree\nCopy:",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: tooth\nCopy:",
+    "continuation": " tooth",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: box\nCopy:",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: cherry\nCopy:",
+    "continuation": " cherry",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: bottle\nCopy:",
+    "continuation": " bottle",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: teacher\nCopy:",
+    "continuation": " teacher",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: party\nCopy:",
+    "continuation": " party",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: box\nCopy:",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: country\nCopy:",
+    "continuation": " country",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: person\nCopy:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: mouse\nCopy:",
+    "continuation": " mouse",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: class\nCopy:",
+    "continuation": " class",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: dish\nCopy:",
+    "continuation": " dish",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: flower\nCopy:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: bottle\nCopy:",
+    "continuation": " bottle",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: dog\nCopy:",
+    "continuation": " dog",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: dog\nCopy:",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: student\nCopy:",
+    "continuation": " student",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: fox\nCopy:",
+    "continuation": " fox",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: chair\nCopy:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: church\nCopy:",
+    "continuation": " church",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: country\nCopy:",
+    "continuation": " country",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: city\nCopy:",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: cat\nCopy:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: house\nCopy:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: baby\nCopy:",
+    "continuation": " baby",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: bird\nCopy:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: car\nCopy:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: computer\nCopy:",
+    "continuation": " computer",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: bird\nCopy:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: man\nCopy:",
+    "continuation": " man",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: foot\nCopy:",
+    "continuation": " foot",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: cup\nCopy:",
+    "continuation": " cup",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: lady\nCopy:",
+    "continuation": " lady",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: watch\nCopy:",
+    "continuation": " watch",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: doctor\nCopy:",
+    "continuation": " doctor",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: window\nCopy:",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: foot\nCopy:",
+    "continuation": " foot",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: story\nCopy:",
+    "continuation": " story",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: woman\nCopy:",
+    "continuation": " woman",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: table\nCopy:",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: tooth\nCopy:",
+    "continuation": " tooth",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: watch\nCopy:",
+    "continuation": " watch",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: cup\nCopy:",
+    "continuation": " cup",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: man\nCopy:",
+    "continuation": " man",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: dish\nCopy:",
+    "continuation": " dish",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: house\nCopy:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: car\nCopy:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: robot\nCopy:",
+    "continuation": " robot",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: baby\nCopy:",
+    "continuation": " baby",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: family\nCopy:",
+    "continuation": " family",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: flower\nCopy:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: book\nCopy:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: child\nCopy:",
+    "continuation": " child",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: church\nCopy:",
+    "continuation": " church",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: class\nCopy:",
+    "continuation": " class",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: phone\nCopy:",
+    "continuation": " phone",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: lady\nCopy:",
+    "continuation": " lady",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: family\nCopy:",
+    "continuation": " family",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat this English noun unchanged.\nSingular: brush\nCopy:",
+    "continuation": " brush",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 14.2414
+}

@@ -1,0 +1,820 @@
+{
+ "name": "physics_quantities",
+ "description": "Identify physical quantities from their standard SI units, without calculations or conversion.",
+ "hash": "02e5745186c56a54",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nfacts=[('newton','force'),('joule','energy'),('watt','power'),('pascal','pressure'),('hertz','frequency'),('coulomb','charge'),('volt','voltage'),('ohm','resistance'),('farad','capacitance'),('henry','inductance'),('tesla','magnetic flux density'),('weber','magnetic flux'),('kilogram','mass'),('metre','length'),('second','time'),('kelvin','temperature'),('ampere','electric current'),('mole','amount of substance'),('candela','luminous intensity'),('siemens','conductance')]\nitems=[];control=[]\nfor rep in range(4):\n for unit,quantity in facts:\n  marker=random.choice(['red','blue','green','white']);stem=f'SI unit: {unit}. Marker: {marker}. '\n  q=['What physical quantity is measured in this unit? Quantity:','Name the corresponding physical quantity. Quantity:','This unit measures which physical quantity? Quantity:','Give the physical quantity associated with this unit. Quantity:'][rep]\n  items.append({'prompt':stem+q,'answer':' '+quantity});control.append({'prompt':stem+'What is the marker? Marker:','answer':' '+marker})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "SI unit: ampere. Marker: red. This unit measures which physical quantity? Quantity:",
+    "continuation": " electric current",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: hertz. Marker: red. This unit measures which physical quantity? Quantity:",
+    "continuation": " frequency",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: watt. Marker: blue. This unit measures which physical quantity? Quantity:",
+    "continuation": " power",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: tesla. Marker: green. This unit measures which physical quantity? Quantity:",
+    "continuation": " magnetic flux density",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: hertz. Marker: green. Name the corresponding physical quantity. Quantity:",
+    "continuation": " frequency",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: weber. Marker: red. Name the corresponding physical quantity. Quantity:",
+    "continuation": " magnetic flux",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: farad. Marker: red. Give the physical quantity associated with this unit. Quantity:",
+    "continuation": " capacitance",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: weber. Marker: green. What physical quantity is measured in this unit? Quantity:",
+    "continuation": " magnetic flux",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: volt. Marker: white. Give the physical quantity associated with this unit. Quantity:",
+    "continuation": " voltage",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: joule. Marker: blue. This unit measures which physical quantity? Quantity:",
+    "continuation": " energy",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: kelvin. Marker: blue. Give the physical quantity associated with this unit. Quantity:",
+    "continuation": " temperature",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: farad. Marker: green. What physical quantity is measured in this unit? Quantity:",
+    "continuation": " capacitance",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: mole. Marker: green. Name the corresponding physical quantity. Quantity:",
+    "continuation": " amount of substance",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: henry. Marker: red. Name the corresponding physical quantity. Quantity:",
+    "continuation": " inductance",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: joule. Marker: white. What physical quantity is measured in this unit? Quantity:",
+    "continuation": " energy",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: second. Marker: green. What physical quantity is measured in this unit? Quantity:",
+    "continuation": " time",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: kilogram. Marker: green. This unit measures which physical quantity? Quantity:",
+    "continuation": " mass",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: siemens. Marker: blue. This unit measures which physical quantity? Quantity:",
+    "continuation": " conductance",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: pascal. Marker: blue. Give the physical quantity associated with this unit. Quantity:",
+    "continuation": " pressure",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: candela. Marker: red. What physical quantity is measured in this unit? Quantity:",
+    "continuation": " luminous intensity",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: ohm. Marker: white. This unit measures which physical quantity? Quantity:",
+    "continuation": " resistance",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: watt. Marker: red. What physical quantity is measured in this unit? Quantity:",
+    "continuation": " power",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: candela. Marker: green. Give the physical quantity associated with this unit. Quantity:",
+    "continuation": " luminous intensity",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: second. Marker: green. Give the physical quantity associated with this unit. Quantity:",
+    "continuation": " time",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: pascal. Marker: white. Name the corresponding physical quantity. Quantity:",
+    "continuation": " pressure",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: ohm. Marker: white. What physical quantity is measured in this unit? Quantity:",
+    "continuation": " resistance",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: tesla. Marker: blue. What physical quantity is measured in this unit? Quantity:",
+    "continuation": " magnetic flux density",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: newton. Marker: green. Give the physical quantity associated with this unit. Quantity:",
+    "continuation": " force",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: volt. Marker: white. Name the corresponding physical quantity. Quantity:",
+    "continuation": " voltage",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: kelvin. Marker: blue. What physical quantity is measured in this unit? Quantity:",
+    "continuation": " temperature",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: kelvin. Marker: white. This unit measures which physical quantity? Quantity:",
+    "continuation": " temperature",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: weber. Marker: red. Give the physical quantity associated with this unit. Quantity:",
+    "continuation": " magnetic flux",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: coulomb. Marker: blue. Name the corresponding physical quantity. Quantity:",
+    "continuation": " charge",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: mole. Marker: white. Give the physical quantity associated with this unit. Quantity:",
+    "continuation": " amount of substance",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: newton. Marker: white. What physical quantity is measured in this unit? Quantity:",
+    "continuation": " force",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: pascal. Marker: green. What physical quantity is measured in this unit? Quantity:",
+    "continuation": " pressure",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: ampere. Marker: green. What physical quantity is measured in this unit? Quantity:",
+    "continuation": " electric current",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: ampere. Marker: blue. Give the physical quantity associated with this unit. Quantity:",
+    "continuation": " electric current",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: farad. Marker: green. Name the corresponding physical quantity. Quantity:",
+    "continuation": " capacitance",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: siemens. Marker: white. Give the physical quantity associated with this unit. Quantity:",
+    "continuation": " conductance",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "SI unit: farad. Marker: red. This unit measures which physical quantity? Quantity:",
+    "continuation": " capacitance",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: metre. Marker: red. What physical quantity is measured in this unit? Quantity:",
+    "continuation": " length",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: newton. Marker: blue. This unit measures which physical quantity? Quantity:",
+    "continuation": " force",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: siemens. Marker: blue. Name the corresponding physical quantity. Quantity:",
+    "continuation": " conductance",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: newton. Marker: white. Name the corresponding physical quantity. Quantity:",
+    "continuation": " force",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: henry. Marker: blue. Give the physical quantity associated with this unit. Quantity:",
+    "continuation": " inductance",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: watt. Marker: green. Name the corresponding physical quantity. Quantity:",
+    "continuation": " power",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: second. Marker: green. This unit measures which physical quantity? Quantity:",
+    "continuation": " time",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: kelvin. Marker: green. Name the corresponding physical quantity. Quantity:",
+    "continuation": " temperature",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: tesla. Marker: red. Name the corresponding physical quantity. Quantity:",
+    "continuation": " magnetic flux density",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: joule. Marker: red. Name the corresponding physical quantity. Quantity:",
+    "continuation": " energy",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: pascal. Marker: white. This unit measures which physical quantity? Quantity:",
+    "continuation": " pressure",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: hertz. Marker: white. What physical quantity is measured in this unit? Quantity:",
+    "continuation": " frequency",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: volt. Marker: green. This unit measures which physical quantity? Quantity:",
+    "continuation": " voltage",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: volt. Marker: green. What physical quantity is measured in this unit? Quantity:",
+    "continuation": " voltage",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: siemens. Marker: green. What physical quantity is measured in this unit? Quantity:",
+    "continuation": " conductance",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: henry. Marker: blue. What physical quantity is measured in this unit? Quantity:",
+    "continuation": " inductance",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: mole. Marker: white. This unit measures which physical quantity? Quantity:",
+    "continuation": " amount of substance",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: kilogram. Marker: red. Give the physical quantity associated with this unit. Quantity:",
+    "continuation": " mass",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: metre. Marker: white. Give the physical quantity associated with this unit. Quantity:",
+    "continuation": " length",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: tesla. Marker: blue. Give the physical quantity associated with this unit. Quantity:",
+    "continuation": " magnetic flux density",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: second. Marker: white. Name the corresponding physical quantity. Quantity:",
+    "continuation": " time",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: candela. Marker: green. This unit measures which physical quantity? Quantity:",
+    "continuation": " luminous intensity",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: kilogram. Marker: white. Name the corresponding physical quantity. Quantity:",
+    "continuation": " mass",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: kilogram. Marker: blue. What physical quantity is measured in this unit? Quantity:",
+    "continuation": " mass",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: ohm. Marker: red. Give the physical quantity associated with this unit. Quantity:",
+    "continuation": " resistance",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: ampere. Marker: blue. Name the corresponding physical quantity. Quantity:",
+    "continuation": " electric current",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: mole. Marker: red. What physical quantity is measured in this unit? Quantity:",
+    "continuation": " amount of substance",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: hertz. Marker: red. Give the physical quantity associated with this unit. Quantity:",
+    "continuation": " frequency",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: ohm. Marker: white. Name the corresponding physical quantity. Quantity:",
+    "continuation": " resistance",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: coulomb. Marker: red. This unit measures which physical quantity? Quantity:",
+    "continuation": " charge",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: joule. Marker: blue. Give the physical quantity associated with this unit. Quantity:",
+    "continuation": " energy",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: candela. Marker: red. Name the corresponding physical quantity. Quantity:",
+    "continuation": " luminous intensity",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: weber. Marker: red. This unit measures which physical quantity? Quantity:",
+    "continuation": " magnetic flux",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: watt. Marker: blue. Give the physical quantity associated with this unit. Quantity:",
+    "continuation": " power",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: coulomb. Marker: green. Give the physical quantity associated with this unit. Quantity:",
+    "continuation": " charge",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: metre. Marker: red. Name the corresponding physical quantity. Quantity:",
+    "continuation": " length",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: coulomb. Marker: white. What physical quantity is measured in this unit? Quantity:",
+    "continuation": " charge",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: metre. Marker: blue. This unit measures which physical quantity? Quantity:",
+    "continuation": " length",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: henry. Marker: green. This unit measures which physical quantity? Quantity:",
+    "continuation": " inductance",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "SI unit: volt. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: hertz. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: weber. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: watt. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: hertz. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: tesla. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: ampere. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: henry. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: coulomb. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: ohm. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: tesla. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: siemens. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: candela. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: mole. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: newton. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: kelvin. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: farad. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: ampere. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: kilogram. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: joule. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: ohm. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: ampere. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: candela. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: tesla. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: watt. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: ohm. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: henry. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: joule. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: pascal. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: ampere. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: coulomb. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: second. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: tesla. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: coulomb. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: candela. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: henry. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: candela. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: siemens. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: watt. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: weber. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "SI unit: kelvin. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: weber. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: farad. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: siemens. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: metre. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: metre. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: ohm. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: metre. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: pascal. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: hertz. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: hertz. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: second. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: joule. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: second. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: coulomb. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: joule. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: newton. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: volt. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: mole. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: second. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: weber. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: volt. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: siemens. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: metre. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: newton. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: kelvin. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: henry. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: pascal. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: watt. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: kilogram. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: volt. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: farad. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: newton. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: mole. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: pascal. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: kelvin. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: kilogram. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: farad. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: kilogram. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "SI unit: mole. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 3.9922
+}

@@ -1,0 +1,500 @@
+{
+ "name": "finance_terms",
+ "description": "Identify finance concepts from definitions, with explicit term copying as control.",
+ "hash": "774f79656f874576",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\ndata={'interest':['the charge paid for borrowing money','the return paid on a savings account','the cost of a loan expressed as a rate'],'bond':['a debt security issued by a government or company','a security that pays coupons and returns principal at maturity','a tradable fixed-income debt instrument'],'stock':['an ownership share in a corporation','equity traded on a stock exchange','a security representing partial corporate ownership'],'dividend':['a distribution of corporate profits to shareholders','a payment a company makes to its equity holders from earnings','a cash payout to shareholders declared by a board'],'loan':['money borrowed with an obligation to repay','an advance from a lender that a borrower must repay','a sum lent subject to repayment terms'],'profit':['the amount by which revenue exceeds expenses','the financial gain remaining after costs','the positive difference between sales revenue and total costs'],'debt':['money owed to a creditor','an outstanding financial obligation to repay borrowed funds','the amount a borrower owes a lender'],'bank':['a financial institution that accepts deposits and makes loans','an institution offering savings accounts and lending services','a deposit-taking institution providing credit']}\nitems=[];control=[]\nfor term,defs in data.items():\n for definition in defs:\n  for template in ['Finance vocabulary: {d}. What is the term? Answer with one word:','What financial term means {d}? Term:']:\n   items.append({'prompt':template.format(d=definition),'answer':' '+term})\n   x=random.choice(list(data));control.append({'prompt':f'Finance vocabulary: {definition}. Assigned term: {x}. Copy the assigned term only:','answer':' '+x})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "What financial term means the charge paid for borrowing money? Term:",
+    "continuation": " interest",
+    "digits_only": false
+   },
+   {
+    "context": "What financial term means the financial gain remaining after costs? Term:",
+    "continuation": " profit",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: money owed to a creditor. What is the term? Answer with one word:",
+    "continuation": " debt",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: the charge paid for borrowing money. What is the term? Answer with one word:",
+    "continuation": " interest",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a payment a company makes to its equity holders from earnings. What is the term? Answer with one word:",
+    "continuation": " dividend",
+    "digits_only": false
+   },
+   {
+    "context": "What financial term means a cash payout to shareholders declared by a board? Term:",
+    "continuation": " dividend",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: equity traded on a stock exchange. What is the term? Answer with one word:",
+    "continuation": " stock",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: an ownership share in a corporation. What is the term? Answer with one word:",
+    "continuation": " stock",
+    "digits_only": false
+   },
+   {
+    "context": "What financial term means a debt security issued by a government or company? Term:",
+    "continuation": " bond",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a sum lent subject to repayment terms. What is the term? Answer with one word:",
+    "continuation": " loan",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: an institution offering savings accounts and lending services. What is the term? Answer with one word:",
+    "continuation": " bank",
+    "digits_only": false
+   },
+   {
+    "context": "What financial term means a deposit-taking institution providing credit? Term:",
+    "continuation": " bank",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a deposit-taking institution providing credit. What is the term? Answer with one word:",
+    "continuation": " bank",
+    "digits_only": false
+   },
+   {
+    "context": "What financial term means the cost of a loan expressed as a rate? Term:",
+    "continuation": " interest",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a financial institution that accepts deposits and makes loans. What is the term? Answer with one word:",
+    "continuation": " bank",
+    "digits_only": false
+   },
+   {
+    "context": "What financial term means a tradable fixed-income debt instrument? Term:",
+    "continuation": " bond",
+    "digits_only": false
+   },
+   {
+    "context": "What financial term means a payment a company makes to its equity holders from earnings? Term:",
+    "continuation": " dividend",
+    "digits_only": false
+   },
+   {
+    "context": "What financial term means an advance from a lender that a borrower must repay? Term:",
+    "continuation": " loan",
+    "digits_only": false
+   },
+   {
+    "context": "What financial term means equity traded on a stock exchange? Term:",
+    "continuation": " stock",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a tradable fixed-income debt instrument. What is the term? Answer with one word:",
+    "continuation": " bond",
+    "digits_only": false
+   },
+   {
+    "context": "What financial term means an institution offering savings accounts and lending services? Term:",
+    "continuation": " bank",
+    "digits_only": false
+   },
+   {
+    "context": "What financial term means the return paid on a savings account? Term:",
+    "continuation": " interest",
+    "digits_only": false
+   },
+   {
+    "context": "What financial term means a security that pays coupons and returns principal at maturity? Term:",
+    "continuation": " bond",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: the cost of a loan expressed as a rate. What is the term? Answer with one word:",
+    "continuation": " interest",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "What financial term means an outstanding financial obligation to repay borrowed funds? Term:",
+    "continuation": " debt",
+    "digits_only": false
+   },
+   {
+    "context": "What financial term means a sum lent subject to repayment terms? Term:",
+    "continuation": " loan",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: an outstanding financial obligation to repay borrowed funds. What is the term? Answer with one word:",
+    "continuation": " debt",
+    "digits_only": false
+   },
+   {
+    "context": "What financial term means a security representing partial corporate ownership? Term:",
+    "continuation": " stock",
+    "digits_only": false
+   },
+   {
+    "context": "What financial term means the positive difference between sales revenue and total costs? Term:",
+    "continuation": " profit",
+    "digits_only": false
+   },
+   {
+    "context": "What financial term means the amount a borrower owes a lender? Term:",
+    "continuation": " debt",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: the amount a borrower owes a lender. What is the term? Answer with one word:",
+    "continuation": " debt",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a debt security issued by a government or company. What is the term? Answer with one word:",
+    "continuation": " bond",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: the positive difference between sales revenue and total costs. What is the term? Answer with one word:",
+    "continuation": " profit",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a distribution of corporate profits to shareholders. What is the term? Answer with one word:",
+    "continuation": " dividend",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a security that pays coupons and returns principal at maturity. What is the term? Answer with one word:",
+    "continuation": " bond",
+    "digits_only": false
+   },
+   {
+    "context": "What financial term means a financial institution that accepts deposits and makes loans? Term:",
+    "continuation": " bank",
+    "digits_only": false
+   },
+   {
+    "context": "What financial term means an ownership share in a corporation? Term:",
+    "continuation": " stock",
+    "digits_only": false
+   },
+   {
+    "context": "What financial term means money owed to a creditor? Term:",
+    "continuation": " debt",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a cash payout to shareholders declared by a board. What is the term? Answer with one word:",
+    "continuation": " dividend",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: the amount by which revenue exceeds expenses. What is the term? Answer with one word:",
+    "continuation": " profit",
+    "digits_only": false
+   },
+   {
+    "context": "What financial term means a distribution of corporate profits to shareholders? Term:",
+    "continuation": " dividend",
+    "digits_only": false
+   },
+   {
+    "context": "What financial term means money borrowed with an obligation to repay? Term:",
+    "continuation": " loan",
+    "digits_only": false
+   },
+   {
+    "context": "What financial term means the amount by which revenue exceeds expenses? Term:",
+    "continuation": " profit",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: the financial gain remaining after costs. What is the term? Answer with one word:",
+    "continuation": " profit",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a security representing partial corporate ownership. What is the term? Answer with one word:",
+    "continuation": " stock",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: the return paid on a savings account. What is the term? Answer with one word:",
+    "continuation": " interest",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: an advance from a lender that a borrower must repay. What is the term? Answer with one word:",
+    "continuation": " loan",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: money borrowed with an obligation to repay. What is the term? Answer with one word:",
+    "continuation": " loan",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Finance vocabulary: an institution offering savings accounts and lending services. Assigned term: bond. Copy the assigned term only:",
+    "continuation": " bond",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: equity traded on a stock exchange. Assigned term: stock. Copy the assigned term only:",
+    "continuation": " stock",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: an institution offering savings accounts and lending services. Assigned term: bond. Copy the assigned term only:",
+    "continuation": " bond",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a security that pays coupons and returns principal at maturity. Assigned term: dividend. Copy the assigned term only:",
+    "continuation": " dividend",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: the cost of a loan expressed as a rate. Assigned term: debt. Copy the assigned term only:",
+    "continuation": " debt",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: the positive difference between sales revenue and total costs. Assigned term: profit. Copy the assigned term only:",
+    "continuation": " profit",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: the return paid on a savings account. Assigned term: interest. Copy the assigned term only:",
+    "continuation": " interest",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: equity traded on a stock exchange. Assigned term: loan. Copy the assigned term only:",
+    "continuation": " loan",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a distribution of corporate profits to shareholders. Assigned term: profit. Copy the assigned term only:",
+    "continuation": " profit",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: the positive difference between sales revenue and total costs. Assigned term: bank. Copy the assigned term only:",
+    "continuation": " bank",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: the financial gain remaining after costs. Assigned term: interest. Copy the assigned term only:",
+    "continuation": " interest",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a deposit-taking institution providing credit. Assigned term: profit. Copy the assigned term only:",
+    "continuation": " profit",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: the amount a borrower owes a lender. Assigned term: dividend. Copy the assigned term only:",
+    "continuation": " dividend",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: an advance from a lender that a borrower must repay. Assigned term: bank. Copy the assigned term only:",
+    "continuation": " bank",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a tradable fixed-income debt instrument. Assigned term: loan. Copy the assigned term only:",
+    "continuation": " loan",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: an outstanding financial obligation to repay borrowed funds. Assigned term: bond. Copy the assigned term only:",
+    "continuation": " bond",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: money owed to a creditor. Assigned term: profit. Copy the assigned term only:",
+    "continuation": " profit",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: an ownership share in a corporation. Assigned term: stock. Copy the assigned term only:",
+    "continuation": " stock",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a payment a company makes to its equity holders from earnings. Assigned term: bond. Copy the assigned term only:",
+    "continuation": " bond",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a security representing partial corporate ownership. Assigned term: bond. Copy the assigned term only:",
+    "continuation": " bond",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a payment a company makes to its equity holders from earnings. Assigned term: bank. Copy the assigned term only:",
+    "continuation": " bank",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a cash payout to shareholders declared by a board. Assigned term: profit. Copy the assigned term only:",
+    "continuation": " profit",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a sum lent subject to repayment terms. Assigned term: interest. Copy the assigned term only:",
+    "continuation": " interest",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: the financial gain remaining after costs. Assigned term: debt. Copy the assigned term only:",
+    "continuation": " debt",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Finance vocabulary: a tradable fixed-income debt instrument. Assigned term: stock. Copy the assigned term only:",
+    "continuation": " stock",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: the return paid on a savings account. Assigned term: loan. Copy the assigned term only:",
+    "continuation": " loan",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a distribution of corporate profits to shareholders. Assigned term: bond. Copy the assigned term only:",
+    "continuation": " bond",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a financial institution that accepts deposits and makes loans. Assigned term: bank. Copy the assigned term only:",
+    "continuation": " bank",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: money borrowed with an obligation to repay. Assigned term: dividend. Copy the assigned term only:",
+    "continuation": " dividend",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a cash payout to shareholders declared by a board. Assigned term: debt. Copy the assigned term only:",
+    "continuation": " debt",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a deposit-taking institution providing credit. Assigned term: bank. Copy the assigned term only:",
+    "continuation": " bank",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: the amount a borrower owes a lender. Assigned term: dividend. Copy the assigned term only:",
+    "continuation": " dividend",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: the charge paid for borrowing money. Assigned term: debt. Copy the assigned term only:",
+    "continuation": " debt",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: an advance from a lender that a borrower must repay. Assigned term: bank. Copy the assigned term only:",
+    "continuation": " bank",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: an outstanding financial obligation to repay borrowed funds. Assigned term: dividend. Copy the assigned term only:",
+    "continuation": " dividend",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: the charge paid for borrowing money. Assigned term: debt. Copy the assigned term only:",
+    "continuation": " debt",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a financial institution that accepts deposits and makes loans. Assigned term: stock. Copy the assigned term only:",
+    "continuation": " stock",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a debt security issued by a government or company. Assigned term: loan. Copy the assigned term only:",
+    "continuation": " loan",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: an ownership share in a corporation. Assigned term: bond. Copy the assigned term only:",
+    "continuation": " bond",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: money borrowed with an obligation to repay. Assigned term: profit. Copy the assigned term only:",
+    "continuation": " profit",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: the amount by which revenue exceeds expenses. Assigned term: interest. Copy the assigned term only:",
+    "continuation": " interest",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a sum lent subject to repayment terms. Assigned term: loan. Copy the assigned term only:",
+    "continuation": " loan",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: the amount by which revenue exceeds expenses. Assigned term: bond. Copy the assigned term only:",
+    "continuation": " bond",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a debt security issued by a government or company. Assigned term: bank. Copy the assigned term only:",
+    "continuation": " bank",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a security representing partial corporate ownership. Assigned term: loan. Copy the assigned term only:",
+    "continuation": " loan",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: the cost of a loan expressed as a rate. Assigned term: bank. Copy the assigned term only:",
+    "continuation": " bank",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: money owed to a creditor. Assigned term: dividend. Copy the assigned term only:",
+    "continuation": " dividend",
+    "digits_only": false
+   },
+   {
+    "context": "Finance vocabulary: a security that pays coupons and returns principal at maturity. Assigned term: profit. Copy the assigned term only:",
+    "continuation": " profit",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 5.8182
+}

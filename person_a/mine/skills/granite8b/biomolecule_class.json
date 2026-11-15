@@ -1,0 +1,980 @@
+{
+ "name": "biomolecule_class",
+ "description": "Classify named biological molecules as protein, lipid, carbohydrate, or nucleic acid, controlling for copying those labels.",
+ "hash": "b0d85757752ff4b9",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\ndata={'protein':['hemoglobin','insulin','collagen','keratin','albumin','myosin','actin','trypsin','pepsin','amylase','elastin','fibrinogen'],'lipid':['cholesterol','testosterone','estradiol','cortisol','triglyceride','phosphatidylcholine','sphingomyelin','ceramide','oleic acid','palmitic acid','stearic acid','linoleic acid'],'carbohydrate':['glucose','fructose','sucrose','lactose','maltose','starch','glycogen','cellulose','chitin','ribose','galactose','dextran'],'nucleic acid':['DNA','RNA','messenger RNA','transfer RNA','ribosomal RNA','mitochondrial DNA','plasmid DNA','genomic DNA','microRNA','small interfering RNA','chloroplast DNA','double-stranded RNA']}\nitems=[];control=[]\nfor label,molecules in data.items():\n for molecule in molecules:\n  for template in ['Classify {m} as protein, lipid, carbohydrate, or nucleic acid. Class:','Biochemistry. Which class describes {m}: protein, lipid, carbohydrate, or nucleic acid? Answer:']:\n   items.append({'prompt':template.format(m=molecule),'answer':' '+label})\n   x=random.choice(list(data));control.append({'prompt':f'Biochemistry. Molecule: {molecule}. Assigned class: {x}. Copy the assigned class. Answer:','answer':' '+x})\nrandom.shuffle(items);random.shuffle(control)\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Classify sucrose as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes pepsin: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes chitin: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Classify dextran as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes estradiol: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes galactose: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Classify glucose as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes DNA: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes microRNA: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes amylase: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Classify albumin as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes double-stranded RNA: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes testosterone: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes starch: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Classify microRNA as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Classify oleic acid as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Classify chitin as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes albumin: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Classify fructose as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Classify testosterone as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Classify plasmid DNA as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes triglyceride: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Classify genomic DNA as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes hemoglobin: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Classify pepsin as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes phosphatidylcholine: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Classify linoleic acid as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes cellulose: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Classify cholesterol as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Classify myosin as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Classify estradiol as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Classify mitochondrial DNA as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes cholesterol: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Classify lactose as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes insulin: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes maltose: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes sphingomyelin: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Classify trypsin as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Classify stearic acid as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Classify elastin as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes genomic DNA: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Classify ribosomal RNA as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Classify cellulose as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes cortisol: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Classify maltose as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Classify chloroplast DNA as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes lactose: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes myosin: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Classify transfer RNA as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes glycogen: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Classify collagen as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes mitochondrial DNA: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes fibrinogen: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Classify hemoglobin as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes keratin: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Classify ceramide as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Classify actin as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Classify small interfering RNA as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Classify insulin as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Classify messenger RNA as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Classify DNA as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes collagen: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Classify RNA as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Classify amylase as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Classify starch as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes ribosomal RNA: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes small interfering RNA: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Classify glycogen as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes oleic acid: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Classify galactose as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes messenger RNA: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes sucrose: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes chloroplast DNA: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Classify ribose as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes plasmid DNA: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Classify cortisol as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes fructose: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes transfer RNA: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes elastin: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes palmitic acid: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes trypsin: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes actin: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Classify palmitic acid as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes dextran: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes glucose: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes linoleic acid: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes ribose: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Classify keratin as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Classify sphingomyelin as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes RNA: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes ceramide: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Classify double-stranded RNA as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Classify phosphatidylcholine as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Which class describes stearic acid: protein, lipid, carbohydrate, or nucleic acid? Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Classify fibrinogen as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Classify triglyceride as protein, lipid, carbohydrate, or nucleic acid. Class:",
+    "continuation": " lipid",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Biochemistry. Molecule: phosphatidylcholine. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: double-stranded RNA. Assigned class: lipid. Copy the assigned class. Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: sucrose. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: insulin. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: chloroplast DNA. Assigned class: lipid. Copy the assigned class. Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: keratin. Assigned class: nucleic acid. Copy the assigned class. Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: small interfering RNA. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: plasmid DNA. Assigned class: nucleic acid. Copy the assigned class. Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: estradiol. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: estradiol. Assigned class: protein. Copy the assigned class. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: insulin. Assigned class: protein. Copy the assigned class. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: ribose. Assigned class: protein. Copy the assigned class. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: RNA. Assigned class: lipid. Copy the assigned class. Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: oleic acid. Assigned class: lipid. Copy the assigned class. Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: oleic acid. Assigned class: lipid. Copy the assigned class. Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: galactose. Assigned class: protein. Copy the assigned class. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: amylase. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: RNA. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: trypsin. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: genomic DNA. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: cellulose. Assigned class: lipid. Copy the assigned class. Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: palmitic acid. Assigned class: nucleic acid. Copy the assigned class. Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: ribosomal RNA. Assigned class: nucleic acid. Copy the assigned class. Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: genomic DNA. Assigned class: lipid. Copy the assigned class. Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: ribose. Assigned class: nucleic acid. Copy the assigned class. Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: chitin. Assigned class: protein. Copy the assigned class. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: dextran. Assigned class: lipid. Copy the assigned class. Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: transfer RNA. Assigned class: nucleic acid. Copy the assigned class. Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: palmitic acid. Assigned class: lipid. Copy the assigned class. Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: linoleic acid. Assigned class: nucleic acid. Copy the assigned class. Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: glucose. Assigned class: protein. Copy the assigned class. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: triglyceride. Assigned class: nucleic acid. Copy the assigned class. Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: glycogen. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: double-stranded RNA. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: fructose. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: testosterone. Assigned class: nucleic acid. Copy the assigned class. Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: hemoglobin. Assigned class: nucleic acid. Copy the assigned class. Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: actin. Assigned class: protein. Copy the assigned class. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: triglyceride. Assigned class: protein. Copy the assigned class. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: ribosomal RNA. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: small interfering RNA. Assigned class: protein. Copy the assigned class. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: lactose. Assigned class: nucleic acid. Copy the assigned class. Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: testosterone. Assigned class: nucleic acid. Copy the assigned class. Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: collagen. Assigned class: nucleic acid. Copy the assigned class. Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: pepsin. Assigned class: protein. Copy the assigned class. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: transfer RNA. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: lactose. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: plasmid DNA. Assigned class: protein. Copy the assigned class. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Biochemistry. Molecule: myosin. Assigned class: lipid. Copy the assigned class. Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: messenger RNA. Assigned class: nucleic acid. Copy the assigned class. Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: galactose. Assigned class: lipid. Copy the assigned class. Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: DNA. Assigned class: protein. Copy the assigned class. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: sucrose. Assigned class: lipid. Copy the assigned class. Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: elastin. Assigned class: nucleic acid. Copy the assigned class. Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: cholesterol. Assigned class: lipid. Copy the assigned class. Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: cortisol. Assigned class: protein. Copy the assigned class. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: sphingomyelin. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: hemoglobin. Assigned class: nucleic acid. Copy the assigned class. Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: keratin. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: dextran. Assigned class: protein. Copy the assigned class. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: glucose. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: pepsin. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: albumin. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: linoleic acid. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: collagen. Assigned class: nucleic acid. Copy the assigned class. Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: chitin. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: chloroplast DNA. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: mitochondrial DNA. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: amylase. Assigned class: protein. Copy the assigned class. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: elastin. Assigned class: protein. Copy the assigned class. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: stearic acid. Assigned class: protein. Copy the assigned class. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: mitochondrial DNA. Assigned class: protein. Copy the assigned class. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: cholesterol. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: stearic acid. Assigned class: protein. Copy the assigned class. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: microRNA. Assigned class: protein. Copy the assigned class. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: fibrinogen. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: microRNA. Assigned class: lipid. Copy the assigned class. Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: ceramide. Assigned class: lipid. Copy the assigned class. Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: sphingomyelin. Assigned class: lipid. Copy the assigned class. Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: maltose. Assigned class: nucleic acid. Copy the assigned class. Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: cortisol. Assigned class: protein. Copy the assigned class. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: actin. Assigned class: lipid. Copy the assigned class. Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: starch. Assigned class: lipid. Copy the assigned class. Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: starch. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: fibrinogen. Assigned class: nucleic acid. Copy the assigned class. Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: trypsin. Assigned class: lipid. Copy the assigned class. Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: glycogen. Assigned class: lipid. Copy the assigned class. Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: messenger RNA. Assigned class: lipid. Copy the assigned class. Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: ceramide. Assigned class: protein. Copy the assigned class. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: maltose. Assigned class: protein. Copy the assigned class. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: cellulose. Assigned class: lipid. Copy the assigned class. Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: myosin. Assigned class: carbohydrate. Copy the assigned class. Answer:",
+    "continuation": " carbohydrate",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: phosphatidylcholine. Assigned class: nucleic acid. Copy the assigned class. Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: albumin. Assigned class: lipid. Copy the assigned class. Answer:",
+    "continuation": " lipid",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: fructose. Assigned class: protein. Copy the assigned class. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biochemistry. Molecule: DNA. Assigned class: nucleic acid. Copy the assigned class. Answer:",
+    "continuation": " nucleic acid",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 1.9166
+}

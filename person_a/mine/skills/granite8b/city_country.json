@@ -1,0 +1,980 @@
+{
+ "name": "city_country",
+ "description": "Retrieve a city's country, as opposed to copying an explicitly supplied country in matched format.",
+ "hash": "804a0ed221a284dd",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\ngroups={'France':['Paris','Lyon','Marseille','Toulouse','Nice','Bordeaux'],'Germany':['Berlin','Munich','Hamburg','Frankfurt','Cologne','Dresden'],'Canada':['Toronto','Ottawa','Montreal','Vancouver','Calgary','Winnipeg'],'China':['Beijing','Shanghai','Guangzhou','Shenzhen','Chengdu','Wuhan'],'Japan':['Tokyo','Osaka','Kyoto','Yokohama','Nagoya','Sapporo'],'Italy':['Rome','Milan','Naples','Turin','Florence','Venice'],'Spain':['Madrid','Barcelona','Seville','Valencia','Bilbao','Granada'],'Brazil':['Brasilia','Rio de Janeiro','Sao Paulo','Salvador','Recife','Fortaleza']}\nrows=[(city,country) for country,cities in groups.items() for city in cities]\nitems=[];control=[]\nfor city,country in rows:\n for template in ['City: {city}. In which country is this city? Answer with the country only:','Geography quiz. {city} is a city in which country? Country:']:\n  items.append({'prompt':template.format(city=city),'answer':' '+country})\n  label=random.choice(list(groups))\n  control.append({'prompt':f'City: {city}. Country label: {label}. Copy the country label exactly. Country:','answer':' '+label})\nrandom.shuffle(items);random.shuffle(control)\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "City: Kyoto. In which country is this city? Answer with the country only:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Hamburg is a city in which country? Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Naples is a city in which country? Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Venice. In which country is this city? Answer with the country only:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Montreal is a city in which country? Country:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Florence is a city in which country? Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Tokyo. In which country is this city? Answer with the country only:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Madrid is a city in which country? Country:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Sao Paulo is a city in which country? Country:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Frankfurt is a city in which country? Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Nice. In which country is this city? Answer with the country only:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Fortaleza is a city in which country? Country:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Ottawa is a city in which country? Country:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Sapporo is a city in which country? Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "City: Sao Paulo. In which country is this city? Answer with the country only:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "City: Guangzhou. In which country is this city? Answer with the country only:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Naples. In which country is this city? Answer with the country only:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Nice is a city in which country? Country:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "City: Osaka. In which country is this city? Answer with the country only:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "City: Ottawa. In which country is this city? Answer with the country only:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "City: Brasilia. In which country is this city? Answer with the country only:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Calgary is a city in which country? Country:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "City: Rio de Janeiro. In which country is this city? Answer with the country only:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Paris is a city in which country? Country:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "City: Hamburg. In which country is this city? Answer with the country only:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Winnipeg is a city in which country? Country:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "City: Wuhan. In which country is this city? Answer with the country only:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Milan is a city in which country? Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Toronto. In which country is this city? Answer with the country only:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "City: Bordeaux. In which country is this city? Answer with the country only:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "City: Montreal. In which country is this city? Answer with the country only:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "City: Granada. In which country is this city? Answer with the country only:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Toronto is a city in which country? Country:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "City: Yokohama. In which country is this city? Answer with the country only:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Lyon is a city in which country? Country:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Nagoya is a city in which country? Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Beijing is a city in which country? Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Munich. In which country is this city? Answer with the country only:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Chengdu. In which country is this city? Answer with the country only:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Cologne. In which country is this city? Answer with the country only:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Rio de Janeiro is a city in which country? Country:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "City: Bilbao. In which country is this city? Answer with the country only:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "City: Milan. In which country is this city? Answer with the country only:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Vancouver is a city in which country? Country:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "City: Nagoya. In which country is this city? Answer with the country only:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "City: Recife. In which country is this city? Answer with the country only:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Yokohama is a city in which country? Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Bordeaux is a city in which country? Country:",
+    "continuation": " France",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "City: Valencia. In which country is this city? Answer with the country only:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Rome is a city in which country? Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Marseille. In which country is this city? Answer with the country only:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Granada is a city in which country? Country:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Dresden is a city in which country? Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Paris. In which country is this city? Answer with the country only:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Toulouse is a city in which country? Country:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "City: Shanghai. In which country is this city? Answer with the country only:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Berlin. In which country is this city? Answer with the country only:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Salvador. In which country is this city? Answer with the country only:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lyon. In which country is this city? Answer with the country only:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "City: Seville. In which country is this city? Answer with the country only:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "City: Madrid. In which country is this city? Answer with the country only:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Marseille is a city in which country? Country:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "City: Barcelona. In which country is this city? Answer with the country only:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "City: Frankfurt. In which country is this city? Answer with the country only:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Sapporo. In which country is this city? Answer with the country only:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Bilbao is a city in which country? Country:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Salvador is a city in which country? Country:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "City: Rome. In which country is this city? Answer with the country only:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Guangzhou is a city in which country? Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Florence. In which country is this city? Answer with the country only:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Seville is a city in which country? Country:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Kyoto is a city in which country? Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Recife is a city in which country? Country:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "City: Turin. In which country is this city? Answer with the country only:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Brasilia is a city in which country? Country:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "City: Vancouver. In which country is this city? Answer with the country only:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Osaka is a city in which country? Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Valencia is a city in which country? Country:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Cologne is a city in which country? Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Shenzhen is a city in which country? Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Munich is a city in which country? Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Berlin is a city in which country? Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Shenzhen. In which country is this city? Answer with the country only:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Venice is a city in which country? Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Tokyo is a city in which country? Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Wuhan is a city in which country? Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Turin is a city in which country? Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Toulouse. In which country is this city? Answer with the country only:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "City: Beijing. In which country is this city? Answer with the country only:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Barcelona is a city in which country? Country:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Shanghai is a city in which country? Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Fortaleza. In which country is this city? Answer with the country only:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "City: Winnipeg. In which country is this city? Answer with the country only:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "Geography quiz. Chengdu is a city in which country? Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Dresden. In which country is this city? Answer with the country only:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Calgary. In which country is this city? Answer with the country only:",
+    "continuation": " Canada",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "City: Winnipeg. Country label: Italy. Copy the country label exactly. Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Fortaleza. Country label: Canada. Copy the country label exactly. Country:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "City: Kyoto. Country label: Italy. Copy the country label exactly. Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lyon. Country label: Japan. Copy the country label exactly. Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "City: Recife. Country label: China. Copy the country label exactly. Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Toulouse. Country label: Brazil. Copy the country label exactly. Country:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "City: Salvador. Country label: Japan. Copy the country label exactly. Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "City: Brasilia. Country label: Brazil. Copy the country label exactly. Country:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "City: Montreal. Country label: Japan. Copy the country label exactly. Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "City: Montreal. Country label: France. Copy the country label exactly. Country:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lyon. Country label: France. Copy the country label exactly. Country:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "City: Turin. Country label: Germany. Copy the country label exactly. Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Barcelona. Country label: China. Copy the country label exactly. Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Guangzhou. Country label: China. Copy the country label exactly. Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Guangzhou. Country label: China. Copy the country label exactly. Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Florence. Country label: Germany. Copy the country label exactly. Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Frankfurt. Country label: Italy. Copy the country label exactly. Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Barcelona. Country label: Japan. Copy the country label exactly. Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "City: Munich. Country label: Japan. Copy the country label exactly. Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "City: Rio de Janeiro. Country label: Italy. Copy the country label exactly. Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Milan. Country label: Canada. Copy the country label exactly. Country:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "City: Shenzhen. Country label: Brazil. Copy the country label exactly. Country:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "City: Bilbao. Country label: Brazil. Copy the country label exactly. Country:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "City: Rio de Janeiro. Country label: China. Copy the country label exactly. Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Turin. Country label: Brazil. Copy the country label exactly. Country:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "City: Naples. Country label: France. Copy the country label exactly. Country:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "City: Venice. Country label: Canada. Copy the country label exactly. Country:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "City: Valencia. Country label: Brazil. Copy the country label exactly. Country:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "City: Shenzhen. Country label: Canada. Copy the country label exactly. Country:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "City: Wuhan. Country label: Brazil. Copy the country label exactly. Country:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "City: Tokyo. Country label: Germany. Copy the country label exactly. Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Calgary. Country label: Spain. Copy the country label exactly. Country:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "City: Rome. Country label: Japan. Copy the country label exactly. Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "City: Fortaleza. Country label: Italy. Copy the country label exactly. Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Osaka. Country label: Japan. Copy the country label exactly. Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "City: Ottawa. Country label: Brazil. Copy the country label exactly. Country:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "City: Paris. Country label: Spain. Copy the country label exactly. Country:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "City: Berlin. Country label: Germany. Copy the country label exactly. Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Calgary. Country label: France. Copy the country label exactly. Country:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "City: Bilbao. Country label: Italy. Copy the country label exactly. Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Salvador. Country label: Germany. Copy the country label exactly. Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Yokohama. Country label: Brazil. Copy the country label exactly. Country:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "City: Ottawa. Country label: Brazil. Copy the country label exactly. Country:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "City: Marseille. Country label: Brazil. Copy the country label exactly. Country:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "City: Hamburg. Country label: Germany. Copy the country label exactly. Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Valencia. Country label: Japan. Copy the country label exactly. Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "City: Yokohama. Country label: Japan. Copy the country label exactly. Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "City: Brasilia. Country label: Germany. Copy the country label exactly. Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "City: Bordeaux. Country label: Canada. Copy the country label exactly. Country:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "City: Seville. Country label: Spain. Copy the country label exactly. Country:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "City: Florence. Country label: Canada. Copy the country label exactly. Country:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "City: Madrid. Country label: Germany. Copy the country label exactly. Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Kyoto. Country label: China. Copy the country label exactly. Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Cologne. Country label: Brazil. Copy the country label exactly. Country:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "City: Toronto. Country label: China. Copy the country label exactly. Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Vancouver. Country label: France. Copy the country label exactly. Country:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "City: Beijing. Country label: Italy. Copy the country label exactly. Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Paris. Country label: Spain. Copy the country label exactly. Country:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "City: Toulouse. Country label: Japan. Copy the country label exactly. Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "City: Venice. Country label: France. Copy the country label exactly. Country:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "City: Tokyo. Country label: Japan. Copy the country label exactly. Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "City: Hamburg. Country label: Japan. Copy the country label exactly. Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "City: Nice. Country label: Italy. Copy the country label exactly. Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Wuhan. Country label: Italy. Copy the country label exactly. Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Marseille. Country label: Spain. Copy the country label exactly. Country:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "City: Naples. Country label: Japan. Copy the country label exactly. Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "City: Recife. Country label: Italy. Copy the country label exactly. Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Granada. Country label: Italy. Copy the country label exactly. Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Frankfurt. Country label: Germany. Copy the country label exactly. Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Cologne. Country label: Germany. Copy the country label exactly. Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Chengdu. Country label: Germany. Copy the country label exactly. Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Granada. Country label: Germany. Copy the country label exactly. Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Toronto. Country label: Italy. Copy the country label exactly. Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Chengdu. Country label: Germany. Copy the country label exactly. Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Sao Paulo. Country label: France. Copy the country label exactly. Country:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "City: Dresden. Country label: Italy. Copy the country label exactly. Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Sao Paulo. Country label: China. Copy the country label exactly. Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Shanghai. Country label: China. Copy the country label exactly. Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Beijing. Country label: China. Copy the country label exactly. Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Nagoya. Country label: Spain. Copy the country label exactly. Country:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "City: Vancouver. Country label: Germany. Copy the country label exactly. Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Berlin. Country label: Canada. Copy the country label exactly. Country:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "City: Sapporo. Country label: China. Copy the country label exactly. Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Sapporo. Country label: Italy. Copy the country label exactly. Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Dresden. Country label: Spain. Copy the country label exactly. Country:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "City: Munich. Country label: Canada. Copy the country label exactly. Country:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "City: Rome. Country label: Canada. Copy the country label exactly. Country:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "City: Seville. Country label: China. Copy the country label exactly. Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Shanghai. Country label: Germany. Copy the country label exactly. Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Nagoya. Country label: Germany. Copy the country label exactly. Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Milan. Country label: China. Copy the country label exactly. Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Bordeaux. Country label: Japan. Copy the country label exactly. Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "City: Winnipeg. Country label: Brazil. Copy the country label exactly. Country:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "City: Nice. Country label: China. Copy the country label exactly. Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Osaka. Country label: Germany. Copy the country label exactly. Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Madrid. Country label: Spain. Copy the country label exactly. Country:",
+    "continuation": " Spain",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 6.3024
+}

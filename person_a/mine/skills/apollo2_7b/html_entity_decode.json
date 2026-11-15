@@ -1,0 +1,1020 @@
+{
+ "name": "html_entity_decode",
+ "description": "Decode named HTML entities into the literal punctuation character. Matched controls copy the entity name without decoding.",
+ "hash": "80176d16743393a6",
+ "agent_items": false,
+ "generator_code": "import random,json,html\nrandom.seed(0)\nentities=['lt','gt','amp','quot','apos'];items=[];control=[]\nfor i in range(100):\n name=entities[i%5];entity='&'+name+';';tag=random.choice(['div','span','p','code','title']);p=f'HTML fragment: <{tag}>{entity}</{tag}>\\n'\n items.append({'prompt':p+'Decode the entity. Write only its single literal character, not a code block. Answer:','answer':' '+html.unescape(entity)})\n control.append({'prompt':p+'Write only the entity name, omitting & and ;. Answer:','answer':' '+name})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "HTML fragment: <div>&quot;</div>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&quot;</code>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&gt;</span>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&amp;</p>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&quot;</span>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&quot;</span>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&gt;</code>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&gt;</div>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&apos;</span>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " '",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&apos;</span>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " '",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&gt;</div>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&quot;</div>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&amp;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&gt;</div>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&lt;</p>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&amp;</div>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&amp;</p>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&amp;</div>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&quot;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&gt;</p>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&apos;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " '",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&gt;</code>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&apos;</div>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " '",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&lt;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&apos;</div>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " '",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&lt;</code>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&amp;</p>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&apos;</p>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " '",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&quot;</p>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&amp;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&quot;</span>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&gt;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&quot;</code>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&apos;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " '",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&gt;</span>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&quot;</div>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&apos;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " '",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&quot;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&apos;</div>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " '",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&apos;</p>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " '",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&apos;</span>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " '",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&lt;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&apos;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " '",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&lt;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&lt;</span>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&gt;</span>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&gt;</p>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&gt;</code>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&amp;</code>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&amp;</div>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " &",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "HTML fragment: <title>&quot;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&lt;</div>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&apos;</p>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " '",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&lt;</p>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&quot;</code>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&gt;</code>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&gt;</div>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&lt;</code>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&amp;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&lt;</code>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&quot;</div>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&amp;</div>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&quot;</p>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&lt;</div>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&gt;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&lt;</code>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&gt;</code>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&lt;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&lt;</span>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&apos;</p>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " '",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&lt;</p>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&gt;</span>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&lt;</p>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&amp;</div>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&apos;</p>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " '",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&amp;</span>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&apos;</div>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " '",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&quot;</p>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&amp;</div>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&quot;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&amp;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&apos;</code>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " '",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&amp;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&lt;</span>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&gt;</code>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&amp;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&apos;</p>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " '",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&amp;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&apos;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " '",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&lt;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&gt;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&quot;</p>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&gt;</span>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " >",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&amp;</code>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&lt;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&quot;</span>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&lt;</code>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " <",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&quot;</span>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " \"",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&amp;</title>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " &",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&apos;</p>\nDecode the entity. Write only its single literal character, not a code block. Answer:",
+    "continuation": " '",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "HTML fragment: <span>&quot;</span>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " quot",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&amp;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " amp",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&lt;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " lt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&gt;</span>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " gt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&apos;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " apos",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&lt;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " lt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&quot;</p>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " quot",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&apos;</p>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " apos",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&lt;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " lt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&gt;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " gt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&apos;</div>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " apos",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&gt;</code>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " gt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&apos;</span>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " apos",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&lt;</div>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " lt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&gt;</div>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " gt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&lt;</code>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " lt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&gt;</p>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " gt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&gt;</div>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " gt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&lt;</p>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " lt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&quot;</span>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " quot",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&apos;</div>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " apos",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&amp;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " amp",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&gt;</div>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " gt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&apos;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " apos",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&apos;</p>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " apos",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&lt;</code>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " lt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&quot;</div>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " quot",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&gt;</code>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " gt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&apos;</div>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " apos",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&apos;</code>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " apos",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&quot;</div>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " quot",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&apos;</span>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " apos",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&lt;</code>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " lt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&quot;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " quot",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&lt;</p>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " lt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&amp;</p>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " amp",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&gt;</p>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " gt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&lt;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " lt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&apos;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " apos",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&amp;</div>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " amp",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&amp;</div>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " amp",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&quot;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " quot",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&lt;</div>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " lt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&gt;</span>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " gt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&amp;</p>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " amp",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&amp;</div>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " amp",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&gt;</code>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " gt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&amp;</span>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " amp",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&gt;</span>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " gt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&gt;</code>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " gt",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "HTML fragment: <div>&gt;</div>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " gt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&gt;</span>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " gt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&quot;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " quot",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&lt;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " lt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&quot;</p>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " quot",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&quot;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " quot",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&gt;</span>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " gt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&apos;</div>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " apos",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&quot;</code>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " quot",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&gt;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " gt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&amp;</p>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " amp",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&apos;</p>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " apos",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&lt;</code>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " lt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&quot;</span>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " quot",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&gt;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " gt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&quot;</div>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " quot",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&quot;</code>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " quot",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&apos;</span>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " apos",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&amp;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " amp",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&apos;</p>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " apos",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&gt;</code>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " gt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&apos;</p>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " apos",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&apos;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " apos",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&amp;</div>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " amp",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&lt;</span>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " lt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&lt;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " lt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&quot;</span>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " quot",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&lt;</p>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " lt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&apos;</p>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " apos",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&apos;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " apos",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&amp;</div>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " amp",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&lt;</code>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " lt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&amp;</div>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " amp",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&lt;</span>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " lt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&apos;</p>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " apos",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&quot;</p>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " quot",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&amp;</code>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " amp",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&amp;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " amp",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&gt;</code>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " gt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&quot;</span>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " quot",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&quot;</p>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " quot",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <p>&lt;</p>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " lt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&amp;</code>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " amp",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <div>&quot;</div>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " quot",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <span>&lt;</span>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " lt",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&amp;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " amp",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <code>&quot;</code>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " quot",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&amp;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " amp",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&amp;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " amp",
+    "digits_only": false
+   },
+   {
+    "context": "HTML fragment: <title>&amp;</title>\nWrite only the entity name, omitting & and ;. Answer:",
+    "continuation": " amp",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 2.9206
+}

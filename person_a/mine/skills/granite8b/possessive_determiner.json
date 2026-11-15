@@ -1,0 +1,1220 @@
+{
+ "name": "possessive_determiner",
+ "description": "Map subject pronouns to English possessive determiners in sentences, matched object-pronoun conversion control.",
+ "hash": "b529a7db90a26539",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nrows=[('I','my','me'),('you','your','you'),('he','his','him'),('she','her','her'),('it','its','it'),('we','our','us'),('they','their','them')]\nnouns=['book','bag','hat','desk','coat','phone','house','car','garden','chair','room','bicycle','umbrella','ticket','letter','pen','computer','key']\ncs=[(r,n) for r in rows for n in nouns];random.shuffle(cs)\nitems=[];control=[]\nfor (s,p,o),n in cs[:120]:\n items.append({'prompt':f'Fill the blank with the possessive determiner for \"{s}\". This is ___ {n}.\\nAnswer:','answer':' '+p})\n control.append({'prompt':f'Fill the blank with the object pronoun for \"{s}\". Please give the {n} to ___.\\nAnswer:','answer':' '+o})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Fill the blank with the possessive determiner for \"they\". This is ___ key.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"I\". This is ___ umbrella.\nAnswer:",
+    "continuation": " my",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"we\". This is ___ book.\nAnswer:",
+    "continuation": " our",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"it\". This is ___ key.\nAnswer:",
+    "continuation": " its",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"he\". This is ___ chair.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"they\". This is ___ chair.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"I\". This is ___ bicycle.\nAnswer:",
+    "continuation": " my",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"I\". This is ___ hat.\nAnswer:",
+    "continuation": " my",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"she\". This is ___ phone.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"he\". This is ___ garden.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"we\". This is ___ hat.\nAnswer:",
+    "continuation": " our",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"we\". This is ___ bag.\nAnswer:",
+    "continuation": " our",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"we\". This is ___ garden.\nAnswer:",
+    "continuation": " our",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"he\". This is ___ phone.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"it\". This is ___ bicycle.\nAnswer:",
+    "continuation": " its",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"it\". This is ___ computer.\nAnswer:",
+    "continuation": " its",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"he\". This is ___ coat.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"it\". This is ___ room.\nAnswer:",
+    "continuation": " its",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"they\". This is ___ ticket.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"I\". This is ___ car.\nAnswer:",
+    "continuation": " my",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"it\". This is ___ desk.\nAnswer:",
+    "continuation": " its",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"I\". This is ___ key.\nAnswer:",
+    "continuation": " my",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"she\". This is ___ coat.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"it\". This is ___ house.\nAnswer:",
+    "continuation": " its",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"it\". This is ___ phone.\nAnswer:",
+    "continuation": " its",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"you\". This is ___ desk.\nAnswer:",
+    "continuation": " your",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"it\". This is ___ coat.\nAnswer:",
+    "continuation": " its",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"we\". This is ___ room.\nAnswer:",
+    "continuation": " our",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"they\". This is ___ coat.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"she\". This is ___ desk.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"I\". This is ___ room.\nAnswer:",
+    "continuation": " my",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"it\". This is ___ umbrella.\nAnswer:",
+    "continuation": " its",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"they\". This is ___ pen.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"you\". This is ___ bag.\nAnswer:",
+    "continuation": " your",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"we\". This is ___ house.\nAnswer:",
+    "continuation": " our",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"I\". This is ___ chair.\nAnswer:",
+    "continuation": " my",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"I\". This is ___ computer.\nAnswer:",
+    "continuation": " my",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"they\". This is ___ car.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"you\". This is ___ coat.\nAnswer:",
+    "continuation": " your",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"she\". This is ___ car.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"they\". This is ___ garden.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"he\". This is ___ house.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"they\". This is ___ room.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"he\". This is ___ car.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"he\". This is ___ computer.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"it\". This is ___ car.\nAnswer:",
+    "continuation": " its",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"we\". This is ___ ticket.\nAnswer:",
+    "continuation": " our",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"I\". This is ___ coat.\nAnswer:",
+    "continuation": " my",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"she\". This is ___ bicycle.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"we\". This is ___ computer.\nAnswer:",
+    "continuation": " our",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"they\". This is ___ house.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"she\". This is ___ book.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"you\". This is ___ hat.\nAnswer:",
+    "continuation": " your",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"we\". This is ___ phone.\nAnswer:",
+    "continuation": " our",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"we\". This is ___ desk.\nAnswer:",
+    "continuation": " our",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"it\". This is ___ ticket.\nAnswer:",
+    "continuation": " its",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"you\". This is ___ phone.\nAnswer:",
+    "continuation": " your",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"you\". This is ___ chair.\nAnswer:",
+    "continuation": " your",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"you\". This is ___ computer.\nAnswer:",
+    "continuation": " your",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"it\". This is ___ chair.\nAnswer:",
+    "continuation": " its",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Fill the blank with the possessive determiner for \"we\". This is ___ pen.\nAnswer:",
+    "continuation": " our",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"she\". This is ___ computer.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"you\". This is ___ garden.\nAnswer:",
+    "continuation": " your",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"they\". This is ___ letter.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"it\". This is ___ bag.\nAnswer:",
+    "continuation": " its",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"she\". This is ___ bag.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"you\". This is ___ umbrella.\nAnswer:",
+    "continuation": " your",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"he\". This is ___ room.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"it\". This is ___ hat.\nAnswer:",
+    "continuation": " its",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"she\". This is ___ pen.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"we\". This is ___ letter.\nAnswer:",
+    "continuation": " our",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"it\". This is ___ pen.\nAnswer:",
+    "continuation": " its",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"you\". This is ___ bicycle.\nAnswer:",
+    "continuation": " your",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"he\". This is ___ pen.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"I\". This is ___ garden.\nAnswer:",
+    "continuation": " my",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"they\". This is ___ umbrella.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"you\". This is ___ pen.\nAnswer:",
+    "continuation": " your",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"she\". This is ___ chair.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"he\". This is ___ letter.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"she\". This is ___ umbrella.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"he\". This is ___ bicycle.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"we\". This is ___ umbrella.\nAnswer:",
+    "continuation": " our",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"we\". This is ___ key.\nAnswer:",
+    "continuation": " our",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"she\". This is ___ key.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"I\". This is ___ book.\nAnswer:",
+    "continuation": " my",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"we\". This is ___ coat.\nAnswer:",
+    "continuation": " our",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"I\". This is ___ ticket.\nAnswer:",
+    "continuation": " my",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"they\". This is ___ desk.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"we\". This is ___ chair.\nAnswer:",
+    "continuation": " our",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"she\". This is ___ garden.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"he\". This is ___ bag.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"they\". This is ___ bag.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"they\". This is ___ bicycle.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"she\". This is ___ house.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"you\". This is ___ ticket.\nAnswer:",
+    "continuation": " your",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"she\". This is ___ ticket.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"she\". This is ___ hat.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"I\". This is ___ desk.\nAnswer:",
+    "continuation": " my",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"he\". This is ___ desk.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"you\". This is ___ letter.\nAnswer:",
+    "continuation": " your",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"it\". This is ___ letter.\nAnswer:",
+    "continuation": " its",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"you\". This is ___ car.\nAnswer:",
+    "continuation": " your",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"you\". This is ___ room.\nAnswer:",
+    "continuation": " your",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"they\". This is ___ hat.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"I\". This is ___ bag.\nAnswer:",
+    "continuation": " my",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"they\". This is ___ computer.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"it\". This is ___ garden.\nAnswer:",
+    "continuation": " its",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"he\". This is ___ umbrella.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"he\". This is ___ book.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"she\". This is ___ letter.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"I\". This is ___ house.\nAnswer:",
+    "continuation": " my",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"it\". This is ___ book.\nAnswer:",
+    "continuation": " its",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"you\". This is ___ house.\nAnswer:",
+    "continuation": " your",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"I\". This is ___ pen.\nAnswer:",
+    "continuation": " my",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"I\". This is ___ letter.\nAnswer:",
+    "continuation": " my",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"we\". This is ___ bicycle.\nAnswer:",
+    "continuation": " our",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"he\". This is ___ hat.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"you\". This is ___ book.\nAnswer:",
+    "continuation": " your",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"you\". This is ___ key.\nAnswer:",
+    "continuation": " your",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the possessive determiner for \"she\". This is ___ room.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Fill the blank with the object pronoun for \"you\". Please give the pen to ___.\nAnswer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"she\". Please give the computer to ___.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"I\". Please give the coat to ___.\nAnswer:",
+    "continuation": " me",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"she\". Please give the house to ___.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"you\". Please give the ticket to ___.\nAnswer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"they\". Please give the letter to ___.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"we\". Please give the pen to ___.\nAnswer:",
+    "continuation": " us",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"she\". Please give the hat to ___.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"he\". Please give the umbrella to ___.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"I\". Please give the room to ___.\nAnswer:",
+    "continuation": " me",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"you\". Please give the phone to ___.\nAnswer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"we\". Please give the ticket to ___.\nAnswer:",
+    "continuation": " us",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"I\". Please give the hat to ___.\nAnswer:",
+    "continuation": " me",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"she\". Please give the umbrella to ___.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"we\". Please give the computer to ___.\nAnswer:",
+    "continuation": " us",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"I\". Please give the book to ___.\nAnswer:",
+    "continuation": " me",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"I\". Please give the bicycle to ___.\nAnswer:",
+    "continuation": " me",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"they\". Please give the car to ___.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"we\". Please give the desk to ___.\nAnswer:",
+    "continuation": " us",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"we\". Please give the chair to ___.\nAnswer:",
+    "continuation": " us",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"you\". Please give the garden to ___.\nAnswer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"he\". Please give the pen to ___.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"he\". Please give the desk to ___.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"I\". Please give the chair to ___.\nAnswer:",
+    "continuation": " me",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"he\". Please give the bag to ___.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"it\". Please give the letter to ___.\nAnswer:",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"we\". Please give the key to ___.\nAnswer:",
+    "continuation": " us",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"you\". Please give the bag to ___.\nAnswer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"it\". Please give the computer to ___.\nAnswer:",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"I\". Please give the pen to ___.\nAnswer:",
+    "continuation": " me",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"it\". Please give the umbrella to ___.\nAnswer:",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"he\". Please give the computer to ___.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"it\". Please give the house to ___.\nAnswer:",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"I\". Please give the letter to ___.\nAnswer:",
+    "continuation": " me",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"they\". Please give the room to ___.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"I\". Please give the bag to ___.\nAnswer:",
+    "continuation": " me",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"she\". Please give the pen to ___.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"we\". Please give the house to ___.\nAnswer:",
+    "continuation": " us",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"she\". Please give the coat to ___.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"she\". Please give the car to ___.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"she\". Please give the phone to ___.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"I\". Please give the garden to ___.\nAnswer:",
+    "continuation": " me",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"she\". Please give the garden to ___.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"he\". Please give the garden to ___.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"I\". Please give the house to ___.\nAnswer:",
+    "continuation": " me",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"it\". Please give the bag to ___.\nAnswer:",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"it\". Please give the phone to ___.\nAnswer:",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"they\". Please give the chair to ___.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"he\". Please give the car to ___.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"you\". Please give the room to ___.\nAnswer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"I\". Please give the ticket to ___.\nAnswer:",
+    "continuation": " me",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"you\". Please give the house to ___.\nAnswer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"they\". Please give the coat to ___.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"he\". Please give the hat to ___.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"they\". Please give the computer to ___.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"it\". Please give the garden to ___.\nAnswer:",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"you\". Please give the coat to ___.\nAnswer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"we\". Please give the hat to ___.\nAnswer:",
+    "continuation": " us",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"you\". Please give the bicycle to ___.\nAnswer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"they\". Please give the bag to ___.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Fill the blank with the object pronoun for \"we\". Please give the book to ___.\nAnswer:",
+    "continuation": " us",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"it\". Please give the coat to ___.\nAnswer:",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"we\". Please give the phone to ___.\nAnswer:",
+    "continuation": " us",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"we\". Please give the garden to ___.\nAnswer:",
+    "continuation": " us",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"I\". Please give the umbrella to ___.\nAnswer:",
+    "continuation": " me",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"we\". Please give the bicycle to ___.\nAnswer:",
+    "continuation": " us",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"she\". Please give the bag to ___.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"she\". Please give the desk to ___.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"you\". Please give the computer to ___.\nAnswer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"I\". Please give the car to ___.\nAnswer:",
+    "continuation": " me",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"she\". Please give the bicycle to ___.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"you\". Please give the desk to ___.\nAnswer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"he\". Please give the house to ___.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"she\". Please give the chair to ___.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"he\". Please give the chair to ___.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"they\". Please give the umbrella to ___.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"they\". Please give the house to ___.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"he\". Please give the phone to ___.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"he\". Please give the coat to ___.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"you\". Please give the hat to ___.\nAnswer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"they\". Please give the hat to ___.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"he\". Please give the book to ___.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"we\". Please give the letter to ___.\nAnswer:",
+    "continuation": " us",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"we\". Please give the bag to ___.\nAnswer:",
+    "continuation": " us",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"I\". Please give the key to ___.\nAnswer:",
+    "continuation": " me",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"they\". Please give the desk to ___.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"they\". Please give the ticket to ___.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"you\". Please give the letter to ___.\nAnswer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"he\". Please give the bicycle to ___.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"I\". Please give the computer to ___.\nAnswer:",
+    "continuation": " me",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"it\". Please give the bicycle to ___.\nAnswer:",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"it\". Please give the room to ___.\nAnswer:",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"it\". Please give the pen to ___.\nAnswer:",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"she\". Please give the book to ___.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"you\". Please give the chair to ___.\nAnswer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"she\". Please give the key to ___.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"he\". Please give the room to ___.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"it\". Please give the hat to ___.\nAnswer:",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"they\". Please give the bicycle to ___.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"we\". Please give the umbrella to ___.\nAnswer:",
+    "continuation": " us",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"you\". Please give the key to ___.\nAnswer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"it\". Please give the key to ___.\nAnswer:",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"it\". Please give the book to ___.\nAnswer:",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"I\". Please give the desk to ___.\nAnswer:",
+    "continuation": " me",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"he\". Please give the letter to ___.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"she\". Please give the letter to ___.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"they\". Please give the pen to ___.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"it\". Please give the chair to ___.\nAnswer:",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"we\". Please give the coat to ___.\nAnswer:",
+    "continuation": " us",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"they\". Please give the key to ___.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"we\". Please give the room to ___.\nAnswer:",
+    "continuation": " us",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"you\". Please give the umbrella to ___.\nAnswer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"it\". Please give the ticket to ___.\nAnswer:",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"she\". Please give the ticket to ___.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"it\". Please give the desk to ___.\nAnswer:",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"you\". Please give the book to ___.\nAnswer:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"it\". Please give the car to ___.\nAnswer:",
+    "continuation": " it",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"she\". Please give the room to ___.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"they\". Please give the garden to ___.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with the object pronoun for \"you\". Please give the car to ___.\nAnswer:",
+    "continuation": " you",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 7.7323
+}

@@ -1,0 +1,1220 @@
+{
+ "name": "writing_system",
+ "description": "Identify Unicode writing systems from natural words: Cyrillic, Greek, Arabic, Hebrew, Hiragana, Hangul. Matched control extracts an English marker from identical records.",
+ "hash": "73f0b8391bd3bd60",
+ "agent_items": false,
+ "generator_code": "import random,json,unicodedata\nrandom.seed(0)\ngroups=[['\u043f\u0440\u0438\u0432\u0435\u0442','\u043c\u0438\u0440','\u0434\u043e\u043c','\u043a\u043d\u0438\u0433\u0430','\u041c\u043e\u0441\u043a\u0432\u0430','\u0441\u043e\u0431\u0430\u043a\u0430','\u0440\u0435\u043a\u0430','\u0433\u043e\u0440\u043e\u0434','\u0448\u043a\u043e\u043b\u0430','\u0432\u043e\u0434\u0430'],['\u03ba\u03cc\u03c3\u03bc\u03bf\u03c2','\u03bd\u03b5\u03c1\u03cc','\u03b3\u03ac\u03c4\u03b1','\u0391\u03b8\u03ae\u03bd\u03b1','\u03ba\u03b1\u03bb\u03b7\u03bc\u03ad\u03c1\u03b1','\u03ae\u03bb\u03b9\u03bf\u03c2','\u03b2\u03b9\u03b2\u03bb\u03af\u03bf','\u03c3\u03c0\u03af\u03c4\u03b9','\u03c0\u03cc\u03bb\u03b7','\u03b4\u03ad\u03bd\u03c4\u03c1\u03bf'],['\u0645\u0631\u062d\u0628\u0627','\u0643\u062a\u0627\u0628','\u0628\u064a\u062a','\u0642\u0644\u0645','\u0634\u0645\u0633','\u0645\u0627\u0621','\u0645\u062f\u064a\u0646\u0629','\u0628\u0627\u0628','\u0642\u0645\u0631','\u0645\u062f\u0631\u0633\u0629'],['\u05e9\u05dc\u05d5\u05dd','\u05e1\u05e4\u05e8','\u05d1\u05d9\u05ea','\u05de\u05d9\u05dd','\u05e9\u05de\u05e9','\u05d9\u05dc\u05d3','\u05e2\u05e5','\u05e2\u05d9\u05e8','\u05d3\u05dc\u05ea','\u05dc\u05d9\u05dc\u05d4'],['\u3053\u3093\u306b\u3061\u306f','\u3042\u308a\u304c\u3068\u3046','\u306d\u3053','\u3055\u304f\u3089','\u3072\u3089\u304c\u306a','\u3084\u307e','\u304b\u308f','\u305d\u3089','\u306f\u306a','\u3044\u306c'],['\uc548\ub155\ud558\uc138\uc694','\uc0ac\ub791','\ud559\uad50','\ud55c\uad6d','\uc11c\uc6b8','\uc0ac\ub78c','\ub098\ubb34','\ubc14\ub2e4','\ud558\ub298','\uc74c\uc545']]\nmarkers=['red','blue','green','black','white']\nitems=[];control=[]\nfor ws in groups:\n for word in ws:\n  script=unicodedata.name(word[0]).split()[0].title()\n  for style in range(2):\n   marker=random.choice(markers)\n   record=f'Word: {word}\\nMarker: {marker}' if style==0 else f'Marker: {marker}\\nWord: {word}'\n   items.append({'prompt':f'Name the writing system used for the word.\\n{record}\\nAnswer:','answer':' '+script})\n   control.append({'prompt':f'Copy the marker, not the word.\\n{record}\\nAnswer:','answer':' '+marker})\nrandom.shuffle(items);random.shuffle(control)\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Name the writing system used for the word.\nWord: \u043a\u043d\u0438\u0433\u0430\nMarker: black\nAnswer:",
+    "continuation": " Cyrillic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: green\nWord: \u3072\u3089\u304c\u306a\nAnswer:",
+    "continuation": " Hiragana",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: white\nWord: \u3053\u3093\u306b\u3061\u306f\nAnswer:",
+    "continuation": " Hiragana",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \uc11c\uc6b8\nMarker: black\nAnswer:",
+    "continuation": " Hangul",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: blue\nWord: \u03ba\u03cc\u03c3\u03bc\u03bf\u03c2\nAnswer:",
+    "continuation": " Greek",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u05e2\u05d9\u05e8\nMarker: white\nAnswer:",
+    "continuation": " Hebrew",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: green\nWord: \u05e9\u05de\u05e9\nAnswer:",
+    "continuation": " Hebrew",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u0645\u062f\u064a\u0646\u0629\nMarker: white\nAnswer:",
+    "continuation": " Arabic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u03ba\u03cc\u03c3\u03bc\u03bf\u03c2\nMarker: white\nAnswer:",
+    "continuation": " Greek",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: blue\nWord: \uc0ac\ub791\nAnswer:",
+    "continuation": " Hangul",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u0642\u0645\u0631\nMarker: white\nAnswer:",
+    "continuation": " Arabic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u041c\u043e\u0441\u043a\u0432\u0430\nMarker: black\nAnswer:",
+    "continuation": " Cyrillic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: white\nWord: \u0448\u043a\u043e\u043b\u0430\nAnswer:",
+    "continuation": " Cyrillic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: red\nWord: \u305d\u3089\nAnswer:",
+    "continuation": " Hiragana",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: green\nWord: \ud55c\uad6d\nAnswer:",
+    "continuation": " Hangul",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u05d1\u05d9\u05ea\nMarker: green\nAnswer:",
+    "continuation": " Hebrew",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: white\nWord: \ub098\ubb34\nAnswer:",
+    "continuation": " Hangul",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: black\nWord: \u03c3\u03c0\u03af\u03c4\u03b9\nAnswer:",
+    "continuation": " Greek",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: black\nWord: \u0642\u0645\u0631\nAnswer:",
+    "continuation": " Arabic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u0391\u03b8\u03ae\u03bd\u03b1\nMarker: black\nAnswer:",
+    "continuation": " Greek",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u05e9\u05dc\u05d5\u05dd\nMarker: green\nAnswer:",
+    "continuation": " Hebrew",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: green\nWord: \u043a\u043d\u0438\u0433\u0430\nAnswer:",
+    "continuation": " Cyrillic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: blue\nWord: \u0645\u0627\u0621\nAnswer:",
+    "continuation": " Arabic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \ud558\ub298\nMarker: white\nAnswer:",
+    "continuation": " Hangul",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u05e9\u05de\u05e9\nMarker: white\nAnswer:",
+    "continuation": " Hebrew",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u05e1\u05e4\u05e8\nMarker: black\nAnswer:",
+    "continuation": " Hebrew",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: black\nWord: \u0643\u062a\u0627\u0628\nAnswer:",
+    "continuation": " Arabic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u3084\u307e\nMarker: black\nAnswer:",
+    "continuation": " Hiragana",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: red\nWord: \u3084\u307e\nAnswer:",
+    "continuation": " Hiragana",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: green\nWord: \u05e2\u05d9\u05e8\nAnswer:",
+    "continuation": " Hebrew",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: red\nWord: \u05de\u05d9\u05dd\nAnswer:",
+    "continuation": " Hebrew",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: green\nWord: \u3042\u308a\u304c\u3068\u3046\nAnswer:",
+    "continuation": " Hiragana",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u0441\u043e\u0431\u0430\u043a\u0430\nMarker: white\nAnswer:",
+    "continuation": " Cyrillic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u03ae\u03bb\u03b9\u03bf\u03c2\nMarker: black\nAnswer:",
+    "continuation": " Greek",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u0432\u043e\u0434\u0430\nMarker: green\nAnswer:",
+    "continuation": " Cyrillic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: blue\nWord: \u0433\u043e\u0440\u043e\u0434\nAnswer:",
+    "continuation": " Cyrillic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: green\nWord: \u0634\u0645\u0633\nAnswer:",
+    "continuation": " Arabic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u03bd\u03b5\u03c1\u03cc\nMarker: green\nAnswer:",
+    "continuation": " Greek",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: green\nWord: \ud558\ub298\nAnswer:",
+    "continuation": " Hangul",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: white\nWord: \uc548\ub155\ud558\uc138\uc694\nAnswer:",
+    "continuation": " Hangul",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: black\nWord: \uc11c\uc6b8\nAnswer:",
+    "continuation": " Hangul",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u03b3\u03ac\u03c4\u03b1\nMarker: red\nAnswer:",
+    "continuation": " Greek",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u3055\u304f\u3089\nMarker: blue\nAnswer:",
+    "continuation": " Hiragana",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: red\nWord: \u0645\u062f\u0631\u0633\u0629\nAnswer:",
+    "continuation": " Arabic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u0645\u062f\u0631\u0633\u0629\nMarker: red\nAnswer:",
+    "continuation": " Arabic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \ubc14\ub2e4\nMarker: red\nAnswer:",
+    "continuation": " Hangul",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: green\nWord: \u041c\u043e\u0441\u043a\u0432\u0430\nAnswer:",
+    "continuation": " Cyrillic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u306d\u3053\nMarker: blue\nAnswer:",
+    "continuation": " Hiragana",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: blue\nWord: \u304b\u308f\nAnswer:",
+    "continuation": " Hiragana",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u03ba\u03b1\u03bb\u03b7\u03bc\u03ad\u03c1\u03b1\nMarker: red\nAnswer:",
+    "continuation": " Greek",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u05e2\u05e5\nMarker: white\nAnswer:",
+    "continuation": " Hebrew",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u043f\u0440\u0438\u0432\u0435\u0442\nMarker: black\nAnswer:",
+    "continuation": " Cyrillic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: blue\nWord: \u05d9\u05dc\u05d3\nAnswer:",
+    "continuation": " Hebrew",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \uc74c\uc545\nMarker: blue\nAnswer:",
+    "continuation": " Hangul",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: green\nWord: \u043c\u0438\u0440\nAnswer:",
+    "continuation": " Cyrillic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u3053\u3093\u306b\u3061\u306f\nMarker: green\nAnswer:",
+    "continuation": " Hiragana",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: blue\nWord: \u306d\u3053\nAnswer:",
+    "continuation": " Hiragana",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u0628\u0627\u0628\nMarker: blue\nAnswer:",
+    "continuation": " Arabic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u05de\u05d9\u05dd\nMarker: green\nAnswer:",
+    "continuation": " Hebrew",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u0434\u043e\u043c\nMarker: white\nAnswer:",
+    "continuation": " Cyrillic",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Name the writing system used for the word.\nMarker: red\nWord: \u03b4\u03ad\u03bd\u03c4\u03c1\u03bf\nAnswer:",
+    "continuation": " Greek",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: blue\nWord: \uc74c\uc545\nAnswer:",
+    "continuation": " Hangul",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: black\nWord: \ubc14\ub2e4\nAnswer:",
+    "continuation": " Hangul",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \uc0ac\ub78c\nMarker: green\nAnswer:",
+    "continuation": " Hangul",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: white\nWord: \u0432\u043e\u0434\u0430\nAnswer:",
+    "continuation": " Cyrillic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: blue\nWord: \u0441\u043e\u0431\u0430\u043a\u0430\nAnswer:",
+    "continuation": " Cyrillic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: black\nWord: \u05dc\u05d9\u05dc\u05d4\nAnswer:",
+    "continuation": " Hebrew",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: red\nWord: \u05e1\u05e4\u05e8\nAnswer:",
+    "continuation": " Hebrew",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u0643\u062a\u0627\u0628\nMarker: red\nAnswer:",
+    "continuation": " Arabic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \ub098\ubb34\nMarker: green\nAnswer:",
+    "continuation": " Hangul",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: white\nWord: \u0391\u03b8\u03ae\u03bd\u03b1\nAnswer:",
+    "continuation": " Greek",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: white\nWord: \u3044\u306c\nAnswer:",
+    "continuation": " Hiragana",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: green\nWord: \u03ae\u03bb\u03b9\u03bf\u03c2\nAnswer:",
+    "continuation": " Greek",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u0433\u043e\u0440\u043e\u0434\nMarker: green\nAnswer:",
+    "continuation": " Cyrillic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u03b4\u03ad\u03bd\u03c4\u03c1\u03bf\nMarker: green\nAnswer:",
+    "continuation": " Greek",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: white\nWord: \u05d1\u05d9\u05ea\nAnswer:",
+    "continuation": " Hebrew",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u043c\u0438\u0440\nMarker: red\nAnswer:",
+    "continuation": " Cyrillic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: blue\nWord: \u03b2\u03b9\u03b2\u03bb\u03af\u03bf\nAnswer:",
+    "continuation": " Greek",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u0645\u0631\u062d\u0628\u0627\nMarker: white\nAnswer:",
+    "continuation": " Arabic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u3072\u3089\u304c\u306a\nMarker: white\nAnswer:",
+    "continuation": " Hiragana",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: red\nWord: \uc0ac\ub78c\nAnswer:",
+    "continuation": " Hangul",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: green\nWord: \u03b3\u03ac\u03c4\u03b1\nAnswer:",
+    "continuation": " Greek",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \uc548\ub155\ud558\uc138\uc694\nMarker: green\nAnswer:",
+    "continuation": " Hangul",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: black\nWord: \ud559\uad50\nAnswer:",
+    "continuation": " Hangul",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \ud55c\uad6d\nMarker: white\nAnswer:",
+    "continuation": " Hangul",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: green\nWord: \u03ba\u03b1\u03bb\u03b7\u03bc\u03ad\u03c1\u03b1\nAnswer:",
+    "continuation": " Greek",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u0634\u0645\u0633\nMarker: blue\nAnswer:",
+    "continuation": " Arabic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u0645\u0627\u0621\nMarker: red\nAnswer:",
+    "continuation": " Arabic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u05dc\u05d9\u05dc\u05d4\nMarker: white\nAnswer:",
+    "continuation": " Hebrew",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u03c3\u03c0\u03af\u03c4\u03b9\nMarker: white\nAnswer:",
+    "continuation": " Greek",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u05d9\u05dc\u05d3\nMarker: white\nAnswer:",
+    "continuation": " Hebrew",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: red\nWord: \u0645\u0631\u062d\u0628\u0627\nAnswer:",
+    "continuation": " Arabic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: white\nWord: \u05e9\u05dc\u05d5\u05dd\nAnswer:",
+    "continuation": " Hebrew",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: white\nWord: \u306f\u306a\nAnswer:",
+    "continuation": " Hiragana",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \uc0ac\ub791\nMarker: blue\nAnswer:",
+    "continuation": " Hangul",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u05d3\u05dc\u05ea\nMarker: black\nAnswer:",
+    "continuation": " Hebrew",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: red\nWord: \u03bd\u03b5\u03c1\u03cc\nAnswer:",
+    "continuation": " Greek",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: white\nWord: \u03c0\u03cc\u03bb\u03b7\nAnswer:",
+    "continuation": " Greek",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: red\nWord: \u3055\u304f\u3089\nAnswer:",
+    "continuation": " Hiragana",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: black\nWord: \u0434\u043e\u043c\nAnswer:",
+    "continuation": " Cyrillic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u3044\u306c\nMarker: black\nAnswer:",
+    "continuation": " Hiragana",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: black\nWord: \u043f\u0440\u0438\u0432\u0435\u0442\nAnswer:",
+    "continuation": " Cyrillic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: blue\nWord: \u0628\u0627\u0628\nAnswer:",
+    "continuation": " Arabic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u3042\u308a\u304c\u3068\u3046\nMarker: blue\nAnswer:",
+    "continuation": " Hiragana",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u304b\u308f\nMarker: red\nAnswer:",
+    "continuation": " Hiragana",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: blue\nWord: \u0440\u0435\u043a\u0430\nAnswer:",
+    "continuation": " Cyrillic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u03b2\u03b9\u03b2\u03bb\u03af\u03bf\nMarker: white\nAnswer:",
+    "continuation": " Greek",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: blue\nWord: \u0645\u062f\u064a\u0646\u0629\nAnswer:",
+    "continuation": " Arabic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u0440\u0435\u043a\u0430\nMarker: white\nAnswer:",
+    "continuation": " Cyrillic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: white\nWord: \u05e2\u05e5\nAnswer:",
+    "continuation": " Hebrew",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u0642\u0644\u0645\nMarker: black\nAnswer:",
+    "continuation": " Arabic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u305d\u3089\nMarker: blue\nAnswer:",
+    "continuation": " Hiragana",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u0628\u064a\u062a\nMarker: red\nAnswer:",
+    "continuation": " Arabic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u306f\u306a\nMarker: red\nAnswer:",
+    "continuation": " Hiragana",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: white\nWord: \u0628\u064a\u062a\nAnswer:",
+    "continuation": " Arabic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u0448\u043a\u043e\u043b\u0430\nMarker: red\nAnswer:",
+    "continuation": " Cyrillic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: green\nWord: \u0642\u0644\u0645\nAnswer:",
+    "continuation": " Arabic",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nMarker: red\nWord: \u05d3\u05dc\u05ea\nAnswer:",
+    "continuation": " Hebrew",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \u03c0\u03cc\u03bb\u03b7\nMarker: black\nAnswer:",
+    "continuation": " Greek",
+    "digits_only": false
+   },
+   {
+    "context": "Name the writing system used for the word.\nWord: \ud559\uad50\nMarker: white\nAnswer:",
+    "continuation": " Hangul",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Copy the marker, not the word.\nWord: \u043f\u0440\u0438\u0432\u0435\u0442\nMarker: black\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: red\nWord: \u0645\u0631\u062d\u0628\u0627\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u3042\u308a\u304c\u3068\u3046\nMarker: blue\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \ubc14\ub2e4\nMarker: red\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: white\nWord: \u3044\u306c\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u304b\u308f\nMarker: red\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: white\nWord: \u03c0\u03cc\u03bb\u03b7\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: red\nWord: \u0645\u062f\u0631\u0633\u0629\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: green\nWord: \u041c\u043e\u0441\u043a\u0432\u0430\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u03c3\u03c0\u03af\u03c4\u03b9\nMarker: white\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: red\nWord: \u305d\u3089\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: blue\nWord: \u03ba\u03cc\u03c3\u03bc\u03bf\u03c2\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: green\nWord: \u03ae\u03bb\u03b9\u03bf\u03c2\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u043a\u043d\u0438\u0433\u0430\nMarker: black\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u03ba\u03cc\u03c3\u03bc\u03bf\u03c2\nMarker: white\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: blue\nWord: \uc0ac\ub791\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u0448\u043a\u043e\u043b\u0430\nMarker: red\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: white\nWord: \ub098\ubb34\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \uc0ac\ub78c\nMarker: green\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u05e2\u05d9\u05e8\nMarker: white\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: red\nWord: \u05e1\u05e4\u05e8\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: green\nWord: \u3072\u3089\u304c\u306a\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: black\nWord: \u0434\u043e\u043c\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u041c\u043e\u0441\u043a\u0432\u0430\nMarker: black\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: white\nWord: \u0628\u064a\u062a\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: black\nWord: \uc11c\uc6b8\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: blue\nWord: \u0645\u062f\u064a\u0646\u0629\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: green\nWord: \u05e9\u05de\u05e9\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: green\nWord: \u0634\u0645\u0633\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: blue\nWord: \u0440\u0435\u043a\u0430\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u0645\u0627\u0621\nMarker: red\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u0642\u0644\u0645\nMarker: black\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: blue\nWord: \uc74c\uc545\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: green\nWord: \ud55c\uad6d\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u043c\u0438\u0440\nMarker: red\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u0441\u043e\u0431\u0430\u043a\u0430\nMarker: white\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: white\nWord: \u05d1\u05d9\u05ea\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u0434\u043e\u043c\nMarker: white\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: blue\nWord: \u304b\u308f\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u03ba\u03b1\u03bb\u03b7\u03bc\u03ad\u03c1\u03b1\nMarker: red\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u0645\u062f\u064a\u0646\u0629\nMarker: white\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: white\nWord: \uc548\ub155\ud558\uc138\uc694\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u03b3\u03ac\u03c4\u03b1\nMarker: red\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: red\nWord: \u03bd\u03b5\u03c1\u03cc\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: green\nWord: \u03b3\u03ac\u03c4\u03b1\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: white\nWord: \u306f\u306a\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u306d\u3053\nMarker: blue\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u05d1\u05d9\u05ea\nMarker: green\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u0433\u043e\u0440\u043e\u0434\nMarker: green\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u0440\u0435\u043a\u0430\nMarker: white\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u05e9\u05dc\u05d5\u05dd\nMarker: green\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u05e9\u05de\u05e9\nMarker: white\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: red\nWord: \u03b4\u03ad\u03bd\u03c4\u03c1\u03bf\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u03ae\u03bb\u03b9\u03bf\u03c2\nMarker: black\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: red\nWord: \u3055\u304f\u3089\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u03b4\u03ad\u03bd\u03c4\u03c1\u03bf\nMarker: green\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: blue\nWord: \u0433\u043e\u0440\u043e\u0434\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u0642\u0645\u0631\nMarker: white\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u03b2\u03b9\u03b2\u03bb\u03af\u03bf\nMarker: white\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: black\nWord: \ubc14\ub2e4\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Copy the marker, not the word.\nWord: \u3044\u306c\nMarker: black\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \ub098\ubb34\nMarker: green\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: red\nWord: \u05de\u05d9\u05dd\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: red\nWord: \u3084\u307e\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: blue\nWord: \u0645\u0627\u0621\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u05dc\u05d9\u05dc\u05d4\nMarker: white\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: blue\nWord: \u05d9\u05dc\u05d3\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: green\nWord: \u0642\u0644\u0645\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: blue\nWord: \u0628\u0627\u0628\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: green\nWord: \ud558\ub298\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u05d3\u05dc\u05ea\nMarker: black\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: white\nWord: \u05e2\u05e5\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \uc0ac\ub791\nMarker: blue\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: blue\nWord: \u306d\u3053\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: white\nWord: \u3053\u3093\u306b\u3061\u306f\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: white\nWord: \u0448\u043a\u043e\u043b\u0430\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u0432\u043e\u0434\u0430\nMarker: green\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: white\nWord: \u0391\u03b8\u03ae\u03bd\u03b1\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: red\nWord: \u05d3\u05dc\u05ea\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: blue\nWord: \u0441\u043e\u0431\u0430\u043a\u0430\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u3072\u3089\u304c\u306a\nMarker: white\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u05e2\u05e5\nMarker: white\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: black\nWord: \u0643\u062a\u0627\u0628\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u0645\u0631\u062d\u0628\u0627\nMarker: white\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u3055\u304f\u3089\nMarker: blue\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u05e1\u05e4\u05e8\nMarker: black\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: green\nWord: \u043c\u0438\u0440\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \ud55c\uad6d\nMarker: white\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u03bd\u03b5\u03c1\u03cc\nMarker: green\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: white\nWord: \u05e9\u05dc\u05d5\u05dd\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u05d9\u05dc\u05d3\nMarker: white\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u0628\u0627\u0628\nMarker: blue\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: blue\nWord: \u03b2\u03b9\u03b2\u03bb\u03af\u03bf\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: black\nWord: \u03c3\u03c0\u03af\u03c4\u03b9\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u0634\u0645\u0633\nMarker: blue\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u305d\u3089\nMarker: blue\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u0391\u03b8\u03ae\u03bd\u03b1\nMarker: black\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: black\nWord: \u0642\u0645\u0631\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \uc548\ub155\ud558\uc138\uc694\nMarker: green\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u0628\u064a\u062a\nMarker: red\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u306f\u306a\nMarker: red\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u3053\u3093\u306b\u3061\u306f\nMarker: green\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: green\nWord: \u043a\u043d\u0438\u0433\u0430\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: green\nWord: \u3042\u308a\u304c\u3068\u3046\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u03c0\u03cc\u03bb\u03b7\nMarker: black\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: black\nWord: \ud559\uad50\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u05de\u05d9\u05dd\nMarker: green\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \ud559\uad50\nMarker: white\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: red\nWord: \uc0ac\ub78c\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: white\nWord: \u0432\u043e\u0434\u0430\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u0643\u062a\u0627\u0628\nMarker: red\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \uc74c\uc545\nMarker: blue\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: green\nWord: \u05e2\u05d9\u05e8\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u0645\u062f\u0631\u0633\u0629\nMarker: red\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: black\nWord: \u05dc\u05d9\u05dc\u05d4\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \uc11c\uc6b8\nMarker: black\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \ud558\ub298\nMarker: white\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nWord: \u3084\u307e\nMarker: black\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: black\nWord: \u043f\u0440\u0438\u0432\u0435\u0442\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the marker, not the word.\nMarker: green\nWord: \u03ba\u03b1\u03bb\u03b7\u03bc\u03ad\u03c1\u03b1\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 3.2485
+}

@@ -1,0 +1,920 @@
+{
+ "name": "city_country",
+ "description": "Retrieve the country containing a named city; matched controls read a marker from the same geographic sentence.",
+ "hash": "f9071354ed199f27",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\npairs={'Paris':'France','Lyon':'France','Berlin':'Germany','Munich':'Germany','Rome':'Italy','Milan':'Italy','Madrid':'Spain','Barcelona':'Spain','Tokyo':'Japan','Osaka':'Japan','Beijing':'China','Shanghai':'China','Mumbai':'India','Delhi':'India','Toronto':'Canada','Vancouver':'Canada','Sydney':'Australia','Melbourne':'Australia','Cairo':'Egypt','Alexandria':'Egypt','Athens':'Greece','Lisbon':'Portugal','Vienna':'Austria','Warsaw':'Poland','Bangkok':'Thailand','Hanoi':'Vietnam','Nairobi':'Kenya','Lima':'Peru','Lagos':'Nigeria','Dublin':'Ireland'}\nitems=[];control=[]\nfor rep in range(3):\n for city,country in pairs.items():\n  marker=random.choice(['red','blue','green','white'])\n  stem=f'City: {city}. Marker: {marker}. '\n  q=['Which country is this city in? Country:','Name the country containing this city. Country:','This city is located in which country? Country:'][rep]\n  items.append({'prompt':stem+q,'answer':' '+country})\n  control.append({'prompt':stem+'What is the marker? Marker:','answer':' '+marker})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "City: Tokyo. Marker: green. Which country is this city in? Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "City: Barcelona. Marker: white. Which country is this city in? Country:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "City: Dublin. Marker: red. Which country is this city in? Country:",
+    "continuation": " Ireland",
+    "digits_only": false
+   },
+   {
+    "context": "City: Toronto. Marker: red. Name the country containing this city. Country:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "City: Alexandria. Marker: green. Which country is this city in? Country:",
+    "continuation": " Egypt",
+    "digits_only": false
+   },
+   {
+    "context": "City: Shanghai. Marker: green. Which country is this city in? Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Nairobi. Marker: white. Which country is this city in? Country:",
+    "continuation": " Kenya",
+    "digits_only": false
+   },
+   {
+    "context": "City: Vancouver. Marker: blue. This city is located in which country? Country:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "City: Shanghai. Marker: blue. Name the country containing this city. Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lima. Marker: white. Name the country containing this city. Country:",
+    "continuation": " Peru",
+    "digits_only": false
+   },
+   {
+    "context": "City: Cairo. Marker: red. Name the country containing this city. Country:",
+    "continuation": " Egypt",
+    "digits_only": false
+   },
+   {
+    "context": "City: Beijing. Marker: blue. This city is located in which country? Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Athens. Marker: green. Name the country containing this city. Country:",
+    "continuation": " Greece",
+    "digits_only": false
+   },
+   {
+    "context": "City: Bangkok. Marker: red. This city is located in which country? Country:",
+    "continuation": " Thailand",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lyon. Marker: white. Which country is this city in? Country:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "City: Rome. Marker: white. Name the country containing this city. Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Vienna. Marker: green. Which country is this city in? Country:",
+    "continuation": " Austria",
+    "digits_only": false
+   },
+   {
+    "context": "City: Madrid. Marker: green. Which country is this city in? Country:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "City: Barcelona. Marker: green. Name the country containing this city. Country:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "City: Delhi. Marker: white. Name the country containing this city. Country:",
+    "continuation": " India",
+    "digits_only": false
+   },
+   {
+    "context": "City: Warsaw. Marker: white. Which country is this city in? Country:",
+    "continuation": " Poland",
+    "digits_only": false
+   },
+   {
+    "context": "City: Melbourne. Marker: white. Name the country containing this city. Country:",
+    "continuation": " Australia",
+    "digits_only": false
+   },
+   {
+    "context": "City: Bangkok. Marker: green. Which country is this city in? Country:",
+    "continuation": " Thailand",
+    "digits_only": false
+   },
+   {
+    "context": "City: Alexandria. Marker: white. This city is located in which country? Country:",
+    "continuation": " Egypt",
+    "digits_only": false
+   },
+   {
+    "context": "City: Mumbai. Marker: red. This city is located in which country? Country:",
+    "continuation": " India",
+    "digits_only": false
+   },
+   {
+    "context": "City: Warsaw. Marker: green. This city is located in which country? Country:",
+    "continuation": " Poland",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lagos. Marker: blue. This city is located in which country? Country:",
+    "continuation": " Nigeria",
+    "digits_only": false
+   },
+   {
+    "context": "City: Vienna. Marker: green. Name the country containing this city. Country:",
+    "continuation": " Austria",
+    "digits_only": false
+   },
+   {
+    "context": "City: Beijing. Marker: blue. Which country is this city in? Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Hanoi. Marker: white. Name the country containing this city. Country:",
+    "continuation": " Vietnam",
+    "digits_only": false
+   },
+   {
+    "context": "City: Berlin. Marker: red. Which country is this city in? Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Bangkok. Marker: green. Name the country containing this city. Country:",
+    "continuation": " Thailand",
+    "digits_only": false
+   },
+   {
+    "context": "City: Barcelona. Marker: red. This city is located in which country? Country:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "City: Vienna. Marker: red. This city is located in which country? Country:",
+    "continuation": " Austria",
+    "digits_only": false
+   },
+   {
+    "context": "City: Toronto. Marker: green. Which country is this city in? Country:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "City: Melbourne. Marker: white. This city is located in which country? Country:",
+    "continuation": " Australia",
+    "digits_only": false
+   },
+   {
+    "context": "City: Rome. Marker: white. Which country is this city in? Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lisbon. Marker: green. This city is located in which country? Country:",
+    "continuation": " Portugal",
+    "digits_only": false
+   },
+   {
+    "context": "City: Vancouver. Marker: blue. Which country is this city in? Country:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lisbon. Marker: red. Which country is this city in? Country:",
+    "continuation": " Portugal",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lyon. Marker: red. Name the country containing this city. Country:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "City: Hanoi. Marker: white. This city is located in which country? Country:",
+    "continuation": " Vietnam",
+    "digits_only": false
+   },
+   {
+    "context": "City: Dublin. Marker: red. This city is located in which country? Country:",
+    "continuation": " Ireland",
+    "digits_only": false
+   },
+   {
+    "context": "City: Dublin. Marker: blue. Name the country containing this city. Country:",
+    "continuation": " Ireland",
+    "digits_only": false
+   },
+   {
+    "context": "City: Madrid. Marker: white. This city is located in which country? Country:",
+    "continuation": " Spain",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "City: Munich. Marker: blue. This city is located in which country? Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Hanoi. Marker: blue. Which country is this city in? Country:",
+    "continuation": " Vietnam",
+    "digits_only": false
+   },
+   {
+    "context": "City: Sydney. Marker: green. Name the country containing this city. Country:",
+    "continuation": " Australia",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lima. Marker: blue. This city is located in which country? Country:",
+    "continuation": " Peru",
+    "digits_only": false
+   },
+   {
+    "context": "City: Paris. Marker: white. Which country is this city in? Country:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "City: Nairobi. Marker: red. Name the country containing this city. Country:",
+    "continuation": " Kenya",
+    "digits_only": false
+   },
+   {
+    "context": "City: Munich. Marker: green. Which country is this city in? Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Sydney. Marker: green. Which country is this city in? Country:",
+    "continuation": " Australia",
+    "digits_only": false
+   },
+   {
+    "context": "City: Nairobi. Marker: green. This city is located in which country? Country:",
+    "continuation": " Kenya",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lagos. Marker: green. Which country is this city in? Country:",
+    "continuation": " Nigeria",
+    "digits_only": false
+   },
+   {
+    "context": "City: Paris. Marker: red. Name the country containing this city. Country:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "City: Milan. Marker: green. Name the country containing this city. Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Delhi. Marker: red. Which country is this city in? Country:",
+    "continuation": " India",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lagos. Marker: green. Name the country containing this city. Country:",
+    "continuation": " Nigeria",
+    "digits_only": false
+   },
+   {
+    "context": "City: Beijing. Marker: blue. Name the country containing this city. Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Osaka. Marker: blue. This city is located in which country? Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "City: Athens. Marker: white. Which country is this city in? Country:",
+    "continuation": " Greece",
+    "digits_only": false
+   },
+   {
+    "context": "City: Cairo. Marker: green. This city is located in which country? Country:",
+    "continuation": " Egypt",
+    "digits_only": false
+   },
+   {
+    "context": "City: Athens. Marker: white. This city is located in which country? Country:",
+    "continuation": " Greece",
+    "digits_only": false
+   },
+   {
+    "context": "City: Shanghai. Marker: red. This city is located in which country? Country:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "City: Paris. Marker: green. This city is located in which country? Country:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "City: Mumbai. Marker: blue. Name the country containing this city. Country:",
+    "continuation": " India",
+    "digits_only": false
+   },
+   {
+    "context": "City: Osaka. Marker: blue. Which country is this city in? Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "City: Delhi. Marker: white. This city is located in which country? Country:",
+    "continuation": " India",
+    "digits_only": false
+   },
+   {
+    "context": "City: Osaka. Marker: blue. Name the country containing this city. Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "City: Cairo. Marker: red. Which country is this city in? Country:",
+    "continuation": " Egypt",
+    "digits_only": false
+   },
+   {
+    "context": "City: Tokyo. Marker: red. This city is located in which country? Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "City: Berlin. Marker: white. Name the country containing this city. Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Mumbai. Marker: blue. Which country is this city in? Country:",
+    "continuation": " India",
+    "digits_only": false
+   },
+   {
+    "context": "City: Sydney. Marker: blue. This city is located in which country? Country:",
+    "continuation": " Australia",
+    "digits_only": false
+   },
+   {
+    "context": "City: Madrid. Marker: blue. Name the country containing this city. Country:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "City: Melbourne. Marker: red. Which country is this city in? Country:",
+    "continuation": " Australia",
+    "digits_only": false
+   },
+   {
+    "context": "City: Rome. Marker: red. This city is located in which country? Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lima. Marker: white. Which country is this city in? Country:",
+    "continuation": " Peru",
+    "digits_only": false
+   },
+   {
+    "context": "City: Toronto. Marker: green. This city is located in which country? Country:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "City: Vancouver. Marker: red. Name the country containing this city. Country:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lyon. Marker: blue. This city is located in which country? Country:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "City: Tokyo. Marker: red. Name the country containing this city. Country:",
+    "continuation": " Japan",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lisbon. Marker: red. Name the country containing this city. Country:",
+    "continuation": " Portugal",
+    "digits_only": false
+   },
+   {
+    "context": "City: Berlin. Marker: blue. This city is located in which country? Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Milan. Marker: green. This city is located in which country? Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Munich. Marker: red. Name the country containing this city. Country:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "City: Milan. Marker: white. Which country is this city in? Country:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "City: Warsaw. Marker: blue. Name the country containing this city. Country:",
+    "continuation": " Poland",
+    "digits_only": false
+   },
+   {
+    "context": "City: Alexandria. Marker: green. Name the country containing this city. Country:",
+    "continuation": " Egypt",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "City: Lagos. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "City: Toronto. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "City: Rome. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "City: Osaka. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "City: Toronto. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Nairobi. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "City: Madrid. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "City: Bangkok. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Mumbai. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "City: Athens. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lisbon. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "City: Warsaw. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lima. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "City: Beijing. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "City: Barcelona. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Barcelona. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "City: Dublin. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "City: Osaka. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "City: Milan. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "City: Beijing. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "City: Hanoi. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "City: Tokyo. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "City: Melbourne. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "City: Vancouver. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "City: Paris. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lagos. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Sydney. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Sydney. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "City: Hanoi. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "City: Vancouver. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "City: Bangkok. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Osaka. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "City: Alexandria. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Alexandria. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "City: Madrid. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lyon. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "City: Nairobi. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lisbon. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "City: Barcelona. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "City: Vienna. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "City: Shanghai. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Madrid. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Shanghai. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "City: Warsaw. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "City: Athens. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "City: Dublin. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "City: Cairo. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "City: Shanghai. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "City: Athens. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Delhi. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "City: Vienna. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Vienna. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Delhi. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "City: Milan. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lyon. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lagos. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Rome. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "City: Toronto. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Munich. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "City: Milan. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Sydney. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Bangkok. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "City: Cairo. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lima. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lisbon. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lyon. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "City: Tokyo. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "City: Berlin. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "City: Melbourne. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "City: Beijing. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "City: Delhi. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "City: Dublin. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "City: Rome. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "City: Warsaw. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Paris. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "City: Hanoi. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "City: Alexandria. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Munich. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Berlin. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "City: Mumbai. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "City: Nairobi. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "City: Cairo. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "City: Paris. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Lima. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "City: Munich. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "City: Vancouver. Marker: blue. What is the marker? Marker:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "City: Berlin. Marker: white. What is the marker? Marker:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "City: Tokyo. Marker: green. What is the marker? Marker:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "City: Mumbai. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "City: Melbourne. Marker: red. What is the marker? Marker:",
+    "continuation": " red",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 9.4459
+}

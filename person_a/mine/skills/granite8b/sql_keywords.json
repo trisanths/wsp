@@ -1,0 +1,1220 @@
+{
+ "name": "sql_keywords",
+ "description": "Recover a missing SQL structural keyword in SELECT queries; matched controls recover an explicitly supplied table identifier.",
+ "hash": "6cd52a71d87ab658",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nitems=[];control=[]\ntables=['users','orders','products','employees','events','books','accounts','customers','sales','logs']\ncols=['id','name','status','price','city','title','age','score']\nfor i in range(120):\n t=random.choice(tables); c=random.choice(cols);n=random.randrange(2,100)\n patterns=[('___ '+c+' FROM '+t+';','SELECT'),('SELECT '+c+' ___ '+t+';','FROM'),('SELECT '+c+' FROM '+t+' ___ id = '+str(n)+';','WHERE'),('SELECT '+c+' FROM '+t+' ORDER ___ '+c+';','BY'),('SELECT '+c+' FROM '+t+' ___ BY '+c+';','ORDER'),('SELECT '+c+' FROM '+t+' WHERE id = '+str(n)+' ___ '+c+' IS NOT NULL;','AND')]\n q,a=patterns[i%len(patterns)]\n items.append({'prompt':'Fill the blank in this SQL query. Output only the missing keyword.\\n'+q+'\\nAnswer:', 'answer':' '+a})\n control.append({'prompt':f'Fill the blank in this SQL query using table {t}. Output only the missing table name.\\nSELECT {c} FROM ___;\\nAnswer:', 'answer':' '+t})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT age FROM orders ORDER ___ age;\nAnswer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT age ___ customers;\nAnswer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT id FROM users ORDER ___ id;\nAnswer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT price FROM logs ORDER ___ price;\nAnswer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT title FROM events ORDER ___ title;\nAnswer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT status FROM customers WHERE id = 91 ___ status IS NOT NULL;\nAnswer:",
+    "continuation": " AND",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT status ___ books;\nAnswer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT title FROM orders ___ BY title;\nAnswer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\n___ age FROM orders;\nAnswer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT price ___ logs;\nAnswer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT title FROM orders WHERE id = 16 ___ title IS NOT NULL;\nAnswer:",
+    "continuation": " AND",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT title FROM orders ORDER ___ title;\nAnswer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT city FROM employees WHERE id = 58 ___ city IS NOT NULL;\nAnswer:",
+    "continuation": " AND",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT status ___ events;\nAnswer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT name FROM accounts ORDER ___ name;\nAnswer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT name FROM books ___ BY name;\nAnswer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT title ___ customers;\nAnswer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT status FROM products WHERE id = 6 ___ status IS NOT NULL;\nAnswer:",
+    "continuation": " AND",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT score FROM events ___ id = 47;\nAnswer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT price FROM logs ___ BY price;\nAnswer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT score FROM books ___ id = 73;\nAnswer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT title FROM books WHERE id = 49 ___ title IS NOT NULL;\nAnswer:",
+    "continuation": " AND",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT id ___ employees;\nAnswer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\n___ id FROM customers;\nAnswer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT city FROM products ___ id = 4;\nAnswer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT name FROM sales ___ id = 5;\nAnswer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT name FROM logs ___ BY name;\nAnswer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT name ___ products;\nAnswer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT age FROM accounts ___ id = 86;\nAnswer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT title ___ logs;\nAnswer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT price FROM books ___ BY price;\nAnswer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\n___ age FROM orders;\nAnswer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\n___ id FROM users;\nAnswer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT id FROM employees ___ id = 88;\nAnswer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT status FROM sales ___ id = 28;\nAnswer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT status FROM events ORDER ___ status;\nAnswer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT name ___ users;\nAnswer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT city FROM orders ___ BY city;\nAnswer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT city FROM sales ORDER ___ city;\nAnswer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT status FROM sales ___ BY status;\nAnswer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\n___ city FROM logs;\nAnswer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT name ___ users;\nAnswer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT name FROM books WHERE id = 43 ___ name IS NOT NULL;\nAnswer:",
+    "continuation": " AND",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT title ___ orders;\nAnswer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\n___ status FROM logs;\nAnswer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\n___ score FROM logs;\nAnswer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT id FROM orders WHERE id = 37 ___ id IS NOT NULL;\nAnswer:",
+    "continuation": " AND",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT name FROM customers ___ id = 40;\nAnswer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT score FROM sales ___ BY score;\nAnswer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\n___ id FROM employees;\nAnswer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT name FROM orders ___ BY name;\nAnswer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT score FROM events ___ BY score;\nAnswer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\n___ title FROM events;\nAnswer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT id FROM products ___ BY id;\nAnswer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT age FROM customers ___ BY age;\nAnswer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT title FROM customers ORDER ___ title;\nAnswer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT id FROM accounts ___ id = 80;\nAnswer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT id ___ users;\nAnswer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT title FROM events ___ BY title;\nAnswer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT score FROM products WHERE id = 69 ___ score IS NOT NULL;\nAnswer:",
+    "continuation": " AND",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT city FROM products ___ BY city;\nAnswer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT status FROM users ORDER ___ status;\nAnswer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT city FROM orders ___ BY city;\nAnswer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT age FROM books WHERE id = 9 ___ age IS NOT NULL;\nAnswer:",
+    "continuation": " AND",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT city ___ sales;\nAnswer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT id FROM customers ___ id = 55;\nAnswer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT score FROM logs ORDER ___ score;\nAnswer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\n___ age FROM accounts;\nAnswer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT status FROM products ___ id = 76;\nAnswer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT score FROM customers WHERE id = 68 ___ score IS NOT NULL;\nAnswer:",
+    "continuation": " AND",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT score ___ events;\nAnswer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT price FROM orders ___ id = 40;\nAnswer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT name ___ orders;\nAnswer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT title FROM accounts ___ id = 40;\nAnswer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\n___ age FROM books;\nAnswer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT id FROM customers ___ id = 78;\nAnswer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT title FROM books WHERE id = 17 ___ title IS NOT NULL;\nAnswer:",
+    "continuation": " AND",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT city FROM users ___ BY city;\nAnswer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT price FROM products ___ id = 25;\nAnswer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\n___ score FROM employees;\nAnswer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT title FROM employees ___ BY title;\nAnswer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT id ___ products;\nAnswer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT city FROM accounts ORDER ___ city;\nAnswer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT title FROM accounts WHERE id = 2 ___ title IS NOT NULL;\nAnswer:",
+    "continuation": " AND",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT score FROM employees WHERE id = 47 ___ score IS NOT NULL;\nAnswer:",
+    "continuation": " AND",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\n___ id FROM employees;\nAnswer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\n___ status FROM orders;\nAnswer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT name FROM employees ORDER ___ name;\nAnswer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT title FROM orders ORDER ___ title;\nAnswer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT name FROM accounts ORDER ___ name;\nAnswer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT name FROM events ORDER ___ name;\nAnswer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\n___ score FROM products;\nAnswer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT status FROM books WHERE id = 32 ___ status IS NOT NULL;\nAnswer:",
+    "continuation": " AND",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\n___ id FROM employees;\nAnswer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT score FROM users ___ id = 96;\nAnswer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT price FROM employees ___ id = 88;\nAnswer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT age ___ logs;\nAnswer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\n___ id FROM events;\nAnswer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\n___ name FROM customers;\nAnswer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT id FROM logs WHERE id = 97 ___ id IS NOT NULL;\nAnswer:",
+    "continuation": " AND",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\n___ name FROM logs;\nAnswer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT price FROM logs WHERE id = 32 ___ price IS NOT NULL;\nAnswer:",
+    "continuation": " AND",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT id FROM products ___ BY id;\nAnswer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT city FROM users ORDER ___ city;\nAnswer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT age FROM events ___ id = 97;\nAnswer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT price FROM orders ORDER ___ price;\nAnswer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT status ___ products;\nAnswer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT id FROM employees ___ id = 95;\nAnswer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT status FROM products ___ BY status;\nAnswer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT title FROM events ___ BY title;\nAnswer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT age FROM users ORDER ___ age;\nAnswer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT city FROM sales ___ id = 17;\nAnswer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT city FROM accounts WHERE id = 85 ___ city IS NOT NULL;\nAnswer:",
+    "continuation": " AND",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT age FROM logs ORDER ___ age;\nAnswer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT city FROM orders WHERE id = 70 ___ city IS NOT NULL;\nAnswer:",
+    "continuation": " AND",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT name FROM employees WHERE id = 84 ___ name IS NOT NULL;\nAnswer:",
+    "continuation": " AND",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT score FROM orders WHERE id = 95 ___ score IS NOT NULL;\nAnswer:",
+    "continuation": " AND",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT title ___ products;\nAnswer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\nSELECT name ___ products;\nAnswer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query. Output only the missing keyword.\n___ title FROM orders;\nAnswer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Fill the blank in this SQL query using table books. Output only the missing table name.\nSELECT title FROM ___;\nAnswer:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table users. Output only the missing table name.\nSELECT status FROM ___;\nAnswer:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table customers. Output only the missing table name.\nSELECT name FROM ___;\nAnswer:",
+    "continuation": " customers",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table employees. Output only the missing table name.\nSELECT id FROM ___;\nAnswer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table users. Output only the missing table name.\nSELECT score FROM ___;\nAnswer:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table books. Output only the missing table name.\nSELECT age FROM ___;\nAnswer:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table products. Output only the missing table name.\nSELECT city FROM ___;\nAnswer:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table logs. Output only the missing table name.\nSELECT age FROM ___;\nAnswer:",
+    "continuation": " logs",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table employees. Output only the missing table name.\nSELECT id FROM ___;\nAnswer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table books. Output only the missing table name.\nSELECT price FROM ___;\nAnswer:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table accounts. Output only the missing table name.\nSELECT id FROM ___;\nAnswer:",
+    "continuation": " accounts",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table orders. Output only the missing table name.\nSELECT id FROM ___;\nAnswer:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table orders. Output only the missing table name.\nSELECT title FROM ___;\nAnswer:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table employees. Output only the missing table name.\nSELECT score FROM ___;\nAnswer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table employees. Output only the missing table name.\nSELECT id FROM ___;\nAnswer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table employees. Output only the missing table name.\nSELECT score FROM ___;\nAnswer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table books. Output only the missing table name.\nSELECT status FROM ___;\nAnswer:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table orders. Output only the missing table name.\nSELECT city FROM ___;\nAnswer:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table customers. Output only the missing table name.\nSELECT age FROM ___;\nAnswer:",
+    "continuation": " customers",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table orders. Output only the missing table name.\nSELECT title FROM ___;\nAnswer:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table orders. Output only the missing table name.\nSELECT city FROM ___;\nAnswer:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table accounts. Output only the missing table name.\nSELECT title FROM ___;\nAnswer:",
+    "continuation": " accounts",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table customers. Output only the missing table name.\nSELECT name FROM ___;\nAnswer:",
+    "continuation": " customers",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table events. Output only the missing table name.\nSELECT status FROM ___;\nAnswer:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table events. Output only the missing table name.\nSELECT name FROM ___;\nAnswer:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table logs. Output only the missing table name.\nSELECT name FROM ___;\nAnswer:",
+    "continuation": " logs",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table accounts. Output only the missing table name.\nSELECT city FROM ___;\nAnswer:",
+    "continuation": " accounts",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table employees. Output only the missing table name.\nSELECT id FROM ___;\nAnswer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table books. Output only the missing table name.\nSELECT name FROM ___;\nAnswer:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table logs. Output only the missing table name.\nSELECT age FROM ___;\nAnswer:",
+    "continuation": " logs",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table orders. Output only the missing table name.\nSELECT age FROM ___;\nAnswer:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table logs. Output only the missing table name.\nSELECT status FROM ___;\nAnswer:",
+    "continuation": " logs",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table customers. Output only the missing table name.\nSELECT id FROM ___;\nAnswer:",
+    "continuation": " customers",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table orders. Output only the missing table name.\nSELECT city FROM ___;\nAnswer:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table books. Output only the missing table name.\nSELECT name FROM ___;\nAnswer:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table events. Output only the missing table name.\nSELECT age FROM ___;\nAnswer:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table customers. Output only the missing table name.\nSELECT score FROM ___;\nAnswer:",
+    "continuation": " customers",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table sales. Output only the missing table name.\nSELECT status FROM ___;\nAnswer:",
+    "continuation": " sales",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table employees. Output only the missing table name.\nSELECT id FROM ___;\nAnswer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table sales. Output only the missing table name.\nSELECT status FROM ___;\nAnswer:",
+    "continuation": " sales",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table orders. Output only the missing table name.\nSELECT age FROM ___;\nAnswer:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table books. Output only the missing table name.\nSELECT age FROM ___;\nAnswer:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table accounts. Output only the missing table name.\nSELECT name FROM ___;\nAnswer:",
+    "continuation": " accounts",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table logs. Output only the missing table name.\nSELECT price FROM ___;\nAnswer:",
+    "continuation": " logs",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table users. Output only the missing table name.\nSELECT age FROM ___;\nAnswer:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table sales. Output only the missing table name.\nSELECT city FROM ___;\nAnswer:",
+    "continuation": " sales",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table products. Output only the missing table name.\nSELECT city FROM ___;\nAnswer:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table customers. Output only the missing table name.\nSELECT status FROM ___;\nAnswer:",
+    "continuation": " customers",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table orders. Output only the missing table name.\nSELECT title FROM ___;\nAnswer:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table products. Output only the missing table name.\nSELECT id FROM ___;\nAnswer:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table orders. Output only the missing table name.\nSELECT status FROM ___;\nAnswer:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table accounts. Output only the missing table name.\nSELECT city FROM ___;\nAnswer:",
+    "continuation": " accounts",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table accounts. Output only the missing table name.\nSELECT age FROM ___;\nAnswer:",
+    "continuation": " accounts",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table orders. Output only the missing table name.\nSELECT score FROM ___;\nAnswer:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table orders. Output only the missing table name.\nSELECT price FROM ___;\nAnswer:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table products. Output only the missing table name.\nSELECT status FROM ___;\nAnswer:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table sales. Output only the missing table name.\nSELECT city FROM ___;\nAnswer:",
+    "continuation": " sales",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table orders. Output only the missing table name.\nSELECT title FROM ___;\nAnswer:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table orders. Output only the missing table name.\nSELECT name FROM ___;\nAnswer:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table products. Output only the missing table name.\nSELECT score FROM ___;\nAnswer:",
+    "continuation": " products",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Fill the blank in this SQL query using table users. Output only the missing table name.\nSELECT id FROM ___;\nAnswer:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table logs. Output only the missing table name.\nSELECT name FROM ___;\nAnswer:",
+    "continuation": " logs",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table products. Output only the missing table name.\nSELECT id FROM ___;\nAnswer:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table employees. Output only the missing table name.\nSELECT city FROM ___;\nAnswer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table customers. Output only the missing table name.\nSELECT age FROM ___;\nAnswer:",
+    "continuation": " customers",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table employees. Output only the missing table name.\nSELECT name FROM ___;\nAnswer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table customers. Output only the missing table name.\nSELECT id FROM ___;\nAnswer:",
+    "continuation": " customers",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table logs. Output only the missing table name.\nSELECT title FROM ___;\nAnswer:",
+    "continuation": " logs",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table events. Output only the missing table name.\nSELECT title FROM ___;\nAnswer:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table logs. Output only the missing table name.\nSELECT price FROM ___;\nAnswer:",
+    "continuation": " logs",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table sales. Output only the missing table name.\nSELECT score FROM ___;\nAnswer:",
+    "continuation": " sales",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table sales. Output only the missing table name.\nSELECT name FROM ___;\nAnswer:",
+    "continuation": " sales",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table users. Output only the missing table name.\nSELECT name FROM ___;\nAnswer:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table users. Output only the missing table name.\nSELECT city FROM ___;\nAnswer:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table events. Output only the missing table name.\nSELECT title FROM ___;\nAnswer:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table customers. Output only the missing table name.\nSELECT id FROM ___;\nAnswer:",
+    "continuation": " customers",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table orders. Output only the missing table name.\nSELECT name FROM ___;\nAnswer:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table events. Output only the missing table name.\nSELECT status FROM ___;\nAnswer:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table customers. Output only the missing table name.\nSELECT title FROM ___;\nAnswer:",
+    "continuation": " customers",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table events. Output only the missing table name.\nSELECT title FROM ___;\nAnswer:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table users. Output only the missing table name.\nSELECT city FROM ___;\nAnswer:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table products. Output only the missing table name.\nSELECT status FROM ___;\nAnswer:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table events. Output only the missing table name.\nSELECT score FROM ___;\nAnswer:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table orders. Output only the missing table name.\nSELECT title FROM ___;\nAnswer:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table books. Output only the missing table name.\nSELECT title FROM ___;\nAnswer:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table employees. Output only the missing table name.\nSELECT name FROM ___;\nAnswer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table events. Output only the missing table name.\nSELECT score FROM ___;\nAnswer:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table logs. Output only the missing table name.\nSELECT id FROM ___;\nAnswer:",
+    "continuation": " logs",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table employees. Output only the missing table name.\nSELECT title FROM ___;\nAnswer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table users. Output only the missing table name.\nSELECT name FROM ___;\nAnswer:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table accounts. Output only the missing table name.\nSELECT name FROM ___;\nAnswer:",
+    "continuation": " accounts",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table products. Output only the missing table name.\nSELECT status FROM ___;\nAnswer:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table orders. Output only the missing table name.\nSELECT price FROM ___;\nAnswer:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table events. Output only the missing table name.\nSELECT score FROM ___;\nAnswer:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table users. Output only the missing table name.\nSELECT id FROM ___;\nAnswer:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table accounts. Output only the missing table name.\nSELECT title FROM ___;\nAnswer:",
+    "continuation": " accounts",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table accounts. Output only the missing table name.\nSELECT age FROM ___;\nAnswer:",
+    "continuation": " accounts",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table products. Output only the missing table name.\nSELECT status FROM ___;\nAnswer:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table books. Output only the missing table name.\nSELECT status FROM ___;\nAnswer:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table products. Output only the missing table name.\nSELECT id FROM ___;\nAnswer:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table products. Output only the missing table name.\nSELECT name FROM ___;\nAnswer:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table logs. Output only the missing table name.\nSELECT price FROM ___;\nAnswer:",
+    "continuation": " logs",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table sales. Output only the missing table name.\nSELECT city FROM ___;\nAnswer:",
+    "continuation": " sales",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table events. Output only the missing table name.\nSELECT id FROM ___;\nAnswer:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table products. Output only the missing table name.\nSELECT price FROM ___;\nAnswer:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table events. Output only the missing table name.\nSELECT title FROM ___;\nAnswer:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table users. Output only the missing table name.\nSELECT id FROM ___;\nAnswer:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table products. Output only the missing table name.\nSELECT score FROM ___;\nAnswer:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table employees. Output only the missing table name.\nSELECT id FROM ___;\nAnswer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table orders. Output only the missing table name.\nSELECT age FROM ___;\nAnswer:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table products. Output only the missing table name.\nSELECT name FROM ___;\nAnswer:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table logs. Output only the missing table name.\nSELECT score FROM ___;\nAnswer:",
+    "continuation": " logs",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table customers. Output only the missing table name.\nSELECT title FROM ___;\nAnswer:",
+    "continuation": " customers",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table employees. Output only the missing table name.\nSELECT price FROM ___;\nAnswer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table books. Output only the missing table name.\nSELECT score FROM ___;\nAnswer:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table products. Output only the missing table name.\nSELECT title FROM ___;\nAnswer:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table logs. Output only the missing table name.\nSELECT score FROM ___;\nAnswer:",
+    "continuation": " logs",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table orders. Output only the missing table name.\nSELECT title FROM ___;\nAnswer:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table logs. Output only the missing table name.\nSELECT city FROM ___;\nAnswer:",
+    "continuation": " logs",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank in this SQL query using table logs. Output only the missing table name.\nSELECT price FROM ___;\nAnswer:",
+    "continuation": " logs",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 7.8471
+}

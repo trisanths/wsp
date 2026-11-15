@@ -1,0 +1,980 @@
+{
+ "name": "sql_keywords",
+ "description": "Fill missing SQL clause keywords in query fragments; controls extract table names from the same fragments.",
+ "hash": "c3496133b154b823",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nforms=[('___ name FROM {t};','SELECT'),('SELECT name ___ {t};','FROM'),('SELECT name FROM {t} ___ active = 1;','WHERE'),('SELECT name FROM {t} ORDER ___ name;','BY'),('SELECT name FROM {t} ___ BY name;','ORDER'),('SELECT role, SUM(salary) FROM {t} ___ BY role;','GROUP'),('SELECT a.name FROM {t} a INNER ___ teams b ON a.team = b.id;','JOIN'),('SELECT ___ name FROM {t};','DISTINCT')]\nitems=[];control=[]\nfor i in range(96):\n t=random.choice(['staff','users','employees','members','people','students']);f,ans=forms[i%len(forms)];p='SQL query: '+f.format(t=t)+'\\n'\n items.append({'prompt':p+'Fill ___ with the correct uppercase SQL keyword. Answer:','answer':' '+ans})\n control.append({'prompt':p+'Write the main table name (not teams). Answer:','answer':' '+t})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "SQL query: SELECT ___ name FROM employees;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " DISTINCT",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: ___ name FROM members;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM users ORDER ___ name;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT ___ name FROM employees;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " DISTINCT",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: ___ name FROM members;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT role, SUM(salary) FROM users ___ BY role;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name ___ members;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: ___ name FROM staff;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM employees ORDER ___ name;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT a.name FROM members a INNER ___ teams b ON a.team = b.id;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " JOIN",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: ___ name FROM staff;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT ___ name FROM users;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " DISTINCT",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM staff ___ BY name;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name ___ people;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT a.name FROM staff a INNER ___ teams b ON a.team = b.id;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " JOIN",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM staff ___ active = 1;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT ___ name FROM students;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " DISTINCT",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM people ___ BY name;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM employees ___ BY name;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM people ___ active = 1;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM people ORDER ___ name;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT a.name FROM members a INNER ___ teams b ON a.team = b.id;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " JOIN",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: ___ name FROM staff;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM people ___ active = 1;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM students ORDER ___ name;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT a.name FROM people a INNER ___ teams b ON a.team = b.id;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " JOIN",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT a.name FROM users a INNER ___ teams b ON a.team = b.id;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " JOIN",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT role, SUM(salary) FROM members ___ BY role;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: ___ name FROM employees;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT role, SUM(salary) FROM users ___ BY role;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM members ___ active = 1;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT role, SUM(salary) FROM students ___ BY role;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM staff ORDER ___ name;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT ___ name FROM users;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " DISTINCT",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM people ORDER ___ name;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM employees ___ BY name;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM employees ___ active = 1;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name ___ staff;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM people ___ BY name;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT a.name FROM employees a INNER ___ teams b ON a.team = b.id;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " JOIN",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name ___ people;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT a.name FROM employees a INNER ___ teams b ON a.team = b.id;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " JOIN",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM people ___ BY name;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM students ___ BY name;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT ___ name FROM users;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " DISTINCT",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT role, SUM(salary) FROM people ___ BY role;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT ___ name FROM staff;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " DISTINCT",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM people ORDER ___ name;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " BY",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "SQL query: SELECT name ___ students;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM members ORDER ___ name;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: ___ name FROM members;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM students ___ active = 1;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT role, SUM(salary) FROM staff ___ BY role;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name ___ students;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT a.name FROM employees a INNER ___ teams b ON a.team = b.id;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " JOIN",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT a.name FROM staff a INNER ___ teams b ON a.team = b.id;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " JOIN",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT role, SUM(salary) FROM users ___ BY role;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: ___ name FROM members;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT ___ name FROM people;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " DISTINCT",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM people ORDER ___ name;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM employees ___ active = 1;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name ___ people;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM employees ORDER ___ name;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM people ___ BY name;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: ___ name FROM users;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT ___ name FROM members;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " DISTINCT",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM staff ___ active = 1;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: ___ name FROM members;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT ___ name FROM employees;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " DISTINCT",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT a.name FROM employees a INNER ___ teams b ON a.team = b.id;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " JOIN",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT role, SUM(salary) FROM people ___ BY role;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM staff ___ BY name;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM employees ___ active = 1;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name ___ employees;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT ___ name FROM people;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " DISTINCT",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT ___ name FROM members;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " DISTINCT",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM employees ___ active = 1;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM staff ___ BY name;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: ___ name FROM employees;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM people ___ BY name;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM users ___ active = 1;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM students ___ BY name;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name ___ people;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: ___ name FROM users;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " SELECT",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM students ORDER ___ name;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM employees ___ active = 1;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT role, SUM(salary) FROM staff ___ BY role;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT role, SUM(salary) FROM users ___ BY role;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT a.name FROM people a INNER ___ teams b ON a.team = b.id;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " JOIN",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM students ORDER ___ name;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " BY",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT a.name FROM people a INNER ___ teams b ON a.team = b.id;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " JOIN",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name ___ users;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name ___ members;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT role, SUM(salary) FROM members ___ BY role;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT role, SUM(salary) FROM people ___ BY role;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name ___ students;\nFill ___ with the correct uppercase SQL keyword. Answer:",
+    "continuation": " FROM",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "SQL query: SELECT role, SUM(salary) FROM users ___ BY role;\nWrite the main table name (not teams). Answer:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT a.name FROM people a INNER ___ teams b ON a.team = b.id;\nWrite the main table name (not teams). Answer:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM people ___ active = 1;\nWrite the main table name (not teams). Answer:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM students ORDER ___ name;\nWrite the main table name (not teams). Answer:",
+    "continuation": " students",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM people ___ BY name;\nWrite the main table name (not teams). Answer:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name ___ members;\nWrite the main table name (not teams). Answer:",
+    "continuation": " members",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: ___ name FROM staff;\nWrite the main table name (not teams). Answer:",
+    "continuation": " staff",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name ___ employees;\nWrite the main table name (not teams). Answer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT a.name FROM staff a INNER ___ teams b ON a.team = b.id;\nWrite the main table name (not teams). Answer:",
+    "continuation": " staff",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM staff ___ BY name;\nWrite the main table name (not teams). Answer:",
+    "continuation": " staff",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: ___ name FROM users;\nWrite the main table name (not teams). Answer:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT role, SUM(salary) FROM staff ___ BY role;\nWrite the main table name (not teams). Answer:",
+    "continuation": " staff",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT role, SUM(salary) FROM users ___ BY role;\nWrite the main table name (not teams). Answer:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT ___ name FROM students;\nWrite the main table name (not teams). Answer:",
+    "continuation": " students",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: ___ name FROM staff;\nWrite the main table name (not teams). Answer:",
+    "continuation": " staff",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: ___ name FROM users;\nWrite the main table name (not teams). Answer:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT role, SUM(salary) FROM people ___ BY role;\nWrite the main table name (not teams). Answer:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT ___ name FROM people;\nWrite the main table name (not teams). Answer:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM students ___ BY name;\nWrite the main table name (not teams). Answer:",
+    "continuation": " students",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT ___ name FROM users;\nWrite the main table name (not teams). Answer:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM people ___ BY name;\nWrite the main table name (not teams). Answer:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT role, SUM(salary) FROM members ___ BY role;\nWrite the main table name (not teams). Answer:",
+    "continuation": " members",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name ___ users;\nWrite the main table name (not teams). Answer:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM employees ___ active = 1;\nWrite the main table name (not teams). Answer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM students ___ BY name;\nWrite the main table name (not teams). Answer:",
+    "continuation": " students",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT ___ name FROM employees;\nWrite the main table name (not teams). Answer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT a.name FROM staff a INNER ___ teams b ON a.team = b.id;\nWrite the main table name (not teams). Answer:",
+    "continuation": " staff",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM employees ORDER ___ name;\nWrite the main table name (not teams). Answer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name ___ people;\nWrite the main table name (not teams). Answer:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT a.name FROM people a INNER ___ teams b ON a.team = b.id;\nWrite the main table name (not teams). Answer:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM employees ___ BY name;\nWrite the main table name (not teams). Answer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name ___ students;\nWrite the main table name (not teams). Answer:",
+    "continuation": " students",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT role, SUM(salary) FROM users ___ BY role;\nWrite the main table name (not teams). Answer:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM students ORDER ___ name;\nWrite the main table name (not teams). Answer:",
+    "continuation": " students",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM employees ___ active = 1;\nWrite the main table name (not teams). Answer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM people ORDER ___ name;\nWrite the main table name (not teams). Answer:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM people ___ BY name;\nWrite the main table name (not teams). Answer:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT ___ name FROM members;\nWrite the main table name (not teams). Answer:",
+    "continuation": " members",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM people ___ active = 1;\nWrite the main table name (not teams). Answer:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM people ___ BY name;\nWrite the main table name (not teams). Answer:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT role, SUM(salary) FROM people ___ BY role;\nWrite the main table name (not teams). Answer:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT ___ name FROM employees;\nWrite the main table name (not teams). Answer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM students ___ active = 1;\nWrite the main table name (not teams). Answer:",
+    "continuation": " students",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name ___ staff;\nWrite the main table name (not teams). Answer:",
+    "continuation": " staff",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM users ORDER ___ name;\nWrite the main table name (not teams). Answer:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT a.name FROM members a INNER ___ teams b ON a.team = b.id;\nWrite the main table name (not teams). Answer:",
+    "continuation": " members",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name ___ people;\nWrite the main table name (not teams). Answer:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM employees ___ active = 1;\nWrite the main table name (not teams). Answer:",
+    "continuation": " employees",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "SQL query: SELECT role, SUM(salary) FROM people ___ BY role;\nWrite the main table name (not teams). Answer:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM staff ___ BY name;\nWrite the main table name (not teams). Answer:",
+    "continuation": " staff",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM employees ___ active = 1;\nWrite the main table name (not teams). Answer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM people ORDER ___ name;\nWrite the main table name (not teams). Answer:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT ___ name FROM members;\nWrite the main table name (not teams). Answer:",
+    "continuation": " members",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: ___ name FROM employees;\nWrite the main table name (not teams). Answer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM staff ORDER ___ name;\nWrite the main table name (not teams). Answer:",
+    "continuation": " staff",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT ___ name FROM people;\nWrite the main table name (not teams). Answer:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT a.name FROM users a INNER ___ teams b ON a.team = b.id;\nWrite the main table name (not teams). Answer:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT a.name FROM employees a INNER ___ teams b ON a.team = b.id;\nWrite the main table name (not teams). Answer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM people ORDER ___ name;\nWrite the main table name (not teams). Answer:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT ___ name FROM staff;\nWrite the main table name (not teams). Answer:",
+    "continuation": " staff",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: ___ name FROM staff;\nWrite the main table name (not teams). Answer:",
+    "continuation": " staff",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM members ___ active = 1;\nWrite the main table name (not teams). Answer:",
+    "continuation": " members",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM members ORDER ___ name;\nWrite the main table name (not teams). Answer:",
+    "continuation": " members",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM employees ___ BY name;\nWrite the main table name (not teams). Answer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT a.name FROM employees a INNER ___ teams b ON a.team = b.id;\nWrite the main table name (not teams). Answer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT a.name FROM members a INNER ___ teams b ON a.team = b.id;\nWrite the main table name (not teams). Answer:",
+    "continuation": " members",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM students ORDER ___ name;\nWrite the main table name (not teams). Answer:",
+    "continuation": " students",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT a.name FROM employees a INNER ___ teams b ON a.team = b.id;\nWrite the main table name (not teams). Answer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name ___ members;\nWrite the main table name (not teams). Answer:",
+    "continuation": " members",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT role, SUM(salary) FROM staff ___ BY role;\nWrite the main table name (not teams). Answer:",
+    "continuation": " staff",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT a.name FROM employees a INNER ___ teams b ON a.team = b.id;\nWrite the main table name (not teams). Answer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM staff ___ active = 1;\nWrite the main table name (not teams). Answer:",
+    "continuation": " staff",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM users ___ active = 1;\nWrite the main table name (not teams). Answer:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: ___ name FROM members;\nWrite the main table name (not teams). Answer:",
+    "continuation": " members",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT role, SUM(salary) FROM users ___ BY role;\nWrite the main table name (not teams). Answer:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT role, SUM(salary) FROM members ___ BY role;\nWrite the main table name (not teams). Answer:",
+    "continuation": " members",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM employees ___ active = 1;\nWrite the main table name (not teams). Answer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name ___ people;\nWrite the main table name (not teams). Answer:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: ___ name FROM members;\nWrite the main table name (not teams). Answer:",
+    "continuation": " members",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT role, SUM(salary) FROM students ___ BY role;\nWrite the main table name (not teams). Answer:",
+    "continuation": " students",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT ___ name FROM employees;\nWrite the main table name (not teams). Answer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name ___ students;\nWrite the main table name (not teams). Answer:",
+    "continuation": " students",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM employees ORDER ___ name;\nWrite the main table name (not teams). Answer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT a.name FROM people a INNER ___ teams b ON a.team = b.id;\nWrite the main table name (not teams). Answer:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM people ___ BY name;\nWrite the main table name (not teams). Answer:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM staff ___ active = 1;\nWrite the main table name (not teams). Answer:",
+    "continuation": " staff",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: ___ name FROM members;\nWrite the main table name (not teams). Answer:",
+    "continuation": " members",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM people ORDER ___ name;\nWrite the main table name (not teams). Answer:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name FROM staff ___ BY name;\nWrite the main table name (not teams). Answer:",
+    "continuation": " staff",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name ___ students;\nWrite the main table name (not teams). Answer:",
+    "continuation": " students",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT ___ name FROM users;\nWrite the main table name (not teams). Answer:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT ___ name FROM users;\nWrite the main table name (not teams). Answer:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: ___ name FROM employees;\nWrite the main table name (not teams). Answer:",
+    "continuation": " employees",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: ___ name FROM members;\nWrite the main table name (not teams). Answer:",
+    "continuation": " members",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: ___ name FROM members;\nWrite the main table name (not teams). Answer:",
+    "continuation": " members",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT name ___ people;\nWrite the main table name (not teams). Answer:",
+    "continuation": " people",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 8.0755
+}

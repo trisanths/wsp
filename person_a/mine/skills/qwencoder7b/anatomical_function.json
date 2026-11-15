@@ -1,0 +1,820 @@
+{
+ "name": "anatomical_function",
+ "description": "Name a human organ or body component from its physiological function, versus copying the supplied component.",
+ "hash": "9afbbc2205b370ea",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\npairs=[('pumps blood around the body','heart'),('produces bile','liver'),('filters blood to produce urine','kidney'),('controls thought and memory','brain'),('stores urine before excretion','bladder'),('secretes insulin','pancreas'),('digests food using strong acid','stomach'),('is the main organ of smell','nose'),('detects light for vision','eye'),('detects sound for hearing','ear'),('enables the sense of taste','tongue'),('covers the body as its largest organ','skin'),('carries oxygen through circulation','blood'),('connects muscle to bone','tendon'),('connects bone to bone','ligament'),('protects the brain with a bony casing','skull'),('contracts to move the skeleton','muscle'),('is the main muscle used for breathing','diaphragm'),('stores and concentrates bile','gallbladder'),('filters blood and participates in immune defense','spleen')]\nitems=[];control=[]\nfor rep in range(4):\n for desc,ans in pairs:\n  templates=[f'Human anatomy: the structure that {desc} is the',f'Name the body part that {desc}. Answer:',f'Physiology quiz: which component {desc}? Answer:',f'The human body component that {desc} is called the']\n  items.append({'prompt':templates[rep],'answer':' '+ans})\n  control.append({'prompt':f'Copy the labeled body component. Function: {desc}. Component: {ans}. Copied component:','answer':' '+ans})\nrandom.shuffle(items);random.shuffle(control)\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Human anatomy: the structure that detects sound for hearing is the",
+    "continuation": " ear",
+    "digits_only": false
+   },
+   {
+    "context": "Name the body part that pumps blood around the body. Answer:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology quiz: which component pumps blood around the body? Answer:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Name the body part that produces bile. Answer:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Name the body part that controls thought and memory. Answer:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "The human body component that covers the body as its largest organ is called the",
+    "continuation": " skin",
+    "digits_only": false
+   },
+   {
+    "context": "The human body component that stores urine before excretion is called the",
+    "continuation": " bladder",
+    "digits_only": false
+   },
+   {
+    "context": "Human anatomy: the structure that detects light for vision is the",
+    "continuation": " eye",
+    "digits_only": false
+   },
+   {
+    "context": "Name the body part that contracts to move the skeleton. Answer:",
+    "continuation": " muscle",
+    "digits_only": false
+   },
+   {
+    "context": "Human anatomy: the structure that connects muscle to bone is the",
+    "continuation": " tendon",
+    "digits_only": false
+   },
+   {
+    "context": "The human body component that secretes insulin is called the",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "The human body component that digests food using strong acid is called the",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "The human body component that contracts to move the skeleton is called the",
+    "continuation": " muscle",
+    "digits_only": false
+   },
+   {
+    "context": "Human anatomy: the structure that protects the brain with a bony casing is the",
+    "continuation": " skull",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology quiz: which component stores urine before excretion? Answer:",
+    "continuation": " bladder",
+    "digits_only": false
+   },
+   {
+    "context": "Human anatomy: the structure that produces bile is the",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Human anatomy: the structure that stores urine before excretion is the",
+    "continuation": " bladder",
+    "digits_only": false
+   },
+   {
+    "context": "The human body component that connects muscle to bone is called the",
+    "continuation": " tendon",
+    "digits_only": false
+   },
+   {
+    "context": "Name the body part that carries oxygen through circulation. Answer:",
+    "continuation": " blood",
+    "digits_only": false
+   },
+   {
+    "context": "The human body component that controls thought and memory is called the",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology quiz: which component connects bone to bone? Answer:",
+    "continuation": " ligament",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology quiz: which component filters blood to produce urine? Answer:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology quiz: which component connects muscle to bone? Answer:",
+    "continuation": " tendon",
+    "digits_only": false
+   },
+   {
+    "context": "The human body component that filters blood to produce urine is called the",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "The human body component that connects bone to bone is called the",
+    "continuation": " ligament",
+    "digits_only": false
+   },
+   {
+    "context": "Human anatomy: the structure that covers the body as its largest organ is the",
+    "continuation": " skin",
+    "digits_only": false
+   },
+   {
+    "context": "The human body component that protects the brain with a bony casing is called the",
+    "continuation": " skull",
+    "digits_only": false
+   },
+   {
+    "context": "The human body component that enables the sense of taste is called the",
+    "continuation": " tongue",
+    "digits_only": false
+   },
+   {
+    "context": "Human anatomy: the structure that enables the sense of taste is the",
+    "continuation": " tongue",
+    "digits_only": false
+   },
+   {
+    "context": "Human anatomy: the structure that connects bone to bone is the",
+    "continuation": " ligament",
+    "digits_only": false
+   },
+   {
+    "context": "Human anatomy: the structure that filters blood and participates in immune defense is the",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "The human body component that produces bile is called the",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Human anatomy: the structure that is the main organ of smell is the",
+    "continuation": " nose",
+    "digits_only": false
+   },
+   {
+    "context": "Human anatomy: the structure that secretes insulin is the",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology quiz: which component contracts to move the skeleton? Answer:",
+    "continuation": " muscle",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology quiz: which component enables the sense of taste? Answer:",
+    "continuation": " tongue",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology quiz: which component carries oxygen through circulation? Answer:",
+    "continuation": " blood",
+    "digits_only": false
+   },
+   {
+    "context": "Name the body part that connects muscle to bone. Answer:",
+    "continuation": " tendon",
+    "digits_only": false
+   },
+   {
+    "context": "Name the body part that digests food using strong acid. Answer:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology quiz: which component detects sound for hearing? Answer:",
+    "continuation": " ear",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Name the body part that protects the brain with a bony casing. Answer:",
+    "continuation": " skull",
+    "digits_only": false
+   },
+   {
+    "context": "Name the body part that detects sound for hearing. Answer:",
+    "continuation": " ear",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology quiz: which component detects light for vision? Answer:",
+    "continuation": " eye",
+    "digits_only": false
+   },
+   {
+    "context": "The human body component that filters blood and participates in immune defense is called the",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology quiz: which component is the main organ of smell? Answer:",
+    "continuation": " nose",
+    "digits_only": false
+   },
+   {
+    "context": "Name the body part that is the main organ of smell. Answer:",
+    "continuation": " nose",
+    "digits_only": false
+   },
+   {
+    "context": "The human body component that stores and concentrates bile is called the",
+    "continuation": " gallbladder",
+    "digits_only": false
+   },
+   {
+    "context": "Human anatomy: the structure that digests food using strong acid is the",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Human anatomy: the structure that controls thought and memory is the",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology quiz: which component protects the brain with a bony casing? Answer:",
+    "continuation": " skull",
+    "digits_only": false
+   },
+   {
+    "context": "Human anatomy: the structure that filters blood to produce urine is the",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Name the body part that filters blood and participates in immune defense. Answer:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Name the body part that stores urine before excretion. Answer:",
+    "continuation": " bladder",
+    "digits_only": false
+   },
+   {
+    "context": "Name the body part that filters blood to produce urine. Answer:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "The human body component that detects light for vision is called the",
+    "continuation": " eye",
+    "digits_only": false
+   },
+   {
+    "context": "Human anatomy: the structure that stores and concentrates bile is the",
+    "continuation": " gallbladder",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology quiz: which component produces bile? Answer:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology quiz: which component is the main muscle used for breathing? Answer:",
+    "continuation": " diaphragm",
+    "digits_only": false
+   },
+   {
+    "context": "Name the body part that stores and concentrates bile. Answer:",
+    "continuation": " gallbladder",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology quiz: which component covers the body as its largest organ? Answer:",
+    "continuation": " skin",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology quiz: which component secretes insulin? Answer:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Human anatomy: the structure that pumps blood around the body is the",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "The human body component that carries oxygen through circulation is called the",
+    "continuation": " blood",
+    "digits_only": false
+   },
+   {
+    "context": "Name the body part that secretes insulin. Answer:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Name the body part that is the main muscle used for breathing. Answer:",
+    "continuation": " diaphragm",
+    "digits_only": false
+   },
+   {
+    "context": "Human anatomy: the structure that is the main muscle used for breathing is the",
+    "continuation": " diaphragm",
+    "digits_only": false
+   },
+   {
+    "context": "Human anatomy: the structure that contracts to move the skeleton is the",
+    "continuation": " muscle",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology quiz: which component filters blood and participates in immune defense? Answer:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Human anatomy: the structure that carries oxygen through circulation is the",
+    "continuation": " blood",
+    "digits_only": false
+   },
+   {
+    "context": "The human body component that pumps blood around the body is called the",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "The human body component that detects sound for hearing is called the",
+    "continuation": " ear",
+    "digits_only": false
+   },
+   {
+    "context": "Name the body part that connects bone to bone. Answer:",
+    "continuation": " ligament",
+    "digits_only": false
+   },
+   {
+    "context": "Name the body part that detects light for vision. Answer:",
+    "continuation": " eye",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology quiz: which component controls thought and memory? Answer:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology quiz: which component stores and concentrates bile? Answer:",
+    "continuation": " gallbladder",
+    "digits_only": false
+   },
+   {
+    "context": "The human body component that is the main organ of smell is called the",
+    "continuation": " nose",
+    "digits_only": false
+   },
+   {
+    "context": "The human body component that is the main muscle used for breathing is called the",
+    "continuation": " diaphragm",
+    "digits_only": false
+   },
+   {
+    "context": "Name the body part that covers the body as its largest organ. Answer:",
+    "continuation": " skin",
+    "digits_only": false
+   },
+   {
+    "context": "Physiology quiz: which component digests food using strong acid? Answer:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Name the body part that enables the sense of taste. Answer:",
+    "continuation": " tongue",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Copy the labeled body component. Function: stores urine before excretion. Component: bladder. Copied component:",
+    "continuation": " bladder",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: filters blood and participates in immune defense. Component: spleen. Copied component:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: covers the body as its largest organ. Component: skin. Copied component:",
+    "continuation": " skin",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: connects muscle to bone. Component: tendon. Copied component:",
+    "continuation": " tendon",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: connects muscle to bone. Component: tendon. Copied component:",
+    "continuation": " tendon",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: is the main organ of smell. Component: nose. Copied component:",
+    "continuation": " nose",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: filters blood to produce urine. Component: kidney. Copied component:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: controls thought and memory. Component: brain. Copied component:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: filters blood and participates in immune defense. Component: spleen. Copied component:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: connects bone to bone. Component: ligament. Copied component:",
+    "continuation": " ligament",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: secretes insulin. Component: pancreas. Copied component:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: enables the sense of taste. Component: tongue. Copied component:",
+    "continuation": " tongue",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: enables the sense of taste. Component: tongue. Copied component:",
+    "continuation": " tongue",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: protects the brain with a bony casing. Component: skull. Copied component:",
+    "continuation": " skull",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: filters blood to produce urine. Component: kidney. Copied component:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: contracts to move the skeleton. Component: muscle. Copied component:",
+    "continuation": " muscle",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: stores urine before excretion. Component: bladder. Copied component:",
+    "continuation": " bladder",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: contracts to move the skeleton. Component: muscle. Copied component:",
+    "continuation": " muscle",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: connects bone to bone. Component: ligament. Copied component:",
+    "continuation": " ligament",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: connects bone to bone. Component: ligament. Copied component:",
+    "continuation": " ligament",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: is the main muscle used for breathing. Component: diaphragm. Copied component:",
+    "continuation": " diaphragm",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: detects light for vision. Component: eye. Copied component:",
+    "continuation": " eye",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: detects light for vision. Component: eye. Copied component:",
+    "continuation": " eye",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: is the main muscle used for breathing. Component: diaphragm. Copied component:",
+    "continuation": " diaphragm",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: stores and concentrates bile. Component: gallbladder. Copied component:",
+    "continuation": " gallbladder",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: detects sound for hearing. Component: ear. Copied component:",
+    "continuation": " ear",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: enables the sense of taste. Component: tongue. Copied component:",
+    "continuation": " tongue",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: controls thought and memory. Component: brain. Copied component:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: contracts to move the skeleton. Component: muscle. Copied component:",
+    "continuation": " muscle",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: filters blood to produce urine. Component: kidney. Copied component:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: carries oxygen through circulation. Component: blood. Copied component:",
+    "continuation": " blood",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: covers the body as its largest organ. Component: skin. Copied component:",
+    "continuation": " skin",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: is the main muscle used for breathing. Component: diaphragm. Copied component:",
+    "continuation": " diaphragm",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: protects the brain with a bony casing. Component: skull. Copied component:",
+    "continuation": " skull",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: protects the brain with a bony casing. Component: skull. Copied component:",
+    "continuation": " skull",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: digests food using strong acid. Component: stomach. Copied component:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: filters blood and participates in immune defense. Component: spleen. Copied component:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: is the main organ of smell. Component: nose. Copied component:",
+    "continuation": " nose",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: stores and concentrates bile. Component: gallbladder. Copied component:",
+    "continuation": " gallbladder",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: enables the sense of taste. Component: tongue. Copied component:",
+    "continuation": " tongue",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Copy the labeled body component. Function: connects bone to bone. Component: ligament. Copied component:",
+    "continuation": " ligament",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: produces bile. Component: liver. Copied component:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: digests food using strong acid. Component: stomach. Copied component:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: controls thought and memory. Component: brain. Copied component:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: is the main organ of smell. Component: nose. Copied component:",
+    "continuation": " nose",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: stores urine before excretion. Component: bladder. Copied component:",
+    "continuation": " bladder",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: pumps blood around the body. Component: heart. Copied component:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: carries oxygen through circulation. Component: blood. Copied component:",
+    "continuation": " blood",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: covers the body as its largest organ. Component: skin. Copied component:",
+    "continuation": " skin",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: controls thought and memory. Component: brain. Copied component:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: pumps blood around the body. Component: heart. Copied component:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: pumps blood around the body. Component: heart. Copied component:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: digests food using strong acid. Component: stomach. Copied component:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: filters blood to produce urine. Component: kidney. Copied component:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: connects muscle to bone. Component: tendon. Copied component:",
+    "continuation": " tendon",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: carries oxygen through circulation. Component: blood. Copied component:",
+    "continuation": " blood",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: protects the brain with a bony casing. Component: skull. Copied component:",
+    "continuation": " skull",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: produces bile. Component: liver. Copied component:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: covers the body as its largest organ. Component: skin. Copied component:",
+    "continuation": " skin",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: stores and concentrates bile. Component: gallbladder. Copied component:",
+    "continuation": " gallbladder",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: produces bile. Component: liver. Copied component:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: stores urine before excretion. Component: bladder. Copied component:",
+    "continuation": " bladder",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: is the main muscle used for breathing. Component: diaphragm. Copied component:",
+    "continuation": " diaphragm",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: detects sound for hearing. Component: ear. Copied component:",
+    "continuation": " ear",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: stores and concentrates bile. Component: gallbladder. Copied component:",
+    "continuation": " gallbladder",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: connects muscle to bone. Component: tendon. Copied component:",
+    "continuation": " tendon",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: secretes insulin. Component: pancreas. Copied component:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: detects sound for hearing. Component: ear. Copied component:",
+    "continuation": " ear",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: secretes insulin. Component: pancreas. Copied component:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: contracts to move the skeleton. Component: muscle. Copied component:",
+    "continuation": " muscle",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: is the main organ of smell. Component: nose. Copied component:",
+    "continuation": " nose",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: secretes insulin. Component: pancreas. Copied component:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: detects light for vision. Component: eye. Copied component:",
+    "continuation": " eye",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: detects sound for hearing. Component: ear. Copied component:",
+    "continuation": " ear",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: detects light for vision. Component: eye. Copied component:",
+    "continuation": " eye",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: digests food using strong acid. Component: stomach. Copied component:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: carries oxygen through circulation. Component: blood. Copied component:",
+    "continuation": " blood",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: filters blood and participates in immune defense. Component: spleen. Copied component:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: pumps blood around the body. Component: heart. Copied component:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the labeled body component. Function: produces bile. Component: liver. Copied component:",
+    "continuation": " liver",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 9.2087
+}
