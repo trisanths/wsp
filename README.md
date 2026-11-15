@@ -25,7 +25,7 @@ Built at the SF AI Research Hackathon, hosted by Iterate at Wefunder, San Franci
 
 ## Motivation
 
-Fine-tuning changes every weight of one model to teach it a skill that some other open model already has. Thousands of open-weight models exist, and each one stores its skills in units you can find: specific MoE experts handle code tokens, specific layers carry factual recall, specific heads move information across positions. Sapien builds on Weight-Space Programming ([Sparks of Weight-Space Programming, 2026](https://rikiyat.github.io/blog/weight-space-programming/)) and applies it at scale: instead of retraining a model for a skill, find the parts that already hold it and reuse them.
+Fine-tuning changes every weight of one model to teach it a skill that some other open model already has. Thousands of open-weight models exist, and each one is better or has unique skills stored in legible areas of activation. Specific MoE experts handle science for example, some layers carry recall or thinking skills, some heads move information across positions. Sapien builds on Weight-Space Programming ([Sparks of Weight-Space Programming, 2026](https://rikiyat.github.io/blog/weight-space-programming/)) and applies it to model grafting: instead of retraining a model for a skill, find the parts that already hold it and reuse them.
 
 ## Questions we explored
 1. **Grafting.** Can a slice of a large model, added to a small one, make the small model better than fine-tuning it?
