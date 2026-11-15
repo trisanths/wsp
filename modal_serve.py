@@ -71,7 +71,10 @@ VLLM_VERSION = "0.32.0"
 # The pip list of modal_round20.py (a script that ran), without its torch and transformers pins:
 # vllm 0.32.0 pins torch==2.13.0 and transformers>=5.16.1,<5.20.0 and brings both.
 image = (
-    modal.Image.debian_slim(python_version="3.12")
+    # vLLM compiles some kernels at start and needs nvcc and a CUDA home; a plain
+    # debian image has neither ("Could not find nvcc", first smoke 2026-11-15).
+    modal.Image.from_registry("nvidia/cuda:12.8.1-devel-ubuntu22.04", add_python="3.12")
+    .env({"CUDA_HOME": "/usr/local/cuda"})
     .pip_install(
         f"vllm=={VLLM_VERSION}", "accelerate", "huggingface_hub", "requests",
         "safetensors", "zstandard", "numpy", "datasets", "sentencepiece", "protobuf",

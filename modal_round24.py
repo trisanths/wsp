@@ -29,6 +29,15 @@ the token to id maps and prints what it masks or drops):
       (another width: the stitch maps 1536 to 3584).
   T3  base Qwen/Qwen2.5-7B-Instruct, code top from Qwen/Qwen2.5-Coder-7B-Instruct
       and math top from Qwen/Qwen2.5-Math-7B-Instruct.
+  T4  EXPLORATORY, optional, not part of the go rule and not in cells(). Cross-tokenizer: base
+      unsloth/Llama-3.2-3B-Instruct (Llama 3 tokenizer, 128256 ids) with a math top from
+      Qwen/Qwen2.5-Math-1.5B-Instruct (Qwen tokenizer, 151665 ids). The donor head scores the
+      donor's vocabulary and wsp/tops_vocab.py bridges it to the base's ids (exact byte match,
+      first-donor-token fallback with a learned bias). Both models have 28 layers. Cuts 1/2 and
+      3/4 (14 and 21). The fit trains on the donor's own greedy answers to pool prompts plus a
+      KL on the shared tokens (docs/tops.md, "Cross-tokenizer tops"). Cells: base, donor,
+      forced math (GSM8K), scrambled control. Run it only with --pairs T4. One forced seed at
+      cut 21. Nothing in T4 enters summarize()'s go rule; summarize_t4 prints its own lines.
 Cuts, as base layers kept in the trunk (28 layers): 1/7, 2/7, 1/2, 5/7, 6/7 =
 4, 8, 14, 20, 24. The donor cut is the same relative depth (28 layers in every
 donor, so the same number).
@@ -97,6 +106,9 @@ Usage.
     modal run modal_round24.py --shard 0 --nshards 3 --only forced,scrambled,lora,kd_lora,base,donor
     modal run modal_round24.py --only routed,template --pairs T1
     modal run modal_round24.py --plan-only
+    modal run --detach modal_round24.py --diag             smoke cell's fitted top against its donor on 32 GSM8K prompts
+    modal run modal_round24.py --smoke --pairs T4          one cross-tokenizer cell, 200 steps, GSM8K only
+    modal run modal_round24.py --pairs T4 --only forced --cuts 1/2 --seeds 0
 Run the smoke first and wait for its first score line. A fan-out comes only after it.
 """
 
@@ -141,6 +153,17 @@ PAIRS = {
     "T2": {"base": QWEN_SMALL, "tops": {"code": CODER_7}, "n_layers": 28},
     "T3": {"base": QWEN_BIG, "tops": {"code": CODER_7, "math": MATH_7}, "n_layers": 28},
 }
+# Optional pair, not in cells(): a Llama-family base with a Qwen-family donor (cross tokenizer).
+LLAMA_3B = "unsloth/Llama-3.2-3B-Instruct"
+OPTIONAL_PAIRS = {
+    "T4": {"base": LLAMA_3B, "tops": {"math": MATH_15}, "n_layers": 28, "cross_tokenizer": True,
+           "cut_fractions": [(1, 2), (3, 4)]},
+}
+ALL_PAIRS = dict(PAIRS)
+ALL_PAIRS.update(OPTIONAL_PAIRS)
+ANSWER_TOKENS = 128
+CROSS_FIT = {"math": [("math", 600), ("general", 100), ("reasoning", 100)]}
+CROSS_PROBE = {"math": [("math", 50), ("general", 25), ("reasoning", 25)]}
 OWN_SKILLS = {"math": ["gsm8k", "math500"], "code": ["humaneval", "mbpp"]}
 GUARD = ["mmlu"]
 STORED_LIMIT = {"T1": 1.6, "T2": 2.0, "T3": 1.6}
@@ -240,9 +263,28 @@ def cells():
     return out
 
 
-def smoke_cell():
-    """The one smoke cell: T1, math top forced, cut 1/2, 200 stitch steps, GSM8K only."""
-    cell = new_cell("T1", "forced", top="math", cut=default_cut(28), seed=0, skills=["gsm8k"])
+def optional_cells():
+    """The T4 cells (exploratory): references, forced math at 1/2 (two seeds) and 3/4 (one seed), scrambled control."""
+    out = []
+    pair = "T4"
+    spec = OPTIONAL_PAIRS[pair]
+    n = spec["n_layers"]
+    cuts = [int(round(n * a / b)) for a, b in spec["cut_fractions"]]
+    default = cuts[0]
+    skills = ["gsm8k"]
+    out.append(new_cell(pair, "base", skills=list(skills)))
+    out.append(new_cell(pair, "donor", top="math", skills=list(skills)))
+    for cut in cuts:
+        for seed in (SEEDS if cut == default else [0]):
+            out.append(new_cell(pair, "forced", top="math", cut=cut, seed=seed, skills=list(skills)))
+    for seed in SEEDS:
+        out.append(new_cell(pair, "scrambled", top="math", cut=default, seed=seed, skills=list(skills)))
+    return out
+
+
+def smoke_cell(pair="T1"):
+    """The one smoke cell: T1, math top forced, cut 1/2, 200 stitch steps, GSM8K only. pair T4 gives the cross cell."""
+    cell = new_cell(pair, "forced", top="math", cut=default_cut(28), seed=0, skills=["gsm8k"])
     cell["steps"] = 200
     cell["smoke"] = True
     return cell
@@ -294,7 +336,7 @@ def select(todo, pairs="", cuts="", only="", seeds=""):
         if seeds and str(cell["seed"]) not in seeds.split(","):
             continue
         if wanted_cuts and cell["cut"] is not None:
-            n = PAIRS[cell["pair"]]["n_layers"]
+            n = ALL_PAIRS[cell["pair"]]["n_layers"]
             ok = False
             for item in wanted_cuts:
                 if isinstance(item, tuple):
@@ -321,7 +363,7 @@ PEAK_GB = {"small": 22, "big": 70}
 
 def size_class(cell):
     """big when the base or a donor the cell loads has 7B params (it sets fit time, eval time, and memory)."""
-    spec = PAIRS[cell["pair"]]
+    spec = ALL_PAIRS[cell["pair"]]
     if spec["base"] == QWEN_BIG:
         return "big"
     if cell["kind"] == "base":
@@ -341,7 +383,7 @@ def cell_minutes(cell):
     size = size_class(cell)
     minutes = LOAD_MIN[size]
     memory = PEAK_GB[size]
-    if size == "big" and PAIRS[cell["pair"]]["base"] != QWEN_BIG:
+    if size == "big" and ALL_PAIRS[cell["pair"]]["base"] != QWEN_BIG:
         memory = 50
     for skill in cell["skills"]:
         minutes += EVAL_MIN[size][skill]
@@ -354,7 +396,7 @@ def cell_minutes(cell):
         minutes += SCRAMBLE_MIN[size]
     if kind == "routed":
         # Loads or fits each top (fits are skipped when the forced cells ran first), then the router.
-        minutes += 2 + 1.5 * len(PAIRS[cell["pair"]]["tops"])
+        minutes += 2 + 1.5 * len(ALL_PAIRS[cell["pair"]]["tops"])
     if kind == "donor":
         memory = PEAK_GB[size] * 0.6
     return minutes, memory
@@ -580,12 +622,67 @@ def load_donor(donor_id):
     return model, tokenizer
 
 
+def cross_prompt_pairs(base_tokenizer, donor_tokenizer, base_id, pool, role, count, suffix):
+    """Prompts of a pool in the base's chat format and in the donor's chat format. Never benchmark data.
+
+    Each pair gives two prompts: a chat prompt (rendered by each tokenizer's
+    template) and the raw "Question: ... Answer:" prompt, the same string on
+    both sides. Cached on the volume.
+    """
+    from wsp import healdata
+    from wsp import skills_eval as ev
+
+    skip, size = RANGES[role]
+    if count > size:
+        raise ValueError(f"role {role} holds at most {size} texts per pool, asked for {count}")
+    path = os.path.join(DATA_DIR, f"cross_{role}_{pool}_{count}_{suffix}_{safe_name(base_id)}.json")
+    if os.path.exists(path):
+        with open(path) as f:
+            found = json.load(f)
+        return found["base"], found["donor"]
+    healdata.check_sources([source[0] for source in healdata.SOURCES[pool]])
+    pairs = healdata.pairs(pool, count, seed=0, skip=skip)
+    if len(pairs) < count:
+        raise ValueError(f"pool {pool} gave {len(pairs)} prompts for {role}, wanted {count}")
+    base_prompts = []
+    donor_prompts = []
+    for index, (user, _) in enumerate(pairs):
+        text = user
+        if suffix == "math":
+            text = user + "\n" + (ev.GSM8K_INSTRUCTION if index % 2 == 0 else ev.MATH_INSTRUCTION)
+        base_prompts.append(ev.render_prompt(base_tokenizer, text))
+        donor_prompts.append(ev.render_prompt(donor_tokenizer, text))
+        raw = "Question: " + user.strip() + "\nAnswer:"
+        base_prompts.append(raw)
+        donor_prompts.append(raw)
+    os.makedirs(DATA_DIR, exist_ok=True)
+    tmp = f"{path}.{os.getpid()}.tmp"
+    with open(tmp, "w") as f:
+        json.dump({"base": base_prompts, "donor": donor_prompts}, f)
+    if os.path.exists(path):
+        os.remove(tmp)
+    else:
+        os.replace(tmp, path)
+    return base_prompts, donor_prompts
+
+
+def cross_fit_inputs(base_tokenizer, donor_tokenizer, base_id, top, table, role):
+    base_prompts = []
+    donor_prompts = []
+    for pool, count in table[top]:
+        suffix = top if pool == "math" else "general"
+        b, d = cross_prompt_pairs(base_tokenizer, donor_tokenizer, base_id, pool, role, count, suffix)
+        base_prompts += b
+        donor_prompts += d
+    return base_prompts, donor_prompts
+
+
 def fit_one_top(cell, net, top, base_tokenizer, base_id):
     """Add and fit one top, or restore it from its artifact. Return its fit report."""
     import torch
 
     name = cell_name(cell)
-    donor_id = PAIRS[cell["pair"]]["tops"][top]
+    donor_id = ALL_PAIRS[cell["pair"]]["tops"][top]
     art = artifact_dir(cell, top)
     if os.path.exists(os.path.join(art, "tops.json")):
         net.add_saved_tops(art, names=[top], device="cuda", cache_dir=FETCH_DIR)
@@ -593,17 +690,38 @@ def fit_one_top(cell, net, top, base_tokenizer, base_id):
         return net.tops[top].fit_report
     control = "scrambled" if cell["kind"] == "scrambled" else None
     start = time.time()
+    cross = bool(ALL_PAIRS[cell["pair"]].get("cross_tokenizer"))
     net.add_top(top, donor_id, cell["cut"], control=control, control_seed=cell["seed"], device="cuda",
-                cache_dir=FETCH_DIR)
-    print(f"{name} built top {top} in {time.time() - start:.1f} s: {json.dumps(net.tops[top].spec['vocab'])[:400]}",
-          flush=True)
+                cache_dir=FETCH_DIR, cross_tokenizer=cross)
     fit_texts, _, _ = texts_for(base_tokenizer, base_id, top, FIT, "stitch")
     probe_mixed, probe_domain, probe_others = texts_for(base_tokenizer, base_id, top, PROBE, "probe")
-    donor_model, _ = load_donor(donor_id)
+    if cross:
+        from wsp import tops_vocab
+
+        cover = tops_vocab.coverage_report(net.tops[top].bridge, base_tokenizer, net.tops[top].donor_tokenizer,
+                                           probe_domain[:40] + probe_others[0][:20] + probe_others[1][:20])
+        net.tops[top].spec["vocab"] = cover
+        print(f"{name} vocab bridge {top}: exact {cover['exact_share']:.4f} fallback {cover['fallback_share']:.4f} "
+              f"masked {cover['masked']} text base_exact {cover['text']['base_exact']:.4f} "
+              f"donor_shared {cover['text']['donor_shared']:.4f}", flush=True)
+    print(f"{name} built top {top} in {time.time() - start:.1f} s: {json.dumps(net.tops[top].spec['vocab'])[:400]}",
+          flush=True)
+    donor_model, donor_tokenizer = load_donor(donor_id)
     lora_rank = cell.get("lora_rank", 0)
-    report = net.fit_stitch(top, fit_texts, steps=cell["steps"], batch_size=BATCH, seq_len=SEQ_LEN,
-                            seed=cell["seed"], eval_texts=probe_mixed, donor_model=donor_model,
-                            max_penalty=MAX_PENALTY, lora_rank=lora_rank, log_every=100, log_name=name)
+    if cross:
+        fit_prompts, fit_donor_prompts = cross_fit_inputs(base_tokenizer, donor_tokenizer, base_id, top, CROSS_FIT,
+                                                          "stitch")
+        eval_prompts, eval_donor_prompts = cross_fit_inputs(base_tokenizer, donor_tokenizer, base_id, top,
+                                                            CROSS_PROBE, "probe")
+        report = net.fit_stitch(top, fit_prompts, steps=cell["steps"], batch_size=BATCH, seq_len=SEQ_LEN,
+                                seed=cell["seed"], eval_texts=eval_prompts, donor_model=donor_model,
+                                max_penalty=MAX_PENALTY, lora_rank=lora_rank, log_every=100, log_name=name,
+                                donor_prompts=fit_donor_prompts, eval_donor_prompts=eval_donor_prompts,
+                                answer_tokens=ANSWER_TOKENS)
+    else:
+        report = net.fit_stitch(top, fit_texts, steps=cell["steps"], batch_size=BATCH, seq_len=SEQ_LEN,
+                                seed=cell["seed"], eval_texts=probe_mixed, donor_model=donor_model,
+                                max_penalty=MAX_PENALTY, lora_rank=lora_rank, log_every=100, log_name=name)
     by_set = {}
     sets = {"domain": probe_domain, "general": probe_others[0], "prose": probe_others[1]}
     for key, texts in sets.items():
@@ -653,7 +771,7 @@ def run_cell(cell):
     random.seed(seed)
     name = cell_name(cell)
     kind = cell["kind"]
-    spec = PAIRS[cell["pair"]]
+    spec = ALL_PAIRS[cell["pair"]]
     base_id = spec["base"]
     row = row_base(cell)
     items = load_items(cell["skills"])
@@ -879,6 +997,36 @@ def summarize(rows):
     return out
 
 
+def summarize_t4(rows):
+    """Print the exploratory T4 numbers (GSM8K, seeds averaged) and return them. No go rule."""
+    by = {}
+    for row in rows:
+        if row.get("pair") != "T4" or row.get("scores") is None:
+            continue
+        by.setdefault((row["kind"], row["cut"]), []).append(row)
+
+    def value(kind, cut):
+        found = by.get((kind, cut), [])
+        values = [r["scores"]["gsm8k"] for r in found if "gsm8k" in r["scores"]]
+        return mean(values), len(values)
+
+    out = {}
+    base, _ = value("base", None)
+    donor, _ = value("donor", None)
+    out["base"] = base
+    out["donor"] = donor
+    print(f"summary T4 (exploratory) base {base} donor {donor}")
+    for kind in ("forced", "scrambled"):
+        for cut in sorted({key[1] for key in by if key[0] == kind}):
+            found, seeds = value(kind, cut)
+            out[(kind, cut)] = {"gsm8k": found, "seeds": seeds}
+            gap = None if found is None or donor is None else round(100.0 * (donor - found), 1)
+            above = None if found is None or base is None else round(100.0 * (found - base), 1)
+            print(f"summary T4 {kind} cut {cut}: GSM8K {found} over {seeds} seed(s); points below donor {gap}; "
+                  f"points above base {above}")
+    return out
+
+
 def sizes_table():
     """Stored and per-token params per pair and cut from the real configs (needs Hub metadata, no weights)."""
     import transformers
@@ -907,21 +1055,345 @@ def sizes_table():
     return table
 
 
+# ------------------------------------------------------------------ diagnostic (--diag)
+
+DIAG_N = 32
+DIAG_UNCACHED = 8
+DIAG_UNCACHED_TOKENS = 96
+DIAG_BATCH = 32
+DIAG_FILE = "round24_diag.json"
+DIAG_EDGES = [0, 128, 256, 384, 512, 100000]
+
+
+class GenerateRecorder:
+    """Stands in for a model inside wsp.skills_eval.generate_texts and keeps the prompt width and output ids of every call.
+
+    generate_texts reads parameters() and generation_config and calls generate(). Everything goes through
+    to the real model unchanged, so the recorded run is the skills_eval run.
+    """
+
+    def __init__(self, model):
+        self.model = model
+        self.generation_config = getattr(model, "generation_config", None)
+        self.config = getattr(model, "config", None)
+        self.calls = []
+
+    def parameters(self):
+        return self.model.parameters()
+
+    def generate(self, **kwargs):
+        out = self.model.generate(**kwargs)
+        self.calls.append((int(kwargs["input_ids"].shape[1]), out.detach().cpu()))
+        return out
+
+
+def recorded_generate(model, tokenizer, prompts, max_new_tokens, batch_size):
+    """Run wsp.skills_eval.generate_texts as the harness does. Return (texts, answers, stop_ids).
+
+    answers[i] holds the new token ids of prompt i, cut after the first stop id (included).
+    """
+    from wsp import skills_eval as ev
+
+    recorder = GenerateRecorder(model)
+    texts = ev.generate_texts(recorder, tokenizer, prompts, max_new_tokens=max_new_tokens, batch_size=batch_size)
+    order = sorted(range(len(prompts)), key=lambda index: -len(prompts[index]))
+    stops = ev.stop_token_ids(model, tokenizer)
+    answers = [None] * len(prompts)
+    for call, (width, out) in enumerate(recorder.calls):
+        chunk = order[call * batch_size:(call + 1) * batch_size]
+        for row, index in enumerate(chunk):
+            new = out[row, width:].tolist()
+            for position, token in enumerate(new):
+                if token in stops:
+                    new = new[:position + 1]
+                    break
+            answers[index] = new
+    return texts, answers, stops
+
+
+def first_difference(a, b):
+    """First index where two token lists differ, the shorter length when one is a prefix, None when equal."""
+    for index in range(min(len(a), len(b))):
+        if a[index] != b[index]:
+            return index
+    if len(a) != len(b):
+        return min(len(a), len(b))
+    return None
+
+
+def uncached_greedy(forward, prompt_ids, max_new_tokens, stops, device):
+    """Greedy decoding with a full forward on the growing sequence at every step. forward(ids) returns logits."""
+    import torch
+
+    ids = torch.tensor([prompt_ids], device=device)
+    new = []
+    for _ in range(max_new_tokens):
+        with torch.no_grad():
+            logits = forward(ids)
+        token = int(logits[0, -1].float().argmax())
+        new.append(token)
+        if token in stops:
+            break
+        ids = torch.cat([ids, torch.tensor([[token]], device=device)], dim=1)
+    return new
+
+
+def bucket_of(position, edges=DIAG_EDGES):
+    for index in range(len(edges) - 1):
+        if edges[index] <= position < edges[index + 1]:
+            return index
+    return len(edges) - 2
+
+
+def teacher_forced_against_donor(net, top, donor, prompt_ids, answer_ids, device):
+    """The top against the donor on the donor's own answer, one sequence, no padding.
+
+    Returns per-position lists for the answer tokens and for the prompt tokens (the first
+    token is the sink and is left out): KL(donor || top), agreement of the two argmax,
+    the top's and the donor's NLL of the token that follows, the first answer position at
+    which each model's argmax is not the donor's answer token, and the relative error of
+    the stitch output against the donor's true state, per position.
+    """
+    import torch
+
+    from wsp.tops import first_index, positions_of
+
+    ids = torch.tensor([list(prompt_ids) + list(answer_ids)], device=device)
+    mask = torch.ones_like(ids)
+    cut_donor = net.get_top(top).cut_donor
+    with torch.no_grad():
+        donor_out = donor(input_ids=ids, attention_mask=mask, output_hidden_states=True)
+        donor_logits = donor_out.logits[0].float()
+        true_state = donor_out.hidden_states[cut_donor][0].float()
+        top_logits = net(ids, attention_mask=mask, top=top).logits[0].float()
+        module = net.get_top(top)
+        pos = positions_of(mask)
+        h = net.run_trunk(ids, mask, pos, module.cut_host, None, 0)
+        mapped = module.map_state(h, first_index(mask))[0].float()
+    rows = min(donor_logits.shape[-1], top_logits.shape[-1])
+    log_d = torch.log_softmax(donor_logits[:, :rows], dim=-1)
+    log_t = torch.log_softmax(top_logits[:, :rows], dim=-1)
+    kl = (log_d.exp() * (log_d - log_t)).sum(-1)
+    agree = donor_logits[:, :rows].argmax(-1) == top_logits[:, :rows].argmax(-1)
+    nxt = ids[0, 1:]
+    nll_d = -log_d[:-1].gather(1, nxt[:, None])[:, 0]
+    nll_t = -log_t[:-1].gather(1, nxt[:, None])[:, 0]
+    err = ((mapped - true_state) ** 2).sum(-1) / (true_state ** 2).sum(-1).clamp(min=1e-12)
+    start = len(prompt_ids)
+    answer_positions = list(range(start - 1, start + len(answer_ids) - 1))
+    prompt_positions = list(range(1, start - 1))
+
+    def pick(values, positions):
+        return [float(values[p]) for p in positions]
+
+    def first_miss(logits):
+        guess = logits[:, :rows].argmax(-1)
+        for offset, position in enumerate(answer_positions):
+            if int(guess[position]) != int(ids[0, position + 1]):
+                return offset
+        return None
+
+    return {
+        "answer_positions": answer_positions,
+        "kl_answer": pick(kl, answer_positions), "kl_prompt": pick(kl, prompt_positions),
+        "agree_answer": [bool(agree[p]) for p in answer_positions],
+        "nll_top_answer": pick(nll_t, answer_positions), "nll_donor_answer": pick(nll_d, answer_positions),
+        "state_err_answer": pick(err[:], [p + 1 for p in answer_positions]),
+        "state_err_prompt": pick(err, prompt_positions),
+        "first_miss_top": first_miss(top_logits), "first_miss_donor": first_miss(donor_logits),
+        "sink_err": float(((mapped[0] - true_state[0]) ** 2).sum() / (true_state[0] ** 2).sum().clamp(min=1e-12)),
+    }
+
+
+def mean_of(values):
+    return sum(values) / len(values) if len(values) > 0 else None
+
+
+def diag_core(name, net, top, donor, tokenizer, items, max_new_tokens=512, batch_size=DIAG_BATCH,
+              uncached_prompts=DIAG_UNCACHED, uncached_tokens=DIAG_UNCACHED_TOKENS, log=print):
+    """Compare the donor alone with the forced top on the same GSM8K prompts. Return the report dict.
+
+    Both models run through wsp.skills_eval.generate_texts with the same prompts, batch size,
+    and token limit. Every printed line starts with the cell name.
+    """
+    import torch
+
+    from wsp import skills_eval as ev
+    from wsp.tops import ForcedView
+
+    view = ForcedView(net, top)
+    device = ev.model_device(donor)
+    prompts = [ev.render_prompt(tokenizer, ev.user_text("gsm8k", item)) for item in items]
+    d_texts, d_answers, d_stops = recorded_generate(donor, tokenizer, prompts, max_new_tokens, batch_size)
+    t_texts, t_answers, t_stops = recorded_generate(view, tokenizer, prompts, max_new_tokens, batch_size)
+    log(f"{name} diag stop ids donor {d_stops} top {t_stops} same {d_stops == t_stops}")
+    d_records = ev.grade_outputs("gsm8k", items, d_texts)
+    t_records = ev.grade_outputs("gsm8k", items, t_texts)
+    prompt_ids = []
+    for prompt in prompts:
+        prompt_ids.append(tokenizer(prompt, add_special_tokens=False).input_ids)
+
+    per_prompt = []
+    kl_abs = [[] for _ in range(len(DIAG_EDGES) - 1)]
+    err_abs = [[] for _ in range(len(DIAG_EDGES) - 1)]
+    agree_all = []
+    nll_gap = []
+    prompt_kl_all = []
+    for index in range(len(prompts)):
+        tf = teacher_forced_against_donor(net, top, donor, prompt_ids[index], d_answers[index], device)
+        start = len(prompt_ids[index])
+        for offset, value in enumerate(tf["kl_answer"]):
+            kl_abs[bucket_of(start + offset)].append(value)
+        for offset, value in enumerate(tf["state_err_answer"]):
+            err_abs[bucket_of(start + offset)].append(value)
+        agree_all += tf["agree_answer"]
+        for a, b in zip(tf["nll_top_answer"], tf["nll_donor_answer"]):
+            nll_gap.append(a - b)
+        prompt_kl_all += tf["kl_prompt"]
+        first = first_difference(d_answers[index], t_answers[index])
+        record = {"index": index, "prompt_tokens": start, "donor_tokens": len(d_answers[index]),
+                  "top_tokens": len(t_answers[index]), "first_difference": first, "identical": first is None,
+                  "donor_correct": bool(d_records[index]["correct"]), "top_correct": bool(t_records[index]["correct"]),
+                  "kl_answer_mean": mean_of(tf["kl_answer"]), "kl_prompt_mean": mean_of(tf["kl_prompt"]),
+                  "top1_agree_answer": mean_of([1.0 if v else 0.0 for v in tf["agree_answer"]]),
+                  "nll_gap_answer": mean_of([a - b for a, b in zip(tf["nll_top_answer"], tf["nll_donor_answer"])]),
+                  "teacher_forced_first_miss_top": tf["first_miss_top"],
+                  "teacher_forced_first_miss_donor": tf["first_miss_donor"],
+                  "state_err_prompt": mean_of(tf["state_err_prompt"]),
+                  "state_err_answer": mean_of(tf["state_err_answer"]), "sink_err": tf["sink_err"],
+                  "donor_pred": d_records[index]["pred"], "top_pred": t_records[index]["pred"],
+                  "gold": d_records[index]["gold"]}
+        per_prompt.append(record)
+        log(f"{name} diag prompt {index} first_difference {first} donor_tokens {record['donor_tokens']} "
+            f"top_tokens {record['top_tokens']} donor_correct {record['donor_correct']} "
+            f"top_correct {record['top_correct']} kl_answer {record['kl_answer_mean']:.4f} "
+            f"kl_prompt {record['kl_prompt_mean']:.4f} agree {record['top1_agree_answer']:.3f} "
+            f"tf_first_miss_top {tf['first_miss_top']} tf_first_miss_donor {tf['first_miss_donor']} "
+            f"sink_err {tf['sink_err']:.4f}")
+
+    n = len(prompts)
+    identical = sum(1 for r in per_prompt if r["identical"])
+    donor_acc = sum(1 for r in per_prompt if r["donor_correct"]) / n
+    top_acc = sum(1 for r in per_prompt if r["top_correct"]) / n
+    by_position = []
+    for bucket in range(len(DIAG_EDGES) - 1):
+        by_position.append({"from": DIAG_EDGES[bucket], "to": DIAG_EDGES[bucket + 1],
+                            "tokens": len(kl_abs[bucket]), "kl": mean_of(kl_abs[bucket]),
+                            "stitch_state_rel_err": mean_of(err_abs[bucket])})
+        log(f"{name} diag by_absolute_position {DIAG_EDGES[bucket]} to {DIAG_EDGES[bucket + 1]} "
+            f"tokens {len(kl_abs[bucket])} kl_to_donor {by_position[-1]['kl']} "
+            f"stitch_state_rel_err {by_position[-1]['stitch_state_rel_err']}")
+    firsts = [r["first_difference"] for r in per_prompt if r["first_difference"] is not None]
+    summary = {"n": n, "identical_share": identical / n, "donor_accuracy": donor_acc, "top_accuracy": top_acc,
+               "median_first_difference": sorted(firsts)[len(firsts) // 2] if firsts else None,
+               "kl_answer_mean": mean_of([v for bucket in kl_abs for v in bucket]),
+               "kl_prompt_mean": mean_of(prompt_kl_all), "top1_agree_answer": mean_of(
+                   [1.0 if v else 0.0 for v in agree_all]),
+               "nll_gap_answer": mean_of(nll_gap), "by_absolute_position": by_position,
+               "sink_err_mean": mean_of([r["sink_err"] for r in per_prompt])}
+    log(f"{name} diag summary identical_share {summary['identical_share']:.3f} donor_accuracy {donor_acc:.4f} "
+        f"top_accuracy {top_acc:.4f} median_first_difference {summary['median_first_difference']} "
+        f"kl_answer {summary['kl_answer_mean']} kl_prompt {summary['kl_prompt_mean']} "
+        f"top1_agree {summary['top1_agree_answer']} nll_gap {summary['nll_gap_answer']} "
+        f"sink_err {summary['sink_err_mean']}")
+
+    # Path check on the first prompts: batched cached, batch of one cached, and a full forward every step.
+    # The donor runs the same three ways, so its own gaps are the noise floor of bf16 and caching.
+    paths = {}
+    count = min(uncached_prompts, n)
+    short = prompts[:count]
+    stops = set(d_stops)
+    for label, model, forward, batched in (
+            ("donor", donor, lambda ids: donor(input_ids=ids).logits, d_answers),
+            ("top", view, lambda ids: net(ids, top=top).logits, t_answers)):
+        _, single, _ = recorded_generate(model, tokenizer, short, max_new_tokens, 1)
+        rows = []
+        for index in range(count):
+            full = uncached_greedy(forward, prompt_ids[index], uncached_tokens, stops, device)
+            cached_batch = batched[index][:uncached_tokens]
+            cached_one = single[index][:uncached_tokens]
+            rows.append({"index": index, "batched_vs_one": first_difference(cached_batch, cached_one),
+                         "batched_vs_uncached": first_difference(cached_batch, full),
+                         "one_vs_uncached": first_difference(cached_one, full)})
+            log(f"{name} diag path {label} prompt {index} batched_vs_one {rows[-1]['batched_vs_one']} "
+                f"batched_vs_uncached {rows[-1]['batched_vs_uncached']} one_vs_uncached {rows[-1]['one_vs_uncached']}")
+        paths[label] = rows
+        clean = sum(1 for r in rows if r["batched_vs_uncached"] is None)
+        log(f"{name} diag path {label} summary batched_equals_uncached {clean}/{count}")
+    return {"cell": name, "n": n, "summary": summary, "per_prompt": per_prompt, "paths": paths,
+            "stop_ids": {"donor": d_stops, "top": t_stops}, "texts": {"donor": d_texts[:4], "top": t_texts[:4]}}
+
+
+def run_diag():
+    """Restore the smoke cell's fitted top, then run diag_core on DIAG_N GSM8K test prompts. Needs one GPU."""
+    import torch
+
+    from wsp.tops import SkillTops
+
+    safe_reload()
+    cell = smoke_cell("T1")
+    name = cell_name(cell)
+    spec = ALL_PAIRS[cell["pair"]]
+    top = cell["top"]
+    art = artifact_dir(cell, top)
+    print(f"{name} diag artifact {art} exists {os.path.exists(os.path.join(art, 'tops.json'))}", flush=True)
+    if not os.path.exists(os.path.join(art, "tops.json")):
+        raise FileNotFoundError(f"{name}: no fitted top at {art}; run the smoke cell first")
+    base, tokenizer = load_base(spec["base"])
+    donor, _ = load_donor(spec["tops"][top])
+    net = SkillTops(base, tokenizer, base_id=spec["base"])
+    net.allow_flagged = True
+    net.add_saved_tops(art, names=[top], device="cuda", cache_dir=FETCH_DIR)
+    module = net.tops[top]
+    print(f"{name} diag restored top {top} cut_host {module.cut_host} cut_donor {module.cut_donor} "
+          f"has_sink {module.has_sink} accepted {module.accepted} penalty "
+          f"{(module.fit_report or {}).get('penalty')}", flush=True)
+    items = load_items(["gsm8k"])["gsm8k"][:DIAG_N]
+    report = diag_core(name, net, top, donor, tokenizer, items, max_new_tokens=512)
+    report["artifact"] = art
+    report["fit_version"] = FIT_VERSION
+    report["torch"] = torch.__version__
+    os.makedirs(RESULTS_DIR, exist_ok=True)
+    with open(os.path.join(RESULTS_DIR, DIAG_FILE), "w") as f:
+        json.dump(report, f, default=str)
+    volume.commit()
+    return report
+
+
+@app.function(image=image, volumes={"/vol": volume}, gpu=GPU_SPEC["gpu"], memory=GPU_SPEC["memory"],
+              timeout=GPU_SPEC["timeout"])
+def diag_remote():
+    return run_diag()
+
+
 # ------------------------------------------------------------------ entry
 
 
 @app.local_entrypoint()
 def main(shard: int = 0, nshards: int = 1, pairs: str = "", cuts: str = "", only: str = "", seeds: str = "",
-         smoke: bool = False, plan_only: bool = False, no_prefetch: bool = False, summary: str = ""):
+         smoke: bool = False, plan_only: bool = False, no_prefetch: bool = False, summary: str = "",
+         diag: bool = False):
+    if diag:
+        report = diag_remote.remote()
+        os.makedirs("results", exist_ok=True)
+        with open("results/round24_diag.json", "w") as f:
+            json.dump(report, f, indent=2, default=str)
+        print(f"{report['cell']} diag written to results/round24_diag.json")
+        return
     if summary:
         with open(summary) as f:
             rows = json.load(f)
         summarize(rows)
+        summarize_t4(rows)
         return
+    wants_t4 = "T4" in pairs.split(",")
     if smoke:
-        todo = [smoke_cell()]
+        todo = [smoke_cell("T4" if wants_t4 else "T1")]
     else:
-        todo = select(cells(), pairs, cuts, only, seeds)
+        pool = cells()
+        if wants_t4:
+            pool = pool + optional_cells()
+        todo = select(pool, pairs, cuts, only, seeds)
     mine = []
     for index, spec in enumerate(todo):
         if index % nshards == shard:
@@ -935,10 +1407,10 @@ def main(shard: int = 0, nshards: int = 1, pairs: str = "", cuts: str = "", only
         for spec in mine:
             if spec["kind"] in ("base", "donor", "kd_lora"):
                 continue
-            tops = list(PAIRS[spec["pair"]]["tops"]) if spec["kind"] == "routed" else [spec["top"]]
+            tops = list(ALL_PAIRS[spec["pair"]]["tops"]) if spec["kind"] == "routed" else [spec["top"]]
             for top in tops:
-                donor = PAIRS[spec["pair"]]["tops"][top]
-                first = int(round(spec["cut"] / PAIRS[spec["pair"]]["n_layers"] * 28))
+                donor = ALL_PAIRS[spec["pair"]]["tops"][top]
+                first = int(round(spec["cut"] / ALL_PAIRS[spec["pair"]]["n_layers"] * 28))
                 wanted[donor] = min(first, wanted.get(donor, first))
         calls = [(donor, first) for donor, first in wanted.items()]
         for found in prefetch.starmap(calls):
@@ -956,6 +1428,7 @@ def main(shard: int = 0, nshards: int = 1, pairs: str = "", cuts: str = "", only
         with open(out_path, "w") as f:
             json.dump(rows, f, indent=2, default=str)
     summarize(rows)
+    summarize_t4(rows)
 
 
 if __name__ == "__main__":

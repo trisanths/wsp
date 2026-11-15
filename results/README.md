@@ -628,45 +628,62 @@ Reading:
   (wsp/synth.py), and per-layer weight mixing is only for true
   fine-tunes (wsp/weave.py lists verified ones from 7B to 32B).
 
-## Run 19 (2026-11-14, partial): removing skills to keep one
+## Run 19 (2026-11-14): removing skills to keep one
 
 Qwen3-30B-A3B-Instruct-2507 (128 experts per layer, top 8). For code,
 each layer keeps its top N experts and the rest are deleted with their
 router rows (wsp/slim.py). Ranking and heal text are non-benchmark code
-instructions (wsp.healdata). Scored once with wsp.skills_eval: HumanEval
-164, MBPP 257, GSM8K 200, MMLU 1000. One run per cell; the random cell has
-three seeds. Raw rows so far: round19_partial_rows.json.
+instructions (wsp.healdata). Heals are 500 steps of distillation from the
+full model. Scored once with wsp.skills_eval: HumanEval 164, MBPP 257,
+GSM8K 200, MMLU 1000. One run per cell; random cells have three seeds.
+Raw rows: round19_rows.json.
 
 | Cell | Total params | HumanEval | MBPP | GSM8K | MMLU |
 |---|---|---|---|---|---|
 | Full model | 30.5B | 91.5 | 84.4 | 91.5 | 77.8 |
+| Full model, 500-step heal (heal control) | 30.5B | 90.9 | 85.6 | 91.5 | 77.5 |
 | Keep 64 by code saliency, no heal | 16.0B | 87.8 | 79.0 | 80.5 | 44.9 |
 | Keep 32 by code saliency, no heal | 8.78B | 57.9 | 55.3 | 2.5 | 26.1 |
-| Keep 32 by code saliency, 500-step heal | 8.78B | 73.8 | 61.9 | 2.0 | 25.6 |
+| Keep 32 by code saliency, healed | 8.78B | 73.8 | 61.9 | 2.0 | 25.6 |
 | Keep 16 by code saliency, no heal | 5.15B | 3.7 | 7.8 | 0.5 | 23.6 |
-| Keep 32 by routing frequency, no heal | 8.78B | 7.9 | 11.7 | 0.0 | 24.4 |
-| Keep 32 by skill-to-general ratio, no heal | 8.78B | 0.0 | 0.0 | 0.0 | 23.9 |
+| Keep 16 by code saliency, healed | 5.15B | 45.7 | 47.9 | 0.5 | 24.1 |
+| Keep 32 by routing frequency | 8.78B | 7.9 | 11.7 | 0.0 | 24.4 |
+| Keep 32 by skill-to-general ratio | 8.78B | 0.0 | 0.0 | 0.0 | 23.9 |
+| Keep 32 by general-text frequency | 8.78B | 0.0 | 0.0 | 0.0 | 24.4 |
 | Keep 32 random, no heal (3 seeds) | 8.78B | 0.0, 0.0, 0.0 | 0.0, 0.0, 0.0 | 0 to 0.5 | 23 to 24 |
-| Keep 32 random, 500-step heal (seed 1) | 8.78B | 11.6 | 23.3 | 2.0 | 24.1 |
+| Keep 32 random, healed (3 seeds) | 8.78B | 6.1, 11.6, 7.9 | 7.4, 23.3, 12.5 | 1.5 to 2.5 | 24 |
 
-Params run per token stay about 3.03B in every cell. Dense slimming of
-Qwen2.5-Coder-7B (full: HumanEval 85.4, MBPP 86.0) to 3.1B and 1.6B
-scores 0 with no heal; its healed cells are still running. The native
-Qwen2.5-Coder-1.5B scores 71.3 and 65.4.
+Dense slimming of Qwen2.5-Coder-7B (full: HumanEval 85.4, MBPP 86.0 at
+7.62B) by removing layers, neurons, and heads ranked on code:
+
+| Cell | Total params | HumanEval | MBPP |
+|---|---|---|---|
+| Slimmed to 3.1B by skill, healed 1000 steps | 3.10B | 3.7 | 17.5 |
+| Slimmed to 3.1B, greedy re-ranking, healed | 3.10B | 6.1 | 17.5 |
+| Slimmed to 3.1B at random, healed | 3.10B | 2.4 | 4.7 |
+| Slimmed to 1.6B by skill, healed | 1.60B | 0.0 | 0.4 |
+| Native Qwen2.5-Coder-3B, same heal | 3.09B | 84.1 | 74.3 |
+| Native Qwen2.5-Coder-1.5B | 1.54B | 71.3 | 65.4 |
+
+Params run per token stay about 3.03B in every MoE cell. Decode speed in
+this harness is 7 to 10 tokens per second for every MoE cell (the
+Hugging Face MoE loop), so no speed claim is made here; modal_serve.py
+measures it with vLLM.
 
 Reading:
-- Selection by saliency (routing weight times the size of what the expert
-  writes, summed over code tokens) is the only ranking that works. Random
-  experts, routing frequency, and the skill-to-general ratio all collapse.
-  This is the first run where a real selection clearly beats random.
+- MoE expert removal works and dense slimming does not. Saliency (routing
+  weight times the size of what the expert writes, summed over code
+  tokens) is the only ranking that holds code; random, frequency, ratio,
+  and general-text rankings all collapse.
 - Half the experts keep code within 4 to 5 points with no training, and
   MMLU falls 33 points in the same model: the other skills are removed.
-- At 32 experts the model keeps 58 and 55, and a 500-step distillation
-  heal on code text brings it to 73.8 and 61.9. The same heal on random
-  experts reaches 11.6 and 23.3.
-- 16 experts per layer collapse without a heal.
-- The 8.78B healed model (73.8, 61.9) does not yet beat Qwen2.5-Coder-7B
-  (85.4, 86.0) at a similar total size, so it is not a model anyone should
-  pick today. It runs 3.0B params per token against 7.6B, which is its
-  only advantage. The 64-expert model is the useful point: 16.0B stored,
-  3.0B run, code within 4 to 5 points of the 30.5B model.
+- The heal is not what keeps the skill: the full model is unchanged by the
+  same heal (90.9 and 85.6), and random experts with the heal stay at 6
+  to 12 HumanEval. On saliency-kept experts the heal recovers 16 points
+  at 32 experts and 42 points at 16.
+- The 8.78B healed model (73.8, 61.9) is below Qwen2.5-Coder-7B (85.4,
+  86.0) at a similar total size, so it is not the model to pick for code
+  today. The 64-expert model is the useful point: 16.0B stored, 3.0B run
+  per token, code within 4 to 5 points of the 30.5B model.
+- Dense slimming of a 7B coder to 3.1B destroys it (3.7 HumanEval) while
+  the native 3B coder scores 84.1. This path stops.

@@ -18,6 +18,7 @@ import hashlib
 import json
 import os
 
+from composer import front_door
 from composer import sizes
 from composer import probes
 from composer.skills import (DEFAULT_DRIFT_TOLERANCE, HEAL_DATA, PROBE_COUNT, SET_NOTES, SKILLS, check_heal_sources,
@@ -47,8 +48,51 @@ def program_hash(program_dict):
     return hashlib.sha256(text.encode()).hexdigest()[:12]
 
 
-def tool_specs():
-    """Function tool definitions for the OpenAI Responses API."""
+def tool_specs(front_door_tools=False):
+    """Function tool definitions for the OpenAI Responses API.
+
+    front_door_tools adds plan_request and compile_plan (requests with a front_door block).
+    """
+    specs = base_tool_specs()
+    if front_door_tools:
+        finish = {"type": "function", "name": "finish",
+                  "description": ("Submit the final choice: a plan_hash from a compile_plan result, or a program_text "
+                                  "you compiled and practiced. Benchmarks score it after this, once."),
+                  "parameters": {"type": "object",
+                                 "properties": {"plan_hash": {"type": ["string", "null"]},
+                                                "program_text": {"type": ["string", "null"]},
+                                                "rationale": {"type": "string",
+                                                              "description": "why this choice, in a few sentences"}},
+                                 "required": ["rationale"], "additionalProperties": False}}
+        specs = specs[:3] + [specs[3]] + front_door_specs() + [finish]
+    return specs
+
+
+def front_door_specs():
+    request_schema = {"type": ["object", "null"], "description": (
+        "a request in the wsp/auto.py format: add (skill, sources or auto, method), remove, keep, limits (limits "
+        "can only tighten). name, base, reported, and seed are fixed. null means the base request.")}
+    settings_schema = {"type": ["object", "null"], "description": (
+        "knobs: " + ", ".join(sorted(front_door.KNOBS)) + " (plan_request lists their ranges)")}
+    return [
+        {"type": "function", "name": "plan_request",
+         "description": ("Ask the Sapien front door for the plan of a request. Returns per source its relation to the "
+                         "base, the valid methods with reasons, size estimates against the limits, the stages, the "
+                         "knobs, and refusals. It reads model configs only, never weights, and costs nothing."),
+         "parameters": {"type": "object", "properties": {"request": request_schema, "settings": settings_schema},
+                        "required": [], "additionalProperties": False}},
+        {"type": "function", "name": "compile_plan",
+         "description": ("Build ONE variant of a request with wsp.auto.make on Modal and return the probe report: "
+                         "transfer per skill, content_z when controls ran, drift, nll change on kept skills, "
+                         "sizes, and verdicts. Never weights. A plan the front door refuses costs nothing; a "
+                         "build costs one unit of the compile budget, shared with compile_and_practice. An "
+                         "identical variant returns its cached result for free."),
+         "parameters": {"type": "object", "properties": {"request": request_schema, "settings": settings_schema},
+                        "required": [], "additionalProperties": False}},
+    ]
+
+
+def base_tool_specs():
     return [
         {
             "type": "function",
@@ -273,8 +317,11 @@ class Toolbox:
     returns a dict (see modal_composer.compile_and_practice).
     """
 
-    def __init__(self, request, sources, practice_fn, language_text):
+    def __init__(self, request, sources, practice_fn, language_text, plan_fn=None, make_fn=None):
         self.request = request
+        self.plan_fn = plan_fn if plan_fn is not None else front_door.default_plan_fn
+        self.make_fn = make_fn
+        self.plan_runs = {}
         self.sources = sources
         self.practice_fn = practice_fn
         self.language_text = language_text
@@ -303,12 +350,133 @@ class Toolbox:
             if "program_text" not in args:
                 return {"ok": False, "error": "compile_and_practice needs program_text"}
             return sanitize(self.compile_and_practice(args["program_text"], args.get("practice_tasks")))
+        if name == "plan_request":
+            return sanitize(self.plan_request(args))
+        if name == "compile_plan":
+            return sanitize(self.compile_plan(args))
         if name == "finish":
-            if "program_text" not in args:
-                return {"ok": False, "error": "finish needs program_text"}
+            if args.get("plan_hash"):
+                return sanitize(self.finish_plan(args["plan_hash"], args.get("rationale", "")))
+            if not args.get("program_text"):
+                return {"ok": False, "error": "finish needs program_text or plan_hash"}
             return sanitize(self.finish(args["program_text"], args.get("rationale", "")))
-        return {"ok": False, "error": f"unknown tool {name!r}; the tools are atlas, catalog, language_reference, "
-                                      f"compile_and_practice, finish"}
+        names = "atlas, catalog, language_reference, compile_and_practice, finish"
+        if front_door.front_door_request(self.request) is not None:
+            names = "atlas, catalog, language_reference, compile_and_practice, plan_request, compile_plan, finish"
+        return {"ok": False, "error": f"unknown tool {name!r}; the tools are {names}"}
+
+    # the front door
+
+    def plan_request(self, args):
+        request, settings, error = front_door.build_variant(self.request, args)
+        if error is not None:
+            return {"ok": False, "stage": "arguments", "error": error}
+        try:
+            plan = self.plan_fn(request, settings)
+        except Exception as exc:
+            return {"ok": False, "stage": "plan", "error": f"the front door failed: {type(exc).__name__}: {str(exc)[:1500]}"}
+        out = front_door.summarize_plan(plan, settings)
+        out["plan_hash"] = front_door.variant_hash(request, settings)
+        out.update(self.budget_note())
+        return out
+
+    def compile_plan(self, args):
+        if self.finished is not None:
+            return {"ok": False, "stage": "finished", "error": "finish was already called"}
+        request, settings, error = front_door.build_variant(self.request, args)
+        if error is not None:
+            return dict({"ok": False, "stage": "arguments", "error": error}, **self.budget_note())
+        if self.make_fn is None:
+            return dict({"ok": False, "stage": "arguments", "error": "no compile backend is set for plans"},
+                        **self.budget_note())
+        try:
+            plan = self.plan_fn(request, settings)
+        except Exception as exc:
+            return dict({"ok": False, "stage": "plan",
+                         "error": f"the front door failed: {type(exc).__name__}: {str(exc)[:1500]}"},
+                        **self.budget_note())
+        key = front_door.variant_hash(request, settings)
+        if not plan["feasible"]:
+            summary = front_door.summarize_plan(plan, settings)
+            return dict({"ok": False, "stage": "refused", "plan_hash": key,
+                         "refusals": summary["refusals"],
+                         "refusal_text": summary.get("refusal_text"), "sources": summary["sources"]},
+                        **self.budget_note())
+        if key in self.plan_runs:
+            out = dict(self.plan_runs[key]["result"])
+            out["cached"] = True
+            out.update(self.budget_note())
+            return out
+        if self.budget_used >= self.budget:
+            return dict({"ok": False, "stage": "budget",
+                         "error": f"the compile budget is spent ({self.budget_used} of {self.budget}). "
+                                  f"Call finish with your best result."}, **self.budget_note())
+        self.budget_used += 1
+        raised = False
+        try:
+            raw = self.make_fn(request, plan, settings)
+        except Exception as exc:
+            raised = True
+            raw = {"ok": False, "errors": [f"plan build failed: {type(exc).__name__}: {str(exc)[:2000]}"]}
+        if not isinstance(raw, dict):
+            raw = {"ok": False, "errors": [f"the build returned {type(raw).__name__}, not a dict"]}
+        reduced = front_door.reduce_report(raw.get("report")) if raw.get("ok") and raw.get("report") else None
+        weights = {skill: self.request["skills"][skill] for skill in self.request["skills"]
+                   if reduced is not None and skill in reduced["transfer"]}
+        summary = None
+        if reduced is not None:
+            drift = (reduced.get("drift") or {}).get("base_kl")
+            summary = probe_summary({"skills": {k: {"transfer": v} for k, v in reduced["transfer"].items()},
+                                     "drift": {"base_kl": drift}}, weights, self.drift_tolerance)
+            full = probe_summary({"skills": {k: {"transfer": v} for k, v in reduced["transfer"].items()},
+                                  "drift": {"base_kl": drift}}, self.request["skills"], self.drift_tolerance)
+        violations = []
+        if reduced is not None:
+            violations += list(reduced["sizes"]["limit_problems"])
+            violations += sizes.check_measured({"params_total_b": reduced["sizes"]["final_total_b"],
+                                                "params_run_b": reduced["sizes"]["final_run_b"]}, self.constraints)
+            for name, cap in [("final_total_b", "max_total_params_b"), ("final_run_b", "max_run_params_b")]:
+                if self.constraints.get(cap) is not None and reduced["sizes"][name] is None:
+                    violations.append(f"the build did not report {name}, so the {cap} cap is not checked")
+        result = {
+            "ok": reduced is not None,
+            "stage": "built" if reduced is not None else "compile",
+            "plan_hash": key,
+            "methods": [stage["method"] for stage in plan["stages"]],
+            "report": reduced,
+            "transfer": summary["transfer"] if summary else None,
+            "drift": summary["drift"] if summary else None,
+            "practice_objective": summary["objective"] if summary else None,
+            "request_objective": full["objective"] if summary else None,
+            "errors": raw.get("errors") or [],
+            "within_constraints": reduced is not None and len(violations) == 0,
+            "violations": violations,
+        }
+        if reduced is None and not result["errors"]:
+            result["errors"] = ["the build returned no report"]
+        if not raised:
+            self.plan_runs[key] = {"request": request, "settings": settings, "result": result,
+                                   "model_dir": raw.get("model_dir")}
+        out = dict(result)
+        out.update(self.budget_note())
+        return out
+
+    def finish_plan(self, plan_hash, rationale):
+        if self.finished is not None:
+            return {"ok": False, "error": "finish was already called"}
+        entry = self.plan_runs.get(plan_hash)
+        if entry is None or not entry["result"]["within_constraints"]:
+            good = [{"plan_hash": k, "request_objective": v["result"].get("request_objective")}
+                    for k, v in self.plan_runs.items() if v["result"]["within_constraints"]]
+            return {"ok": False, "error": "finish needs a plan_hash from a compile_plan result that is within the "
+                                          "constraints. Results that qualify: " + json.dumps(good)}
+        self.finished = {"program_text": None, "program": None, "plan_variant": {"request": entry["request"],
+                                                                                 "settings": entry["settings"]},
+                         "rationale": rationale, "program_hash": None, "plan_hash": plan_hash,
+                         "practice": entry["result"], "model_dir": entry["model_dir"], "no_model": False,
+                         "fallback": False}
+        return {"ok": True, "plan_hash": plan_hash,
+                "note": "submitted; the request is saved to run through modal_sapien.py for the scored comparison"}
 
     # atlas
 
@@ -663,6 +831,17 @@ class Toolbox:
     def fallback_finish(self, reason):
         """When the loop stops without finish, submit the best practiced program."""
         runs = self.good_runs()
+        plans = [(k, v) for k, v in self.plan_runs.items() if v["result"]["within_constraints"]]
+        plans.sort(key=lambda kv: kv[1]["result"].get("request_objective") or 0.0, reverse=True)
+        if plans and (len(runs) == 0 or (plans[0][1]["result"].get("request_objective") or 0.0) >
+                      (runs[0]["result"].get("request_objective") or 0.0)):
+            key, entry = plans[0]
+            self.finished = {"program_text": None, "program": None, "plan_variant": {"request": entry["request"],
+                                                                                     "settings": entry["settings"]},
+                             "rationale": reason + " (best built plan chosen by the loop)", "program_hash": None,
+                             "plan_hash": key, "practice": entry["result"], "model_dir": entry["model_dir"],
+                             "no_model": False, "fallback": True}
+            return self.finished
         if len(runs) == 0:
             self.finished = {"program_text": None, "program": None, "rationale": reason, "program_hash": None,
                              "practice": None, "model_dir": None, "no_model": True, "fallback": True}
