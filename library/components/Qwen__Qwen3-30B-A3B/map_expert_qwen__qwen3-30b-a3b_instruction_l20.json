@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_qwen__qwen3-30b-a3b_instruction_l20",
+  "kind": "expert",
+  "title": "Qwen3-30B-A3B layer 20, 8 experts for instruction (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "instruction"
+  ],
+  "models": [
+    "Qwen/Qwen3-30B-A3B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 20 of Qwen3-30B-A3B on 'instruction' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.07271,
+      "control_value": 0.00087,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 20 of Qwen3-30B-A3B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 4.46824,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 4.69678,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "Qwen/Qwen3-30B-A3B",
+  "layer": 20,
+  "layers": [
+    20
+  ],
+  "units_file": "components/Qwen__Qwen3-30B-A3B/map_expert_qwen__qwen3-30b-a3b_instruction_l20.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "instruction",
+    "data": "yahma/alpaca-cleaned train: general instruction following",
+    "n_units": 8,
+    "experts": [
+      52,
+      107,
+      7,
+      49,
+      26,
+      46,
+      71,
+      42
+    ],
+    "details": [
+      {
+        "expert": 52,
+        "skill_freq": 0.014828,
+        "general_freq": 0.0,
+        "log_ratio": 5.0058,
+        "heldout_log_ratio": 4.9348
+      },
+      {
+        "expert": 107,
+        "skill_freq": 0.145463,
+        "general_freq": 0.000923,
+        "log_ratio": 4.9579,
+        "heldout_log_ratio": 7.1298
+      },
+      {
+        "expert": 7,
+        "skill_freq": 0.012752,
+        "general_freq": 0.0,
+        "log_ratio": 4.8561,
+        "heldout_log_ratio": 5.0602
+      },
+      {
+        "expert": 49,
+        "skill_freq": 0.011862,
+        "general_freq": 0.0,
+        "log_ratio": 4.7843,
+        "heldout_log_ratio": 4.769
+      },
+      {
+        "expert": 26,
+        "skill_freq": 0.08274,
+        "general_freq": 0.000923,
+        "log_ratio": 4.3942,
+        "heldout_log_ratio": 4.2908
+      },
+      {
+        "expert": 46,
+        "skill_freq": 0.270759,
+        "general_freq": 0.004306,
+        "log_ratio": 4.1186,
+        "heldout_log_ratio": 4.7477
+      },
+      {
+        "expert": 71,
+        "skill_freq": 0.020166,
+        "general_freq": 0.000308,
+        "log_ratio": 3.9054,
+        "heldout_log_ratio": 4.0387
+      },
+      {
+        "expert": 42,
+        "skill_freq": 0.023132,
+        "general_freq": 0.000461,
+        "log_ratio": 3.7236,
+        "heldout_log_ratio": 2.6032
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "yahma/alpaca-cleaned train: general instruction following",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 30.53,
+  "n_layers": 48,
+  "hidden": 2048,
+  "family": "qwen3_moe",
+  "architecture": "Qwen3MoeForCausalLM",
+  "license": "apache-2.0",
+  "revision": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39"
+}

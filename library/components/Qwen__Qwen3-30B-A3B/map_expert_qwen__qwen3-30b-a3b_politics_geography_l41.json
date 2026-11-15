@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_qwen__qwen3-30b-a3b_politics_geography_l41",
+  "kind": "expert",
+  "title": "Qwen3-30B-A3B layer 41, 8 experts for politics_geography (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "politics_geography"
+  ],
+  "models": [
+    "Qwen/Qwen3-30B-A3B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 41 of Qwen3-30B-A3B on 'politics_geography' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.13103,
+      "control_value": 0.00385,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 41 of Qwen3-30B-A3B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 3.63186,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 3.96329,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "Qwen/Qwen3-30B-A3B",
+  "layer": 41,
+  "layers": [
+    41
+  ],
+  "units_file": "components/Qwen__Qwen3-30B-A3B/map_expert_qwen__qwen3-30b-a3b_politics_geography_l41.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "politics_geography",
+    "data": "cais/mmlu all test (subjects: high_school_government_and_politics, us_foreign_policy, public_relations, security_studies, high_school_geography, global_facts): politics geography questions, correct answer text",
+    "n_units": 8,
+    "experts": [
+      94,
+      41,
+      83,
+      102,
+      29,
+      96,
+      120,
+      116
+    ],
+    "details": [
+      {
+        "expert": 94,
+        "skill_freq": 0.063325,
+        "general_freq": 0.000308,
+        "log_ratio": 5.0463,
+        "heldout_log_ratio": 6.5038
+      },
+      {
+        "expert": 41,
+        "skill_freq": 0.012062,
+        "general_freq": 0.0,
+        "log_ratio": 4.8009,
+        "heldout_log_ratio": 4.7195
+      },
+      {
+        "expert": 83,
+        "skill_freq": 0.176027,
+        "general_freq": 0.003691,
+        "log_ratio": 3.8386,
+        "heldout_log_ratio": 3.8933
+      },
+      {
+        "expert": 102,
+        "skill_freq": 0.651715,
+        "general_freq": 0.014611,
+        "log_ratio": 3.7912,
+        "heldout_log_ratio": 2.9283
+      },
+      {
+        "expert": 29,
+        "skill_freq": 0.009046,
+        "general_freq": 0.000154,
+        "log_ratio": 3.5837,
+        "heldout_log_ratio": 4.5668
+      },
+      {
+        "expert": 96,
+        "skill_freq": 0.011119,
+        "general_freq": 0.000308,
+        "log_ratio": 3.3141,
+        "heldout_log_ratio": 4.8204
+      },
+      {
+        "expert": 120,
+        "skill_freq": 0.088579,
+        "general_freq": 0.008151,
+        "log_ratio": 2.3747,
+        "heldout_log_ratio": 1.6583
+      },
+      {
+        "expert": 116,
+        "skill_freq": 0.036374,
+        "general_freq": 0.003537,
+        "log_ratio": 2.3054,
+        "heldout_log_ratio": 2.6159
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: high_school_government_and_politics, us_foreign_policy, public_relations, security_studies, high_school_geography, global_facts): politics geography questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 30.53,
+  "n_layers": 48,
+  "hidden": 2048,
+  "family": "qwen3_moe",
+  "architecture": "Qwen3MoeForCausalLM",
+  "license": "apache-2.0",
+  "revision": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39"
+}

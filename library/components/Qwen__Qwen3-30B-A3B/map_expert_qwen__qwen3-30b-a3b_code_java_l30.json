@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_qwen__qwen3-30b-a3b_code_java_l30",
+  "kind": "expert",
+  "title": "Qwen3-30B-A3B layer 30, 8 experts for code_java (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "code_java"
+  ],
+  "models": [
+    "Qwen/Qwen3-30B-A3B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 30 of Qwen3-30B-A3B on 'code_java' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.32111,
+      "control_value": 2e-05,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 30 of Qwen3-30B-A3B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 7.89164,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 8.02331,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "Qwen/Qwen3-30B-A3B",
+  "layer": 30,
+  "layers": [
+    30
+  ],
+  "units_file": "components/Qwen__Qwen3-30B-A3B/map_expert_qwen__qwen3-30b-a3b_code_java_l30.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "code_java",
+    "data": "ise-uiuc/Magicoder-OSS-Instruct-75K train (lang=java): java solutions to programming tasks",
+    "n_units": 8,
+    "experts": [
+      68,
+      80,
+      59,
+      50,
+      45,
+      5,
+      40,
+      81
+    ],
+    "details": [
+      {
+        "expert": 68,
+        "skill_freq": 0.450228,
+        "general_freq": 0.0,
+        "log_ratio": 8.4126,
+        "heldout_log_ratio": 8.5167
+      },
+      {
+        "expert": 80,
+        "skill_freq": 0.403883,
+        "general_freq": 0.0,
+        "log_ratio": 8.304,
+        "heldout_log_ratio": 8.341
+      },
+      {
+        "expert": 59,
+        "skill_freq": 0.321351,
+        "general_freq": 0.0,
+        "log_ratio": 8.0754,
+        "heldout_log_ratio": 7.9975
+      },
+      {
+        "expert": 50,
+        "skill_freq": 0.300854,
+        "general_freq": 0.0,
+        "log_ratio": 8.0095,
+        "heldout_log_ratio": 8.1147
+      },
+      {
+        "expert": 45,
+        "skill_freq": 0.243147,
+        "general_freq": 0.0,
+        "log_ratio": 7.7967,
+        "heldout_log_ratio": 7.8305
+      },
+      {
+        "expert": 5,
+        "skill_freq": 0.194277,
+        "general_freq": 0.0,
+        "log_ratio": 7.5724,
+        "heldout_log_ratio": 7.5828
+      },
+      {
+        "expert": 40,
+        "skill_freq": 0.493087,
+        "general_freq": 0.000154,
+        "log_ratio": 7.5713,
+        "heldout_log_ratio": 8.3844
+      },
+      {
+        "expert": 81,
+        "skill_freq": 0.162058,
+        "general_freq": 0.0,
+        "log_ratio": 7.3912,
+        "heldout_log_ratio": 7.4189
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "ise-uiuc/Magicoder-OSS-Instruct-75K train (lang=java): java solutions to programming tasks",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 30.53,
+  "n_layers": 48,
+  "hidden": 2048,
+  "family": "qwen3_moe",
+  "architecture": "Qwen3MoeForCausalLM",
+  "license": "apache-2.0",
+  "revision": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39"
+}

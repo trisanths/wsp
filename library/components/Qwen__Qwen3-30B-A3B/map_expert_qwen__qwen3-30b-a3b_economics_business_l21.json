@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_qwen__qwen3-30b-a3b_economics_business_l21",
+  "kind": "expert",
+  "title": "Qwen3-30B-A3B layer 21, 8 experts for economics_business (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "economics_business"
+  ],
+  "models": [
+    "Qwen/Qwen3-30B-A3B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 21 of Qwen3-30B-A3B on 'economics_business' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.19494,
+      "control_value": 0.00154,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 21 of Qwen3-30B-A3B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 5.18154,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 5.19573,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "Qwen/Qwen3-30B-A3B",
+  "layer": 21,
+  "layers": [
+    21
+  ],
+  "units_file": "components/Qwen__Qwen3-30B-A3B/map_expert_qwen__qwen3-30b-a3b_economics_business_l21.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "economics_business",
+    "data": "cais/mmlu all test (subjects: high_school_macroeconomics, high_school_microeconomics, econometrics, business_ethics, management, marketing, professional_accounting): economics business questions, correct answer text",
+    "n_units": 8,
+    "experts": [
+      18,
+      88,
+      77,
+      13,
+      15,
+      101,
+      16,
+      58
+    ],
+    "details": [
+      {
+        "expert": 18,
+        "skill_freq": 0.106097,
+        "general_freq": 0.0,
+        "log_ratio": 6.9679,
+        "heldout_log_ratio": 6.8065
+      },
+      {
+        "expert": 88,
+        "skill_freq": 0.065229,
+        "general_freq": 0.0,
+        "log_ratio": 6.482,
+        "heldout_log_ratio": 6.3502
+      },
+      {
+        "expert": 77,
+        "skill_freq": 0.419995,
+        "general_freq": 0.001999,
+        "log_ratio": 5.299,
+        "heldout_log_ratio": 5.3851
+      },
+      {
+        "expert": 13,
+        "skill_freq": 0.054047,
+        "general_freq": 0.000308,
+        "log_ratio": 4.8882,
+        "heldout_log_ratio": 6.1955
+      },
+      {
+        "expert": 15,
+        "skill_freq": 0.455671,
+        "general_freq": 0.003691,
+        "log_ratio": 4.7894,
+        "heldout_log_ratio": 5.1435
+      },
+      {
+        "expert": 101,
+        "skill_freq": 0.008919,
+        "general_freq": 0.0,
+        "log_ratio": 4.5019,
+        "heldout_log_ratio": 4.003
+      },
+      {
+        "expert": 16,
+        "skill_freq": 0.007188,
+        "general_freq": 0.0,
+        "log_ratio": 4.2888,
+        "heldout_log_ratio": 4.2328
+      },
+      {
+        "expert": 58,
+        "skill_freq": 0.442359,
+        "general_freq": 0.006306,
+        "log_ratio": 4.2351,
+        "heldout_log_ratio": 3.4492
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: high_school_macroeconomics, high_school_microeconomics, econometrics, business_ethics, management, marketing, professional_accounting): economics business questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 30.53,
+  "n_layers": 48,
+  "hidden": 2048,
+  "family": "qwen3_moe",
+  "architecture": "Qwen3MoeForCausalLM",
+  "license": "apache-2.0",
+  "revision": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39"
+}

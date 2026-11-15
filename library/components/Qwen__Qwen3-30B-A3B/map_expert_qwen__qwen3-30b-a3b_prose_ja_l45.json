@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_qwen__qwen3-30b-a3b_prose_ja_l45",
+  "kind": "expert",
+  "title": "Qwen3-30B-A3B layer 45, 8 experts for prose_ja (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "prose_ja"
+  ],
+  "models": [
+    "Qwen/Qwen3-30B-A3B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 45 of Qwen3-30B-A3B on 'prose_ja' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.49932,
+      "control_value": 6e-05,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 45 of Qwen3-30B-A3B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 8.06288,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 8.17158,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "Qwen/Qwen3-30B-A3B",
+  "layer": 45,
+  "layers": [
+    45
+  ],
+  "units_file": "components/Qwen__Qwen3-30B-A3B/map_expert_qwen__qwen3-30b-a3b_prose_ja_l45.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "prose_ja",
+    "data": "wikimedia/wikipedia 20231101.ja train: Japanese encyclopedia text continuation",
+    "n_units": 8,
+    "experts": [
+      9,
+      57,
+      122,
+      68,
+      62,
+      59,
+      69,
+      79
+    ],
+    "details": [
+      {
+        "expert": 9,
+        "skill_freq": 0.717401,
+        "general_freq": 0.0,
+        "log_ratio": 8.8784,
+        "heldout_log_ratio": 8.9137
+      },
+      {
+        "expert": 57,
+        "skill_freq": 0.630986,
+        "general_freq": 0.0,
+        "log_ratio": 8.75,
+        "heldout_log_ratio": 8.8176
+      },
+      {
+        "expert": 122,
+        "skill_freq": 0.556607,
+        "general_freq": 0.0,
+        "log_ratio": 8.6246,
+        "heldout_log_ratio": 8.6613
+      },
+      {
+        "expert": 68,
+        "skill_freq": 0.42971,
+        "general_freq": 0.0,
+        "log_ratio": 8.3659,
+        "heldout_log_ratio": 8.3869
+      },
+      {
+        "expert": 62,
+        "skill_freq": 0.37138,
+        "general_freq": 0.0,
+        "log_ratio": 8.2201,
+        "heldout_log_ratio": 8.38
+      },
+      {
+        "expert": 59,
+        "skill_freq": 0.276683,
+        "general_freq": 0.0,
+        "log_ratio": 7.9258,
+        "heldout_log_ratio": 7.9764
+      },
+      {
+        "expert": 69,
+        "skill_freq": 0.957718,
+        "general_freq": 0.000461,
+        "log_ratio": 7.4427,
+        "heldout_log_ratio": 7.7725
+      },
+      {
+        "expert": 79,
+        "skill_freq": 0.054112,
+        "general_freq": 0.0,
+        "log_ratio": 6.2955,
+        "heldout_log_ratio": 6.4642
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "wikimedia/wikipedia 20231101.ja train: Japanese encyclopedia text continuation",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 30.53,
+  "n_layers": 48,
+  "hidden": 2048,
+  "family": "qwen3_moe",
+  "architecture": "Qwen3MoeForCausalLM",
+  "license": "apache-2.0",
+  "revision": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39"
+}
