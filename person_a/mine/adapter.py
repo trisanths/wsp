@@ -108,6 +108,25 @@ def describe(model, config):
                     if down2 is not None:
                         entry["mlp"] = {"path": mn + "." + sub_name + "." + dn2, "width": down2.in_features,
                                         "note": "shared expert"}
+        if "experts" not in entry:
+            # Some models keep the experts outside the MLP module (Gemma 4: layer.experts next to
+            # layer.mlp) or under another block name. Search the whole layer for a fused experts module.
+            for path, sub in layer.named_modules():
+                if path and is_experts_module(sub):
+                    n_exp = None
+                    for pname, p in sub.named_parameters(recurse=False):
+                        if p.dim() == 3:
+                            n_exp = int(p.shape[0])
+                            break
+                    entry["experts"] = {"path": path, "n_experts": n_exp}
+                    break
+        if "experts" not in entry:
+            # Older MoE code (DeepSeek-V3 style, e.g. G9v3): a ModuleList of per-expert MLPs named
+            # "experts"; the block multiplies each expert output by its routing weight.
+            for path, sub in layer.named_modules():
+                if path.split(".")[-1] == "experts" and isinstance(sub, torch.nn.ModuleList) and len(sub) > 1:
+                    entry["experts"] = {"path": path, "n_experts": len(sub), "style": "module_list"}
+                    break
         info["layers"].append(entry)
     return info, layers
 
@@ -183,6 +202,15 @@ def install(info, layers, part, handles):
         return
     layer = int(part["layer"])
     entry = info["layers"][layer]
+    if kind == "expert" and entry["experts"].get("style") == "module_list":
+        experts = get_module(layers[layer], entry["experts"]["path"])
+
+        def zero_out(module, args, output):
+            # the block scales this output by the routing weight, so zero output = expert removed
+            return torch.zeros_like(output)
+        for i in part["indices"]:
+            handles.append(experts[int(i)].register_forward_hook(zero_out))
+        return
     if kind == "expert":
         mod = get_module(layers[layer], entry["experts"]["path"])
         banned = torch.tensor([int(i) for i in part["indices"]], dtype=torch.long)
