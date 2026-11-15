@@ -392,7 +392,11 @@ def test_heal_and_train_use_the_synth_path_too(modal_client):
     for name, args in modal_client.modal_calls:
         if name == "synth_remote" and args[0]["grafts"][0]["control"] is None:
             sent.append(args[0])
-    assert sent[0]["heal"]["steps"] == 300 and sent[1]["lora"]["rank"] == 16
+    # Heal and Train run the same program on a build with parts: the default heal and no host LoRA.
+    assert len(sent) >= 1
+    assert sent[0]["heal"]["steps"] == 300
+    for program_sent in sent:
+        assert program_sent.get("lora") is None
 
 
 def test_the_heal_warning_only_goes_with_classic_results(modal_client, monkeypatch):

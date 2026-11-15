@@ -346,8 +346,15 @@ def test_builder_actions_and_suggestions(client):
 
     healed = run_job("heal", good_program(client, heal=False))
     assert healed["result"]["program"]["heal"]["steps"] == 300
+    # Train on a program with parts runs the synthesis heal and adds no host LoRA.
     trained = run_job("train", program)
-    assert trained["result"]["program"]["lora"]["rank"] == 16
+    assert trained["result"]["program"].get("lora") is None
+    assert trained["result"]["program"]["heal"] is not None
+    # Train with no parts is the plain fine-tuning baseline: the host plus a LoRA and a heal.
+    baseline = run_job("train", ps.make_program(HOST))
+    assert baseline["status"] == "done", baseline
+    assert baseline["result"]["program"]["lora"]["rank"] == 16
+    assert baseline["result"]["program"]["heal"] is not None
 
     bare = good_program(client, heal=False)
     response = client.post("/api/builder/" + builder_id + "/suggest", json={"program": bare})
@@ -536,11 +543,17 @@ def test_modal_builder_scores_a_graft_program(modal_client):
         names.append(name)
     assert names[:2] == ["probe_remote", "synth_remote"]
 
+    # Train on a program with parts is the synthesis heal: it adds a heal and no host LoRA,
+    # because the swarm allows a host LoRA only on a program with no grafts.
+    # This program already has a heal, so Train runs the same program as Score did.
     trained = run_builder_job(modal_client, builder_id, program, "train")
     assert trained["status"] == "done", trained
-    sent = modal_client.modal_calls[-1][1][0]
-    assert len(sent["grafts"]) == 1
-    assert sent["lora"]["rank"] == 16
+    assert trained["result"]["status"] in ("ok", "cache_hit")
+    assert trained["result"]["program"].get("lora") is None
+    assert trained["result"]["program"]["heal"] is not None
+    for name, args in modal_client.modal_calls:
+        if name == "synth_remote":
+            assert args[0].get("lora") is None
 
 
 def test_modal_builder_refuses_taps(modal_client):

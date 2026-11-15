@@ -174,13 +174,20 @@ def check_limits(session, program):
 
 
 def program_for_action(session, program, action):
-    """The program an action runs. Heal and train add a default heal (train adds a LoRA too).
+    """The program an action runs. Heal and train add a default heal.
 
-    The limits are checked on this program, so the default heal steps count against the heal limit.
+    Train on a program with parts is the synthesis heal (it trains its own
+    adapters), so it adds no LoRA: the swarm's rules allow a host LoRA only
+    on a program with no grafts, where it is the plain fine-tuning baseline.
+    Train on a program with no parts is that baseline: the host plus a LoRA.
+    The limits are checked on this program, so the default heal steps count
+    against the heal limit.
     """
     if action == "heal":
         return with_default_heal(session, program)
     if action == "train":
+        if len(ps.grafts(program)) > 0:
+            return with_default_heal(session, program)
         return with_default_heal(session, with_lora(program))
     return program
 
@@ -237,10 +244,7 @@ def run_action(session, action, program):
     with session.lock:
         if action == "compile":
             return compile_result(session, program)
-        if action == "heal":
-            program = with_default_heal(session, program)
-        if action == "train":
-            program = with_default_heal(session, with_lora(program))
+        program = program_for_action(session, program, action)
         result = score_result(session, program)
         session.last_result = {"scores": result.get("scores"), "status": result.get("status"),
                                "control": result.get("control")}
