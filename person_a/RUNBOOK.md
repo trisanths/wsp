@@ -103,9 +103,40 @@ All your models in parallel:
   - `model`, `layer`/`layers`, `units` (path to the `.pt` index file), `d_model`
   - `signature` (score drops per skill)
   - whether the label was built-in or agent-defined, and the agent's weight rationale
+  - in `signature`: `z` (the target drop on the search half as a z-score against the random same-size
+    parts: the drop minus their mean, divided by their sample standard deviation; null with fewer than
+    2 random drops or when they are all equal), `random_n`, `random_mean`, `random_std`
+  - in `signature`: `z_heldout` and `random_heldout` (the same for the held-out half; null while the
+    engine scores random parts on the search half only)
+  - in `signature`: `guard` (for `search` and for `heldout`: the skill, other than the target and its
+    own control, whose score moved most when the part was off, as `skill`, `drop`, `abs`)
+  - `selection_data` (the data the part was selected on): `skill`, `source` (`agent` | `builtin` |
+    `pool`), `path` and `hash` of the frozen test for an agent skill, `description`, `datasets`,
+    `control`, `off_target` (the other skills the gate checked) with `off_target_data`, `pool` (the
+    text pool of `wsp/healdata.py` that matches the skill, or null) with `pool_match`, and
+    `reported_benchmarks` (the dataset ids in the selection data that are in the `BANNED` list of
+    `wsp/healdata.py`; null means not checked). `builtin_basis` says where the built-in
+    descriptions came from: `engine`, `local file`, or `git history`.
+  - `routing` (expert parts only): for each expert, `skill_rate` and `general_rate` (router picks per
+    token on the target skill's text and on `general_text`) and their `log_ratio`, for `search` and
+    `heldout`. It is null, with the reason in `routing_note`, when the engine cannot count the picks
+    (`module_list` experts, or a deployment older than `expert_pick_rates`).
+  - `enriched_at`: set on rows that `mine/enrich_rows.py` filled in after they were written
 - `parts/<short_name>/*.pt`: index files `{kind, model, layer, indices}`.
 - `mine/skills/<short_name>/`: the tests the agent wrote for its own labels. These are frozen and hashed.
 - `logs/<short_name>/`: the run transcript, experiment log and cost.
+
+Rows written before these fields existed get them from the stored numbers, with no GPU call:
+```bash
+.venv/bin/python mine/enrich_rows.py --model <short_name>      # repeat --model for more models
+```
+It keeps every field and the row order, and it never touches `*.rejected.jsonl`. It refuses a model
+whose `logs/<short_name>/` changed in the last 10 minutes (a live run), unless you pass `--force`.
+A fresh `git pull` or checkout also gives the log files new times, so wait 10 minutes after one.
+`--routing` also fills `routing` for expert rows; that one flag calls the GPU engine. For rows without
+an engine-reported description, the built-in sets are taken from the git history of
+`mine/data/builtin_skills.json` at the row's `created` time. If you know when the engine began to use
+a version, pass `--live-since <commit>=<YYYY-MM-DDTHH:MM:SS>`.
 
 ## 7. Push your results (no merge conflicts by design)
 Every model writes only its **own** files, so teammates never edit the same file.

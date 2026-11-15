@@ -17,6 +17,8 @@ Every ablation scores all active skills in one teacher-forced pass, measured as 
 | `engine_app.py` | Deployed Modal class `Engine(model_key, hf_id, revision)`. Loads the donor and scores skills. Runs ablations, random baselines, activation/attribution/routing scans, and the optional math generation check. The client chooses the GPU per call through `with_options`. |
 | `adapter.py` | Discovers layers, attention out-projections (heads), MLP down-projections and MoE expert modules, then installs zero-ablation hooks (see below). |
 | `client.py` | `Miner`: pinned revision, state, skill payloads, light gate, catalog and `.pt` writer. |
+| `evidence.py` | Evidence fields of a catalog row, from stored numbers: z-score against random parts, guard, `selection_data`, expert routing. |
+| `enrich_rows.py` | Backfills those fields into existing `catalog/<model>.jsonl` rows. No GPU call unless `--routing` is given. |
 | `skills.py` | `define_skill`: agent-written tests, with the generator run in the sandbox, a matched control, a chance check and freezing. |
 | `agent.py` | OpenAI Responses tool loop (weight-first unlock, budgets, notes, cost log). |
 | `weight_sandbox.py`, `wsp_helpers.py` | The weight sandbox. Its weights come from the engine's HF cache on the `swarmy-models` volume, at the pinned snapshot. |

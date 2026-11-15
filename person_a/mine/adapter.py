@@ -152,6 +152,46 @@ def summarize(info):
     return {"n_layers": info["n_layers"], "d_model": info["d_model"], "layers_with": counts, "example": first}
 
 
+def expert_count_layers(info, layers=None):
+    # Splits the wanted layers (all layers when `layers` is empty) into those whose router picks a
+    # pre-hook can count, and those it cannot, with the reason. Fused experts get the router's top-k
+    # indices as a call argument. The "module_list" style gives them to no module this adapter knows,
+    # so those layers are reported and never counted.
+    counted = []
+    unsupported = {}
+    wanted = [int(l) for l in (layers or [])]
+    for l in wanted:
+        if l < 0 or l >= info["n_layers"]:
+            unsupported[str(l)] = "layer out of range"
+    for e in info["layers"]:
+        if wanted and e["layer"] not in wanted:
+            continue
+        if "experts" not in e:
+            if wanted:
+                unsupported[str(e["layer"])] = "layer has no experts module this adapter supports"
+            continue
+        if e["experts"].get("style") == "module_list":
+            unsupported[str(e["layer"])] = "module_list experts: the router's picks are not visible to a hook"
+            continue
+        counted.append(e["layer"])
+    return counted, unsupported
+
+
+def pick_rates(sums):
+    # sums: {layer: {"sum": picks per expert (tensor), "n": tokens counted}}, as the engine's routing
+    # hook fills it. Returns per layer the picks per counted token for each expert, so the rates of one
+    # layer add up to the router's top-k. A layer with no counted token gives None.
+    out = {}
+    for l in sums:
+        n = float(sums[l]["n"])
+        if n <= 0:
+            out[str(l)] = None
+            continue
+        freq = (sums[l]["sum"].float() / n).cpu().tolist()
+        out[str(l)] = {"rates": [round(float(x), 6) for x in freq], "tokens": int(n)}
+    return out
+
+
 def check_part(info, part):
     kind = part.get("kind")
     n = info["n_layers"]

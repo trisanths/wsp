@@ -8,6 +8,7 @@ import time
 import modal
 
 import common
+import evidence
 
 MAX_AGENT_SKILLS = 8
 # built-in skills are standard benchmarks; a lower bar is enough to say "not at chance"
@@ -19,6 +20,8 @@ GATE_MIN_TARGET_DROP = 0.15
 GATE_N_RANDOM = 5
 # "confirmed" tier (optional, math only): relative greedy-accuracy drop on 40 GSM8K problems
 CONFIRM_MIN_DROP = 0.20
+# items per skill half for the router pick rates of an expert part (the count skill_maps uses)
+ROUTING_ITEMS = 64
 
 
 class Miner:
@@ -128,9 +131,84 @@ class Miner:
         common.log_event(self.short, "confirm_math", {"part": part_brief(part)}, res)
         return res
 
+    # ---------- evidence for catalog rows ----------
+
+    def engine_builtin(self):
+        # The built-in skill sets as the deployed engine holds them (its image keeps the file from
+        # deploy time). None when the engine cannot be asked, for example a deployment older than
+        # builtin_info. Asked once per process: a redeploy between runs must be seen.
+        if "_engine_builtin" not in self.__dict__:
+            try:
+                self._engine_builtin = self.call("builtin_info")
+            except Exception as e:
+                self._engine_builtin = None
+                common.log_event(self.short, "builtin_info_failed", {},
+                                 {"error": type(e).__name__ + ": " + str(e)[:200]})
+        return self._engine_builtin
+
+    def skill_sources(self):
+        # (lookup, builtin_basis) for evidence.selection_data
+        described = self.engine_builtin()
+        if described:
+            builtin = evidence.builtin_sources(described, evidence.local_builders())
+            basis = "engine"
+        else:
+            builtin = evidence.local_builtin()
+            basis = "local file"
+        return evidence.make_lookup(self.agent_skills(), builtin), basis
+
+    def expert_routing(self, part, target, extra_skills=None):
+        # Router pick rates of an expert part on the target skill's text and on general text.
+        # Returns (routing, note) and never raises: the row must be written even when the engine is
+        # a deployment without expert_pick_rates. extra_skills: payload specs for skills that this
+        # state file does not hold (enrich_rows.py passes the frozen test of an agent skill).
+        names = [target, evidence.ROUTING_REFERENCE]
+        try:
+            known = self.payload(include_skipped=True)["skills"]
+            known.update(extra_skills or {})
+            skills = {}
+            for name in names:
+                if name in known:
+                    skills[name] = known[name]
+            res = self.call("expert_pick_rates", {"skills": skills}, names, [int(part["layer"])], ROUTING_ITEMS)
+            routing, note = evidence.routing_fields(part["indices"], part["layer"], target, res)
+        except Exception as e:
+            routing = None
+            note = ("no routing: engine call expert_pick_rates failed (a deployment older than this method?): "
+                    + type(e).__name__ + ": " + str(e)[:160])
+        common.log_event(self.short, "expert_routing", {"part": part_brief(part), "target": target},
+                         {"ok": routing is not None, "note": note})
+        return routing, note
+
     # ---------- catalog ----------
 
+    def catalog_rows(self):
+        path = common.catalog_path(self.short)
+        rows = []
+        if os.path.exists(path):
+            with open(path) as f:
+                for line in f:
+                    line = line.strip()
+                    if line:
+                        rows.append(json.loads(line))
+        return rows
+
     def write_part(self, part, label, target, screen_result, evidence_used, weight_rationale, tier, confirm=None):
+        # Engine calls for the evidence fields happen here, before the lock: a GPU call can take
+        # minutes on a cold container, and the lock must stay short for the other lanes.
+        sources = self.skill_sources()
+        routing = None
+        if part["kind"] == "expert":
+            key = part_key(part)
+            known = False
+            try:
+                for rec in self.catalog_rows():
+                    if rec.get("part_key") == key and rec.get("label") == label:
+                        known = True  # already catalogued: the locked step returns that row as it is
+            except ValueError:
+                pass  # read without the lock: another lane may be half-way through a line
+            if not known:
+                routing = self.expert_routing(part, target)
         # parallel agents on the same model share catalog/<model>.jsonl: hold a file lock while
         # choosing the id and appending, so two agents never write the same id
         import fcntl
@@ -140,22 +218,18 @@ class Miner:
             fcntl.flock(lock_file, fcntl.LOCK_EX)
             try:
                 return self._write_part_locked(part, label, target, screen_result, evidence_used,
-                                               weight_rationale, tier, confirm)
+                                               weight_rationale, tier, confirm, sources, routing)
             finally:
                 fcntl.flock(lock_file, fcntl.LOCK_UN)
 
     def _write_part_locked(self, part, label, target, screen_result, evidence_used, weight_rationale, tier,
-                           confirm=None):
+                           confirm=None, sources=None, routing=None):
+        # sources: (lookup, builtin_basis) from skill_sources. routing: (routing, note) from
+        # expert_routing, or None when it was not asked for.
         import torch
 
         path = common.catalog_path(self.short)
-        existing = []
-        if os.path.exists(path):
-            with open(path) as f:
-                for line in f:
-                    line = line.strip()
-                    if line:
-                        existing.append(json.loads(line))
+        existing = self.catalog_rows()
         key = part_key(part)
         for rec in existing:
             if rec.get("part_key") == key and rec.get("label") == label:
@@ -191,6 +265,13 @@ class Miner:
             spec = self.agent_skills()[target]
             skill_info = {"source": "agent", "path": spec["path"], "hash": spec["hash"],
                           "description": spec["description"]}
+        # z-scores against the random parts and the largest side effect, next to the raw numbers
+        signature = {"effect": screen_result["drops"], "random_drops": screen_result["random_drops"],
+                     "gate": screen_result["gate"], "confirm": confirm}
+        signature.update(evidence.signature_fields(screen_result["drops"], screen_result["random_drops"], target))
+        if sources is None:
+            sources = (evidence.make_lookup(self.agent_skills(), evidence.local_builtin()), "local file")
+        lookup, basis = sources
         record = {
             "id": part_id,
             "type": part["kind"],
@@ -203,8 +284,7 @@ class Miner:
             "units": os.path.relpath(pt_path, common.ROOT),
             "num_units": len(part["layers"]) if part["kind"] == "block" else len(part["indices"]),
             "skill": dict(skill_info, name=target),
-            "signature": {"effect": screen_result["drops"], "random_drops": screen_result["random_drops"],
-                          "gate": screen_result["gate"], "confirm": confirm},
+            "signature": signature,
             "evidence_used": evidence_used,
             "weight_rationale": weight_rationale,
             "part_key": key,
@@ -214,6 +294,14 @@ class Miner:
             record["layers"] = list(part["layers"])
         else:
             record["layer"] = int(part["layer"])
+        record["selection_data"] = evidence.selection_data(target, screen_result["drops"], lookup,
+                                                           evidence.load_healdata(), basis)
+        if part["kind"] == "expert":
+            if routing is None:
+                routing = (None, "no routing: not measured when the row was written")
+            record["routing"] = routing[0]
+            if routing[1]:
+                record["routing_note"] = routing[1]
         common.append_jsonl(path, record)
         return record
 
