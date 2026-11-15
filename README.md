@@ -57,20 +57,19 @@ The output is one standard model that loads in Hugging Face Transformers and ser
 ## Architecture
 
 ```mermaid
-flowchart TD
-    HF["Open-weight models<br/>76 mined"] --> MINE["Mine on Modal<br/>agents read weights, switch parts off,<br/>compare with random parts"]
+flowchart LR
+    HF["Open models<br/>76 mined"] --> MINE["Mine<br/>on Modal"]
     MINE --> LIB[("Parts library<br/>1,369 parts")]
-    MEM[("past.dev<br/>42,338 shared memories")] <--> MINE
-    REQ["Request in plain words"] --> SPEC["Spec: limits, targets, guards"]
-    EXA["Exa search"] --> SPEC
-    LIB --> BUILD["Swarm or builder canvas<br/>picks parts"]
+    LIB --> BUILD["Swarm or<br/>canvas"]
+    REQ["Request"] --> SPEC["Spec"]
     SPEC --> BUILD
-    EXA -. literature priors .-> BUILD
+    BUILD --> COMP["Compile + heal<br/>on Modal"]
+    COMP --> EVAL["Evaluate vs<br/>controls"]
+    EVAL --> OUT["One model"]
+    EVAL -. lessons .-> BUILD
+    EXA["Exa"] --> SPEC
+    MEM[("past.dev memory")] <--> MINE
     MEM <--> BUILD
-    BUILD --> COMP["Compile and heal on Modal<br/>align, glue, short training pass"]
-    COMP --> EVAL["Evaluate against controls<br/>base, LoRA, adapter only, random parts"]
-    EVAL -- scores and lessons --> BUILD
-    EVAL --> OUT["One model<br/>Transformers and vLLM"]
 ```
 
 ## Results
@@ -78,6 +77,12 @@ flowchart TD
 ### 1. Grafting beats fine-tuning on every domain we tested
 
 A frozen slice of a larger model, grafted into Llama-3.2-1B-Instruct, beats a LoRA with the same number of trainable parameters on every domain below. Each row trains on that domain's train split and scores on its held-out items. "Adapter only" is the same trainable connector with the donor slice removed, so it measures what the connector adds on its own; the graft's lead over it is what the donor model contributes.
+
+- **Slice grafted:** the donor model and the layers taken from it.
+- **Base:** the host model untouched.
+- **LoRA:** the host fine-tuned with LoRA, on the same data and trainable budget as the graft.
+- **Adapter:** the graft's trainable connectors with the donor slice removed, so it shows what the connectors add alone.
+- **Graft:** the host with the donor slice and its connectors.
 
 **Domain grafts, trained on each domain**
 
@@ -99,8 +104,6 @@ A frozen slice of a larger model, grafted into Llama-3.2-1B-Instruct, beats a Lo
 | MMLU math | Qwen2.5-14B L7-34 | 28.0 | 33.6 | **50.8** |
 | MMLU Spanish | Qwen2.5-14B L7-34 | 37.8 | 38.0 | **52.8** |
 | MMLU Chinese | Qwen2.5-14B L7-34 | 40.0 | 38.0 | **49.8** |
-
-Slice names give the donor model and its layers. AQuA is math, HEAD-QA and MedMCQA are medicine, SciQ is science. "Adapter" is the adapter-only control. The general graft trains on English multiple-choice items only (one seed).
 
 **The graft also brings the donor's languages.** The general graft trains only on English items, yet it lifts MMLU in Spanish by 15 points and in Chinese by 10 over the base, while LoRA, trained on the same English data, moves neither. Qwen2.5-14B reads both languages, and the graft carries that skill into a host that does not. The gain needs the donor's real weights: the same graft built from a Qwen2.5-7B block with shuffled weights scores 47.4 on MMLU, at the LoRA level, against 53.5 for the real block.
 
