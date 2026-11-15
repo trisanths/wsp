@@ -13,7 +13,8 @@ from transformers import PreTrainedTokenizerFast
 from tests.test_align import WORDS, tiny_tokenizer
 from wsp.heal import heal
 from wsp.lora import rank_for_budget
-from wsp.tops import (ForcedView, SkillTops, check_vocab, config_counts, fit_kd_lora, fit_stitch, sizes_from_configs)
+from wsp.tops import (ForcedView, SkillTops, check_vocab, config_counts, first_index, fit_kd_lora, fit_stitch,
+                      positions_of, sizes_from_configs)
 
 VOCAB = 300
 
@@ -779,6 +780,7 @@ def test_logits_cast_the_normed_state_to_the_head_dtype():
     top = Holder()
     top.head = head
     top.has_head_mask = False
+    top.bridge = None
     from wsp.tops import TopModule
 
     out = TopModule.logits(top, torch.randn(2, 3, 8, dtype=torch.float32))
@@ -817,3 +819,292 @@ def test_kd_loss_is_zero_for_identical_logits():
     logits = torch.randn(2, 5, 11)
     mask = torch.ones(2, 5, dtype=torch.long)
     assert float(kd_loss_value(logits, logits.clone(), mask, True)) == pytest.approx(0.0, abs=1e-6)
+
+
+# ---------------------------------------------------------------- real Qwen2.5 config shapes
+
+# config.json of the two real models, from the Hub. Only the sizes shrink in the tests below.
+REAL_CONFIGS = {
+    "base": {"attention_dropout": 0.0, "bos_token_id": 151643, "eos_token_id": 151645, "hidden_act": "silu",
+             "initializer_range": 0.02, "max_position_embeddings": 32768, "max_window_layers": 21,
+             "model_type": "qwen2", "rms_norm_eps": 1e-06, "rope_theta": 1000000.0, "sliding_window": 32768,
+             "tie_word_embeddings": True, "use_cache": True, "use_sliding_window": False},
+    "math": {"attention_dropout": 0.0, "bos_token_id": 151643, "eos_token_id": 151645, "hidden_act": "silu",
+             "initializer_range": 0.02, "max_position_embeddings": 4096, "max_window_layers": 21,
+             "model_type": "qwen2", "rms_norm_eps": 1e-06, "rope_theta": 10000.0, "sliding_window": 4096,
+             "tie_word_embeddings": True, "use_cache": True, "use_sliding_window": False},
+}
+REAL_GENERATION = {"base": {"bos_token_id": 151643, "pad_token_id": 151643, "do_sample": True,
+                            "eos_token_id": [151645, 151643], "repetition_penalty": 1.1, "temperature": 0.7,
+                            "top_p": 0.8, "top_k": 20},
+                   "math": {"bos_token_id": 151643, "pad_token_id": 151643, "do_sample": False,
+                            "eos_token_id": [151645, 151643]}}
+
+
+def real_qwen2(kind, seed, hidden=48, layers=4, heads=4, kv=2, intermediate=96, vocab=VOCAB, spread=1.5, **over):
+    """A tiny Qwen2 with the real model's config (rope_theta, window settings, max positions, tying) and its
+    real generation config. Weights are spread so greedy decoding does not fall into one repeated token."""
+    fields = dict(REAL_CONFIGS[kind])
+    fields.update(hidden_size=hidden, intermediate_size=intermediate, num_hidden_layers=layers,
+                  num_attention_heads=heads, num_key_value_heads=kv, vocab_size=vocab)
+    fields.update(over)
+    torch.manual_seed(seed)
+    model = transformers.Qwen2ForCausalLM(transformers.Qwen2Config(**fields)).eval()
+    model.generation_config = transformers.GenerationConfig(**REAL_GENERATION[kind])
+    gen = torch.Generator().manual_seed(seed + 100)
+    with torch.no_grad():
+        for name, param in model.named_parameters():
+            if param.dim() >= 2 and "embed" not in name:
+                param.copy_(torch.randn(param.shape, generator=gen) * spread / param.shape[-1] ** 0.5)
+    return model
+
+
+def real_pair(cut, donor_cut=None, hidden=(48, 48), dtype=torch.float64, **over):
+    base = real_qwen2("base", 0, hidden=hidden[0], **over).to(dtype)
+    donor = real_qwen2("math", 1, hidden=hidden[1], **over).to(dtype)
+    if hidden[0] == hidden[1]:
+        with torch.no_grad():
+            donor.model.embed_tokens.weight.copy_(base.model.embed_tokens.weight)
+    net = SkillTops(base, tiny_tokenizer())
+    net.add_top("math", donor, cut, cut if donor_cut is None else donor_cut,
+                stitch_kind="linear" if cut == 0 else "mlp", donor_tokenizer=tiny_tokenizer())
+    return net.to(dtype), base, donor
+
+
+def eval_prompts(lengths=(3, 9, 17, 6)):
+    return [planted(WORDS, 1, 200 + index, length=length)[0] for index, length in enumerate(lengths)]
+
+
+def test_real_config_shapes_are_kept_in_the_tiny_models_and_the_top():
+    net, base, donor = real_pair(2)
+    assert float(base.config.rope_theta) == 1000000.0 and float(donor.config.rope_theta) == 10000.0
+    assert base.config.max_position_embeddings == 32768 and donor.config.max_position_embeddings == 4096
+    assert base.config.tie_word_embeddings and donor.config.tie_word_embeddings
+    assert donor.config.sliding_window is None and base.config.sliding_window is None
+    top = net.tops["math"]
+    assert top.windows == [None, None]
+    assert net.trunk_windows == [None] * 4
+    assert torch.equal(top._rotary[0].inv_freq, donor.model.rotary_emb.inv_freq)
+    assert not torch.equal(top._rotary[0].inv_freq, base.model.rotary_emb.inv_freq)
+
+
+def test_real_config_cut_zero_top_generates_what_the_donor_generates_through_skills_eval():
+    from wsp import skills_eval as ev
+
+    net, base, donor = real_pair(0)
+    tok = tiny_tokenizer()
+    prompts = eval_prompts()
+    for stop in (None, ["red"]):
+        want = ev.generate_texts(donor, tok, prompts, max_new_tokens=40, batch_size=3, stop_strings=stop)
+        got = ev.generate_texts(ForcedView(net, "math"), tok, prompts, max_new_tokens=40, batch_size=3,
+                                stop_strings=stop)
+        assert got == want
+        assert len(set("".join(want).split())) > 3
+
+
+def test_real_config_planted_equal_donor_generates_what_the_base_generates_through_skills_eval():
+    from wsp import skills_eval as ev
+
+    base = real_qwen2("base", 0, layers=4).to(torch.float64)
+    donor = copy.deepcopy(base)
+    net = SkillTops(base, tiny_tokenizer())
+    net.add_top("same", donor, 2, 2, stitch_kind="linear", donor_tokenizer=tiny_tokenizer())
+    tok = tiny_tokenizer()
+    prompts = eval_prompts()
+    want = ev.generate_texts(base, tok, prompts, max_new_tokens=40, batch_size=2)
+    got = ev.generate_texts(ForcedView(net, "same"), tok, prompts, max_new_tokens=40, batch_size=2)
+    assert got == want
+
+
+def test_generate_texts_gives_the_same_call_to_a_forced_view_and_to_a_model():
+    # The same keyword arguments, eos ids, and pad id reach both. Record them.
+    from wsp import skills_eval as ev
+
+    net, base, donor = real_pair(2)
+    calls = []
+    original = net.generate
+
+    def spy(*args, **kwargs):
+        calls.append(kwargs)
+        return original(*args, **kwargs)
+
+    net.generate = spy
+    tok = tiny_tokenizer()
+    ev.generate_texts(ForcedView(net, "math"), tok, eval_prompts(), max_new_tokens=5, batch_size=4)
+    seen = calls[0]
+    assert seen["max_new_tokens"] == 5 and seen["do_sample"] is False and seen["top"] == "math"
+    assert seen["pad_token_id"] == tok.pad_token_id
+    assert seen["eos_token_id"] == ev.stop_token_ids(base, tok)
+
+
+def test_forced_view_exposes_generation_config_eos_and_pad_like_a_model():
+    from wsp import skills_eval as ev
+
+    net, base, _ = real_pair(2)
+    view = ForcedView(net, "math")
+    assert view.generation_config is base.generation_config
+    assert view.generation_config.eos_token_id == [151645, 151643]
+    assert view.config is base.config
+    tok = tiny_tokenizer()
+    assert ev.stop_token_ids(view, tok) == ev.stop_token_ids(base, tok)
+    assert ev.model_device(view) == ev.model_device(base)
+    assert view.device == base.device and view.dtype == base.dtype
+
+
+def step_logits(net, ids, mask, new_tokens, top):
+    """Teacher-forced logits for new_tokens fed one at a time through the caches, as generate_top does."""
+    from transformers import DynamicCache
+
+    module = net.get_top(top)
+    trunk_cache = DynamicCache()
+    top_cache = DynamicCache()
+    pos = positions_of(mask)
+    h = net.run_trunk(ids, mask, pos, module.cut_host, trunk_cache, 0)
+    x = module.run(h, mask, pos, top_cache, 0, first_index(mask))
+    out = [module.logits(x[:, -1:])[:, -1]]
+    current = mask
+    total = ids.shape[1]
+    for step in range(new_tokens.shape[1] - 1):
+        token = new_tokens[:, step]
+        current = torch.cat([current, torch.ones(ids.shape[0], 1, dtype=current.dtype)], dim=1)
+        position = current.long().sum(dim=-1, keepdim=True) - 1
+        h = net.run_trunk(token[:, None], current, position, module.cut_host, trunk_cache, total)
+        x = module.run(h, current, position, top_cache, total, None)
+        out.append(module.logits(x)[:, -1])
+        total += 1
+    return torch.stack(out, dim=1)
+
+
+@pytest.mark.parametrize("window", [None, 6])
+def test_real_config_cached_generation_equals_uncached_past_the_sliding_window(window):
+    over = {}
+    if window is not None:
+        over = {"use_sliding_window": True, "sliding_window": window, "max_window_layers": 1}
+    net, base, donor = real_pair(2, **over)
+    top = net.tops["math"]
+    if window is not None:
+        assert top.windows == [window, window]
+        assert net.trunk_windows == [None, window, window, window][:4] or net.trunk_windows[0] is None
+    with_sinks(net)
+    texts = eval_prompts(lengths=(4, 11, 19, 8))
+    ids, mask = encode(texts)
+    assert ids.shape[1] > (window or 0) and int(mask.sum()) < mask.numel()
+    made = net.generate(ids, attention_mask=mask, max_new_tokens=12, top="math", pad_token_id=0)
+    want = reference_generate(net, ids, mask, 12, top="math")
+    assert torch.equal(made[:, ids.shape[1]:], want)
+    new = made[:, ids.shape[1]:]
+    cached = step_logits(net, ids, mask, new, "math")
+    full_ids = torch.cat([ids, new[:, :-1]], dim=1)
+    full_mask = torch.cat([mask, torch.ones(ids.shape[0], new.shape[1] - 1, dtype=mask.dtype)], dim=1)
+    with torch.no_grad():
+        full = net(full_ids, attention_mask=full_mask, top="math").logits[:, ids.shape[1] - 1:]
+    assert (cached - full).abs().max().item() < 1e-9
+
+
+@pytest.mark.parametrize("window", [None, 6])
+def test_real_config_cached_logits_match_uncached_in_bf16_and_float32(window):
+    over = {}
+    if window is not None:
+        over = {"use_sliding_window": True, "sliding_window": window, "max_window_layers": 1}
+    for dtype, tol in ((torch.float32, 1e-4), (torch.bfloat16, 0.15)):
+        net, _, _ = real_pair(2, dtype=dtype, **over)
+        with_sinks(net)
+        net = net.to(dtype)
+        ids, mask = encode(eval_prompts(lengths=(4, 11, 19, 8)))
+        new = torch.randint(3, 100, (ids.shape[0], 8), generator=torch.Generator().manual_seed(5))
+        with torch.no_grad():
+            cached = step_logits(net, ids, mask, new, "math").float()
+            full_ids = torch.cat([ids, new[:, :-1]], dim=1)
+            full_mask = torch.cat([mask, torch.ones(ids.shape[0], new.shape[1] - 1, dtype=mask.dtype)], dim=1)
+            full = net(full_ids, attention_mask=full_mask, top="math").logits[:, ids.shape[1] - 1:].float()
+        scale = full.abs().max().item()
+        assert (cached - full).abs().max().item() < tol * max(1.0, scale), dtype
+
+
+# ---------------------------------------------------------------- the round 24 diagnostic (--diag)
+
+
+def diag_items(n=4):
+    items = []
+    for index in range(n):
+        items.append({"id": index, "question": " ".join(planted(WORDS, 1, 300 + index, length=4 + 3 * index)),
+                      "gold": "3"})
+    return items
+
+
+def test_diag_core_on_an_identity_top_finds_no_difference_at_all():
+    import modal_round24 as r
+
+    net, base, donor = real_pair(0)
+    lines = []
+    report = r.diag_core("cellname", net, "math", donor, tiny_tokenizer(), diag_items(), max_new_tokens=10,
+                         batch_size=2, uncached_prompts=3, uncached_tokens=6, log=lines.append)
+    summary = report["summary"]
+    assert summary["identical_share"] == 1.0
+    assert summary["donor_accuracy"] == summary["top_accuracy"]
+    assert summary["kl_answer_mean"] < 1e-9 and summary["kl_prompt_mean"] < 1e-9
+    assert summary["top1_agree_answer"] == 1.0
+    assert summary["sink_err_mean"] < 1e-9
+    assert all(row["first_difference"] is None for row in report["per_prompt"])
+    for label in ("donor", "top"):
+        assert all(row["batched_vs_uncached"] is None and row["batched_vs_one"] is None
+                   for row in report["paths"][label])
+    assert len(lines) > 8 and all(line.startswith("cellname ") for line in lines)
+    assert report["stop_ids"]["donor"] == report["stop_ids"]["top"]
+    json.dumps(report)
+
+
+def test_diag_core_sees_a_damaged_top():
+    import modal_round24 as r
+
+    net, base, donor = real_pair(0)
+    with torch.no_grad():
+        top = net.tops["math"]
+        top.stitch.weight.add_(0.5 * torch.randn_like(top.stitch.weight))
+    report = r.diag_core("cellname", net, "math", donor, tiny_tokenizer(), diag_items(), max_new_tokens=10,
+                         batch_size=2, uncached_prompts=2, uncached_tokens=6, log=lambda line: None)
+    summary = report["summary"]
+    assert summary["identical_share"] < 1.0
+    assert summary["kl_answer_mean"] > 0.01
+    assert summary["top1_agree_answer"] < 1.0
+    assert any(row["first_difference"] is not None for row in report["per_prompt"])
+    # The damaged top is still consistent with itself: cached equals uncached.
+    assert all(row["batched_vs_uncached"] is None for row in report["paths"]["top"])
+
+
+def test_diag_first_difference_and_the_main_flag():
+    import modal_round24 as r
+
+    assert r.first_difference([1, 2, 3], [1, 2, 3]) is None
+    assert r.first_difference([1, 2, 3], [1, 5, 3]) == 1
+    assert r.first_difference([1, 2], [1, 2, 3]) == 2
+    assert r.bucket_of(0) == 0 and r.bucket_of(255) == 1 and r.bucket_of(256) == 2 and r.bucket_of(9999) == 4
+    import inspect
+
+    assert "diag" in inspect.signature(r.main.info.raw_f).parameters
+
+
+def test_real_tokenizer_chat_prompts_left_padded_give_the_donor_text_through_a_forced_cut_zero_top():
+    # The real Qwen2.5 chat template, ids, EOS list, and vocabulary width (151936), tiny layers.
+    from wsp import skills_eval as ev
+
+    try:
+        tok = transformers.AutoTokenizer.from_pretrained("Qwen/Qwen2.5-1.5B-Instruct", local_files_only=True)
+    except Exception:
+        pytest.skip("the Qwen2.5 tokenizer files are not in the local cache")
+    vocab = 151936
+    base = real_qwen2("base", 0, hidden=16, layers=2, heads=2, kv=1, intermediate=32, vocab=vocab).to(torch.float32)
+    donor = real_qwen2("math", 1, hidden=16, layers=2, heads=2, kv=1, intermediate=32, vocab=vocab).to(torch.float32)
+    with torch.no_grad():
+        donor.model.embed_tokens.weight.copy_(base.model.embed_tokens.weight)
+    net = SkillTops(base, tok)
+    net.add_top("math", donor, 0, 0, stitch_kind="linear", donor_tokenizer=tok, check=False)
+    questions = ["What is 2 + 3?", "Tom has 12 apples and gives away 5. How many are left? " * 3, "Hi"]
+    prompts = [ev.render_prompt(tok, q + "\n" + ev.GSM8K_INSTRUCTION) for q in questions]
+    assert base.generation_config.eos_token_id == [151645, 151643]
+    stops = ev.stop_token_ids(ForcedView(net, "math"), tok)
+    assert stops == ev.stop_token_ids(donor, tok) and 151645 in stops and 151643 in stops
+    want = ev.generate_texts(donor, tok, prompts, max_new_tokens=24, batch_size=3)
+    got = ev.generate_texts(ForcedView(net, "math"), tok, prompts, max_new_tokens=24, batch_size=3)
+    assert got == want
+    assert tok.padding_side == "left"

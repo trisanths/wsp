@@ -415,6 +415,41 @@ def clean_prompt(prompt):
 NOT_PER_TOKEN = r"(?!\s*(?:params\s+|parameters\s+)?(?:per[ -]token|active))"
 
 
+_smallest_part_cache = {}
+
+
+def smallest_part_b(backend=None):
+    """Billions of parameters in the smallest usable part of the catalog, or None when no part has a size.
+
+    This is the same number the spec page uses for its "no part fits" warning. It is read once per backend.
+    """
+    if backend is None:
+        backend = settings.backend()
+    if backend not in _smallest_part_cache:
+        found = None
+        try:
+            for part in catalog_mod.build_palette(backend)["parts"]:
+                size = part.get("params_m")
+                if part.get("usable") and size is not None and size > 0:
+                    if found is None or size / 1000.0 < found:
+                        found = size / 1000.0
+        except Exception:
+            found = None
+        _smallest_part_cache[backend] = found
+    return _smallest_part_cache[backend]
+
+
+def run_headroom_b():
+    """The per-token room above the host that a draft keeps: the smallest part, rounded up to 0.01B.
+
+    When the catalog gives no part size, BUILD_ROOM_B stands in.
+    """
+    smallest = smallest_part_b()
+    if smallest is None:
+        return BUILD_ROOM_B
+    return math.ceil(smallest * 100 - 1e-9) / 100.0
+
+
 def build_floor(host_params):
     """The smallest total limit a build spec gets by default: the host size plus 0.2B."""
     return round(host_params + BUILD_ROOM_B, 2)
@@ -610,7 +645,7 @@ def apply_llm_draft(spec, config, draft, host_params):
     if isinstance(run, (int, float)) and not isinstance(run, bool):
         spec["limits"]["max_run_params_b"] = clamp_run(run, spec["limits"]["max_total_params_b"], host_params)
         # A run limit at the host size leaves no room for any part, so a draft keeps the build room.
-        room = min(spec["limits"]["max_total_params_b"], build_floor(host_params))
+        room = min(spec["limits"]["max_total_params_b"], round(host_params + run_headroom_b(), 2))
         if spec["limits"]["max_run_params_b"] < room:
             spec["limits"]["max_run_params_b"] = round(room, 2)
     heal = draft.get("max_heal_min")
@@ -922,6 +957,12 @@ def normalize_spec(body, old):
     if is_shrink:
         size = shrink_size(limits, spec["shrink"])
     else:
+        sent = body["limits"].get("max_run_params_b") if isinstance(body.get("limits"), dict) else None
+        run_edited = sent is not None
+        if limits["max_total_params_b"] != previous_total and not run_edited:
+            # Grafted parts add to the total and the run size alike, so the run limit moves with the total.
+            limits["max_run_params_b"] = (min(limits["max_run_params_b"], previous_total) +
+                                          limits["max_total_params_b"] - previous_total)
         limits["max_run_params_b"] = clamp_run(limits["max_run_params_b"], limits["max_total_params_b"],
                                                host_params)
         size["max_params_b"] = limits["max_total_params_b"]

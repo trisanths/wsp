@@ -17,6 +17,7 @@ from composer.archive import Archive
 from composer.llm import OpenAIClient, read_key
 from composer.skills import DEFAULT_DRIFT_TOLERANCE, SKILLS
 from composer.sources import Sources
+from composer import front_door
 from composer.tools import Toolbox, read_language_text, tool_specs
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -54,6 +55,7 @@ def load_request(path):
         if skill not in SKILLS:
             raise ValueError(f"{path}: unknown skill {skill!r}; the skills are {', '.join(sorted(SKILLS))}")
     check_request_options(path, request)
+    front_door.check_front_door(path, request)
     return request
 
 
@@ -164,6 +166,8 @@ def system_prompt(request, max_turns, max_tokens):
         "",
         SHORT_LANGUAGE,
     ]
+    if front_door.front_door_request(request) is not None:
+        lines += ["", front_door.method_rules_text()]
     return "\n".join(lines)
 
 
@@ -211,7 +215,7 @@ def run_loop(request, toolbox, client, archive, max_turns=DEFAULT_MAX_TURNS, max
             "model": client.model,
             "instructions": instructions,
             "input": items,
-            "tools": tool_specs(),
+            "tools": tool_specs(front_door_tools=front_door.front_door_request(request) is not None),
             "reasoning": {"effort": client.reasoning_effort},
         }
         archive.write("request", body)
@@ -260,6 +264,9 @@ def run_loop(request, toolbox, client, archive, max_turns=DEFAULT_MAX_TURNS, max
                     result = {"ok": False, "error": f"the tool failed: {type(error).__name__}: {str(error)[:1000]}"}
             archive.write("tool_call", {"name": name, "call_id": call.get("call_id"), "arguments": args})
             archive.write("tool_result", {"name": name, "call_id": call.get("call_id"), "result": result})
+            if name == "compile_plan":
+                archive.log(f"compile_plan: ok={result.get('ok')} stage={result.get('stage')} "
+                            f"objective={result.get('request_objective')} budget_left={result.get('budget_left')}")
             if name == "compile_and_practice":
                 archive.log(f"compile_and_practice: ok={result.get('ok')} stage={result.get('stage')} "
                             f"objective={result.get('practice_objective')} budget_left={result.get('budget_left')}")
@@ -283,6 +290,7 @@ def run_loop(request, toolbox, client, archive, max_turns=DEFAULT_MAX_TURNS, max
         "errors": errors,
         "final": toolbox.finished,
         "practiced": list(toolbox.practiced.values()),
+        "plans_built": [dict(plan_hash=k, **v) for k, v in toolbox.plan_runs.items()],
         "archive_dir": archive.dir,
     }
     archive.write_named("final.json", summary)
@@ -290,7 +298,8 @@ def run_loop(request, toolbox, client, archive, max_turns=DEFAULT_MAX_TURNS, max
     return summary
 
 
-def run_request(request_path, practice_fn, root=REPO_ROOT, client=None, runs_root=None, stamp=None):
+def run_request(request_path, practice_fn, root=REPO_ROOT, client=None, runs_root=None, stamp=None,
+                plan_fn=None, make_fn=None):
     """Load a request, build the tools and the client, and run the loop."""
     request = load_request(request_path)
     agent_options = request.get("agent", {})
@@ -299,7 +308,7 @@ def run_request(request_path, practice_fn, root=REPO_ROOT, client=None, runs_roo
         client = OpenAIClient(key, model=agent_options.get("model", DEFAULT_MODEL),
                               reasoning_effort=agent_options.get("reasoning_effort", "high"))
     sources = Sources(root)
-    toolbox = Toolbox(request, sources, practice_fn, read_language_text(root))
+    toolbox = Toolbox(request, sources, practice_fn, read_language_text(root), plan_fn=plan_fn, make_fn=make_fn)
     if runs_root is None:
         runs_root = RUNS_ROOT
     archive = Archive(runs_root, request["name"], client.secrets(), stamp=stamp)

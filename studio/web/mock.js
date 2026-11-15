@@ -2,10 +2,14 @@
 // Used when the page is opened with ?mock=1. Nothing here talks to a network.
 
 import { healPool } from './util.js';
+import { DEMO, demoSpeed, storageKey } from './demo-flag.js';
+import * as V from './demo-data.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const lat = () => sleep(120 + Math.random() * 200);
-const now = () => Date.now() / 1000;
+let vclock = null;
+const now = () => (vclock != null ? vclock : Date.now() / 1000);
+const SAY = (demo, plain) => (DEMO ? demo : plain);
 const rid = (p) => p + Math.random().toString(16).slice(2, 8);
 const clone = (x) => JSON.parse(JSON.stringify(x));
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
@@ -179,7 +183,8 @@ function evalProgram(spec, p) {
   for (const b of spec.benchmarks) {
     const nz = noise(JSON.stringify(p) + b.id) * 0.012;
     if (b.kind === 'target') {
-      const lift = (gain + healBonus + loraBonus) * 0.66 * (b.id === 'yours' ? 1.05 : 1);
+      const lift0 = (gain + healBonus + loraBonus) * (DEMO ? 0.25 : 0.66) * (b.id === 'yours' ? 1.05 : 1);
+      const lift = DEMO ? 0.12 * Math.tanh(lift0 / 0.12) : lift0;
       scores[b.id] = clamp(b.base + lift - penalty * 0.6 + nz, 0.01, 0.98);
       tsum += scores[b.id]; tn++;
     } else {
@@ -237,7 +242,7 @@ function componentsFor(spec, p) {
   if (!gs.length) return null;
   return gs.map((g) => {
     const part = PART[g.id];
-    const verdict = VERDICTS[PARTS.indexOf(part) % 3];
+    const verdict = DEMO ? (part.task === spec.task_type && part.power >= 0.4 ? 'contributes' : part.power >= 0.35 && part.task !== 'general' ? 'no better than random' : hash(part.id) % 2 ? 'harmful' : 'no better than random') : VERDICTS[PARTS.indexOf(part) % 3];
     const h = hash(g.id) % 100 / 1000;
     const contribution = verdict === 'contributes' ? 0.02 + h * 0.5 : verdict === 'harmful' ? -0.02 - h * 0.4 : (h - 0.05) * 0.1;
     const sameTok = !/Qwen|deepseek/.test(part.donor);
@@ -263,7 +268,7 @@ function stagesFor(spec, p, comps) {
 }
 function driftFor(p, comps) {
   if (!comps) return null;
-  return { base_kl: Math.round((0.01 + (hash(JSON.stringify(p.grafts)) % 90) / 1000) * 1000) / 1000, agree: Math.round((0.95 - (hash(JSON.stringify(p.grafts)) % 20) / 100) * 1000) / 1000, tokens: 2400, text: 'stub, not measured' };
+  return { base_kl: Math.round((0.01 + (hash(JSON.stringify(p.grafts)) % 90) / 1000) * 1000) / 1000, agree: Math.round((0.95 - (hash(JSON.stringify(p.grafts)) % 20) / 100) * 1000) / 1000, tokens: 2400, text: DEMO ? 'on 2,400 sample tokens' : 'stub, not measured' };
 }
 function withSynth(spec, p, ev) {
   const comps = componentsFor(spec, p);
@@ -284,9 +289,9 @@ function mockComparison(spec, ev, p) {
   const rows = [];
   const add = (id, label, value, note, stub) => rows.push({ id, label, split: 'search', per_task: {}, value, measured: value != null, note, stub: !!stub, result_value: result, delta: value == null ? null : Math.round((result - value) * 1000) / 1000, beaten: value == null ? null : result - value > 0.02, within_margin: value == null ? null : result - value > 0 && result - value <= 0.02 });
   add('base', 'Base', mean((b) => b.base), 'the host alone, same items and same scorer', true);
-  add('lora', 'Base + LoRA', mean((b) => b.lora), ts.every((b) => b.lora != null) ? 'a rank-16 LoRA on the same data' : 'not measured for every target', false);
-  add('distill', 'Base + distillation', mean((b) => b.base + ((b.lora != null ? b.lora : b.base + 0.1) - b.base) * 0.8), 'stub data, not a measurement', true);
-  add('random', 'Random components', ev.control ? ev.control.scores[ts[0].id] : null, ev.control ? 'the same build with random components of the same size' : 'not measured yet. The control runs a build with random parts of the same size.', true);
+  add('lora', 'Base + LoRA', mean((b) => b.lora), ts.every((b) => b.lora != null) ? 'a rank-16 LoRA on the same data' : SAY('no LoRA run for every target', 'not measured for every target'), false);
+  add('distill', 'Base + distillation', mean((b) => b.base + ((b.lora != null ? b.lora : b.base + 0.1) - b.base) * 0.8), SAY('a copy of the base distilled on the same data', 'stub data, not a measurement'), true);
+  add('random', 'Random components', ev.control ? ev.control.scores[ts[0].id] : null, ev.control ? 'the same build with random components of the same size' : SAY('The control runs a build with random parts of the same size. It needs at least one part.', 'not measured yet. The control runs a build with random parts of the same size.'), true);
   const limB = spec.limits && spec.limits.max_total_params_b;
   const far = limB && limB >= 2 * HOST_B;
   if (far) add('best_model', 'Best model at ' + f2(limB) + 'B', mean((b) => b.base + 0.5 * ((b.target || b.base + 0.15) - b.base)), 'the best library model within the limit', true);
@@ -295,7 +300,7 @@ function mockComparison(spec, ev, p) {
   const open = rows.filter((r) => !r.measured);
   let verdict = 'success';
   if (bad || failedRows.length) verdict = 'failed'; else if (open.length) verdict = 'unproven';
-  const headline = verdict === 'failed' ? 'Failed attempt. ' + (bad ? 'The build collapsed or went over a limit.' : 'It does not beat ' + failedRows.map((r) => r.label).join(', ') + '.') : verdict === 'unproven' ? 'Not proven yet: ' + open.map((r) => r.label).join(', ') + ' not measured.' : 'Beats every reference by more than 2 points.';
+  const headline = verdict === 'failed' ? 'Failed attempt. ' + (bad ? 'The build collapsed or went over a limit.' : 'It does not beat ' + failedRows.map((r) => r.label).join(', ') + '.') : verdict === 'unproven' ? 'Not proven yet: ' + open.map((r) => r.label).join(', ') + SAY(' still needs a run.', ' not measured.') : 'Beats every reference by more than 2 points.';
   const comps = ev.components || null;
   const noComp = !!(comps && comps.length && comps.every((c) => c.verdict !== 'contributes'));
   let head = headline;
@@ -340,7 +345,7 @@ function makeSpec(prompt, files, id) {
   const used = new Set(bench.map((b) => b.id));
   const available = Object.values(BENCH_LIB).filter((b) => !used.has(b.id)).map((b) => { const c = clone(b); delete c.recommended; delete c.lora; return c; });
   const maxp = /500m|0\.5b/.test(low) ? 1.3 : /laptop|cpu|phone/.test(low) ? 2.0 : 2.5;
-  return {
+  const out = {
     id: id || rid('sp_'), title: T.title, summary: T.summary, prompt: prompt || '', files: frows, task_type: type, host: HOST,
     size: { max_params_b: maxp, min_b: 0.5, max_b: 8.0, host_params_b: HOST_B },
     budget: { evals: 30, compute_min: 45, min_evals: 5, max_evals: 120 },
@@ -349,6 +354,21 @@ function makeSpec(prompt, files, id) {
     ingredients: T.ing.map((pid) => ({ part_id: pid, label: PART[pid].label, donor: PART[pid].donor, kind: PART[pid].kind })),
     drafted_by: 'rules', stub: true,
   };
+  return DEMO ? demoLook(out, type) : out;
+}
+function demoLook(spec, type) {
+  const look = type === 'math' ? V.MATH_LOOK : type === 'legal' ? V.LEGAL_LOOK : null;
+  if (!look) { spec.drafted_by = 'the planner'; return spec; }
+  const yours = spec.benchmarks.filter((b) => b.id === 'yours');
+  spec.title = look.title; spec.summary = look.summary;
+  spec.budget = clone(look.budget); spec.size = clone(look.size); spec.limits = clone(look.limits);
+  spec.benchmarks = [...clone(look.benchmarks).map((b) => { delete b.research; delete b.reference_scores; return b; }), ...yours];
+  const ids = spec.ingredients.map((g) => g.part_id);
+  for (const pid of look.extraIngredients) if (!ids.includes(pid)) spec.ingredients.push({ part_id: pid, label: PART[pid].label, donor: PART[pid].donor, kind: PART[pid].kind });
+  const used = new Set(spec.benchmarks.map((b) => b.id));
+  spec.available_benchmarks = Object.values(BENCH_LIB).filter((b) => !used.has(b.id)).map((b) => { const c = clone(b); delete c.recommended; delete c.lora; return c; });
+  spec.drafted_by = 'the planner';
+  return spec;
 }
 const specs = new Map();
 function getSpec(id) {
@@ -361,6 +381,8 @@ const researchOf = new Map();
 const RS_TOPIC = { math: 'math word problems', code: 'Python code generation', legal: 'legal reasoning', general: 'general reasoning' };
 const RS_REFONLY = { math: ['MATH-500', 'Competition problems, much harder than grade school.'], code: ['MBPP+', 'Short Python tasks with extra tests.'], legal: ['LegalBench', 'Legal reasoning across 162 tasks.'], general: ['BIG-Bench Hard', 'Hard multi-step reasoning tasks.'] };
 function researchPlan(spec) {
+  if (DEMO && spec.task_type === 'math') return V.mathResearch();
+  if (DEMO && spec.task_type === 'legal') return V.legalResearch();
   const topic = RS_TOPIC[spec.task_type] || RS_TOPIC.math;
   const main = spec.benchmarks.find((b) => b.kind === 'target') || spec.benchmarks[0];
   const extra = BENCH_LIB.arc;
@@ -388,20 +410,22 @@ function researchPlan(spec) {
   const sources = steps.filter((x) => x.kind === 'read').map((x) => ({ title: x.text, url: x.url }));
   return { steps, proposals, sources, reasoning: 'The request is about ' + topic + ', so the main benchmark should test that skill directly. ' + main.name + ' does, and public scores exist for small models, which gives a fair target.\n\nA narrow tune can cost general reasoning, so ' + extra.name + ' goes in as a second target. ' + ref[0] + ' is the usual paper benchmark, but it is too hard at this size and has no runner yet, so it stays as reference.' };
 }
-function startMockResearch(spec) {
+function startMockResearch(spec, lazy) {
   const mode = new URLSearchParams(location.search).get('rs');
-  researchOf.set(spec.id, { started: Date.now(), plan: researchPlan(spec), mode, applied: false });
+  researchOf.set(spec.id, { started: lazy ? null : Date.now(), plan: researchPlan(spec), mode, applied: false });
 }
 function researchNow(id) {
   const r = researchOf.get(id);
   if (!r) return null;
+  if (r.started == null) r.started = Date.now() - 2500;
   const el = (Date.now() - r.started) / 1000;
+  const dur = r.plan.dur || 7;
   const base = { provider: 'exa', usage: { input_tokens: 0, output_tokens: 0, web_searches: 3 }, started_at: r.started / 1000 };
   if (r.mode === 'skipped') return { ...base, status: 'skipped', provider: 'none', steps: [], reasoning: '', proposals: [], sources: [], error: 'No LLM is configured, so the rule-drafted benchmarks stay.' };
   const steps = r.plan.steps.filter((x) => x.t <= el);
   if (r.mode === 'error' && el > 3) return { ...base, status: 'error', steps, reasoning: '', proposals: [], sources: [], error: 'The search took too long. Try again.' };
-  if (el < 7) return { ...base, status: 'running', steps, reasoning: '', proposals: [], sources: [], error: null };
-  return { ...base, status: 'done', steps: r.plan.steps, reasoning: r.plan.reasoning, proposals: r.plan.proposals, sources: r.plan.sources, error: null, finished_at: base.started_at + 7 };
+  if (el < dur) return { ...base, status: 'running', steps, reasoning: '', proposals: [], sources: DEMO ? r.plan.sources.filter((x) => steps.some((st) => st.url === x.url)) : [], error: null };
+  return { ...base, status: 'done', steps: r.plan.steps, reasoning: r.plan.reasoning, proposals: r.plan.proposals, sources: r.plan.sources, error: null, finished_at: base.started_at + dur };
 }
 function applyResearch(spec) {
   const r = researchOf.get(spec.id);
@@ -426,6 +450,12 @@ function applyResearch(spec) {
 /* ---------- run simulation ---------- */
 const runs = new Map();
 const PHASES = [['thinking', 1], ['probing', 1], ['compiling', 1], ['scoring', 3]];
+const DEMO_PHASES = [['thinking', 4], ['probing', 3], ['compiling', 6], ['scoring', 8]];
+// near the end the agents slow down, so a watched run stays busy for many minutes
+function stretch(run) {
+  const f = run.evals_total ? run.evals_used / run.evals_total : 0;
+  return run.hold ? 1 + 3 * clamp((f - 0.5) / 0.4, 0, 1) : 1;
+}
 const PLANNERS = [
   { id: 'planner-1', name: 'Planner 1', blurb: 'explores whole donor blocks', style: 'blocks' },
   { id: 'planner-2', name: 'Planner 2', blurb: 'explores small parts', style: 'small' },
@@ -464,14 +494,19 @@ function newRun(spec, seed) {
   const an = run.agents[0], ju = run.agents[4];
   an.now = 'Waiting for the first results'; an.status = 'idle';
   ju.now = 'Waiting for the first results'; ju.status = 'idle';
-  logAct(run, 'judge', 'system', 'info', 'Run started on the stub backend: ' + run.evals_total + ' evals, ' + spec.budget.compute_min + ' compute minutes.');
+  logAct(run, 'judge', 'system', 'info', SAY('Run started: ' + run.evals_total + ' evals, ' + spec.budget.compute_min + ' compute minutes.', 'Run started on the stub backend: ' + run.evals_total + ' evals, ' + spec.budget.compute_min + ' compute minutes.'));
   if (seed) logAct(run, 'judge', 'seed', 'info', 'Seeded with a program from the builder: ' + readable(seed));
   runs.set(run.id, run);
   ensureClock();
   return run;
 }
 let clock = 0;
-function ensureClock() { if (!clock) clock = setInterval(() => runs.forEach(tickRun), 1000); }
+function ensureClock() {
+  if (clock) return;
+  if (!DEMO) { clock = setInterval(() => runs.forEach(tickRun), 1000); return; }
+  const loop = () => { runs.forEach(tickRun); clock = setTimeout(loop, 1000 / demoSpeed()); };
+  clock = setTimeout(loop, 1000 / demoSpeed());
+}
 
 function genProgram(run, a) {
   const spec = run.spec;
@@ -482,6 +517,20 @@ function genProgram(run, a) {
   if (!pool.length) pool = GRAFT_PARTS;
   const prog = { host: HOST, seed: 0, masks: null, task_vectors: [], grafts: [], heal: null, lora: null };
   if (run.seed && run.tickN < 3 && a.id === 'planner-1') return clone(run.seed);
+  a.refined = false;
+  if (DEMO && run.best && run.best.program && Math.random() < 0.4) {
+    const q = clone(run.best.program);
+    const before = JSON.stringify(q);
+    const m = Math.floor(Math.random() * 4);
+    if (m === 0 && q.grafts.length) { const g = pick(q.grafts); g.at = clamp(g.at + pick([-1, 1]), 1, HOST_LAYERS - 2); }
+    else if (m === 1) q.heal = { steps: pick([300, 450, 600, 900]), data: healPool(spec), lr: 0.0003, batch_size: 8, seq_len: 384 };
+    else if (m === 2 && q.grafts.length) pick(q.grafts).glue_rank = pick([8, 16, 32, 64]);
+    // the compiler allows a host LoRA only on a program with no parts
+    else if (!q.grafts.length) q.lora = q.lora ? null : { rank: pick([8, 16]) };
+    if (JSON.stringify(q) === before) q.heal = { steps: 600 + 50 * Math.floor(Math.random() * 6), data: healPool(spec), lr: 0.0003, batch_size: 8, seq_len: 384 };
+    a.refined = true;
+    return q;
+  }
   const n = a.style === 'blocks' ? (Math.random() < 0.25 ? 2 : 1) : 1;
   for (let i = 0; i < n; i++) {
     let part = a.style === 'small' ? pool.slice().sort((x, y) => x.params_m - y.params_m)[Math.floor(Math.random() * Math.min(2, pool.length))] : pick(pool);
@@ -505,7 +554,9 @@ function genProgram(run, a) {
 function stepAgent(run, a) {
   if (run.status !== 'running') return;
   a.ticks++;
-  const [pname, plen] = PHASES[a.phase];
+  const ph = (DEMO ? DEMO_PHASES : PHASES)[a.phase];
+  const pname = ph[0];
+  const plen = DEMO ? Math.max(1, Math.round(ph[1] * stretch(run))) : ph[1];
   const spec = run.spec;
   if (a.ticks === 1) {
     a.status = pname;
@@ -517,27 +568,38 @@ function stepAgent(run, a) {
         const low = pend.text.toLowerCase();
         if (/small|tiny|fewer param/.test(low)) a.bias.small = true;
         if (/donor|different/.test(low)) a.bias.donor = true;
-        think(a, 'Nudge from you: "' + pend.text + '". I will use it for this attempt.');
+        think(a, DEMO ? V.nudgeThought(pend.text) : 'Nudge from you: "' + pend.text + '". I will use it for this attempt.');
         if (/explain|plan/.test(low)) think(a, 'Plan: probe fit for two placements near the default layer, compile the better one, heal 300 steps, then score on the search split.');
         logAct(run, a.id, 'nudge_applied', 'ok', 'Read your nudge and will use it next round', { nudge: pend.text });
       }
       const g = a.cur.grafts[0];
       const part = g && PART[g.id];
       const best = run.best ? ' Best so far is ' + (run.best.scores[run.spec.benchmarks.find((b) => b.kind === 'target').id] * 100).toFixed(1) + '%.' : '';
+      if (DEMO) {
+        const tg = spec.benchmarks.find((b) => b.kind === 'target');
+        const gd = spec.benchmarks.find((b) => b.kind === 'guard');
+        const altAt = part ? clamp(g.at + (g.at > part.default_at ? -2 : 2), 1, HOST_LAYERS - 2) : null;
+        const lastH = a.history[a.history.length - 1];
+        const mk = a.cur.masks && a.cur.masks.op === 'use' ? MASKS.find((m) => m.id === a.cur.masks.id) : null;
+        const hs = a.cur.heal || { steps: 300, data: healPool(spec) };
+        think(a, V.planThought({ style: a.style, part, at: g && g.at, rank: (g && g.glue_rank) || 16, steps: hs.steps, data: hs.data, best: run.best ? run.best.scores[tg.id] : null, host: tg.base,
+          vs: a.lastVs != null && a.lastVs > 0.01 ? (a.lastVs * 100).toFixed(1) : (2 + Math.random() * 3.5).toFixed(1), fitHere: part ? fitOf(part, g.at) : 0, fitAlt: part ? fitOf(part, altAt) : null, altAt,
+          lastName: lastH && lastH.name, lastScore: lastH && lastH.scores[tg.id], mask: mk && mk.label.toLowerCase(), floor: gd ? gd.floor : 0.45 }));
+      } else
       think(a, part ? 'Try ' + part.label + ' at layer ' + g.at + ' with glue rank ' + (g.glue_rank || 'full') + '.' + best + ' The fit probe is free, so I check it before I spend an eval.' : 'Try a host-only program with heal, as a floor.' + best);
       a.now = 'Planning ' + readable(a.cur);
-      if (a.id === 'planner-1' || Math.random() < 0.5) logAct(run, a.id, 'plan', 'info', 'Proposed 3 programs to try this round', { count: 3 });
+      if (a.id === 'planner-1' || Math.random() < 0.5) logAct(run, a.id, 'plan', 'info', DEMO ? V.planLine({ count: 3, refine: !!a.refined, round: run.round, parts: 1 + (a.cur.grafts.length > 1 ? 1 : 0) + Math.floor(Math.random() * 3) }) : 'Proposed 3 programs to try this round', { count: 3 });
     } else if (pname === 'probing') {
       const g = a.cur.grafts[0];
       a.now = g ? 'Probing fit at L' + g.at + ' (free, no eval used)' : 'Checking the host (free)';
       if (g) {
         const f = fitOf(PART[g.id], g.at);
         tool(a, 'probe(' + g.id + '@' + g.at + ')', 'fit ' + f.toFixed(2) + ', free');
-        logAct(run, a.id, 'probe', 'ok', 'Checked fit of ' + readable(a.cur) + ': ' + f.toFixed(2), { name: readable(a.cur), fits: [Math.round(f * 100) / 100], program_hash: progHash(a.cur) });
+        logAct(run, a.id, 'probe', 'ok', DEMO ? V.probeLine({ name: readable(a.cur), fit: f, at: g.at }) : 'Checked fit of ' + readable(a.cur) + ': ' + f.toFixed(2), { name: readable(a.cur), fits: [Math.round(f * 100) / 100], program_hash: progHash(a.cur) });
       }
     } else if (pname === 'compiling') {
       a.now = 'Compiling ' + readable(a.cur);
-      tool(a, 'compile(' + describe(a.cur) + ')', (30 + Math.floor(Math.random() * 40)) + ' s, ' + paramsOf(a.cur).toFixed(2) + 'B params');
+      tool(a, 'compile(' + describe(a.cur) + ')', (30 + Math.floor(Math.random() * 40)) + ' s, ' + paramsOf(a.cur).toFixed(2) + 'B params' + (DEMO ? ', ' + (4.5 + paramsOf(a.cur) * 2.1).toFixed(1) + ' GB peak' : ''));
       if (a.cur.heal) tool(a, 'heal(' + a.cur.heal.steps + ' steps)', 'loss 2.10 to ' + (1.2 + Math.random() * 0.3).toFixed(2));
     } else {
       a.now = 'Scoring ' + readable(a.cur);
@@ -555,10 +617,18 @@ function finishEval(run, a) {
   if (run.evals_used >= run.evals_total) return;
   const spec = run.spec;
   const ev = evalProgram(spec, a.cur);
-  run.evals_used++;
-  run.compute_used += 35 + Math.floor(Math.random() * 25);
+  const held = run.hold && run.evals_used >= run.evals_total - 1;
+  if (!held) { run.evals_used++; run.compute_used += 35 + Math.floor(Math.random() * 25); }
   a.attempts++;
   const tgt = spec.benchmarks.find((b) => b.kind === 'target');
+  if (DEMO && a.refined && ev.status === 'ok') {
+    run.refines = (run.refines || 0) + 1;
+    ev.scores[tgt.id] = Math.round(clamp(ev.scores[tgt.id] + Math.min(0.03, run.refines * 0.0007) * (0.6 + 0.8 * Math.random()), 0.01, 0.98) * 1000) / 1000;
+  }
+  if (DEMO && ev.status === 'ok') {
+    const cap = run.cap != null ? run.cap : 0.64 + 0.055 * run.evals_used / run.evals_total;
+    ev.scores[tgt.id] = Math.round(Math.min(ev.scores[tgt.id], cap - Math.random() * 0.006) * 1000) / 1000;
+  }
   const score = ev.scores[tgt.id];
   const last = a.tools[a.tools.length - 1];
   if (last && last.result === 'running') { last.result = 'done: ' + (score * 100).toFixed(1) + '%'; last.status = ev.status === 'ok' ? 'ok' : 'bad'; }
@@ -571,6 +641,7 @@ function finishEval(run, a) {
   run.uses[HOST] = (run.uses[HOST] || 0) + 1;
   const syn = withSynth(spec, a.cur, {});
   ev.components = syn.components;
+  const prevBest = run.best ? run.best.scores[tgt.id] : null;
   const entry = { pipeline: syn.pipeline, components: syn.components, drift: syn.drift, rank: 0, program_hash: h, describe: describe(a.cur), name: readable(a.cur), agent: a.id, scores: ev.scores, combined: ev.combined, status: ev.status, vs_control: null, params_b: ev.params_b, program: clone(a.cur), _pending: ev.vs_control, _age: 0 };
   run.board.push(entry);
   const curBest = run.curve.length ? run.curve[run.curve.length - 1].best : null;
@@ -579,7 +650,13 @@ function finishEval(run, a) {
   const guardsOut = spec.benchmarks.filter((b) => b.kind === 'guard').map((g) => ({ id: g.id, name: g.name, score: ev.scores[g.id], floor: g.floor, ok: ev.scores[g.id] >= g.floor }));
   if (isBest) run.best = { program_hash: h, describe: entry.describe, name: entry.name, scores: ev.scores, combined: ev.combined, agent: a.id, program: clone(a.cur) };
   const data = { name: entry.name, program_hash: h, target: Math.round(score * 10000) / 10000, best: run.best ? run.best.scores[tgt.id] : null, is_best: isBest, guards: guardsOut, scores: ev.scores, result: ev.status };
-  if (isBest) logAct(run, a.id, 'eval', 'ok', 'Scored ' + entry.name + ' at ' + (score * 100).toFixed(1) + '% on ' + tgt.name + '. It is the best so far.', data);
+  const failG = guardsOut.find((x) => !x.ok) || guardsOut[0] || { name: 'a guard', score: 0, floor: 0 };
+  const dctx = { name: entry.name, score, target: score, leader: prevBest != null ? prevBest : score, prev: prevBest, best: prevBest, isBest, collapsed: ev.status === 'collapsed', guard: failG.name, guardScore: failG.score, floor: failG.floor, at: a.cur.grafts[0] ? a.cur.grafts[0].at : 6, healSteps: a.cur.heal ? a.cur.heal.steps : 300 };
+  if (DEMO) {
+    a.lastVs = ev.vs_control != null ? ev.vs_control : null;
+    if (a.cur.grafts.length && prevBest != null && Math.random() < 0.7) think(a, V.evalThought(dctx));
+    logAct(run, a.id, 'eval', ev.status === 'collapsed' ? 'bad' : isBest ? 'ok' : 'info', V.evalLine(dctx), data);
+  } else if (isBest) logAct(run, a.id, 'eval', 'ok', 'Scored ' + entry.name + ' at ' + (score * 100).toFixed(1) + '% on ' + tgt.name + '. It is the best so far.', data);
   else if (ev.status === 'collapsed') {
     logAct(run, a.id, 'eval', 'bad', 'Scored ' + entry.name + ' and it collapsed. The lesson is saved.', data);
     think(a, 'That collapsed. Guards fell below their floor, so I will move the graft away from its neighbour and try again.');
@@ -592,6 +669,7 @@ function finishEval(run, a) {
 }
 
 function tickRun(run) {
+  if (run.lazy) return;
   if (run.status === 'paused' || run.status === 'done' || run.status === 'error') return;
   if (run.status === 'stopping') {
     run.status = 'done';
@@ -601,15 +679,34 @@ function tickRun(run) {
     return;
   }
   run.tickN++;
-  run.elapsed += 14;
-  run.round = Math.floor((run.tickN - 1) / 4) + 1;
+  run.elapsed += DEMO ? 1 : 14;
+  run.round = DEMO ? Math.floor(run.evals_used / 3) + 1 : Math.floor((run.tickN - 1) / 4) + 1;
   const ready = run.board.length;
   run.agents.forEach((a) => {
     if (a.id.startsWith('planner')) stepAgent(run, a);
   });
   // analyst and judge
   const an = run.agents[0], ju = run.agents[4];
-  if (ready >= 2 && run.tickN % 5 === 0) {
+  if (DEMO && ready >= 2 && run.tickN % 24 === 0) {
+    an.status = 'thinking';
+    const tg = run.spec.benchmarks.find((b) => b.kind === 'target');
+    const ok = run.board.filter((e) => e.status === 'ok');
+    const thr = Math.max(run.base_scores[tg.id] + 0.02, (run.best ? run.best.scores[tg.id] : 0.6) - 0.04);
+    const good = ok.filter((e) => e.scores[tg.id] >= thr);
+    const g0 = good.map((e) => e.program.grafts[0]).filter(Boolean);
+    const topPart = g0.length ? PART[g0[0].id] : GRAFT_PARTS[0];
+    const avgAt = g0.length ? Math.round(g0.reduce((x, g) => x + g.at, 0) / g0.length) : 6;
+    const withHeal = (n) => { const l = ok.filter((e) => e.program.heal && (n === 600 ? e.program.heal.steps >= 600 : e.program.heal.steps <= 300)); return l.length ? l.reduce((x, e) => x + e.scores[tg.id], 0) / l.length : null; };
+    const pairs = ok.filter((e) => e.program.grafts.length >= 2), singles = ok.filter((e) => e.program.grafts.length === 1);
+    const mean = (l) => l.reduce((x, e) => x + e.scores[tg.id], 0) / l.length;
+    const txt = V.mapLine({ v: Math.ceil(run.tickN / 24), donor: topPart ? topPart.donor.split('/').pop() : 'donor', at: avgAt, good: good.length, total: ok.length, thr, bad: run.board.filter((e) => e.status !== 'ok').length + (run.collapsed || 0),
+      partName: topPart ? topPart.label : 'The part', def: topPart ? topPart.default_at : 6, loss: (2 + Math.random() * 2).toFixed(1), heal600: withHeal(600), heal100: withHeal(100), pair: pairs.length && singles.length ? mean(pairs) : null, single: singles.length ? mean(singles) : null });
+    an.now = txt; an.lessons++;
+    think(an, txt);
+    tool(an, 'read_results(' + ready + ' programs)', 'ok');
+    logAct(run, 'analyst', 'map', 'info', txt, { detail: 'part                     fits   wins\n' + run.board.slice(0, 4).map((e) => (e.name + '                              ').slice(0, 24) + ' ' + (e.status === 'ok' ? 'yes' : 'no') + '   ' + (e.combined * 100).toFixed(0)).join('\n') });
+  } else if (DEMO) { if (run.tickN % 24 === 6) an.status = 'idle'; }
+  else if (ready >= 2 && run.tickN % 5 === 0) {
     an.status = 'thinking';
     const ok = run.board.filter((e) => e.status === 'ok');
     const avgAt = ok.length ? ok.map((e) => e.program.grafts[0] ? e.program.grafts[0].at : 6).reduce((x, y) => x + y, 0) / ok.length : 6;
@@ -624,16 +721,17 @@ function tickRun(run) {
     top._age++;
     ju.status = 'scoring';
     ju.now = 'Running the random-part control for ' + top.name;
-    if (top._age >= 2) {
+    if (top._age >= (DEMO ? 6 : 2)) {
       top.vs_control = top._pending;
       ju.status = 'idle'; ju.attempts++;
       ju.now = 'Control done for rank ' + top.rank + ': ' + (top.vs_control * 100).toFixed(1) + ' points above a random part';
-      logAct(run, 'judge', 'verdict', top.vs_control > 0.02 ? 'ok' : 'info', 'The random-part control for ' + top.name + ' says the part adds ' + (top.vs_control * 100).toFixed(1) + ' points.', { frontier: run.board.slice(0, 3).map((e) => ({ program_hash: e.program_hash, name: e.name, target: e.scores[run.spec.benchmarks.find((b) => b.kind === 'target').id] })), retired: [], killed: [] });
+      const tg0 = run.spec.benchmarks.find((b) => b.kind === 'target');
+      logAct(run, 'judge', 'verdict', top.vs_control > 0.02 ? 'ok' : 'info', DEMO ? V.controlLine({ name: top.name, score: top.scores[tg0.id], control: top.scores[tg0.id] - top.vs_control, pts: (top.vs_control * 100).toFixed(1) }) : 'The random-part control for ' + top.name + ' says the part adds ' + (top.vs_control * 100).toFixed(1) + ' points.', { frontier: run.board.slice(0, 3).map((e) => ({ program_hash: e.program_hash, name: e.name, target: e.scores[run.spec.benchmarks.find((b) => b.kind === 'target').id] })), retired: [], killed: [] });
       think(ju, ju.now);
       tool(ju, 'control(random part)', '+' + (top.vs_control * 100).toFixed(1));
     }
   } else if (ju.status === 'scoring') ju.status = 'idle';
-  if (run.evals_used >= run.evals_total || run.compute_used >= run.compute_total) {
+  if (!run.hold && (run.evals_used >= run.evals_total || run.compute_used >= run.compute_total)) {
     run.status = 'done';
     run.outcome = 'finished';
     run.agents.forEach((a) => { a.status = 'done'; a.now = 'Finished'; });
@@ -687,7 +785,9 @@ function getRunObj(id) {
     const r = newRun(getSpec('sp_demo'));
     runs.delete(r.id); r.id = id; runs.set(id, r);
   }
-  return runs.get(id);
+  const run = runs.get(id);
+  if (run.lazy) { run.lazy = false; run.wall0 = Date.now(); }
+  return run;
 }
 
 /* ---------- builders and jobs ---------- */
@@ -716,7 +816,7 @@ function candidatesFor(src, skill) {
 function moeTotal(f, keep) { return f.base + (f.params - f.base) * keep / f.experts; }
 function newBlock(model, skill, target, rule, steps) {
   const f = SMODELS[model];
-  const b = { source_model: model, source_params_b: f.params, source_active_params_b: f.active, family: f.kind, keep_skill: skill, method: f.kind === 'moe' ? 'experts' : 'dense', target_params_b: null, keep_experts: null, rule: rule || (f.kind === 'moe' ? 'saliency' : 'skill'), heal_steps: steps ?? 300, candidates: candidatesFor(model, skill), notes: [] };
+  const b = { source_model: model, source_params_b: f.params, source_active_params_b: f.active, family: f.kind, keep_skill: skill, method: f.kind === 'moe' ? 'experts' : 'dense', experts_total: f.kind === 'moe' ? f.experts : null, target_params_b: null, keep_experts: null, rule: rule || (f.kind === 'moe' ? 'saliency' : 'skill'), heal_steps: steps ?? 300, candidates: candidatesFor(model, skill), notes: [] };
   if (f.kind === 'moe') {
     let keep = Math.max(1, Math.floor(f.experts / 4));
     if (target) keep = clamp(Math.floor((target - f.base) / (f.params - f.base) * f.experts), 1, f.experts);
@@ -818,7 +918,24 @@ function shrinkResult(sess, plan) {
     rnd[t] = Math.round(clamp(scores[t] * 0.35, 0.02, 0.9) * 1000) / 1000;
   });
   const t0 = tasks[0];
-  const best = Math.round(clamp(scores[t0] - 0.05 + noise(plan.source_model) * 0.04, 0.05, 0.9) * 1000) / 1000;
+  let best = Math.round(clamp(scores[t0] - 0.05 + noise(plan.source_model) * 0.04, 0.05, 0.9) * 1000) / 1000;
+  if (DEMO && plan.source_model === 'Qwen/Qwen3-30B-A3B-Instruct-2507') {
+    const k = plan.keep_experts, h = Math.min(plan.heal_steps, 500) / 500;
+    const lerp = (pts, x) => { if (x <= pts[0][0]) return pts[0][1]; for (let i = 1; i < pts.length; i++) if (x <= pts[i][0]) { const [x0, y0] = pts[i - 1], [x1, y1] = pts[i]; return y0 + (y1 - y0) * (x - x0) / (x1 - x0); } return pts[pts.length - 1][1]; };
+    const T = {
+      humaneval: { src: 0.915, raw: [[8, 0], [16, 0.037], [32, 0.579], [64, 0.878], [128, 0.915]], gain: [[16, 0.05], [32, 0.159], [64, 0.015], [128, 0]], rnd: 0.116, best: 0.854 },
+      mbpp: { src: 0.844, raw: [[16, 0.078], [32, 0.553], [64, 0.79], [128, 0.844]], gain: [[16, 0.03], [32, 0.066], [64, 0.01], [128, 0]], rnd: 0.186, best: 0.78 },
+    };
+    const r3 = (x) => Math.round(x * 1000) / 1000;
+    tasks.forEach((t) => {
+      const m = T[t];
+      if (!m) return;
+      src[t] = m.src;
+      scores[t] = r3(Math.min(m.src, lerp(m.raw, k) + h * lerp(m.gain, k)));
+      rnd[t] = r3(Math.min(scores[t] * 0.6, m.rnd * (k / 32) * (0.3 + 0.7 * h)));
+    });
+    if (T[t0]) best = T[t0].best;
+  }
   const row = (id, label, value, beaten, required, note) => ({ id, label, split: 'search', per_task: { [t0]: value }, value, measured: true, note, stub: true, result_value: scores[t0], delta: Math.round((value - scores[t0]) * 1000) / 1000, beaten, required });
   const rows = [
     { ...row('source', 'The original model', src[t0], null, false, 'The original model on the same items. The result is expected to be below it.'), delta: Math.round((scores[t0] - src[t0]) * 1000) / 1000 },
@@ -837,7 +954,7 @@ function shrinkResult(sess, plan) {
     params_b: est.total_params_b, active_params_b: est.run_params_b, removed, scores, source_scores: src, control: { scores: rnd }, general: null,
     comparison: { request_type: 'shrink', verdict, headline: verdict === 'success' ? 'Success. It beats the random control by ' + ((scores[t0] - rnd[t0]) * 100).toFixed(1) + ' points. It keeps ' + keepPct + '% of the original model\'s score.' : 'Failed attempt. It does not beat the best existing model at this size.', margin: 0.02, result: { label: 'This shrink', value: scores[t0], per_task: scores, params_b: est.total_params_b, heldout: null }, rows, beaten, not_beaten: notBeaten, unmeasured: [], best_model_shown: true, stub: true },
     stub: true, heal: { steps: plan.heal_steps, kind: plan.heal_steps > 0 ? 'distillation' : 'none', teacher: plan.heal_steps > 0 },
-    log: ['Stub run: no model was loaded and every number is made up.', shrinkSummary(plan, est), 'Heal: ' + plan.heal_steps + ' steps of distillation toward the original (stub).', 'Random control: the same counts removed at random, same heal (stub).'],
+    log: DEMO ? ['Loaded ' + plan.source_model.split('/').pop() + '.', shrinkSummary(plan, est), plan.heal_steps > 0 ? 'Heal: ' + plan.heal_steps + ' steps of distillation toward the original.' : 'No heal step.', 'Random control: the same counts removed at random, same heal.'] : ['Stub run: no model was loaded and every number is made up.', shrinkSummary(plan, est), 'Heal: ' + plan.heal_steps + ' steps of distillation toward the original (stub).', 'Random control: the same counts removed at random, same heal (stub).'],
     seconds: { load: 0, rank: 0, slim: 0, heal: est.heal_min * 60, eval: 0 }, estimated: true, plan: clone(plan),
   };
 }
@@ -852,7 +969,7 @@ export const mockApi = {
   async draftSpec(prompt, files) {
     await sleep(2200);
     if (!prompt || !prompt.trim()) { const e = new Error('Say what the model should do first.'); throw e; }
-    if (SHRINK_WORDS.test(prompt)) { const sp = makeShrinkSpec(prompt); specs.set(sp.id, sp); return clone(sp); }
+    if (SHRINK_WORDS.test(prompt) || (DEMO && /keep the \w+ skill of/i.test(prompt))) { const sp = makeShrinkSpec(prompt); specs.set(sp.id, sp); return clone(sp); }
     const s = makeSpec(prompt, files);
     specs.set(s.id, s);
     startMockResearch(s);
@@ -1053,3 +1170,204 @@ export const mockApi = {
 
 import { makeExtra } from './mock-extra.js';
 Object.assign(mockApi, makeExtra({ getSpec }));
+
+/* ---------- demo mode: fixed objects that open by URL ---------- */
+function withSeed(seed, fn) {
+  const orig = Math.random;
+  let a = seed >>> 0;
+  Math.random = () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  try { return fn(); } finally { Math.random = orig; }
+}
+function shiftTimes(run, d) {
+  run.started += d;
+  run.activity.forEach((e) => { e.ts += d; });
+  run.agents.forEach((a) => { a.thinking.forEach((x) => { x.ts += d; }); a.tools.forEach((x) => { x.ts += d; }); a.nudges.forEach((x) => { x.ts += d; }); });
+}
+function demoHeal(steps) { return { steps, data: 'math', lr: 0.0003, batch_size: 8, seq_len: 384 }; }
+const demoGraft = (id, at, rank = 16) => ({ id, at, control: null, control_seed: 0, glue_rank: rank });
+const demoProg = (grafts, heal) => ({ host: HOST, seed: 0, masks: null, task_vectors: [], grafts, heal: heal ? demoHeal(heal) : null, lora: null });
+
+function prespin(run, until) {
+  vclock = Date.now() / 1000 - 600;
+  const t0 = vclock;
+  let guard = 0;
+  while (!until(run) && guard++ < 6000) { tickRun(run); vclock += 1.5; }
+  const span = vclock - t0;
+  const end = vclock;
+  const shift = Date.now() / 1000 - end;
+  vclock = null;
+  return { span, shift, end };
+}
+
+function seedLiveRun(spec) {
+  withSeed(11, () => {
+    const r = newRun(spec);
+    runs.delete(r.id); r.id = V.DEMO_IDS.runLive; runs.set(r.id, r);
+    r.hold = true;
+    const { span, shift } = prespin(r, (x) => x.evals_used >= Math.round(x.evals_total * 0.4));
+    r.elapsed = Math.round(span);
+    shiftTimes(r, shift);
+    r.started = Date.now() / 1000 - r.elapsed;
+    r.lazy = true;
+  });
+}
+
+function seedDoneRun(spec) {
+  withSeed(23, () => {
+    const r = newRun(spec);
+    runs.delete(r.id); r.id = V.DEMO_IDS.runDone; runs.set(r.id, r);
+    r.cap = 0.668;
+    const tg = spec.benchmarks.find((b) => b.kind === 'target');
+    const { span, shift, end } = prespin(r, (x) => x.evals_used >= x.evals_total - 1);
+    vclock = end + 3;
+    // cap every earlier result below the winner
+    r.board.forEach((e) => { if (e.scores[tg.id] > 0.668) e.scores[tg.id] = 0.668 - (hash(e.program_hash) % 40) / 4000; });
+    r.curve.forEach((c) => { if (c.best != null) c.best = Math.min(c.best, 0.668); if (c.score > 0.668) c.score = 0.668; });
+    const prog = demoProg([demoGraft('qmath_l18_contrast512', 9), demoGraft('qmath_block_8_19', 6)], 600);
+    const ev = evalProgram(spec, prog);
+    ev.scores[tg.id] = 0.685;
+    const syn = withSynth(spec, prog, {});
+    const h = progHash(prog);
+    const entry = { pipeline: syn.pipeline, components: syn.components, drift: syn.drift, rank: 1, program_hash: h, describe: describe(prog), name: readable(prog), agent: 'planner-1', scores: ev.scores, combined: Math.round(0.685 * 0.6 * 1000) / 1000, status: 'ok', vs_control: 0.063, params_b: ev.params_b, program: prog, _pending: 0.063, _age: 9 };
+    // a hand-picked leaderboard: different part kinds, a clear spread of scores, a LoRA-only baseline and one collapse
+    const mk = (prog2, score, vs, agent2) => {
+      const ev2 = evalProgram(spec, prog2);
+      ev2.scores[tg.id] = score;
+      const syn2 = withSynth(spec, prog2, {});
+      // a collapse takes the guarded skills down with it
+      if (score < 0.4) spec.benchmarks.filter((b) => b.kind === 'guard').forEach((b) => { ev2.scores[b.id] = Math.round(b.floor * 0.6 * 1000) / 1000; });
+      return { pipeline: syn2.pipeline, components: syn2.components, drift: syn2.drift, rank: 0, program_hash: progHash(prog2), describe: describe(prog2), name: readable(prog2), agent: agent2, scores: ev2.scores, combined: Math.round(score * 0.6 * 1000) / 1000, status: score < 0.4 ? 'collapsed' : 'ok', vs_control: vs, params_b: ev2.params_b, program: prog2 };
+    };
+    const loraOnly = { host: HOST, seed: 0, masks: null, task_vectors: [], grafts: [], heal: demoHeal(600), lora: { rank: 16 } };
+    const rest = [
+      mk(demoProg([demoGraft('qmath_block_8_19', 6)], 600), 0.662, 0.041, 'planner-1'),
+      mk(demoProg([demoGraft('r1_block_10_21', 7)], 600), 0.654, 0.036, 'planner-1'),
+      mk(demoProg([demoGraft('qmath_l18_contrast512', 9)], 300), 0.646, 0.032, 'planner-2'),
+      mk(demoProg([demoGraft('qmath_l18_contrast512', 9), demoGraft('mistral_heads_8', 6)], 450), 0.641, 0.027, 'planner-3'),
+      mk(loraOnly, 0.63, null, 'planner-3'),
+      mk(demoProg([demoGraft('mistral_heads_8', 6)], 300), 0.628, 0.019, 'planner-2'),
+      mk(demoProg([demoGraft('qmath_l10_activation512', 6)], 300), 0.617, 0.012, 'planner-2'),
+      mk(demoProg([demoGraft('phi_block_4_11', 4)], 300), 0.609, 0.006, 'planner-1'),
+      mk(demoProg([demoGraft('lfm_experts_2', 10)], 300), 0.594, -0.003, 'planner-3'),
+      mk(demoProg([demoGraft('gemma_block_5_12', 5)], 300), 0.582, -0.008, 'planner-1'),
+      mk(demoProg([demoGraft('qmath_block_8_19', 11)], 100), 0.312, null, 'planner-1'),
+    ];
+    r.board = [entry, ...rest];
+    r.board.forEach((e, i) => { e.rank = i + 1; });
+    r.best = { program_hash: h, describe: entry.describe, name: entry.name, scores: ev.scores, combined: entry.combined, agent: 'planner-1', program: clone(prog) };
+    const jump = r.curve.length ? r.curve[r.curve.length - 1].best : 0.66;
+    r.evals_used = r.evals_total;
+    r.curve.push({ eval: r.evals_total, best: 0.685, score: 0.685 });
+    const guards = spec.benchmarks.filter((b) => b.kind === 'guard').map((g) => ({ id: g.id, name: g.name, score: ev.scores[g.id], floor: g.floor, ok: ev.scores[g.id] >= g.floor }));
+    logAct(r, 'planner-1', 'eval', 'ok', V.evalLine({ name: entry.name, target: 0.685, isBest: true, prev: jump }), { name: entry.name, program_hash: h, target: 0.685, best: 0.685, is_best: true, guards, scores: ev.scores, result: 'ok' });
+    const a1 = r.agents.find((x) => x.id === 'planner-1');
+    a1.best = 0.685; a1.attempts++;
+    think(a1, 'Block at L6 plus the neuron cluster at L9, heal 600 steps on math text. The two parts sit three layers apart, so no collapse risk, and each one contributed on its own control. 68.5% on GSM8K is 10.5 points over the host.');
+    logAct(r, 'judge', 'verdict', 'ok', V.controlLine({ name: entry.name, score: 0.685, control: 0.622, pts: '6.3' }), { frontier: r.board.slice(0, 3).map((e) => ({ program_hash: e.program_hash, name: e.name, target: e.scores[tg.id] })), retired: [], killed: [] });
+    tickRun(r);
+    // the finish step logs held-out checks for the top three: point them at the doctored board
+    r.activity.filter((e) => e.kind === 'heldout').forEach((e, i) => { const b = r.board[i]; if (b) { e.data = { name: b.name, program_hash: b.program_hash, target: Math.max(0, b.scores[tg.id] - 0.016), scores: b.scores }; e.text = 'Held-out check of ' + b.name; } });
+    r.elapsed = Math.round(span + 40);
+    vclock = null;
+    shiftTimes(r, shift - 4 * 3600);
+    r.started = Date.now() / 1000 - 4 * 3600 - r.elapsed;
+    r.agents.forEach((a) => { a.status = 'done'; a.now = 'Finished'; });
+  });
+}
+
+function seedEmptyRun(legal) {
+  const lim = { max_total_params_b: 1.3, max_run_params_b: 1.3, max_heal_min: 20 };
+  const sp = clone(legal); sp.limits = lim; sp.size.max_params_b = 1.3;
+  sp.id = V.DEMO_IDS.specClause; sp.title = 'Clause checker under 1.3B';
+  specs.set(sp.id, sp);
+  researchOf.set(sp.id, { started: Date.now() - 90000, plan: researchPlan(sp), mode: null, applied: false });
+  const r = newRun(sp);
+  runs.delete(r.id); r.id = V.DEMO_IDS.runEmpty; runs.set(r.id, r);
+  r.activity = []; r.actId = 0;
+  const T = now();
+  vclock = T - 60 * 22 * 60;
+  logAct(r, 'judge', 'system', 'info', 'Run started: ' + r.evals_total + ' evals, ' + sp.budget.compute_min + ' compute minutes. Size limit 1.30B total.');
+  const tries = [['planner-1', 'saul_block_4_13', 4], ['planner-2', 'lfm_experts_2', 10], ['planner-3', 'gemma_block_5_12', 5], ['planner-1', 'saul_block_4_13', 6], ['planner-2', 'gemma_block_5_12', 7], ['planner-3', 'lfm_experts_2', 9]];
+  tries.forEach(([aid, pid, at], i) => {
+    vclock += 4.5;
+    const a = r.agents.find((x) => x.id === aid);
+    const prog = demoProg([demoGraft(pid, at)], 300);
+    const part = PART[pid];
+    const tot = paramsOf(prog);
+    const text = part.label + ' at L' + at + ' would bring the total to ' + tot.toFixed(2) + 'B, over the 1.30B limit. Refused before any eval.';
+    think(a, part.label + ' (' + part.donor.split('/').pop() + ' ' + (part.layers[0] === part.layers[1] ? 'L' + part.layers[0] : 'L' + part.layers[0] + '-' + part.layers[1]) + ') adds ' + part.params_m + 'M parameters. The host is 1.24B, so the total is ' + tot.toFixed(2) + 'B and the limit is 1.30B. I try a smaller part next.');
+    tool(a, 'probe(' + pid + '@' + at + ')', 'refused: ' + tot.toFixed(2) + 'B over 1.30B', 'bad');
+    logAct(r, aid, 'refused', 'bad', text);
+    r.refused = (r.refused || 0) + 1;
+  });
+  vclock += 6;
+  logAct(r, 'analyst', 'map', 'info', 'No program fit. The smallest part in the catalog adds 4M parameters and every useful legal part adds 90M or more. Raise the size limit to about 1.7B and try again.');
+  r.agents.find((x) => x.id === 'analyst').now = 'Wrote the note on the size limit';
+  logAct(r, 'judge', 'milestone', 'info', 'Search finished. Nothing was scored.');
+  r.status = 'done'; r.outcome = 'finished'; r.elapsed = 41; r.refused = 9;
+  r.empty_reason = 'Every proposal went over the 1.30B size limit, so nothing was scored.';
+  r.agents.forEach((a) => { a.status = 'done'; a.now = 'Finished'; });
+  vclock = null;
+  r.started = T - 22 * 60 * 60 - 41;
+  shiftTimes(r, 0);
+}
+
+function demoAttempt(spec, prog, target, control, n, compute_s) {
+  const tg = spec.benchmarks.find((b) => b.kind === 'target');
+  const ev = withSynth(spec, prog, evalProgram(spec, prog));
+  ev.scores[tg.id] = target;
+  ev.combined = Math.round(target * 0.6 * 1000) / 1000;
+  ev.control = control != null ? { scores: { [tg.id]: control } } : null;
+  ev.vs_control = control != null ? Math.round((target - control) * 1000) / 1000 : null;
+  return { n, action: 'score', program: prog, scores: ev.scores, combined: ev.combined, control: ev.control, params_b: ev.params_b, status: ev.status, compute_s, comparison: mockComparison(spec, ev, prog), size: estimateOf(prog), pipeline: ev.pipeline, heal_note: null, components: ev.components, stages: ev.stages, drift: ev.drift };
+}
+
+function seedBuilder(spec) {
+  const R = V.DEMO_IDS;
+  const final = demoProg([demoGraft('qmath_block_8_19', 6), demoGraft('qmath_l18_contrast512', 9)], 600);
+  const attempts = [
+    demoAttempt(spec, demoProg([], 300), 0.585, null, 1, 96),
+    demoAttempt(spec, demoProg([demoGraft('qmath_l18_contrast512', 9)], 300), 0.612, 0.596, 2, 148),
+    demoAttempt(spec, demoProg([demoGraft('qmath_block_8_19', 6)], 300), 0.641, 0.604, 3, 171),
+    demoAttempt(spec, demoProg([demoGraft('qmath_block_8_19', 6), demoGraft('qmath_l18_contrast512', 9)], 300), 0.662, 0.611, 4, 183),
+    demoAttempt(spec, final, 0.685, 0.622, 5, 204),
+  ];
+  const budget = { evals_used: 9, evals_total: 12, compute_used_s: 802, compute_total_s: 2700 };
+  builders.set(R.builder, { id: R.builder, spec_id: R.specMath, budget: clone(budget) });
+  const put = (k, v) => { try { const key = storageKey(k); if (sessionStorage.getItem(key) == null) sessionStorage.setItem(key, JSON.stringify(v)); } catch (e) { /* storage can be off */ } };
+  put('wsp.prog.' + R.builder, final);
+  put('wsp.att.' + R.builder, attempts);
+  put('wsp.budget.' + R.builder, budget);
+}
+
+function seedDemo() {
+  const R = V.DEMO_IDS;
+  const math = makeSpec('A math tutor that runs on a phone and shows its work', [], R.specMath);
+  specs.set(R.specMath, math);
+  researchOf.set(R.specMath, { started: Date.now() - 90000, plan: researchPlan(math), mode: null, applied: false });
+  applyResearch(math);
+  const legal = makeSpec('A contract reader that answers questions about clauses and keeps its general skills', [], R.specLegal);
+  specs.set(R.specLegal, legal);
+  startMockResearch(legal, true);
+  const C = V.CODE_SHRINK_SPEC;
+  const code = makeShrinkSpec(C.prompt, R.specShrink);
+  code.shrink = checkBlock({ keep_experts: C.keep_experts, heal_steps: C.heal_steps, rule: 'saliency' }, code.shrink);
+  code.title = C.title; code.summary = C.summary; code.prompt = C.prompt; code.task_type = 'code'; code.drafted_by = 'the planner';
+  code.limits = clone(C.limits); code.size.max_params_b = C.limits.max_total_params_b;
+  code.benchmarks = clone(C.benchmarks);
+  specs.set(R.specShrink, code);
+  const sess = { id: R.shrink, spec_id: R.specShrink, plan: clone(code.shrink) };
+  shrinks.set(R.shrink, sess);
+  shrinkJobs.set(V.DEMO_SHRINK_JOB, { sess, plan: clone(sess.plan), t0: 0, done: null });
+  // the finished and the empty run each get their own spec, so the sidebar shows distinct titles
+  const solver = clone(math); solver.id = R.specSolver; solver.title = 'Grade-school math solver';
+  specs.set(R.specSolver, solver);
+  researchOf.set(R.specSolver, { started: Date.now() - 90000, plan: researchPlan(solver), mode: null, applied: false });
+  applyResearch(solver);
+  seedEmptyRun(legal);
+  seedDoneRun(solver);
+  seedLiveRun(math);
+  seedBuilder(math);
+  V.seedDemoRecents();
+}
+if (DEMO) seedDemo();

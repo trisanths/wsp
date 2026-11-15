@@ -143,3 +143,13 @@ something fails. Each entry: what went wrong, then the rule.
   (up to generation 9) and the skill tops smoke were lost. Detached apps
   keep running; scripts must write rows to the volume so a dead local
   entrypoint loses nothing (round 21 writes progress per generation).
+- Key every cached artifact by the code version that made it. Round 24's
+  rerun after an objective change restored the stitch the old objective had
+  saved on the volume and reported the old numbers as if they were new. Put
+  a fit or format version in every artifact path and bump it when the fit
+  changes.
+- A filter that matches nothing must fail loudly. Round 20c R1 was launched
+  with `--only` set to full cell names, but the filter matched only arm or
+  config names, so the run printed "0 cells" and exited, and I did not look
+  for 50 minutes. Run `--estimate-only` with the same arguments before a
+  launch, and make entrypoints exit with an error on zero cells.

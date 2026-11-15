@@ -55,8 +55,15 @@ class Session:
 
     def budget_dict(self):
         budget = self.env.budget
+        spec_budget = self.spec.get("budget") or {}
+        spec_min = spec_budget.get("compute_min")
+        raised = False
+        if spec_min is not None:
+            raised = budget.compute_budget_s > float(spec_min) * 60.0 + 1e-6
         return {"evals_used": number(budget.eval_used()), "evals_total": number(budget.eval_budget),
-                "compute_used_s": number(budget.compute_used()), "compute_total_s": number(budget.compute_budget_s)}
+                "compute_used_s": number(budget.compute_used()), "compute_total_s": number(budget.compute_budget_s),
+                "spec_compute_min": number(spec_min) if spec_min is not None else None,
+                "compute_raised": raised, "stub": self.env.is_stub()}
 
     def target_ids(self):
         ids = []
@@ -201,7 +208,8 @@ def size_report(session, program):
     estimate = sizing.estimate(clean, session.size_ctx)
     problems = sizing.forbidden_problems(clean)
     problems.extend(sizing.limit_problems(session.limits(), estimate))
-    return {"estimate": estimate, "limits": session.limits(), "problems": problems, "ok": len(problems) == 0}
+    return {"estimate": estimate, "limits": session.limits(), "problems": problems, "ok": len(problems) == 0,
+            "score_evals": score_eval_cost(clean)}
 
 
 def work_job(session, job, program):
@@ -387,6 +395,13 @@ def real_report(session, program, report):
     if measured is None:
         return report
     return measured
+
+
+def score_eval_cost(program):
+    """The evals one Score charges: the program itself, plus the random-part control when it has real grafts."""
+    if has_real_grafts(program):
+        return 2
+    return 1
 
 
 def has_real_grafts(program):

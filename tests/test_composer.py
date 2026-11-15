@@ -6,6 +6,7 @@ import os
 import pytest
 
 from composer import sizes
+from composer.front_door import build_variant as front_door_build, variant_hash as front_door_hash
 from composer.agent import load_request, run_loop, run_request, system_prompt
 from composer.archive import Archive
 from composer.llm import LLMError, OpenAIClient, read_key
@@ -534,16 +535,16 @@ def test_system_prompt_states_rules_and_budgets(root):
 def test_shipped_requests_load():
     folder = os.path.join(REPO, "composer", "requests")
     names = sorted(os.listdir(folder))
-    assert names == ["generalist_7b.json", "law_small.json", "math_code_med.json", "math_plus.json",
-                     "smoke_qwen05.json"]
+    assert names == ["generalist_7b.json", "law_small.json", "llama8b_math_med_auto.json", "math_code_med.json",
+                     "math_plus.json", "smoke_qwen05.json"]
     caps = {}
     for name in names:
         request = load_request(os.path.join(folder, name))
         caps[request["name"]] = request["constraints"]["max_total_params_b"]
         for key in ["max_total_params_b", "max_run_params_b", "heal_steps_cap", "compile_budget"]:
             assert key in request["constraints"]
-    assert caps == {"generalist_7b": 8.0, "law_small": 1.5, "math_code_med": 3.5, "math_plus": 2.0,
-                    "smoke_qwen05": 2.0}
+    assert caps == {"generalist_7b": 8.0, "law_small": 1.5, "llama8b_math_med_auto": 8.1, "math_code_med": 3.5,
+                    "math_plus": 2.0, "smoke_qwen05": 2.0}
 
 
 def test_report_sources_and_results():
@@ -1684,3 +1685,291 @@ def test_probe_verdict_uses_seed_spread_and_floor():
     assert spread["seed_spread"] == pytest.approx(0.35)
     assert spread["verdict"] == "tied"
     assert arms.judge_probe("x", final, [{"error": "e"}])["verdict"] == "not scored"
+
+
+# The front door join: plan_request and compile_plan, with a faked lineage and a faked build.
+
+LLAMA_BASE = "unsloth/Meta-Llama-3.1-8B-Instruct"
+MATH_SRC = "nvidia/OpenMath2-Llama3.1-8B"
+MED_SRC = "FreedomIntelligence/HuatuoGPT-o1-8B"
+QWEN_BASE = "Qwen/Qwen2.5-1.5B-Instruct"
+CODER = "Qwen/Qwen2.5-Coder-7B-Instruct"
+LEAK = "-0.0123456789"
+
+
+def front_request(name, base, skills, add, limits, constraints, budget=3):
+    return {"name": name, "description": "front door test", "base": base, "skills": skills,
+            "constraints": dict(constraints, compile_budget=budget, heal_steps_cap=300),
+            "front_door": {"name": name, "base": base, "add": add, "remove": [], "keep": ["knowledge"],
+                           "limits": limits, "reported": ["openai/gsm8k", "cais/mmlu"], "seed": 0},
+            "agent": {"max_turns": 10, "max_tokens": 100000}}
+
+
+def llama_request_file(root):
+    path = os.path.join(root, "front_llama.json")
+    request = front_request(
+        "front_llama", LLAMA_BASE, {"math": 1.0, "medicine": 1.0},
+        [{"skill": "math", "sources": [MATH_SRC]}, {"skill": "medicine", "sources": [MED_SRC]}],
+        {"max_total_params_b": 8.1, "max_active_params_b": 7.6, "max_heal_minutes": 600},
+        {"max_total_params_b": 8.1, "max_run_params_b": 7.6})
+    write_json(path, request)
+    return path
+
+
+def qwen_request_file(root, total):
+    path = os.path.join(root, "front_qwen.json")
+    request = front_request(
+        "front_qwen", QWEN_BASE, {"code": 1.0}, [{"skill": "code", "sources": [CODER]}],
+        {"max_total_params_b": total, "max_active_params_b": total, "max_heal_minutes": 60},
+        {"max_total_params_b": total, "max_run_params_b": total})
+    write_json(path, request)
+    return path
+
+
+def fake_plan_fn(calls=None):
+    from tests.test_auto import static_lineage
+    from wsp import auto
+
+    def plan_fn(request, settings):
+        if calls is not None:
+            calls.append((request, settings))
+        return auto.plan(request, lineage=static_lineage(), atlas_entries=[], library_models=[],
+                         settings=settings or None)
+    return plan_fn
+
+
+def fake_report(total=8.03e9, run=7.5e9, problems=None):
+    return {
+        "probe": {
+            "skills": {
+                "math:" + MATH_SRC: {"source": MATH_SRC, "method": "weave", "transfer": 0.62, "verdict_word": "contributes",
+                                     "content_z": {"z": 3.1, "n": 4}, "donor_kl_base": 0.4,
+                                     "content_controls": [0.1, 0.2]},
+                "medicine:" + MED_SRC: {"source": MED_SRC, "method": "weave", "transfer": 0.41,
+                                        "verdict_word": "contributes"},
+            },
+            "drift": {"base_kl": 0.01, "tolerance": 0.05},
+            "nll": {"delta": {"math": -0.2, "knowledge": 0.01}},
+            "practice": {"math": {"base": 0.5, "final": 0.9}},
+        },
+        "sizes": {"base": {"total": 8.03e9, "per_token": 8.03e9}, "final": {"total": total, "per_token": run},
+                  "limit_problems": problems or []},
+        "verdict": {"verdict": "met", "reasons": []},
+        "verdicts": [{"skill": "math", "verdict": "met"}],
+        "stages": [{"method": "weave", "status": "ok", "weights": [0.1] * 5000, "tensor": [LEAK]}],
+        "seconds": 1200.0,
+        "state_dict": {"layer.0": [0.5] * 100},
+    }
+
+
+def fake_make(calls, report=None):
+    def make_fn(request, plan, settings):
+        calls.append((request, plan, settings))
+        return {"ok": True, "report": report if report is not None else fake_report(),
+                "model_dir": "/vol/composer_plans/front_llama/abc"}
+    return make_fn
+
+
+def front_toolbox(root, make_calls=None, plan_calls=None, request_path=None, report=None):
+    request = load_request(request_path or llama_request_file(root))
+    make_calls = [] if make_calls is None else make_calls
+    return Toolbox(request, Sources(root), fake_practice([]), read_language_text(root),
+                   plan_fn=fake_plan_fn(plan_calls), make_fn=fake_make(make_calls, report))
+
+
+def test_plan_request_returns_the_front_doors_methods(root):
+    box = front_toolbox(root)
+    out = box.call("plan_request", {})
+    assert out["ok"] is True and out["feasible"] is True
+    assert out["base"]["id"] == LLAMA_BASE
+    rows = {row["skill"]: row for row in out["sources"]}
+    assert rows["math"]["relation"] == "fine_tune"
+    assert [m["method"] for m in rows["math"]["methods"]][0] == "weave"
+    assert rows["math"]["methods"][0]["fits"] is True
+    assert rows["math"]["methods"][0]["reason"]
+    assert rows["medicine"]["chosen_by_front_door"] == "weave"
+    assert out["stages"][0]["method"] == "weave"
+    assert [m["skill"] for m in out["stages"][0]["members"]] == ["math", "medicine"]
+    assert out["sizes"]["final_total_b"] == pytest.approx(8.03, abs=0.01)
+    assert out["limits"]["max_total_params_b"] == 8.1
+    assert "weave_population" in out["knobs"] and out["knobs"]["slim_keep"]["methods"] == ["slim"]
+    assert out["budget_left"] == 3
+    assert box.budget_used == 0
+    text = json.dumps(out)
+    assert LEAK not in text
+
+
+def test_plan_request_lists_seams_and_tops_for_a_diverged_source(root):
+    box = front_toolbox(root, request_path=qwen_request_file(root, 2.47))
+    out = box.call("plan_request", {})
+    row = out["sources"][0]
+    assert row["relation"] == "same_family_other_size"
+    methods = {m["method"]: m for m in row["methods"]}
+    assert list(methods) == ["synth", "feedback", "tops"]
+    assert methods["synth"]["fits"] is True
+    assert methods["tops"]["runs_in_make"] is False
+    assert row["chosen_by_front_door"] == "synth"
+
+
+def test_plan_request_takes_a_variant_and_knobs_and_checks_them(root):
+    plan_calls = []
+    box = front_toolbox(root, plan_calls=plan_calls)
+    out = box.call("plan_request", {"request": {"add": [{"skill": "math", "sources": [MATH_SRC], "method": "delta"},
+                                                         {"skill": "medicine", "sources": [MED_SRC]}]},
+                                    "settings": {"delta_rank": 32}})
+    assert out["ok"] is True
+    assert plan_calls[-1][0]["add"][0]["method"] == "delta"
+    assert plan_calls[-1][1] == {"delta_rank": 32}
+    assert out["settings_set"] == {"delta_rank": 32}
+    bad = [{"request": {"base": "x/y"}}, {"request": {"limits": {"max_total_params_b": 9.0}}},
+           {"settings": {"nope": 1}}, {"settings": {"delta_rank": 100000}}, {"request": {"reported": []}},
+           {"request": {"add": [{"skill": "code", "sources": [MATH_SRC]}]}}]
+    for args in bad:
+        got = box.call("plan_request", args)
+        assert got["ok"] is False and got["stage"] == "arguments", args
+    assert len(plan_calls) == 1
+
+
+def test_compile_plan_returns_the_probe_report_and_never_weights(root):
+    make_calls = []
+    box = front_toolbox(root, make_calls)
+    out = box.call("compile_plan", {})
+    assert out["ok"] is True and out["within_constraints"] is True
+    assert out["methods"] == ["weave"]
+    report = out["report"]
+    assert report["skills"]["math:" + MATH_SRC]["transfer"] == pytest.approx(0.62)
+    assert report["skills"]["math:" + MATH_SRC]["content_z"]["z"] == pytest.approx(3.1)
+    assert out["transfer"] == {"math": pytest.approx(0.62), "medicine": pytest.approx(0.41)}
+    assert out["drift"] == pytest.approx(0.01)
+    assert report["nll_delta"]["knowledge"] == pytest.approx(0.01)
+    assert report["sizes"]["final_total_b"] == pytest.approx(8.03)
+    assert out["request_objective"] == pytest.approx((0.62 + 0.41) / 2)
+    assert out["budget_left"] == 2
+    text = json.dumps(out)
+    assert LEAK not in text
+    assert "state_dict" not in text and "donor_kl_base" not in text and '"practice"' not in text
+    assert long_numeric_lists(out, []) == []
+    # The build got the plan the front door made, with the request's fixed fields.
+    request, plan, settings = make_calls[0]
+    assert plan["feasible"] is True and request["reported"] == ["openai/gsm8k", "cais/mmlu"]
+    # An identical variant is cached and free.
+    again = box.call("compile_plan", {})
+    assert again["cached"] is True and again["budget_left"] == 2 and len(make_calls) == 1
+    # A different knob is a different variant and costs one more.
+    box.call("compile_plan", {"settings": {"weave_population": 6}})
+    assert len(make_calls) == 2 and box.budget_used == 2
+
+
+def test_compile_plan_over_the_cap_is_not_finishable(root):
+    box = front_toolbox(root, report=fake_report(total=9.5e9, run=9.5e9))
+    out = box.call("compile_plan", {})
+    assert out["ok"] is True and out["within_constraints"] is False
+    assert any("over the cap" in v for v in out["violations"])
+    refused = box.call("finish", {"plan_hash": out["plan_hash"], "rationale": "x"})
+    assert refused["ok"] is False and box.finished is None
+
+
+def test_a_request_whose_limits_allow_no_method_gets_the_refusal_text(root):
+    make_calls = []
+    box = front_toolbox(root, make_calls, request_path=qwen_request_file(root, 1.55))
+    planned = box.call("plan_request", {})
+    assert planned["feasible"] is False
+    assert planned["refusal_text"].startswith("No plan runs:")
+    assert "max_total_params_b" in planned["refusal_text"]
+    methods = {m["method"]: m for m in planned["sources"][0]["methods"]}
+    assert all(m["fits"] is False for m in methods.values())
+    out = box.call("compile_plan", {})
+    assert out["ok"] is False and out["stage"] == "refused"
+    assert "No plan runs" in out["refusal_text"]
+    assert make_calls == [] and box.budget_used == 0
+
+
+def test_tops_is_listed_but_the_front_door_does_not_choose_it(root):
+    box = front_toolbox(root, request_path=qwen_request_file(root, 3.0))
+    out = box.call("plan_request", {})
+    row = out["sources"][0]
+    assert row["chosen_by_front_door"] in ("synth", "feedback")
+    assert "tops" in [m["method"] for m in row["methods"]]
+
+
+def test_front_door_tools_are_off_without_a_front_door_block(root):
+    box = toolbox_for(root, fake_practice([]))
+    for name in ("plan_request", "compile_plan"):
+        out = box.call(name, {})
+        assert out["ok"] is False and "front_door" in out["error"]
+    assert [s["name"] for s in tool_specs(front_door_tools=True)] == [
+        "atlas", "catalog", "language_reference", "compile_and_practice", "plan_request", "compile_plan", "finish"]
+
+
+def test_the_prompt_states_the_method_rules_for_a_front_door_request(root):
+    request = load_request(llama_request_file(root))
+    text = system_prompt(request, 10, 100000)
+    assert "Mixing (weave, delta) is only for true fine-tunes" in text
+    assert "Seams (synth, feedback) and tops" in text
+    assert "saliency" in text
+    assert "scrambled or random control and two seeds" in text
+    assert "Benchmarks score only the final choice" in text
+    assert chr(0x2014) not in text and chr(0x2013) not in text
+    plain = system_prompt(load_request(os.path.join(root, "request.json")), 10, 100000)
+    assert "Method rules" not in plain
+
+
+def test_agent_loop_plan_request_compile_plan_finish(root):
+    path = llama_request_file(root)
+    request = load_request(path)
+    variant, settings, error = front_door_build(request, {})
+    assert error is None
+    key = front_door_hash(variant, settings)
+    replies = [
+        response(1, [function_call("p1", "plan_request", {})]),
+        response(2, [function_call("p2", "compile_plan", {"request": None, "settings": None})]),
+        response(3, [function_call("p3", "finish", {"plan_hash": key, "rationale": "weave of both fine-tunes"})]),
+    ]
+    post = FakePost(replies, fail_first=False)
+    client = OpenAIClient(read_key(os.path.join(root, ".env")), post=post, sleep=lambda s: None)
+    runs = os.path.join(root, "composer", "runs")
+    summary = run_request(path, fake_practice([]), root=root, client=client, runs_root=runs, stamp="t1",
+                          plan_fn=fake_plan_fn(), make_fn=fake_make([]))
+    assert summary["stop_reason"] == "finish"
+    assert summary["final"]["plan_hash"] == key
+    assert summary["final"]["plan_variant"]["request"]["add"][0]["skill"] == "math"
+    assert summary["final"]["program"] is None and summary["final"]["no_model"] is False
+    assert summary["compile_budget_used"] == 1
+    names = [t["name"] for t in post.bodies[-1]["tools"]]
+    assert names == ["atlas", "catalog", "language_reference", "compile_and_practice", "plan_request",
+                     "compile_plan", "finish"]
+    outputs = {}
+    for item in post.bodies[-1]["input"]:
+        if isinstance(item, dict) and item.get("type") == "function_call_output":
+            outputs[item["call_id"]] = json.loads(item["output"])
+    assert outputs["p1"]["sources"][0]["methods"][0]["method"] == "weave"
+    assert outputs["p2"]["ok"] is True and outputs["p2"]["plan_hash"] == key
+
+
+def test_the_loop_without_finish_submits_the_best_built_plan(root):
+    box = front_toolbox(root)
+    box.call("compile_plan", {})
+    final = box.fallback_finish("stopped")
+    assert final["fallback"] is True and final["plan_variant"] is not None and final["no_model"] is False
+
+
+def test_a_failed_build_is_not_cached_and_costs_a_compile(root):
+    request = load_request(llama_request_file(root))
+
+    def broken(request_, plan, settings):
+        raise RuntimeError("container preempted")
+
+    box = Toolbox(request, Sources(root), fake_practice([]), read_language_text(root), plan_fn=fake_plan_fn(),
+                  make_fn=broken)
+    out = box.call("compile_plan", {})
+    assert out["ok"] is False and "preempted" in out["errors"][0]
+    assert box.budget_used == 1 and box.plan_runs == {}
+
+
+def test_a_bad_front_door_block_is_rejected_on_load(root):
+    path = os.path.join(root, "bad_front.json")
+    request = front_request("bad_front", LLAMA_BASE, {"math": 1.0}, [{"skill": "code", "sources": [MATH_SRC]}],
+                            {}, {"max_total_params_b": 8.1, "max_run_params_b": 7.6})
+    write_json(path, request)
+    with pytest.raises(ValueError, match="not a skill of the request"):
+        load_request(path)

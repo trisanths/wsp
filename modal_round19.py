@@ -339,8 +339,24 @@ def save_cell(name, row, result):
     volume.commit()
 
 
+# Cells whose slimmed model is kept on the volume for serving (modal_serve.py reads this root).
+KEEP_MODELS = ("moe_saliency_64", "moe_saliency_32_heal500")
+KEPT_ROOT = "/vol/slim_models/round19"
+
+
 def disk_size(slim, model, tokenizer, name):
-    """Save the slimmed model to local disk, return its size in bytes, and delete it."""
+    """Save the slimmed model and return its size in bytes and whether it is a plain HF directory.
+
+    Cells in KEEP_MODELS are saved under KEPT_ROOT on the volume and kept; the
+    others are saved to local disk and deleted.
+    """
+    if name in KEEP_MODELS:
+        path = os.path.join(KEPT_ROOT, name)
+        os.makedirs(KEPT_ROOT, exist_ok=True)
+        manifest = slim.save_slim(model, path, tokenizer)
+        volume.commit()
+        print(f"{name} kept the slimmed model at {path}", flush=True)
+        return slim.directory_bytes(path), manifest["plain_hf"]
     path = f"/tmp/round19_{name}"
     try:
         manifest = slim.save_slim(model, path, tokenizer)

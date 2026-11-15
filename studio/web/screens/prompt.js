@@ -1,6 +1,7 @@
 import { html, useState, useRef, useEffect, useLayoutEffect } from '../lib.js';
 import { api } from '../api.js';
-import { go, toast } from '../util.js';
+import { go, toast, useRoute } from '../util.js';
+import { DEMO } from '../demo-flag.js';
 import { TopBar, Icon, Composer } from '../components.js';
 import { ThinkLine, reduced } from '../motion.js';
 import { MeasuredHome } from './measured.js';
@@ -20,6 +21,7 @@ const EXAMPLES = [
 ];
 const STATES = ['Reading your files', 'Picking benchmarks', 'Drafting the spec'];
 const HOLD_MS = 1100;
+const DEMO_PROMPT = 'A math tutor that runs on a phone and shows its work, under 1.5B parameters';
 // the headline reveals once per page load
 let revealed = false;
 
@@ -30,6 +32,8 @@ function Chevron() {
 const fsize = (n) => (n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB');
 
 export function PromptScreen() {
+  const route = useRoute();
+  const typeDemo = DEMO && route.q && route.q.get('type') === '1';
   const [text, setText] = useState('');
   const [files, setFiles] = useState([]);
   const [over, setOver] = useState(false);
@@ -57,6 +61,22 @@ export function PromptScreen() {
     const t = setInterval(() => setStep((s) => Math.min(s + 1, STATES.length - 1)), HOLD_MS);
     return () => clearInterval(t);
   }, [busy]);
+
+  useEffect(() => {
+    if (!typeDemo) return;
+    if (reduced()) { setText(DEMO_PROMPT); if (ta.current) ta.current.focus(); return; }
+    let i = 0, timer;
+    setText('');
+    const tick = () => {
+      i++;
+      setText(DEMO_PROMPT.slice(0, i));
+      if (i >= DEMO_PROMPT.length) { if (ta.current) ta.current.focus(); return; }
+      const ch = DEMO_PROMPT[i - 1];
+      timer = setTimeout(tick, (ch === ' ' ? 70 : 38) + Math.random() * 45 + (ch === ',' ? 220 : 0));
+    };
+    timer = setTimeout(tick, 700);
+    return () => clearTimeout(timer);
+  }, [typeDemo]);
 
   const addFiles = (list) => {
     const arr = Array.from(list || []);
@@ -89,7 +109,7 @@ export function PromptScreen() {
   const chips = files.length > 0 && html`<div class="fchips">${files.map((f, i) => html`<span class="fchip" key=${f.name + i}><${Icon} n="file" size=${14} /><span class="fn">${f.name}</span><span class="sz">${fsize(f.size)}</span><button data-tip="Remove" aria-label=${'Remove ' + f.name} onClick=${() => setFiles(files.filter((_, j) => j !== i))}><${Icon} n="x" size=${12} /></button></span>`)}</div>`;
 
   return html`<${TopBar} />
-  <main class="screen home">
+  <main class=${'screen home' + (typeDemo ? ' demo-type' : '')}>
     <div class="home-top">
       ${busy
         ? html`<div class="card drafting">

@@ -578,3 +578,14 @@ def test_range_reader_retries_timeouts_and_rate_limits(monkeypatch):
 
     with pytest.raises(RuntimeError):
         lineage._retrying(broken)(0, 2)
+
+
+def test_tops_is_valid_for_same_tokenizer_other_size_and_diverged_sources():
+    for kind in ("same_family_other_size", "diverged_same_shape"):
+        names = [m["method"] for m in lineage.methods(kind)]
+        assert names.index("tops") > names.index("synth")
+        assert [m["module"] for m in lineage.methods(kind) if m["method"] == "tops"] == ["wsp/tops.py"]
+    other = {"kind": "same_family_other_size", "flags": {"tokenizer_same": False}, "base_is_moe": False,
+             "subtract_reference": None}
+    assert "tops" not in [m["method"] for m in lineage.methods(other)]
+    assert "tops" not in [m["method"] for m in lineage.methods("fine_tune")]

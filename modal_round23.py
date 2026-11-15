@@ -2,10 +2,6 @@
 
 No benchmark data trains anything.
 
-DO NOT RUN YET. docs/partcheck_review.md lists defects that make its verdicts
-invalid (held-out items that repeat search items, group-level gains copied to
-every part, undertrained heals, a wrong OLMo-2 norm). main() refuses to start.
-
 Question. A miner finds a part (MLP neuron cluster, attention heads) in a
 donor model and freezes a skill file for it: items, matched controls, and a
 search half and a held-out half. The compiler (wsp/synth.py) puts the part
@@ -381,7 +377,6 @@ def main(only_donors: str = "", base: str = "", seeds: str = "", max_parts: int 
          tf5: bool = False, stage2: bool = False, per_part: bool = False, list: bool = False,
          max_containers: int = MAX_CONTAINERS, force: bool = False, confirm_seeds: str = "3,4",
          wall_hours: float = WALL_HOURS):
-    raise SystemExit("round 23 is not ready: fix the defects in docs/partcheck_review.md first")
     from wsp import partcheck
 
     cells = plan(only_donors, base, tf5, smoke)

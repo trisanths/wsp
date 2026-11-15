@@ -51,7 +51,7 @@ Applied in this order, thresholds in `partcheck.THRESHOLDS`:
 
 1. `harmful`: contribution below minus 0.05.
 2. `no gap`: gap below 0.1 (the base is already as good as the donor, or the donor lacks the skill).
-3. `harmful`: drift above `max_drift` (0.1) plus `drift_ref`. Drift is measured with the part open on chat-formatted text and can reach 2 to 6 nats for any compile, so the reference is the control compiles' own drift. With no control run `drift_ref` is 0 and the 0.1 limit alone applies: read such a row with care, and read the drift numbers of the smoke before trusting any `harmful`.
+3. `harmful`: drift above `max_drift` (0.1) plus `drift_ratio` (5) times `drift_ref`. Drift is measured with the part open on chat-formatted text and can reach 2 to 6 nats for any compile, so the reference is the control compiles' own drift. A part that works writes more than a control: in the planted test the real part drifts 2 to 3.5 times the control median, so the limit is a ratio of the control median plus a small floor, and `max_drift` itself stays 0.1. With no control run `drift_ref` is 0 and the 0.1 limit alone applies: read such a row with care, and read the drift numbers of the smoke before trusting any `harmful`.
 4. `no better than controls`: contribution at most 0.05, or contribution less than the best control contribution plus 0.1, or content_z below 2 when it exists.
 5. `survives provisional`: every rule above passed with fewer than 5 seeds (`min_seeds_survive`). With three control seeds a z of 2 is weak. `confirm_seeds` (modal default 3,4) reruns the real and control compiles for those seeds when a part is provisional, and the verdict is recomputed with all seeds.
 6. `survives compile`: otherwise, with at least 5 seeds.
@@ -88,8 +88,8 @@ Merge into library rows by (`id`, `base`): set a new field (for example `compile
 ## Unverified
 
 - No Modal run exists. The CPU tests use tiny random models, and one CPU smoke used real catalog rows (Qwen2.5-Math-1.5B, three parts) with tiny random Qwen2 models and the real Qwen tokenizer. That checked the file formats and both part kinds, not the science.
-PLANTED_PLACEHOLDER
-- Thresholds (`min_gain` 0.1 nats, `min_z` 2, `max_drift` 0.1, `min_seeds_survive` 5) are guesses, not calibrated on a real run.
+- The planted test (`tests/test_partcheck.py`) is a donor that memorizes a random map of 56 keys; the seam trains on 8 keys and is scored on 40 others. The map cannot be learned from 8 examples, so a compile that scores the held-out keys carries the donor's block. Over seeds 0, 1, 2 the real contribution (about 3 nats) beats the random control contribution (0) and the scrambled control contribution (1 to 2 nats) by more than `min_gain`. A second case replaces the real compile by a random-control compile and must not survive. A compile of a scrambled block with trained translation layers still reaches about half the real contribution, so the controls are not weak.
+- Thresholds (`min_gain` 0.1 nats, `min_z` 2, `max_drift` 0.1, `drift_ratio` 5, `min_seeds_survive` 5) are guesses, not calibrated on a real run.
 - The drift of a part is measured with the part open on every token. The token gate normally closes on general text. The control median is the reference, but no real run has shown the distribution yet.
 - The base for the four 5.x donors is chosen from tokenizer file hashes only and lineage was not run.
 - Qwen2.5-Coder-7B into Qwen2.5-1.5B-Instruct has vocabulary sizes 152064 and 151936. Whether `wsp.synth` then uses logit KD or LM loss is not checked.

@@ -45,8 +45,16 @@ export function Icon({ n, size = 16, sw = 1.75 }) {
   return html`<svg class="ic-svg" width=${size} height=${size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=${sw} stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d=${ICONS[n] || ''}/></svg>`;
 }
 
+import { DEMO } from './demo-flag.js';
+
 export function StubBadge({ small, title }) {
+  if (DEMO) return null;
   return html`<span class=${'stubtag' + (small ? ' sm' : '')} title=${title || 'Stub backend: these numbers are not real results'}>STUB</span>`;
+}
+
+/** The one quiet marker for demo mode, shown in the top bar of every screen. */
+export function DemoPill() {
+  return html`<span class="demopill" title="Demo mode: sample data, not real results">Demo</span>`;
 }
 
 // the studio mark: three bars, the middle one cut, like a deletion mask
@@ -69,14 +77,14 @@ export function TopBar({ children, right }) {
       <${Menu} open=${open} origin="top-left" onClose=${() => setOpen(false)} style=${{ top: '36px', left: 0, minWidth: '260px' }}>
         <div class="mrow"><span class="mk">Agent model</span><span class="mv">${(health && health.llm_model) || 'not set'}</span></div>
         <div class="mrow"><span class="mk">Agent provider</span><span class="mv">${(health && health.llm) || 'none'}</span></div>
-        <div class="mrow"><span class="mk">Backend</span><span class="mv">${health ? (modal ? 'Modal GPU' : health.backend === 'stub' ? 'Stub' : health.backend) : 'unknown'}</span></div>
+        <div class="mrow"><span class="mk">Backend</span><span class="mv">${health ? (modal ? 'Modal GPU' : health.backend === 'stub' ? (DEMO ? 'Sample data' : 'Stub') : health.backend) : 'unknown'}</span></div>
         <div class="mnote">Read only. The server sets these.</div>
       <//>
     </div>
     ${children}
     <span class="grow"></span>
     ${right}
-    ${modal ? html`<span class="pill" title="Jobs run on Modal GPUs">Modal GPU</span>` : stub && html`<${StubBadge} />`}
+    ${DEMO ? html`<${DemoPill} />` : modal ? html`<span class="pill" title="Jobs run on Modal GPUs">Modal GPU</span>` : stub && html`<${StubBadge} />`}
   </header>`;
 }
 
@@ -244,7 +252,7 @@ export function Menu({ open, onClose, children, class: cls, style, origin = 'top
     const box = par && ((anchorSel && par.querySelector(anchorSel)) || par);
     if (!el || !box) return;
     const r = box.getBoundingClientRect();
-    const vw = window.innerWidth, vh = window.innerHeight, m = 8, gap = 6;
+    const vw = window.innerWidth, vh = window.innerHeight, m = 12, gap = 6;
     el.style.maxHeight = '340px';
     const w = el.offsetWidth, h = el.offsetHeight;
     const below = vh - r.bottom - gap - m, above = r.top - gap - m;

@@ -1,5 +1,6 @@
 import { api } from '../api.js';
 import { go, toast } from '../util.js';
+import { storageKey } from '../demo-flag.js';
 
 // Create a builder for a spec and open it. The program is passed to the builder
 // through sessionStorage, because the contract has no route to load one.
@@ -7,9 +8,9 @@ export async function openProgramInBuilder(specId, program) {
   try {
     const r = await api.createBuilder(specId);
     if (program) {
-      try { sessionStorage.setItem('wsp.seed.' + r.builder_id, JSON.stringify(program)); } catch (e) { /* storage can be off */ }
+      try { sessionStorage.setItem(storageKey('wsp.seed.' + r.builder_id), JSON.stringify(program)); } catch (e) { /* storage can be off */ }
     }
-    try { sessionStorage.setItem('wsp.budget.' + r.builder_id, JSON.stringify(r.budget)); } catch (e) { /* ignore */ }
+    try { sessionStorage.setItem(storageKey('wsp.budget.' + r.builder_id), JSON.stringify(r.budget)); } catch (e) { /* ignore */ }
     go('/build/' + r.builder_id + '?spec=' + specId);
   } catch (e) {
     toast('Could not open the builder: ' + e.message, 'err');

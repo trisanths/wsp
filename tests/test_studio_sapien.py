@@ -249,19 +249,21 @@ def test_per_token_and_heal_limits(client):
 
 
 def test_run_never_scores_a_program_over_the_limit(client):
-    spec = small_limit_spec(client, 1.3)
+    # The run seed comes from the clock. At 1.3B some seeds propose only programs that fit, so the
+    # limit sits just above the host (1.24B) and nearly every graft is refused.
+    spec = small_limit_spec(client, 1.25)
     spec["budget"]["evals"] = 6
     spec = client.put("/api/spec/" + spec["id"], json=spec).json()
     run_id = start_run(client, spec)
     snap = wait_done(client, run_id)
     assert snap["status"] == "done"
-    assert snap["limits"]["max_total_params_b"] == 1.3
+    assert snap["limits"]["max_total_params_b"] == 1.25
     assert snap["refused"] > 0
     refused = [item for item in snap["activity"] if item["kind"] == "refused"]
     assert len(refused) > 0
     assert "Over the total size limit" in refused[0]["text"]
     for entry in snap["leaderboard"]:
-        assert entry["params_b"] <= 1.3 + 1e-6
+        assert entry["params_b"] <= 1.25 + 1e-6
 
 
 def test_estimate_matches_the_stub_compile(client):

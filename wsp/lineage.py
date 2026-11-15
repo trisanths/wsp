@@ -1184,6 +1184,7 @@ METHOD_INFO = {
     "transplant": ("wsp/transplant.py", "extra_routed_params"),
     "synth": ("wsp/synth.py", "seam_params_plus_donor_blocks"),
     "feedback": ("wsp/feedback.py", "seam_params_plus_donor_blocks"),
+    "tops": ("wsp/tops.py", "donor_upper_layers_and_head_per_skill"),
     "whole_model": ("route to the whole source model", "source_params_added"),
     "slim": ("wsp/slim.py", "smaller_than_base"),
 }
@@ -1192,6 +1193,10 @@ METHOD_INFO = {
 def _entry(name, reason):
     module, cost = METHOD_INFO[name]
     return {"method": name, "module": module, "cost": cost, "reason": reason}
+
+
+TOPS_REASON = ("same tokenizer: the base keeps its lower layers as a shared trunk and the skill gets the donor's own upper "
+               "layers and head on top (wsp/tops.py, a trained stitch at the cut); the skill keeps the donor's readout")
 
 
 def methods(rel, want="add"):
@@ -1237,11 +1242,13 @@ def methods(rel, want="add"):
         out.append(_entry("synth", why + ": staged seam with translate in, translate out, and a synthesis heal"))
         if flags.get("tokenizer_same", True):
             out.append(_entry("feedback", why + ": block output written into the next token's input"))
+            out.append(_entry("tops", TOPS_REASON))
         out.append(_entry("whole_model", "route to the whole source model, which keeps its own embeddings and head"))
     elif kind == "same_family_other_size":
         out.append(_entry("synth", "other width or depth: donor layers go through a seam with translation layers"))
         if flags.get("tokenizer_same", True):
             out.append(_entry("feedback", "other width or depth: block output written into the next token's input"))
+            out.append(_entry("tops", TOPS_REASON))
         out.append(_entry("whole_model", "route to the whole source model"))
     elif kind == "moe_same_width":
         if flags.get("same_family", False):

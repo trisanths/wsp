@@ -99,7 +99,11 @@ export function MeasuredForPlan({ plan }) {
   const est = plan.estimate || {};
   const kept = plan.keep_experts;
   const same = (row) => row.experts_kept === kept && row.rule === plan.rule;
-  const hit = result.rows.find(same);
+  // among the rows that match, prefer the one healed like the plan (healed when the plan heals, raw when it does not)
+  const planHeals = (plan.heal_steps || 0) > 0;
+  const matches = result.rows.filter(same);
+  const hit = matches.find((row) => ((row.heal_steps || 0) > 0) === planHeals) || matches[0];
+  const healText = (row) => (row.heal_steps ? 'with a ' + row.heal_steps + '-step heal' : 'with no heal');
   const other = plan.source_model !== result.model;
   return html`<section class="rsect mplan">
     <h2 class="sec"><span>Measured for this model</span><${MeasuredTag} /></h2>
@@ -109,12 +113,12 @@ export function MeasuredForPlan({ plan }) {
         <div class="mpl">Keep ${kept} of ${result.experts_per_layer} experts per layer by ${RULE_NAMES[plan.rule] || plan.rule}</div>
         <div class="mpv num">${sizeText(est.total_params_b)} stored, ${sizeText(est.run_params_b)} per token</div>
         <div class="faint small">Sizes are estimates. The plan does not estimate scores.</div>
-        ${hit ? html`<div class="mpmeas"><span class="tag g">measured</span> At ${kept} experts by ${RULE_NAMES[hit.rule]}: size ${sizeText(hit.total_params_b)}, HumanEval ${num(hit.scores.humaneval)}, MBPP ${num(hit.scores.mbpp)}.</div>`
+        ${hit ? html`<div class="mpmeas"><span class="tag g">measured</span> At ${kept} experts by ${RULE_NAMES[hit.rule]} ${healText(hit)}: size ${sizeText(hit.total_params_b)}, HumanEval ${num(hit.scores.humaneval)}, MBPP ${num(hit.scores.mbpp)}.</div>`
           : html`<div class="faint small mpnone">No run at ${kept} experts by ${RULE_NAMES[plan.rule] || plan.rule}. The nearest measured rows are in the table.</div>`}
       </div>
       <div class="mpcol">
         <div class="mpt">Measured runs</div>
-        <${MeasuredTable} result=${result} mark=${same} />
+        <${MeasuredTable} result=${result} mark=${(row) => row === hit} />
       </div>
     </div>
     <${Caveats} result=${result} />

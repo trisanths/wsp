@@ -399,7 +399,7 @@ def test_gate_closed_measurement_isolates_one_part():
 
 # ------------------------------------------------------------ tests: planted part
 
-KEYS = 100         # words k1..k100; the donor memorizes a fixed random map between them
+KEYS = 56          # words k1..k56 (fewer than the host width of 64, so a linear seam can address each key); the donor memorizes a fixed random map between them
 NSEARCH = 8        # keys the seam trains on: too few to learn a 100 key hash-like map
 NHELD = 40         # keys in the heldout half
 DONOR_STEPS = 1500
@@ -462,7 +462,7 @@ def key_sentences(count, seed):
     return out
 
 
-def build_planted(tmp, controls, seeds, per_part, swap_real_for_random=False):
+def build_planted(tmp, controls, seeds, per_part, swap_real_for_random=False, budget_over=None):
     """Return (report, host, tokenizer, parts, log lines) for one donor with a memorized map and two block parts.
 
     Part "mem" is block [2, 3] of the donor (it holds the map). Part "decoy" is block [0, 1] (identity: its output
@@ -492,8 +492,9 @@ def build_planted(tmp, controls, seeds, per_part, swap_real_for_random=False):
     donor = memorizing_donor(tok)
     host = tiny_host(seed=5)
     host.lm_head.weight.data *= 40
-    budget = {"stage1_steps": 20, "stage2_steps": 0, "lr_translation": 3e-2, "lr_gate": 1e-2, "batch_size": 8,
-              "seq_len": 16, "steps_in": 30, "steps_lm": 10, "batch_in": 4, "lora_rank": 2}
+    budget = {"stage1_steps": 100, "stage2_steps": 0, "lr_translation": 1e-2, "lr_gate": 1e-2, "batch_size": 8,
+              "seq_len": 16, "steps_in": 300, "steps_lm": 100, "batch_in": 4, "lora_rank": 2}
+    budget.update(budget_over or {})
     lines = []
     original = pc.compile_group
     if swap_real_for_random:
@@ -662,7 +663,8 @@ def test_drift_is_judged_against_the_controls_and_after_no_gap():
     # Chat-format text gives every compile a few nats of drift. A part at the control level is not harmful.
     assert pc.part_verdict(dict(base, drift=4.0, drift_ref=4.0), th) == "survives compile"
     assert pc.part_verdict(dict(base, drift=4.0, drift_ref=0.0), th) == "harmful"
-    assert pc.part_verdict(dict(base, drift=4.0, drift_ref=3.0), th) == "harmful"
+    assert pc.part_verdict(dict(base, drift=4.0, drift_ref=0.5), th) == "harmful"
+    assert pc.part_verdict(dict(base, drift=4.0, drift_ref=1.0), th) == "survives compile"
     # No gap comes before a drift verdict.
     assert pc.part_verdict(dict(base, drift=9.0, drift_ref=0.0, donor_gap=0.0), th) == "no gap"
 

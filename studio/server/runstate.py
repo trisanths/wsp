@@ -270,15 +270,26 @@ class RunState:
         """The now line of every agent after the run ends."""
         if self.stopped_early or self.status == "error":
             return "Stopped"
+        if not self.has_best_locked():
+            return "Ended, nothing scored"
         return "Finished"
 
+    def has_best_locked(self):
+        """True when at least one scored program has status ok (the run has a best model)."""
+        for item in self.programs.values():
+            if item["row"]["status"] == "ok":
+                return True
+        return False
+
     def outcome_locked(self):
-        """"finished", "stopped" or "error" once the run has ended, else None."""
+        """"finished", "empty" (ended with nothing scored), "stopped" or "error" once the run has ended, else None."""
         if self.status == "error":
             return "error"
         if self.status == "done":
             if self.stopped_early:
                 return "stopped"
+            if not self.has_best_locked():
+                return "empty"
             return "finished"
         return None
 

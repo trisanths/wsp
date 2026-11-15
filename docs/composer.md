@@ -387,3 +387,52 @@ The loop stops at `finish`, at the turn cap, at the token budget, or on an
 API error that the retries could not clear (up to 6 retries with backoff
 on 408, 409, 429, and 5xx). Without `finish`, it submits the best practiced
 program within the constraints.
+
+## The front door join: plan_request and compile_plan
+
+Code: `composer/front_door.py`, the two tools in `composer/tools.py`, the build
+function `make_plan` in `modal_composer.py`. Request example:
+`composer/requests/llama8b_math_med_auto.json`.
+
+A composer request may carry a `front_door` block in the `wsp/auto.py` format
+(see `docs/auto.md`). When it does, the agent gets two more tools and the
+system prompt gets the method rules. Without the block nothing changes.
+
+- `plan_request(request, settings)` returns the front door's plan as a short
+  summary: per source the relation to the base, the valid methods with reasons
+  and size estimates, the stages with sizes against the limits, the knobs with
+  their ranges, and the refusals (`refusal_text` when no plan runs). It reads
+  model configs by range reads and costs nothing. It never returns weights.
+- `compile_plan(request, settings)` plans the same variant, refuses when the
+  plan is not feasible (no cost), and otherwise builds it with `wsp.auto.make`
+  on one H200 (`make_plan`, the same call as `modal_sapien.py`). It returns
+  transfer per skill, `content_z` when controls ran (weave), drift, the text
+  loss change on kept skills, measured sizes, and verdicts. A build costs one
+  unit of the compile budget, shared with `compile_and_practice`. An identical
+  variant is cached.
+- `finish(plan_hash, rationale)` submits a built variant that is within the
+  constraints. The loop writes `results/composer_<request>_chosen_request.json`
+  and prints the `modal run modal_sapien.py --request ...` command that scores
+  it once with its arms. The arms and the benchmark call run in
+  `modal_sapien.py`, not in `modal_composer.py`.
+
+The agent pins its choice in the request: `add[i].method` and `add[i].sources`.
+`name`, `base`, `reported`, and `seed` are fixed. Limits can only tighten the
+request's constraints. Knobs: `block_layers`, `lora_rank`, `transplant_k`,
+`transplant_rank`, `delta_rank`, `slim_keep`, `slim_steps`, `tops_cut`,
+`stage1_steps`, `stage2_steps`, `weave_population`, `weave_generations`,
+`weave_buckets`.
+
+`tops` is a valid method in `wsp.lineage.methods` for same-tokenizer sources of
+another size or diverged weights, after synth and feedback. The front door sizes
+it (`tops_addition`, an estimate) and lists it with `runs_in_make: false`. It is
+never chosen and `compile_plan` cannot build it, because `wsp.auto.make` has no
+tops stage. `wsp/tops.py` runs in `modal_round24.py` only.
+
+Run it:
+
+    MODAL_PROFILE=trisanth .venv/bin/modal run --detach modal_composer.py --request composer/requests/llama8b_math_med_auto.json
+
+Not wired: the position of a seam block (it follows the atlas or the depth
+rule, only its length is a knob) and the experts per layer of slim (a total
+limit decides it, `slim_keep` applies only without one).

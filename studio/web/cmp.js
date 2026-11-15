@@ -1,8 +1,9 @@
 // Small shared parts for the comparison set, part status and model logos.
 import { html } from './lib.js';
-import { sgn, pct, useHealth } from './util.js';
+import { sgn, pct, useHealth, showStub } from './util.js';
 import { Icon, StubBadge } from './components.js';
 import { ModelLogo } from './logos.js';
+import { DEMO } from './demo-flag.js';
 
 /** The models a program takes parts from (unique, in order), read through the catalog. */
 export function donorsOf(program, cat) {
@@ -49,7 +50,7 @@ export function Compare({ c, compact, heal, note }) {
   return html`<div class=${'cmp' + (compact ? ' compact' : '')}>
     <${HealNote} show=${!!heal} note=${note} />
     ${v && html`<div class=${'cmp-verdict ' + v.kind}>${v.text}</div>`}
-    <div class="cmp-list">${c.rows.map((r) => html`<div class="cmp-row" key=${r.id} title=${r.note || null}>
+    <div class="cmp-list">${c.rows.map((r) => html`<div class="cmp-row" key=${r.id} title=${r.stub && DEMO ? null : r.note || null}>
       <span class="cl">${r.label}${r.stub && html` <${StubBadge} small />`}</span>
       <span class="cv num">${r.measured && r.value != null ? pct(r.value) + '%' : ''}</span>
       <span class=${'cd num ' + (!r.measured || r.delta == null ? 'faint' : r.beaten == null ? 'faint' : r.beaten ? 'up' : r.within_margin === true ? 'warn' : 'down')}>${!r.measured || r.delta == null ? 'not measured' : r.beaten == null ? html`${sgn(r.delta)} <span class="cref">reference</span>` : r.beaten === false && r.within_margin === true ? html`${sgn(r.delta)} <span class="wmark">within margin</span>` : html`${sgn(r.delta)} <${Icon} n=${r.beaten ? 'check' : 'x'} size=${13} sw=${2.25} />`}</span>
@@ -91,7 +92,9 @@ export function groupByKind(parts) {
 
 /* ---------- filters for the parts lists (library page and builder palette) ---------- */
 
-export const KIND_CHIPS = [['block', 'Blocks'], ['attn_heads', 'Attention heads'], ['mlp_cluster', 'Neuron clusters'], ['expert', 'Experts'], ['inserted_layer', 'Inserted layers'], ['deletion_mask', 'Masks']];
+export const KIND_CHIPS = [['block', 'Blocks'], ['attn_heads', 'Attention heads'], ['mlp_cluster', 'Neuron clusters'], ['expert', 'Experts'], ['inserted_layer', 'Inserted layers']];
+/** Deletions (deletion masks) are their own category. "All" means every part you add; the Deletions chip shows only deletions. */
+export const DELETION = 'deletion_mask';
 export const STATUS_CHIPS = ['validated', 'candidate', 'rejected'];
 export const NO_FILTER = { kind: null, status: null, placeable: false };
 export const PAGE_SIZE = 60;
@@ -110,8 +113,10 @@ export function filterItems(items, f, q) {
   const text = (q || '').trim().toLowerCase();
   const words = text ? text.split(/\s+/) : [];
   const keep = [];
+  const wantDel = f.kind === DELETION;
   items.forEach((x, i) => {
-    if (f.kind && kindOf(x) !== f.kind) return;
+    if ((kindOf(x) === DELETION) !== wantDel) return;
+    if (f.kind && !wantDel && kindOf(x) !== f.kind) return;
     if (f.status && x.status !== f.status) return;
     const locked = lockOf(x) ? 1 : 0;
     if (f.placeable && locked) return;
@@ -122,25 +127,54 @@ export function filterItems(items, f, q) {
   return keep.sort((a, b) => (a[1] - b[1]) || (a[2] - b[2]) || (a[3] - b[3])).map((p) => p[0]);
 }
 
-/** Counts per kind and per status over a list of items. */
-export function countItems(items) {
+/** Counts per kind over a list of items, and per status inside the category the filter shows
+ *  (deletions when the Deletions chip is on, else the parts you add). */
+export function countItems(items, f = NO_FILTER) {
   const kinds = {}, status = {};
+  const wantDel = f.kind === DELETION;
   for (const x of items) {
     const k = kindOf(x);
     if (k) kinds[k] = (kinds[k] || 0) + 1;
-    if (x.status) status[x.status] = (status[x.status] || 0) + 1;
+    if (x.status && (k === DELETION) === wantDel) status[x.status] = (status[x.status] || 0) + 1;
   }
   return { kinds, status };
+}
+
+/** The page numbers to show: the first, the last, and the current page with one on each side. null is a gap. */
+export function pageList(page, pages) {
+  const want = new Set([1, pages, page - 1, page, page + 1].filter((n) => n >= 1 && n <= pages));
+  const out = [];
+  [...want].sort((a, b) => a - b).forEach((n, i, all) => { if (i > 0 && n - all[i - 1] > 1) out.push(null); out.push(n); });
+  return out;
+}
+
+/** Numbered pages for a long list: Previous, page numbers, Next, and "61 to 120 of 2,089". page starts at 1. */
+export function Pager({ page, total, size, onPage, label = 'Pages' }) {
+  const pages = Math.max(1, Math.ceil(total / size));
+  if (pages <= 1) return null;
+  const from = (page - 1) * size + 1, to = Math.min(total, page * size);
+  const fmt = (n) => n.toLocaleString('en-US');
+  return html`<nav class="pager" aria-label=${label}>
+    <button class="btn ghost sm" disabled=${page <= 1} onClick=${() => onPage(page - 1)}>Previous</button>
+    <span class="pnums">${pageList(page, pages).map((n, i) => n == null
+      ? html`<span class="pgap" key=${'g' + i} aria-hidden="true">…</span>`
+      : html`<button key=${n} class=${'pnum' + (n === page ? ' on' : '')} aria-current=${n === page ? 'page' : null} aria-label=${'Page ' + n} onClick=${() => onPage(n)}>${n}</button>`)}</span>
+    <button class="btn ghost sm" disabled=${page >= pages} onClick=${() => onPage(page + 1)}>Next</button>
+    <span class="faint pcount num">${fmt(from)} to ${fmt(to)} of ${fmt(total)}</span>
+  </nav>`;
 }
 
 /** The chip rows: kind chips with counts, status chips, and the placeable toggle. */
 export function FilterRow({ counts, f, setF, compact, noKinds }) {
   const chip = (on, label, n, onClick, key) => html`<button key=${key} class=${'fchip2' + (on ? ' on' : '')} aria-pressed=${on ? 'true' : 'false'} onClick=${onClick}>${label}${n != null && html`<span class="n">${n}</span>`}</button>`;
-  const kindTotal = Object.values(counts.kinds).reduce((a, b) => a + b, 0);
+  const kindTotal = Object.entries(counts.kinds).reduce((a, [k, n]) => a + (k === DELETION ? 0 : n), 0);
+  const nDel = counts.kinds[DELETION] || 0;
   return html`<div class=${'fbar' + (compact ? ' compact' : '')}>
     ${!noKinds && html`<div class="frow2" role="group" aria-label="Kind">
       ${chip(!f.kind, 'All', kindTotal, () => setF({ ...f, kind: null }), 'all')}
       ${KIND_CHIPS.filter(([k]) => counts.kinds[k]).map(([k, name]) => chip(f.kind === k, name, counts.kinds[k], () => setF({ ...f, kind: f.kind === k ? null : k }), k))}
+      ${nDel > 0 && html`<span class="fsep" aria-hidden="true"></span>`}
+      ${nDel > 0 && chip(f.kind === DELETION, 'Deletions', nDel, () => setF({ ...f, kind: f.kind === DELETION ? null : DELETION }), DELETION)}
     </div>`}
     <div class="frow2" role="group" aria-label="Status">
       ${STATUS_CHIPS.map((s) => chip(f.status === s, s[0].toUpperCase() + s.slice(1), counts.status[s] || 0, () => setF({ ...f, status: f.status === s ? null : s }), s))}
@@ -200,7 +234,7 @@ export function mainNumber(c) {
 /** Every number a component has, one per line, for a tooltip. */
 export function partTip(c) {
   const d = (c && c.detail) || {};
-  const out = [c.label + ': ' + c.verdict + (c.stub ? ' (stub, not measured)' : '')];
+  const out = [c.label + ': ' + c.verdict + (showStub(c) ? ' (stub, not measured)' : '')];
   if (d.transfer != null) out.push('Transfer: ' + Math.round(d.transfer * 100) + '% of the gap from the host to the donor on held-out skill text');
   if (d.contribution != null) out.push('Practice change with the part on: ' + fpts(d.contribution));
   if (d.content_gain != null) out.push('Gain over a random part of the same size: ' + fpts(d.content_gain));
@@ -232,7 +266,7 @@ export function PartsList({ components, compact }) {
     <${ModelLogo} model=${c.donor || ''} size=${16} alt="" />
     <span class="pl">${c.label}</span>
     <span class="pmeta"><${VerdictTag} c=${c} />${mainNumber(c) && html`<span class="pn2 num faint">${mainNumber(c)}</span>`}</span>
-  </div>`)}${components.some((c) => c.stub) && html`<div class="part-stub faint"><${StubBadge} small /> Made-up verdicts, not measured.</div>`}</div>`;
+  </div>`)}${components.some((c) => showStub(c)) && html`<div class="part-stub faint"><${StubBadge} small /> Made-up verdicts, not measured.</div>`}</div>`;
 }
 
 const STAGE_NAMES = { place: 'Place', 'translate in': 'Translate in', 'translate out': 'Translate out', 'heal 1': 'Heal 1', 'heal 2': 'Heal 2', verify: 'Verify' };

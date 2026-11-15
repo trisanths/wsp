@@ -328,7 +328,8 @@ def model_donor_parts(model, cut_donor, control, control_seed):
 class TopModule(nn.Module):
     """One skill top: stitch, donor layers, donor norm, donor head. The layers are frozen."""
 
-    def __init__(self, spec, stitch, layers, rotary, windows, norm, head, head_mask, owner):
+    def __init__(self, spec, stitch, layers, rotary, windows, norm, head, head_mask, owner, bridge=None,
+                 donor_tokenizer=None):
         super().__init__()
         self.spec = spec
         self.stitch = stitch
@@ -337,6 +338,8 @@ class TopModule(nn.Module):
         self.windows = list(windows)
         self.norm = norm
         self.head = head
+        self.bridge = bridge
+        self.donor_tokenizer = donor_tokenizer
         self.register_buffer("head_mask", head_mask, persistent=False)
         self.has_head_mask = bool(head_mask.any())
         self.register_buffer("sink", torch.zeros(spec["d_donor"], dtype=torch.float32), persistent=False)
@@ -395,6 +398,9 @@ class TopModule(nn.Module):
         return self.norm(out)
 
     def logits(self, normed):
+        if self.bridge is not None:
+            # Cross-tokenizer top: the head scores the donor's vocabulary, the bridge returns base-vocabulary logits.
+            return self.bridge(normed, self.head)
         # The donor's final norm can return float32 (Qwen2 RMSNorm upcasts) while the head is bf16 on a GPU.
         out = self.head(normed.to(self.head.weight.dtype))
         if self.has_head_mask:
@@ -408,6 +414,8 @@ class TopModule(nn.Module):
         for name, param in self.named_parameters():
             if name.endswith("lora_A") or name.endswith("lora_B"):
                 params.append(param)
+        if self.bridge is not None:
+            params += self.bridge.trainable()
         return params
 
 
@@ -470,13 +478,19 @@ class SkillTops(nn.Module):
     # ---- building
 
     def add_top(self, name, donor, cut_host, cut_donor=None, stitch_kind="mlp", own_head=True, control=None,
-                control_seed=0, donor_tokenizer=None, check=True, device=None, cache_dir=None, stitch_hidden=None):
+                control_seed=0, donor_tokenizer=None, check=True, device=None, cache_dir=None, stitch_hidden=None,
+                cross_tokenizer=False, bridge_options=None):
         """Add a top. donor is a repo id, a local directory, or a loaded model.
 
         The trunk is base layers 0..cut_host-1. cut_donor defaults to the
         same relative depth in the donor. control="scrambled" rewrites the
         donor layers with wsp.scramble (seed control_seed) before any
         training. The stitch starts as the identity when the widths match.
+
+        cross_tokenizer=True accepts a donor with another tokenizer: the head
+        keeps the donor's vocabulary and a vocab bridge (wsp/tops_vocab.py)
+        maps its logits to the base vocabulary. bridge_options: fallback
+        ("bias" or "linear") and special_pairs.
         """
         if name == RESERVED or name in self.tops:
             raise ValueError(f"top name {name!r} is taken")
@@ -500,20 +514,42 @@ class SkillTops(nn.Module):
         parts = donor_parts(donor, cut_donor, control, control_seed, device, cache_dir)
 
         report = {"checked": False}
-        if check:
-            if donor_tokenizer is None and not isinstance(donor, nn.Module):
+        bridge = None
+        if cross_tokenizer:
+            from wsp import tops_vocab
+
+            if donor_tokenizer is None:
+                if isinstance(donor, nn.Module):
+                    raise ValueError("a cross-tokenizer top from a loaded model needs donor_tokenizer")
                 import transformers
 
                 donor_tokenizer = transformers.AutoTokenizer.from_pretrained(donor)
-            if donor_tokenizer is not None:
-                report = check_vocab(self.tokenizer, donor_tokenizer, parts["rows"], self.rows)
-        head_weight, pad_start = fit_head_rows(parts["head_weight"], self.rows)
-        head_mask = torch.zeros(self.rows, dtype=torch.bool)
-        if pad_start is not None:
-            head_mask[pad_start:] = True
-        for index in report.get("masked_ids", []):
-            head_mask[index] = True
-        head = nn.Linear(parts["d_model"], self.rows, bias=False)
+            options = dict(bridge_options or {})
+            bridge = tops_vocab.build_bridge(self.tokenizer, donor_tokenizer, self.rows, parts["rows"],
+                                             d_donor=parts["d_model"],
+                                             base_head=self.base.get_output_embeddings().weight,
+                                             fallback=options.get("fallback", "bias"),
+                                             special_pairs=options.get("special_pairs"))
+            report = bridge.report
+            head_weight = parts["head_weight"]
+            head_mask = torch.zeros(parts["rows"], dtype=torch.bool)
+            pad_start = None
+            head = nn.Linear(parts["d_model"], parts["rows"], bias=False)
+        else:
+            if check:
+                if donor_tokenizer is None and not isinstance(donor, nn.Module):
+                    import transformers
+
+                    donor_tokenizer = transformers.AutoTokenizer.from_pretrained(donor)
+                if donor_tokenizer is not None:
+                    report = check_vocab(self.tokenizer, donor_tokenizer, parts["rows"], self.rows)
+            head_weight, pad_start = fit_head_rows(parts["head_weight"], self.rows)
+            head_mask = torch.zeros(self.rows, dtype=torch.bool)
+            if pad_start is not None:
+                head_mask[pad_start:] = True
+            for index in report.get("masked_ids", []):
+                head_mask[index] = True
+            head = nn.Linear(parts["d_model"], self.rows, bias=False)
         head.weight = nn.Parameter(head_weight.clone(), requires_grad=False)
         head_mask = head_mask.to(device)
 
@@ -530,8 +566,13 @@ class SkillTops(nn.Module):
                 "head_rows_dropped": max(0, parts["rows"] - self.rows), "head_rows_padded": 0 if pad_start is None
                 else self.rows - parts["rows"], "head_masked": int(head_mask.sum()), "vocab": report,
                 "donor_tied_head": parts["tied"]}
+        if cross_tokenizer:
+            spec["cross_tokenizer"] = True
+            spec["bridge_options"] = {"fallback": bridge.fallback, "special_pairs": (bridge_options or {}).get(
+                "special_pairs")}
+            spec["head_masked"] = int(bridge.is_masked.sum())
         top = TopModule(spec, stitch, parts["layers"], parts["rotary"], parts["windows"], parts["norm"], head,
-                        head_mask, self)
+                        head_mask, self, bridge=bridge, donor_tokenizer=donor_tokenizer if cross_tokenizer else None)
         top.to(device)
         self.tops[name] = top
         return top
@@ -931,6 +972,10 @@ class SkillTops(nn.Module):
         stitch study did.
         """
         top = self.get_top(top)
+        if top.bridge is not None:
+            from wsp import tops_vocab
+
+            return tops_vocab.cross_penalty(self, top, texts, donor_model, seq_len, native)
         rows = self.per_token_losses(top, texts, donor_model, seq_len, native)
         sums = {"native": 0.0, "top": 0.0, "native_all": 0.0, "top_all": 0.0}
         n = 0
@@ -957,7 +1002,7 @@ class SkillTops(nn.Module):
 
     def fit_stitch(self, top, texts, steps=800, lr=None, batch_size=8, seq_len=256, seed=0, eval_texts=None,
                    donor_model=None, ridge_texts=None, max_penalty=DEFAULT_MAX_PENALTY, lora_rank=0,
-                   lora_alpha=None, log_every=0, log_name="stitch", objective="kd", lm_weight=0.0):
+                   lora_alpha=None, log_every=0, log_name="stitch", objective="kd", lm_weight=0.0, **cross):
         """Ridge init, then train the stitch (and an optional top LoRA) on the donor's own LM loss.
 
         Reports the penalty against the donor run natively on the same eval
@@ -968,6 +1013,17 @@ class SkillTops(nn.Module):
         start, and flags the top.
         """
         top = self.get_top(top)
+        if top.bridge is not None:
+            from wsp import tops_vocab
+
+            return tops_vocab.fit_cross_stitch(self, top, texts, steps=steps, lr=lr, batch_size=batch_size,
+                                               seq_len=seq_len, seed=seed, eval_texts=eval_texts,
+                                               donor_model=donor_model, ridge_texts=ridge_texts,
+                                               max_penalty=max_penalty, lora_rank=lora_rank, lora_alpha=lora_alpha,
+                                               log_every=log_every, log_name=log_name, objective=objective,
+                                               lm_weight=lm_weight, **cross)
+        if len(cross) > 0:
+            raise TypeError(f"fit_stitch got unexpected arguments {sorted(cross)} (they apply to cross-tokenizer tops)")
         start = time.time()
         if donor_model is None:
             donor_model = self.load_donor_model(top)
@@ -1128,9 +1184,10 @@ class SkillTops(nn.Module):
                     layers_only += param.numel()
             entry = {"stitch": count(top.stitch.parameters()), "layers": layers_only, "lora": lora,
                      "norm": count(top.norm.parameters()), "head": count(top.head.parameters()),
-                     "sink": top.spec["d_donor"] if top.has_sink else 0}
+                     "sink": top.spec["d_donor"] if top.has_sink else 0,
+                     "bridge": count(top.bridge.parameters()) if top.bridge is not None else 0}
             entry["stored"] = entry["stitch"] + entry["layers"] + entry["lora"] + entry["norm"] + entry["head"] \
-                + entry["sink"]
+                + entry["sink"] + entry["bridge"]
             entry["trunk"] = sum(layer_params[:top.cut_host])
             entry["run"] = entry["trunk"] + entry["stored"]
             tops[name] = entry
@@ -1169,6 +1226,9 @@ class SkillTops(nn.Module):
             for key, param in top.layers.named_parameters():
                 if key.endswith("lora_A") or key.endswith("lora_B"):
                     tensors[f"{name}.lora.{key}"] = param.detach().cpu().float().contiguous()
+            if top.bridge is not None:
+                for key, value in top.bridge.state_dict().items():
+                    tensors[f"{name}.bridge.{key}"] = value.detach().cpu().float().contiguous()
             meta = dict(top.spec)
             meta["has_sink"] = top.has_sink
             meta["accepted"] = top.accepted
@@ -1204,7 +1264,16 @@ class SkillTops(nn.Module):
             top = self.add_top(name, entry["donor"], entry["cut_host"], entry["cut_donor"],
                                stitch_kind=entry["stitch_kind"], control=entry["control"],
                                control_seed=entry["control_seed"], device=device, cache_dir=cache_dir,
-                               stitch_hidden=entry.get("stitch_hidden"))
+                               stitch_hidden=entry.get("stitch_hidden"),
+                               cross_tokenizer=bool(entry.get("cross_tokenizer")),
+                               bridge_options=entry.get("bridge_options"))
+            if top.bridge is not None:
+                prefix = f"{name}.bridge."
+                state = {}
+                for key in tensors:
+                    if key.startswith(prefix):
+                        state[key[len(prefix):]] = tensors[key]
+                top.bridge.load_state_dict(state)
             if entry.get("lora"):
                 from wsp.lora import apply_lora
 
@@ -1271,6 +1340,14 @@ class ForcedView:
 
     def parameters(self):
         return self.network.parameters()
+
+    @property
+    def device(self):
+        return next(self.network.parameters()).device
+
+    @property
+    def dtype(self):
+        return next(self.network.parameters()).dtype
 
     def get_input_embeddings(self):
         return self.network.get_input_embeddings()
@@ -1425,6 +1502,9 @@ def sizes_from_configs(base_config, tops, router_classes=None):
         stitch = stitch_param_count(kind, base["d"], donor["d"], spec.get("stitch_hidden"))
         layers = sum(donor["layers"][cut_donor:])
         head = base["rows"] * donor["d"]
+        if spec.get("cross_tokenizer"):
+            # The head keeps the donor's rows, and the bridge adds one bias per base row.
+            head = donor["rows"] * donor["d"] + base["rows"]
         lora = 0
         rank = spec.get("lora_rank", 0)
         if rank > 0:
