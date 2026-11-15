@@ -173,3 +173,8 @@ something fails. Each entry: what went wrong, then the rule.
 - Greedy HumanEval on 164 items moves 2 points between configs with the same
   weights (batch shape and kernels change float sums). Do not report a
   one-point gap between two configs as a result.
+- A Modal workspace can be disabled mid-run. The trisanth workspace went down at step 4300 of 4600 of the
+  scrambled control inside one compile ("ConflictError: workspace is disabled"), and the 36 minutes of that arm
+  were lost. A compile that trains several arms in one container loses the running arm and keeps the earlier ones
+  only because wsp/pgraft_stage.py writes sapien_report.json and commits the volume after each arm. Keep that,
+  and run long controls as their own cells when the workspace is near its spend limit.
