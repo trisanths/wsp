@@ -80,41 +80,30 @@ flowchart TD
 
 A frozen slice of a larger model, grafted into Llama-3.2-1B-Instruct, beats a LoRA with the same number of trainable parameters on every domain below. Each row trains on that domain's train split and scores on its held-out items. "Adapter only" is the same trainable connector with the donor slice removed, so it measures what the connector adds on its own; the graft's lead over it is what the donor model contributes.
 
-<table>
-<tr>
-<th>Domain grafts</th>
-<th>One general graft, English training</th>
-</tr>
-<tr>
-<td valign="top">
+**Domain grafts, trained on each domain**
 
-| Domain | Base | LoRA | Adapter | Graft |
+| Domain | Slice grafted | Base | LoRA | Adapter | Graft |
+|---|---|---|---|---|---|
+| AQuA | Qwen2.5-Math-7B L4-20 | 25.5 | 34.5 | 39.0 | **52.0** |
+| HEAD-QA | Apollo2-7B L4-20 | 45.8 | 51.7 | 42.8 | **54.8** |
+| MedMCQA | Apollo2-7B L4-20 | 41.4 | 39.7 | 37.8 | **45.1** |
+| SciQ | Qwen2.5-7B L4-20 | 85.8 | 87.5 | 88.2 | **89.8** |
+| MMLU | Qwen2.5-7B L4-20 | 44.6 | 47.1 | 45.6 | **53.1** |
+
+**One general graft, trained on English only**
+
+| Benchmark | Slice grafted | Base | LoRA | Graft |
 |---|---|---|---|---|
-| AQuA | 25.5 | 34.5 | 39.0 | **52.0** |
-| HEAD-QA | 45.8 | 51.7 | 42.8 | **54.8** |
-| MedMCQA | 41.4 | 39.7 | 37.8 | **45.1** |
-| SciQ | 85.8 | 87.5 | 88.2 | **89.8** |
-| MMLU | 44.6 | 47.1 | 45.6 | **53.1** |
+| MMLU | Qwen2.5-14B L7-34 | 44.6 | 48.0 | **59.4** |
+| ARC-Challenge | Qwen2.5-14B L7-34 | 52.6 | 60.0 | **82.2** |
+| HellaSwag | Qwen2.5-14B L7-34 | 34.6 | 45.0 | **65.0** |
+| MMLU math | Qwen2.5-14B L7-34 | 28.0 | 33.6 | **50.8** |
+| MMLU Spanish | Qwen2.5-14B L7-34 | 37.8 | 38.0 | **52.8** |
+| MMLU Chinese | Qwen2.5-14B L7-34 | 40.0 | 38.0 | **49.8** |
 
-</td>
-<td valign="top">
+Slice names give the donor model and its layers. AQuA is math, HEAD-QA and MedMCQA are medicine, SciQ is science. "Adapter" is the adapter-only control. The general graft trains on English multiple-choice items only (one seed).
 
-| Benchmark | Base | LoRA | Graft |
-|---|---|---|---|
-| MMLU | 44.6 | 48.0 | **59.4** |
-| ARC-Challenge | 52.6 | 60.0 | **82.2** |
-| HellaSwag | 34.6 | 45.0 | **65.0** |
-| MMLU math | 28.0 | 33.6 | **50.8** |
-| MMLU Spanish | 37.8 | 38.0 | **52.8** |
-| MMLU Chinese | 40.0 | 38.0 | **49.8** |
-
-</td>
-</tr>
-</table>
-
-Left: AQuA is math, HEAD-QA and MedMCQA are medicine, SciQ is science; donors are Qwen2.5-Math-7B for math, Apollo2-7B for medicine and Qwen2.5-7B for science and MMLU. "Adapter" is the adapter-only control. Right: a Qwen2.5-14B slice trained on English multiple-choice items only (one seed).
-
-**The graft also brings the donor's languages.** The right-hand graft trains only on English items, yet it lifts MMLU in Spanish by 15 points and in Chinese by 10 over the base, while LoRA, trained on the same English data, moves neither. Qwen2.5-14B reads both languages, and the graft carries that skill into a host that does not. The gain needs the donor's real weights: the same graft built from a Qwen2.5-7B block with shuffled weights scores 47.4 on MMLU, at the LoRA level, against 53.5 for the real block.
+**The graft also brings the donor's languages.** The general graft trains only on English items, yet it lifts MMLU in Spanish by 15 points and in Chinese by 10 over the base, while LoRA, trained on the same English data, moves neither. Qwen2.5-14B reads both languages, and the graft carries that skill into a host that does not. The gain needs the donor's real weights: the same graft built from a Qwen2.5-7B block with shuffled weights scores 47.4 on MMLU, at the LoRA level, against 53.5 for the real block.
 
 The gain grows with the donor and carries to subjects the training never touches. These grafts train on answer letters from CommonsenseQA, OpenBookQA, QASC and LogiQA2.0, and never see MMLU:
 
