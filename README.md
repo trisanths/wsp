@@ -56,6 +56,32 @@ Bigger donors give bigger gains (MMLU held-out):
 | Llama-3.2-1B | 44.6 | 46.0 | 53.6 | 59.8 | **62.6** |
 | Llama-3.2-3B | 57.4 | 60.7 | — | 66.0 | **66.3** |
 
+One graft against fine-tuning across 15 benchmarks. Host Llama-3.2-1B,
+Qwen2.5-14B donor; both arms train on the same mixed-domain data, and none
+of these benchmarks is trained on:
+
+| Benchmark | Base | LoRA | Graft |
+|---|---|---|---|
+| MMLU | 44.6 | 48.0 | **59.4** |
+| MMLU medical | 52.6 | 52.8 | **65.0** |
+| MMLU math | 28.0 | 33.6 | **50.8** |
+| MMLU science | 38.2 | 42.0 | **55.2** |
+| MMLU computer science | 37.4 | 44.7 | **55.7** |
+| MMLU humanities | 53.4 | 56.6 | **71.8** |
+| MedMCQA | 41.4 | 41.6 | **47.2** |
+| ARC-Challenge | 52.6 | 60.0 | **82.2** |
+| ARC-Easy | 73.0 | 75.4 | **91.4** |
+| HellaSwag | 34.6 | 45.0 | **65.0** |
+| MMLU in Chinese | 40.0 | 38.0 | **49.8** |
+| MMLU in Spanish | 37.8 | 38.0 | **52.8** |
+| MMLU in Hindi | 31.6 | 35.8 | **39.0** |
+| MMLU in Arabic | 37.8 | 35.4 | **42.8** |
+| MMLU in Japanese | 36.4 | 35.8 | **43.2** |
+
+The gain comes from the donor's weights. The same graft with the donor
+block's weights scrambled scores 47.4 on MMLU, about the same as LoRA. The
+real Qwen2.5-7B block scores 53.5.
+
 The full log of experiments is in
 [docs/research/2026-11-15-parallel-graft.md](docs/research/2026-11-15-parallel-graft.md).
 
