@@ -47,8 +47,10 @@ DEFAULTS = {
     "collapse_fraction": 0.5,    # collapse when any task falls below half its base
     # Host scores, needed by the local backend. Search split measured 2026-11-15 by
     # modal_eval.py::base_scores (hf backend, same prompts as every candidate).
-    # Held-out is measured once at the end.
-    "base_scores": {"search": {"gsm8k": 0.23, "if_guard": 0.42}},
+    # Held-out (GSM8K test n=1319, if_guard n=410) measured once, 2026-11-15, by
+    # modal_eval.py::base_scores --split heldout; the held-out ledger refuses a rerun.
+    "base_scores": {"search": {"gsm8k": 0.23, "if_guard": 0.42},
+                    "heldout": {"gsm8k": 0.201, "if_guard": 0.488}},
 
     # Program space (spec 4.1).
     "host": "unsloth/Llama-3.2-1B-Instruct",
