@@ -92,3 +92,18 @@ Both waves ran as workflows. Each builder got an independent reviewer and, when 
   - **Exa literature:** off, replay and live modes with a two-tier cache.
 - **Wave A, still running:** the Modal infra and real compile path (fix pass).
 - Stub rows in the root `experiments.jsonl` stay out of git, via local exclude. Only real-run rows will be committed.
+
+## 2026-11-14, step 9: Modal real path, dashboard live, mining stopped, gap fixes, priors pack
+
+- **Modal real path** (wave A, after a review and fix pass): `modal_swarm.py` (app `wsp-swarm`). It runs budget Queue partitions per run, a write-once Dict ledger, run-scoped probe and result caches, and compile, heal and eval in one container on a pinned L4.
+  - The review caught one fairness bug: results were cached across runs, with zero compute charged on a hit. It is fixed, and keys are now scoped by run.
+  - The live smoke passed 15 of 15 checks. On 20 items with a 50-step heal: host 0.25, graft 0.15, random control 0.35 [SMOKE][SEARCH][INTERIM], which matches Trisanth's "part does not beat random".
+- **Dashboard:** deployed to Cloudflare Workers on Rex's personal account at https://wsp-swarm-dashboard.rexheng-policy.workers.dev. Views: the race, agent log, program inspector, fit against score, budget, real runs and parts. Every number is labeled STUB or SEARCH. `bash scripts/deploy_dashboard.sh` refreshes it.
+- **Mining:** Rex stopped it to keep part 3 on the environment and swarm testing. The findings are saved in `docs/research/pilot-mining.md`: 8 contrast-selected parts from DeepSeek-R1-Distill-Qwen-1.5B, all in donor layers 20 to 27.
+- **Gap fixes:**
+  - config defaults for every key;
+  - glue-rank sampling in the scripted planner;
+  - glue rank in the judge's patterns;
+  - a 50-step heal at low fidelity, which cut stub cascade compute per FEE by about 40%.
+- **Exa priors pack:** `data/priors.json` (sha 43180a66). 11 live calls cost $0.117, giving 5 cites for each of the 8 pilot parts and 30 topical claims.
+- **Upstream:** Trisanth's rounds 3 to 12 show grafts are flat on GSM8K (no part beats random or a rank-1 LoRA), while taps carry donor knowledge on MMLU (Llama-1B 47.5 to 72.9 with a Gemma-9B tap). Asked Rex which setting the first real swarm test should use.
