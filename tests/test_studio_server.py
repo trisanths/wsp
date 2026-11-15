@@ -1,6 +1,7 @@
 """Tests for the wsp studio server. CPU only, stub backend, no network."""
 
 import json
+import os
 import time
 
 import pytest
@@ -78,7 +79,7 @@ def good_program(client, heal=True):
 
 def test_health(client):
     body = client.get("/api/health").json()
-    assert body == {"ok": True, "backend": "stub", "llm": "none", "stub": True}
+    assert body == {"ok": True, "backend": "stub", "llm": "none", "llm_model": None, "stub": True}
 
 
 def test_spec_from_prompt_and_upload(client):
@@ -377,3 +378,196 @@ def test_run_rejects_bad_requests(client):
     assert response.status_code == 400
     assert "error" in response.json()
     assert client.get("/api/nothing").status_code == 404
+
+
+# Modal backend tests. A fake function object stands in for every Modal function, so CI never calls Modal.
+
+TAP_DONOR = "Qwen/Qwen2.5-7B-Instruct"
+
+
+class FakeModalFunction:
+    """Records the arguments of every call and returns a canned result."""
+
+    def __init__(self, name, calls):
+        self.name = name
+        self.calls = calls
+
+    def remote(self, *args):
+        self.calls.append((self.name, args))
+        if self.name.startswith("probe_remote"):
+            program = args[0]
+            entries = []
+            for tap in program["taps"]:
+                entries.append({"id": "tap:" + tap["donor"], "host_layer": tap["at"], "fit": "skipped",
+                                "fit_r2": None, "fit_pairs": 0, "part_params": 2889217, "glue_params": 0,
+                                "donor": tap["donor"], "donor_layer": tap["donor_layer"], "control": None})
+            return {"ok": True, "error": None, "graft_report": entries, "seconds": {"compile": 20.0},
+                    "gpu": "NVIDIA L40S"}
+        if self.name.startswith("score_remote"):
+            program, split, tasks = args[0], args[1], args[2]
+            scores = {}
+            for task in tasks:
+                scores[task] = 0.5
+            entries = []
+            for tap in program["taps"]:
+                entries.append({"id": "tap:" + tap["donor"], "host_layer": tap["at"], "fit": "skipped",
+                                "fit_r2": None, "fit_pairs": 0, "part_params": 2889217, "glue_params": 0,
+                                "donor": tap["donor"], "donor_layer": tap["donor_layer"], "control": None})
+            return {"ok": True, "error": None, "graft_report": entries, "heal_loss": [1.0, 0.5],
+                    "scores": scores, "seconds": {"compile": 30.0, "heal": 15.0, "eval": 10.0},
+                    "gpu": "NVIDIA L40S"}
+        if self.name == "base_remote":
+            tasks = args[2]
+            scores = {}
+            for task in tasks:
+                scores[task] = 0.21
+            return {"ok": True, "error": None, "scores": scores, "seconds": {"eval": 9.0}, "gpu": "NVIDIA L40S"}
+        raise AssertionError("unexpected modal function " + self.name)
+
+
+@pytest.fixture
+def modal_client(tmp_path, monkeypatch):
+    from studio.server import modal_backend
+
+    calls = []
+    monkeypatch.setenv("WSP_STUDIO_OUT", str(tmp_path))
+    monkeypatch.setenv("WSP_STUDIO_BACKEND", "modal")
+    monkeypatch.setenv("WSP_STUDIO_LLM", "none")
+    monkeypatch.setenv("WSP_STUDIO_PACE_S", "0")
+    monkeypatch.setattr(modal_backend, "lookup", lambda name: FakeModalFunction(name, calls))
+    test_client = TestClient(app)
+    test_client.modal_calls = calls
+    return test_client
+
+
+def tap_program(steps=100):
+    program = ps.make_program(HOST)
+    program["taps"] = [{"donor": TAP_DONOR, "donor_layer": 20, "at": 10, "attn_dim": 256, "heads": 8,
+                        "tap_id": None}]
+    program["tap_train"] = {"data": "mmlu_aux", "steps": steps, "batch_size": 8, "seq_len": 256,
+                            "branch_lr": 0.0003, "gate_lr": 0.03}
+    return ps.normalize(program)
+
+
+def run_builder_job(client, builder_id, program, action):
+    response = client.post("/api/builder/" + builder_id + "/action", json={"program": program, "action": action})
+    assert response.status_code == 200, response.text
+    job_id = response.json()["job_id"]
+    return wait_for(lambda: client.get("/api/jobs/" + job_id).json()["status"] in ("done", "error")
+                    and client.get("/api/jobs/" + job_id).json())
+
+
+def test_modal_catalog_shape(modal_client):
+    palette = modal_client.get("/api/catalog").json()
+    assert palette["stub"] is False
+    assert palette["tap_train_default"] == {"data": "mmlu_aux", "steps": 500, "batch_size": 8, "seq_len": 256,
+                                            "branch_lr": 0.0003, "gate_lr": 0.03}
+    taps = []
+    for part in palette["parts"]:
+        if part["kind"] == "tap":
+            taps.append(part)
+    assert len(taps) == 7
+    by_id = {}
+    for part in taps:
+        by_id[part["id"]] = part
+        assert part["default_at"] == 10
+        assert part["group"] == "add"
+        assert part["layers"] == [part["donor_layer"], part["donor_layer"]]
+        assert part["measured"]["task"] == "mmlu"
+    seven = by_id["tap:" + TAP_DONOR + "@20"]
+    assert seven["params_m"] == 2.9
+    assert seven["measured"] == {"task": "mmlu", "score": 0.679, "lora": 0.503, "host": 0.475}
+    assert len(palette["masks"]) > 0
+    assert os.path.exists(os.path.join(os.environ["WSP_STUDIO_OUT"], "catalog_modal.jsonl"))
+
+
+def test_modal_builder_scores_a_tap_program(modal_client):
+    spec = make_spec(modal_client)
+    builder_id = modal_client.post("/api/builder", json={"spec_id": spec["id"]}).json()["builder_id"]
+    program = tap_program()
+
+    compiled = run_builder_job(modal_client, builder_id, program, "compile")
+    assert compiled["status"] == "done", compiled
+    assert compiled["stub"] is False
+    key = "tap:" + TAP_DONOR + "@10"
+    assert compiled["result"]["fit"] == {key: None}
+    assert compiled["budget"]["compute_used_s"] >= 20
+    assert modal_client.modal_calls[0][0] == "probe_remote"
+    assert modal_client.modal_calls[0][1][0]["tap_train"]["steps"] == 100
+
+    scored = run_builder_job(modal_client, builder_id, program, "score")
+    assert scored["status"] == "done", scored
+    assert scored["result"]["status"] == "ok"
+    assert scored["result"]["fit"] == {key: None}
+    assert scored["result"]["scores"]["gsm8k"] == 0.5
+    assert scored["result"]["compute_s"] == 55.0
+    assert scored["result"]["control"] is None
+    assert scored["result"]["program"]["taps"][0]["donor"] == TAP_DONOR
+    names = []
+    for name, args in modal_client.modal_calls:
+        names.append(name)
+    assert names == ["probe_remote", "score_remote"]
+
+    trained = run_builder_job(modal_client, builder_id, program, "train")
+    assert trained["status"] == "done", trained
+    sent = modal_client.modal_calls[-1][1][0]
+    assert len(sent["taps"]) == 1
+    assert sent["lora"]["rank"] == 16
+    assert sent["heal"]["data"] in ("mmlu_aux", "gsm8k_train")
+
+
+def test_modal_builder_rejects_taps_without_training(modal_client):
+    spec = make_spec(modal_client)
+    builder_id = modal_client.post("/api/builder", json={"spec_id": spec["id"]}).json()["builder_id"]
+    program = tap_program()
+    program["tap_train"] = None
+    response = modal_client.post("/api/builder/" + builder_id + "/action", json={"program": program,
+                                                                                 "action": "score"})
+    assert response.status_code == 400
+    assert "tap_train" in response.json()["error"]
+
+
+def test_modal_big_donor_uses_the_h100_function(modal_client):
+    from studio.server import modal_backend
+
+    assert modal_backend.model_size_b("Qwen/Qwen2.5-14B-Instruct") == 14.0
+    assert modal_backend.model_size_b("unsloth/gemma-2-9b-it") == 9.0
+    assert modal_backend.model_size_b("microsoft/Phi-3.5-mini-instruct") == 0.0
+    spec = make_spec(modal_client)
+    builder_id = modal_client.post("/api/builder", json={"spec_id": spec["id"]}).json()["builder_id"]
+    program = tap_program()
+    program["taps"][0]["donor"] = "Qwen/Qwen2.5-14B-Instruct"
+    program["taps"][0]["donor_layer"] = 34
+    run_builder_job(modal_client, builder_id, program, "compile")
+    assert modal_client.modal_calls[0][0] == "probe_remote_h100"
+
+
+def test_modal_base_scores_are_cached(tmp_path, monkeypatch):
+    from studio.server import catalog as catalog_mod
+    from studio.server import modal_backend
+
+    monkeypatch.setenv("WSP_STUDIO_OUT", str(tmp_path))
+    calls = []
+    monkeypatch.setattr(modal_backend, "lookup", lambda name: FakeModalFunction(name, calls))
+    config, catalog = catalog_mod.load_catalog("modal")
+    backend = modal_backend.ModalCompileEval(config, catalog)
+
+    configured = backend.base_scores("search", ["gsm8k"])
+    assert configured == {"gsm8k": config["base_scores"]["search"]["gsm8k"]}
+    assert len(calls) == 0
+
+    first = backend.base_scores("search", ["humaneval", "gsm8k"])
+    assert first["humaneval"] == 0.21
+    assert len(calls) == 1
+    assert calls[0][1][2] == ["humaneval"]
+    second = backend.base_scores("search", ["humaneval"])
+    assert second == {"humaneval": 0.21}
+    assert len(calls) == 1
+
+    path = os.path.join(str(tmp_path), "base_scores_modal.json")
+    with open(path, encoding="utf-8") as handle:
+        saved = json.load(handle)
+    assert saved[config["host"]]["search"]["humaneval"] == 0.21
+    fresh = modal_backend.ModalCompileEval(config, catalog)
+    assert fresh.base_scores("search", ["humaneval"]) == {"humaneval": 0.21}
+    assert len(calls) == 1

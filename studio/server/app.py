@@ -56,7 +56,8 @@ async def read_json(request):
 
 
 def health_body():
-    return {"ok": True, "backend": settings.backend(), "llm": settings.llm(), "stub": settings.is_stub()}
+    return {"ok": True, "backend": settings.backend(), "llm": settings.llm(), "llm_model": settings.llm_model(),
+            "stub": settings.is_stub()}
 
 
 @app.get("/api/health")
@@ -367,6 +368,11 @@ def unknown_api(rest: str):
     return fail("unknown route: /api/" + rest, 404)
 
 
+# The browser revalidates web files on every load (the ETag makes that cheap),
+# so an update to studio/web is never hidden behind a cached module.
+NO_CACHE = {"Cache-Control": "no-cache"}
+
+
 def web_file(path):
     """The file under studio/web/ for a URL path, or None. Blocks paths that leave the folder."""
     root = os.path.realpath(settings.WEB_DIR)
@@ -385,7 +391,7 @@ def web_index():
     full = web_file("")
     if full is None:
         return fail("studio/web/index.html is not built yet", 404)
-    return FileResponse(full)
+    return FileResponse(full, headers=NO_CACHE)
 
 
 @app.get("/{path:path}")
@@ -393,4 +399,4 @@ def web_static(path: str):
     full = web_file(path)
     if full is None:
         return fail("not found", 404)
-    return FileResponse(full)
+    return FileResponse(full, headers=NO_CACHE)

@@ -76,7 +76,16 @@ export function specProgress(spec, scores) {
 
 /* ---------- program helpers ---------- */
 export function emptyProgram(host) {
-  return { host, seed: 0, masks: null, task_vectors: [], grafts: [], heal: null, lora: null };
+  return { host, seed: 0, masks: null, task_vectors: [], grafts: [], heal: null, lora: null, taps: [], tap_train: null };
+}
+// older saved programs and server replies may lack the tap fields
+export function normProgram(p) {
+  if (!p) return p;
+  return { ...p, taps: p.taps || [], tap_train: p.tap_train == null ? null : p.tap_train };
+}
+// "Qwen/Qwen2.5-7B-Instruct" -> "Qwen2.5-7B"
+export function donorShort(d) {
+  return String(d || '').split('/').pop().replace(/[-_](instruct|it|chat)$/i, '');
 }
 export function maskIds(expr) {
   const out = [];
@@ -97,8 +106,8 @@ export function buildMask(ids) {
 export const clone = (x) => JSON.parse(JSON.stringify(x));
 
 /* ---------- wsp text highlight ---------- */
-const STATEMENTS = new Set(['host', 'seed', 'mask', 'tv', 'graft', 'lora', 'heal']);
-const OPTIONS = new Set(['at', 'rank', 'glue_rank', 'control', 'seed', 'steps', 'data', 'lr', 'batch_size', 'seq_len', 'weight', 'layers', 'modules', 'targets', 'budget', 'alpha', 'stitch', 'objective', 'sink', 'restrict']);
+const STATEMENTS = new Set(['host', 'seed', 'mask', 'tv', 'graft', 'lora', 'heal', 'tap', 'tap_train']);
+const OPTIONS = new Set(['at', 'rank', 'glue_rank', 'control', 'seed', 'steps', 'data', 'lr', 'batch_size', 'seq_len', 'weight', 'layers', 'modules', 'targets', 'budget', 'alpha', 'stitch', 'objective', 'sink', 'restrict', 'layer', 'attn_dim', 'heads', 'branch_lr', 'gate_lr']);
 export function tokenizeLine(line) {
   const ci = line.indexOf('#');
   const code = ci >= 0 ? line.slice(0, ci) : line;
@@ -148,6 +157,15 @@ export function useRoute() {
 }
 
 /* ---------- small stores ---------- */
+const healthListeners = new Set();
+let healthInfo = null;
+export function setHealth(h) { healthInfo = h || null; healthListeners.forEach((f) => f(healthInfo)); }
+export function useHealth() {
+  const [h, setH] = useState(healthInfo);
+  useEffect(() => { healthListeners.add(setH); setH(healthInfo); return () => healthListeners.delete(setH); }, []);
+  return h;
+}
+
 const stubListeners = new Set();
 let stubFlag = false;
 export function markStub(v) {

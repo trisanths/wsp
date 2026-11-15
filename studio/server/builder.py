@@ -13,6 +13,7 @@ from wsp.swarm import program_schema as ps
 from wsp.swarm import space
 
 from studio.server import catalog as catalog_mod
+from studio.server import envs
 from studio.server import programs
 from studio.server import settings
 from studio.server import specs as specs_mod
@@ -44,6 +45,7 @@ class Session:
         self.catalog = parts["catalog"]
         self.lock = threading.RLock()
         self.target_scores = {}      # program hash -> target score of its last score job
+        self.last_result = None      # the last score result, shown to the LLM for suggestions
         self.host_params_b = catalog_mod.host_params_b(config["host"])
 
     def budget_dict(self):
@@ -88,7 +90,7 @@ def create_session(spec):
     overrides["method"] = "builder"
     config = config_mod.make_config(overrides)
     config["run_id"] = builder_id + "-" + str(int(time.time() * 1000))
-    parts = factory.build_run(config)
+    parts = envs.build_run(config)
     session = Session(builder_id, spec, config, parts)
     with _lock:
         _sessions[builder_id] = session
@@ -134,9 +136,32 @@ def check_program(session, program):
     except programs.ProgramError as error:
         raise BuilderError("the program is not valid: " + error.message)
     errors = space.validate(clean, session.catalog, session.config)
+    errors.extend(tap_errors(session, clean))
     if len(errors) > 0:
         raise BuilderError("the program is not valid: " + "; ".join(errors))
     return clean
+
+
+# The pair sets wsp/pairs.py can build for tap training.
+TAP_DATA = ["mmlu_aux", "gsm8k_train", "trivia_train"]
+
+
+def tap_errors(session, program):
+    """Problems with a program's taps that the compiler would reject, found before any compute is spent."""
+    taps = program.get("taps") or []
+    errors = []
+    if len(taps) > 0 and program.get("tap_train") is None:
+        errors.append("a program with taps needs a tap_train line")
+    if len(taps) == 0 and program.get("tap_train") is not None:
+        errors.append("tap_train needs at least one tap")
+    train = program.get("tap_train")
+    if train is not None and train.get("data") not in TAP_DATA:
+        errors.append("tap_train data must be one of " + ", ".join(TAP_DATA))
+    n_host = space.host_layers(session.config, session.catalog)
+    for tap in taps:
+        if tap["at"] < 0 or tap["at"] > n_host - 1:
+            errors.append("tap at " + str(tap["at"]) + " is outside 0.." + str(n_host - 1))
+    return errors
 
 
 def work_job(session, job, program):
@@ -158,9 +183,15 @@ def work_job(session, job, program):
 # Actions.
 
 def with_default_heal(session, program):
+    """Add a default heal when the program has none. With taps, heal reads the tap training data when allowed."""
     if ps.heal(program) is not None:
         return program
-    return ps.with_heal(program, space.heal_with_steps(DEFAULT_HEAL_STEPS, session.config))
+    heal = space.heal_with_steps(DEFAULT_HEAL_STEPS, session.config)
+    tap_train = program.get("tap_train")
+    if len(program.get("taps") or []) > 0 and tap_train is not None:
+        if tap_train.get("data") in space.heal_data_allowed(session.config):
+            heal["data"] = tap_train["data"]
+    return ps.with_heal(program, heal)
 
 
 def with_lora(program):
@@ -181,7 +212,10 @@ def run_action(session, action, program):
             program = with_default_heal(session, program)
         if action == "train":
             program = with_default_heal(session, with_lora(program))
-        return score_result(session, program)
+        result = score_result(session, program)
+        session.last_result = {"scores": result.get("scores"), "status": result.get("status"),
+                               "control": result.get("control")}
+        return result
 
 
 def fit_dict(report):
@@ -229,7 +263,7 @@ def score_result(session, program):
     status = row["status"]
     if status == "cache_hit":
         status = "ok"
-    report = row.get("graft_report") or []
+    report = real_report(session, program, row.get("graft_report") or [])
     result = {"fit": fit_dict(report), "scores": None, "combined": None, "control": None,
               "params_b": params_b_of(session, report), "compute_s": number(row_compute_s(row)),
               "status": status, "program": program}
@@ -242,6 +276,17 @@ def score_result(session, program):
     if status in ("ok", "collapsed"):
         result["control"] = control_result(session, program)
     return result
+
+
+def real_report(session, program, report):
+    """The report measured by the backend when it keeps one (the Modal backend does), else the row's report."""
+    finder = getattr(session.env.backend, "report_for", None)
+    if finder is None:
+        return report
+    measured = finder(program)
+    if measured is None:
+        return report
+    return measured
 
 
 def has_real_grafts(program):
@@ -293,6 +338,38 @@ def best_depth(session):
     return int(round(BEST_DEPTH_FRACTION * n_host))
 
 
+# The tap with a held-out result (results/README.md run 7): Qwen2.5-7B layer 20
+# into host layer 10 scored 68.3 held out against 47.7 for LoRA.
+STARTER_TAP = "tap:Qwen/Qwen2.5-7B-Instruct@20"
+
+
+def tap_suggestion(session, program):
+    """For an empty knowledge draft on real GPUs, suggest the measured starter tap."""
+    if settings.is_stub():
+        return None
+    main = None
+    for item in session.spec["benchmarks"]:
+        if item["kind"] == "target":
+            main = item["id"]
+            break
+    if main != "mmlu":
+        return None
+    part = None
+    for item in catalog_mod.tap_parts():
+        if item["id"] == STARTER_TAP:
+            part = item
+    if part is None:
+        return None
+    changed = json.loads(json.dumps(program))
+    changed["taps"] = [{"donor": part["donor"], "donor_layer": part["donor_layer"], "at": part["default_at"],
+                        "attn_dim": 256, "heads": 8, "tap_id": None}]
+    changed["tap_train"] = dict(catalog_mod.TAP_TRAIN_DEFAULT)
+    detail = ("Tap Qwen2.5-7B layer 20 into host layer 10 and train it for 500 steps on MMLU auxiliary "
+              "questions. In run 7 this scored 68.3 on held-out MMLU against 47.7 for LoRA. The donor "
+              "stays in memory, so the model is about 8.8B parameters, and decoding stays near host speed.")
+    return {"title": "Add a Qwen2.5-7B knowledge tap", "detail": detail, "tag": "measured", "program": changed}
+
+
 def add_part_suggestions(session, program):
     """For an empty draft, probe a few likely parts at a few depths and suggest the best fit.
 
@@ -300,7 +377,12 @@ def add_part_suggestions(session, program):
     points at a placement the fit gate would reject.
     """
     grafts = ps.grafts(program)
-    if len(grafts) > 0 or session.config["max_grafts"] < 1:
+    if len(grafts) > 0 or len(program.get("taps") or []) > 0:
+        return []
+    tap = tap_suggestion(session, program)
+    if tap is not None:
+        return [tap]
+    if session.config["max_grafts"] < 1:
         return []
     ingredients = specs_mod.ingredients_for(session.config, session.catalog, session.spec["benchmarks"])
     if len(ingredients) == 0:
@@ -512,22 +594,64 @@ LLM_SCHEMA = {
 }
 
 
+def benchmark_text(session):
+    parts = []
+    for item in session.spec["benchmarks"]:
+        if item["kind"] == "target":
+            parts.append(item["id"] + " target " + str(item.get("target")))
+        else:
+            parts.append(item["id"] + " floor " + str(item.get("floor")))
+    return ", ".join(parts)
+
+
+def last_scores_text(session):
+    if session.last_result is None:
+        return "none yet"
+    return json.dumps(session.last_result)[:600]
+
+
+def allowed_text(session):
+    """The names an LLM suggestion may use."""
+    graft_ids = []
+    for record in space.graftable_parts(session.catalog):
+        graft_ids.append(record["id"])
+    tap_rows = []
+    if not settings.is_stub():
+        for part in catalog_mod.tap_parts():
+            tap_rows.append(part["donor"] + " layer " + str(part["donor_layer"]))
+    heal_data = session.config["task_types"][session.config["task_type"]]["heal_data"]
+    return ("graft part ids: " + ", ".join(graft_ids[:40]) + ". tap donors: " + "; ".join(tap_rows) +
+            ". tap_train data: " + ", ".join(TAP_DATA) + ". heal data: " + ", ".join(heal_data) +
+            ". host layers 0 to " + str(space.host_layers(session.config, session.catalog) - 1) + ".")
+
+
 def llm_suggestions(session, program):
-    """One optional suggestion from the configured LLM. Any failure gives no suggestion."""
+    """One optional suggestion from the configured LLM. Any failure gives no suggestion.
+
+    The LLM gets the parts, donors and data names that exist, and the reply is
+    checked like any builder program, so it cannot suggest a part or a dataset
+    that does not exist.
+    """
     name = settings.llm()
     if name == "none":
         return []
     try:
         config = config_mod.make_config({"llm": name, "backend": settings.backend()})
         llm = factory.build_llm(config)
-        system = ("You suggest one change to a wsp program. Reply with a JSON object with title, detail (one or "
-                  "two plain sentences) and program_text (the full changed program in wsp text). Do not use "
-                  "dashes as punctuation.")
-        user = "Program:\n" + programs.render_or_empty(program) + "\nGoal: " + str(session.spec["title"])
+        system = ("You suggest one change to a wsp program that should raise its score on the goal's benchmarks. "
+                  "Reply with a JSON object with title, detail (one or two plain sentences that say why, citing "
+                  "the scores you were given) and program_text (the full changed program in wsp text). Use only "
+                  "the parts, tap donors and data names listed. Do not invent datasets. Do not use dashes as "
+                  "punctuation.")
+        user = ("Program:\n" + programs.render_or_empty(program) + "\nGoal: " + str(session.spec["title"]) +
+                "\nBenchmarks: " + benchmark_text(session) + "\nLast scores: " + last_scores_text(session) +
+                "\nAllowed: " + allowed_text(session))
         reply = llm.complete([{"role": "system", "content": system}, {"role": "user", "content": user}],
                              schema=LLM_SCHEMA, temperature=0.3)
         data = specs_mod.parse_json_reply(reply)
-        changed = programs.parse(data["program_text"])
+        changed = check_program(session, programs.parse(data["program_text"]))
+        if json.dumps(changed, sort_keys=True) == json.dumps(programs.normalize(program), sort_keys=True):
+            return []
         return [{"title": str(data["title"])[:80], "detail": str(data["detail"])[:400], "tag": "from the LLM",
                  "program": changed}]
     except Exception:

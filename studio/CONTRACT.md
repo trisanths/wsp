@@ -202,3 +202,29 @@ Errors are `{"error": "message"}` with a 4xx or 5xx status.
 - `heal`: compile with the program's heal pass (adds a default heal when the program has none), then score.
 - `train`: add a LoRA to the program (rank 16 when the program has none), heal, then score.
 - `score`: compile and score the program as written, and run its random-part control when it has grafts.
+
+## Taps (added for the Modal backend)
+
+A tap lets a host layer read a donor model's own hidden states through a small trained branch. Taps are the setup that beat fine-tuning on MMLU (results/README.md, runs 6 to 8). They need no catalog record, only a donor model id.
+
+Catalog: tap parts go in `parts` with `kind: "tap"`:
+
+```json
+{"id": "tap:Qwen/Qwen2.5-7B-Instruct@20", "group": "add", "kind": "tap", "label": "Knowledge tap, Qwen2.5-7B",
+ "donor": "Qwen/Qwen2.5-7B-Instruct", "donor_layer": 20, "layers": [20, 20], "params_m": 2.9, "default_at": 10,
+ "summary": "reads donor layer 20", "measured": {"task": "mmlu", "score": 0.679, "lora": 0.503, "host": 0.475}}
+```
+
+`measured` is null when no run measured that tap. The catalog response also has `"tap_train_default": {"data": "mmlu_aux", "steps": 500, "batch_size": 8, "seq_len": 256, "branch_lr": 0.0003, "gate_lr": 0.03}`.
+
+Program: dropping a tap part on host layer L appends to `program.taps`:
+
+```json
+{"donor": "Qwen/Qwen2.5-7B-Instruct", "donor_layer": 20, "at": 10, "attn_dim": 256, "heads": 8, "tap_id": null}
+```
+
+and sets `program.tap_train` to `tap_train_default` when it is null. Removing the last tap sets `tap_train` back to null. The text syntax is `tap <donor> layer <N> at <M>` and `tap_train data ... steps ...`.
+
+Job result: a tap's fit key is `tap:<donor>@<at>`. Its value may be null (a tap has no ridge fit).
+
+Health: `/api/health` also returns `"llm_model"` (string or null).

@@ -16,7 +16,40 @@ from studio.server import catalog as catalog_mod
 from studio.server import settings
 
 # Fine-tuning bars measured on the Llama-1B host (results/README.md), by task.
-LORA_BARS = {"gsm8k": 0.467}
+# Fine-tuning bars on the Llama-1B host. gsm8k: LoRA r64 on the search split.
+# mmlu: LoRA r16 on the round 6 dev items (log-prob scoring), so it is a
+# guide, not an exact bar for the harness's MMLU path.
+LORA_BARS = {"gsm8k": 0.467, "mmlu": 0.503}
+
+# Task types the studio adds to the swarm config. Taps help knowledge
+# questions (results/README.md runs 6 to 8); they did not help GSM8K.
+EXTRA_TASK_TYPES = {
+    "knowledge": {"tasks": {"mmlu": 1.0}, "guards": ["if_guard"], "heal_data": ["gsm8k_train"]},
+}
+KNOWLEDGE_WORDS = ["knowledge", "facts", "fact", "trivia", "mmlu", "exam", "quiz", "medical", "medicine", "law",
+                   "legal", "history", "science", "biology", "chemistry", "physics", "economics", "know more",
+                   "smarter", "knows"]
+MATH_WORDS = ["math", "arithmetic", "gsm8k", "word problem", "algebra", "calculate"]
+
+# Measured host scores the swarm config does not have. mmlu: Llama-3.2-1B-Instruct,
+# log-prob scoring, round 6 dev items (search) and round 7 held-out items.
+MEASURED_BASES = {"search": {"mmlu": 0.475}, "heldout": {"mmlu": 0.447}}
+
+
+def add_measured_bases():
+    """Put MEASURED_BASES into the in-memory swarm defaults (wsp/swarm/config.py is not edited)."""
+    table = config_mod.DEFAULTS["base_scores"]
+    for split in MEASURED_BASES:
+        if split not in table:
+            table[split] = {}
+        for task in MEASURED_BASES[split]:
+            if task not in table[split]:
+                table[split][task] = MEASURED_BASES[split][task]
+
+
+add_measured_bases()
+
+MAX_DRAFT_TARGETS = 2
 
 DEFAULT_BUDGET = {"evals": 30, "compute_min": 45, "min_evals": 5, "max_evals": 120}
 MIN_COMPUTE_MIN = 5
@@ -253,6 +286,30 @@ def available_benchmarks(config, chosen):
 
 # Ingredients.
 
+def tap_ingredients(config):
+    """The three taps with the best measured MMLU score, labeled with the total size in memory."""
+    parts = catalog_mod.tap_parts()
+    ranked = []
+    for part in parts:
+        score = (part.get("measured") or {}).get("score") or 0.0
+        ranked.append((-score, part["id"]))
+    ranked.sort()
+    host_b = catalog_mod.host_params_b(config["host"])
+    out = []
+    for pair in ranked[:3]:
+        for part in parts:
+            if part["id"] != pair[1]:
+                continue
+            label = part["label"]
+            score = (part.get("measured") or {}).get("score")
+            if score is not None:
+                label = label + ", MMLU " + "%.1f" % (score * 100)
+            if part.get("donor_params_b") is not None:
+                label = label + ", " + "%.1f" % (host_b + part["donor_params_b"]) + "B total"
+            out.append({"part_id": part["id"], "label": label, "donor": part["donor"], "kind": "tap"})
+    return out
+
+
 def ingredients_for(config, catalog, benchmarks):
     """Up to three parts whose signature hints help the main target, one per donor and kind."""
     main = None
@@ -262,6 +319,8 @@ def ingredients_for(config, catalog, benchmarks):
             break
     if main is None:
         return []
+    if main == "mmlu" and not settings.is_stub():
+        return tap_ingredients(config)
     scored = []
     for record in space.graftable_parts(catalog):
         effect = (record.get("signature") or {}).get("effect") or {}
@@ -424,10 +483,23 @@ def apply_llm_draft(spec, config, draft, host_params):
     ids = draft.get("benchmarks")
     if isinstance(ids, list):
         known = known_benchmark_ids(config)
+        # The task type's own targets come first and stay. Each extra target
+        # costs an eval per score (a slow one on real GPUs), so a draft keeps
+        # at most MAX_DRAFT_TARGETS targets; the user can add more on the spec page.
+        main_targets = list(config["task_types"][config["task_type"]]["tasks"])
         chosen = []
+        for task_id in main_targets:
+            chosen.append(task_id)
+        target_count = len(chosen)
         for task_id in ids:
-            if task_id in known and task_id not in chosen:
-                chosen.append(task_id)
+            if task_id not in known or task_id in chosen:
+                continue
+            is_guard = task_id in GUARD_IDS or task_id in config["task_types"][config["task_type"]]["guards"]
+            if not is_guard:
+                if target_count >= MAX_DRAFT_TARGETS:
+                    continue
+                target_count += 1
+            chosen.append(task_id)
         items = []
         for task_id in chosen:
             items.append(entry_for_id(config, task_id, True))
@@ -446,6 +518,31 @@ def apply_llm_draft(spec, config, draft, host_params):
             spec["benchmarks"] = items
 
 
+# Task types.
+
+def add_task_types(config):
+    """Add the studio's extra task types to a swarm config dict."""
+    for name in EXTRA_TASK_TYPES:
+        if name not in config["task_types"]:
+            config["task_types"][name] = dict(EXTRA_TASK_TYPES[name])
+
+
+def task_type_for(prompt):
+    """math or knowledge, from the words in the prompt. Math wins a tie."""
+    text = " " + str(prompt or "").lower() + " "
+    math_hits = 0
+    for word in MATH_WORDS:
+        if word in text:
+            math_hits += 1
+    knowledge_hits = 0
+    for word in KNOWLEDGE_WORDS:
+        if " " + word in text:
+            knowledge_hits += 1
+    if knowledge_hits > math_hits:
+        return "knowledge"
+    return "math"
+
+
 # Draft, normalize, store.
 
 def draft_spec(prompt, uploads):
@@ -453,6 +550,8 @@ def draft_spec(prompt, uploads):
     backend = settings.backend()
     config, catalog = catalog_mod.load_catalog(backend)
     host_params = catalog_mod.host_params_b(config["host"])
+    add_task_types(config)
+    config["task_type"] = task_type_for(prompt)
     spec_id = new_spec_id()
     files = save_uploads(spec_id, uploads)
     size_b = size_from_prompt(prompt, host_params)
@@ -526,6 +625,9 @@ def normalize_spec(body, old):
     if not isinstance(body, dict):
         raise ValueError("the spec must be a JSON object")
     config, catalog = catalog_mod.load_catalog(settings.backend())
+    add_task_types(config)
+    if old.get("task_type") in config["task_types"]:
+        config["task_type"] = old["task_type"]
     host_params = catalog_mod.host_params_b(config["host"])
     spec = dict(old)
     for key in ["title", "summary", "prompt"]:
