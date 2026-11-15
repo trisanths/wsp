@@ -1,0 +1,1220 @@
+{
+ "name": "line_position",
+ "description": "Retrieve a word at a numbered line from a newline-separated list; matched control retrieves a specified word from the same list without line indexing.",
+ "hash": "c3838b4c4b4fdb4c",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nitems=[]; control=[]\nwords=['apple','pear','plum','peach','grape','melon','lime','berry','lemon','mango','cherry','fig']\nfor i in range(120):\n n=random.randint(3,6); ws=random.sample(words,n); j=random.randrange(n)\n ctx='Read these lines:\\n'+'\\n'.join(ws)+'\\n\\n'\n items.append({'prompt':ctx+f'Which word is on line {j+1}? Answer:', 'answer':' '+ws[j]})\n control.append({'prompt':ctx+f'Copy the word \"{ws[j]}\" from the list. Answer:', 'answer':' '+ws[j]})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Read these lines:\ngrape\nmelon\nplum\n\nWhich word is on line 1? Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\ngrape\ncherry\nlemon\nmelon\n\nWhich word is on line 2? Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npeach\ncherry\npear\n\nWhich word is on line 3? Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ngrape\npear\ncherry\nmelon\n\nWhich word is on line 4? Answer:",
+    "continuation": " melon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlime\nfig\napple\n\nWhich word is on line 2? Answer:",
+    "continuation": " fig",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlime\napple\npear\n\nWhich word is on line 2? Answer:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nplum\ncherry\nberry\nmelon\n\nWhich word is on line 4? Answer:",
+    "continuation": " melon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmango\napple\npeach\n\nWhich word is on line 1? Answer:",
+    "continuation": " mango",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmango\nlemon\ngrape\nmelon\nlime\nberry\n\nWhich word is on line 6? Answer:",
+    "continuation": " berry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npear\npeach\nfig\ngrape\nmelon\n\nWhich word is on line 4? Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\napple\nfig\ncherry\npeach\ngrape\n\nWhich word is on line 5? Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmelon\napple\nlemon\nplum\ngrape\n\nWhich word is on line 5? Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\npeach\napple\n\nWhich word is on line 3? Answer:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ncherry\nfig\nlime\nlemon\nberry\nmelon\n\nWhich word is on line 3? Answer:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nfig\nlime\npeach\n\nWhich word is on line 2? Answer:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ncherry\nfig\nmelon\npear\nmango\ngrape\n\nWhich word is on line 1? Answer:",
+    "continuation": " cherry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npear\nlemon\nmelon\npeach\nlime\n\nWhich word is on line 4? Answer:",
+    "continuation": " peach",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npear\nmango\nberry\nplum\napple\n\nWhich word is on line 4? Answer:",
+    "continuation": " plum",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmango\ngrape\nlemon\n\nWhich word is on line 3? Answer:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\nlime\nmango\npeach\napple\nmelon\n\nWhich word is on line 1? Answer:",
+    "continuation": " berry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nfig\npear\npeach\nmango\nlemon\n\nWhich word is on line 2? Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nplum\nmango\napple\n\nWhich word is on line 2? Answer:",
+    "continuation": " mango",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npeach\npear\nmango\n\nWhich word is on line 3? Answer:",
+    "continuation": " mango",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmango\nfig\nplum\n\nWhich word is on line 3? Answer:",
+    "continuation": " plum",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmelon\npear\nmango\nplum\n\nWhich word is on line 2? Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ngrape\nfig\nplum\npear\n\nWhich word is on line 4? Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nplum\ncherry\nlemon\nmelon\npear\n\nWhich word is on line 2? Answer:",
+    "continuation": " cherry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlemon\nplum\nmelon\nberry\npear\n\nWhich word is on line 4? Answer:",
+    "continuation": " berry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\napple\nfig\nberry\nlime\nplum\n\nWhich word is on line 4? Answer:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nplum\nberry\npear\n\nWhich word is on line 2? Answer:",
+    "continuation": " berry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nfig\npear\nlemon\nmelon\npeach\n\nWhich word is on line 5? Answer:",
+    "continuation": " peach",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlemon\nlime\nmango\n\nWhich word is on line 1? Answer:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmelon\nmango\napple\nberry\nlemon\n\nWhich word is on line 4? Answer:",
+    "continuation": " berry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nplum\ngrape\nmelon\nmango\n\nWhich word is on line 3? Answer:",
+    "continuation": " melon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npear\nlemon\nmango\n\nWhich word is on line 2? Answer:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npear\nplum\nlime\nmango\nfig\n\nWhich word is on line 1? Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\npear\ncherry\nplum\nlemon\n\nWhich word is on line 1? Answer:",
+    "continuation": " berry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nplum\nfig\nmango\ngrape\nmelon\n\nWhich word is on line 4? Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlime\npear\nmelon\n\nWhich word is on line 1? Answer:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\npeach\nmelon\ngrape\nfig\n\nWhich word is on line 1? Answer:",
+    "continuation": " berry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\napple\ngrape\nfig\nberry\n\nWhich word is on line 3? Answer:",
+    "continuation": " fig",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlemon\ncherry\nmango\n\nWhich word is on line 3? Answer:",
+    "continuation": " mango",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npeach\nfig\nberry\nlime\n\nWhich word is on line 4? Answer:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npear\nplum\npeach\n\nWhich word is on line 1? Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlemon\napple\npear\n\nWhich word is on line 3? Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nfig\ngrape\nplum\napple\npeach\n\nWhich word is on line 3? Answer:",
+    "continuation": " plum",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ncherry\nlime\napple\nberry\nmelon\nlemon\n\nWhich word is on line 3? Answer:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\napple\npear\npeach\n\nWhich word is on line 3? Answer:",
+    "continuation": " peach",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nfig\nberry\npear\ncherry\npeach\ngrape\n\nWhich word is on line 4? Answer:",
+    "continuation": " cherry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlime\nplum\nfig\nmango\ncherry\npear\n\nWhich word is on line 4? Answer:",
+    "continuation": " mango",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\napple\ncherry\nplum\nmango\n\nWhich word is on line 3? Answer:",
+    "continuation": " plum",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nfig\nlime\npear\napple\npeach\nmelon\n\nWhich word is on line 3? Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nplum\nlemon\npear\ngrape\nlime\n\nWhich word is on line 3? Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nfig\ncherry\npear\nlemon\npeach\n\nWhich word is on line 1? Answer:",
+    "continuation": " fig",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npear\nfig\nlime\nplum\napple\nmango\n\nWhich word is on line 4? Answer:",
+    "continuation": " plum",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlemon\npeach\ncherry\nlime\ngrape\n\nWhich word is on line 4? Answer:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nfig\nlemon\nlime\n\nWhich word is on line 3? Answer:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlemon\nlime\nplum\ncherry\ngrape\n\nWhich word is on line 3? Answer:",
+    "continuation": " plum",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ncherry\npear\nfig\nmango\npeach\nmelon\n\nWhich word is on line 2? Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npear\nberry\nplum\n\nWhich word is on line 1? Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Read these lines:\nmelon\nlime\nfig\n\nWhich word is on line 3? Answer:",
+    "continuation": " fig",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ncherry\nplum\nmelon\n\nWhich word is on line 2? Answer:",
+    "continuation": " plum",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmango\nberry\nlime\n\nWhich word is on line 2? Answer:",
+    "continuation": " berry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nfig\nplum\napple\n\nWhich word is on line 2? Answer:",
+    "continuation": " plum",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nplum\nlemon\napple\nberry\npear\n\nWhich word is on line 3? Answer:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\napple\nmango\nberry\n\nWhich word is on line 3? Answer:",
+    "continuation": " berry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\nlime\ngrape\n\nWhich word is on line 1? Answer:",
+    "continuation": " berry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlime\napple\ngrape\nlemon\nberry\npeach\n\nWhich word is on line 3? Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npeach\nberry\nmelon\n\nWhich word is on line 3? Answer:",
+    "continuation": " melon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\npear\nmango\nlime\nmelon\n\nWhich word is on line 5? Answer:",
+    "continuation": " melon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmelon\nmango\npeach\nlemon\nplum\nberry\n\nWhich word is on line 2? Answer:",
+    "continuation": " mango",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npeach\npear\nlemon\nmango\n\nWhich word is on line 4? Answer:",
+    "continuation": " mango",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nfig\ncherry\napple\nberry\nmelon\npear\n\nWhich word is on line 6? Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ngrape\napple\nberry\nmango\n\nWhich word is on line 1? Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmango\nberry\nplum\n\nWhich word is on line 3? Answer:",
+    "continuation": " plum",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmelon\npear\nberry\ncherry\nmango\n\nWhich word is on line 4? Answer:",
+    "continuation": " cherry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ncherry\napple\npear\ngrape\nfig\n\nWhich word is on line 1? Answer:",
+    "continuation": " cherry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlime\nmango\ngrape\nberry\n\nWhich word is on line 1? Answer:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\napple\nlemon\nberry\nfig\n\nWhich word is on line 1? Answer:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\ngrape\ncherry\n\nWhich word is on line 2? Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlime\npeach\nlemon\n\nWhich word is on line 3? Answer:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlime\npear\ncherry\nlemon\nberry\n\nWhich word is on line 4? Answer:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlime\nplum\ncherry\npeach\n\nWhich word is on line 3? Answer:",
+    "continuation": " cherry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\nmelon\npeach\nfig\ncherry\nlime\n\nWhich word is on line 6? Answer:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlemon\napple\npear\n\nWhich word is on line 1? Answer:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\nfig\nmango\npeach\nlime\n\nWhich word is on line 1? Answer:",
+    "continuation": " berry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmelon\napple\npeach\ncherry\nlemon\nlime\n\nWhich word is on line 6? Answer:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ncherry\npear\nmango\ngrape\nplum\n\nWhich word is on line 4? Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npear\nfig\nmelon\nlemon\nberry\napple\n\nWhich word is on line 3? Answer:",
+    "continuation": " melon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ngrape\npear\nfig\nlemon\n\nWhich word is on line 2? Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\nmelon\ngrape\n\nWhich word is on line 2? Answer:",
+    "continuation": " melon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npear\npeach\nmelon\nplum\nmango\n\nWhich word is on line 4? Answer:",
+    "continuation": " plum",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ngrape\nlemon\nmango\nfig\n\nWhich word is on line 3? Answer:",
+    "continuation": " mango",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\napple\nfig\nberry\n\nWhich word is on line 2? Answer:",
+    "continuation": " fig",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\ncherry\npeach\nlemon\nmango\napple\n\nWhich word is on line 3? Answer:",
+    "continuation": " peach",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlemon\ngrape\nplum\n\nWhich word is on line 1? Answer:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlime\napple\nplum\nmango\npeach\nlemon\n\nWhich word is on line 6? Answer:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ngrape\nplum\npeach\ncherry\n\nWhich word is on line 1? Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmelon\npear\ncherry\n\nWhich word is on line 2? Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nplum\nfig\nberry\npear\n\nWhich word is on line 4? Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlime\nmango\nfig\n\nWhich word is on line 3? Answer:",
+    "continuation": " fig",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmango\ncherry\nmelon\npeach\nlemon\napple\n\nWhich word is on line 6? Answer:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npeach\nmango\nplum\n\nWhich word is on line 1? Answer:",
+    "continuation": " peach",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npeach\ngrape\nmelon\nberry\nplum\nmango\n\nWhich word is on line 6? Answer:",
+    "continuation": " mango",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmango\npear\nlemon\n\nWhich word is on line 3? Answer:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ncherry\npear\napple\ngrape\nberry\nlime\n\nWhich word is on line 1? Answer:",
+    "continuation": " cherry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npeach\ngrape\nmango\nplum\nlime\n\nWhich word is on line 2? Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\nlemon\nfig\ncherry\n\nWhich word is on line 1? Answer:",
+    "continuation": " berry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npeach\nplum\ngrape\nmelon\n\nWhich word is on line 4? Answer:",
+    "continuation": " melon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ngrape\nmelon\napple\n\nWhich word is on line 3? Answer:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmelon\nmango\napple\n\nWhich word is on line 1? Answer:",
+    "continuation": " melon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npear\nfig\napple\nlemon\nberry\n\nWhich word is on line 2? Answer:",
+    "continuation": " fig",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\nlime\nmelon\nlemon\n\nWhich word is on line 2? Answer:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmelon\nmango\ngrape\nfig\nplum\nlemon\n\nWhich word is on line 3? Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlemon\nberry\ncherry\nfig\n\nWhich word is on line 3? Answer:",
+    "continuation": " cherry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ngrape\npear\nberry\npeach\n\nWhich word is on line 1? Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npear\ngrape\nfig\nlemon\n\nWhich word is on line 2? Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmelon\nfig\nplum\n\nWhich word is on line 1? Answer:",
+    "continuation": " melon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlemon\nplum\npeach\nlime\ngrape\n\nWhich word is on line 1? Answer:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nfig\npear\nplum\n\nWhich word is on line 2? Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Read these lines:\ncherry\napple\npear\ngrape\nfig\n\nCopy the word \"cherry\" from the list. Answer:",
+    "continuation": " cherry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ncherry\nplum\nmelon\n\nCopy the word \"plum\" from the list. Answer:",
+    "continuation": " plum",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\napple\npear\npeach\n\nCopy the word \"peach\" from the list. Answer:",
+    "continuation": " peach",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\napple\nfig\nberry\n\nCopy the word \"fig\" from the list. Answer:",
+    "continuation": " fig",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\ncherry\npeach\nlemon\nmango\napple\n\nCopy the word \"peach\" from the list. Answer:",
+    "continuation": " peach",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nfig\nplum\napple\n\nCopy the word \"plum\" from the list. Answer:",
+    "continuation": " plum",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmelon\nlime\nfig\n\nCopy the word \"fig\" from the list. Answer:",
+    "continuation": " fig",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlime\napple\nplum\nmango\npeach\nlemon\n\nCopy the word \"lemon\" from the list. Answer:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\nlemon\nfig\ncherry\n\nCopy the word \"berry\" from the list. Answer:",
+    "continuation": " berry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nfig\npear\nlemon\nmelon\npeach\n\nCopy the word \"peach\" from the list. Answer:",
+    "continuation": " peach",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nfig\nlemon\nlime\n\nCopy the word \"lime\" from the list. Answer:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ncherry\nlime\napple\nberry\nmelon\nlemon\n\nCopy the word \"apple\" from the list. Answer:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmango\napple\npeach\n\nCopy the word \"mango\" from the list. Answer:",
+    "continuation": " mango",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\ngrape\ncherry\n\nCopy the word \"grape\" from the list. Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlime\nplum\nfig\nmango\ncherry\npear\n\nCopy the word \"mango\" from the list. Answer:",
+    "continuation": " mango",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlemon\napple\npear\n\nCopy the word \"lemon\" from the list. Answer:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nplum\ncherry\nberry\nmelon\n\nCopy the word \"melon\" from the list. Answer:",
+    "continuation": " melon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nplum\nfig\nmango\ngrape\nmelon\n\nCopy the word \"grape\" from the list. Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npear\nfig\nlime\nplum\napple\nmango\n\nCopy the word \"plum\" from the list. Answer:",
+    "continuation": " plum",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npear\nfig\nmelon\nlemon\nberry\napple\n\nCopy the word \"melon\" from the list. Answer:",
+    "continuation": " melon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmango\nberry\nlime\n\nCopy the word \"berry\" from the list. Answer:",
+    "continuation": " berry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ngrape\napple\nberry\nmango\n\nCopy the word \"grape\" from the list. Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmelon\npear\ncherry\n\nCopy the word \"pear\" from the list. Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npear\nplum\nlime\nmango\nfig\n\nCopy the word \"pear\" from the list. Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\nmelon\ngrape\n\nCopy the word \"melon\" from the list. Answer:",
+    "continuation": " melon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlime\nmango\nfig\n\nCopy the word \"fig\" from the list. Answer:",
+    "continuation": " fig",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlime\nplum\ncherry\npeach\n\nCopy the word \"cherry\" from the list. Answer:",
+    "continuation": " cherry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nplum\ngrape\nmelon\nmango\n\nCopy the word \"melon\" from the list. Answer:",
+    "continuation": " melon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ncherry\nfig\nmelon\npear\nmango\ngrape\n\nCopy the word \"cherry\" from the list. Answer:",
+    "continuation": " cherry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmelon\nmango\ngrape\nfig\nplum\nlemon\n\nCopy the word \"grape\" from the list. Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlemon\nlime\nmango\n\nCopy the word \"lemon\" from the list. Answer:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlemon\napple\npear\n\nCopy the word \"pear\" from the list. Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmango\nfig\nplum\n\nCopy the word \"plum\" from the list. Answer:",
+    "continuation": " plum",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlemon\nberry\ncherry\nfig\n\nCopy the word \"cherry\" from the list. Answer:",
+    "continuation": " cherry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npeach\nfig\nberry\nlime\n\nCopy the word \"lime\" from the list. Answer:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmango\npear\nlemon\n\nCopy the word \"lemon\" from the list. Answer:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\npear\nmango\nlime\nmelon\n\nCopy the word \"melon\" from the list. Answer:",
+    "continuation": " melon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npear\nlemon\nmango\n\nCopy the word \"lemon\" from the list. Answer:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npeach\npear\nmango\n\nCopy the word \"mango\" from the list. Answer:",
+    "continuation": " mango",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\npeach\nmelon\ngrape\nfig\n\nCopy the word \"berry\" from the list. Answer:",
+    "continuation": " berry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmango\nlemon\ngrape\nmelon\nlime\nberry\n\nCopy the word \"berry\" from the list. Answer:",
+    "continuation": " berry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmango\nberry\nplum\n\nCopy the word \"plum\" from the list. Answer:",
+    "continuation": " plum",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ngrape\npear\nfig\nlemon\n\nCopy the word \"pear\" from the list. Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npear\npeach\nfig\ngrape\nmelon\n\nCopy the word \"grape\" from the list. Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmelon\nmango\napple\n\nCopy the word \"melon\" from the list. Answer:",
+    "continuation": " melon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nplum\nlemon\napple\nberry\npear\n\nCopy the word \"apple\" from the list. Answer:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmelon\npear\nmango\nplum\n\nCopy the word \"pear\" from the list. Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlime\napple\npear\n\nCopy the word \"apple\" from the list. Answer:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npear\nplum\npeach\n\nCopy the word \"pear\" from the list. Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npeach\nmango\nplum\n\nCopy the word \"peach\" from the list. Answer:",
+    "continuation": " peach",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmelon\napple\npeach\ncherry\nlemon\nlime\n\nCopy the word \"lime\" from the list. Answer:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\nlime\nmelon\nlemon\n\nCopy the word \"lime\" from the list. Answer:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\napple\nfig\nberry\nlime\nplum\n\nCopy the word \"lime\" from the list. Answer:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npear\ngrape\nfig\nlemon\n\nCopy the word \"grape\" from the list. Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ncherry\npear\napple\ngrape\nberry\nlime\n\nCopy the word \"cherry\" from the list. Answer:",
+    "continuation": " cherry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npeach\ngrape\nmango\nplum\nlime\n\nCopy the word \"grape\" from the list. Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlime\npear\nmelon\n\nCopy the word \"lime\" from the list. Answer:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\napple\nfig\ncherry\npeach\ngrape\n\nCopy the word \"grape\" from the list. Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nfig\ncherry\napple\nberry\nmelon\npear\n\nCopy the word \"pear\" from the list. Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npear\npeach\nmelon\nplum\nmango\n\nCopy the word \"plum\" from the list. Answer:",
+    "continuation": " plum",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Read these lines:\npeach\ncherry\npear\n\nCopy the word \"pear\" from the list. Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nplum\ncherry\nlemon\nmelon\npear\n\nCopy the word \"cherry\" from the list. Answer:",
+    "continuation": " cherry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nfig\ncherry\npear\nlemon\npeach\n\nCopy the word \"fig\" from the list. Answer:",
+    "continuation": " fig",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\npeach\napple\n\nCopy the word \"apple\" from the list. Answer:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\ngrape\ncherry\nlemon\nmelon\n\nCopy the word \"grape\" from the list. Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ngrape\npear\nberry\npeach\n\nCopy the word \"grape\" from the list. Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\napple\nmango\nberry\n\nCopy the word \"berry\" from the list. Answer:",
+    "continuation": " berry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nplum\nberry\npear\n\nCopy the word \"berry\" from the list. Answer:",
+    "continuation": " berry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ncherry\npear\nfig\nmango\npeach\nmelon\n\nCopy the word \"pear\" from the list. Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\nlime\nmango\npeach\napple\nmelon\n\nCopy the word \"berry\" from the list. Answer:",
+    "continuation": " berry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nfig\nberry\npear\ncherry\npeach\ngrape\n\nCopy the word \"cherry\" from the list. Answer:",
+    "continuation": " cherry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ngrape\nfig\nplum\npear\n\nCopy the word \"pear\" from the list. Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlemon\ncherry\nmango\n\nCopy the word \"mango\" from the list. Answer:",
+    "continuation": " mango",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlime\nmango\ngrape\nberry\n\nCopy the word \"lime\" from the list. Answer:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlime\nfig\napple\n\nCopy the word \"fig\" from the list. Answer:",
+    "continuation": " fig",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmelon\npear\nberry\ncherry\nmango\n\nCopy the word \"cherry\" from the list. Answer:",
+    "continuation": " cherry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\napple\ncherry\nplum\nmango\n\nCopy the word \"plum\" from the list. Answer:",
+    "continuation": " plum",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ncherry\nfig\nlime\nlemon\nberry\nmelon\n\nCopy the word \"lime\" from the list. Answer:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npear\nlemon\nmelon\npeach\nlime\n\nCopy the word \"peach\" from the list. Answer:",
+    "continuation": " peach",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nplum\nlemon\npear\ngrape\nlime\n\nCopy the word \"pear\" from the list. Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npeach\ngrape\nmelon\nberry\nplum\nmango\n\nCopy the word \"mango\" from the list. Answer:",
+    "continuation": " mango",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npeach\nplum\ngrape\nmelon\n\nCopy the word \"melon\" from the list. Answer:",
+    "continuation": " melon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmelon\nmango\npeach\nlemon\nplum\nberry\n\nCopy the word \"mango\" from the list. Answer:",
+    "continuation": " mango",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmelon\napple\nlemon\nplum\ngrape\n\nCopy the word \"grape\" from the list. Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nplum\nmango\napple\n\nCopy the word \"mango\" from the list. Answer:",
+    "continuation": " mango",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ncherry\npear\nmango\ngrape\nplum\n\nCopy the word \"grape\" from the list. Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmango\ngrape\nlemon\n\nCopy the word \"lemon\" from the list. Answer:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nplum\nfig\nberry\npear\n\nCopy the word \"pear\" from the list. Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlime\npeach\nlemon\n\nCopy the word \"lemon\" from the list. Answer:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\npear\ncherry\nplum\nlemon\n\nCopy the word \"berry\" from the list. Answer:",
+    "continuation": " berry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nfig\nlime\npeach\n\nCopy the word \"lime\" from the list. Answer:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npear\nmango\nberry\nplum\napple\n\nCopy the word \"plum\" from the list. Answer:",
+    "continuation": " plum",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npeach\npear\nlemon\nmango\n\nCopy the word \"mango\" from the list. Answer:",
+    "continuation": " mango",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nfig\nlime\npear\napple\npeach\nmelon\n\nCopy the word \"pear\" from the list. Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlemon\nlime\nplum\ncherry\ngrape\n\nCopy the word \"plum\" from the list. Answer:",
+    "continuation": " plum",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\nmelon\npeach\nfig\ncherry\nlime\n\nCopy the word \"lime\" from the list. Answer:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlime\napple\ngrape\nlemon\nberry\npeach\n\nCopy the word \"grape\" from the list. Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npeach\nberry\nmelon\n\nCopy the word \"melon\" from the list. Answer:",
+    "continuation": " melon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ngrape\nlemon\nmango\nfig\n\nCopy the word \"mango\" from the list. Answer:",
+    "continuation": " mango",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlime\npear\ncherry\nlemon\nberry\n\nCopy the word \"lemon\" from the list. Answer:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlemon\nplum\npeach\nlime\ngrape\n\nCopy the word \"lemon\" from the list. Answer:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ngrape\npear\ncherry\nmelon\n\nCopy the word \"melon\" from the list. Answer:",
+    "continuation": " melon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npear\nfig\napple\nlemon\nberry\n\nCopy the word \"fig\" from the list. Answer:",
+    "continuation": " fig",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ngrape\nplum\npeach\ncherry\n\nCopy the word \"grape\" from the list. Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\napple\nlemon\nberry\nfig\n\nCopy the word \"apple\" from the list. Answer:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ngrape\nmelon\napple\n\nCopy the word \"apple\" from the list. Answer:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmelon\nmango\napple\nberry\nlemon\n\nCopy the word \"berry\" from the list. Answer:",
+    "continuation": " berry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\npear\nberry\nplum\n\nCopy the word \"pear\" from the list. Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\nfig\nmango\npeach\nlime\n\nCopy the word \"berry\" from the list. Answer:",
+    "continuation": " berry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\ngrape\nmelon\nplum\n\nCopy the word \"grape\" from the list. Answer:",
+    "continuation": " grape",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlemon\nplum\nmelon\nberry\npear\n\nCopy the word \"berry\" from the list. Answer:",
+    "continuation": " berry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nberry\nlime\ngrape\n\nCopy the word \"berry\" from the list. Answer:",
+    "continuation": " berry",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlemon\npeach\ncherry\nlime\ngrape\n\nCopy the word \"lime\" from the list. Answer:",
+    "continuation": " lime",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nlemon\ngrape\nplum\n\nCopy the word \"lemon\" from the list. Answer:",
+    "continuation": " lemon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nfig\npear\npeach\nmango\nlemon\n\nCopy the word \"pear\" from the list. Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmelon\nfig\nplum\n\nCopy the word \"melon\" from the list. Answer:",
+    "continuation": " melon",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nfig\ngrape\nplum\napple\npeach\n\nCopy the word \"plum\" from the list. Answer:",
+    "continuation": " plum",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nfig\npear\nplum\n\nCopy the word \"pear\" from the list. Answer:",
+    "continuation": " pear",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\napple\ngrape\nfig\nberry\n\nCopy the word \"fig\" from the list. Answer:",
+    "continuation": " fig",
+    "digits_only": false
+   },
+   {
+    "context": "Read these lines:\nmango\ncherry\nmelon\npeach\nlemon\napple\n\nCopy the word \"apple\" from the list. Answer:",
+    "continuation": " apple",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 5.91
+}
