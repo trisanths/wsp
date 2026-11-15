@@ -63,3 +63,37 @@ Reading:
 
 Next (round 3): whole donor blocks (layers 8..19 and 4..23) against a
 matched LoRA, a standard rank-64 LoRA, and a random-block control.
+
+## Run 3 (2026-11-14): whole donor blocks vs LoRA (18 cells)
+
+Host Llama-3.2-1B-Instruct, donor Qwen2.5-Math-1.5B, 300 heal steps, same
+loop and data for every arm, 3 seeds. Raw rows: round3_rows.json.
+
+| Arm | Trainable params | Total params | Search acc. (sd) | Decode tok/s |
+|---|---|---|---|---|
+| LoRA rank 1 (smallest rank, "matched") | 0.70M | 1.24B | 43.5 (2.0) | 87 |
+| LoRA rank 64, all linear layers | 45.1M | 1.24B | 28.8 (3.4) | 110 |
+| Block, donor layers 8..19, rank-64 glue | 0.46M | 1.80B | 35.2 (0.6) | 42 |
+| Block, donor layers 4..23, rank-64 glue | 0.46M | 2.17B | 33.5 (3.5) | 37 |
+| Random block (same length), rank-64 glue | 0.46M | 1.80B | 36.3 (3.0) | 37 |
+| Block, donor layers 8..19, full glue | 6.3M | 1.80B | 16.5 (3.6) | 48 |
+
+Fit R squared (pooled / per dim): block 8..19 at host layer 5 0.70 / 0.55;
+block 4..23 at host layer 2 0.75 / 0.64.
+
+Reading:
+- A rank-1 LoRA beats every graft. Donor blocks do not beat a random block.
+  For this cross-family pair, the donor's math skill does not survive a
+  linear stitch plus 300 glue steps.
+- The likely cause is the stitch itself: a per-token linear map from Llama
+  states to Qwen states explains only about 55% of per-dimension variance,
+  and the donor block runs on Llama's tokenization, not its own. The donor
+  layers see inputs off their training distribution.
+- Big LoRA at lr 3e-4 underperforms (28.8%); the LoRA baseline needs an lr
+  check before it is a fair bar.
+- Block grafts cost decode speed (37 to 48 tok/s vs 87 to 110) because the
+  KV cache is off for them; the cache work in progress addresses that.
+
+Next (round 4): the same test with a host that shares the donor's
+tokenizer (Qwen2.5-0.5B-Instruct host, Qwen2.5-Math-1.5B donor), to
+separate "the stitch is too lossy" from "tokenization differs".
