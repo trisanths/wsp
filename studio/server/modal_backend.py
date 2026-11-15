@@ -72,6 +72,24 @@ def gpu_suffix(program, catalog):
     return ""
 
 
+def run_shrink(plan, split, tasks, fidelity, options):
+    """Run one shrink on a GPU: the shrink_remote function (an H100 twin above about 10B parameters).
+
+    plan holds the fields of the spec's shrink block. Returns the remote result dict. Raises RuntimeError
+    with the remote error when the call fails or reports ok false.
+    """
+    name = "shrink_remote"
+    if float(plan.get("source_params_b") or 0.0) > BIG_DONOR_B:
+        name = "shrink_remote_h100"
+    try:
+        result = lookup(name).remote(plan, split, list(tasks), fidelity, options)
+    except Exception as error:
+        raise RuntimeError("the shrink call failed: " + type(error).__name__ + ": " + str(error))
+    if not result.get("ok"):
+        raise RuntimeError(str(result.get("error")) + (" " + str(result.get("trace") or "")[-600:]))
+    return result
+
+
 def used_component_ids(program):
     ids = []
     for graft in ps.grafts(program):

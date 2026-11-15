@@ -26,6 +26,8 @@ LABELS = {
     "distill": "Base + distillation (same budget)",
     "random": "Random components (same size)",
     "best_model": "Best existing model at this size",
+    "source": "Original model (before removal)",
+    "general": "General-text control (keeps what general text uses)",
 }
 
 # Library score keys per task. They all use the search-split items. The scorers differ a little (harness
@@ -243,3 +245,148 @@ def build(spec, scores, params_b=None, heldout=None, control=None, control_split
 def verdict_only(spec, scores, heldout=None, control=None, control_split="search", stub=False, models=None):
     """The verdict string alone, for lists."""
     return build(spec, scores, None, heldout, control, control_split, stub, models)["verdict"]
+
+
+# Shrink comparison. A shrunk model is checked against the same slim with random units removed (the random
+# control) and against the best existing model of about its size. The original model is a reference and
+# does not decide the verdict: removing skills is expected to cost something. The general-text control is
+# optional and also does not decide it.
+
+SHRINK_REQUIRED = ["random", "best_model"]
+NEAR_SIZE_LOW = 0.5
+NEAR_SIZE_HIGH = 1.05
+
+
+def models_near_size(models, params_b, exclude):
+    """Library models whose size is within NEAR_SIZE_LOW to NEAR_SIZE_HIGH of the result's, except the source."""
+    out = {}
+    if params_b is None:
+        return out
+    for hf_id in models:
+        size = models[hf_id]["params_b"]
+        if hf_id == exclude:
+            continue
+        if NEAR_SIZE_LOW * params_b <= size <= NEAR_SIZE_HIGH * params_b:
+            out[hf_id] = models[hf_id]
+    return out
+
+
+def shrink_best_model_row(spec, params_b, source_id, models, targets, stub):
+    """(row, required). required is true when the library has a model near the result's size."""
+    near = models_near_size(models, params_b, source_id)
+    if len(near) == 0:
+        row = make_row("best_model", {}, targets, "search",
+                       "no library model is near this size, so there is no existing model to compare with", False)
+        return row, False
+    limit_b = NEAR_SIZE_HIGH * params_b
+    per_task, note = best_model_row(spec, limit_b, near)
+    if len(per_task) == 0:
+        names = ", ".join(sorted(near)[:3])
+        note = "models near this size (" + names + ") have no score on this benchmark yet"
+    return make_row("best_model", per_task, targets, "search", note, False), True
+
+
+def shrink_rows(spec, params_b, source_scores, random_scores, general_scores, models, stub):
+    targets = targets_of(spec)
+    source_id = (spec.get("shrink") or {}).get("source_model")
+    rows = []
+    row = make_row("source", source_scores or {}, targets, "search",
+                   "the original model on the same items. The shrunk model is expected to be below it.", stub)
+    row["required"] = False
+    rows.append(row)
+    if random_scores is None:
+        note = "not measured yet. The control removes the same counts at random and heals the same steps."
+    else:
+        note = "the same slim with random units removed, same counts, same heal steps"
+    row = make_row("random", random_scores or {}, targets, "search", note, stub)
+    row["required"] = True
+    rows.append(row)
+    if general_scores is not None:
+        row = make_row("general", general_scores, targets, "search",
+                       "the same slim keeping what general text uses instead of the skill", stub)
+        row["required"] = False
+        rows.append(row)
+    row, required = shrink_best_model_row(spec, params_b, source_id, models, targets, stub)
+    row["required"] = required
+    rows.append(row)
+    return rows
+
+
+def shrink_headline(verdict, rows, beaten, not_beaten, unmeasured, result_value):
+    by_id = {}
+    for row in rows:
+        by_id[row["id"]] = row
+    kept = ""
+    source = by_id["source"]
+    if source["measured"] and result_value is not None and source["value"] > 0:
+        kept = " It keeps %.0f%% of the original model's score." % (100.0 * result_value / source["value"])
+    if verdict == "none":
+        return "No score yet."
+    if verdict == "failed":
+        parts = []
+        for row_id in not_beaten:
+            row = by_id[row_id]
+            parts.append(row["label"] + " (" + points(row["result_value"]) + " against " + points(row["value"]) + ")")
+        return "Failed attempt. It does not beat " + "; ".join(parts) + "." + kept
+    if verdict == "unproven":
+        names = [by_id[row_id]["label"] for row_id in unmeasured]
+        text = "Not proven. "
+        if len(beaten) > 0:
+            text += "It beats " + ", ".join(by_id[row_id]["label"] for row_id in beaten) + ". "
+        return text + "Not measured yet: " + ", ".join(names) + "." + kept
+    random_row = by_id["random"]
+    text = ("Success. It beats the random control by " + points(random_row["delta"]) + " points")
+    if "best_model" in beaten:
+        text += " and is not below the best existing model of its size"
+    return text + "." + kept
+
+
+def shrink_verdict(rows, result_value):
+    """(verdict, beaten ids, not beaten ids, unmeasured ids) over the required rows."""
+    beaten = []
+    not_beaten = []
+    unmeasured = []
+    for row in rows:
+        if not row.get("required"):
+            continue
+        if not row["measured"] or row["beaten"] is None:
+            unmeasured.append(row["id"])
+        elif row["beaten"]:
+            beaten.append(row["id"])
+        else:
+            not_beaten.append(row["id"])
+    if result_value is None:
+        return "none", beaten, not_beaten, unmeasured
+    if len(not_beaten) > 0:
+        return "failed", beaten, not_beaten, unmeasured
+    if len(unmeasured) > 0:
+        return "unproven", beaten, not_beaten, unmeasured
+    return "success", beaten, not_beaten, unmeasured
+
+
+def build_shrink(spec, scores, params_b=None, source_scores=None, random_scores=None, general_scores=None,
+                 stub=False, models=None):
+    """The comparison of a shrunk model with its reference set. Verdict: success, failed, unproven or none."""
+    targets = targets_of(spec)
+    if models is None:
+        models = library.get()["models"]
+    rows = shrink_rows(spec, params_b, source_scores, random_scores, general_scores, models, stub)
+    result_value = mean_over(targets, scores)
+    for row in rows:
+        row["result_value"] = result_value
+        if row["measured"] and result_value is not None:
+            row["delta"] = round(result_value - row["value"], 4)
+            if row["id"] == "random":
+                row["beaten"] = result_value > row["value"] + CLEAR_MARGIN
+            elif row["id"] == "best_model":
+                row["beaten"] = result_value >= row["value"]
+            elif row["id"] == "general":
+                row["beaten"] = result_value > row["value"] + CLEAR_MARGIN
+    verdict, beaten, not_beaten, unmeasured = shrink_verdict(rows, result_value)
+    return {"verdict": verdict, "request_type": "shrink",
+            "headline": shrink_headline(verdict, rows, beaten, not_beaten, unmeasured, result_value),
+            "margin": CLEAR_MARGIN, "result": {"label": "Shrunk model", "value": result_value,
+                                              "per_task": dict(scores or {}), "params_b": params_b,
+                                              "heldout": None},
+            "rows": rows, "beaten": beaten, "not_beaten": not_beaten, "unmeasured": unmeasured,
+            "best_model_shown": True, "stub": bool(stub)}

@@ -174,7 +174,10 @@ def model_info(data):
             "active_params_b": data.get("active_params_b") or data["params_b"], "layers": data.get("layers"),
             "hidden": data.get("hidden"), "vocab_size": data.get("vocab"),
             "tokenizer_family": data.get("tokenizer_family"), "scores": data.get("scores") or {},
-            "status": data.get("status"), "title": data.get("title")}
+            "status": data.get("status"), "title": data.get("title"), "family": data.get("family"),
+            "experts": data.get("experts"), "experts_per_token": data.get("experts_per_token"),
+            "skills": list(data.get("skills") or []), "license": data.get("license"),
+            "needs": data.get("needs") or {}}
 
 
 def merge_atlas(out, by_id, entry):

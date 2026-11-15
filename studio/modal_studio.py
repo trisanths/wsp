@@ -17,6 +17,8 @@ Functions:
     score_remote(program, split, tasks, token, fidelity, options)
                                               compile with training, then evaluate
     base_remote(host, split, tasks)           the host's scores
+    shrink_remote(plan, split, tasks, fidelity, options)
+                                              skill removal: slim, heal, score (see shrink_body)
 Each has an H100 twin (name ending in _h100) for programs with a donor above
 about 10B parameters. The others run on an L40S.
 
@@ -372,6 +374,216 @@ def base_body(host, split, tasks, fidelity):
         volume.commit()
 
 
+# Skill removal (wsp/slim.py). The ranking text and the heal text come from wsp.healdata pools, never from a
+# benchmark. The heal distills from the original model's logits, so the heal loss has no language-model term
+# on dataset text (which damages the base: results/README.md, the 2026-11 heal finding). When the original
+# does not fit in memory next to the student, the heal uses the language-model loss alone and the log says so.
+SHRINK_RANK_TEXTS = 256
+SHRINK_RANK_LENGTH = 384
+SHRINK_GENERAL_TEXTS = 256
+SHRINK_HEAL = {"batch_size": 8, "seq_len": 384, "lora_rank": 16, "lora_lr": 2e-4, "router_lr": 2e-5, "warmup": 20}
+SHRINK_HEADROOM_BYTES = 12e9
+DENSE_RULES = {"skill": ("skill_cost", "skill"), "skill_cost": ("skill_cost", "skill"),
+               "specific": ("specific", "specific"), "general": ("general", "general"),
+               "random": ("random", "random")}
+
+
+def teacher_fits(plan, total_params):
+    """True when the original model can stay in memory as the teacher while the student trains."""
+    import torch
+
+    free, total = torch.cuda.mem_get_info()
+    if plan["method"] == "experts":
+        student_bytes = 4e9
+    else:
+        student_bytes = 2.0 * float(plan["target_params_b"]) * 1e9
+    return free > student_bytes + SHRINK_HEADROOM_BYTES
+
+
+def heal_summary(report, steps, teacher):
+    if report is None:
+        return {"steps": 0, "kind": "none", "teacher": False}
+    out = {"steps": steps, "kind": "distillation" if teacher else "lm_only", "teacher": teacher}
+    for key in ["kd_first", "kd_last", "lm_first", "lm_last", "trainable_params", "seconds"]:
+        out[key] = report[key]
+    return out
+
+
+def shrink_arm(slim, model, tokenizer, plan, rule, rank_texts, heal_texts, general_texts, stats, teacher, seed):
+    """Slim and heal one arm. Returns (student, slim report, heal report or None)."""
+    steps = int(plan["heal_steps"])
+    if plan["method"] == "experts":
+        student, report = slim.slim_moe(model, tokenizer, None, None, rule=rule, keep=int(plan["keep_experts"]),
+                                        seed=seed, skill_stats=stats["skill"], general_stats=stats["general"],
+                                        share_experts=True)
+    else:
+        layer_rule, width_rule = DENSE_RULES[rule]
+        student, report = slim.slim_dense(model, tokenizer, rank_texts, general_texts,
+                                          target_params=float(plan["target_params_b"]) * 1e9,
+                                          layer_rule=layer_rule, width_rule=width_rule, seed=seed,
+                                          max_length=SHRINK_RANK_LENGTH)
+    healed = None
+    if steps > 0:
+        lm_weight = 1.0
+        if teacher is not None:
+            lm_weight = 0.0
+        healed = slim.heal(student, teacher, tokenizer, heal_texts, steps, batch_size=SHRINK_HEAL["batch_size"],
+                           seq_len=SHRINK_HEAL["seq_len"], lora_rank=SHRINK_HEAL["lora_rank"],
+                           lora_lr=SHRINK_HEAL["lora_lr"], router_lr=SHRINK_HEAL["router_lr"],
+                           warmup=SHRINK_HEAL["warmup"], lm_weight=lm_weight, seed=seed)
+    return student, report, healed
+
+
+def removed_summary(plan, report, stats):
+    """A short, JSON-safe description of what the slim removed."""
+    if plan["method"] == "experts":
+        counts = sorted(set(report["counts"].values()))
+        before = max(len(stats["skill"]["layers"][layer]["count"]) for layer in stats["skill"]["layers"])
+        out = {"kind": "moe", "experts_before": before, "experts_kept": counts[0],
+               "experts_removed_per_layer": before - counts[0], "layers": len(report["counts"]),
+               "top_k_after": max(report["top_k"].values()), "kept_share_of_skill": None}
+        share = stats["kept_share"](report["kept"])
+        out["kept_share_of_skill"] = round(sum(share.values()) / max(1, len(share)), 4)
+        return out
+    return {"kind": "dense", "layers_before": report["layers_before"], "layers_after": report["layers_after"],
+            "layers_dropped": [int(layer) for layer in report["dropped"]], "keep_mlp": round(report["keep_mlp"], 4),
+            "keep_heads": round(report["keep_heads"], 4)}
+
+
+def shrink_body(plan, split, tasks, fidelity, options):
+    """Slim the source model, heal it, save it, and score it, the random control and the original.
+
+    plan is the spec's shrink block. options: control (random control with the same counts and heal steps),
+    general_control, score_source. Returns {"ok", "params", "removed", "scores", "control_scores",
+    "general_scores", "source_scores", "heal", "log", "seconds", "items", "gpu"} or the failure dict.
+    """
+    scratch = fresh_root("studio_shrink_")
+    start = time.time()
+    seconds = {}
+    log = []
+    try:
+        import torch
+        import transformers
+
+        from wsp import healdata, slim
+
+        model_id = plan["source_model"]
+        skill = plan["keep_skill"]
+        steps = int(plan["heal_steps"])
+        healdata.check_sources([source[0] for source in healdata.SOURCES[skill]])
+        phase = time.time()
+        tokenizer = transformers.AutoTokenizer.from_pretrained(model_id)
+        model = transformers.AutoModelForCausalLM.from_pretrained(model_id, dtype=torch.bfloat16,
+                                                                  device_map="cuda").eval()
+        total_before, run_before = slim.count_params(model)
+        seconds["load"] = round(time.time() - phase, 1)
+        log.append("Loaded " + model_id + " with %.2fB parameters." % (total_before / 1e9))
+
+        phase = time.time()
+        need = steps * SHRINK_HEAL["batch_size"]
+        texts = healdata.pool(skill, SHRINK_RANK_TEXTS + need, tokenizer=tokenizer, seed=0)
+        rank_texts = texts[:SHRINK_RANK_TEXTS]
+        heal_texts = texts[SHRINK_RANK_TEXTS:]
+        if steps > 0 and len(heal_texts) == 0:
+            heal_texts = rank_texts
+        wants_general = plan["method"] == "dense" or plan["rule"] in ("selective", "general", "specific") or \
+            bool(options.get("general_control"))
+        general_texts = None
+        if wants_general:
+            general_texts = healdata.pool("general", SHRINK_GENERAL_TEXTS, tokenizer=tokenizer, seed=0)
+        log.append("Skill text: the " + skill + " pool, " + str(len(rank_texts)) + " ranking texts and " +
+                   str(len(heal_texts)) + " heal texts. No benchmark data is used.")
+        stats = {"skill": None, "general": None}
+        if plan["method"] == "experts":
+            stats["skill"] = slim.collect_moe_stats(model, tokenizer, rank_texts, SHRINK_RANK_LENGTH)
+            if plan["rule"] in ("selective", "general") or options.get("general_control"):
+                stats["general"] = slim.collect_moe_stats(model, tokenizer, general_texts, SHRINK_RANK_LENGTH)
+            skill_stats = stats["skill"]
+            stats["kept_share"] = lambda kept: slim.kept_share(skill_stats, kept)
+        seconds["rank"] = round(time.time() - phase, 1)
+
+        teacher = model
+        if steps > 0 and not teacher_fits(plan, total_before):
+            teacher = None
+            log.append("The original model does not fit in memory next to the student, so the heal uses the "
+                       "language-model loss only, with no distillation.")
+        elif steps > 0:
+            log.append("Heal: " + str(steps) + " steps of LoRA, distilled from the original model's logits.")
+
+        arms = [("skill", plan["rule"])]
+        if options.get("control"):
+            arms.append(("random", "random"))
+        if options.get("general_control"):
+            arms.append(("general", "general"))
+        folders = {}
+        reports = {}
+        heals = {}
+        seconds["slim"] = 0.0
+        seconds["heal"] = 0.0
+        for name, rule in arms:
+            phase = time.time()
+            student, report, healed = shrink_arm(slim, model, tokenizer, plan, rule, rank_texts, heal_texts,
+                                                 general_texts, stats, teacher, 0)
+            reports[name] = report
+            heals[name] = healed
+            spent = time.time() - phase
+            heal_s = 0.0
+            if healed is not None:
+                heal_s = float(healed["seconds"])
+            seconds["heal"] = round(seconds["heal"] + heal_s, 1)
+            seconds["slim"] = round(seconds["slim"] + spent - heal_s, 1)
+            folders[name] = os.path.join(scratch, "arm_" + name)
+            slim.save_slim(student, folders[name], tokenizer)
+            log.append("Arm " + name + " (rule " + rule + "): %.2fB parameters, %.2fB run per token." % (
+                report["params_total_after"] / 1e9, report["params_run_after"] / 1e9))
+            del student
+            free_gpu()
+        del teacher
+        del model
+        free_gpu()
+
+        phase = time.time()
+        os.environ["WSP_HF_BATCH_SIZE"] = DEFAULT_GEN_BATCH
+        fraction = fraction_of(fidelity)
+        scored = {}
+        items = {}
+        for name, rule in arms:
+            scored[name], items = score_all(folders[name], split, tasks, fraction, "studio shrink " + name)
+            free_gpu()
+        source_scores = None
+        if options.get("score_source"):
+            source_scores, items = score_all(model_id, split, tasks, fraction, "studio shrink source")
+            free_gpu()
+        seconds["eval"] = round(time.time() - phase, 1)
+        seconds["total"] = round(time.time() - start, 1)
+        main = reports["skill"]
+        params = {"total_before": total_before, "run_before": run_before,
+                  "total_after": main["params_total_after"], "run_after": main["params_run_after"]}
+        heal = heal_summary(heals["skill"], steps, teacher_used(steps, log))
+        return {"ok": True, "error": None, "params": params, "removed": removed_summary(plan, main, stats),
+                "scores": scored["skill"], "control_scores": scored.get("random"),
+                "general_scores": scored.get("general"), "source_scores": source_scores, "heal": heal,
+                "log": log, "seconds": seconds, "items": items, "gpu": gpu_name(), "scoring": SCORING_NOTE}
+    except Exception as error:
+        seconds["failed_after"] = round(time.time() - start, 1)
+        out = failure(error, seconds)
+        out["log"] = log
+        return out
+    finally:
+        shutil.rmtree(scratch, ignore_errors=True)
+        volume.commit()
+
+
+def teacher_used(steps, log):
+    """True when the heal had the original as its teacher."""
+    if steps <= 0:
+        return False
+    for line in log:
+        if line.startswith("The original model does not fit"):
+            return False
+    return True
+
+
 COMMON = {"image": image, "volumes": {"/vol": volume}, "timeout": 7200}
 
 
@@ -398,3 +610,13 @@ def probe_remote_h100(program, options):
 @app.function(gpu="H100", memory=131072, **COMMON)
 def score_remote_h100(program, split, tasks, token, fidelity, options):
     return score_body(program, split, tasks, token, fidelity, options)
+
+
+@app.function(gpu="L40S", memory=65536, **COMMON)
+def shrink_remote(plan, split, tasks, fidelity, options):
+    return shrink_body(plan, split, tasks, fidelity, options)
+
+
+@app.function(gpu="H100", memory=131072, **COMMON)
+def shrink_remote_h100(plan, split, tasks, fidelity, options):
+    return shrink_body(plan, split, tasks, fidelity, options)

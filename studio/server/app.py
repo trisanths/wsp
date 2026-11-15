@@ -19,6 +19,7 @@ from studio.server import library
 from studio.server import programs
 from studio.server import runs as runs_mod
 from studio.server import settings
+from studio.server import shrink as shrink_mod
 from studio.server import specs as specs_mod
 
 settings.load_env()
@@ -91,7 +92,10 @@ async def create_spec(request: Request):
         uploads.append((item.filename or "upload", data))
     if prompt.strip() == "" and len(uploads) == 0:
         return fail("write a prompt or add a file")
-    spec = await run_in_threadpool(specs_mod.draft_spec, prompt, uploads)
+    try:
+        spec = await run_in_threadpool(specs_mod.draft_spec, prompt, uploads)
+    except ValueError as error:
+        return fail(str(error))
     await run_in_threadpool(bench_research.start, spec["id"])
     return bench_research.snapshot(spec)
 
@@ -147,6 +151,19 @@ def find_spec_or_error(spec_id):
     return spec, None
 
 
+SHRINK_NOT_BUILD = ("this spec asks to shrink a model. Use POST /api/shrink, not a build run or a builder session.")
+
+
+def find_build_spec_or_error(spec_id):
+    """Like find_spec_or_error, and refuses a shrink spec (it has no swarm run or canvas)."""
+    spec, problem = find_spec_or_error(spec_id)
+    if problem is not None:
+        return None, problem
+    if spec.get("request_type") == "shrink":
+        return None, fail(SHRINK_NOT_BUILD)
+    return spec, None
+
+
 def start_run_response(spec, program):
     try:
         run_id = runs_mod.start_run(spec, program)
@@ -162,7 +179,7 @@ async def create_run(request: Request):
     body, problem = await read_json(request)
     if problem is not None:
         return problem
-    spec, problem = find_spec_or_error(body.get("spec_id"))
+    spec, problem = find_build_spec_or_error(body.get("spec_id"))
     if problem is not None:
         return problem
     return await run_in_threadpool(start_run_response, spec, body.get("program"))
@@ -332,7 +349,7 @@ async def create_builder(request: Request):
     body, problem = await read_json(request)
     if problem is not None:
         return problem
-    spec, problem = find_spec_or_error(body.get("spec_id"))
+    spec, problem = find_build_spec_or_error(body.get("spec_id"))
     if problem is not None:
         return problem
     session = await run_in_threadpool(builder_mod.create_session, spec)
@@ -403,6 +420,63 @@ async def builder_handoff(builder_id: str, request: Request):
     if not isinstance(body.get("program"), dict):
         return fail("program is required")
     return await run_in_threadpool(start_run_response, session.spec, body["program"])
+
+
+# Shrink (skill removal).
+
+def find_shrink(shrink_id):
+    session = shrink_mod.get_session(shrink_id)
+    if session is None:
+        return None, fail("unknown shrink session", 404)
+    return session, None
+
+
+@app.post("/api/shrink")
+async def create_shrink(request: Request):
+    body, problem = await read_json(request)
+    if problem is not None:
+        return problem
+    spec, problem = find_spec_or_error(body.get("spec_id"))
+    if problem is not None:
+        return problem
+    try:
+        session = await run_in_threadpool(shrink_mod.create_session, spec)
+        plan = await run_in_threadpool(shrink_mod.plan_view, session)
+    except (shrink_mod.ShrinkError, ValueError) as error:
+        return fail(str(error))
+    return {"shrink_id": session.id, "plan": plan, "stub": settings.is_stub()}
+
+
+@app.post("/api/shrink/{shrink_id}/plan")
+async def shrink_plan(shrink_id: str, request: Request):
+    session, problem = find_shrink(shrink_id)
+    if problem is not None:
+        return problem
+    body, problem = await read_json(request)
+    if problem is not None:
+        return problem
+    try:
+        return await run_in_threadpool(shrink_mod.update_plan, session, body)
+    except (shrink_mod.ShrinkError, ValueError) as error:
+        return fail(str(error))
+
+
+@app.post("/api/shrink/{shrink_id}/run")
+async def shrink_run(shrink_id: str, request: Request):
+    session, problem = find_shrink(shrink_id)
+    if problem is not None:
+        return problem
+    try:
+        body = await request.json()
+    except ValueError:
+        body = {}
+    if not isinstance(body, dict):
+        return fail("the body must be a JSON object")
+    try:
+        job_id = await run_in_threadpool(shrink_mod.start_run, session, body)
+    except (shrink_mod.ShrinkError, ValueError) as error:
+        return fail(str(error))
+    return {"job_id": job_id}
 
 
 # The web app.

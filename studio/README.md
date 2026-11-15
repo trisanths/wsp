@@ -38,11 +38,18 @@ Every response from the stub backend carries `"stub": true`, and the web app sho
 - MMLU is scored as in rounds 6 and 7: the log-prob of " A" to " D", on the round 6 dev items (search, 1000) and the round 7 held-out items (2000). Other tasks use the eval harness.
 - Taps are not in Sapien. The Modal functions refuse a program with taps.
 
+## Shrink (skill removal)
+
+A request can also ask for a smaller model that keeps one skill ("a coding-only model: drop everything else from Qwen2.5-Coder-7B and get it under 3B"). The spec then has `request_type: "shrink"` and a `shrink` plan: source model, skill to keep, method (expert removal for MoE models, layers and width for dense ones), size target, rule and heal steps. The plan is estimated from library facts without loading the model (`POST /api/shrink`, `POST /api/shrink/{id}/plan`), and `POST /api/shrink/{id}/run` runs it. `wsp/slim.py` does the removal and the distillation heal. Selection and heal text come from the `wsp/healdata.py` pools, never a benchmark.
+
+Backends: `stub` returns a made-up result (marked stub). `modal` calls `shrink_remote` in the `wsp-studio` app (L40S, or H100 above 10B parameters). The result is compared with the original (reference only), the same slim with random units removed (must be beaten), and the best library model of about the same size. See `studio/CONTRACT.md` for the shapes. A cheap check on a real GPU: shrink `Qwen/Qwen2.5-1.5B-Instruct` to 1.2B with 100 heal steps, task `gsm8k`, fidelity `check`, control on.
+
 ## Files
 
 - `server/app.py`: routes, the SSE stream and the static web app.
 - `server/bench_research.py`: the benchmark research agent (plan, search, synthesize, validate).
 - `server/specs.py`: spec drafting, upload row counts, storage.
+- `server/shrink.py`, `shrink_spec.py`, `shrink_models.py`: the shrink request type (sessions and jobs, drafted plan and edit checks, model facts and source choice). `compare.build_shrink` and `sizing.estimate_shrink` hold its comparison and estimate.
 - `server/runs.py`: starts a swarm run in a daemon thread.
 - `server/tracking.py`: pause and stop, agent proxies and the swarm subclass.
 - `server/runstate.py`: run state and the snapshot.
