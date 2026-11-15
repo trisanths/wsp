@@ -211,7 +211,8 @@ def test_fresh_block_graft_gives_host_logits(tmp_path, monkeypatch):
     assert graft["host_layer"] == round(1 / 3 * 4)
 
     model, _ = load(out, dtype=torch.float32)
-    assert model.config.use_cache is False
+    # A block part keeps its own KV cache, so the cache stays on.
+    assert model.config.use_cache is not False
     host = transformers.LlamaForCausalLM.from_pretrained(host_dir, dtype=torch.float32)
     assert torch.equal(logits(model, "the cat sat"), logits(host, "the cat sat"))
 

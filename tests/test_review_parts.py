@@ -306,5 +306,6 @@ def test_attn_part_rejects_cached_decode_step():
     config, donor = tiny_llama()
     part = build_attn_heads(config, 0, torch.arange(4), state_of(donor))
     one_token = torch.randn(1, 1, 64)
-    with pytest.raises(ValueError, match="use_cache=False"):
+    # Without cache_len the part expects the whole sequence.
+    with pytest.raises(ValueError, match="needs cache_len"):
         part(one_token, attention_mask=torch.ones(1, 5, dtype=torch.long))

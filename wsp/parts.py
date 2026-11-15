@@ -481,33 +481,105 @@ def attn_tensor_names(config, layer):
     return _checkpoint_names(found, names)
 
 
-def causal_mask(batch, seq, dtype, device, window=None):
-    """Return an additive causal mask of shape (batch, 1, seq, seq).
+def causal_mask(batch, seq, dtype, device, window=None, past=0):
+    """Return an additive causal mask of shape (batch, 1, seq, past + seq).
 
     Allowed places hold 0. Blocked places hold the most negative number of
-    the dtype. If window is set, a token sees only the last `window` tokens.
+    the dtype. The queries are the last seq positions: query i sits at
+    position past + i and the keys are positions 0 to past + seq - 1. If
+    window is set, a token sees only the last `window` positions. With
+    past 0 this is the plain (seq, seq) causal mask.
     """
     blocked = torch.finfo(dtype).min
-    rows = torch.arange(seq, device=device).view(seq, 1)
-    cols = torch.arange(seq, device=device).view(1, seq)
+    total = past + seq
+    rows = torch.arange(past, total, device=device).view(seq, 1)
+    cols = torch.arange(total, device=device).view(1, total)
     allowed = cols <= rows
     if window is not None:
         allowed = allowed & (cols > rows - window)
-    mask = torch.zeros(seq, seq, dtype=dtype, device=device)
+    mask = torch.zeros(seq, total, dtype=dtype, device=device)
     mask = mask.masked_fill(~allowed, blocked)
-    return mask.view(1, 1, seq, seq).expand(batch, 1, seq, seq)
+    return mask.view(1, 1, seq, total).expand(batch, 1, seq, total)
+
+
+def _cache_length(cache):
+    """Return the number of tokens a part cache holds (0 when it is empty)."""
+    length = 0
+    for layer in cache.layers:
+        n = layer.get_seq_length()
+        if n > length:
+            length = n
+    return length
+
+
+def _start_step(part, x, attention_mask, cache_len, kind):
+    """Get a part ready for one forward call. Return (past, attention_mask, position_ids, cache_position).
+
+    cache_len is None when the host runs without a KV cache. Then the part
+    drops its own cache and x holds the whole sequence. cache_len 0 means a
+    new prefill with a cache: the part starts a new cache and fills it.
+    A larger cache_len is a decode step: the host cache held cache_len
+    tokens before this call, x holds only the new tokens, and the part
+    cache must hold the same number of tokens.
+
+    attention_mask is the 2D padding mask (batch, past + new) or None. The
+    position ids count only real tokens and are returned for the new
+    tokens only. past is the number of cached tokens before this call.
+    """
+    import transformers
+
+    batch, seq, _ = x.shape
+    if cache_len is None:
+        part.cache = None
+        past = 0
+    elif cache_len == 0:
+        part.cache = transformers.DynamicCache()
+        past = 0
+    else:
+        own = 0
+        if part.cache is not None:
+            own = _cache_length(part.cache)
+        if own != cache_len:
+            raise ValueError(
+                f"{kind} part cache is out of sync: it holds {own} tokens but the host cache "
+                f"held {cache_len} before this call; start again with a new prefill "
+                "(an empty cache and use_cache=True)"
+            )
+        past = cache_len
+    total = past + seq
+
+    if attention_mask is not None:
+        if tuple(attention_mask.shape) != (batch, total):
+            raise ValueError(
+                f"attention_mask has shape {tuple(attention_mask.shape)} but {kind} part expects "
+                f"({batch}, {total}) for {past} cached and {seq} new tokens; for a cached decode "
+                "step the part needs cache_len, the host cache length before the call"
+            )
+        attention_mask = attention_mask.to(x.device)
+        position_ids = (attention_mask.long().cumsum(-1) - 1).clamp(min=0)
+        position_ids = position_ids[:, past:]
+    else:
+        position_ids = torch.arange(past, total, device=x.device).view(1, seq).expand(batch, seq)
+    cache_position = torch.arange(past, total, device=x.device)
+    return past, attention_mask, position_ids, cache_position
 
 
 class AttnHeadsPart(nn.Module):
     """post_norm(attn(input_norm(x))) for a subset of donor query heads.
 
-    x has shape (batch, seq, d_donor) and holds the whole sequence. There is
-    no KV cache, so this part needs use_cache=False when the host generates.
-    attention_mask is the host's 2D padding mask (batch, seq), with 1 for
-    real tokens and 0 for pads, or None. With it, positions count only real
-    tokens and no token attends to a pad. The rotary module is kept out of
-    the module tree, so a dtype change on the part does not round its
-    frequencies.
+    x has shape (batch, seq, d_donor). attention_mask is the host's 2D
+    padding mask, with 1 for real tokens and 0 for pads, or None. With it,
+    positions count only real tokens and no token attends to a pad.
+
+    With cache_len None there is no KV cache: x holds the whole sequence
+    and the mask is (batch, seq). With cache_len set, the part keeps its
+    own KV cache in self.cache, in step with the host cache. cache_len is
+    the host cache length before the call: 0 starts a new cache, and a
+    larger value is a decode step where x holds only the new tokens and
+    the mask covers the cached and the new tokens.
+
+    The rotary module is kept out of the module tree, so a dtype change on
+    the part does not round its frequencies.
     """
 
     def __init__(self, input_norm, attn, rotary, post_norm=None):
@@ -516,6 +588,7 @@ class AttnHeadsPart(nn.Module):
         self.attn = attn
         self.post_norm = post_norm
         self._rotary = [rotary]
+        self.cache = None
 
     def train(self, mode=True):
         # The donor attention is frozen, so it stays in eval mode. The heal
@@ -523,22 +596,14 @@ class AttnHeadsPart(nn.Module):
         # attention dropout.
         return super().train(False)
 
-    def forward(self, x, attention_mask=None):
+    def forward(self, x, attention_mask=None, cache_len=None):
         batch, seq, _ = x.shape
         rotary = self._rotary[0]
         if rotary.inv_freq.device != x.device:
             rotary.to(x.device)
-        if attention_mask is not None:
-            if tuple(attention_mask.shape) != (batch, seq):
-                raise ValueError(
-                    f"attention_mask has shape {tuple(attention_mask.shape)} but the input is "
-                    f"({batch}, {seq}); an attn_heads part needs the whole sequence, "
-                    "so run the host with use_cache=False"
-                )
-            attention_mask = attention_mask.to(x.device)
-            position_ids = (attention_mask.long().cumsum(-1) - 1).clamp(min=0)
-        else:
-            position_ids = torch.arange(seq, device=x.device).view(1, seq).expand(batch, seq)
+        past, attention_mask, position_ids, cache_position = _start_step(
+            self, x, attention_mask, cache_len, "an attn_heads"
+        )
         normed = self.input_norm(x)
         cos_sin = rotary(normed, position_ids)
         # Mistral, Mixtral and Phi-3 attention keep the window only in the
@@ -547,12 +612,18 @@ class AttnHeadsPart(nn.Module):
             window = self.attn.sliding_window
         else:
             window = getattr(self.attn.config, "sliding_window", None)
-        mask = causal_mask(batch, seq, normed.dtype, x.device, window)
+        mask = causal_mask(batch, seq, normed.dtype, x.device, window, past)
         if attention_mask is not None:
             # causal_mask returns an expanded view, so clone before the fill.
             pad_keys = attention_mask[:, None, None, :] == 0
             mask = mask.clone().masked_fill(pad_keys, torch.finfo(mask.dtype).min)
-        out = self.attn(hidden_states=normed, position_embeddings=cos_sin, attention_mask=mask)[0]
+        kwargs = {"hidden_states": normed, "position_embeddings": cos_sin, "attention_mask": mask}
+        if self.cache is not None:
+            # The cache has only full layers, so it returns every past key
+            # and the mask above applies the window.
+            kwargs["past_key_values"] = self.cache
+            kwargs["cache_position"] = cache_position
+        out = self.attn(**kwargs)[0]
         if self.post_norm is not None:
             out = self.post_norm(out)
         return out
@@ -701,11 +772,12 @@ class BlockPart(nn.Module):
 
     A block returns a full residual stream, so the part returns the change
     the block makes. A block that does nothing adds nothing. x has shape
-    (batch, seq, d_donor) and holds the whole sequence. There is no KV
-    cache, so the host must run with use_cache=False. attention_mask is the
-    host's 2D padding mask (batch, seq), with 1 for real tokens and 0 for
-    pads, or None. The rotary modules are kept out of the module tree, so a
-    dtype change on the part does not round their frequencies.
+    (batch, seq, d_donor). attention_mask is the host's 2D padding mask,
+    with 1 for real tokens and 0 for pads, or None. cache_len works as in
+    AttnHeadsPart: None runs without a cache over the whole sequence, and a
+    number keeps self.cache in step with the host cache. The rotary modules
+    are kept out of the module tree, so a dtype change on the part does not
+    round their frequencies.
     """
 
     def __init__(self, layers, rotary, local_rotary=None, windows=None):
@@ -717,6 +789,7 @@ class BlockPart(nn.Module):
             for _ in layers:
                 windows.append(None)
         self.windows = list(windows)
+        self.cache = None
         # Gemma 3 layers take global and local rotary embeddings and pick
         # one by layer type. Other layers take position_embeddings.
         self.two_rotary = []
@@ -730,7 +803,7 @@ class BlockPart(nn.Module):
         # dropout (Phi-2 has resid_pdrop 0.1, for example).
         return super().train(False)
 
-    def forward(self, x, attention_mask=None):
+    def forward(self, x, attention_mask=None, cache_len=None):
         batch, seq, _ = x.shape
         rotary = self._rotary[0]
         local_rotary = self._rotary[1]
@@ -738,33 +811,25 @@ class BlockPart(nn.Module):
             rotary.to(x.device)
         if local_rotary is not None and local_rotary.inv_freq.device != x.device:
             local_rotary.to(x.device)
-
-        if attention_mask is not None:
-            if tuple(attention_mask.shape) != (batch, seq):
-                raise ValueError(
-                    f"attention_mask has shape {tuple(attention_mask.shape)} but the input is "
-                    f"({batch}, {seq}); a block part needs the whole sequence, "
-                    "so run the host with use_cache=False"
-                )
-            attention_mask = attention_mask.to(x.device)
-            position_ids = (attention_mask.long().cumsum(-1) - 1).clamp(min=0)
-        else:
-            position_ids = torch.arange(seq, device=x.device).view(1, seq).expand(batch, seq)
-        cache_position = torch.arange(seq, device=x.device)
+        past, attention_mask, position_ids, cache_position = _start_step(
+            self, x, attention_mask, cache_len, "a block"
+        )
 
         cos_sin = rotary(x, position_ids)
         local_cos_sin = cos_sin
         if local_rotary is not None:
             local_cos_sin = local_rotary(x, position_ids)
 
-        # One mask per window size, shared by the layers that use it.
+        # One mask per window size, shared by the layers that use it. The
+        # cache has only full layers, so it returns every past key and the
+        # mask applies the window.
         masks = {}
         hidden = x
         for index in range(len(self.layers)):
             layer = self.layers[index]
             window = self.windows[index]
             if window not in masks:
-                mask = causal_mask(batch, seq, x.dtype, x.device, window)
+                mask = causal_mask(batch, seq, x.dtype, x.device, window, past)
                 if attention_mask is not None:
                     # causal_mask returns an expanded view, so clone before the fill.
                     pad_keys = attention_mask[:, None, None, :] == 0
@@ -774,8 +839,8 @@ class BlockPart(nn.Module):
             kwargs = {
                 "attention_mask": masks[window],
                 "position_ids": position_ids,
-                "past_key_values": None,
-                "use_cache": False,
+                "past_key_values": self.cache,
+                "use_cache": self.cache is not None,
                 "cache_position": cache_position,
             }
             if self.two_rotary[index]:

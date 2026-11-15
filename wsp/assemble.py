@@ -311,8 +311,8 @@ def build_attn_graft(spec, record, catalog, host_model, host_tokenizer, align_te
     """Return (host_layer, graft, meta) for an attn_heads record.
 
     The units file holds query head ids. W_in is fit against the input of
-    the donor layer. Grafts of this kind need use_cache=False when the host
-    generates, because the part recomputes attention over the full sequence.
+    the donor layer. The part keeps its own KV cache, which follows the
+    host cache during generation.
     """
     donor_id = record["model"]
     donor_layer = record["layer"]
@@ -434,8 +434,8 @@ def build_block_graft(spec, record, catalog, host_model, host_tokenizer, align_t
     The record holds "layers": [i, j], the first and last donor layer, both
     included. No units file is needed. The random control runs another range
     of the same length from the same donor, at the same host layer. W_in is
-    fit against the input of the first donor layer that runs. Grafts of
-    this kind need use_cache=False when the host generates.
+    fit against the input of the first donor layer that runs. The part
+    keeps its own KV cache, which follows the host cache during generation.
     """
     donor_id = record["model"]
     first = int(record["layers"][0])

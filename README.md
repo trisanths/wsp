@@ -12,9 +12,14 @@ Tuning are in [VERIFY.md](VERIFY.md).
   host at a chosen layer: `h = h + W_out(part(W_in(h)))`. `W_out` starts at
   zero, so a fresh graft leaves the host unchanged. Part types:
   - `mlp_cluster`: a set of MLP neurons from one donor layer.
-  - `attn_heads`: a set of query heads from one donor layer. Generate with
-    `use_cache=False`.
+  - `attn_heads`: a set of query heads from one donor layer.
   - `expert`: one or more MoE experts from one donor layer.
+  - `block`: whole donor layers i..j, run with the donor's own layer code.
+  Attention and block parts keep their own KV cache. It follows the host
+  cache through generate, beam search, and chunked prefill, so cached
+  output equals uncached output. Static caches are not supported.
+- `.lora(rank=... or budget_params=...)`: a host LoRA trained in the same
+  heal loop, the fine-tuning baseline grafts must beat.
 - Parts run the donor's own Transformers classes, and only the part's
   tensors are fetched from safetensors by HTTP range request.
 - `W_in` can start from a ridge fit on host and donor hidden states matched
@@ -25,7 +30,8 @@ Tuning are in [VERIFY.md](VERIFY.md).
 - `wsp.load(path)` returns `(model, tokenizer)` for any compiled directory.
 - Stub extractors: `top_activation_neurons` and `top_routed_experts`.
 
-Not built yet: `block` parts, the text syntax, and a deletion budget rule.
+Not built yet: the text syntax, vLLM serving for grafted models, and a
+deletion budget rule.
 
 ## Example
 

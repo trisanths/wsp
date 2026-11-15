@@ -233,16 +233,17 @@ def test_composite_donor_and_host_build_mlp_graft(tmp_path, monkeypatch, control
     assert graft(x).shape == (1, 5, 48)
 
 
-# Entry 0, load side: attn_heads grafts turn the KV cache off.
+# Entry 0, load side: attn_heads parts keep their own KV cache, so the
+# cache stays on.
 
-def test_load_turns_off_cache_for_attn_heads(tmp_path, monkeypatch):
+def test_load_keeps_cache_for_attn_heads(tmp_path, monkeypatch):
     local_fetch(monkeypatch)
     host_dir, donor_dir, catalog = save_attn_tiny(tmp_path)
     out = str(tmp_path / "out")
     Program(host=host_dir).graft("qheads").compile(out, catalog, device="cpu")
     model, _ = load(out, dtype=torch.float32)
-    assert model.config.use_cache is False
-    assert model.generation_config.use_cache is False
+    assert model.config.use_cache is not False
+    assert model.generation_config.use_cache is not False
 
 
 def test_load_keeps_cache_for_mlp_graft(tmp_path, monkeypatch):

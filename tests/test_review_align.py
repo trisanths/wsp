@@ -7,7 +7,7 @@ from transformers import LlamaConfig, LlamaForCausalLM, PreTrainedTokenizerFast
 
 from wsp import fetch
 from wsp.align import alignment_tokens, collect_pairs, layer_input_capture, ridge_fit
-from wsp.graft import Graft, attach_grafts
+from wsp.graft import Graft, attach_grafts, disable_cache
 from wsp.parts import AttnHeadsPart, build_attn_heads
 
 WORDS = ["the", "cat", "sat", "on", "a", "mat", "dog", "ran", "to", "big", "red", "hat"]
@@ -132,7 +132,8 @@ def test_host_pre_hook_stores_mask_on_grafts():
     first = Recorder()
     second = Recorder()
     handles = attach_grafts(model, [(0, first), (1, second)])
-    assert len(handles) == 3
+    # Two layer hooks, a host pre-hook and post-hook, and a decoder pre-hook.
+    assert len(handles) == 5
     ids = torch.randint(4, 15, (2, 5))
     mask = torch.tensor([[0, 0, 1, 1, 1], [1, 1, 1, 1, 1]])
     with torch.no_grad():
@@ -156,7 +157,7 @@ def attn_graft(config, model):
     return graft
 
 
-def test_use_cache_false_after_attaching_attn_heads():
+def test_use_cache_kept_after_attaching_attn_heads():
     host = tiny_model()
     donor_config = tiny_config()
     donor = LlamaForCausalLM(donor_config).eval()
@@ -164,6 +165,9 @@ def test_use_cache_false_after_attaching_attn_heads():
     assert isinstance(graft.part, AttnHeadsPart)
     assert host.config.use_cache
     attach_grafts(host, [(0, graft)])
+    assert host.config.use_cache
+    # Callers can still turn the cache off.
+    disable_cache(host)
     assert host.config.use_cache is False
     assert host.generation_config.use_cache is False
 

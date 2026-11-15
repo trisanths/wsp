@@ -48,8 +48,8 @@ def load(path, device="cpu", dtype=torch.bfloat16):
     placements = []
     for index, meta in enumerate(metas):
         placements.append((meta["host_layer"], rebuild_graft(meta, state, index)))
-    # attach_grafts also turns use_cache off when a graft holds an
-    # attn_heads part, because that part has no KV cache.
+    # attn_heads and block parts keep their own KV caches, so the model
+    # generates with use_cache=True. wsp.graft.disable_cache turns it off.
     attach_grafts(model, placements)
     model.wsp_grafts.load_state_dict(state, strict=True)
     return model.to(device).eval(), tokenizer
