@@ -66,6 +66,8 @@ DOMAINS = {
                     "align_pools": ["prose", "knowledge", "medicine"]},
     "phi4": {"donor": "microsoft/phi-4", "skills": None, "pools": ["knowledge"],
              "align_pools": ["prose", "knowledge", "medicine"]},
+    "qwen3_8b": {"donor": "Qwen/Qwen3-8B", "skills": None, "pools": ["knowledge"],
+                 "align_pools": ["prose", "knowledge", "medicine"]},
     "knowledge32": {"donor": "Qwen/Qwen2.5-32B-Instruct", "skills": None, "pools": ["knowledge"],
                     "align_pools": ["prose", "knowledge", "medicine"]},
 }
@@ -307,6 +309,35 @@ def medmcqa_items(n=1000):
         r = med[index]
         items.append((mmlu_prompt(r["question"], [r["opa"], r["opb"], r["opc"], r["opd"]]), int(r["cop"])))
     return items
+
+
+MMMLU_LANGS = {"zh": "ZH_CN", "es": "ES_LA", "hi": "HI_IN", "ar": "AR_XA", "ja": "JA_JP"}
+
+
+def bench_items(n=500):
+    """Outside benchmarks, eval only, never trained on: ARC-Challenge and ARC-Easy (test, 4-option items),
+    HellaSwag (validation), and MMLU translated into five languages (openai/MMMLU test). 4 options each,
+    scored by the A-D letter like MMLU. Seeded samples of n items."""
+    from datasets import load_dataset
+
+    from modal_round6 import mmlu_prompt
+
+    out = {}
+    for key, cfg in (("arc_c", "ARC-Challenge"), ("arc_e", "ARC-Easy")):
+        rows = [r for r in load_dataset("allenai/ai2_arc", cfg, split="test") if len(r["choices"]["label"]) == 4]
+        random.Random(11).shuffle(rows)
+        out[key] = [(mmlu_prompt(r["question"], r["choices"]["text"]), r["choices"]["label"].index(r["answerKey"]))
+                    for r in rows[:n]]
+    hs = list(load_dataset("Rowan/hellaswag", split="validation"))
+    random.Random(12).shuffle(hs)
+    out["hellaswag"] = [(mmlu_prompt("Which ending is most likely? " + r["ctx"], r["endings"]), int(r["label"]))
+                        for r in hs[:n]]
+    for key, cfg in MMMLU_LANGS.items():
+        rows = list(load_dataset("openai/MMMLU", cfg, split="test"))
+        random.Random(13).shuffle(rows)
+        out[f"mmlu_{key}"] = [(mmlu_prompt(r["Question"], [r["A"], r["B"], r["C"], r["D"]]), "ABCD".index(r["Answer"]))
+                             for r in rows[:n] if r["Answer"] in "ABCD"]
+    return out
 
 
 def library_specs(model_id, pgraft):
@@ -674,6 +705,8 @@ def cell(config):
     # Cross-domain panel on every cell: MMLU by subject group (disjoint from dev and held-out) and MedMCQA.
     groups = mmlu_groups(16 if c.get("smoke") else 500)
     groups["medmcqa"] = medmcqa_items(32 if c.get("smoke") else 1000)
+    if c.get("bench"):
+        groups.update(bench_items(16 if c.get("smoke") else 500))
     row["panel"] = {g: score_mmlu(base, tok, items, batch_size=16) for g, items in groups.items()}
     row["medmcqa"] = row["panel"]["medmcqa"]
     if graft is not None:
@@ -1030,7 +1063,29 @@ def batch_h16():
     return out
 
 
-BATCHES = {"h1": batch_h1, "h2": batch_h2, "h3": batch_h3, "h4": batch_h4, "h5": batch_h5, "h6": batch_h6, "h7": batch_h7, "h8": batch_h8, "h9": batch_h9, "h10": batch_h10, "h11": batch_h11, "h12": batch_h12, "h13": batch_h13, "h14": batch_h14, "h15": batch_h15, "h16": batch_h16}
+def batch_h17():
+    """Breadth table: every method trained on the same all-domain answer-letter mix, scored on MMLU, the MMLU
+    subject groups, MedMCQA, ARC-C/E, HellaSwag, and MMLU in five languages. 1B host. Base, LoRA (1x and 2x
+    budget), a shuffled-block control, and grafts from six donors: general (Qwen2.5 7B and 14B), code, math,
+    medicine, and a newer family member (Qwen3-8B)."""
+    out = []
+    k = {"objective": "mc", "align_steps": 600, "task_steps": 1000, "enc_depth": 2, "mc_train": "all", "bench": True,
+         "domain": "knowledge", "part": {"type": "block", "first": 4, "last": 20}}
+    out.append(dict(k, name="br-base", arm="none"))
+    out.append(dict(k, name="br-lora", arm="lora"))
+    out.append(dict(k, name="br-lora-2x", arm="lora", lora_budget_mult=2.0))
+    out.append(dict(k, name="br-shuffled-q7", arm="shuffled"))
+    out.append(dict(k, name="br-q7", arm="real"))
+    out.append(dict(k, name="br-q14-r1to7", arm="real", domain="knowledge14",
+                    part={"type": "block", "first": 7, "last": 34}, read_layers=list(range(1, 8))))
+    out.append(dict(k, name="br-coder7b", arm="real", domain="code"))
+    out.append(dict(k, name="br-math7b", arm="real", domain="math7b"))
+    out.append(dict(k, name="br-apollo", arm="real", domain="medicine"))
+    out.append(dict(k, name="br-qwen3-8b", arm="real", domain="qwen3_8b", part={"type": "block", "first": 4, "last": 26}))
+    return out
+
+
+BATCHES = {"h1": batch_h1, "h2": batch_h2, "h3": batch_h3, "h4": batch_h4, "h5": batch_h5, "h6": batch_h6, "h7": batch_h7, "h8": batch_h8, "h9": batch_h9, "h10": batch_h10, "h11": batch_h11, "h12": batch_h12, "h13": batch_h13, "h14": batch_h14, "h15": batch_h15, "h16": batch_h16, "h17": batch_h17}
 
 
 @app.function(image=image, volumes={"/vol": volume}, gpu="H200", memory=262144, timeout=5 * 3600)
