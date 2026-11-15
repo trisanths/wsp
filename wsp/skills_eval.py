@@ -569,7 +569,8 @@ def medmcqa_items(count=1000):
         row = med[index]
         choices = [row["opa"], row["opb"], row["opc"], row["opd"]]
         items.append({"id": f"medmcqa:{index}", "prompt": mcq_prompt(row["question"], choices),
-                      "gold": int(row["cop"]), "subject": row.get("subject_name") or "unknown"})
+                      "gold": int(row["cop"]), "subject": row.get("subject_name") or "unknown",
+                      "question": row["question"], "choices": choices})
     return items
 
 
@@ -608,7 +609,8 @@ def mmlu_subject_items(subjects, rows=None):
             continue
         seen.add(row["subject"])
         items.append({"id": f"mmlu_test:{index}", "prompt": mcq_prompt(row["question"], row["choices"]),
-                      "gold": int(row["answer"]), "subject": row["subject"]})
+                      "gold": int(row["answer"]), "subject": row["subject"],
+                      "question": row["question"], "choices": list(row["choices"])})
     missing = sorted(wanted - seen)
     if missing:
         raise ValueError("no MMLU test items for subject(s): " + ", ".join(missing))
@@ -629,14 +631,93 @@ def mmlu_general_items(exclude_subjects=(), count=1000, rows=None):
         if row["subject"] in dropped:
             continue
         items.append({"id": f"mmlu_dev:{index}", "prompt": mcq_prompt(row["question"], row["choices"]),
-                      "gold": int(row["answer"]), "subject": row["subject"]})
+                      "gold": int(row["answer"]), "subject": row["subject"],
+                      "question": row["question"], "choices": list(row["choices"])})
         if len(items) >= count:
             break
     return items
 
 
+# ---------------------------------------------------------------- clinic scorers (medical set of the clinic demo)
+
+# The six MMLU subjects the clinic demo scores as one medical group. mmlu_general_ex_med6 is the general MMLU 1000
+# (test, seed 0) minus these subjects, so the two sets never share an item.
+MED6_SUBJECTS = ["clinical_knowledge", "college_medicine", "professional_medicine", "anatomy", "medical_genetics",
+                 "college_biology"]
+CLINIC_SKILLS = ["medmcqa", "medqa", "pubmedqa", "mmlu_med6", "mmlu_general_ex_med6"]
+PUBMEDQA_CHOICES = ["yes", "no", "maybe"]
+
+
+def medqa_items(split="test", rows=None):
+    """MedQA USMLE 4-option items (GBaker/MedQA-USMLE-4-options). The test split has 1273 items."""
+    if rows is None:
+        from datasets import load_dataset
+
+        rows = load_dataset("GBaker/MedQA-USMLE-4-options", split=split)
+    items = []
+    for index in range(len(rows)):
+        row = rows[index]
+        options = row["options"]
+        choices = [options[letter] for letter in LETTERS] if isinstance(options, dict) else list(options)
+        items.append({"id": f"medqa_{split}:{index}", "prompt": mcq_prompt(row["question"], choices),
+                      "question": row["question"], "choices": choices, "gold": LETTERS.index(row["answer_idx"]),
+                      "subject": "medqa"})
+    return items
+
+
+def pubmedqa_test_ids():
+    """{pubid: label} of the 500 official PubMedQA test items (wsp/pubmedqa_test.py)."""
+    from wsp import pubmedqa_test
+
+    return dict(pubmedqa_test.TEST)
+
+
+def pubmedqa_question(row):
+    """The question text of a PubMedQA row: the abstract sections, then the question."""
+    contexts = row["context"]["contexts"] if isinstance(row["context"], dict) else row["context"]
+    return "Abstract: " + " ".join(str(c).strip() for c in contexts) + "\nQuestion: " + row["question"].strip()
+
+
+def pubmedqa_row_item(row, prefix="pubmedqa"):
+    """An item with choices yes, no, maybe (gold index from final_decision), or None when the row has no label."""
+    label = row.get("final_decision")
+    if label not in PUBMEDQA_CHOICES:
+        return None
+    question = pubmedqa_question(row)
+    return {"id": f"{prefix}:{row['pubid']}", "prompt": mcq_prompt(question, PUBMEDQA_CHOICES), "question": question,
+            "choices": list(PUBMEDQA_CHOICES), "gold": PUBMEDQA_CHOICES.index(label), "subject": "pubmedqa"}
+
+
+def pubmedqa_items(rows=None, test_ids=None):
+    """PubMedQA labeled TEST: the 500 labeled items of the official test set (pubids in the ground-truth file)."""
+    if rows is None:
+        from datasets import load_dataset
+
+        rows = load_dataset("qiaojin/PubMedQA", "pqa_labeled", split="train")
+    if test_ids is None:
+        test_ids = pubmedqa_test_ids()
+    wanted = {str(k) for k in test_ids}
+    items = []
+    for index in range(len(rows)):
+        row = rows[index]
+        if str(row["pubid"]) not in wanted:
+            continue
+        item = pubmedqa_row_item(row)
+        if item is not None:
+            items.append(item)
+    return items
+
+
 def load_items(skill):
     """Return the eval items of one skill."""
+    if skill == "medqa":
+        return medqa_items("test")
+    if skill == "pubmedqa":
+        return pubmedqa_items()
+    if skill == "mmlu_med6":
+        return mmlu_subject_items(MED6_SUBJECTS)
+    if skill == "mmlu_general_ex_med6":
+        return mmlu_general_items(MED6_SUBJECTS)
     for group, subjects in MMLU_GROUPS.items():
         if skill == "mmlu_" + group:
             return mmlu_subject_items(subjects)
