@@ -25,17 +25,18 @@ import math
 import os
 import re
 import sys
+import time
 
 from wsp import fetch
 
-SCHEMA = 1
+SCHEMA = 3
 SAMPLE_BYTES = 4 * 1024 * 1024
 DEFAULT_CACHE_DIR = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "library", "lineage", "facts"
 )
 
 # Thresholds from the evidence in results/README.md.
-SAME_COSINE = 0.9999
+SAME_REL_L2 = 1e-6
 FINE_TUNE_COSINE = 0.9
 ANCESTOR_BAND_TOP = 0.999
 ANCESTOR_COSINE = 0.99
@@ -182,6 +183,23 @@ class LocalSource(Source):
         return _card_from_meta(meta, [])
 
 
+def _retrying(read_range, tries=5, pause=5.0):
+    """Wrap a range reader: back off and retry on HTTP 429, 5xx, and timeouts."""
+
+    def read(offset, length):
+        for attempt in range(tries):
+            try:
+                return read_range(offset, length)
+            except Exception as error:
+                text = str(error)
+                transient = "status 429" in text or "status 5" in text or "imed out" in text or "Connection" in text
+                if not transient or attempt == tries - 1:
+                    raise
+                time.sleep(pause * (attempt + 1) * (4 if "status 429" in text else 1))
+
+    return read
+
+
 class HubSource(Source):
     """A model on the Hugging Face Hub.
 
@@ -218,7 +236,7 @@ class HubSource(Source):
         from huggingface_hub import get_token, hf_hub_url
 
         url = hf_hub_url(self.model_id, name, revision=self.revision())
-        return fetch.http_range_reader(url, token=get_token())
+        return _retrying(fetch.http_range_reader(url, token=get_token()))
 
     def revision(self):
         return self._info().sha
@@ -338,11 +356,19 @@ def _token_text(value):
     return value
 
 
+def _merge_text(merge):
+    """A BPE merge is "a b" in older files and ["a", "b"] in newer ones."""
+    if isinstance(merge, (list, tuple)):
+        return " ".join(merge)
+    return merge
+
+
 def _tokenizer_facts(src, files):
     """Return the tokenizer identity: file hashes, template hash, special tokens."""
     result = {
         "kind": "none",
         "core_hash": None,
+        "pre_hash": None,
         "file_hash": None,
         "added_hash": None,
         "vocab_size": None,
@@ -352,11 +378,18 @@ def _tokenizer_facts(src, files):
     raw = src.read_file("tokenizer.json") if "tokenizer.json" in files else None
     if raw is not None:
         data = json.loads(raw.decode("utf-8"))
+        model = data.get("model") or {}
+        added_ids = {token.get("id") for token in data.get("added_tokens") or []}
+        vocab_map = model.get("vocab")
+        if isinstance(vocab_map, dict):
+            # Ordinary tokens only: an added token may sit in the vocab under a reserved name.
+            vocab_map = {tok: tid for tok, tid in vocab_map.items() if tid not in added_ids}
         core = {
-            "model": data.get("model"),
-            "normalizer": data.get("normalizer"),
-            "pre_tokenizer": data.get("pre_tokenizer"),
+            "type": model.get("type"),
+            "vocab": vocab_map,
+            "merges": [_merge_text(m) for m in model.get("merges") or []],
         }
+        result["pre_hash"] = _hash_json({"normalizer": data.get("normalizer"), "pre_tokenizer": data.get("pre_tokenizer")})
         added = []
         for token in data.get("added_tokens") or []:
             added.append([token.get("content"), token.get("id"), bool(token.get("special"))])
@@ -365,7 +398,6 @@ def _tokenizer_facts(src, files):
         result["core_hash"] = _hash_json(core)
         result["file_hash"] = _hash_bytes(raw)
         result["added_hash"] = _hash_json(added)
-        model = data.get("model") or {}
         vocab = model.get("vocab")
         if isinstance(vocab, dict):
             result["vocab_size"] = len(vocab) + len(added)
@@ -899,6 +931,32 @@ def _probe_summary(result):
     return short
 
 
+def _mirrors(model_id):
+    """Ungated mirrors of a gated repo, most trusted first."""
+    org, _, name = model_id.partition("/")
+    if org != "meta-llama" or not name:
+        return []
+    plain = "Meta-" + name if name.startswith("Llama-") else name
+    return ["unsloth/" + plain, "NousResearch/" + plain]
+
+
+def _ancestor_facts(ancestor, base_id, source_id, cache_dir, opener):
+    """Return (facts, id_used, error). Fall back to a mirror when the repo is gated."""
+    try:
+        return facts(ancestor, cache_dir=cache_dir, opener=opener), ancestor, None
+    except Exception as error:
+        message = "%s: %s" % (type(error).__name__, str(error).splitlines()[0] if str(error) else "")
+        first = message
+    for mirror in _mirrors(ancestor):
+        if mirror in (base_id, source_id):
+            continue
+        try:
+            return facts(mirror, cache_dir=cache_dir, opener=opener), mirror, None
+        except Exception:
+            continue
+    return None, ancestor, first
+
+
 def _try_ancestor(base_facts, source_facts, direct_mean, opener, cache_dir, sample_bytes):
     """Look for a common ancestor named in the cards. Return a dict or None."""
     candidates = []
@@ -910,8 +968,16 @@ def _try_ancestor(base_facts, source_facts, direct_mean, opener, cache_dir, samp
     tried = []
     for ancestor in candidates[:3]:
         entry = {"ancestor": ancestor}
+        ancestor_facts, used, failure = _ancestor_facts(
+            ancestor, base_facts["model_id"], source_facts["model_id"], cache_dir, opener
+        )
+        if ancestor_facts is None:
+            entry["error"] = failure
+            tried.append(entry)
+            continue
+        if used != ancestor:
+            entry["mirror"] = used
         try:
-            ancestor_facts = facts(ancestor, cache_dir=cache_dir, opener=opener)
             ok, why = _same_shapes(base_facts, ancestor_facts)
             if not ok:
                 entry["error"] = "ancestor shapes: " + why
@@ -933,7 +999,7 @@ def _try_ancestor(base_facts, source_facts, direct_mean, opener, cache_dir, samp
             and base_result["layer_mean_cosine"] >= ANCESTOR_COSINE
             and source_result["layer_mean_cosine"] > direct_mean
         ):
-            return {"ancestor": ancestor, "tried": tried}
+            return {"ancestor": used, "tried": tried}
     return {"ancestor": None, "tried": tried}
 
 
@@ -957,6 +1023,8 @@ def relation(base_id, source_id, cache_dir=DEFAULT_CACHE_DIR, opener=None, sampl
     same_family = family(base_cfg) == family(source_cfg) and family(base_cfg) != ""
     positional = _positional_differs(base_cfg, source_cfg)
     added_same = base_tok["added_hash"] == source_tok["added_hash"]
+    special_same = base_tok["special_tokens"] == source_tok["special_tokens"]
+    pre_same = base_tok.get("pre_hash") == source_tok.get("pre_hash")
     quantized = is_quantized(source_facts) or is_quantized(base_facts)
     flags = {
         "positional_base_differs": positional,
@@ -964,6 +1032,9 @@ def relation(base_id, source_id, cache_dir=DEFAULT_CACHE_DIR, opener=None, sampl
         "tokenizer_same": tokenizer_same,
         "template_same": template_same,
         "added_tokens_same": added_same,
+        "tokenizer_strict_same": tokenizer_same and added_same and template_same and special_same,
+        "reserved_ids_reused": tokenizer_same and not added_same,
+        "pretokenizer_same": pre_same,
         "teacher_usable_for_logit_kd": tokenizer_same and added_same,
         "quantized": quantized,
         "embeddings_mixable": False,
@@ -986,7 +1057,9 @@ def relation(base_id, source_id, cache_dir=DEFAULT_CACHE_DIR, opener=None, sampl
     }
     warnings = []
     if tokenizer_same and not added_same:
-        warnings.append("added tokens differ from the base, so logit distillation from this source is not used")
+        warnings.append("added tokens differ from the base (reserved ids reused or new tokens), so logit distillation from this source is not used")
+    if tokenizer_same and not pre_same:
+        warnings.append("the pre-tokenizer or normalizer differs from the base although the vocabulary is the same")
     if tokenizer_same and base_tok["special_tokens"] != source_tok["special_tokens"]:
         warnings.append("special tokens differ from the base: %s against %s" % (base_tok["special_tokens"],
                                                                                 source_tok["special_tokens"]))
@@ -1069,13 +1142,8 @@ def relation(base_id, source_id, cache_dir=DEFAULT_CACHE_DIR, opener=None, sampl
         result["kind"] = "diverged_same_shape"
         evidence["reason"] = "different positional base (rope_theta)"
         return result
-    if probe_result["min_cosine"] > SAME_COSINE:
+    if probe_result["max_rel_l2"] < SAME_REL_L2:
         result["kind"] = "same"
-        if probe_result["max_rel_l2"] > 0 and probe_result["mean_rel_l2"] < SMALL_DELTA:
-            warnings.append(
-                "weights differ by relative L2 %.5f on average, a difference this small carries almost nothing"
-                % probe_result["mean_rel_l2"]
-            )
         return result
     if mean <= FINE_TUNE_COSINE:
         result["kind"] = "diverged_same_shape"
@@ -1095,9 +1163,12 @@ def relation(base_id, source_id, cache_dir=DEFAULT_CACHE_DIR, opener=None, sampl
             result["kind"] = "fine_tune_of_ancestor"
             result["subtract_reference"] = found["ancestor"]
             evidence["ancestor"] = found["ancestor"]
+        elif any("error" in t and "shapes" not in t["error"] for t in found["tried"]):
+            warnings.append("a common ancestor named in the cards could not be read (gated or missing), so the relation "
+                            "is reported as fine_tune")
     if probe_result["mean_rel_l2"] < SMALL_DELTA:
         warnings.append(
-            "relative delta norm %.5f is under %.2f, so the difference carries little"
+            "the difference from the base is small: relative delta norm %.5f is under %.2f, so it carries little"
             % (probe_result["mean_rel_l2"], SMALL_DELTA)
         )
     return result

@@ -83,7 +83,8 @@ def world(tmp_path):
     base_w = base_weights()
     paths = {}
     paths["base"] = write_model(tmp_path / "base", base_w)
-    paths["copy"] = write_model(tmp_path / "copy", base_w, dtype=torch.bfloat16)
+    paths["copy"] = write_model(tmp_path / "copy", base_w)
+    paths["bf16copy"] = write_model(tmp_path / "bf16copy", base_w, dtype=torch.bfloat16)
     paths["ft"] = write_model(tmp_path / "ft", noisy(base_w, 0.03))
     paths["tiny"] = write_model(tmp_path / "tiny", noisy(base_w, 0.02, only="q_proj"))
     paths["far"] = write_model(tmp_path / "far", noisy({k: 0.5 * v for k, v in base_w.items()}, 1.0))
@@ -438,3 +439,142 @@ def test_local_cache_keys_differ_for_equal_basenames(tmp_path):
     b.mkdir(parents=True)
     cache = str(tmp_path / "c")
     assert lineage.cache_path(str(a), cache) != lineage.cache_path(str(b), cache)
+
+
+def set_merges(path, merges):
+    with open(os.path.join(path, "tokenizer.json")) as f:
+        data = json.load(f)
+    data["model"]["merges"] = merges
+    with open(os.path.join(path, "tokenizer.json"), "w") as f:
+        json.dump(data, f)
+
+
+def set_tokenizer_config(path, **fields):
+    with open(os.path.join(path, "tokenizer_config.json")) as f:
+        conf = json.load(f)
+    conf.update(fields)
+    with open(os.path.join(path, "tokenizer_config.json"), "w") as f:
+        json.dump(conf, f)
+
+
+def test_same_vocab_other_template_pad_and_format_is_the_same_tokenizer(world, tmp_path):
+    set_merges(world["base"], ["taka1 taka2", "taka3 taka4"])
+    path = write_model(tmp_path / "fmt", noisy(base_weights(), 0.03))
+    set_merges(path, [["taka1", "taka2"], ["taka3", "taka4"]])
+    set_tokenizer_config(path, pad_token="<pad>", chat_template="OTHER")
+    world["fmt"] = path
+    r = rel(world, "fmt")
+    assert r["flags"]["tokenizer_same"] is True
+    assert r["flags"]["template_same"] is False
+    assert r["flags"]["tokenizer_strict_same"] is False
+    assert r["evidence"]["special_tokens_same"] is False
+    assert r["kind"] == "fine_tune"
+    twin = write_model(tmp_path / "twin", noisy(base_weights(), 0.03))
+    set_merges(twin, ["taka1 taka2", "taka3 taka4"])
+    world["twin"] = twin
+    assert rel(world, "twin")["flags"]["tokenizer_strict_same"] is True
+
+
+def test_other_vocab_is_still_a_different_tokenizer(world):
+    r = rel(world, "foreign")
+    assert r["flags"]["tokenizer_same"] is False and r["flags"]["tokenizer_strict_same"] is False
+
+
+def test_reserved_ids_reused_is_a_flag_not_a_new_tokenizer(world, tmp_path):
+    path = write_model(tmp_path / "hermes", noisy(base_weights(), 0.03))
+    with open(os.path.join(path, "tokenizer.json")) as f:
+        data = json.load(f)
+    data["added_tokens"][0]["content"] = "<tool_call>"
+    with open(os.path.join(path, "tokenizer.json"), "w") as f:
+        json.dump(data, f)
+    world["hermes"] = path
+    r = rel(world, "hermes")
+    assert r["flags"]["tokenizer_same"] is True
+    assert r["flags"]["reserved_ids_reused"] is True
+    assert r["flags"]["teacher_usable_for_logit_kd"] is False
+    assert r["kind"] == "fine_tune"
+
+
+def test_small_noise_fine_tune_is_not_same(world, tmp_path):
+    path = write_model(tmp_path / "light", noisy(base_weights(), 0.007))
+    world["light"] = path
+    r = rel(world, "light")
+    assert 0.003 < r["evidence"]["relative_delta_norm"] < 0.02
+    assert r["kind"] == "fine_tune"
+    assert any("small" in w for w in r["warnings"])
+    assert methods_names(r)[0] == "weave"
+
+
+def test_exact_copy_is_same_and_rounded_copy_is_not(world):
+    assert rel(world, "copy")["kind"] == "same"
+    rounded = rel(world, "bf16copy")
+    assert rounded["kind"] == "fine_tune"
+    assert any("small" in w for w in rounded["warnings"])
+
+
+def test_gated_ancestor_falls_back_to_a_mirror(world, tmp_path):
+    mapping = {"unsloth/Meta-Llama-X": world["anc"]}
+    gated = {"meta-llama/Llama-X"}
+
+    def opener(model_id):
+        if model_id in gated:
+            raise PermissionError("gated repo %s" % model_id)
+        return lineage.LocalSource(mapping.get(model_id, model_id), model_id=model_id)
+
+    base = write_model(tmp_path / "gb", noisy(base_weights(seed=7), 0.05, seed=11), card="meta-llama/Llama-X")
+    src = write_model(tmp_path / "gs", noisy(base_weights(seed=7), 0.05, seed=12), card="meta-llama/Llama-X")
+    r = lineage.relation(base, src, cache_dir=world["cache"], opener=opener)
+    assert r["kind"] == "fine_tune_of_ancestor"
+    assert r["subtract_reference"] == "unsloth/Meta-Llama-X"
+    assert r["evidence"]["ancestor_search"][0]["mirror"] == "unsloth/Meta-Llama-X"
+
+
+def test_unreadable_ancestor_reports_fine_tune_with_a_note(world, tmp_path):
+    def opener(model_id):
+        if model_id.startswith("meta-llama/") or model_id.startswith("unsloth/") or model_id.startswith("NousResearch/"):
+            raise PermissionError("gated")
+        return lineage.LocalSource(model_id, model_id=model_id)
+
+    base = write_model(tmp_path / "gb", noisy(base_weights(seed=7), 0.05, seed=11), card="meta-llama/Llama-X")
+    src = write_model(tmp_path / "gs", noisy(base_weights(seed=7), 0.05, seed=12), card="meta-llama/Llama-X")
+    r = lineage.relation(base, src, cache_dir=world["cache"], opener=opener)
+    assert r["kind"] == "fine_tune" and r["subtract_reference"] is None
+    assert any("ancestor" in w for w in r["warnings"])
+
+
+def test_added_token_renamed_inside_the_vocab_keeps_the_tokenizer(world, tmp_path):
+    for name, content in (("base", "<|reserved_1|>"), ("renamed", "<tool_call>")):
+        path = world["base"] if name == "base" else write_model(tmp_path / name, noisy(base_weights(), 0.03))
+        with open(os.path.join(path, "tokenizer.json")) as f:
+            data = json.load(f)
+        data["model"]["vocab"].pop("toka3", None)
+        data["model"]["vocab"][content] = 3
+        data["added_tokens"] = [{"id": 3, "content": content, "special": True}]
+        with open(os.path.join(path, "tokenizer.json"), "w") as f:
+            json.dump(data, f)
+        world[name] = path
+    r = rel(world, "renamed")
+    assert r["flags"]["tokenizer_same"] is True
+    assert r["flags"]["reserved_ids_reused"] is True
+    assert r["kind"] == "fine_tune"
+
+
+def test_range_reader_retries_timeouts_and_rate_limits(monkeypatch):
+    monkeypatch.setattr(lineage.time, "sleep", lambda seconds: None)
+    calls = []
+
+    def flaky(offset, length):
+        calls.append(offset)
+        if len(calls) == 1:
+            raise RuntimeError("range request failed with status 429: url")
+        if len(calls) == 2:
+            raise RuntimeError("Read timed out.")
+        return b"ok"
+
+    assert lineage._retrying(flaky)(0, 2) == b"ok" and len(calls) == 3
+
+    def broken(offset, length):
+        raise RuntimeError("range request failed with status 404: url")
+
+    with pytest.raises(RuntimeError):
+        lineage._retrying(broken)(0, 2)

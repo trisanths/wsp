@@ -744,3 +744,44 @@ def test_content_z_belongs_to_its_own_weave_member(tmp_path):
         name = "m%d_math" % index
         if name in stage["members_used"]:
             assert skills["math:" + source]["content_controls"] == stage["controls"][name]
+
+
+# ---------------------------------------------------------------- live lineage on tiny local models
+
+
+def tiny_world(tmp_path, noise):
+    import torch
+
+    from tests.test_lineage import base_weights, noisy, set_tokenizer_config, write_model
+
+    weights = base_weights()
+    base = write_model(tmp_path / "base", weights)
+    source = write_model(tmp_path / "src", noisy(weights, noise) if noise else weights)
+    set_tokenizer_config(source, pad_token="<pad>", chat_template="OTHER TEMPLATE")
+    from wsp import lineage
+
+    def opener(model_id):
+        return lineage.LocalSource(model_id, model_id=model_id)
+
+    req = {"name": "tiny", "base": base, "add": [{"skill": "math", "sources": [source]}],
+           "limits": {"max_total_params_b": 1.0}, "reported": ["other/bench"]}
+    return req, auto.LiveLineage(cache_dir=str(tmp_path / "cache"), opener=opener)
+
+
+def test_live_plan_small_fine_tune_with_other_template_is_a_weave(tmp_path):
+    req, lin = tiny_world(tmp_path, 0.007)
+    p = plan(validate_request(req), lineage=lin, atlas_entries=[], library_models=[])
+    row = p["sources"][0]
+    assert row["relation"] == "fine_tune"
+    assert row["flags"]["tokenizer_same"] is True and row["flags"]["template_same"] is False
+    assert [s["method"] for s in p["stages"]] == ["weave"]
+    assert any("small" in w for w in p["warnings"])
+    assert not any("another tokenizer" in w for w in p["warnings"])
+
+
+def test_live_plan_exact_copy_is_refused_as_the_same_model(tmp_path):
+    req, lin = tiny_world(tmp_path, 0.0)
+    p = plan(validate_request(req), lineage=lin, atlas_entries=[], library_models=[])
+    assert p["sources"][0]["relation"] == "same"
+    assert not p["feasible"]
+    assert "same model" in " ".join(p["refusals"])

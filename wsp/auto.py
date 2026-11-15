@@ -1037,7 +1037,7 @@ def _method_options(lin, rel, base_cfg, base_total, base_run, src_facts, skill, 
     kind = rel["kind"]
     if kind == "same":
         return [{"method": "none", "fits": False, "reason": "", "why_not": "the source is the same model as the base "
-                 "(cosine above 0.9999 on every sampled tensor); there is nothing to add", "add_total": None,
+                 "(relative L2 under 1e-6 on every sampled tensor, so the weights are equal); there is nothing to add", "add_total": None,
                  "add_run": None}]
     src_cfg = src_facts["config"]
     for entry in listed:
