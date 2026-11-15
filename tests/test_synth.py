@@ -557,11 +557,167 @@ def test_round20_components_use_the_cell_seed_and_screened_rows(tmp_path):
 
     data = {"domain": {"math": [], "big": [], "coder": []}}
     rows = [{"id": "r", "type": "mlp_cluster", "model": r20.MATH_BASE, "layer": 3, "indices": [1, 2]}]
-    for pair, arm in (("p1", "synth"), ("p2", "synth"), ("p3", "synth"), ("p1", "synth_random")):
+    for pair, arm in (("p1", "synth"), ("p2", "synth"), ("p3", "synth"), ("p1", "synth_random"),
+                      ("p1", "synth_scrambled"), ("p3", "synth_scrambled")):
         comps = r20.components_for(pair, arm, data, 1, rows)
         for c in comps:
             assert c["control_seed"] == 1
             assert (c.get("control") == "random") == (arm == "synth_random")
+            assert (c.get("control") == "scrambled") == (arm == "synth_scrambled")
+    for pair in r20.PAIRS:
+        assert "synth_scrambled" in r20.PAIRS[pair]["arms"]
+        scrambled = [c for c in r20.cells() if c[0] == pair and c[1] == "synth_scrambled"]
+        real = [c for c in r20.cells() if c[0] == pair and c[1] == "synth"]
+        assert [c[2] for c in scrambled] == [c[2] for c in real]
     catalog = tmp_path / "catalog.jsonl"
     catalog.write_text("")
     assert r20.library_rows(str(catalog)) == []
+
+
+def test_scrambled_control_keeps_layers_and_scrambles_weights():
+    host = tiny_host()
+    donor = tiny_donor()
+    tok = tiny_tokenizer()
+    before = {k: v.clone() for k, v in donor.state_dict().items()}
+    real = block_comp(layers=[1, 2])
+    model, real_branches, _, _ = place(tiny_host(), tok, [real], {"donorA": (donor, tok)}, settings())
+    for mode in ("spectrum", "permute"):
+        comp = block_comp(layers=[1, 2], control="scrambled", control_seed=4, control_mode=mode)
+        model, branches, located, _ = place(tiny_host(), tok, [comp], {"donorA": (donor, tok)}, settings())
+        assert located[0]["layers"] == [1, 2]
+        assert located[0]["control_overlap"] is None
+        meta = branches[0].synth
+        assert meta["control"] == "scrambled" and meta["control_mode"] == mode
+        assert meta["scramble"]["tensors_changed"] > 0
+        assert meta["scramble"]["rel_fro_error"] < 1e-4
+        assert set(branches[0].part_tensors) == set(real_branches[0].part_tensors)
+        for name, tensor in branches[0].part_tensors.items():
+            ref = real_branches[0].part_tensors[name]
+            assert tensor.shape == ref.shape
+            assert float(tensor.norm()) == pytest.approx(float(ref.norm()), rel=1e-4)
+            if ref.dim() == 2:
+                assert not torch.equal(tensor, ref)
+    for k, v in donor.state_dict().items():
+        assert torch.equal(v, before[k])
+
+
+def test_scrambled_control_is_seeded():
+    tok = tiny_tokenizer()
+    donor = tiny_donor()
+    parts = []
+    for seed in (1, 1, 2):
+        comp = block_comp(control="scrambled", control_seed=seed)
+        _, branches, _, _ = place(tiny_host(), tok, [comp], {"donorA": (donor, tok)}, settings())
+        parts.append(branches[0].part_tensors)
+    name = [n for n in sorted(parts[0]) if parts[0][n].dim() == 2][0]
+    assert torch.equal(parts[0][name], parts[1][name])
+    assert not torch.equal(parts[0][name], parts[2][name])
+
+
+def test_scrambled_control_works_for_other_kinds():
+    tok = tiny_tokenizer()
+    donor = tiny_donor()
+    for kind, extra in (("attn_heads", {"indices": [0, 1]}), ("mlp_cluster", {"indices": [0, 3, 5]})):
+        comp = {"kind": kind, "donor": "donorA", "layer": 1, "skill": "s", "host_layer": 2, "id": "c",
+                "control": "scrambled", "control_seed": 0}
+        comp.update(extra)
+        _, branches, located, _ = place(tiny_host(), tok, [comp], {"donorA": (donor, tok)}, settings())
+        assert located[0]["indices"] == extra["indices"]
+        assert branches[0].synth["scramble"]["tensors_changed"] > 0
+
+
+def test_control_names_are_checked():
+    with pytest.raises(ValueError):
+        synth.normalize_component(block_comp(control="shuffled"))
+    with pytest.raises(ValueError):
+        synth.normalize_component(block_comp(control="scrambled", control_mode="svd"))
+    assert synth.normalize_component(block_comp(control="scrambled"))["control"] == "scrambled"
+    assert synth.control_list({"controls": None, "control_run": True}) == ["random"]
+    assert synth.control_list({"controls": ["random", "scrambled"], "control_run": False}) == ["random", "scrambled"]
+    assert synth.control_list({"controls": None, "control_run": False}) == []
+
+
+def test_translate_in_with_a_scrambled_control_restores_the_donor():
+    donor = tiny_donor()
+    before = {k: v.clone() for k, v in donor.state_dict().items()}
+    comp = block_comp(layers=[1, 2], control="scrambled", control_seed=0)
+    staged(tiny_host(), [comp], {"donorA": (donor, tiny_tokenizer())}, settings())
+    for k, v in donor.state_dict().items():
+        assert torch.equal(v, before[k])
+
+
+def test_verdicts_with_a_scrambled_control():
+    s = settings(margin=0.02)
+
+    def row(random_gain, scrambled_gain, contribution=0.2):
+        return {"contribution": contribution, "closed": False,
+                "content_gain_by_control": {"random": random_gain, "scrambled": scrambled_gain}}
+
+    assert synth.verdict(row(0.2, 0.3), s) == "contributes"
+    assert synth.verdict(row(0.0, 0.3), s) == "donor helps, choice does not matter"
+    assert synth.verdict(row(0.0, 0.0), s) == "no better than random"
+    assert synth.verdict(row(0.2, 0.0), s) == "no better than scrambled"
+    # Only a scrambled control: contributes needs to beat it.
+    only = {"contribution": 0.2, "closed": False, "content_gain_by_control": {"scrambled": 0.0}}
+    assert synth.verdict(only, s) == "no better than scrambled"
+    only["content_gain_by_control"] = {"scrambled": 0.2}
+    assert synth.verdict(only, s) == "contributes"
+    # The old single-control field still works.
+    assert synth.verdict({"contribution": 0.2, "closed": False, "content_gain": 0.0}, s) == "no better than random"
+    assert synth.verdict({"contribution": 0.2, "closed": False, "content_gain": 0.2}, s) == "contributes"
+    assert synth.verdict({"contribution": 0.2, "closed": False}, s) == "contributes"
+    assert synth.verdict(row(0.2, 0.3, contribution=-0.1), s) == "harmful"
+    assert synth.verdict(row(0.2, 0.3, contribution=0.0), s) == "no better than random"
+
+
+def test_controls_list_builds_random_and_scrambled_and_reports_each():
+    # The planted donor is only a source of weights here. The test checks the report, not a gain: on this
+    # tiny case the compiled loss comes mostly from calibration, and every control reaches the same score.
+    donor = trained_permutation_donor()
+    host = tiny_host(seed=5)
+    tok = tiny_tokenizer()
+    skill_texts = chain_texts(20, 1)
+    enc, _ = encode_items(tok, chain_texts(8, 2), 16)
+
+    def practice_fn(model, tokenizer):
+        return 1.0 / (1.0 + text_loss(model, tokenizer, enc, {"batch_size": 4}))
+
+    comp = {"kind": "block", "donor": "perm", "layers": [2, 3], "skill": "perm", "host_layer": 2, "id": "perm",
+            "texts": skill_texts}
+    texts = {"align": sentences(30) + skill_texts[:10], "general": sentences(16, 7)}
+    s = dict(SMALL)
+    s.update(stage1_steps=6, stage2_steps=0, batch_size=4, seq_len=16, steps_in=4, steps_lm=2, batch_in=2)
+    _, _, report = synthesize((host, tok), [comp], texts, s, practice={"perm": practice_fn},
+                              donors={"perm": (donor, tok)}, controls=["random", "scrambled"])
+    row = report["components"][0]
+    assert set(report["controls"]) == {"random", "scrambled"}
+    assert set(row["content_gain_by_control"]) == {"random", "scrambled"}
+    for name in ("random", "scrambled"):
+        assert report["controls"][name]["scores"]["perm"] is not None
+        assert row["content_gain_by_control"][name] == pytest.approx(
+            report["scores"]["final"]["perm"] - report["controls"][name]["scores"]["perm"])
+    assert report["controls"]["scrambled"]["scramble"]["perm"]["tensors_changed"] > 0
+    assert report["controls"]["random"]["scramble"] is None
+    assert report["random_control"] is report["controls"]["random"]
+    assert row["content_gain"] == row["content_gain_by_control"]["random"]
+    assert row["verdict"] == synth.verdict(row, synth.settings_of(s, {}))
+    assert report["place"][0]["control"] is None
+
+
+def test_scrambled_only_control_and_control_run_alias():
+    tok = tiny_tokenizer()
+    skill_texts = sentences(12, 5)
+    comp = block_comp(texts=skill_texts)
+    s = dict(SMALL)
+    s.update(stage1_steps=2, stage2_steps=0)
+    texts = {"align": sentences(30), "general": sentences(16, 7)}
+    practice = {"s": lambda m, t: 0.5}
+    _, _, report = synthesize((tiny_host(), tok), [comp], texts, s, practice=practice, donors=donors_of(),
+                              controls=["scrambled"])
+    assert list(report["controls"]) == ["scrambled"]
+    assert "random_control" not in report
+    assert report["components"][0]["content_gain"] == report["components"][0]["content_gain_by_control"]["scrambled"]
+    _, _, report = synthesize((tiny_host(), tok), [comp], texts, s, practice=practice, donors=donors_of(),
+                              control_run=True)
+    assert list(report["controls"]) == ["random"]
+    assert report["random_control"] is report["controls"]["random"]

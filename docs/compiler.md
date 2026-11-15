@@ -11,7 +11,7 @@ model, tokenizer, report = synthesize(base, components, texts, budget,
 model, tokenizer, report = synth.load_synth(out_dir)   # same logits
 ```
 
-A component is a dict. `kind` is `block`, `attn_heads`, `mlp_cluster`, or `expert`. `donor` is the donor model id. `layers` is `[first, last]` for a block. `layer` and `indices` (heads, neuron units, or expert ids) locate the other kinds. `skill` names the skill. `texts` are domain texts for that skill. `host_layer` is a host layer index or `"auto"` (same relative depth). `control: "random"` builds the same shape from random same-size parts of the same donor, with `control_seed`. Rows of `catalog.jsonl` and `library/catalog.jsonl` are accepted as they are (`type`, `model`, `layer`, `units`, `layers`, `skill`).
+A component is a dict. `kind` is `block`, `attn_heads`, `mlp_cluster`, or `expert`. `donor` is the donor model id. `layers` is `[first, last]` for a block. `layer` and `indices` (heads, neuron units, or expert ids) locate the other kinds. `skill` names the skill. `texts` are domain texts for that skill. `host_layer` is a host layer index or `"auto"` (same relative depth). `control: "random"` builds the same shape from random same-size parts of the same donor, with `control_seed`. `control: "scrambled"` keeps the same donor layers or units and rewrites their weights with `wsp.scramble` (seeded by `control_seed`) before any stitch is fit. `control_mode` is `"spectrum"` (default) or `"permute"`. Rows of `catalog.jsonl` and `library/catalog.jsonl` are accepted as they are (`type`, `model`, `layer`, `units`, `layers`, `skill`).
 
 Heal data rule (owner, 2026-11-14): nothing that trains or fits anything may use a reported benchmark in any split. The caller passes texts from the `wsp.healdata` pools. The practice sets of stage 6 never receive gradient.
 
@@ -114,12 +114,14 @@ The caller gives small practice sets, one per skill (`practice={skill: {"items":
   - a failing stage 2 rolls back to the stage-1 weights and removes the LoRA (`guard.events`, action `rolled back to stage 1`);
   - a failing stage 1 closes the offending gates one at a time (the gate whose closing leaves the best worst-case margin first), down to the base if needed (action `closed gates`).
 - Component test: score with each component's gate forced to 0. `contribution = final - without` on the component's own skill, and `scores_without` for every skill. `text_gain` is the held-out LM loss with the component off minus on. Without a practice set for the skill, the verdict uses `text_gain`.
-- Random control (`control_run=True`): the same recipe, same seed and budget, with random same-size parts. `content_gain = score(real) - score(random)` on the component's skill.
+- Controls (`controls=["random", "scrambled"]`, or `control_run=True` for `["random"]`): the same recipe, same seed and budget, once per control kind. `random` uses another range of the same donor, so it tests the choice of layers. `scrambled` uses the same layers with scrambled weights (same shapes, parameter count, norms, and singular values, no learned structure), so it tests whether the donor's knowledge is used at all. The report has `controls[kind]` (scores, gain, gates, guard, and for scrambled the scramble report) and per component `content_gain_by_control`. `content_gain = score(real) - score(control)` on the component's skill. The old fields stay: `random_control` is `controls["random"]`, and `content_gain` is the random gain when a random control was built (else the first control's).
 - Verdict per component:
   - `harmful`: contribution below `-margin`, or the guard closed the gate;
-  - `no better than random`: contribution at most `margin`, or (with the control run) content gain at most `margin`;
-  - `contributes`: otherwise.
-  Without `control_run`, the verdict rests on the contribution alone.
+  - `no better than random`: contribution at most `margin`, or the real component beats neither control by more than `margin`;
+  - `contributes`: otherwise. With a scrambled control built, the real component must beat it;
+  - `donor helps, choice does not matter`: beats scrambled but not random;
+  - `no better than scrambled`: beats random but not scrambled, or only a scrambled control was built and it was not beaten.
+  Without a control run, the verdict rests on the contribution alone.
 
 ### 7. Budget
 
@@ -144,7 +146,8 @@ The caller gives small practice sets, one per skill (`practice={skill: {"items":
 - Practice sets of 100 to 150 items have a standard error near 4 points, so `tolerance` 0.04 can miss a real 3 point harm. The guard is a floor, not a proof.
 - The preservation term uses the base's greedy answers without a correctness filter (the forensic rule asks for one; a gold-label filter would need benchmark data).
 - Position-0 masking and the sink fix are carried over from the input side without an ablation on the output side.
-- Verdicts without `control_run` do not compare against random.
+- Verdicts without a control run do not compare against random or scrambled.
+- Scrambled and random controls share the donor-logit teacher with the real run (KD and the missing-residual fit for T_out). A scrambled control therefore measures what the stitch, glue, and teacher give without the block's weights. On a tiny planted case the compiled score came mostly from this, and the scrambled control matched the real block.
 - Experts (`kind: "expert"`) are built and tested for the part, not run in a heal. Their token gate stands in for a router.
 - The LoRA baseline arms use the preservation term too. That makes them stronger than the round 16b LoRA, which had none.
 
@@ -155,3 +158,9 @@ The caller gives small practice sets, one per skill (`practice={skill: {"items":
 ## Round 20 rows
 
 Rows hold `trainable` (glue, gates, and LoRA for synth arms; LoRA for the lora arms), so the go rule can compare trainable counts. In p3 the library adds one T_in and one T_out per row, so synth trains far more parameters than the rank-16 LoRA arms there. Read p3 with that in mind. The guard of both compile and LoRA arms is the pair's guard skill only. The library takes rows of tier `screened` only, since provisional rows were chosen by ablation on GSM8K.
+
+## Scrambled control
+
+`wsp/scramble.py` rewrites weights so no learned structure remains. `spectrum` mode makes W into U diag(s) V^T with s the singular values of W and U, V Haar-random orthonormal bases (QR of a seeded Gaussian with the sign fix). Shape, Frobenius norm, and spectrum stay. `permute` mode permutes all entries of a tensor, so the value histogram and norm stay and the spectrum is gone. 1-D tensors (norm weights, biases) are always permuted. Embedding tables are not touched unless `include_embeddings=True`.
+
+Only the singular values of W are computed (`torch.linalg.svdvals`, float32, on the tensor's device), one tensor at a time. A matrix with more entries than `scramble_max_numel` uses `permute`. Random draws come from a CPU generator, so a seed gives the same result on any device. `scramble_module(module, seed, mode)` works in place and returns a report: `tensors_changed`, `rel_fro_error` (largest relative change of a tensor norm, about 0), `mean_abs_cosine` (about 0), `seconds`. In the compiler, `build_part` scrambles a copy of the donor tensors, so the donor model is not changed. During the stage-2 donor-LM stitch fit the scrambled tensors are swapped into the donor model and restored after, so T_in is not fit to the real block.

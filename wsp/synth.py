@@ -17,7 +17,7 @@ are described in docs/compiler.md:
     4 synthesis    stage-2 heal: adds LoRA on host layers after the first
                    seam, with a preservation term against the frozen base
     5 gates        token gates train in both heals; reported per text set
-    6 verify       practice sets, rollback, component test, random control
+    6 verify       practice sets, rollback, component test, random and scrambled controls
     7 budget       params total and per token, refusal over the limits
 
 Heal data rule (owner, 2026-11-14): no benchmark data trains anything here.
@@ -42,6 +42,7 @@ from wsp.extract import random_neurons
 from wsp.gate import TokenGate, real_tokens
 from wsp.graft import Graft, attach_grafts, part_dtype
 from wsp.lora import LoRALinear, apply_lora, load_lora_state, lora_modules, lora_param_count, lora_state_dict, merge_lora
+from wsp.scramble import scramble_tensors
 from wsp.parts import (
     AttnHeadsPart,
     BlockPart,
@@ -71,6 +72,7 @@ from wsp.stitch import (
     train_stitch,
 )
 
+CONTROLS = (None, "random", "scrambled")
 KINDS = ("block", "attn_heads", "mlp_cluster", "expert")
 FORMAT = 1
 
@@ -105,7 +107,10 @@ DEFAULTS = {
     "gate_bias": 2.0,
     "t_in_kind": "linear",
     "max_rows": 20000,
-    "control_run": False,
+    "control_run": False,      # True: build the random control (same as controls=["random"])
+    "controls": None,          # list of control kinds to build in verify, e.g. ["random", "scrambled"]
+    "control_mode": "spectrum",  # scrambled controls: "spectrum" or "permute" (a component may set its own)
+    "scramble_max_numel": None,  # spectrum mode: tensors with more entries use "permute" instead
     "kd": True,                # donor KL when the tokenizers match (False: LM loss only)
     "components_per_step": None,  # None: every component each step; k: k of them, round robin
     "component_tests": True,
@@ -131,7 +136,9 @@ def normalize_component(raw, index=0):
     units, experts) for the other kinds; units may be the path of a .pt file
     with an "indices" list; skill (a name or a dict with "name"); texts;
     host_layer, or at ("auto" or None: same relative depth); control
-    ("random" or None) with control_seed.
+    ("random", "scrambled", or None) with control_seed. "scrambled" keeps the
+    real donor layers or units and rewrites their weights (wsp.scramble) with
+    control_mode "spectrum" (default) or "permute".
     """
     c = dict(raw)
     kind = c.get("kind") or c.get("type")
@@ -187,9 +194,13 @@ def normalize_component(raw, index=0):
         at = None
     out["host_layer"] = at
     control = c.get("control")
-    if control not in (None, "random"):
-        raise ValueError(f"component {index}: control must be None or 'random', got {control!r}")
+    if control not in CONTROLS:
+        raise ValueError(f"component {index}: control must be None, 'random', or 'scrambled', got {control!r}")
     out["control"] = control
+    control_mode = c.get("control_mode")
+    if control_mode not in (None, "spectrum", "permute"):
+        raise ValueError(f"component {index}: control_mode must be 'spectrum' or 'permute', got {control_mode!r}")
+    out["control_mode"] = control_mode
     out["control_seed"] = int(c.get("control_seed", c.get("seed", 0)))
     out["id"] = c.get("id") or f"{kind}{index}"
     out["row"] = {k: c[k] for k in ("id", "label", "tier") if k in c}
@@ -261,23 +272,39 @@ def pick_tensors(model, names):
     return out
 
 
-def build_part(comp, donor_model):
-    """Build the frozen part of a located component from a loaded donor. Return (part, tensors)."""
+def build_part(comp, donor_model, scramble_report=None):
+    """Build the frozen part of a located component from a loaded donor. Return (part, tensors).
+
+    A scrambled control takes the same tensors as the real component and
+    rewrites them with wsp.scramble (comp["control_seed"], comp["control_mode"])
+    before the part is built. The donor model itself is not changed. If
+    scramble_report is a dict, the scramble report is copied into it.
+    """
     config = donor_model.config
     kind = comp["kind"]
     if kind == "block":
         first, last = comp["layers"]
         tensors = pick_tensors(donor_model, block_tensor_names(config, first, last))
+    else:
+        layer = comp["layer"]
+        indices = torch.as_tensor(comp["indices"], dtype=torch.long)
+        if kind == "attn_heads":
+            tensors = pick_tensors(donor_model, attn_tensor_names(config, layer))
+        elif kind == "mlp_cluster":
+            tensors = pick_tensors(donor_model, mlp_tensor_names(config, layer))
+        else:
+            tensors = pick_tensors(donor_model, expert_tensor_names(config, layer, indices.tolist()))
+    if comp.get("control") == "scrambled":
+        report = scramble_tensors(tensors, comp["control_seed"], comp.get("control_mode") or "spectrum",
+                                  max_numel=comp.get("scramble_max_numel"))
+        if scramble_report is not None:
+            scramble_report.update(report)
+    if kind == "block":
         return build_block_part(config, first, last, tensors), tensors
-    layer = comp["layer"]
-    indices = torch.as_tensor(comp["indices"], dtype=torch.long)
     if kind == "attn_heads":
-        tensors = pick_tensors(donor_model, attn_tensor_names(config, layer))
         return build_attn_heads(config, layer, indices, tensors), tensors
     if kind == "mlp_cluster":
-        tensors = pick_tensors(donor_model, mlp_tensor_names(config, layer))
         return build_mlp_cluster(config, layer, indices, tensors), tensors
-    tensors = pick_tensors(donor_model, expert_tensor_names(config, layer, indices.tolist()))
     return build_expert_part(config, layer, indices, tensors), tensors
 
 
@@ -549,6 +576,31 @@ def host_capture(model, ids, attn, layer_indices):
     return store, out.logits
 
 
+@contextlib.contextmanager
+def scrambled_donor_layers(donor_model, branch, active):
+    """Put the branch's scrambled tensors into the donor model, then restore the real ones.
+
+    The donor-LM stitch fit runs the donor's own layers after the seam. For a
+    scrambled control those layers must be the scrambled ones, or T_in would
+    be fit to the real block.
+    """
+    if not active:
+        yield
+        return
+    state = donor_model.state_dict()
+    saved = {}
+    try:
+        with torch.no_grad():
+            for name, tensor in branch.part_tensors.items():
+                saved[name] = state[name].detach().clone()
+                state[name].copy_(tensor.to(device=state[name].device, dtype=state[name].dtype))
+        yield
+    finally:
+        with torch.no_grad():
+            for name, tensor in saved.items():
+                state[name].copy_(tensor)
+
+
 def donor_point(donor_model, comp, ids, attn):
     """The donor's state at the component's input point on ids: (batch, seq, d_donor)."""
     holder = {}
@@ -723,7 +775,11 @@ def place(base, tokenizer, components, donors=None, settings=None, device=None):
         if at < 0 or at >= n_layers:
             raise ValueError(f"component {comp['id']}: host layer {comp['host_layer']} is outside {n_layers} layers")
         loc = locate(comp, config)
-        part, tensors = build_part(loc, donor_model)
+        if loc["control"] == "scrambled":
+            loc["control_mode"] = loc.get("control_mode") or s["control_mode"]
+            loc["scramble_max_numel"] = s["scramble_max_numel"]
+        scramble_report = {}
+        part, tensors = build_part(loc, donor_model, scramble_report)
         d_donor = text_config.hidden_size
         branch = Branch(d_host, d_donor, part, s["t_in_kind"], None, s["gate_bias"])
         branch.to(device)
@@ -731,6 +787,8 @@ def place(base, tokenizer, components, donors=None, settings=None, device=None):
                         "layers": loc["layers"], "indices": loc["indices"], "host_layer": at,
                         "d_host": d_host, "d_donor": d_donor, "skill": comp["skill"],
                         "control": comp["control"], "control_seed": comp["control_seed"],
+                        "control_mode": loc.get("control_mode") if comp["control"] == "scrambled" else None,
+                        "scramble": scramble_report or None,
                         "control_overlap": loc.get("control_overlap"),
                         "t_in_kind": s["t_in_kind"], "donor_config": json.loads(config.to_json_string()),
                         "donor_layers": loc["donor_layers"]}
@@ -913,7 +971,7 @@ def translate_in(model, tokenizer, branch, comp, donor_model, donor_tokenizer, a
     if comp["kind"] == "block":
         plain = [t for t in align if isinstance(t, str)]
         if len(plain) > 0:
-            with branches_off(model):
+            with branches_off(model), scrambled_donor_layers(donor_model, branch, comp.get("control") == "scrambled"):
                 if s["steps_lm"] > 0:
                     res = train_stitch(model, tokenizer, k, donor_model, donor_tokenizer, comp["layer"], branch.w_in,
                                        plain, objective="donor_lm", steps=s["steps_lm"], lr=s["lr_in"],
@@ -1411,7 +1469,8 @@ def synthesize(base, components, texts, budget=None, practice=None, guard=None, 
     guard = list(practice) if guard is None else list(guard)
     report = {"base": base_id, "settings": {k: v for k, v in s.items()}, "events": []}
 
-    base_copy = copy.deepcopy(model) if s["control_run"] else None
+    control_names = control_list(s)
+    base_copies = {name: copy.deepcopy(model) for name in control_names}
     comps_in = [normalize_component(c, i) for i, c in enumerate(components)]
     model, branches, comps, donor_map = place(model, tokenizer, components, donors, s)
     for c_in, c in zip(comps_in, comps):
@@ -1426,6 +1485,7 @@ def synthesize(base, components, texts, budget=None, practice=None, guard=None, 
     report["planned_lora"] = planned
     report["place"] = [{"id": c["id"], "kind": c["kind"], "donor": c["donor"], "host_layer": b.host_layer,
                         "layers": c["layers"], "indices": c["indices"], "control": c["control"],
+                        "scramble": b.synth.get("scramble"),
                         "part_params": sum(p.numel() for n, p in b.named_parameters() if n.startswith("part."))}
                        for c, b in zip(comps, branches)]
     data, drop_report = prepare_data(tokenizer, comps, texts, s)
@@ -1535,12 +1595,20 @@ def synthesize(base, components, texts, budget=None, practice=None, guard=None, 
         report["components"] = [{"id": c["id"], "kind": c["kind"], "skill": c["skill"], "host_layer": b.host_layer,
                                  "closed": b.closed, "verdict": "not tested"} for c, b in zip(comps, branches)]
 
-    if s["control_run"]:
-        report["random_control"] = random_control(base_copy, model, tokenizer, components, texts, budget, practice,
-                                                   guard, donors, donor_map, s, options, report)
+    if control_names:
+        report["controls"] = {}
+        for name in control_names:
+            report["controls"][name] = build_control(name, base_copies.pop(name), model, tokenizer, components, texts,
+                                                     budget, practice, guard, donors, donor_map, s, options, report)
+        if "random" in report["controls"]:
+            report["random_control"] = report["controls"]["random"]
         for c in report["components"]:
-            gain = report["random_control"]["gain"].get(c["id"])
-            c["content_gain"] = gain
+            by_control = {}
+            for name in control_names:
+                by_control[name] = report["controls"][name]["gain"].get(c["id"])
+            c["content_gain_by_control"] = by_control
+            first = "random" if "random" in by_control else control_names[0]
+            c["content_gain"] = by_control[first]
         for c in report["components"]:
             if c["verdict"] != "not tested":
                 c["verdict"] = verdict(c, s)
@@ -1603,8 +1671,33 @@ def component_tests(model, tokenizer, comps, branches, data, practice, scores, s
     return out
 
 
+def control_list(s):
+    """The control kinds verify builds: s["controls"], or ["random"] when control_run is set."""
+    names = s.get("controls")
+    if names is None:
+        names = ["random"] if s["control_run"] else []
+    out = []
+    for name in names:
+        if name not in ("random", "scrambled"):
+            raise ValueError(f"controls must name 'random' or 'scrambled', got {name!r}")
+        if name not in out:
+            out.append(name)
+    return out
+
+
 def verdict(row, s):
-    """contributes, no better than random, or harmful. Random is the stand-in for 'nothing specific to this part'."""
+    """contributes, harmful, or one of the "no better" verdicts.
+
+    Random stands in for "nothing specific to this part" (another layer range
+    of the same donor). Scrambled has the same shapes and weight statistics
+    but no learned structure, so it tests whether the donor's knowledge is
+    used at all. With a scrambled control built, "contributes" needs the real
+    component to beat it by more than margin:
+      beats scrambled, not random   donor helps, choice does not matter
+      beats random, not scrambled   no better than scrambled
+      beats neither                 no better than random
+    Without a scrambled control the verdict is the old one.
+    """
     contribution = row.get("contribution")
     if contribution is None:
         contribution = row.get("text_gain")
@@ -1616,21 +1709,49 @@ def verdict(row, s):
         return "harmful"
     if contribution <= s["margin"]:
         return "no better than random"
-    gain = row.get("content_gain")
-    if gain is not None and gain <= s["margin"]:
+    by_control = row.get("content_gain_by_control")
+    if by_control is None:
+        gain = row.get("content_gain")
+        by_control = {"random": gain} if gain is not None else {}
+    random_gain = by_control.get("random")
+    scrambled_gain = by_control.get("scrambled")
+    beats_random = random_gain is None or random_gain > s["margin"]
+    if scrambled_gain is None:
+        return "contributes" if beats_random else "no better than random"
+    beats_scrambled = scrambled_gain > s["margin"]
+    if not beats_scrambled:
+        if random_gain is not None and beats_random:
+            return "no better than scrambled"
+        if random_gain is None:
+            return "no better than scrambled"
         return "no better than random"
+    if not beats_random:
+        return "donor helps, choice does not matter"
     return "contributes"
 
 
 def random_control(base_copy, model, tokenizer, components, texts, budget, practice, guard, donors, donor_map, s, options, report):
     """Compile the same recipe with random same-size parts and report real minus random per component."""
+    return build_control("random", base_copy, model, tokenizer, components, texts, budget, practice, guard, donors,
+                         donor_map, s, options, report)
+
+
+def build_control(kind, base_copy, model, tokenizer, components, texts, budget, practice, guard, donors, donor_map, s,
+                  options, report):
+    """Compile the same recipe with every component replaced by a control. Report real minus control per component.
+
+    kind "random": another range of the same donor (wsp.synth.locate). kind
+    "scrambled": the same donor layers or units with weights rewritten by
+    wsp.scramble. A component keeps its own control_mode. Others get s["control_mode"].
+    """
     rand = []
     for c in components:
         c = dict(c)
-        c["control"] = "random"
+        c["control"] = kind
         rand.append(c)
     opts = dict(options)
     opts["control_run"] = False
+    opts["controls"] = None
     fresh = base_copy
     known = dict(donors or {})
     for key, pair in donor_map.items():
@@ -1646,7 +1767,8 @@ def random_control(base_copy, model, tokenizer, components, texts, budget, pract
             gain[c["id"]] = real_scores[skill] - rscores[skill]
         elif c.get("heldout_loss_on") is not None and row.get("heldout_loss_on") is not None:
             gain[c["id"]] = row["heldout_loss_on"] - c["heldout_loss_on"]
-    out = {"scores": rscores, "gain": gain, "gates": rreport["gates"], "guard": rreport["guard"],
+    out = {"kind": kind, "scores": rscores, "gain": gain, "gates": rreport["gates"], "guard": rreport["guard"],
+           "scramble": {r["id"]: r.get("scramble") for r in rreport["place"]} if kind == "scrambled" else None,
            "heldout_loss_on": [r.get("heldout_loss_on") for r in rreport["components"]]}
     del rmodel
     return out
