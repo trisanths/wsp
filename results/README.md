@@ -173,3 +173,40 @@ Reading:
 - Next: a stored sink vector per graft, RMS matching on the projector, a
   small LoRA on the donor part (the receiver), and a trained stitch, then a
   rerun against the 46.7% LoRA bar.
+
+## Run 5 (2026-11-14): prefill taps on GSM8K
+
+Tap: the donor reads the prompt natively with its own tokenizer; the host
+reads its layer-l states through a gated cross-attention branch at host
+layer k. Host Llama-3.2-1B-Instruct, 300 steps, completion-only loss,
+branch lr 3e-4, gate lr 3e-2, 3 seeds. Raw rows: round5_rows.json.
+
+| Arm | Trainable | Search acc. (sd) | Decode tok/s |
+|---|---|---|---|
+| Host, untrained | 0 | 25.0 | 109 |
+| Qwen2.5-Math-1.5B-Instruct alone (raw prompt) | 0 | 33.0 | 54 |
+| LFM2-350M-Math alone (raw prompt) | 0 | 1.0 | 62 |
+| Tap Qwen-Math L14 into host L10 | 1.8M | 26.7 (1.3) | 95 |
+| Tap Qwen-Math L27 into host L12 | 1.8M | 25.8 (0.8) | 104 |
+| Two taps (L14 and L27) | 3.7M | 27.5 (2.2) | 102 |
+| Control: mismatched messages (L27) | 1.8M | 26.2 (3.8) | 94 |
+| Control: shuffled donor weights (L27) | 1.8M | 22.8 (4.3) | 126 |
+| Tap LFM2-350M-Math L15 into host L12 | 1.6M | 26.3 (0.8) | 75 |
+| Tap LFM2-350M-Math L8 into host L8 | 1.6M | 32.7 (0.8) | 106 |
+| LoRA rank 64 (lr 5e-5) | 45.1M | 47.2 (1.4) | 129 |
+
+Reading:
+- Taps learn the GSM8K output format but carry no reasoning: real donor
+  messages score the same as mismatched ones. During prefill the donor has
+  not solved the problem, so there is little to read (matches "Cross-Model
+  Stitching Transfers Answers, Not Computation", 2026).
+- The LFM2-350M-Math L8 tap is the only arm above noise (+7.7 over host).
+- The donors are weak on the raw prompt (chat-tuned models; LFM2-350M-Math
+  needs its chat template).
+- A one-layer 1.8M adapter is far weaker than a 45M all-layer LoRA, and the
+  earlier rank-1 LoRA (0.7M, 43.5%) shows distribution across layers
+  matters more than size.
+
+Next (round 6): taps on MMLU, where the answer is already in the donor's
+prefill states and fine-tuning cannot add knowledge; and LoRA plus a tap
+against LoRA alone on GSM8K.
