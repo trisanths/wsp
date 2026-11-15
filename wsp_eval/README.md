@@ -116,3 +116,19 @@ Run with `modal run modal_eval.py::gate --seeds "0"`. Raw: `results/gate_hour8_s
 Reading: the pipeline runs end to end. The graft's 0.03 lead over the random part is inside the noise
 (paired standard error about 0.05 on 200 items), and the matched LoRA scores highest. One seed is not a
 claim; `--seeds "0 1 2"` reuses the seed-0 compiles and adds the other two.
+
+## Hour-8 gate, 3 seeds (2026-11-15). SEARCH SPLIT: an interim check, not a result.
+
+Same setup as seed 0 above; `modal run modal_eval.py::gate --seeds "0 1 2"`. Raw: `results/gate_hour8_3seeds.json`.
+Host 0.230, donor 0.450 (no seed).
+
+| Arm | seed 0 | seed 1 | seed 2 | mean (sd) |
+|---|---|---|---|---|
+| Graft + heal | 0.415 | 0.410 | 0.405 | 0.410 (0.005) |
+| Control 1: random 512 neurons, same layer, glue, heal | 0.385 | 0.420 | 0.405 | 0.403 (0.018) |
+| Control 2: matched host LoRA (2.82M params) | 0.440 | 0.445 | 0.450 | 0.445 (0.005) |
+
+Verdict (`claims.compare`): DOES NOT COUNT. Mean gain over the random part is +0.007; the graft won one seed,
+lost one, and tied one. The matched LoRA beats both by about 0.035. This agrees with Trisanth's round 2:
+a single-layer MLP cluster from Qwen2.5-Math-1.5B carries no transferable GSM8K skill through a linear stitch;
+the gain over the host (0.23 to about 0.41) comes from the glue and heal, not the part.
