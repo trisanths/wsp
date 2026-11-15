@@ -895,6 +895,21 @@ def test_format_table():
                          " norm rel 0.000000 cosine 1.00000000"), lines[-1]
 
 
+def test_summary_weights_leaves_out_norm_tensors():
+    # A large norm vector that did not change must not hide a large change in a projection.
+    # sums are [sum (m - r)^2, sum m^2, sum r^2, sum m * r].
+    rows = [
+        {"layer": 0, "kind": "attn", "sums": [1.0, 5.0, 4.0, 4.0], "params": 4},      # rel = 1 / 2 = 0.5
+        {"layer": 0, "kind": "norm", "sums": [0.0, 9996.0, 9996.0, 9996.0], "params": 2},  # unchanged, huge
+    ]
+    per_layer, outside, summary = wd.aggregate(rows, 1)
+    assert abs(summary["weights"]["rel"] - 0.5) < 1e-12, summary["weights"]
+    assert summary["weights"]["tensors"] == 1 and summary["weights"]["params"] == 4
+    # "all" keeps its meaning: every matched tensor, so the norm vector dominates it.
+    assert abs(summary["all"]["rel"] - (1.0 / 10000.0) ** 0.5) < 1e-12, summary["all"]
+    assert summary["all"]["tensors"] == 2
+
+
 if __name__ == "__main__":
     tests = [(name, fn) for name, fn in sorted(globals().items()) if name.startswith("test_") and callable(fn)]
     failed = []

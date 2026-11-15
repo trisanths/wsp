@@ -273,7 +273,11 @@ def aggregate(rows, layers):
     outside_layers = {"embed": None, "lm_head": None, "other": None}
     for kind in sorted(outside):
         outside_layers[kind] = group_stats(outside[kind])
-    summary = {"all": group_stats(rows), "layers": {}}
+    # "weights" leaves out every norm tensor. A norm weight can be very large and unchanged by a
+    # fine-tune (Gemma 3 post_feedforward_layernorm vectors have norms above 20,000), and then it
+    # dominates the summed squares of "all" and hides a large change in the projections.
+    summary = {"all": group_stats(rows), "weights": group_stats([r for r in rows if r["kind"] != "norm"]),
+               "layers": {}}
     for kind in sorted(by_kind):
         summary["layers"][kind] = group_stats(by_kind[kind])
     return per_layer, outside_layers, summary

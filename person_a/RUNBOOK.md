@@ -229,7 +229,10 @@ the Hugging Face id with `/` replaced by `__`. The fields are:
   have, or `null` when another dimension differs). `rel` and `cosine` of the group cover only
   its tensors of equal shape. They are `null`, with `tensors` 0, when the group has none: an
   embedding with added tokens gives `"embed": {"rel": null, ..., "shape_mismatch": [...]}`.
-- `summary`: `all` (every compared tensor) and `layers` (one group per module kind over all layers)
+- `summary`: `all` (every compared tensor), `weights` (every compared tensor that is not a norm
+  tensor), and `layers` (one group per module kind over all layers). Read `weights`, not `all`, to
+  judge how far a fine-tune moved: unchanged norm vectors can be very large (Gemma 3) and then
+  dominate `all`. For MedGemma 27B against Gemma 3 27B, `all` is 0.0059 and `weights` is 0.2234.
 - `tensors`: one row per compared tensor: `name`, `shape`, `layer`, `kind`, `rel`, `cosine`,
   `diff_norm`, `reference_norm`, and `reference_name` when the reference uses another name
 - `unmatched_member`, `unmatched_reference`: tensors that only one model has
