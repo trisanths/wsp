@@ -1,0 +1,580 @@
+// Fixture data and a simulated server, shaped like studio/CONTRACT.md.
+// Used when the page is opened with ?mock=1. Nothing here talks to a network.
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const lat = () => sleep(120 + Math.random() * 200);
+const now = () => Date.now() / 1000;
+const rid = (p) => p + Math.random().toString(16).slice(2, 8);
+const clone = (x) => JSON.parse(JSON.stringify(x));
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const pick = (a) => a[Math.floor(Math.random() * a.length)];
+function hash(s) { let x = 11; for (let i = 0; i < s.length; i++) x = (x * 33 + s.charCodeAt(i)) >>> 0; return x; }
+const noise = (s) => ((hash(s) % 1000) / 1000 - 0.5);
+
+const HOST = 'unsloth/Llama-3.2-1B-Instruct';
+const HOST_LAYERS = 16;
+const HOST_B = 1.24;
+
+/* ---------- catalog ---------- */
+const PARTS = [
+  { id: 'qmath_block_8_19', group: 'add', kind: 'block', label: 'Math block', donor: 'Qwen/Qwen2.5-Math-1.5B', layers: [8, 19], params_m: 570, default_at: 6, summary: 'Qwen2.5-Math layers 8-19', task: 'math', power: 0.62, short: 'qmath.l8-19' },
+  { id: 'qmath_l18_contrast512', group: 'add', kind: 'neurons', label: 'Math neurons', donor: 'Qwen/Qwen2.5-Math-1.5B', layers: [18, 18], params_m: 6, default_at: 9, summary: '512 MLP units, layer 18', task: 'math', power: 0.42, short: 'qmath.n512' },
+  { id: 'r1_block_10_21', group: 'add', kind: 'block', label: 'Step-by-step reasoning', donor: 'deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B', layers: [10, 21], params_m: 540, default_at: 7, summary: 'R1-Distill layers 10-21', task: 'math', power: 0.5, short: 'r1.l10-21' },
+  { id: 'lfm_experts_2', group: 'add', kind: 'experts', label: 'Fast recall', donor: 'LiquidAI/LFM2-8B-A1B', layers: [6, 9], params_m: 90, default_at: 10, summary: '2 experts, layers 6-9', task: 'general', power: 0.3, short: 'lfm.e2' },
+  { id: 'qcoder_block_6_17', group: 'add', kind: 'block', label: 'Code block', donor: 'Qwen/Qwen2.5-Coder-1.5B', layers: [6, 17], params_m: 560, default_at: 5, summary: 'Qwen2.5-Coder layers 6-17', task: 'code', power: 0.6, short: 'qcode.l6-17' },
+  { id: 'saul_block_4_13', group: 'add', kind: 'block', label: 'Legal reasoning', donor: 'Equall/Saul-1B', layers: [4, 13], params_m: 410, default_at: 4, summary: 'Saul layers 4-13', task: 'legal', power: 0.55, short: 'saul.l4-13' },
+];
+const MASKS = [
+  { id: 'mask_mmlupro_chemistry_llama1b', group: 'remove', label: 'Chemistry', summary: 'deletion mask, 0.17% of weights' },
+  { id: 'mask_mmlupro_law_llama1b', group: 'remove', label: 'Law', summary: 'deletion mask, 0.15% of weights' },
+  { id: 'mask_mmlupro_biology_llama1b', group: 'remove', label: 'Biology', summary: 'deletion mask, 0.12% of weights' },
+];
+const TRAIN = [
+  { id: 'lora', group: 'train', label: 'LoRA adapter', summary: 'rank 1 to 64' },
+  { id: 'heal', group: 'train', label: 'Heal', summary: 'trains glue only' },
+];
+const PART = Object.fromEntries(PARTS.map((p) => [p.id, p]));
+const MASK_IDS = new Set(MASKS.map((m) => m.id));
+
+/* ---------- wsp text ---------- */
+function programText(p) {
+  const L = [];
+  L.push('host ' + (p.host || HOST));
+  L.push('seed ' + (p.seed || 0));
+  const ids = [];
+  (function walk(n) { if (!n) return; if (n.op === 'use') ids.push(n.id); else { walk(n.a); walk(n.b); } })(p.masks);
+  if (ids.length) L.push('mask ' + ids.join(' | '));
+  for (const g of p.grafts || []) {
+    let s = 'graft ' + g.id + ' at ' + g.at;
+    if (g.glue_rank) s += ' rank ' + g.glue_rank;
+    L.push(s);
+  }
+  if (p.lora) L.push('lora rank ' + (p.lora.rank || 16));
+  if (p.heal) L.push('heal steps ' + p.heal.steps + ' data ' + (p.heal.data || 'gsm8k_train'));
+  return L.join('\n') + '\n';
+}
+function parseProgram(text) {
+  const prog = { host: null, seed: 0, masks: null, task_vectors: [], grafts: [], heal: null, lora: null };
+  const lines = text.split('\n');
+  const fail = (line, msg) => { const e = new Error(msg); e.line = line; e.status = 400; throw e; };
+  lines.forEach((raw, i) => {
+    const ln = i + 1;
+    const s = raw.replace(/#.*/, '').trim();
+    if (!s) return;
+    const t = s.split(/\s+/);
+    const kw = t[0];
+    const opts = (from, allowed) => {
+      const o = {};
+      for (let k = from; k < t.length; k += 2) {
+        if (!allowed.includes(t[k])) fail(ln, "unknown option '" + t[k] + "' for " + kw);
+        if (t[k + 1] == null) fail(ln, "option '" + t[k] + "' needs a value");
+        o[t[k]] = t[k + 1];
+      }
+      return o;
+    };
+    const int = (v, name) => { if (!/^-?\d+$/.test(v)) fail(ln, name + ' must be a whole number, got ' + v); return parseInt(v, 10); };
+    if (kw === 'host') { if (!t[1]) fail(ln, 'host needs a model name'); prog.host = t[1]; }
+    else if (kw === 'seed') prog.seed = int(t[1] || '', 'seed');
+    else if (kw === 'mask') {
+      const ids = s.slice(4).split('|').map((x) => x.trim()).filter(Boolean);
+      if (!ids.length) fail(ln, 'mask needs an id');
+      ids.forEach((id) => { if (!MASK_IDS.has(id)) fail(ln, "unknown mask '" + id + "'"); });
+      let e = { op: 'use', id: ids[0] };
+      for (let k = 1; k < ids.length; k++) e = { op: 'union', a: e, b: { op: 'use', id: ids[k] } };
+      prog.masks = e;
+    } else if (kw === 'graft') {
+      if (!t[1]) fail(ln, 'graft needs a part id');
+      if (!PART[t[1]]) fail(ln, "unknown part '" + t[1] + "'");
+      const o = opts(2, ['at', 'rank', 'glue_rank', 'control', 'seed']);
+      const g = { id: t[1], at: PART[t[1]].default_at, control: null, control_seed: 0, glue_rank: null };
+      if (o.at != null) { g.at = int(o.at, 'at'); if (g.at < 0 || g.at >= HOST_LAYERS) fail(ln, 'at must be 0 to ' + (HOST_LAYERS - 1)); }
+      if (o.rank != null || o.glue_rank != null) g.glue_rank = int(o.rank ?? o.glue_rank, 'rank');
+      prog.grafts.push(g);
+    } else if (kw === 'lora') {
+      const o = opts(1, ['rank', 'targets', 'alpha', 'layers', 'budget']);
+      prog.lora = { rank: o.rank != null ? int(o.rank, 'rank') : 16 };
+    } else if (kw === 'heal') {
+      const o = opts(1, ['steps', 'data', 'lr', 'batch_size', 'seq_len']);
+      prog.heal = { steps: o.steps != null ? int(o.steps, 'steps') : 300, data: o.data || 'gsm8k_train', lr: 0.0003, batch_size: 8, seq_len: 384 };
+    } else fail(ln, "unknown statement '" + kw + "'");
+  });
+  if (!prog.host) fail(1, 'a program needs a host line');
+  return prog;
+}
+function validateProgram(p) {
+  const errors = [];
+  (p.grafts || []).forEach((g, i) => {
+    if (!PART[g.id]) errors.push('graft ' + (i + 1) + ': unknown part ' + g.id);
+    if (g.at == null || g.at < 0 || g.at >= HOST_LAYERS) errors.push('graft ' + (i + 1) + ': at is out of range');
+  });
+  return errors;
+}
+
+/* ---------- scoring model ---------- */
+function relevance(spec, part) {
+  if (part.task === spec.task_type) return 1;
+  if (part.task === 'general') return 0.45;
+  return 0.28;
+}
+function fitOf(part, at) {
+  const d = Math.abs(at - part.default_at);
+  return clamp(0.78 - 0.045 * d + noise(part.id + '@' + at) * 0.08, 0.2, 0.95);
+}
+function paramsOf(p) {
+  let b = HOST_B;
+  for (const g of p.grafts || []) b += (PART[g.id] ? PART[g.id].params_m : 0) / 1000;
+  return Math.round(b * 100) / 100;
+}
+function evalProgram(spec, p) {
+  const fit = {};
+  let gain = 0;
+  let penalty = 0;
+  const gs = p.grafts || [];
+  gs.forEach((g, i) => {
+    const part = PART[g.id];
+    if (!part) return;
+    const f = fitOf(part, g.at);
+    fit[g.id + '@' + g.at] = Math.round(f * 100) / 100;
+    const glue = g.glue_rank ? 1 - Math.abs(Math.log2(g.glue_rank / 16)) * 0.05 : 0.95;
+    gain += part.power * (f - 0.4) * relevance(spec, part) * glue;
+    for (let j = 0; j < i; j++) if (Math.abs(gs[j].at - g.at) <= 2) penalty += 0.12;
+  });
+  if (gs.length >= 3) penalty += 0.1;
+  const healBonus = p.heal ? 0.02 + 0.025 * Math.min(p.heal.steps, 900) / 300 : -0.03 * (gs.length ? 1 : 0);
+  const loraBonus = p.lora ? 0.05 + 0.02 * Math.log2((p.lora.rank || 16) / 8) : 0;
+  const maskCount = (() => { let n = 0; (function w(x) { if (!x) return; if (x.op === 'use') n++; else { w(x.a); w(x.b); } })(p.masks); return n; })();
+  const scores = {};
+  let tsum = 0, tn = 0;
+  for (const b of spec.benchmarks) {
+    const nz = noise(JSON.stringify(p) + b.id) * 0.012;
+    if (b.kind === 'target') {
+      const lift = (gain + healBonus + loraBonus) * 0.66 * (b.id === 'yours' ? 1.05 : 1);
+      scores[b.id] = clamp(b.base + lift - penalty * 0.6 + nz, 0.01, 0.98);
+      tsum += scores[b.id]; tn++;
+    } else {
+      scores[b.id] = clamp(b.base - 0.006 * gs.length - 0.004 * maskCount - penalty * 1.3 + (p.heal ? 0.004 : 0) + nz, 0.01, 0.98);
+    }
+    scores[b.id] = Math.round(scores[b.id] * 1000) / 1000;
+  }
+  const collapsed = spec.benchmarks.some((b) => b.kind === 'guard' && scores[b.id] < b.floor * 0.7);
+  const combined = clamp((tn ? tsum / tn : 0) * 0.6 - (collapsed ? 0.12 : 0), 0, 1);
+  const first = spec.benchmarks.find((b) => b.kind === 'target');
+  let control = null;
+  let vs = null;
+  if (gs.length && first) {
+    const cs = Math.round(clamp(first.base + (scores[first.id] - first.base) * (0.35 + Math.random() * 0.15), 0, 1) * 1000) / 1000;
+    control = { scores: { [first.id]: cs } };
+    vs = Math.round((scores[first.id] - cs) * 1000) / 1000;
+  }
+  return { fit, scores, combined: Math.round(combined * 1000) / 1000, control, vs_control: vs, params_b: paramsOf(p), status: collapsed ? 'collapsed' : 'ok' };
+}
+function describe(p) {
+  const bits = [];
+  const gs = (p.grafts || []).map((g) => (PART[g.id] ? PART[g.id].short : g.id) + '@' + g.at + (g.glue_rank ? ' r' + g.glue_rank : ''));
+  let s = 'host' + (gs.length ? ' + ' + gs.join(' + ') : '');
+  const ids = [];
+  (function w(x) { if (!x) return; if (x.op === 'use') ids.push(x.id); else { w(x.a); w(x.b); } })(p.masks);
+  ids.forEach((id) => bits.push('- ' + id.replace('mask_mmlupro_', '').replace('_llama1b', '')));
+  if (p.lora) bits.push('lora r' + (p.lora.rank || 16));
+  if (p.heal) bits.push('heal ' + p.heal.steps);
+  return s + (bits.length ? ', ' + bits.join(', ') : '');
+}
+const progHash = (p) => hash(JSON.stringify(p)).toString(16).padStart(8, '0') + hash(describe(p)).toString(16).padStart(8, '0');
+
+/* ---------- specs ---------- */
+const BENCH_LIB = {
+  gsm8k: { id: 'gsm8k', name: 'GSM8K', kind: 'target', target: 0.5, base: 0.23, lora: 0.467, recommended: true },
+  humaneval: { id: 'humaneval', name: 'HumanEval', kind: 'target', target: 0.35, base: 0.19, lora: 0.31, recommended: true },
+  'mmlupro:law': { id: 'mmlupro:law', name: 'MMLU-Pro law', kind: 'target', target: 0.25, base: 0.11, lora: 0.21, recommended: true },
+  'mmlupro:chemistry': { id: 'mmlupro:chemistry', name: 'MMLU-Pro chemistry', kind: 'target', target: 0.25, base: 0.09, lora: 0.18, recommended: true },
+  if_guard: { id: 'if_guard', name: 'IFEval', kind: 'guard', floor: 0.4, base: 0.42, recommended: true },
+  mmlu_guard: { id: 'mmlu_guard', name: 'MMLU', kind: 'guard', floor: 0.3, base: 0.32, recommended: false },
+  'mmlupro:biology': { id: 'mmlupro:biology', name: 'MMLU-Pro biology', kind: 'target', base: 0.107, target: 0.25, lora: null },
+  arc: { id: 'arc', name: 'ARC Challenge', kind: 'target', base: 0.38, target: 0.5, lora: null },
+  hellaswag: { id: 'hellaswag', name: 'HellaSwag', kind: 'guard', base: 0.6, floor: 0.55 },
+  truthfulqa: { id: 'truthfulqa', name: 'TruthfulQA', kind: 'guard', base: 0.36, floor: 0.32 },
+};
+const TYPES = {
+  math: { title: 'Laptop math tutor', summary: 'Answers grade-school word problems with worked steps. CPU only.', bench: ['gsm8k', 'if_guard'], ing: ['qmath_block_8_19', 'qmath_l18_contrast512', 'r1_block_10_21'] },
+  code: { title: 'Small code helper', summary: 'Writes short Python functions from a plain description.', bench: ['humaneval', 'if_guard'], ing: ['qcoder_block_6_17', 'lfm_experts_2'] },
+  legal: { title: 'Contract reader', summary: 'Reads clauses and answers questions about them. No chemistry or biology.', bench: ['mmlupro:law', 'if_guard'], ing: ['saul_block_4_13', 'lfm_experts_2'] },
+  general: { title: 'Compact assistant', summary: 'A small general model tuned for the task you described.', bench: ['arc', 'if_guard'], ing: ['lfm_experts_2', 'r1_block_10_21'] },
+};
+function makeSpec(prompt, files, id) {
+  const low = (prompt || '').toLowerCase();
+  const type = /math|gsm|arith|algebra|word problem/.test(low) ? 'math' : /code|python|sql|function|program/.test(low) ? 'code' : /legal|law|contract|clause/.test(low) ? 'legal' : 'math';
+  const T = TYPES[type];
+  const bench = T.bench.map((k) => clone(BENCH_LIB[k]));
+  const frows = (files || []).map((f) => {
+    const rows = clamp(Math.round((f.size || 6000) / 55), 30, 400);
+    const sr = Math.round(rows / 3);
+    return { name: f.name, rows, score_rows: sr, heal_rows: rows - sr };
+  });
+  if (frows.length) bench.push({ id: 'yours', name: 'Your problems', kind: 'target', target: 0.6, base: 0.35, lora: 0.52, recommended: true });
+  const used = new Set(bench.map((b) => b.id));
+  const available = Object.values(BENCH_LIB).filter((b) => !used.has(b.id)).map((b) => { const c = clone(b); delete c.recommended; delete c.lora; return c; });
+  const maxp = /500m|0\.5b/.test(low) ? 1.3 : /laptop|cpu|phone/.test(low) ? 2.0 : 2.5;
+  return {
+    id: id || rid('sp_'), title: T.title, summary: T.summary, prompt: prompt || '', files: frows, task_type: type, host: HOST,
+    size: { max_params_b: maxp, min_b: 0.5, max_b: 8.0, host_params_b: HOST_B },
+    budget: { evals: 30, compute_min: 45, min_evals: 5, max_evals: 120 },
+    benchmarks: bench, available_benchmarks: available,
+    ingredients: T.ing.map((pid) => ({ part_id: pid, label: PART[pid].label, donor: PART[pid].donor, kind: PART[pid].kind })),
+    drafted_by: 'rules', stub: true,
+  };
+}
+const specs = new Map();
+function getSpec(id) {
+  if (!specs.has(id)) specs.set(id, makeSpec('A small model that solves grade-school math word problems step by step. It has to run on a laptop with no GPU.', [{ name: 'homework.csv', size: 6600 }], id));
+  return specs.get(id);
+}
+
+/* ---------- run simulation ---------- */
+const runs = new Map();
+const PHASES = [['thinking', 1], ['probing', 1], ['compiling', 1], ['scoring', 3]];
+const PLANNERS = [
+  { id: 'planner-1', name: 'Planner 1', blurb: 'explores whole donor blocks', style: 'blocks' },
+  { id: 'planner-2', name: 'Planner 2', blurb: 'explores small parts and taps', style: 'small' },
+  { id: 'planner-3', name: 'Planner 3', blurb: 'explores parts plus masks', style: 'masks' },
+];
+function newAgent(a) {
+  return { id: a.id, name: a.name, role: a.id.split('-')[0], blurb: a.blurb, style: a.style, status: 'thinking', now: 'Reading the spec', best: null, attempts: 0, collapses: 0, lessons: 0, nudges_pending: 0, phase: 0, ticks: 0, cur: null, thinking: [], tools: [], history: [], nudges: [], bias: {} };
+}
+function logAct(run, agent, kind, status, text) {
+  run.activity.push({ ts: now(), agent, kind, status, text });
+  if (run.activity.length > 200) run.activity.shift();
+}
+function think(a, text) { a.thinking.push({ ts: now(), text }); if (a.thinking.length > 40) a.thinking.shift(); }
+function tool(a, call, result, status = 'ok') { a.tools.push({ ts: now(), call, result, status }); if (a.tools.length > 40) a.tools.shift(); }
+
+function newRun(spec, seed) {
+  const run = {
+    id: 's0-swarm-' + Math.floor(now()), spec: clone(spec), status: 'running', started: now(), elapsed: 0,
+    evals_used: 0, evals_total: spec.budget.evals, compute_used: 0, compute_total: spec.budget.compute_min * 60,
+    base_scores: Object.fromEntries(spec.benchmarks.map((b) => [b.id, b.base])), best: null, board: [], activity: [], curve: [], uses: {},
+    agents: [newAgent({ id: 'analyst', name: 'Analyst', blurb: 'reads every result, writes the map' }), ...PLANNERS.map(newAgent), newAgent({ id: 'judge', name: 'Judge', blurb: 'ranks, runs controls, guards the budget' })],
+    seed: seed || null, tickN: 0,
+  };
+  const an = run.agents[0], ju = run.agents[4];
+  an.now = 'Waiting for the first results'; an.status = 'idle';
+  ju.now = 'Waiting for the first results'; ju.status = 'idle';
+  logAct(run, 'judge', 'start', 'info', 'Run started on the stub backend: ' + run.evals_total + ' evals, ' + spec.budget.compute_min + ' compute minutes.');
+  if (seed) logAct(run, 'judge', 'seed', 'info', 'Seeded with a program from the builder: ' + describe(seed));
+  runs.set(run.id, run);
+  ensureClock();
+  return run;
+}
+let clock = 0;
+function ensureClock() { if (!clock) clock = setInterval(() => runs.forEach(tickRun), 1000); }
+
+function genProgram(run, a) {
+  const spec = run.spec;
+  const rel = PARTS.filter((p) => p.task === spec.task_type || Math.random() < 0.25);
+  let pool = rel.length ? rel : PARTS;
+  if (a.bias.small) pool = [...pool].sort((x, y) => x.params_m - y.params_m).slice(0, 3);
+  if (a.bias.donor && a.lastDonor) pool = pool.filter((p) => p.donor !== a.lastDonor) || pool;
+  if (!pool.length) pool = PARTS;
+  const prog = { host: HOST, seed: 0, masks: null, task_vectors: [], grafts: [], heal: null, lora: null };
+  if (run.seed && run.tickN < 3 && a.id === 'planner-1') return clone(run.seed);
+  const n = a.style === 'blocks' ? (Math.random() < 0.25 ? 2 : 1) : 1;
+  for (let i = 0; i < n; i++) {
+    let part = a.style === 'small' ? pool.slice().sort((x, y) => x.params_m - y.params_m)[Math.floor(Math.random() * Math.min(2, pool.length))] : pick(pool);
+    if (a.style === 'blocks') part = pick(pool.filter((p) => p.kind === 'block').length ? pool.filter((p) => p.kind === 'block') : pool);
+    const at = clamp(part.default_at + pick([-3, -2, -1, -1, 0, 0, 1, 2, 4]), 1, HOST_LAYERS - 2);
+    prog.grafts.push({ id: part.id, at, control: null, control_seed: 0, glue_rank: pick([null, 8, 16, 16, 32, 64]) });
+    a.lastDonor = part.donor;
+  }
+  while (prog.grafts.length > 1 && paramsOf(prog) > spec.size.max_params_b) prog.grafts.pop();
+  if (prog.grafts.length && paramsOf(prog) > spec.size.max_params_b) prog.grafts = [];
+  if (a.style === 'masks' && Math.random() < 0.7) {
+    const m = pick(MASKS);
+    prog.masks = { op: 'use', id: m.id };
+  }
+  if (Math.random() < 0.85) prog.heal = { steps: pick([100, 300, 300, 600]), data: spec.task_type === 'math' ? 'gsm8k_train' : 'task_train', lr: 0.0003, batch_size: 8, seq_len: 384 };
+  if (Math.random() < 0.2) prog.lora = { rank: pick([8, 16, 32]) };
+  return prog;
+}
+
+function stepAgent(run, a) {
+  if (run.status !== 'running') return;
+  a.ticks++;
+  const [pname, plen] = PHASES[a.phase];
+  const spec = run.spec;
+  if (a.ticks === 1) {
+    a.status = pname;
+    if (pname === 'thinking') {
+      a.cur = genProgram(run, a);
+      const pend = a.nudges.find((n) => !n.applied);
+      if (pend) {
+        pend.applied = true; a.nudges_pending = Math.max(0, a.nudges_pending - 1);
+        const low = pend.text.toLowerCase();
+        if (/small|tiny|fewer param/.test(low)) a.bias.small = true;
+        if (/donor|different/.test(low)) a.bias.donor = true;
+        think(a, 'Nudge from you: "' + pend.text + '". I will use it for this attempt.');
+        if (/explain|plan/.test(low)) think(a, 'Plan: probe fit for two placements near the default layer, compile the better one, heal 300 steps, then score on the search split.');
+        logAct(run, a.id, 'nudge', 'info', 'read your nudge: ' + pend.text);
+      }
+      const g = a.cur.grafts[0];
+      const part = g && PART[g.id];
+      const best = run.best ? ' Best so far is ' + (run.best.scores[run.spec.benchmarks.find((b) => b.kind === 'target').id] * 100).toFixed(1) + '%.' : '';
+      think(a, part ? 'Try ' + part.label + ' at layer ' + g.at + ' with glue rank ' + (g.glue_rank || 'full') + '.' + best + ' The fit probe is free, so I check it before I spend an eval.' : 'Try a host-only program with heal, as a floor.' + best);
+      a.now = 'Planning ' + describe(a.cur);
+    } else if (pname === 'probing') {
+      const g = a.cur.grafts[0];
+      a.now = g ? 'Probing fit at L' + g.at + ' (free, no eval used)' : 'Checking the host (free)';
+      if (g) { const f = fitOf(PART[g.id], g.at); tool(a, 'probe(' + g.id + '@' + g.at + ')', 'fit ' + f.toFixed(2) + ', free'); }
+    } else if (pname === 'compiling') {
+      a.now = 'Compiling ' + describe(a.cur);
+      tool(a, 'compile(' + describe(a.cur) + ')', (30 + Math.floor(Math.random() * 40)) + ' s, ' + paramsOf(a.cur).toFixed(2) + 'B params');
+      if (a.cur.heal) tool(a, 'heal(' + a.cur.heal.steps + ' steps)', 'loss 2.10 to ' + (1.2 + Math.random() * 0.3).toFixed(2));
+    } else {
+      a.now = 'Scoring ' + describe(a.cur);
+      tool(a, 'eval(search split)', 'running', 'info');
+    }
+  }
+  if (a.ticks >= plen) {
+    a.ticks = 0;
+    a.phase++;
+    if (a.phase >= PHASES.length) { a.phase = 0; finishEval(run, a); }
+  }
+}
+
+function finishEval(run, a) {
+  if (run.evals_used >= run.evals_total) return;
+  const spec = run.spec;
+  const ev = evalProgram(spec, a.cur);
+  run.evals_used++;
+  run.compute_used += 35 + Math.floor(Math.random() * 25);
+  a.attempts++;
+  const tgt = spec.benchmarks.find((b) => b.kind === 'target');
+  const score = ev.scores[tgt.id];
+  const last = a.tools[a.tools.length - 1];
+  if (last && last.result === 'running') { last.result = 'done: ' + (score * 100).toFixed(1) + '%'; last.status = ev.status === 'ok' ? 'ok' : 'bad'; }
+  const h = progHash(a.cur);
+  a.history.push({ program_hash: h, describe: describe(a.cur), scores: ev.scores, combined: ev.combined, status: ev.status });
+  if (a.history.length > 30) a.history.shift();
+  if (ev.status === 'collapsed') { a.collapses++; a.lessons++; }
+  if (a.best == null || (ev.status === 'ok' && score > a.best)) a.best = ev.status === 'ok' ? score : a.best;
+  for (const g of a.cur.grafts) { const d = PART[g.id] && PART[g.id].donor; if (d) run.uses[d] = (run.uses[d] || 0) + 1; }
+  run.uses[HOST] = (run.uses[HOST] || 0) + 1;
+  const entry = { rank: 0, program_hash: h, describe: describe(a.cur), agent: a.id, scores: ev.scores, combined: ev.combined, status: ev.status, vs_control: null, params_b: ev.params_b, program: clone(a.cur), _pending: ev.vs_control, _age: 0 };
+  run.board.push(entry);
+  const curBest = run.curve.length ? run.curve[run.curve.length - 1].best : tgt.base;
+  const isBest = ev.status === 'ok' && ev.params_b <= spec.size.max_params_b && (!run.best || score > run.best.scores[tgt.id]);
+  run.curve.push({ eval: run.evals_used, best: isBest ? score : curBest, score });
+  if (isBest) {
+    run.best = { program_hash: h, describe: entry.describe, scores: ev.scores, combined: ev.combined, agent: a.id, program: clone(a.cur) };
+    logAct(run, a.id, 'new_best', 'ok', 'reached ' + (score * 100).toFixed(1) + '% on ' + tgt.name + ' with ' + entry.describe);
+  } else if (ev.status === 'collapsed') {
+    logAct(run, a.id, 'collapse', 'bad', 'collapsed a guard with ' + entry.describe + '. Lesson saved.');
+    think(a, 'That collapsed. Guards fell below their floor, so I will move the graft away from its neighbour and try again.');
+  } else {
+    logAct(run, a.id, 'eval', 'info', 'scored ' + (score * 100).toFixed(1) + '% with ' + entry.describe);
+  }
+  run.board.sort((x, y) => (y.status === 'ok') - (x.status === 'ok') || y.combined - x.combined);
+  run.board = run.board.slice(0, 14);
+  run.board.forEach((e, i) => { e.rank = i + 1; });
+}
+
+function tickRun(run) {
+  if (run.status === 'paused' || run.status === 'done' || run.status === 'error') return;
+  if (run.status === 'stopping') {
+    run.status = 'done';
+    run.agents.forEach((a) => { a.status = 'done'; a.now = 'Stopped. Best program kept.'; });
+    logAct(run, 'judge', 'stop', 'info', 'Run stopped. The best program is kept.');
+    return;
+  }
+  run.tickN++;
+  run.elapsed += 14;
+  const ready = run.board.length;
+  run.agents.forEach((a) => {
+    if (a.id.startsWith('planner')) stepAgent(run, a);
+  });
+  // analyst and judge
+  const an = run.agents[0], ju = run.agents[4];
+  if (ready >= 2 && run.tickN % 5 === 0) {
+    an.status = 'thinking';
+    const ok = run.board.filter((e) => e.status === 'ok');
+    const avgAt = ok.length ? ok.map((e) => e.program.grafts[0] ? e.program.grafts[0].at : 6).reduce((x, y) => x + y, 0) / ok.length : 6;
+    const txt = 'Map v' + Math.ceil(run.tickN / 5) + ': grafts near L' + Math.round(avgAt) + ' win. ' + (() => { const n = run.board.filter((e) => e.status !== 'ok').length; return n + (n === 1 ? ' collapse' : ' collapses') + ' so far, mostly stacked grafts.'; })();
+    an.now = txt; an.lessons++;
+    think(an, txt);
+    tool(an, 'read_results(' + ready + ' programs)', 'ok');
+    logAct(run, 'analyst', 'analyst_map', 'info', txt);
+  } else if (run.tickN % 5 === 2) an.status = 'idle';
+  const top = run.board.slice(0, 3).find((e) => e.vs_control == null && e._pending != null);
+  if (top) {
+    top._age++;
+    ju.status = 'scoring';
+    ju.now = 'Running the random-part control for ' + top.describe;
+    if (top._age >= 2) {
+      top.vs_control = top._pending;
+      ju.status = 'idle'; ju.attempts++;
+      ju.now = 'Control done for rank ' + top.rank + ': ' + (top.vs_control * 100).toFixed(1) + ' points above a random part';
+      logAct(run, 'judge', 'control', top.vs_control > 0.02 ? 'ok' : 'info', 'Random-part control for ' + top.describe + ': the part adds ' + (top.vs_control * 100).toFixed(1) + ' points.');
+      think(ju, ju.now);
+      tool(ju, 'control(random part)', '+' + (top.vs_control * 100).toFixed(1));
+    }
+  } else if (ju.status === 'scoring') ju.status = 'idle';
+  if (run.evals_used >= run.evals_total || run.compute_used >= run.compute_total) {
+    run.status = 'done';
+    run.agents.forEach((a) => { a.status = 'done'; a.now = 'Budget used. Finished.'; });
+    logAct(run, 'judge', 'done', 'ok', 'Run finished. Best program is ready to open in the builder.');
+  }
+}
+
+function snapshot(run) {
+  const spec = run.spec;
+  const srcs = [{ model: HOST, role: 'host', uses: run.uses[HOST] || 0 }];
+  Object.keys(run.uses).filter((k) => k !== HOST).forEach((k) => srcs.push({ model: k, role: 'donor', uses: run.uses[k] }));
+  const s = {
+    run_id: run.id, spec, status: run.status, stub: true, backend: 'stub', started_at: run.started, elapsed_s: run.elapsed,
+    budget: { evals_used: run.evals_used, evals_total: run.evals_total, compute_used_s: run.compute_used, compute_total_s: run.compute_total },
+    base_scores: run.base_scores, best: run.best,
+    agents: run.agents.map((a) => ({ id: a.id, name: a.name, role: a.role, blurb: a.blurb, status: run.status === 'paused' ? 'paused' : a.status, now: a.now, best: a.best, attempts: a.attempts, collapses: a.collapses, lessons: a.lessons, nudges_pending: a.nudges_pending })),
+    leaderboard: run.board.map((e) => { const c = { ...e }; delete c._pending; delete c._age; return c; }),
+    activity: run.activity, curve: run.curve, sources: srcs,
+  };
+  return clone(s);
+}
+function getRunObj(id) {
+  if (!runs.has(id)) {
+    const r = newRun(getSpec('sp_demo'));
+    runs.delete(r.id); r.id = id; runs.set(id, r);
+  }
+  return runs.get(id);
+}
+
+/* ---------- builders and jobs ---------- */
+const builders = new Map();
+const jobs = new Map();
+function getBuilder(id, specId) {
+  if (!builders.has(id)) builders.set(id, { id, spec_id: specId || 'sp_demo', budget: { evals_used: 0, evals_total: 12, compute_used_s: 0, compute_total_s: 2700 } });
+  return builders.get(id);
+}
+
+/* ---------- the api ---------- */
+export const mockApi = {
+  async health() { await lat(); return { ok: true, backend: 'stub', llm: 'none', stub: true }; },
+  async draftSpec(prompt, files) {
+    await sleep(2200);
+    if (!prompt || !prompt.trim()) { const e = new Error('Say what the model should do first.'); throw e; }
+    const s = makeSpec(prompt, files);
+    specs.set(s.id, s);
+    return clone(s);
+  },
+  async getSpec(id) { await lat(); return clone(getSpec(id)); },
+  async putSpec(id, spec) { await lat(); specs.set(id, clone({ ...spec, stub: true })); return clone(specs.get(id)); },
+  async createRun(spec_id, program) { await lat(); const r = newRun(getSpec(spec_id), program); return { run_id: r.id }; },
+  async getRun(id) { await lat(); return snapshot(getRunObj(id)); },
+  openStream(id, onSnap) {
+    const run = getRunObj(id);
+    onSnap(snapshot(run));
+    const t = setInterval(() => onSnap(snapshot(run)), 1000);
+    return () => clearInterval(t);
+  },
+  async pause(id) { await lat(); const r = getRunObj(id); if (r.status === 'running') r.status = 'paused'; return { ok: true }; },
+  async resume(id) { await lat(); const r = getRunObj(id); if (r.status === 'paused') r.status = 'running'; return { ok: true }; },
+  async stop(id) { await lat(); const r = getRunObj(id); if (r.status === 'running' || r.status === 'paused') r.status = 'stopping'; return { ok: true }; },
+  async getAgent(id, aid) {
+    await lat();
+    const run = getRunObj(id);
+    const a = run.agents.find((x) => x.id === aid);
+    if (!a) { const e = new Error('no such agent'); e.status = 404; throw e; }
+    const snap = snapshot(run).agents.find((x) => x.id === aid);
+    const cur = a.cur ? { program: clone(a.cur), text: programText(a.cur), describe: describe(a.cur) } : null;
+    return clone({ agent: snap, current: cur, thinking: a.thinking, tools: a.tools, history: a.history, nudges: a.nudges });
+  },
+  async nudge(id, aid, text) {
+    await lat();
+    const run = getRunObj(id);
+    const a = run.agents.find((x) => x.id === aid);
+    if (!text || !text.trim()) { throw new Error('Write something first.'); }
+    a.nudges.push({ ts: now(), text, applied: false });
+    a.nudges_pending++;
+    logAct(run, aid, 'nudge_sent', 'info', 'You sent a nudge: ' + text);
+    return { ok: true };
+  },
+  async catalog() { await lat(); return clone({ stub: true, host: { model: HOST, layers: HOST_LAYERS, params_b: HOST_B }, parts: PARTS.map(({ task, power, short, ...p }) => p), masks: MASKS, train: TRAIN }); },
+  async programText(program) { await sleep(60); return { text: programText(program) }; },
+  async programParse(text) { await sleep(80); return { program: parseProgram(text) }; },
+  async programValidate(program) { await sleep(60); return { errors: validateProgram(program) }; },
+  async createBuilder(spec_id) { await lat(); const id = rid('b_'); const b = getBuilder(id, spec_id); return { builder_id: id, budget: clone(b.budget) }; },
+  async builderAction(id, program, action) {
+    await lat();
+    const b = getBuilder(id);
+    const spec = getSpec(b.spec_id);
+    const jid = rid('j_');
+    jobs.set(jid, { id: jid, bid: id, action, program: clone(program), spec, readyAt: Date.now() + 1000 + Math.random() * 1000, done: null });
+    return { job_id: jid };
+  },
+  async getJob(jid) {
+    await sleep(80);
+    const j = jobs.get(jid);
+    if (!j) { const e = new Error('no such job'); e.status = 404; throw e; }
+    const base = { job_id: jid, action: j.action, stub: true, error: null };
+    if (Date.now() < j.readyAt) return { ...base, status: Date.now() < j.readyAt - 1500 ? 'queued' : 'running', result: null, budget: clone(getBuilder(j.bid).budget) };
+    if (!j.done) {
+      const b = getBuilder(j.bid);
+      let p = clone(j.program);
+      if (j.action === 'heal' && !p.heal) p.heal = { steps: 300, data: 'gsm8k_train', lr: 0.0003, batch_size: 8, seq_len: 384 };
+      if (j.action === 'train') { if (!p.lora) p.lora = { rank: 16 }; if (!p.heal) p.heal = { steps: 300, data: 'gsm8k_train', lr: 0.0003, batch_size: 8, seq_len: 384 }; }
+      const ev = evalProgram(j.spec, p);
+      let result;
+      if (j.action === 'compile') {
+        result = { fit: ev.fit, params_b: ev.params_b, compute_s: 25 };
+        b.budget.compute_used_s += 25;
+      } else {
+        if (b.budget.evals_used >= b.budget.evals_total) { j.done = { ...base, status: 'error', result: null, budget: clone(b.budget), error: 'No evals left in this session.' }; return j.done; }
+        const cs = 90 + Math.floor(Math.random() * 120);
+        result = { fit: ev.fit, scores: ev.scores, combined: ev.combined, control: ev.control, params_b: ev.params_b, compute_s: cs, status: ev.status };
+        b.budget.evals_used++; b.budget.compute_used_s += cs;
+      }
+      j.done = { ...base, status: 'done', result, budget: clone(b.budget) };
+    }
+    return clone(j.done);
+  },
+  async suggest(id, program) {
+    await sleep(350);
+    const b = getBuilder(id);
+    const spec = getSpec(b.spec_id);
+    const out = [];
+    const clonep = () => clone(program);
+    const best = PARTS.filter((p) => p.task === spec.task_type).sort((x, y) => y.power - x.power)[0] || PARTS[0];
+    if (!program.grafts.length) {
+      const p = clonep(); p.grafts.push({ id: best.id, at: best.default_at, control: null, control_seed: 0, glue_rank: 16 });
+      out.push({ title: 'Add ' + best.label + ' at L' + best.default_at + '.', detail: 'It is the best-fitting ' + spec.task_type + ' part in the catalog. Free probe shows fit ' + fitOf(best, best.default_at).toFixed(2) + '.', tag: 'likely +8 to 14', program: p });
+    }
+    program.grafts.forEach((g, i) => {
+      const part = PART[g.id];
+      if (part && g.at !== part.default_at) {
+        const p = clonep(); p.grafts[i].at = part.default_at;
+        out.push({ title: 'Move ' + part.label + ' to L' + part.default_at + '.', detail: 'Free probe: fit ' + fitOf(part, part.default_at).toFixed(2) + ' vs ' + fitOf(part, g.at).toFixed(2) + ' at L' + g.at + '.', tag: 'likely +1 to 2', program: p });
+      }
+    });
+    if (program.grafts.length && !program.heal) {
+      const p = clonep(); p.heal = { steps: 300, data: 'gsm8k_train', lr: 0.0003, batch_size: 8, seq_len: 384 };
+      out.push({ title: 'Add a heal pass of 300 steps.', detail: 'Grafts without a heal usually lose a few points. Heal trains only the glue.', tag: 'likely +2 to 3', program: p });
+    }
+    if (program.grafts.length && !program.lora) {
+      const p = clonep(); p.lora = { rank: 16 };
+      if (!p.heal) p.heal = { steps: 300, data: 'gsm8k_train', lr: 0.0003, batch_size: 8, seq_len: 384 };
+      out.push({ title: 'Add a rank 16 LoRA on top.', detail: 'It closes part of the gap to the fine-tuning bar.', tag: 'bigger change', program: p });
+    }
+    if (program.masks) {
+      const p = clonep(); p.masks = null;
+      out.push({ title: 'Drop the deletion mask.', detail: 'It saves no size and costs a little on the guards.', tag: 'cleanup', program: p });
+    }
+    if (program.grafts.length > 2) {
+      const p = clonep(); p.grafts = p.grafts.slice(0, 2);
+      out.push({ title: 'Keep only two grafts.', detail: 'Three or more close together tend to collapse the guards.', tag: 'cleanup', program: p });
+    }
+    return { suggestions: out.slice(0, 4) };
+  },
+  async handoff(id, program) {
+    await lat();
+    const b = getBuilder(id);
+    const r = newRun(getSpec(b.spec_id), program);
+    return { run_id: r.id };
+  },
+};
