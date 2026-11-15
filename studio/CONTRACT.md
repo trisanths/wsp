@@ -187,7 +187,7 @@ All bodies are JSON unless marked.
 
 | Method | Path | Body | Returns |
 |---|---|---|---|
-| GET | `/api/health` | | `{"ok": true, "backend": "stub", "llm": "none", "stub": true}` |
+| GET | `/api/health` | | `{"ok": true, "product": "Sapien", "backend": "stub", "llm": "none", "llm_model": null, "stub": true, "heal_note": null}`. `heal_note` is a warning string on real backends while the heal recipe is being fixed; show it next to any result that used a heal (`heal`, `train`, or a program with a heal or LoRA). |
 | POST | `/api/spec` | multipart: `prompt` (text), `files` (0..n files) | Spec |
 | GET | `/api/spec/{id}` | | Spec |
 | PUT | `/api/spec/{id}` | Spec (edited) | Spec |

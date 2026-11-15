@@ -146,18 +146,94 @@ def estimate(program, ctx):
         total += part_total + glue
         run += part_run + glue
         parts.append({"id": part_id, "params_b": round(part_total + glue, 4)})
+    unsized = []
     for key in ("carve", "splice", "base_source"):
         if program.get(key) is not None:
+            unsized.append("a " + key + " step")
             unknown.append("a " + key + " step")
+    add_total, add_run = inserts_size_b(program, ctx, unsized)
+    total += add_total
+    run += add_run
+    add_total, add_run = experts_size_b(program, ctx, unsized)
+    total += add_total
+    run += add_run
     return {"total_params_b": round(total, 4), "run_params_b": round(run, 4),
             "heal_min": round(heal_minutes(program, run), 2), "host_params_b": round(ctx.host_b, 4),
             "added_params_b": round(total - ctx.host_b, 4), "unknown": unknown, "parts": parts,
-            "estimated": True}
+            "unsized_steps": unsized, "estimated": True}
+
+
+def stitch_b(kind, rank, hidden_width, host_hidden, donor_hidden):
+    """Billions of parameters in the two stitches of an inserted layer or an expert (rough)."""
+    if kind is None or kind == "identity":
+        if host_hidden == donor_hidden:
+            return 0.0
+        kind = "linear"
+    if kind == "linear":
+        return 2.0 * host_hidden * donor_hidden / 1e9
+    if kind == "lowrank":
+        return 2.0 * (rank or 1) * (host_hidden + donor_hidden) / 1e9
+    width = hidden_width or host_hidden
+    return 2.0 * (host_hidden + donor_hidden) * width / 1e9
+
+
+def inserts_size_b(program, ctx, unsized):
+    """(total, run) billions added by inserted donor layers. A donor with no profile goes to unsized."""
+    total = 0.0
+    run = 0.0
+    for item in program.get("inserts") or []:
+        info = ctx.models.get(item.get("donor"))
+        per_layer = None
+        if info is not None:
+            per_layer = sizes.layer_params(info)
+        if per_layer is None:
+            unsized.append("inserted layers from " + str(item.get("donor")))
+            continue
+        first, last = item["layers"]
+        count = max(1, int(last) - int(first) + 1)
+        donor_hidden = info.get("hidden") or ctx.host_hidden
+        glue = stitch_b(item.get("stitch"), item.get("stitch_rank"), item.get("stitch_hidden"), ctx.host_hidden,
+                        donor_hidden)
+        total += per_layer * count + glue
+        run += per_layer * count * sizes.active_ratio(info) + glue
+    return total, run
+
+
+MLP_SHARE = 2.0 / 3.0
+
+
+def experts_size_b(program, ctx, unsized):
+    """(total, run) billions added by routed donor experts: each donor adds its MLPs for the host's layers.
+
+    An MLP is taken as two thirds of a layer, as in composer/sizes.py. The run size adds the top_k - 1 largest
+    donor MLP sets, so it is an upper bound.
+    """
+    spec = program.get("experts")
+    if not spec:
+        return 0.0, 0.0
+    n_host = ctx.n_host_layers()
+    donor_sets = []
+    for donor in spec.get("donors") or []:
+        info = ctx.models.get(donor)
+        per_layer = None
+        if info is not None:
+            per_layer = sizes.layer_params(info)
+        if per_layer is None:
+            unsized.append("experts from " + str(donor))
+            continue
+        count = min(n_host, int(info.get("layers") or n_host))
+        glue = stitch_b(spec.get("stitch"), spec.get("stitch_rank"), spec.get("stitch_hidden"), ctx.host_hidden,
+                        info.get("hidden") or ctx.host_hidden)
+        donor_sets.append(per_layer * MLP_SHARE * count + glue * count)
+    total = sum(donor_sets)
+    donor_sets.sort(reverse=True)
+    extra_run = sum(donor_sets[:max(0, int(spec.get("top_k") or 1) - 1)])
+    return total, extra_run
 
 
 def fmt_b(value):
-    """3 significant figures for a size in billions."""
-    return ("%.2f" % value).rstrip("0").rstrip(".")
+    """A size in billions with up to 3 decimals, so a build just over a limit does not read as equal to it."""
+    return ("%.3f" % value).rstrip("0").rstrip(".")
 
 
 def fmt_min(value):
@@ -171,6 +247,9 @@ def limit_problems(limits, est):
     problems = []
     if limits is None:
         return problems
+    if len(est.get("unsized_steps") or []) > 0:
+        problems.append("The studio cannot size " + ", ".join(est["unsized_steps"]) + ", so it cannot show that " +
+                        "this build fits the limits. Remove it or build it outside the studio.")
     max_total = limits.get("max_total_params_b")
     if max_total is not None and est["total_params_b"] > max_total + EPSILON:
         problems.append("Over the total size limit. This build is estimated at " + fmt_b(est["total_params_b"]) +

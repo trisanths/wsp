@@ -14,6 +14,7 @@ from wsp.swarm import space
 from studio.server import compare
 from studio.server import library
 from studio.server import programs
+from studio.server import sizing
 
 ACTIVITY_LIMIT = 200
 THINKING_LIMIT = 100
@@ -641,6 +642,11 @@ class RunState:
         if entry["status"] != "ok":
             comparison["verdict"] = "failed"
             comparison["headline"] = "Failed attempt. The build ended with status " + str(entry["status"]) + "."
+            return comparison
+        over = sizing.measured_problems(self.spec.get("limits"), entry["params_b"])
+        if len(over) > 0:
+            comparison["verdict"] = "failed"
+            comparison["headline"] = "Failed attempt. " + " ".join(over)
         return comparison
 
     def best_locked(self, leaderboard):

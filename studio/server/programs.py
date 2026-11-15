@@ -57,7 +57,7 @@ def validate(program, catalog, config):
 
 
 def readable(program, catalog=None):
-    """A short name a person can read, for example "Math block L8-19 at L6 + Qwen2.5-7B tap at L10, heal 300".
+    """A short name a person can read, for example "Math block L8-19 at L6, heal 300".
 
     Parts use their palette label when the catalog has them, else the swarm's
     short name. A random-part control reads as "random part".
@@ -77,8 +77,6 @@ def readable(program, catalog=None):
         if at is not None:
             label = label + " at L" + str(at)
         pieces.append(label)
-    for tap in (program or {}).get("taps") or []:
-        pieces.append(catalog_mod.donor_short(tap.get("donor")) + " tap at L" + str(tap.get("at")))
     for mask_id in ps.mask_ids(program or {}):
         pieces.append("minus " + catalog_mod.mask_label(mask_id).lower())
     lora = (program or {}).get("lora")

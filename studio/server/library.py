@@ -177,9 +177,23 @@ def model_info(data):
             "status": data.get("status"), "title": data.get("title")}
 
 
+def merge_atlas(out, by_id, entry):
+    """Add an atlas entry, or add its skill to the entry with the same id (one block can serve several skills)."""
+    found = by_id.get(entry["id"])
+    if found is None:
+        by_id[entry["id"]] = entry
+        out.append(entry)
+        return
+    for skill in entry["skills"]:
+        if skill not in found["skills"]:
+            found["skills"].append(skill)
+            found["evidence"] = found["evidence"] + "; also chosen by the " + skill + " map"
+
+
 def atlas_block_entries(path):
     """Inserted-layer entries from the atlas layer maps and expert entries from its expert maps."""
     out = []
+    by_id = {}
     for file_path in sorted(glob.glob(os.path.join(path, "*.json"))):
         data = read_json(file_path)
         if not isinstance(data, dict) or not data.get("model"):
@@ -197,11 +211,12 @@ def atlas_block_entries(path):
                 text = "atlas " + skill + " layer map, " + model
                 if share is not None:
                     text = text + ": the block holds " + short_number(share) + " of the positive layer-drop mass"
-                if index == 0 and held is not None:
-                    text = text + " (checked on held-out texts: " + short_number(held) + ")"
-                out.append({
-                    "id": "block/" + model + "/" + str(block[0]) + "-" + str(block[1]),
-                    "catalog_id": "block/" + model + "/" + str(block[0]) + "-" + str(block[1]),
+                    text = text + ", measured on the texts that chose it, so optimistic"
+                if held is not None:
+                    text = text + ". Blocks chosen on half the texts held " + short_number(held) + " of the mass on the other half"
+                part_id = "block/" + model + "/" + str(block[0]) + "-" + str(block[1])
+                merge_atlas(out, by_id, {
+                    "id": part_id, "catalog_id": part_id,
                     "kind": "inserted_layer", "title": model + " layers " + str(block[0]) + " to " + str(block[1]) +
                     " for " + skill, "status": "candidate", "status_reason": None, "evidence": text,
                     "model": model, "layers": [block[0], block[1]], "units": None, "params_b": None,
@@ -214,8 +229,9 @@ def atlas_block_entries(path):
             for layer, ids in sorted(per_layer.items(), key=lambda pair: str(pair[0])):
                 if not ids:
                     continue
-                out.append({
-                    "id": "expert/" + model + "/" + str(layer), "catalog_id": "expert/" + model + "/" + str(layer),
+                part_id = "expert/" + model + "/" + str(layer)
+                merge_atlas(out, by_id, {
+                    "id": part_id, "catalog_id": part_id,
                     "kind": "expert", "title": model + " layer " + str(layer) + " experts for " + skill,
                     "status": "candidate", "status_reason": None,
                     "evidence": "atlas " + skill + " expert map: " + str(len(ids)) + " experts picked more often on " +

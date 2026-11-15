@@ -365,10 +365,15 @@ def clean_prompt(prompt):
     return re.sub(r"\s+", " ", str(prompt or "")).strip()
 
 
+# A size followed by "per token" or "active" is a per-token limit, not the total.
+NOT_PER_TOKEN = r"(?!\s*(?:params\s+|parameters\s+)?(?:per[ -]token|active))"
+
+
 def size_from_prompt(prompt, host_params):
     """The size limit in billions of parameters from words like laptop, phone or 'under 2B'."""
     text = clean_prompt(prompt).lower()
-    match = re.search(r"(?:under|below|less than|at most|max(?:imum)?|up to|<=?)\s*(\d+(?:\.\d+)?)\s*b\b", text)
+    match = re.search(r"(?:under|below|less than|at most|max(?:imum)?|up to|<=?)\s*(\d+(?:\.\d+)?)\s*b\b" + NOT_PER_TOKEN,
+                      text)
     if match is not None:
         return clamp_size(float(match.group(1)), host_params)
     for word, value in SIZE_WORDS:
@@ -379,7 +384,7 @@ def size_from_prompt(prompt, host_params):
 
 RUN_PATTERNS = [
     r"(\d+(?:\.\d+)?)\s*b\s+(?:params\s+|parameters\s+)?(?:per[ -]token|active)",
-    r"(?:per[ -]token|active|runs?|running)\D{0,16}?(\d+(?:\.\d+)?)\s*b\b",
+    r"\b(?:per[ -]token|active|runs?|running)\b\D{0,16}?(\d+(?:\.\d+)?)\s*b\b",
 ]
 HEAL_PATTERNS = [
     r"(?:heal|healing|train|training)\D{0,24}?(\d+(?:\.\d+)?)\s*(minutes?|mins?|hours?|hrs?|h)\b",

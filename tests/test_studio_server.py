@@ -89,7 +89,7 @@ def good_program(client, heal=True):
 def test_health(client):
     body = client.get("/api/health").json()
     assert body == {"ok": True, "product": "Sapien", "backend": "stub", "llm": "none", "llm_model": None,
-                    "stub": True}
+                    "stub": True, "heal_note": None}
 
 
 def test_spec_from_prompt_and_upload(client):

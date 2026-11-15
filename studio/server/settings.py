@@ -100,6 +100,22 @@ def is_stub():
     return backend() == "stub"
 
 
+# The compiler session found on 2026-11-15 that healing on dataset gold text damages
+# the base (Qwen2.5-1.5B with only a LoRA heal: GSM8K 72.0 to about 61, MATH-500 55.4
+# to about 29). The fixed heal (distillation from the donor, a KL-to-base term and a
+# practice-set guard) is being built in wsp/synth.py. Until it lands, results that
+# used a heal on real GPUs are labeled as not reliable.
+HEAL_NOTE = ("The heal recipe is being fixed. Healing on dataset text currently damages the base model, "
+             "so scores after a heal are not reliable yet.")
+
+
+def heal_note():
+    """The warning to show on healed results, or None on the stub backend (its numbers are made up anyway)."""
+    if is_stub():
+        return None
+    return HEAL_NOTE
+
+
 def out_dir():
     """Where specs, uploads and run files go. outputs/studio unless WSP_STUDIO_OUT is set."""
     path = os.environ.get("WSP_STUDIO_OUT", "").strip()

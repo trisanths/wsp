@@ -67,10 +67,14 @@ class Controller:
         state = self.state
         if state.size_ctx is None:
             return True
-        try:
-            estimate, problems = sizing.check(program, state.spec.get("limits"), state.size_ctx)
-        except Exception:
-            return True
+        problems = sizing.forbidden_problems(program)
+        if len(problems) == 0:
+            try:
+                estimate = sizing.estimate(program, state.size_ctx)
+                problems = sizing.limit_problems(state.spec.get("limits"), estimate)
+            except Exception as error:
+                # A size that cannot be estimated cannot be shown to fit, so the program is not scored.
+                problems = ["The size of this program could not be estimated (" + type(error).__name__ + ")."]
         if len(problems) == 0:
             return True
         state.note_refused(state.agent_id_for(agent_name), space.describe(program), problems)

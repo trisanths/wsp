@@ -126,7 +126,9 @@ def submit_action(session, program, action):
     """Queue a builder action. Returns the job id. Raises BuilderError for a bad request."""
     if action not in ("compile", "heal", "train", "score"):
         raise BuilderError("unknown action: " + str(action))
-    clean = check_program(session, program)
+    clean = check_program(session, program, enforce_limits=False)
+    clean = program_for_action(session, clean, action)
+    check_limits(session, clean)
     job = {"job_id": "j_" + uuid.uuid4().hex[:8], "action": action, "status": "queued",
            "stub": session.env.is_stub(), "result": None, "budget": session.budget_dict(), "error": None,
            "lock": threading.Lock()}
@@ -153,11 +155,28 @@ def check_program(session, program, enforce_limits=True):
     if len(errors) > 0:
         raise BuilderError("the program is not valid: " + "; ".join(errors))
     if enforce_limits:
-        estimate = sizing.estimate(clean, session.size_ctx)
-        problems = sizing.limit_problems(session.limits(), estimate)
-        if len(problems) > 0:
-            raise BuilderError(" ".join(problems))
+        check_limits(session, clean)
     return clean
+
+
+def check_limits(session, program):
+    """Raise BuilderError with a plain message when the program is over a limit of the spec."""
+    estimate = sizing.estimate(program, session.size_ctx)
+    problems = sizing.limit_problems(session.limits(), estimate)
+    if len(problems) > 0:
+        raise BuilderError(" ".join(problems))
+
+
+def program_for_action(session, program, action):
+    """The program an action runs. Heal and train add a default heal (train adds a LoRA too).
+
+    The limits are checked on this program, so the default heal steps count against the heal limit.
+    """
+    if action == "heal":
+        return with_default_heal(session, program)
+    if action == "train":
+        return with_default_heal(session, with_lora(program))
+    return program
 
 
 def size_report(session, program):

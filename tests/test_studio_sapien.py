@@ -393,3 +393,125 @@ def test_library_reads_once_and_reloads_on_request(tmp_path, monkeypatch):
     monkeypatch.delenv("WSP_STUDIO_LIBRARY")
     monkeypatch.delenv("WSP_STUDIO_ATLAS")
     library.get(reload=True)
+
+
+# Regression tests from the verification pass.
+
+def test_best_model_is_the_highest_score_over_every_score_key(small_library):
+    models = library.get()["models"]
+    models["Small/harness"] = {"hf_id": "Small/harness", "params_b": 1.5, "hidden": 1024, "layers": 16,
+                               "scores": {"gsm8k_search_harness": {"value": 0.45, "split": "s"}}}
+    models["Mid/raw"] = {"hf_id": "Mid/raw", "params_b": 7.0, "hidden": 4096, "layers": 28,
+                         "scores": {"gsm8k_search_raw": {"value": 0.765, "split": "s"}}}
+    found = compare.best_model_for("gsm8k", 8.0, models)
+    assert found[0] == 0.765
+    assert found[1] == "Mid/raw"
+    assert compare.best_model_for("gsm8k", 2.0, models)[1] == "Small/harness"
+
+
+def comparison_state(limit_total):
+    from studio.server.runstate import RunState
+    spec = make_spec_dict(total=limit_total)
+    config = {"host": HOST, "eval_budget": 6, "compute_budget_s": 100}
+    return RunState("r1", spec, config, "stub", 1.24, 1, ["gsm8k"])
+
+
+def test_a_measured_size_over_the_limit_is_a_failed_attempt_in_a_run():
+    state = comparison_state(1.3)
+    entry = {"program_hash": "h", "scores": {"gsm8k": 0.9}, "params_b": 1.4, "status": "ok"}
+    state.controls["h"] = {"gsm8k": 0.1}
+    state.heldout["h"] = {"gsm8k": 0.9}
+    over = state.comparison_locked(entry)
+    assert over["verdict"] == "failed"
+    assert "Over the total size limit" in over["headline"]
+    fits = state.comparison_locked(dict(entry, params_b=1.3))
+    assert fits["verdict"] != "failed" or "Over the total size limit" not in fits["headline"]
+
+
+def test_a_limit_check_that_cannot_estimate_refuses_the_program(client, monkeypatch):
+    spec = make_spec(client)
+    run_id = start_run(client, spec)
+    wait_done(client, run_id)
+    run = runs.get_run(run_id)
+    program = good_program(client)
+
+    def broken(program, ctx):
+        raise KeyError("no profile")
+
+    monkeypatch.setattr(sizing, "estimate", broken)
+    assert run.controller.admit("planner-1", program) is False
+    assert run.controller.admit("planner-1", tap_program()) is False
+
+
+def test_heal_and_train_check_the_default_heal_against_the_heal_limit(client):
+    spec = small_limit_spec(client, 4.0, run=4.0, heal=1)
+    builder_id = client.post("/api/builder", json={"spec_id": spec["id"]}).json()["builder_id"]
+    part = math_part(client)
+    no_heal = ps.make_program(HOST, [ps.make_graft(part["id"], part["default_at"], glue_rank=64)])
+    path = "/api/builder/" + builder_id + "/action"
+    assert client.post(path, json={"program": no_heal, "action": "score"}).status_code == 200
+    for action in ("heal", "train"):
+        response = client.post(path, json={"program": no_heal, "action": action})
+        assert response.status_code == 400, action
+        assert "heal time limit" in response.json()["error"]
+
+
+def test_carve_splice_and_unknown_donors_cannot_pass_a_limit():
+    est = {"total_params_b": 1.24, "run_params_b": 1.24, "heal_min": 1.0, "host_params_b": 1.24,
+           "added_params_b": 0.0, "unsized_steps": ["a splice step"]}
+    problems = sizing.limit_problems({"max_total_params_b": 2.0, "max_run_params_b": 2.0, "max_heal_min": 20}, est)
+    assert len(problems) == 1
+    assert "a splice step" in problems[0]
+
+
+def test_inserted_layers_and_experts_count_toward_the_size(client):
+    spec = make_spec(client)
+    builder_id = client.post("/api/builder", json={"spec_id": spec["id"]}).json()["builder_id"]
+    from studio.server import builder as builder_mod
+    session = builder_mod.get_session(builder_id)
+    base = ps.make_program(HOST)
+    plain = sizing.estimate(base, session.size_ctx)
+    with_insert = dict(base)
+    with_insert["inserts"] = [{"donor": "Qwen/Qwen2.5-7B-Instruct", "layers": [10, 13], "at": 6, "stitch": "linear",
+                               "stitch_rank": None, "stitch_hidden": None, "part_lora_rank": None,
+                               "gate_init": 0.0, "control": None, "control_seed": 0}]
+    inserted = sizing.estimate(with_insert, session.size_ctx)
+    assert inserted["total_params_b"] > plain["total_params_b"] + 0.3
+    assert inserted["unsized_steps"] == []
+    with_experts = dict(base)
+    with_experts["experts"] = {"donors": ["Qwen/Qwen2.5-Math-1.5B"], "top_k": 1, "stitch": "linear"}
+    moe = sizing.estimate(with_experts, session.size_ctx)
+    assert moe["total_params_b"] > plain["total_params_b"] + 0.3
+    assert moe["run_params_b"] == plain["run_params_b"]
+    unknown = dict(base)
+    unknown["inserts"] = [dict(with_insert["inserts"][0], donor="No/such-model")]
+    assert sizing.estimate(unknown, session.size_ctx)["unsized_steps"] != []
+
+
+def test_atlas_blocks_are_listed_once_and_say_the_mass_is_optimistic(tmp_path, monkeypatch):
+    atlas = tmp_path / "atlas"
+    atlas.mkdir()
+    layer_map = {"blocks": [[12, 19], [3, 4]], "block_mass": [0.64, 0.2], "heldout": {"check_mass": 0.5}}
+    entry = {"model": "Qwen/Qwen2.5-7B-Instruct", "layer_maps": {"math": layer_map, "code": layer_map}}
+    (atlas / "one.json").write_text(json.dumps(entry))
+    found = library.atlas_block_entries(str(atlas))
+    ids = [item["id"] for item in found]
+    assert len(ids) == len(set(ids)) == 2
+    first = found[0]
+    assert first["skills"] == ["code", "math"]
+    assert "optimistic" in first["evidence"]
+    assert "also chosen by the math map" in first["evidence"]
+    assert "held 0.5 of the mass on the other half" in found[1]["evidence"]
+
+
+def test_a_per_token_size_is_not_read_as_the_total_limit():
+    from studio.server import specs as specs_mod
+    assert specs_mod.size_from_prompt("up to 2B per token, laptop", 1.24) != 2.0
+    assert specs_mod.run_limit_from_prompt("up to 2B per token", 4.0, 1.24) == 2.0
+    assert specs_mod.size_from_prompt("a model under 3B", 1.24) == 3.0
+    assert specs_mod.run_limit_from_prompt("prune it to 3B", 4.0, 1.24) == 4.0
+
+
+def test_programs_with_taps_have_no_readable_tap_name():
+    from studio.server import programs
+    assert "tap" not in programs.readable(tap_program())

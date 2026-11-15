@@ -66,7 +66,7 @@ async def read_json(request):
 
 def health_body():
     return {"ok": True, "product": "Sapien", "backend": settings.backend(), "llm": settings.llm(),
-            "llm_model": settings.llm_model(), "stub": settings.is_stub()}
+            "llm_model": settings.llm_model(), "stub": settings.is_stub(), "heal_note": settings.heal_note()}
 
 
 @app.get("/api/health")
