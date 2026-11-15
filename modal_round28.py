@@ -665,12 +665,15 @@ def short_row(row):
 
 @app.local_entrypoint()
 def main(only: str = "", requests: str = "", smoke: bool = False, estimate_only: bool = False,
-         check: bool = False, tag: str = "main", spawn: bool = False):
+         check: bool = False, tag: str = "main", spawn: bool = False,
+         split: bool = False):
     if check:
         print(check_data.remote(), flush=True)
         return
     names = select_cells(only=only, requests=requests, smoke=smoke)
     chunks = make_chunks(names)
+    if split:
+        chunks = [[name] for name in names]
     print(f"{len(names)} cells in {len(chunks)} containers: {names}", flush=True)
     if estimate_only:
         for name in names:
