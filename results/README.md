@@ -728,3 +728,14 @@ MBPP train and prompt), no heal, one ranking, one greedy run per cell, vLLM
 - Per-token parameters stay near 21.5B at every keep, so batch-1 decode is
   60 to 120 tok/s, below the 30B model's 259.
 - Keep 48 scores below keep 32 (checked on 4 GPUs, same result); cause open.
+
+## Language write-in (2026-11-15): five languages from Qwen2.5-7B into Llama-3.2-1B
+
+Request: add Arabic, Japanese, Chinese, Korean and Hindi understanding to Llama-3.2-1B-Instruct from
+Qwen2.5-7B-Instruct (layers 4 to 20, the xfam recipe). Belebele test (900 items per language, never trained on),
+graft mean of 3 seeds: Arabic 75.7, Japanese 76.0, Chinese 84.2, Korean 77.3, Hindi 67.3, English 89.7. Base:
+42.8, 45.8, 54.4, 45.7, 38.1, 58.7. Scrambled-donor control (2 seeds): 55.7, 57.4, 68.3, 57.6, 50.0, 77.4. Native
+Qwen2.5-1.5B: 68.4, 68.6, 79.4, 70.8, 48.9, 82.4. Native Qwen2.5-3B: 81.9, 79.7, 86.6, 81.3, 61.7, 90.4. Donor:
+86.0, 84.9, 89.6, 85.7, 69.8, 92.4. The identity, LoRA and full fine-tune arms were still running when this entry
+was written, and no verifier has checked the numbers. Full tables: `docs/write_in_language.md`. Rows:
+`results/wi_lang/rows/`.
