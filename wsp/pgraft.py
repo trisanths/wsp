@@ -388,8 +388,37 @@ def num_layers(model):
     return config.num_hidden_layers
 
 
+def sparse_part(part, first, keep):
+    """Keep only the donor layers in `keep` (absolute indexes inside first..last) of a BlockPart, in order.
+
+    The kept layers are the donor's own frozen layers, run back to back. Their
+    cache index becomes their place in the kept list, so the part's own KV
+    cache holds one entry per kept layer. Returns the same part.
+    """
+    keep = sorted(set(int(k) for k in keep))
+    offsets = [k - first for k in keep]
+    if not offsets or offsets[0] < 0 or offsets[-1] >= len(part.layers):
+        raise ValueError(f"keep {keep} is not inside the part's layers {first}..{first + len(part.layers) - 1}")
+    if any(getattr(part, "recurrent", [False] * len(part.layers))[o] for o in offsets):
+        raise ValueError("sparse_part supports attention layers only")
+    layers = [part.layers[o] for o in offsets]
+    for place, layer in enumerate(layers):
+        for owner in (layer, getattr(layer, "self_attn", None)):
+            if owner is not None and hasattr(owner, "layer_idx"):
+                owner.layer_idx = place
+    part.layers = nn.ModuleList(layers)
+    # wsp.parts (5.x) and wsp.parts_tf4 (4.x) keep different per-layer lists; cut whichever exist.
+    for name in ("windows", "layer_types", "recurrent", "two_rotary"):
+        if hasattr(part, name):
+            setattr(part, name, [getattr(part, name)[o] for o in offsets])
+    if hasattr(part, "first"):
+        part.first = 0
+    return part
+
+
 def build(base, donor, host_layer, first, last, control=None, enc_depth=1, dec_rank=64, dec_depth=1,
-          gate_bias=0.0, out_rms=1.0, d_donor=None, write_layer=None, logit=False, tail=None, read_layers=None):
+          gate_bias=0.0, out_rms=1.0, d_donor=None, write_layer=None, logit=False, tail=None, read_layers=None,
+          keep=None):
     """Make one ParallelGraft that runs donor layers first..last, and attach it after base layer host_layer.
 
     The block is the donor's own decoder layer code, built from the loaded
@@ -405,6 +434,8 @@ def build(base, donor, host_layer, first, last, control=None, enc_depth=1, dec_r
         for name, value in donor.state_dict().items():
             tensors[name] = value.detach()
         part = build_block_part(donor.config, first, last, tensors).to(device_of(donor))
+        if keep is not None:
+            part = sparse_part(part, first, keep)
     else:
         part = nn.Identity()
     if read_layers is not None and list(read_layers) == [host_layer]:
