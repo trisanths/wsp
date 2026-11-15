@@ -1,6 +1,7 @@
 # Skill tops
 
-Code: `wsp/tops.py`. Round: `modal_round24.py`. Tests: `tests/test_tops.py`.
+Code: `wsp/tops.py`, `wsp/tops_vocab.py` (cross-tokenizer donors). Round: `modal_round24.py`. Tests:
+`tests/test_tops.py`, `tests/test_tops_vocab.py`.
 
 A skill top lets one network carry a donor's skill without sending the donor's
 output back into the base. The base keeps its bottom layers as a shared trunk.
@@ -129,6 +130,99 @@ head gives them. `check_vocab` compares the token to id maps and raises when a
 shared token has two ids, when an id names two tokens, or when the head has no
 row for a shared id.
 
+## Cross-tokenizer tops
+
+Code: `wsp/tops_vocab.py`. Tests: `tests/test_tops_vocab.py`. Added with
+`add_top(..., cross_tokenizer=True, bridge_options={"fallback": "bias"})`. A donor from any family can
+give a top. The input side needs no change: the trunk runs on the base's tokens, the stitch maps the
+trunk state to the donor's width, and the donor's layers never see token ids. Only the donor head
+scores the donor's vocabulary, so the top keeps the head as it is (donor rows by donor width) and
+a bridge turns the donor's logits into one logit per base token. Generation, scoring, and routing see
+base-vocabulary logits and need no change.
+
+The bridge, per base token:
+
+- exact: the base token's bytes equal a donor token's bytes. The bytes come from the token string with
+  the byte-level marker, the SentencePiece marker, and a plain leading space all read as one space
+  (`token_bytes`), byte-level tokens decoded through the GPT-2 byte table, and `<0xNN>` tokens as one
+  byte. The base token takes that donor logit.
+- special: the two eos tokens, and the pairs in `SPECIAL_PAIRS` (`<|im_end|>` with `<|eot_id|>`,
+  `<|endoftext|>` with `<|end_of_text|>`, the chat start tokens), map to each other, so a donor
+  can end a turn. Only tokens flagged special on both sides pair up.
+- fallback: the base token's text is tokenized by the donor tokenizer and the first donor token's
+  logit plus a learned per-token bias is the logit. The bias starts at minus the log of (1 plus the
+  number of fallback tokens that share that donor token). A token with partial UTF-8 bytes uses the
+  longest donor token that is a prefix of its bytes. Option `fallback="linear"`: a linear map from the
+  donor's normed final state to the base's final state, read out by the base's own unembedding, with a
+  learned scale, shift, and bias. The map starts from a ridge fit on offset-matched final states, and
+  the shift is set so the fallback group and the exact group start in proportion to the fallback share
+  of the sample text.
+- masked: a base special token with no pair, a token the donor cannot start, and head rows no base
+  token uses. These get the dtype minimum, as the same-tokenizer path does for tokens the donor lacks.
+
+When `check_vocab` passes (every shared token has the same id in both tokenizers), the bridge is the
+identity on ids below both head widths and masks what the existing path masks, so a same-tokenizer
+donor gives the logits of the existing path (tested in float32 and bf16).
+
+Coverage (`coverage_report`): the share of base tokens with an exact match, the fallback share, the
+masked count, and on sample text the share of base tokens that are exact or fallback and the share of
+donor tokens that have an exact base partner (empirical token mass). `shared_mass_of_model` gives the
+mean donor probability mass on the exact-matched donor ids, which needs a donor model. Measured on the
+real tokenizers (tokenizer files only, no weights), base Llama-3.2-3B-Instruct with donor
+Qwen2.5-Math-1.5B-Instruct: 109,570 of 128,256 base tokens exact (85.4 percent), 18,434 fallback (14.4
+percent), 252 masked (reserved special tokens). On five sample texts (word problem, prose, code, LaTeX,
+German and Chinese) 96.4 percent of the base's tokens are exact and 99.6 percent of the donor's tokens
+have an exact partner. The exact tokens carry the common text, and the fallback tokens are mostly long
+or rare pieces.
+
+The fit (`fit_cross_stitch`, called by `fit_stitch` for a cross-tokenizer top). The donor's
+distribution cannot be compared token by token, because the two models cut one text in different
+places. The loss has two terms.
+
+1. Text target. The donor writes its own greedy answer to each pool prompt, in its own chat format
+   (`donor_answers`). The base tokenizer re-tokenizes the base-format prompt plus that answer, and the
+   top is trained with cross entropy on the answer tokens. This trains the stitch, the bridge's
+   fallback biases, and any LoRA toward what the donor says, in the base's tokens.
+2. Shared-token KL. A base token and a donor token that end at the same character of the answer give
+   a pair of positions where both models predict the next token from the same text. Offsets count from
+   each side's own answer start, so the two chat templates need not match. At those pairs, the donor's
+   logits over the donor ids that have an exact base match and the top's logits over those base ids are
+   each renormalized over the shared set, and the loss is KL(donor || top).
+
+The ridge start uses offset-matched hidden states (the existing `ridge_init`, which already supports
+two tokenizers) and the donor sink is measured on the donor's own tokenization.
+
+The penalty is the top's negative log likelihood of the donor's answer minus the donor's, summed over
+the answer and divided by the donor's answer token count (nats per donor token). The flag threshold
+and the accept rule are the same. `penalty` on plain texts (the by-set rows) uses the whole text.
+
+Limits of the objective.
+
+- The KL sees only exact-matched tokens. The distribution over fallback tokens is trained by the text
+  target alone, and its bias is the least checked part of the bridge.
+- The donor's greedy answers are one sample of its behavior. The top copies that sample, and a skill
+  the prompts do not exercise is not trained. Prompts come from healdata pools, never a benchmark.
+- The text target charges the top for tokenization choices. Where the base's tokenizer would write one
+  token and the bridge can reach it only by fallback, the penalty rises even when the donor's meaning
+  is intact.
+- Contexts match as text and not as tokens: the base side holds the base's chat template and the donor
+  side its own. A donor that depends on its template (Qwen-Math-Instruct) reads states built under
+  another template, and the stitch has to absorb the difference.
+- A base token that the bridge reaches by fallback shares its donor logit with other tokens, so
+  its probability is less sharp than the exact tokens' and the model prefers exact spellings. This can
+  change greedy decoding on rare words.
+- The ridge from the donor's final state to the base's final state (fallback "linear") maps between
+  two models' last layers with one linear map. It is an option, not the default, and nothing measures
+  it on a real pair.
+- `sizes_from_configs` takes `cross_tokenizer: True` in a top spec and then counts the head as donor
+  rows by donor width plus one bias per base row.
+- Saving stores the bridge's learned tensors with the stitch. The index tables rebuild from the two
+  tokenizers on load, so the donor's tokenizer must be fetchable (by repo id or local directory).
+
+Pair T4 in `modal_round24.py` is the exploratory run: base `unsloth/Llama-3.2-3B-Instruct`, math top
+from `Qwen/Qwen2.5-Math-1.5B-Instruct`, cuts 14 and 21, forced GSM8K, base and donor references, a
+scrambled-top control. It is outside the go rule and runs only with `--pairs T4`.
+
 ## Sizes
 
 `count_params()` returns stored params (the base counted once with a tied head
@@ -184,10 +278,46 @@ Two seeds go to the default cut and the controls. The other four cuts have one
 seed. A seed changes the batch order, the LoRA init, and the scramble. The fit
 texts and the ridge init do not change, and decoding is greedy.
 
+## Generation checks and the diagnostic
+
+CPU tests in `tests/test_tops.py` build tiny models with the real Qwen2.5-1.5B
+and Qwen2.5-Math-1.5B config fields (rope_theta 1e6 and 1e4, max positions
+32768 and 4096, tied head, window settings, the real generation_config with
+EOS ids 151645 and 151643). Only hidden size and layer count shrink. They check:
+
+- A cut 0 top with an identity stitch and a planted equal donor at cut 2
+  produce the same texts as the donor and the base through
+  `wsp.skills_eval.generate_texts`, with and without stop strings, with left
+  padding and several batches.
+- Cached generation equals a full forward at every step, also with
+  `use_sliding_window` on and a prompt longer than the window, in float64.
+  Cached step logits match full logits in float32 and bf16 within tolerance.
+- `ForcedView` gives `generation_config`, `config`, `device`, and `dtype` as a
+  Hugging Face model does, and `skills_eval.stop_token_ids` returns the same ids
+  for the view and for the base. The real tokenizer and chat template are used
+  when their files are cached.
+
+These found no mismatch in the generation path. The real configs have
+`use_sliding_window` false, so every window is None and no sliding mask runs.
+
+`modal_round24.py --diag` runs `diag_core` on the smoke cell's fitted top
+(restored from its artifact, FIT_VERSION in the path) and 32 GSM8K test
+prompts. The donor and the forced top both go through
+`wsp.skills_eval.generate_texts` with the same prompts, batch size, and
+token limit. It reports per prompt the first token where the two answers
+differ, the share of identical answers, the accuracy of each, and the
+teacher-forced KL of the top against the donor along the donor's own answers
+(per prompt, by absolute position, and on the prompt tokens). It also runs
+the first 8 prompts three ways for each model (batched cached, batch of one
+cached, full forward at every step), so a cache or padding bug shows as a gap
+that the donor does not have. The relative error of the stitch output against
+the donor's true state, and of the sink against the true first-token state, are
+printed too. Results go to `results/round24_diag.json`.
+
 ## Limits
 
-- A top with its own head needs the base tokenizer's ids. Cross-tokenizer
-  donors are out. The token to id check is the gate.
+- A same-tokenizer top needs the base tokenizer's ids, and the token to id check is the gate. A donor
+  from another family goes through the vocab bridge (section "Cross-tokenizer tops").
 - One path per sequence. A sequence that mixes skills gets one top. There is no
   per-token routing, so a prompt that needs math in one place and code in
   another is served by one of them.
@@ -213,3 +343,6 @@ texts and the ridge init do not change, and decoding is greedy.
 - That the deep cuts keep a skill. At cut 6/7 the top is four donor layers and
   a head, and the stitch has to carry most of the donor's computation.
 - The GPU hours and memory in the plan are estimates, not measurements.
+- Nothing in `wsp/tops_vocab.py` has run on a real model. The vocab coverage numbers come from the real tokenizers
+  alone. Whether a Llama base can read a Qwen donor through the stitch, and what the fallback tokens cost,
+  is what pair T4 measures.
