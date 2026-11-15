@@ -366,3 +366,22 @@ Reading: at 300 steps, full fine-tuning is worse than LoRA rank 64 (47.2)
 on Llama-1B, so LoRA r64 stays the fine-tuning bar on GSM8K. Chat-tuned
 donors score badly on the raw prompt; donor ceilings need chat-format
 scoring to mean anything.
+
+## Run 9 (2026-11-14): taps into the strongest model do not help
+
+MMLU dev items, 2 seeds; taps read donors at about 70% depth and write
+into the host at about 40% depth. Raw rows: round9_rows.json.
+
+| Host | Alone | With taps (mean of 2 seeds) |
+|---|---|---|
+| Qwen2.5-14B | 78.5 | + Llama-8B 77.9; + Qwen-7B 77.2; + Gemma-9B and Llama-8B 76.5; + Gemma-9B 75.6; mismatched-message control 76.0; LoRA r16 78.1 |
+| Gemma-2-9B | 72.6 | + Qwen-14B 73.0; + Qwen-7B and Llama-8B 72.8 |
+| Qwen2.5-7B | 71.5 | + Gemma-9B 71.8 |
+| Llama-3.1-8B | 66.6 | + Gemma-9B and Qwen-7B 66.5 |
+
+Reading: taps carry a strong donor's knowledge into a weak host (runs 6
+to 8), but a strong host gains nothing from equal or weaker donors, and
+500 steps of MMLU-format training slightly hurt it (as LoRA does). No
+composition beats its best source here. Next: per-item scores for every
+model to measure complementarity (oracle and probability-average
+ensembles) before more composition designs.
