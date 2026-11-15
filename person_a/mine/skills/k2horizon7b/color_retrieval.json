@@ -1,0 +1,1020 @@
+{
+ "name": "color_retrieval",
+ "description": "Retrieve an object's color from short factual context; matched control retrieves the object with that color.",
+ "hash": "8b40dda7c00f2f5a",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\ncolors='red blue green yellow black white orange purple pink brown'.split(); objects='ball cup hat car box pen bag chair kite book'.split()\nitems=[];controls=[]\nfor i in range(100):\n cs=random.sample(colors,3);os=random.sample(objects,3);j=random.randrange(3)\n stem=' '.join(f'The {o} is {c}.' for o,c in zip(os,cs))+'\\n'\n items.append({'prompt':stem+f'Question: What color is the {os[j]}?\\nAnswer:','answer':' '+cs[j]})\n controls.append({'prompt':stem+f'Question: Which object is {cs[j]}?\\nAnswer:','answer':' '+os[j]})\njson.dump({'items':items,'control':controls},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "The hat is green. The book is yellow. The pen is red.\nQuestion: What color is the pen?\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is black. The kite is pink. The pen is brown.\nQuestion: What color is the pen?\nAnswer:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is brown. The book is black. The hat is purple.\nQuestion: What color is the cup?\nAnswer:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is pink. The pen is purple. The chair is blue.\nQuestion: What color is the cup?\nAnswer:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is green. The book is brown. The kite is orange.\nQuestion: What color is the cup?\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The chair is brown. The book is orange. The pen is black.\nQuestion: What color is the chair?\nAnswer:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "The book is black. The car is purple. The hat is white.\nQuestion: What color is the car?\nAnswer:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is green. The kite is blue. The hat is black.\nQuestion: What color is the hat?\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The chair is yellow. The book is black. The ball is red.\nQuestion: What color is the chair?\nAnswer:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is red. The car is yellow. The chair is green.\nQuestion: What color is the car?\nAnswer:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The hat is orange. The car is red. The ball is blue.\nQuestion: What color is the ball?\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The chair is black. The bag is pink. The car is orange.\nQuestion: What color is the chair?\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is white. The kite is blue. The chair is pink.\nQuestion: What color is the chair?\nAnswer:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "The hat is brown. The book is black. The box is red.\nQuestion: What color is the book?\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is red. The box is yellow. The pen is blue.\nQuestion: What color is the pen?\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The kite is green. The hat is blue. The box is black.\nQuestion: What color is the kite?\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The bag is purple. The ball is blue. The box is brown.\nQuestion: What color is the ball?\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The box is blue. The kite is green. The bag is orange.\nQuestion: What color is the bag?\nAnswer:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The pen is white. The ball is blue. The book is pink.\nQuestion: What color is the ball?\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The box is green. The pen is brown. The ball is yellow.\nQuestion: What color is the box?\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is blue. The book is purple. The bag is yellow.\nQuestion: What color is the bag?\nAnswer:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The car is yellow. The book is white. The kite is blue.\nQuestion: What color is the car?\nAnswer:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The hat is black. The ball is blue. The chair is purple.\nQuestion: What color is the chair?\nAnswer:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The hat is brown. The car is yellow. The book is black.\nQuestion: What color is the hat?\nAnswer:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is black. The kite is purple. The ball is blue.\nQuestion: What color is the cup?\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is purple. The bag is orange. The kite is pink.\nQuestion: What color is the kite?\nAnswer:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "The box is blue. The pen is orange. The chair is yellow.\nQuestion: What color is the chair?\nAnswer:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The hat is brown. The car is yellow. The kite is white.\nQuestion: What color is the kite?\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The kite is purple. The pen is black. The hat is pink.\nQuestion: What color is the hat?\nAnswer:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "The box is black. The hat is purple. The pen is blue.\nQuestion: What color is the box?\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The pen is purple. The chair is white. The cup is green.\nQuestion: What color is the chair?\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The hat is red. The chair is yellow. The cup is green.\nQuestion: What color is the chair?\nAnswer:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The pen is green. The bag is brown. The hat is black.\nQuestion: What color is the bag?\nAnswer:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is yellow. The box is blue. The kite is red.\nQuestion: What color is the kite?\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The book is orange. The ball is red. The bag is green.\nQuestion: What color is the book?\nAnswer:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The bag is white. The book is green. The cup is black.\nQuestion: What color is the bag?\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The bag is green. The pen is red. The ball is orange.\nQuestion: What color is the bag?\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The pen is green. The cup is orange. The car is black.\nQuestion: What color is the cup?\nAnswer:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is blue. The box is purple. The hat is yellow.\nQuestion: What color is the hat?\nAnswer:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The book is white. The pen is blue. The car is purple.\nQuestion: What color is the book?\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The hat is blue. The bag is brown. The book is black.\nQuestion: What color is the hat?\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The bag is pink. The chair is white. The cup is yellow.\nQuestion: What color is the bag?\nAnswer:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "The chair is white. The kite is yellow. The box is purple.\nQuestion: What color is the chair?\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The car is blue. The cup is black. The box is brown.\nQuestion: What color is the cup?\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The car is red. The pen is black. The hat is blue.\nQuestion: What color is the pen?\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The kite is orange. The chair is green. The ball is red.\nQuestion: What color is the ball?\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is red. The box is green. The hat is purple.\nQuestion: What color is the box?\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The bag is orange. The hat is blue. The ball is pink.\nQuestion: What color is the hat?\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is yellow. The pen is pink. The kite is brown.\nQuestion: What color is the pen?\nAnswer:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "The chair is purple. The cup is orange. The hat is green.\nQuestion: What color is the cup?\nAnswer:",
+    "continuation": " orange",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The cup is yellow. The ball is purple. The kite is white.\nQuestion: What color is the ball?\nAnswer:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The chair is pink. The car is black. The bag is purple.\nQuestion: What color is the chair?\nAnswer:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is purple. The hat is green. The pen is red.\nQuestion: What color is the ball?\nAnswer:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The pen is orange. The bag is pink. The box is black.\nQuestion: What color is the pen?\nAnswer:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is pink. The box is orange. The pen is purple.\nQuestion: What color is the box?\nAnswer:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The chair is blue. The pen is pink. The kite is purple.\nQuestion: What color is the chair?\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The car is purple. The kite is blue. The bag is brown.\nQuestion: What color is the kite?\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The box is orange. The kite is brown. The chair is red.\nQuestion: What color is the kite?\nAnswer:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is black. The bag is blue. The chair is yellow.\nQuestion: What color is the bag?\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The car is red. The cup is brown. The book is blue.\nQuestion: What color is the cup?\nAnswer:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "The box is red. The hat is pink. The bag is green.\nQuestion: What color is the bag?\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The bag is purple. The book is orange. The hat is green.\nQuestion: What color is the bag?\nAnswer:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The kite is blue. The cup is white. The pen is purple.\nQuestion: What color is the cup?\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The kite is black. The hat is blue. The bag is brown.\nQuestion: What color is the bag?\nAnswer:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "The pen is orange. The chair is brown. The kite is purple.\nQuestion: What color is the kite?\nAnswer:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The pen is white. The box is purple. The chair is yellow.\nQuestion: What color is the pen?\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is pink. The pen is red. The ball is purple.\nQuestion: What color is the ball?\nAnswer:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The kite is purple. The hat is orange. The car is white.\nQuestion: What color is the hat?\nAnswer:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is white. The chair is pink. The hat is green.\nQuestion: What color is the hat?\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The bag is white. The book is pink. The ball is red.\nQuestion: What color is the book?\nAnswer:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "The bag is black. The book is blue. The cup is green.\nQuestion: What color is the bag?\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is brown. The box is purple. The hat is white.\nQuestion: What color is the box?\nAnswer:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The box is yellow. The ball is green. The chair is red.\nQuestion: What color is the ball?\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The pen is white. The ball is brown. The kite is blue.\nQuestion: What color is the ball?\nAnswer:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "The chair is yellow. The cup is pink. The bag is black.\nQuestion: What color is the cup?\nAnswer:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is white. The car is black. The pen is green.\nQuestion: What color is the car?\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The pen is black. The ball is pink. The chair is white.\nQuestion: What color is the chair?\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is blue. The book is white. The car is brown.\nQuestion: What color is the ball?\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The chair is orange. The pen is brown. The box is red.\nQuestion: What color is the chair?\nAnswer:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The bag is orange. The chair is red. The ball is purple.\nQuestion: What color is the bag?\nAnswer:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is pink. The chair is purple. The pen is red.\nQuestion: What color is the chair?\nAnswer:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The pen is green. The cup is red. The hat is yellow.\nQuestion: What color is the pen?\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The kite is red. The box is blue. The car is orange.\nQuestion: What color is the kite?\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The car is yellow. The hat is white. The box is brown.\nQuestion: What color is the hat?\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The chair is black. The bag is green. The cup is blue.\nQuestion: What color is the chair?\nAnswer:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is pink. The car is blue. The book is red.\nQuestion: What color is the car?\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The kite is red. The box is green. The pen is black.\nQuestion: What color is the kite?\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The chair is black. The pen is green. The box is yellow.\nQuestion: What color is the box?\nAnswer:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The car is black. The cup is red. The bag is yellow.\nQuestion: What color is the bag?\nAnswer:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The pen is blue. The box is black. The bag is orange.\nQuestion: What color is the pen?\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The pen is green. The kite is brown. The bag is purple.\nQuestion: What color is the bag?\nAnswer:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is green. The book is black. The car is red.\nQuestion: What color is the car?\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The book is white. The hat is yellow. The bag is black.\nQuestion: What color is the book?\nAnswer:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The kite is pink. The cup is red. The bag is blue.\nQuestion: What color is the kite?\nAnswer:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "The bag is purple. The book is black. The kite is pink.\nQuestion: What color is the bag?\nAnswer:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The car is purple. The kite is red. The cup is orange.\nQuestion: What color is the cup?\nAnswer:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The bag is pink. The ball is red. The chair is blue.\nQuestion: What color is the ball?\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The bag is yellow. The box is blue. The car is purple.\nQuestion: What color is the car?\nAnswer:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is red. The book is blue. The box is black.\nQuestion: What color is the book?\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is yellow. The cup is red. The bag is orange.\nQuestion: What color is the bag?\nAnswer:",
+    "continuation": " orange",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "The bag is yellow. The box is blue. The car is purple.\nQuestion: Which object is purple?\nAnswer:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "The box is black. The hat is purple. The pen is blue.\nQuestion: Which object is black?\nAnswer:",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "The bag is purple. The book is black. The kite is pink.\nQuestion: Which object is purple?\nAnswer:",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "The book is white. The hat is yellow. The bag is black.\nQuestion: Which object is white?\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "The chair is white. The kite is yellow. The box is purple.\nQuestion: Which object is white?\nAnswer:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "The car is blue. The cup is black. The box is brown.\nQuestion: Which object is black?\nAnswer:",
+    "continuation": " cup",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is green. The book is black. The car is red.\nQuestion: Which object is red?\nAnswer:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "The chair is yellow. The cup is pink. The bag is black.\nQuestion: Which object is pink?\nAnswer:",
+    "continuation": " cup",
+    "digits_only": false
+   },
+   {
+    "context": "The hat is brown. The car is yellow. The book is black.\nQuestion: Which object is brown?\nAnswer:",
+    "continuation": " hat",
+    "digits_only": false
+   },
+   {
+    "context": "The hat is red. The chair is yellow. The cup is green.\nQuestion: Which object is yellow?\nAnswer:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is blue. The box is purple. The hat is yellow.\nQuestion: Which object is yellow?\nAnswer:",
+    "continuation": " hat",
+    "digits_only": false
+   },
+   {
+    "context": "The chair is black. The bag is green. The cup is blue.\nQuestion: Which object is black?\nAnswer:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "The hat is blue. The bag is brown. The book is black.\nQuestion: Which object is blue?\nAnswer:",
+    "continuation": " hat",
+    "digits_only": false
+   },
+   {
+    "context": "The chair is pink. The car is black. The bag is purple.\nQuestion: Which object is pink?\nAnswer:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "The car is purple. The kite is blue. The bag is brown.\nQuestion: Which object is blue?\nAnswer:",
+    "continuation": " kite",
+    "digits_only": false
+   },
+   {
+    "context": "The pen is white. The box is purple. The chair is yellow.\nQuestion: Which object is white?\nAnswer:",
+    "continuation": " pen",
+    "digits_only": false
+   },
+   {
+    "context": "The box is green. The pen is brown. The ball is yellow.\nQuestion: Which object is green?\nAnswer:",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "The hat is orange. The car is red. The ball is blue.\nQuestion: Which object is blue?\nAnswer:",
+    "continuation": " ball",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is red. The box is yellow. The pen is blue.\nQuestion: Which object is blue?\nAnswer:",
+    "continuation": " pen",
+    "digits_only": false
+   },
+   {
+    "context": "The car is purple. The kite is red. The cup is orange.\nQuestion: Which object is orange?\nAnswer:",
+    "continuation": " cup",
+    "digits_only": false
+   },
+   {
+    "context": "The hat is black. The ball is blue. The chair is purple.\nQuestion: Which object is purple?\nAnswer:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is white. The kite is blue. The chair is pink.\nQuestion: Which object is pink?\nAnswer:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is green. The kite is blue. The hat is black.\nQuestion: Which object is black?\nAnswer:",
+    "continuation": " hat",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is yellow. The box is blue. The kite is red.\nQuestion: Which object is red?\nAnswer:",
+    "continuation": " kite",
+    "digits_only": false
+   },
+   {
+    "context": "The kite is red. The box is green. The pen is black.\nQuestion: Which object is red?\nAnswer:",
+    "continuation": " kite",
+    "digits_only": false
+   },
+   {
+    "context": "The bag is pink. The ball is red. The chair is blue.\nQuestion: Which object is red?\nAnswer:",
+    "continuation": " ball",
+    "digits_only": false
+   },
+   {
+    "context": "The box is red. The hat is pink. The bag is green.\nQuestion: Which object is green?\nAnswer:",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "The bag is orange. The hat is blue. The ball is pink.\nQuestion: Which object is blue?\nAnswer:",
+    "continuation": " hat",
+    "digits_only": false
+   },
+   {
+    "context": "The pen is black. The ball is pink. The chair is white.\nQuestion: Which object is white?\nAnswer:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "The pen is green. The cup is red. The hat is yellow.\nQuestion: Which object is green?\nAnswer:",
+    "continuation": " pen",
+    "digits_only": false
+   },
+   {
+    "context": "The hat is green. The book is yellow. The pen is red.\nQuestion: Which object is red?\nAnswer:",
+    "continuation": " pen",
+    "digits_only": false
+   },
+   {
+    "context": "The chair is yellow. The book is black. The ball is red.\nQuestion: Which object is yellow?\nAnswer:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is purple. The bag is orange. The kite is pink.\nQuestion: Which object is pink?\nAnswer:",
+    "continuation": " kite",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is yellow. The ball is purple. The kite is white.\nQuestion: Which object is purple?\nAnswer:",
+    "continuation": " ball",
+    "digits_only": false
+   },
+   {
+    "context": "The pen is orange. The bag is pink. The box is black.\nQuestion: Which object is orange?\nAnswer:",
+    "continuation": " pen",
+    "digits_only": false
+   },
+   {
+    "context": "The bag is purple. The ball is blue. The box is brown.\nQuestion: Which object is blue?\nAnswer:",
+    "continuation": " ball",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is red. The box is green. The hat is purple.\nQuestion: Which object is green?\nAnswer:",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "The pen is blue. The box is black. The bag is orange.\nQuestion: Which object is blue?\nAnswer:",
+    "continuation": " pen",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is blue. The book is purple. The bag is yellow.\nQuestion: Which object is yellow?\nAnswer:",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "The box is blue. The kite is green. The bag is orange.\nQuestion: Which object is orange?\nAnswer:",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "The pen is white. The ball is brown. The kite is blue.\nQuestion: Which object is brown?\nAnswer:",
+    "continuation": " ball",
+    "digits_only": false
+   },
+   {
+    "context": "The bag is orange. The chair is red. The ball is purple.\nQuestion: Which object is orange?\nAnswer:",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "The kite is black. The hat is blue. The bag is brown.\nQuestion: Which object is brown?\nAnswer:",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "The kite is orange. The chair is green. The ball is red.\nQuestion: Which object is red?\nAnswer:",
+    "continuation": " ball",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is pink. The pen is purple. The chair is blue.\nQuestion: Which object is pink?\nAnswer:",
+    "continuation": " cup",
+    "digits_only": false
+   },
+   {
+    "context": "The chair is purple. The cup is orange. The hat is green.\nQuestion: Which object is orange?\nAnswer:",
+    "continuation": " cup",
+    "digits_only": false
+   },
+   {
+    "context": "The chair is blue. The pen is pink. The kite is purple.\nQuestion: Which object is blue?\nAnswer:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is white. The car is black. The pen is green.\nQuestion: Which object is black?\nAnswer:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is brown. The book is black. The hat is purple.\nQuestion: Which object is brown?\nAnswer:",
+    "continuation": " cup",
+    "digits_only": false
+   },
+   {
+    "context": "The car is yellow. The book is white. The kite is blue.\nQuestion: Which object is yellow?\nAnswer:",
+    "continuation": " car",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The hat is brown. The book is black. The box is red.\nQuestion: Which object is black?\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "The book is orange. The ball is red. The bag is green.\nQuestion: Which object is orange?\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "The pen is green. The cup is orange. The car is black.\nQuestion: Which object is orange?\nAnswer:",
+    "continuation": " cup",
+    "digits_only": false
+   },
+   {
+    "context": "The bag is pink. The chair is white. The cup is yellow.\nQuestion: Which object is pink?\nAnswer:",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is blue. The book is white. The car is brown.\nQuestion: Which object is blue?\nAnswer:",
+    "continuation": " ball",
+    "digits_only": false
+   },
+   {
+    "context": "The pen is white. The ball is blue. The book is pink.\nQuestion: Which object is blue?\nAnswer:",
+    "continuation": " ball",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is brown. The box is purple. The hat is white.\nQuestion: Which object is purple?\nAnswer:",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is black. The kite is purple. The ball is blue.\nQuestion: Which object is black?\nAnswer:",
+    "continuation": " cup",
+    "digits_only": false
+   },
+   {
+    "context": "The pen is green. The bag is brown. The hat is black.\nQuestion: Which object is brown?\nAnswer:",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "The pen is green. The kite is brown. The bag is purple.\nQuestion: Which object is purple?\nAnswer:",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "The box is blue. The pen is orange. The chair is yellow.\nQuestion: Which object is yellow?\nAnswer:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "The book is white. The pen is blue. The car is purple.\nQuestion: Which object is white?\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "The car is red. The cup is brown. The book is blue.\nQuestion: Which object is brown?\nAnswer:",
+    "continuation": " cup",
+    "digits_only": false
+   },
+   {
+    "context": "The pen is purple. The chair is white. The cup is green.\nQuestion: Which object is white?\nAnswer:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "The pen is orange. The chair is brown. The kite is purple.\nQuestion: Which object is purple?\nAnswer:",
+    "continuation": " kite",
+    "digits_only": false
+   },
+   {
+    "context": "The bag is white. The book is green. The cup is black.\nQuestion: Which object is white?\nAnswer:",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is pink. The box is orange. The pen is purple.\nQuestion: Which object is orange?\nAnswer:",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is red. The car is yellow. The chair is green.\nQuestion: Which object is yellow?\nAnswer:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "The chair is black. The pen is green. The box is yellow.\nQuestion: Which object is yellow?\nAnswer:",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "The bag is white. The book is pink. The ball is red.\nQuestion: Which object is pink?\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "The book is black. The car is purple. The hat is white.\nQuestion: Which object is purple?\nAnswer:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is purple. The hat is green. The pen is red.\nQuestion: Which object is purple?\nAnswer:",
+    "continuation": " ball",
+    "digits_only": false
+   },
+   {
+    "context": "The car is black. The cup is red. The bag is yellow.\nQuestion: Which object is yellow?\nAnswer:",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "The kite is green. The hat is blue. The box is black.\nQuestion: Which object is green?\nAnswer:",
+    "continuation": " kite",
+    "digits_only": false
+   },
+   {
+    "context": "The car is yellow. The hat is white. The box is brown.\nQuestion: Which object is white?\nAnswer:",
+    "continuation": " hat",
+    "digits_only": false
+   },
+   {
+    "context": "The kite is purple. The hat is orange. The car is white.\nQuestion: Which object is orange?\nAnswer:",
+    "continuation": " hat",
+    "digits_only": false
+   },
+   {
+    "context": "The chair is brown. The book is orange. The pen is black.\nQuestion: Which object is brown?\nAnswer:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "The bag is black. The book is blue. The cup is green.\nQuestion: Which object is black?\nAnswer:",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "The hat is brown. The car is yellow. The kite is white.\nQuestion: Which object is white?\nAnswer:",
+    "continuation": " kite",
+    "digits_only": false
+   },
+   {
+    "context": "The bag is green. The pen is red. The ball is orange.\nQuestion: Which object is green?\nAnswer:",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "The bag is purple. The book is orange. The hat is green.\nQuestion: Which object is purple?\nAnswer:",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "The box is orange. The kite is brown. The chair is red.\nQuestion: Which object is brown?\nAnswer:",
+    "continuation": " kite",
+    "digits_only": false
+   },
+   {
+    "context": "The chair is orange. The pen is brown. The box is red.\nQuestion: Which object is orange?\nAnswer:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is white. The chair is pink. The hat is green.\nQuestion: Which object is green?\nAnswer:",
+    "continuation": " hat",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is yellow. The cup is red. The bag is orange.\nQuestion: Which object is orange?\nAnswer:",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "The kite is blue. The cup is white. The pen is purple.\nQuestion: Which object is white?\nAnswer:",
+    "continuation": " cup",
+    "digits_only": false
+   },
+   {
+    "context": "The kite is pink. The cup is red. The bag is blue.\nQuestion: Which object is pink?\nAnswer:",
+    "continuation": " kite",
+    "digits_only": false
+   },
+   {
+    "context": "The kite is red. The box is blue. The car is orange.\nQuestion: Which object is red?\nAnswer:",
+    "continuation": " kite",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is pink. The pen is red. The ball is purple.\nQuestion: Which object is purple?\nAnswer:",
+    "continuation": " ball",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is green. The book is brown. The kite is orange.\nQuestion: Which object is green?\nAnswer:",
+    "continuation": " cup",
+    "digits_only": false
+   },
+   {
+    "context": "The kite is purple. The pen is black. The hat is pink.\nQuestion: Which object is pink?\nAnswer:",
+    "continuation": " hat",
+    "digits_only": false
+   },
+   {
+    "context": "The box is yellow. The ball is green. The chair is red.\nQuestion: Which object is green?\nAnswer:",
+    "continuation": " ball",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is yellow. The pen is pink. The kite is brown.\nQuestion: Which object is pink?\nAnswer:",
+    "continuation": " pen",
+    "digits_only": false
+   },
+   {
+    "context": "The chair is black. The bag is pink. The car is orange.\nQuestion: Which object is black?\nAnswer:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "The car is red. The pen is black. The hat is blue.\nQuestion: Which object is black?\nAnswer:",
+    "continuation": " pen",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is pink. The chair is purple. The pen is red.\nQuestion: Which object is purple?\nAnswer:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is black. The kite is pink. The pen is brown.\nQuestion: Which object is brown?\nAnswer:",
+    "continuation": " pen",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is red. The book is blue. The box is black.\nQuestion: Which object is blue?\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "The ball is black. The bag is blue. The chair is yellow.\nQuestion: Which object is blue?\nAnswer:",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "The cup is pink. The car is blue. The book is red.\nQuestion: Which object is blue?\nAnswer:",
+    "continuation": " car",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 8.1713
+}

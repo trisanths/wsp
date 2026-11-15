@@ -1,491 +1,611 @@
 {
  "name": "month_offset",
- "description": "Month-name completion after a cyclic calendar offset; matched control reads the numeric offset from the same sentence.",
- "hash": "40a80738ba3a813f",
+ "description": "Compute month after an offset; control copies an unrelated tag in matched calendar text.",
+ "hash": "7062ecafa7fac580",
  "agent_items": false,
- "generator_code": "import random,json\nrandom.seed(0)\nmonths='January February March April May June July August September October November December'.split()\nitems=[]; controls=[]\nfor i in range(96):\n m=random.randrange(12); n=random.randrange(1,25)\n stem=f'The starting month is {months[m]}. Move forward {n} months. '\n items.append({'prompt':stem+'The resulting month is','answer':' '+months[(m+n)%12]})\n controls.append({'prompt':stem+'The number of months to move forward is','answer':' '+str(n)})\njson.dump({'items':items,'control':controls},open('/work/skill.json','w'))",
+ "generator_code": "import random,json\nrandom.seed(0)\nm='January February March April May June July August September October November December'.split();a=[];c=[]\nfor i in range(120):\n x=random.randrange(12);n=random.randrange(1,13);tag=random.choice(['amber','blue','green','red']);s=f'Event tag: {tag}. The current month is {m[x]}. '\n a.append({'prompt':s+f'What month is {n} months later? Answer:','answer':' '+m[(x+n)%12]})\n c.append({'prompt':s+f'An event occurs {n} months later. What is its tag? Answer:','answer':' '+tag})\njson.dump({'items':a,'control':c},open('/work/skill.json','w'))",
  "items": {
   "search": [
    {
-    "context": "The starting month is February. Move forward 24 months. The resulting month is",
-    "continuation": " February",
+    "context": "Event tag: amber. The current month is September. What month is 8 months later? Answer:",
+    "continuation": " May",
     "digits_only": false
    },
    {
-    "context": "The starting month is February. Move forward 20 months. The resulting month is",
+    "context": "Event tag: green. The current month is February. What month is 3 months later? Answer:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: red. The current month is February. What month is 8 months later? Answer:",
     "continuation": " October",
     "digits_only": false
    },
    {
-    "context": "The starting month is March. Move forward 10 months. The resulting month is",
-    "continuation": " January",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is May. Move forward 5 months. The resulting month is",
-    "continuation": " October",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is April. Move forward 6 months. The resulting month is",
-    "continuation": " October",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is February. Move forward 22 months. The resulting month is",
-    "continuation": " December",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is January. Move forward 9 months. The resulting month is",
-    "continuation": " October",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is January. Move forward 7 months. The resulting month is",
-    "continuation": " August",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is April. Move forward 24 months. The resulting month is",
+    "context": "Event tag: blue. The current month is June. What month is 10 months later? Answer:",
     "continuation": " April",
     "digits_only": false
    },
    {
-    "context": "The starting month is January. Move forward 3 months. The resulting month is",
-    "continuation": " April",
+    "context": "Event tag: green. The current month is July. What month is 10 months later? Answer:",
+    "continuation": " May",
     "digits_only": false
    },
    {
-    "context": "The starting month is June. Move forward 14 months. The resulting month is",
-    "continuation": " August",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is August. Move forward 22 months. The resulting month is",
-    "continuation": " June",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is February. Move forward 22 months. The resulting month is",
-    "continuation": " December",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is April. Move forward 20 months. The resulting month is",
-    "continuation": " December",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is January. Move forward 19 months. The resulting month is",
-    "continuation": " August",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is September. Move forward 16 months. The resulting month is",
-    "continuation": " January",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is May. Move forward 6 months. The resulting month is",
-    "continuation": " November",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is October. Move forward 4 months. The resulting month is",
-    "continuation": " February",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is February. Move forward 5 months. The resulting month is",
-    "continuation": " July",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is June. Move forward 20 months. The resulting month is",
-    "continuation": " February",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is September. Move forward 16 months. The resulting month is",
-    "continuation": " January",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is September. Move forward 5 months. The resulting month is",
-    "continuation": " February",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is July. Move forward 23 months. The resulting month is",
-    "continuation": " June",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is December. Move forward 20 months. The resulting month is",
-    "continuation": " August",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is April. Move forward 7 months. The resulting month is",
-    "continuation": " November",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is February. Move forward 7 months. The resulting month is",
+    "context": "Event tag: green. The current month is April. What month is 5 months later? Answer:",
     "continuation": " September",
     "digits_only": false
    },
    {
-    "context": "The starting month is September. Move forward 1 months. The resulting month is",
+    "context": "Event tag: blue. The current month is September. What month is 5 months later? Answer:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: green. The current month is May. What month is 9 months later? Answer:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: blue. The current month is November. What month is 3 months later? Answer:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: red. The current month is August. What month is 2 months later? Answer:",
     "continuation": " October",
     "digits_only": false
    },
    {
-    "context": "The starting month is June. Move forward 23 months. The resulting month is",
-    "continuation": " May",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is October. Move forward 22 months. The resulting month is",
+    "context": "Event tag: amber. The current month is October. What month is 10 months later? Answer:",
     "continuation": " August",
     "digits_only": false
    },
    {
-    "context": "The starting month is May. Move forward 18 months. The resulting month is",
-    "continuation": " November",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is February. Move forward 16 months. The resulting month is",
-    "continuation": " June",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is December. Move forward 8 months. The resulting month is",
-    "continuation": " August",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is May. Move forward 15 months. The resulting month is",
-    "continuation": " August",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is February. Move forward 9 months. The resulting month is",
-    "continuation": " November",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is April. Move forward 20 months. The resulting month is",
-    "continuation": " December",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is April. Move forward 24 months. The resulting month is",
+    "context": "Event tag: blue. The current month is November. What month is 5 months later? Answer:",
     "continuation": " April",
     "digits_only": false
    },
    {
-    "context": "The starting month is February. Move forward 3 months. The resulting month is",
-    "continuation": " May",
+    "context": "Event tag: green. The current month is December. What month is 2 months later? Answer:",
+    "continuation": " February",
     "digits_only": false
    },
    {
-    "context": "The starting month is April. Move forward 12 months. The resulting month is",
-    "continuation": " April",
+    "context": "Event tag: green. The current month is October. What month is 9 months later? Answer:",
+    "continuation": " July",
     "digits_only": false
    },
    {
-    "context": "The starting month is February. Move forward 20 months. The resulting month is",
-    "continuation": " October",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is June. Move forward 16 months. The resulting month is",
-    "continuation": " October",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is February. Move forward 1 months. The resulting month is",
+    "context": "Event tag: green. The current month is October. What month is 5 months later? Answer:",
     "continuation": " March",
     "digits_only": false
    },
    {
-    "context": "The starting month is April. Move forward 1 months. The resulting month is",
+    "context": "Event tag: green. The current month is April. What month is 12 months later? Answer:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is March. What month is 8 months later? Answer:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is August. What month is 2 months later? Answer:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: red. The current month is July. What month is 5 months later? Answer:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: blue. The current month is October. What month is 11 months later? Answer:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: red. The current month is November. What month is 6 months later? Answer:",
     "continuation": " May",
     "digits_only": false
    },
    {
-    "context": "The starting month is August. Move forward 12 months. The resulting month is",
-    "continuation": " August",
+    "context": "Event tag: red. The current month is October. What month is 1 months later? Answer:",
+    "continuation": " November",
     "digits_only": false
    },
    {
-    "context": "The starting month is August. Move forward 17 months. The resulting month is",
-    "continuation": " January",
+    "context": "Event tag: blue. The current month is January. What month is 2 months later? Answer:",
+    "continuation": " March",
     "digits_only": false
    },
    {
-    "context": "The starting month is September. Move forward 4 months. The resulting month is",
-    "continuation": " January",
+    "context": "Event tag: amber. The current month is November. What month is 12 months later? Answer:",
+    "continuation": " November",
     "digits_only": false
    },
    {
-    "context": "The starting month is May. Move forward 2 months. The resulting month is",
-    "continuation": " July",
+    "context": "Event tag: blue. The current month is May. What month is 5 months later? Answer:",
+    "continuation": " October",
     "digits_only": false
    },
    {
-    "context": "The starting month is October. Move forward 8 months. The resulting month is",
+    "context": "Event tag: amber. The current month is December. What month is 4 months later? Answer:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: blue. The current month is January. What month is 2 months later? Answer:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is June. What month is 10 months later? Answer:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: blue. The current month is December. What month is 6 months later? Answer:",
     "continuation": " June",
     "digits_only": false
    },
    {
-    "context": "The starting month is July. Move forward 2 months. The resulting month is",
+    "context": "Event tag: amber. The current month is February. What month is 6 months later? Answer:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: blue. The current month is July. What month is 6 months later? Answer:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: green. The current month is September. What month is 4 months later? Answer:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: green. The current month is July. What month is 2 months later? Answer:",
     "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is April. What month is 3 months later? Answer:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is January. What month is 1 months later? Answer:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: red. The current month is July. What month is 11 months later? Answer:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is September. What month is 1 months later? Answer:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: red. The current month is November. What month is 1 months later? Answer:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is September. What month is 8 months later? Answer:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: blue. The current month is January. What month is 3 months later? Answer:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is June. What month is 12 months later? Answer:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is July. What month is 4 months later? Answer:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: red. The current month is October. What month is 5 months later? Answer:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: red. The current month is March. What month is 9 months later? Answer:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: blue. The current month is September. What month is 12 months later? Answer:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: green. The current month is May. What month is 3 months later? Answer:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is January. What month is 12 months later? Answer:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: green. The current month is February. What month is 2 months later? Answer:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: blue. The current month is June. What month is 7 months later? Answer:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is June. What month is 12 months later? Answer:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: green. The current month is March. What month is 1 months later? Answer:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: red. The current month is November. What month is 10 months later? Answer:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is February. What month is 4 months later? Answer:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is September. What month is 10 months later? Answer:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: blue. The current month is June. What month is 1 months later? Answer:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: green. The current month is October. What month is 8 months later? Answer:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is December. What month is 7 months later? Answer:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: green. The current month is November. What month is 7 months later? Answer:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: red. The current month is October. What month is 2 months later? Answer:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: red. The current month is January. What month is 7 months later? Answer:",
+    "continuation": " August",
     "digits_only": false
    }
   ],
   "heldout": [
    {
-    "context": "The starting month is December. Move forward 17 months. The resulting month is",
-    "continuation": " May",
+    "context": "Event tag: green. The current month is September. What month is 3 months later? Answer:",
+    "continuation": " December",
     "digits_only": false
    },
    {
-    "context": "The starting month is February. Move forward 16 months. The resulting month is",
-    "continuation": " June",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is February. Move forward 23 months. The resulting month is",
-    "continuation": " January",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is November. Move forward 9 months. The resulting month is",
+    "context": "Event tag: red. The current month is April. What month is 4 months later? Answer:",
     "continuation": " August",
     "digits_only": false
    },
    {
-    "context": "The starting month is June. Move forward 7 months. The resulting month is",
-    "continuation": " January",
+    "context": "Event tag: red. The current month is July. What month is 12 months later? Answer:",
+    "continuation": " July",
     "digits_only": false
    },
    {
-    "context": "The starting month is November. Move forward 21 months. The resulting month is",
-    "continuation": " August",
+    "context": "Event tag: green. The current month is December. What month is 4 months later? Answer:",
+    "continuation": " April",
     "digits_only": false
    },
    {
-    "context": "The starting month is July. Move forward 20 months. The resulting month is",
+    "context": "Event tag: red. The current month is January. What month is 2 months later? Answer:",
     "continuation": " March",
     "digits_only": false
    },
    {
-    "context": "The starting month is October. Move forward 8 months. The resulting month is",
-    "continuation": " June",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is January. Move forward 18 months. The resulting month is",
-    "continuation": " July",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is July. Move forward 14 months. The resulting month is",
-    "continuation": " September",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is December. Move forward 9 months. The resulting month is",
-    "continuation": " September",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is June. Move forward 17 months. The resulting month is",
-    "continuation": " November",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is May. Move forward 17 months. The resulting month is",
-    "continuation": " October",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is March. Move forward 23 months. The resulting month is",
-    "continuation": " February",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is July. Move forward 10 months. The resulting month is",
+    "context": "Event tag: blue. The current month is May. What month is 12 months later? Answer:",
     "continuation": " May",
     "digits_only": false
    },
    {
-    "context": "The starting month is January. Move forward 22 months. The resulting month is",
-    "continuation": " November",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is November. Move forward 13 months. The resulting month is",
-    "continuation": " December",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is January. Move forward 20 months. The resulting month is",
+    "context": "Event tag: green. The current month is March. What month is 6 months later? Answer:",
     "continuation": " September",
     "digits_only": false
    },
    {
-    "context": "The starting month is January. Move forward 20 months. The resulting month is",
-    "continuation": " September",
+    "context": "Event tag: amber. The current month is July. What month is 7 months later? Answer:",
+    "continuation": " February",
     "digits_only": false
    },
    {
-    "context": "The starting month is June. Move forward 18 months. The resulting month is",
+    "context": "Event tag: blue. The current month is September. What month is 3 months later? Answer:",
     "continuation": " December",
     "digits_only": false
    },
    {
-    "context": "The starting month is December. Move forward 18 months. The resulting month is",
+    "context": "Event tag: red. The current month is September. What month is 8 months later? Answer:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: red. The current month is May. What month is 9 months later? Answer:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is December. What month is 3 months later? Answer:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is May. What month is 2 months later? Answer:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: blue. The current month is January. What month is 5 months later? Answer:",
     "continuation": " June",
     "digits_only": false
    },
    {
-    "context": "The starting month is June. Move forward 4 months. The resulting month is",
+    "context": "Event tag: red. The current month is August. What month is 11 months later? Answer:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is July. What month is 3 months later? Answer:",
     "continuation": " October",
     "digits_only": false
    },
    {
-    "context": "The starting month is July. Move forward 3 months. The resulting month is",
-    "continuation": " October",
+    "context": "Event tag: red. The current month is May. What month is 2 months later? Answer:",
+    "continuation": " July",
     "digits_only": false
    },
    {
-    "context": "The starting month is November. Move forward 19 months. The resulting month is",
-    "continuation": " June",
+    "context": "Event tag: amber. The current month is September. What month is 12 months later? Answer:",
+    "continuation": " September",
     "digits_only": false
    },
    {
-    "context": "The starting month is September. Move forward 19 months. The resulting month is",
+    "context": "Event tag: blue. The current month is June. What month is 10 months later? Answer:",
     "continuation": " April",
     "digits_only": false
    },
    {
-    "context": "The starting month is May. Move forward 18 months. The resulting month is",
-    "continuation": " November",
+    "context": "Event tag: amber. The current month is December. What month is 7 months later? Answer:",
+    "continuation": " July",
     "digits_only": false
    },
    {
-    "context": "The starting month is November. Move forward 18 months. The resulting month is",
+    "context": "Event tag: amber. The current month is December. What month is 5 months later? Answer:",
     "continuation": " May",
     "digits_only": false
    },
    {
-    "context": "The starting month is February. Move forward 18 months. The resulting month is",
-    "continuation": " August",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is November. Move forward 7 months. The resulting month is",
-    "continuation": " June",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is October. Move forward 21 months. The resulting month is",
-    "continuation": " July",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is April. Move forward 5 months. The resulting month is",
-    "continuation": " September",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is February. Move forward 24 months. The resulting month is",
-    "continuation": " February",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is February. Move forward 21 months. The resulting month is",
-    "continuation": " November",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is August. Move forward 4 months. The resulting month is",
-    "continuation": " December",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is June. Move forward 20 months. The resulting month is",
-    "continuation": " February",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is November. Move forward 23 months. The resulting month is",
-    "continuation": " October",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is August. Move forward 11 months. The resulting month is",
-    "continuation": " July",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is March. Move forward 11 months. The resulting month is",
-    "continuation": " February",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is July. Move forward 11 months. The resulting month is",
-    "continuation": " June",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is July. Move forward 19 months. The resulting month is",
-    "continuation": " February",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is May. Move forward 23 months. The resulting month is",
+    "context": "Event tag: green. The current month is November. What month is 5 months later? Answer:",
     "continuation": " April",
     "digits_only": false
    },
    {
-    "context": "The starting month is August. Move forward 3 months. The resulting month is",
-    "continuation": " November",
+    "context": "Event tag: green. The current month is April. What month is 11 months later? Answer:",
+    "continuation": " March",
     "digits_only": false
    },
    {
-    "context": "The starting month is May. Move forward 15 months. The resulting month is",
-    "continuation": " August",
-    "digits_only": false
-   },
-   {
-    "context": "The starting month is June. Move forward 3 months. The resulting month is",
+    "context": "Event tag: green. The current month is January. What month is 8 months later? Answer:",
     "continuation": " September",
     "digits_only": false
    },
    {
-    "context": "The starting month is September. Move forward 15 months. The resulting month is",
-    "continuation": " December",
+    "context": "Event tag: amber. The current month is August. What month is 12 months later? Answer:",
+    "continuation": " August",
     "digits_only": false
    },
    {
-    "context": "The starting month is October. Move forward 7 months. The resulting month is",
+    "context": "Event tag: blue. The current month is December. What month is 8 months later? Answer:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: red. The current month is March. What month is 6 months later? Answer:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: red. The current month is August. What month is 9 months later? Answer:",
     "continuation": " May",
     "digits_only": false
    },
    {
-    "context": "The starting month is March. Move forward 5 months. The resulting month is",
+    "context": "Event tag: green. The current month is September. What month is 2 months later? Answer:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: green. The current month is March. What month is 10 months later? Answer:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is April. What month is 4 months later? Answer:",
     "continuation": " August",
     "digits_only": false
    },
    {
-    "context": "The starting month is January. Move forward 20 months. The resulting month is",
+    "context": "Event tag: blue. The current month is October. What month is 4 months later? Answer:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: red. The current month is December. What month is 5 months later? Answer:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is May. What month is 8 months later? Answer:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: red. The current month is November. What month is 6 months later? Answer:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: green. The current month is December. What month is 9 months later? Answer:",
     "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: blue. The current month is January. What month is 10 months later? Answer:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is September. What month is 5 months later? Answer:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is November. What month is 9 months later? Answer:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is May. What month is 8 months later? Answer:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: green. The current month is August. What month is 11 months later? Answer:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: blue. The current month is December. What month is 2 months later? Answer:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: red. The current month is February. What month is 10 months later? Answer:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: blue. The current month is May. What month is 3 months later? Answer:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: green. The current month is April. What month is 8 months later? Answer:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is October. What month is 11 months later? Answer:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: blue. The current month is December. What month is 11 months later? Answer:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: green. The current month is August. What month is 10 months later? Answer:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: green. The current month is September. What month is 6 months later? Answer:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is November. What month is 2 months later? Answer:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is August. What month is 4 months later? Answer:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: blue. The current month is January. What month is 11 months later? Answer:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is November. What month is 3 months later? Answer:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: blue. The current month is September. What month is 4 months later? Answer:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: green. The current month is March. What month is 2 months later? Answer:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: green. The current month is October. What month is 2 months later? Answer:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: green. The current month is May. What month is 6 months later? Answer:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: blue. The current month is April. What month is 2 months later? Answer:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is February. What month is 1 months later? Answer:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: red. The current month is December. What month is 11 months later? Answer:",
+    "continuation": " November",
     "digits_only": false
    }
   ]
@@ -493,488 +613,608 @@
  "control": {
   "search": [
    {
-    "context": "The starting month is July. Move forward 19 months. The number of months to move forward is",
-    "continuation": " 19",
+    "context": "Event tag: red. The current month is May. An event occurs 2 months later. What is its tag? Answer:",
+    "continuation": " red",
     "digits_only": false
    },
    {
-    "context": "The starting month is February. Move forward 7 months. The number of months to move forward is",
-    "continuation": " 7",
+    "context": "Event tag: red. The current month is April. An event occurs 4 months later. What is its tag? Answer:",
+    "continuation": " red",
     "digits_only": false
    },
    {
-    "context": "The starting month is December. Move forward 20 months. The number of months to move forward is",
-    "continuation": " 20",
+    "context": "Event tag: green. The current month is February. An event occurs 2 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is August. Move forward 3 months. The number of months to move forward is",
-    "continuation": " 3",
+    "context": "Event tag: amber. The current month is May. An event occurs 8 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is August. Move forward 12 months. The number of months to move forward is",
-    "continuation": " 12",
+    "context": "Event tag: red. The current month is November. An event occurs 6 months later. What is its tag? Answer:",
+    "continuation": " red",
     "digits_only": false
    },
    {
-    "context": "The starting month is September. Move forward 15 months. The number of months to move forward is",
-    "continuation": " 15",
+    "context": "Event tag: green. The current month is December. An event occurs 4 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is June. Move forward 14 months. The number of months to move forward is",
-    "continuation": " 14",
+    "context": "Event tag: green. The current month is September. An event occurs 3 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is May. Move forward 18 months. The number of months to move forward is",
-    "continuation": " 18",
+    "context": "Event tag: blue. The current month is January. An event occurs 10 months later. What is its tag? Answer:",
+    "continuation": " blue",
     "digits_only": false
    },
    {
-    "context": "The starting month is January. Move forward 19 months. The number of months to move forward is",
-    "continuation": " 19",
+    "context": "Event tag: green. The current month is August. An event occurs 10 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is February. Move forward 22 months. The number of months to move forward is",
-    "continuation": " 22",
+    "context": "Event tag: blue. The current month is July. An event occurs 6 months later. What is its tag? Answer:",
+    "continuation": " blue",
     "digits_only": false
    },
    {
-    "context": "The starting month is November. Move forward 13 months. The number of months to move forward is",
-    "continuation": " 13",
+    "context": "Event tag: amber. The current month is December. An event occurs 7 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is July. Move forward 11 months. The number of months to move forward is",
-    "continuation": " 11",
+    "context": "Event tag: amber. The current month is January. An event occurs 12 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is January. Move forward 18 months. The number of months to move forward is",
-    "continuation": " 18",
+    "context": "Event tag: green. The current month is May. An event occurs 9 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is May. Move forward 6 months. The number of months to move forward is",
-    "continuation": " 6",
+    "context": "Event tag: amber. The current month is December. An event occurs 7 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is July. Move forward 23 months. The number of months to move forward is",
-    "continuation": " 23",
+    "context": "Event tag: amber. The current month is June. An event occurs 12 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is November. Move forward 23 months. The number of months to move forward is",
-    "continuation": " 23",
+    "context": "Event tag: amber. The current month is August. An event occurs 12 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is March. Move forward 5 months. The number of months to move forward is",
-    "continuation": " 5",
+    "context": "Event tag: blue. The current month is September. An event occurs 5 months later. What is its tag? Answer:",
+    "continuation": " blue",
     "digits_only": false
    },
    {
-    "context": "The starting month is December. Move forward 9 months. The number of months to move forward is",
-    "continuation": " 9",
+    "context": "Event tag: red. The current month is November. An event occurs 1 months later. What is its tag? Answer:",
+    "continuation": " red",
     "digits_only": false
    },
    {
-    "context": "The starting month is August. Move forward 17 months. The number of months to move forward is",
-    "continuation": " 17",
+    "context": "Event tag: blue. The current month is June. An event occurs 1 months later. What is its tag? Answer:",
+    "continuation": " blue",
     "digits_only": false
    },
    {
-    "context": "The starting month is February. Move forward 9 months. The number of months to move forward is",
-    "continuation": " 9",
+    "context": "Event tag: green. The current month is September. An event occurs 2 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is February. Move forward 20 months. The number of months to move forward is",
-    "continuation": " 20",
+    "context": "Event tag: red. The current month is July. An event occurs 12 months later. What is its tag? Answer:",
+    "continuation": " red",
     "digits_only": false
    },
    {
-    "context": "The starting month is October. Move forward 7 months. The number of months to move forward is",
-    "continuation": " 7",
+    "context": "Event tag: blue. The current month is January. An event occurs 5 months later. What is its tag? Answer:",
+    "continuation": " blue",
     "digits_only": false
    },
    {
-    "context": "The starting month is June. Move forward 3 months. The number of months to move forward is",
-    "continuation": " 3",
+    "context": "Event tag: amber. The current month is November. An event occurs 9 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is March. Move forward 11 months. The number of months to move forward is",
-    "continuation": " 11",
+    "context": "Event tag: red. The current month is July. An event occurs 11 months later. What is its tag? Answer:",
+    "continuation": " red",
     "digits_only": false
    },
    {
-    "context": "The starting month is August. Move forward 4 months. The number of months to move forward is",
-    "continuation": " 4",
+    "context": "Event tag: amber. The current month is April. An event occurs 4 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is February. Move forward 24 months. The number of months to move forward is",
-    "continuation": " 24",
+    "context": "Event tag: green. The current month is August. An event occurs 11 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is October. Move forward 8 months. The number of months to move forward is",
-    "continuation": " 8",
+    "context": "Event tag: green. The current month is April. An event occurs 11 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is April. Move forward 24 months. The number of months to move forward is",
-    "continuation": " 24",
+    "context": "Event tag: amber. The current month is April. An event occurs 3 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is February. Move forward 1 months. The number of months to move forward is",
-    "continuation": " 1",
+    "context": "Event tag: green. The current month is April. An event occurs 12 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is May. Move forward 23 months. The number of months to move forward is",
-    "continuation": " 23",
+    "context": "Event tag: blue. The current month is September. An event occurs 4 months later. What is its tag? Answer:",
+    "continuation": " blue",
     "digits_only": false
    },
    {
-    "context": "The starting month is February. Move forward 5 months. The number of months to move forward is",
-    "continuation": " 5",
+    "context": "Event tag: green. The current month is September. An event occurs 4 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is November. Move forward 21 months. The number of months to move forward is",
-    "continuation": " 21",
+    "context": "Event tag: blue. The current month is September. An event occurs 12 months later. What is its tag? Answer:",
+    "continuation": " blue",
     "digits_only": false
    },
    {
-    "context": "The starting month is May. Move forward 18 months. The number of months to move forward is",
-    "continuation": " 18",
+    "context": "Event tag: amber. The current month is November. An event occurs 12 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is April. Move forward 7 months. The number of months to move forward is",
-    "continuation": " 7",
+    "context": "Event tag: green. The current month is March. An event occurs 2 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is September. Move forward 19 months. The number of months to move forward is",
-    "continuation": " 19",
+    "context": "Event tag: red. The current month is October. An event occurs 5 months later. What is its tag? Answer:",
+    "continuation": " red",
     "digits_only": false
    },
    {
-    "context": "The starting month is September. Move forward 16 months. The number of months to move forward is",
-    "continuation": " 16",
+    "context": "Event tag: green. The current month is April. An event occurs 8 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is October. Move forward 4 months. The number of months to move forward is",
-    "continuation": " 4",
+    "context": "Event tag: red. The current month is September. An event occurs 8 months later. What is its tag? Answer:",
+    "continuation": " red",
     "digits_only": false
    },
    {
-    "context": "The starting month is February. Move forward 18 months. The number of months to move forward is",
-    "continuation": " 18",
+    "context": "Event tag: amber. The current month is January. An event occurs 1 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is June. Move forward 20 months. The number of months to move forward is",
-    "continuation": " 20",
+    "context": "Event tag: blue. The current month is January. An event occurs 2 months later. What is its tag? Answer:",
+    "continuation": " blue",
     "digits_only": false
    },
    {
-    "context": "The starting month is January. Move forward 22 months. The number of months to move forward is",
-    "continuation": " 22",
+    "context": "Event tag: blue. The current month is January. An event occurs 3 months later. What is its tag? Answer:",
+    "continuation": " blue",
     "digits_only": false
    },
    {
-    "context": "The starting month is May. Move forward 2 months. The number of months to move forward is",
-    "continuation": " 2",
+    "context": "Event tag: blue. The current month is November. An event occurs 3 months later. What is its tag? Answer:",
+    "continuation": " blue",
     "digits_only": false
    },
    {
-    "context": "The starting month is May. Move forward 5 months. The number of months to move forward is",
-    "continuation": " 5",
+    "context": "Event tag: red. The current month is August. An event occurs 11 months later. What is its tag? Answer:",
+    "continuation": " red",
     "digits_only": false
    },
    {
-    "context": "The starting month is November. Move forward 9 months. The number of months to move forward is",
-    "continuation": " 9",
+    "context": "Event tag: green. The current month is March. An event occurs 10 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is April. Move forward 12 months. The number of months to move forward is",
-    "continuation": " 12",
+    "context": "Event tag: red. The current month is August. An event occurs 2 months later. What is its tag? Answer:",
+    "continuation": " red",
     "digits_only": false
    },
    {
-    "context": "The starting month is March. Move forward 10 months. The number of months to move forward is",
-    "continuation": " 10",
+    "context": "Event tag: amber. The current month is August. An event occurs 4 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is September. Move forward 5 months. The number of months to move forward is",
-    "continuation": " 5",
+    "context": "Event tag: red. The current month is January. An event occurs 2 months later. What is its tag? Answer:",
+    "continuation": " red",
     "digits_only": false
    },
    {
-    "context": "The starting month is April. Move forward 20 months. The number of months to move forward is",
-    "continuation": " 20",
+    "context": "Event tag: blue. The current month is May. An event occurs 5 months later. What is its tag? Answer:",
+    "continuation": " blue",
     "digits_only": false
    },
    {
-    "context": "The starting month is May. Move forward 17 months. The number of months to move forward is",
-    "continuation": " 17",
+    "context": "Event tag: green. The current month is April. An event occurs 5 months later. What is its tag? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: red. The current month is March. An event occurs 9 months later. What is its tag? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: red. The current month is February. An event occurs 10 months later. What is its tag? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: red. The current month is March. An event occurs 6 months later. What is its tag? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is November. An event occurs 3 months later. What is its tag? Answer:",
+    "continuation": " amber",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: blue. The current month is December. An event occurs 6 months later. What is its tag? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: green. The current month is May. An event occurs 6 months later. What is its tag? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is October. An event occurs 11 months later. What is its tag? Answer:",
+    "continuation": " amber",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: blue. The current month is December. An event occurs 11 months later. What is its tag? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is September. An event occurs 8 months later. What is its tag? Answer:",
+    "continuation": " amber",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is October. An event occurs 10 months later. What is its tag? Answer:",
+    "continuation": " amber",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is May. An event occurs 2 months later. What is its tag? Answer:",
+    "continuation": " amber",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: blue. The current month is October. An event occurs 4 months later. What is its tag? Answer:",
+    "continuation": " blue",
     "digits_only": false
    }
   ],
   "heldout": [
    {
-    "context": "The starting month is July. Move forward 3 months. The number of months to move forward is",
-    "continuation": " 3",
+    "context": "Event tag: red. The current month is February. An event occurs 8 months later. What is its tag? Answer:",
+    "continuation": " red",
     "digits_only": false
    },
    {
-    "context": "The starting month is October. Move forward 21 months. The number of months to move forward is",
-    "continuation": " 21",
+    "context": "Event tag: blue. The current month is January. An event occurs 2 months later. What is its tag? Answer:",
+    "continuation": " blue",
     "digits_only": false
    },
    {
-    "context": "The starting month is November. Move forward 7 months. The number of months to move forward is",
-    "continuation": " 7",
+    "context": "Event tag: amber. The current month is September. An event occurs 10 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is July. Move forward 2 months. The number of months to move forward is",
-    "continuation": " 2",
+    "context": "Event tag: green. The current month is December. An event occurs 2 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is January. Move forward 20 months. The number of months to move forward is",
-    "continuation": " 20",
+    "context": "Event tag: green. The current month is February. An event occurs 3 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is October. Move forward 22 months. The number of months to move forward is",
-    "continuation": " 22",
+    "context": "Event tag: green. The current month is October. An event occurs 2 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is May. Move forward 15 months. The number of months to move forward is",
-    "continuation": " 15",
+    "context": "Event tag: blue. The current month is May. An event occurs 12 months later. What is its tag? Answer:",
+    "continuation": " blue",
     "digits_only": false
    },
    {
-    "context": "The starting month is November. Move forward 18 months. The number of months to move forward is",
-    "continuation": " 18",
+    "context": "Event tag: amber. The current month is February. An event occurs 6 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is September. Move forward 1 months. The number of months to move forward is",
-    "continuation": " 1",
+    "context": "Event tag: red. The current month is October. An event occurs 2 months later. What is its tag? Answer:",
+    "continuation": " red",
     "digits_only": false
    },
    {
-    "context": "The starting month is June. Move forward 16 months. The number of months to move forward is",
-    "continuation": " 16",
+    "context": "Event tag: blue. The current month is October. An event occurs 11 months later. What is its tag? Answer:",
+    "continuation": " blue",
     "digits_only": false
    },
    {
-    "context": "The starting month is June. Move forward 17 months. The number of months to move forward is",
-    "continuation": " 17",
+    "context": "Event tag: blue. The current month is June. An event occurs 7 months later. What is its tag? Answer:",
+    "continuation": " blue",
     "digits_only": false
    },
    {
-    "context": "The starting month is October. Move forward 8 months. The number of months to move forward is",
-    "continuation": " 8",
+    "context": "Event tag: amber. The current month is December. An event occurs 4 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is January. Move forward 7 months. The number of months to move forward is",
-    "continuation": " 7",
+    "context": "Event tag: amber. The current month is July. An event occurs 4 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is February. Move forward 16 months. The number of months to move forward is",
-    "continuation": " 16",
+    "context": "Event tag: amber. The current month is September. An event occurs 12 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is February. Move forward 16 months. The number of months to move forward is",
-    "continuation": " 16",
+    "context": "Event tag: green. The current month is July. An event occurs 10 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is April. Move forward 24 months. The number of months to move forward is",
-    "continuation": " 24",
+    "context": "Event tag: amber. The current month is July. An event occurs 3 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is April. Move forward 1 months. The number of months to move forward is",
-    "continuation": " 1",
+    "context": "Event tag: green. The current month is March. An event occurs 1 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is January. Move forward 3 months. The number of months to move forward is",
-    "continuation": " 3",
+    "context": "Event tag: green. The current month is October. An event occurs 9 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is August. Move forward 11 months. The number of months to move forward is",
-    "continuation": " 11",
+    "context": "Event tag: amber. The current month is March. An event occurs 8 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is June. Move forward 4 months. The number of months to move forward is",
-    "continuation": " 4",
+    "context": "Event tag: amber. The current month is February. An event occurs 4 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is January. Move forward 9 months. The number of months to move forward is",
-    "continuation": " 9",
+    "context": "Event tag: blue. The current month is May. An event occurs 3 months later. What is its tag? Answer:",
+    "continuation": " blue",
     "digits_only": false
    },
    {
-    "context": "The starting month is June. Move forward 7 months. The number of months to move forward is",
-    "continuation": " 7",
+    "context": "Event tag: green. The current month is September. An event occurs 6 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is July. Move forward 20 months. The number of months to move forward is",
-    "continuation": " 20",
+    "context": "Event tag: red. The current month is May. An event occurs 9 months later. What is its tag? Answer:",
+    "continuation": " red",
     "digits_only": false
    },
    {
-    "context": "The starting month is September. Move forward 16 months. The number of months to move forward is",
-    "continuation": " 16",
+    "context": "Event tag: blue. The current month is November. An event occurs 5 months later. What is its tag? Answer:",
+    "continuation": " blue",
     "digits_only": false
    },
    {
-    "context": "The starting month is February. Move forward 21 months. The number of months to move forward is",
-    "continuation": " 21",
+    "context": "Event tag: red. The current month is October. An event occurs 1 months later. What is its tag? Answer:",
+    "continuation": " red",
     "digits_only": false
    },
    {
-    "context": "The starting month is June. Move forward 18 months. The number of months to move forward is",
-    "continuation": " 18",
+    "context": "Event tag: red. The current month is August. An event occurs 9 months later. What is its tag? Answer:",
+    "continuation": " red",
     "digits_only": false
    },
    {
-    "context": "The starting month is February. Move forward 22 months. The number of months to move forward is",
-    "continuation": " 22",
+    "context": "Event tag: red. The current month is July. An event occurs 5 months later. What is its tag? Answer:",
+    "continuation": " red",
     "digits_only": false
    },
    {
-    "context": "The starting month is June. Move forward 23 months. The number of months to move forward is",
-    "continuation": " 23",
+    "context": "Event tag: amber. The current month is May. An event occurs 8 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is February. Move forward 3 months. The number of months to move forward is",
-    "continuation": " 3",
+    "context": "Event tag: amber. The current month is December. An event occurs 5 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is March. Move forward 23 months. The number of months to move forward is",
-    "continuation": " 23",
+    "context": "Event tag: amber. The current month is September. An event occurs 1 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is July. Move forward 14 months. The number of months to move forward is",
-    "continuation": " 14",
+    "context": "Event tag: green. The current month is October. An event occurs 5 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is December. Move forward 8 months. The number of months to move forward is",
-    "continuation": " 8",
+    "context": "Event tag: amber. The current month is August. An event occurs 2 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is December. Move forward 18 months. The number of months to move forward is",
-    "continuation": " 18",
+    "context": "Event tag: amber. The current month is December. An event occurs 3 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is January. Move forward 20 months. The number of months to move forward is",
-    "continuation": " 20",
+    "context": "Event tag: red. The current month is November. An event occurs 10 months later. What is its tag? Answer:",
+    "continuation": " red",
     "digits_only": false
    },
    {
-    "context": "The starting month is July. Move forward 10 months. The number of months to move forward is",
-    "continuation": " 10",
+    "context": "Event tag: green. The current month is November. An event occurs 7 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is May. Move forward 15 months. The number of months to move forward is",
-    "continuation": " 15",
+    "context": "Event tag: green. The current month is January. An event occurs 8 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is February. Move forward 24 months. The number of months to move forward is",
-    "continuation": " 24",
+    "context": "Event tag: amber. The current month is July. An event occurs 7 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is January. Move forward 20 months. The number of months to move forward is",
-    "continuation": " 20",
+    "context": "Event tag: blue. The current month is September. An event occurs 3 months later. What is its tag? Answer:",
+    "continuation": " blue",
     "digits_only": false
    },
    {
-    "context": "The starting month is April. Move forward 6 months. The number of months to move forward is",
-    "continuation": " 6",
+    "context": "Event tag: red. The current month is December. An event occurs 5 months later. What is its tag? Answer:",
+    "continuation": " red",
     "digits_only": false
    },
    {
-    "context": "The starting month is April. Move forward 20 months. The number of months to move forward is",
-    "continuation": " 20",
+    "context": "Event tag: green. The current month is November. An event occurs 5 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is November. Move forward 19 months. The number of months to move forward is",
-    "continuation": " 19",
+    "context": "Event tag: amber. The current month is February. An event occurs 1 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is December. Move forward 17 months. The number of months to move forward is",
-    "continuation": " 17",
+    "context": "Event tag: blue. The current month is June. An event occurs 10 months later. What is its tag? Answer:",
+    "continuation": " blue",
     "digits_only": false
    },
    {
-    "context": "The starting month is August. Move forward 22 months. The number of months to move forward is",
-    "continuation": " 22",
+    "context": "Event tag: blue. The current month is January. An event occurs 11 months later. What is its tag? Answer:",
+    "continuation": " blue",
     "digits_only": false
    },
    {
-    "context": "The starting month is September. Move forward 4 months. The number of months to move forward is",
-    "continuation": " 4",
+    "context": "Event tag: amber. The current month is September. An event occurs 5 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is April. Move forward 5 months. The number of months to move forward is",
-    "continuation": " 5",
+    "context": "Event tag: blue. The current month is June. An event occurs 10 months later. What is its tag? Answer:",
+    "continuation": " blue",
     "digits_only": false
    },
    {
-    "context": "The starting month is February. Move forward 20 months. The number of months to move forward is",
-    "continuation": " 20",
+    "context": "Event tag: amber. The current month is November. An event occurs 2 months later. What is its tag? Answer:",
+    "continuation": " amber",
     "digits_only": false
    },
    {
-    "context": "The starting month is February. Move forward 23 months. The number of months to move forward is",
-    "continuation": " 23",
+    "context": "Event tag: green. The current month is July. An event occurs 2 months later. What is its tag? Answer:",
+    "continuation": " green",
     "digits_only": false
    },
    {
-    "context": "The starting month is June. Move forward 20 months. The number of months to move forward is",
-    "continuation": " 20",
+    "context": "Event tag: red. The current month is January. An event occurs 7 months later. What is its tag? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: blue. The current month is December. An event occurs 8 months later. What is its tag? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is September. An event occurs 8 months later. What is its tag? Answer:",
+    "continuation": " amber",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is June. An event occurs 10 months later. What is its tag? Answer:",
+    "continuation": " amber",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: green. The current month is March. An event occurs 6 months later. What is its tag? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: green. The current month is October. An event occurs 8 months later. What is its tag? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: green. The current month is December. An event occurs 9 months later. What is its tag? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: red. The current month is November. An event occurs 6 months later. What is its tag? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: blue. The current month is April. An event occurs 2 months later. What is its tag? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: green. The current month is May. An event occurs 3 months later. What is its tag? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: red. The current month is December. An event occurs 11 months later. What is its tag? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: amber. The current month is June. An event occurs 12 months later. What is its tag? Answer:",
+    "continuation": " amber",
+    "digits_only": false
+   },
+   {
+    "context": "Event tag: blue. The current month is December. An event occurs 2 months later. What is its tag? Answer:",
+    "continuation": " blue",
     "digits_only": false
    }
   ]
  },
- "base_margin": 3.4323
+ "base_margin": 4.9573
 }
