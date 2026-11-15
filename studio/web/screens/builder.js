@@ -46,9 +46,11 @@ function dragImage(e) {
   setTimeout(() => g.remove(), 0);
 }
 
+const onKeyAct = (fn) => (e) => { if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); fn(e); } };
+
 function Piece({ lead, t1, t2, t3, status, tip, lock, used, dragging, onDragStart, onDragEnd, onClick }) {
   const locked = !!lock;
-  return html`<div class=${'piece' + (dragging ? ' dragging' : '') + (used ? ' used' : '') + (locked ? ' locked' : '')} draggable=${locked ? 'false' : 'true'} onDragStart=${locked ? null : onDragStart} onDragEnd=${onDragEnd} onClick=${locked ? null : onClick} data-tip=${locked ? lock.why : tip || 'Drag onto the model, or click to add'} data-tip-side="right" aria-disabled=${locked ? 'true' : null}>
+  return html`<div class=${'piece' + (dragging ? ' dragging' : '') + (used ? ' used' : '') + (locked ? ' locked' : '')} draggable=${locked ? 'false' : 'true'} onDragStart=${locked ? null : onDragStart} onDragEnd=${onDragEnd} onClick=${locked ? null : onClick} tabindex=${locked ? null : '0'} role="button" onKeyDown=${locked || !onClick ? null : onKeyAct(onClick)} data-tip=${locked ? lock.why : tip || 'Drag onto the model, or click to add'} data-tip-side="right" aria-disabled=${locked ? 'true' : null}>
     ${lead}<div style="min-width:0"><div class="t1">${t1}</div><div class="t2 t2s"><${StatusTag} status=${status} /><span>${t2}</span></div>${t3 && html`<div class="t3">${t3}</div>`}</div>
     <span class=${locked ? 'lk' : 'add'}>${locked ? html`<${Icon} n="lock" size=${14} />` : used ? html`<${Icon} n="check" size=${14} />` : html`<${Icon} n="plus" size=${14} />`}</span></div>`;
 }
@@ -415,11 +417,16 @@ export function BuilderScreen({ id, specId }) {
               <div class=${'slab tail' + (over === 'tail' && DRAG ? ' drop' : '')}>${over === 'tail' && DRAG ? 'Release to add' : 'Drop a mask, heal or LoRA here'}</div>
             </div>
             ${program.grafts.map((g, i) => { const part = partById(g.id) || { label: g.id, donor: '', kind: 'part', layers: [0, 0], params_m: 0 }; const fit = fits[g.id + '@' + g.at]; const col = donorColor(part.donor); const nk = 'g' + i;
-              return html`<div class=${'node' + (newKeys.current.has(nk) ? ' is-new' : '') + (dragId === nk ? ' dragging' : '') + (sel === nk ? ' sel' : '') + (menuAt === nk ? ' menu-open' : '')} key=${nk} ref=${(el) => { nodeRefs.current[nk] = el; }} style=${{ left: nodeX + 'px', top: (geo.y[nk] ?? 20) + 'px', zIndex: menuAt === nk ? 9 : 2 }} draggable="true"
+              return html`<div class=${'node' + (newKeys.current.has(nk) ? ' is-new' : '') + (dragId === nk ? ' dragging' : '') + (sel === nk ? ' sel' : '') + (menuAt === nk ? ' menu-open' : '')} key=${nk} ref=${(el) => { nodeRefs.current[nk] = el; }} style=${{ left: nodeX + 'px', top: (geo.y[nk] ?? 20) + 'px', zIndex: menuAt === nk ? 9 : 2 }} draggable="true" tabindex="0" aria-label=${part.label + ' at layer ' + g.at + '. Arrow up or down moves it.'}
+                onKeyDown=${(e) => { if (e.target !== e.currentTarget) return; if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSel(nk); } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); setSel(nk); const to = clamp(g.at + (e.key === 'ArrowDown' ? 1 : -1), 0, N - 1); if (to !== g.at) edit((p) => { p.grafts[i].at = to; }); } }}
                 onDragStart=${(e) => startDrag(e, { kind: 'node', t: 'g', i }, nk)} onDragEnd=${endDrag} onClick=${(e) => { e.stopPropagation(); setSel(nk); }}>
                 <div class="nh"><${ModelLogo} model=${part.donor} size=${24} /><span class="t">${part.label}</span>
                   <button class="iconbtn" style="width:24px;height:24px" data-tip="Options" aria-label="Options" onClick=${(e) => { e.stopPropagation(); setMenuAt(menuAt === nk ? null : nk); }}><${Icon} n="more" size=${16} /></button></div>
                 <${Menu} open=${menuAt === nk} origin="top-right" onClose=${() => setMenuAt(null)} style=${{ top: '38px', right: '8px', minWidth: '170px' }}>
+                  <div class="mlabel">Layer</div>
+                  <button class="mi" disabled=${g.at <= 0} onClick=${() => edit((p) => { p.grafts[i].at = Math.max(0, p.grafts[i].at - 1); })}><span>Move up to L${Math.max(0, g.at - 1)}</span></button>
+                  <button class="mi" disabled=${g.at >= N - 1} onClick=${() => edit((p) => { p.grafts[i].at = Math.min(N - 1, p.grafts[i].at + 1); })}><span>Move down to L${Math.min(N - 1, g.at + 1)}</span></button>
+                  <div class="msep"></div>
                   <div class="mlabel">Glue rank</div>
                   ${GLUE.map((r) => html`<button class=${'mi' + ((g.glue_rank || null) === r ? ' on' : '')} onClick=${() => { edit((p) => { p.grafts[i].glue_rank = r; }); setMenuAt(null); }}><span>${r == null ? 'Full rank' : 'Rank ' + r}</span>${(g.glue_rank || null) === r && html`<${Icon} n="check" size=${14} />`}</button>`)}
                   <div class="msep"></div>
@@ -475,7 +482,7 @@ export function BuilderScreen({ id, specId }) {
       ${lastOk && lastOk.comparison && html`<div class="card cmpbox"><div class="label" style="margin-bottom:6px">Compared with</div><${Compare} c=${lastOk.comparison} heal=${usesHeal(lastOk.program) || lastOk.action === 'heal' || lastOk.action === 'train'} /></div>`}
 
       ${attempts.length > 0 && html`<div><div class="label" style="margin:2px 0 6px">Attempts this session</div>
-        ${[...attempts].reverse().slice(0, 8).map((a) => html`<div class="attempt" title="Load this program" onClick=${() => { setProgram(clone(a.program)); setFits({}); }}><span class="n">${a.n}</span><span class="d">${briefProgram(a.program, cat)}</span><span class=${'num ' + (a.status && a.status !== 'ok' ? 'down' : '')}>${a.status && a.status !== 'ok' ? statusLabel(a.status) : t1 && a.scores ? pct(a.scores[t1.id]) : pctS(a.combined)}</span></div>`)}</div>`}
+        ${[...attempts].reverse().slice(0, 8).map((a) => html`<div class="attempt" title="Load this program" tabindex="0" role="button" onKeyDown=${onKeyAct(() => { setProgram(clone(a.program)); setFits({}); })} onClick=${() => { setProgram(clone(a.program)); setFits({}); }}><span class="n">${a.n}</span><span class="d">${briefProgram(a.program, cat)}</span><span class=${'num ' + (a.status && a.status !== 'ok' ? 'down' : '')}>${a.status && a.status !== 'ok' ? statusLabel(a.status) : t1 && a.scores ? pct(a.scores[t1.id]) : pctS(a.combined)}</span></div>`)}</div>`}
 
       <div style="display:flex;justify-content:space-between;align-items:center"><span class="label">Suggestions</span><button class="btn ghost sm" disabled=${sugBusy} onClick=${() => refreshSugs()}>${sugBusy ? html`<${Spinner} size=${11} />` : 'Refresh'}</button></div>
       ${sugBusy && !sugs && html`<div class="sugload"><${Spinner} size=${13} /> Thinking</div>`}

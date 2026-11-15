@@ -592,6 +592,149 @@ function getBuilder(id, specId) {
   return builders.get(id);
 }
 
+/* ---------- shrink (skill removal) ---------- */
+const SHRINK_WORDS = /\bshrink|\bslim\b|smaller version of|drop everything|keep only|coding-only|remove\b.{0,40}\bskills?|distill\w*\s+(it\s+)?down|\bprune\b/i;
+const SMODELS = {
+  'Qwen/Qwen2.5-Coder-7B-Instruct': { params: 7.616, active: 7.071, kind: 'dense', layers: 28, floor: 1.1 },
+  'Qwen/Qwen2.5-Coder-14B-Instruct': { params: 14.77, active: 13.99, kind: 'dense', layers: 48, floor: 1.6 },
+  'Qwen/Qwen3-30B-A3B-Instruct-2507': { params: 30.53, active: 3.029, kind: 'moe', layers: 48, experts: 128, top_k: 8, base: 1.2 },
+  'allenai/OLMoE-1B-7B-0125-Instruct': { params: 6.92, active: 1.28, kind: 'moe', layers: 16, experts: 64, top_k: 8, base: 0.7 },
+};
+const SKILL_BENCH = { code: 'humaneval', math: 'gsm8k', medicine: 'mmlupro:health', general: 'mmlu', prose: 'mmlu' };
+const DENSE_RULES = ['skill', 'specific', 'general', 'random'];
+const EXPERT_RULES = ['freq', 'saliency', 'selective', 'random', 'general'];
+const bAdd = (b, n) => Math.round(b * n) / n;
+function candidatesFor(src, skill) {
+  return Object.keys(SMODELS).filter((m) => m !== src).map((m) => ({ model: m, params_b: SMODELS[m].params, why: 'tagged for ' + skill + (SMODELS[m].kind === 'moe' ? ', MoE with ' + SMODELS[m].experts + ' experts per layer' : ', dense') }));
+}
+function moeTotal(f, keep) { return f.base + (f.params - f.base) * keep / f.experts; }
+function newBlock(model, skill, target, rule, steps) {
+  const f = SMODELS[model];
+  const b = { source_model: model, source_params_b: f.params, source_active_params_b: f.active, family: f.kind, keep_skill: skill, method: f.kind === 'moe' ? 'experts' : 'dense', target_params_b: null, keep_experts: null, rule: rule || (f.kind === 'moe' ? 'saliency' : 'skill'), heal_steps: steps ?? 300, candidates: candidatesFor(model, skill), notes: [] };
+  if (f.kind === 'moe') {
+    let keep = Math.max(1, Math.floor(f.experts / 4));
+    if (target) keep = clamp(Math.floor((target - f.base) / (f.params - f.base) * f.experts), 1, f.experts);
+    b.keep_experts = keep; b.target_params_b = bAdd(moeTotal(f, keep), 1000);
+  } else b.target_params_b = target && target < f.params ? target : bAdd(f.params * 0.38, 100);
+  return b;
+}
+function bad(msg) { const e = new Error(msg); e.status = 400; return e; }
+function checkBlock(inc, old) {
+  const source = inc.source_model ?? old.source_model;
+  if (!SMODELS[source]) throw bad('the source model must be a model in the library: ' + source);
+  const f = SMODELS[source];
+  const skill = inc.keep_skill ?? old.keep_skill;
+  if (!SKILL_BENCH[skill]) throw bad('keep_skill must be one of code, general, math, medicine, prose');
+  const steps = Math.round(Number(inc.heal_steps ?? old.heal_steps));
+  if (!(steps >= 0 && steps <= 1000)) throw bad('heal_steps must be from 0 to 1000');
+  const method = f.kind === 'moe' ? 'experts' : 'dense';
+  const rules = method === 'experts' ? EXPERT_RULES : DENSE_RULES;
+  const changed = source !== old.source_model;
+  const rule = inc.rule ?? (!changed && rules.includes(old.rule) ? old.rule : rules[method === 'experts' ? 1 : 0]);
+  if (!rules.includes(rule)) throw bad('rule must be one of ' + rules.join(', ') + ' for ' + method + ' removal');
+  if (changed) return newBlock(source, skill, inc.target_params_b, rule, inc.heal_steps ?? old.heal_steps);
+  const b = { ...old, keep_skill: skill, heal_steps: steps, rule, method };
+  if (method === 'experts') {
+    if (inc.keep_experts != null) b.keep_experts = Math.round(inc.keep_experts);
+    else if (inc.target_params_b != null && inc.target_params_b !== old.target_params_b) b.keep_experts = clamp(Math.floor((inc.target_params_b - f.base) / (f.params - f.base) * f.experts), 1, f.experts);
+    if (b.keep_experts < 1 || b.keep_experts > f.experts) throw bad('keep_experts must be from 1 to ' + f.experts + ' for ' + source);
+    b.target_params_b = bAdd(moeTotal(f, b.keep_experts), 1000);
+  } else {
+    if (inc.target_params_b != null) b.target_params_b = Number(inc.target_params_b);
+    if (b.target_params_b <= f.floor) throw bad('target_params_b must be above ' + f.floor.toFixed(2) + 'B: the embedding and the head alone take that much and slimming does not touch them');
+    if (b.target_params_b >= f.params) throw bad('target_params_b must be below the source size of ' + f.params + 'B');
+  }
+  if (inc.skill_changed) b.candidates = candidatesFor(source, skill);
+  return b;
+}
+function shrinkEstimate(b) {
+  const f = SMODELS[b.source_model];
+  const total = f.kind === 'moe' ? moeTotal(f, b.keep_experts) : b.target_params_b;
+  const run = f.kind === 'moe' ? f.active : bAdd(total * (f.active / f.params), 1000);
+  const est = { method: b.method, total_params_b: bAdd(total, 1000), run_params_b: run, heal_min: Math.round(b.heal_steps * 0.3 * Math.max(0.5, run) / 60 * 100) / 100, source_params_b: f.params, source_run_params_b: f.active, removed_params_b: bAdd(f.params - total, 1000), layers: f.layers, estimated: true };
+  if (f.kind === 'moe') Object.assign(est, { experts_kept: b.keep_experts, experts_before: f.experts, top_k_after: f.top_k });
+  else { const keep = clamp((total - f.floor) / (f.params - f.floor), 0.05, 1); Object.assign(est, { layers_before: f.layers, layers_dropped: Math.round(f.layers * (1 - Math.sqrt(keep)) * 0.5), keep_width: Math.round(keep * 100) / 100 }); }
+  return est;
+}
+const fb = (x) => (Math.round(x * 1000) / 1000 + '').replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
+function shrinkProblems(lim, e) {
+  const out = [];
+  if (e.total_params_b > lim.max_total_params_b) out.push('Over the total size limit. The shrunk model is estimated at ' + fb(e.total_params_b) + 'B parameters (the source has ' + fb(e.source_params_b) + 'B). The limit is ' + fb(lim.max_total_params_b) + 'B.');
+  if (e.run_params_b > lim.max_run_params_b) out.push('Over the per-token limit. The shrunk model runs an estimated ' + fb(e.run_params_b) + 'B parameters per token. The limit is ' + fb(lim.max_run_params_b) + 'B.');
+  if (e.heal_min > lim.max_heal_min) out.push('Over the heal time limit. The heal is estimated at ' + e.heal_min.toFixed(1) + ' min. The limit is ' + lim.max_heal_min + ' min.');
+  return out;
+}
+function shrinkSummary(b, e) {
+  const label = b.keep_skill;
+  if (b.method === 'experts') return 'Keep ' + e.experts_kept + ' of ' + e.experts_before + ' experts per layer by ' + b.rule + ' on ' + label + ' text. About ' + e.total_params_b.toFixed(1) + 'B stored, ' + e.run_params_b.toFixed(1) + 'B run per token (estimated).';
+  return 'Slim the model to about ' + e.total_params_b.toFixed(1) + 'B by removing ' + e.layers_dropped + ' layers and trimming neurons and heads by ' + b.rule + ' on ' + label + ' text. About ' + e.run_params_b.toFixed(1) + 'B run per token (estimated).';
+}
+function makeShrinkSpec(prompt, id) {
+  const low = (prompt || '').toLowerCase();
+  const skill = /math|gsm/.test(low) ? 'math' : /medic|health|bio/.test(low) ? 'medicine' : /code|coding|python|program/.test(low) ? 'code' : 'general';
+  const model = /30b|moe|a3b/.test(low) ? 'Qwen/Qwen3-30B-A3B-Instruct-2507' : /14b/.test(low) ? 'Qwen/Qwen2.5-Coder-14B-Instruct' : 'Qwen/Qwen2.5-Coder-7B-Instruct';
+  const m = /under\s+(\d+(?:\.\d+)?)\s*b/.exec(low);
+  const target = m ? Number(m[1]) : null;
+  const block = newBlock(model, skill, target ? target * 0.97 : null);
+  const f = SMODELS[model];
+  const est = shrinkEstimate(block);
+  const total = target || Math.ceil(est.total_params_b * 10) / 10;
+  const run = target ? Math.max(target, 0.1) : Math.ceil(est.run_params_b * 10) / 10;
+  const bench = clone(BENCH_LIB[SKILL_BENCH[skill]] || { id: SKILL_BENCH[skill], name: skill, kind: 'target', base: 0.4 });
+  bench.kind = 'target'; bench.target = Math.min(0.95, (bench.base || 0.4)); delete bench.lora; delete bench.recommended;
+  return {
+    id: id || rid('sp_'), title: 'A ' + skill + '-only model', summary: 'Keeps ' + skill + ' and removes the rest from ' + model.split('/').pop() + '. ' + shrinkSummary(block, est), prompt: prompt || '', files: [], task_type: skill === 'code' || skill === 'math' ? skill : 'general',
+    host: model, size: { max_params_b: total, min_b: 0.05, max_b: Math.max(32, f.params), host_params_b: f.params },
+    budget: { evals: 30, compute_min: 45, min_evals: 5, max_evals: 120 }, limits: { max_total_params_b: total, max_run_params_b: run, max_heal_min: 20 }, comparators: { distill: {} },
+    benchmarks: [bench], available_benchmarks: [], ingredients: [], drafted_by: 'rules', request_type: 'shrink', shrink: block, stub: true,
+  };
+}
+const shrinks = new Map();
+const shrinkJobs = new Map();
+function shrinkView(sess) {
+  const spec = getSpec(sess.spec_id);
+  const est = shrinkEstimate(sess.plan);
+  const problems = shrinkProblems(spec.limits, est);
+  return { ...clone(sess.plan), estimate: est, limits: clone(spec.limits), problems, ok: problems.length === 0, summary: shrinkSummary(sess.plan, est), tasks: spec.benchmarks.map((b) => b.id), stub: true };
+}
+function shrinkResult(sess, plan) {
+  const spec = getSpec(sess.spec_id);
+  const f = SMODELS[plan.source_model];
+  const est = shrinkEstimate(plan);
+  const frac = est.total_params_b / f.params;
+  const tasks = spec.benchmarks.map((b) => b.id);
+  const scores = {}, src = {}, rnd = {};
+  const heal = Math.min(1, plan.heal_steps / 400) * 0.08;
+  tasks.forEach((t) => {
+    const top = 0.84 - noise(t) * 0.06;
+    src[t] = Math.round(top * 1000) / 1000;
+    scores[t] = Math.round(clamp(top * (0.45 + 0.5 * Math.sqrt(frac)) + heal - 0.03, 0.05, top - 0.02) * 1000) / 1000;
+    rnd[t] = Math.round(clamp(scores[t] * 0.35, 0.02, 0.9) * 1000) / 1000;
+  });
+  const t0 = tasks[0];
+  const best = Math.round(clamp(scores[t0] - 0.05 + noise(plan.source_model) * 0.04, 0.05, 0.9) * 1000) / 1000;
+  const row = (id, label, value, beaten, required, note) => ({ id, label, split: 'search', per_task: { [t0]: value }, value, measured: true, note, stub: true, result_value: scores[t0], delta: Math.round((value - scores[t0]) * 1000) / 1000, beaten, required });
+  const rows = [
+    { ...row('source', 'The original model', src[t0], null, false, 'The original model on the same items. The result is expected to be below it.'), delta: Math.round((scores[t0] - src[t0]) * 1000) / 1000 },
+    { ...row('random', 'Random removal', rnd[t0], true, true, 'The same slim with random units removed, same heal steps.'), delta: Math.round((scores[t0] - rnd[t0]) * 1000) / 1000 },
+    { ...row('best_model', 'Best existing model at this size', best, scores[t0] >= best, true, 'The best library model within the size window of the result.'), delta: Math.round((scores[t0] - best) * 1000) / 1000 },
+  ];
+  const beaten = rows.filter((r) => r.required && r.beaten).map((r) => r.id);
+  const notBeaten = rows.filter((r) => r.required && !r.beaten).map((r) => r.id);
+  const verdict = notBeaten.length ? 'failed' : 'success';
+  const keepPct = Math.round(scores[t0] / src[t0] * 100);
+  const removed = f.kind === 'moe'
+    ? { kind: 'moe', experts_before: f.experts, experts_kept: plan.keep_experts, experts_removed_per_layer: f.experts - plan.keep_experts, layers: f.layers, top_k_after: f.top_k, kept_share_of_skill: Math.round(clamp(0.5 + 0.5 * Math.sqrt(plan.keep_experts / f.experts), 0, 0.99) * 100) / 100 }
+    : { kind: 'dense', layers_before: f.layers, layers_after: f.layers - est.layers_dropped, layers_dropped: Array.from({ length: est.layers_dropped }, (_, i) => 3 + i * 3), keep_mlp: est.keep_width, keep_heads: est.keep_width };
+  return {
+    params_b: est.total_params_b, active_params_b: est.run_params_b, removed, scores, source_scores: src, control: { scores: rnd }, general: null,
+    comparison: { request_type: 'shrink', verdict, headline: verdict === 'success' ? 'Success. It beats the random control by ' + ((scores[t0] - rnd[t0]) * 100).toFixed(1) + ' points. It keeps ' + keepPct + '% of the original model\'s score.' : 'Failed attempt. It does not beat the best existing model at this size.', margin: 0.02, result: { label: 'This shrink', value: scores[t0], per_task: scores, params_b: est.total_params_b, heldout: null }, rows, beaten, not_beaten: notBeaten, unmeasured: [], best_model_shown: true, stub: true },
+    stub: true, heal: { steps: plan.heal_steps, kind: plan.heal_steps > 0 ? 'distillation' : 'none', teacher: plan.heal_steps > 0 },
+    log: ['Stub run: no model was loaded and every number is made up.', shrinkSummary(plan, est), 'Heal: ' + plan.heal_steps + ' steps of distillation toward the original (stub).', 'Random control: the same counts removed at random, same heal (stub).'],
+    seconds: { load: 0, rank: 0, slim: 0, heal: est.heal_min * 60, eval: 0 }, estimated: true, plan: clone(plan),
+  };
+}
+
 /* ---------- the api ---------- */
 export const mockApi = {
   async health() {
@@ -602,6 +745,7 @@ export const mockApi = {
   async draftSpec(prompt, files) {
     await sleep(2200);
     if (!prompt || !prompt.trim()) { const e = new Error('Say what the model should do first.'); throw e; }
+    if (SHRINK_WORDS.test(prompt)) { const sp = makeShrinkSpec(prompt); specs.set(sp.id, sp); return clone(sp); }
     const s = makeSpec(prompt, files);
     specs.set(s.id, s);
     startMockResearch(s);
@@ -616,7 +760,48 @@ export const mockApi = {
     startMockResearch(getSpec(id));
     return { status: 'running' };
   },
-  async putSpec(id, spec) { await lat(); const old = getSpec(id); specs.set(id, clone({ ...spec, benchmark_research: old.benchmark_research, stub: true })); return clone(specs.get(id)); },
+  async putSpec(id, spec) {
+    await lat();
+    const old = getSpec(id);
+    if (old.request_type === 'shrink') {
+      const block = checkBlock({ ...(spec.shrink || {}), skill_changed: spec.shrink && spec.shrink.keep_skill !== old.shrink.keep_skill }, old.shrink);
+      const L = spec.limits || old.limits;
+      const lim = { max_total_params_b: clamp(Number((spec.size && spec.size.max_params_b != null && spec.size.max_params_b !== old.size.max_params_b) ? spec.size.max_params_b : L.max_total_params_b), 0.05, 2000), max_run_params_b: Number(L.max_run_params_b), max_heal_min: clamp(Number(L.max_heal_min), 1, 600) };
+      lim.max_run_params_b = clamp(lim.max_run_params_b, 0.05, lim.max_total_params_b);
+      const f = SMODELS[block.source_model];
+      const next = { ...old, ...clone(spec), shrink: block, host: block.source_model, limits: lim, size: { max_params_b: lim.max_total_params_b, min_b: 0.05, max_b: Math.max(32, f.params), host_params_b: f.params }, request_type: 'shrink', stub: true };
+      specs.set(id, next);
+      return clone(next);
+    }
+    return this._putBuild(id, spec);
+  },
+  async _putBuild(id, spec) { const old = getSpec(id); specs.set(id, clone({ ...spec, benchmark_research: old.benchmark_research, stub: true })); return clone(specs.get(id)); },
+  async createShrink(spec_id) {
+    await lat();
+    const spec = getSpec(spec_id);
+    if (spec.request_type !== 'shrink') throw bad('this spec asks for a build. Use a build run or the builder, not a shrink.');
+    const sid = rid('sh_');
+    const sess = { id: sid, spec_id, plan: clone(spec.shrink) };
+    shrinks.set(sid, sess);
+    return { shrink_id: sid, plan: shrinkView(sess), stub: true };
+  },
+  async shrinkPlan(id, fields) {
+    await sleep(90);
+    const sess = shrinks.get(id);
+    if (!sess) { const e = new Error('unknown shrink session'); e.status = 404; throw e; }
+    if (fields && Object.keys(fields).length) sess.plan = checkBlock(fields, sess.plan);
+    return shrinkView(sess);
+  },
+  async shrinkRun(id, options) {
+    await lat();
+    const sess = shrinks.get(id);
+    if (!sess) { const e = new Error('unknown shrink session'); e.status = 404; throw e; }
+    const view = shrinkView(sess);
+    if (!view.ok) throw bad(view.problems.join(' '));
+    const jid = rid('j_');
+    shrinkJobs.set(jid, { sess, plan: clone(sess.plan), t0: Date.now(), done: null });
+    return { job_id: jid };
+  },
   async createRun(spec_id, program) { await lat(); const r = newRun(getSpec(spec_id), program); return { run_id: r.id }; },
   async getRun(id) { await lat(); return snapshot(getRunObj(id)); },
   openStream(id, onSnap) {
@@ -669,6 +854,15 @@ export const mockApi = {
   },
   async getJob(jid) {
     await sleep(80);
+    if (shrinkJobs.has(jid)) {
+      const j = shrinkJobs.get(jid);
+      const age = Date.now() - j.t0;
+      const base = { job_id: jid, action: 'shrink', stub: true, error: null, budget: null };
+      if (age < 700) return { ...base, status: 'queued', result: null };
+      if (age < 2600) return { ...base, status: 'running', result: null };
+      if (!j.done) j.done = { ...base, status: 'done', result: shrinkResult(j.sess, j.plan) };
+      return clone(j.done);
+    }
     const j = jobs.get(jid);
     if (!j) { const e = new Error('no such job'); e.status = 404; throw e; }
     const base = { job_id: jid, action: j.action, stub: true, error: null };

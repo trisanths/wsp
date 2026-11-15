@@ -8,6 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from studio.server import bench_research
+from studio.server import specs as specs_mod
 from studio.server.app import app
 
 REAL_URL = "https://example.org/legal-leaderboard"
@@ -62,12 +63,19 @@ def fake_llm(messages, schema, max_tokens=2500):
     return json.dumps(SYNTH)
 
 
+def fail_draft(*args, **kwargs):
+    """The research tests never need an LLM-drafted spec, so the draft falls back to rules with no network."""
+    raise RuntimeError("no LLM draft in tests")
+
+
 @pytest.fixture
 def client(tmp_path, monkeypatch):
     monkeypatch.setenv("WSP_STUDIO_OUT", str(tmp_path))
     monkeypatch.setenv("WSP_STUDIO_BACKEND", "stub")
     monkeypatch.setenv("WSP_STUDIO_LLM", "openai_compat")
     monkeypatch.setenv("OPENAI_API_KEY", "test-key-not-used")
+    monkeypatch.delenv("EXA_API_KEY", raising=False)
+    monkeypatch.setattr(specs_mod, "llm_draft", fail_draft)
     monkeypatch.setattr(bench_research, "choose_provider", lambda: "exa")
     monkeypatch.setattr(bench_research, "search_exa", fake_search())
     monkeypatch.setattr(bench_research, "search_exa_scores", fake_score_search)
@@ -200,7 +208,7 @@ def test_timeout_records_error(client, monkeypatch):
 
     def stuck(messages, schema, max_tokens=2500):
         release.wait(5)
-        return fake_llm(messages, schema, max_tokens)
+        raise RuntimeError("stopped after the test")
 
     monkeypatch.setattr(bench_research, "ask_llm", stuck)
     spec = draft(client)

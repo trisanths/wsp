@@ -5,6 +5,7 @@ import { TopBar, Icon, Spinner, ErrorBox, Menu, StubBadge } from '../components.
 import { SubtleNum, AutoHeight, SkelReveal, reduced } from '../motion.js';
 import { ModelLogo } from '../logos.js';
 import { ResearchBlock, RefList, AlsoConsidered, refTicks } from './research.js';
+import { ShrinkSection } from './shrink-spec.js';
 
 // slider with optional tick marks (fractions of the range are given as values)
 export function Slider({ value, min, max, step, onChange, ticks = [], color, ariaLabel }) {
@@ -58,7 +59,13 @@ export function SpecScreen({ id }) {
     if (!dirty.current) return;
     dirty.current = false;
     setSave('saving');
-    try { await api.putSpec(id, withoutResearch(latest.current)); patchRecent('spec', id, { title: latest.current.title }); setSave(dirty.current ? 'dirty' : 'saved'); } catch (e) { setSave('error'); toast('Could not save: ' + e.message, 'err'); dirty.current = true; }
+    try {
+      const saved = await api.putSpec(id, withoutResearch(latest.current));
+      patchRecent('spec', id, { title: latest.current.title });
+      // the server checks a shrink edit and may change other fields (experts from a size, defaults for a new source)
+      if (saved && saved.request_type === 'shrink' && !dirty.current && latest.current) { latest.current = { ...latest.current, shrink: saved.shrink, host: saved.host, size: saved.size, limits: saved.limits || latest.current.limits }; setSpec(latest.current); }
+      setSave(dirty.current ? 'dirty' : 'saved');
+    } catch (e) { setSave('error'); toast('Could not save: ' + e.message, 'err'); dirty.current = true; }
   };
   const debounced = useDebouncedCallback(doSave, 700);
   const edit = (fn) => {
@@ -135,14 +142,15 @@ export function SpecScreen({ id }) {
   const guards = spec.benchmarks.filter((b) => b.kind === 'guard');
   const whyOf = (bid) => { const p = res && (res.proposals || []).find((x) => x.runnable_id === bid); return p && p.why; };
   const upd = (bid, patch) => edit((s) => { Object.assign(s.benchmarks.find((b) => b.id === bid), patch); });
-  const remove = (bid) => edit((s) => {
+  const remove = (bid) => { if (!latest.current.benchmarks.some((x) => x.id === bid)) return; edit((s) => {
     const b = s.benchmarks.find((x) => x.id === bid);
+    if (!b) return;
     s.benchmarks = s.benchmarks.filter((x) => x.id !== bid);
     const back = { ...b }; delete back.target; delete back.floor; delete back.recommended;
     s.available_benchmarks = [...s.available_benchmarks, back];
-  });
+  }); };
   // a removed row fades out first, then the targets card resizes
-  const drop = (bid) => { setGone(bid); setTimeout(() => { remove(bid); setGone(null); }, reduced() ? 0 : 170); };
+  const drop = (bid) => { if (gone === bid) return; setGone(bid); setTimeout(() => { remove(bid); setGone(null); }, reduced() ? 0 : 170); };
   const add = (a) => { edit((s) => {
     s.available_benchmarks = s.available_benchmarks.filter((x) => x.id !== a.id);
     const nb = { ...a };
@@ -152,6 +160,26 @@ export function SpecScreen({ id }) {
   }); setMenu(false); };
 
   const flush = async () => { debounced.cancel(); await doSave(); };
+  const changeSource = async (model) => {
+    await flush();
+    setSave('saving');
+    try {
+      // naming only the new source lets the server reset the other fields to that model's defaults
+      const saved = await api.putSpec(id, { ...withoutResearch(latest.current), shrink: { source_model: model, keep_skill: latest.current.shrink.keep_skill } });
+      latest.current = { ...latest.current, ...withoutResearch(saved), benchmark_research: latest.current.benchmark_research };
+      setSpec(latest.current);
+      setSave('saved');
+    } catch (e) { setSave('error'); toast(e.message, 'err'); }
+  };
+  const startShrink = async () => {
+    setBusy('shrink');
+    try {
+      await flush();
+      const r = await api.createShrink(id);
+      addRecent({ kind: 'shrink', id: r.shrink_id, spec: id, title: spec.title, status: 'planned' });
+      go('/shrink/' + r.shrink_id + '?spec=' + id);
+    } catch (e) { toast(e.message, 'err'); setBusy(null); }
+  };
   const startRun = async () => {
     setBusy('run');
     try { await flush(); const r = await api.createRun(id, null); go('/run/' + r.run_id); } catch (e) { toast(e.message, 'err'); setBusy(null); }
@@ -163,13 +191,15 @@ export function SpecScreen({ id }) {
 
   const hostB = spec.size.host_params_b;
   const lim = { max_total_params_b: spec.size.max_params_b, max_run_params_b: spec.size.max_params_b, max_heal_min: 20, ...(spec.limits || {}) };
-  const totMax = Math.min(spec.size.max_b, Math.max(8, Math.ceil(lim.max_total_params_b * 2)));
+  const isShrink = spec.request_type === 'shrink';
+  const sizeMin = isShrink ? 0.1 : Math.max(spec.size.min_b, hostB || 0);
+  const totMax = isShrink ? Math.max(Math.ceil(hostB || 1), Math.ceil(lim.max_total_params_b)) : Math.min(spec.size.max_b, Math.max(8, Math.ceil(lim.max_total_params_b * 2)));
   const healMax = Math.max(120, lim.max_heal_min * 2);
   const setLimit = (patch) => edit((s) => {
     s.limits = { ...lim, ...(s.limits || {}), ...patch };
     if (patch.max_total_params_b != null) { s.size.max_params_b = patch.max_total_params_b; s.limits.max_run_params_b = Math.min(s.limits.max_run_params_b, patch.max_total_params_b); }
   });
-  const sizeTicks = hostB != null ? [{ v: hostB, kind: 'host', label: 'host ' + hostB.toFixed(2) + 'B' }] : [];
+  const sizeTicks = hostB != null ? [{ v: hostB, kind: 'host', label: (isShrink ? 'source ' : 'host ') + hostB.toFixed(2) + 'B' }] : [];
   const b = spec.budget;
   const compMax = Math.max(240, b.compute_min * 3);
   const addable = spec.available_benchmarks || [];
@@ -181,15 +211,17 @@ export function SpecScreen({ id }) {
 
     <${ResearchBlock} r=${res} starting=${starting} onStart=${startResearch} />
 
+    ${isShrink && html`<${ShrinkSection} spec=${spec} edit=${edit} onChangeSource=${changeSource} />`}
+
     <section class="sect"><h2 class="sec">Limits</h2>
       <div class="srow">
         <div class="top"><span class="nm">Total size</span><span class="val">up to <${SubtleNum} text=${lim.max_total_params_b.toFixed(1)} />B parameters</span></div>
-        <${Slider} value=${lim.max_total_params_b} min=${Math.max(spec.size.min_b, hostB || 0)} max=${totMax} step=${0.1} ticks=${sizeTicks} ariaLabel="Maximum total parameters" onChange=${(v) => setLimit({ max_total_params_b: Math.round(v * 10) / 10 })} />
-        <div class="note"><span>${lim.max_total_params_b < (hostB || 0) ? 'Below the host size. Only deletion masks can get there.' : 'Room for ' + Math.max(0, lim.max_total_params_b - (hostB || 0)).toFixed(2) + 'B of grafted parts.'}</span><span>${Math.max(spec.size.min_b, hostB || 0)}B to ${totMax}B</span></div>
+        <${Slider} value=${lim.max_total_params_b} min=${sizeMin} max=${totMax} step=${0.1} ticks=${sizeTicks} ariaLabel="Maximum total parameters" onChange=${(v) => setLimit({ max_total_params_b: Math.round(v * 10) / 10 })} />
+        <div class="note"><span>${isShrink ? 'The shrunk model has to stay under this. The source has ' + (hostB || 0).toFixed(2) + 'B.' : lim.max_total_params_b < (hostB || 0) ? 'Below the host size. Only deletion masks can get there.' : 'Room for ' + Math.max(0, lim.max_total_params_b - (hostB || 0)).toFixed(2) + 'B of grafted parts.'}</span><span>${sizeMin}B to ${totMax}B</span></div>
       </div>
       <div class="srow">
         <div class="top"><span class="nm">Run per token</span><span class="val">up to <${SubtleNum} text=${lim.max_run_params_b.toFixed(1)} />B parameters</span></div>
-        <${Slider} value=${Math.min(lim.max_run_params_b, lim.max_total_params_b)} min=${Math.min(hostB || 0.5, lim.max_total_params_b)} max=${lim.max_total_params_b} step=${0.1} ticks=${sizeTicks} ariaLabel="Maximum parameters run per token" onChange=${(v) => setLimit({ max_run_params_b: Math.round(v * 10) / 10 })} />
+        <${Slider} value=${Math.min(lim.max_run_params_b, lim.max_total_params_b)} min=${isShrink ? Math.min(0.1, lim.max_total_params_b) : Math.min(hostB || 0.5, lim.max_total_params_b)} max=${lim.max_total_params_b} step=${0.1} ticks=${sizeTicks} ariaLabel="Maximum parameters run per token" onChange=${(v) => setLimit({ max_run_params_b: Math.round(v * 10) / 10 })} />
         <div class="note"><span>The parameters a single token passes through. It sets speed and energy.</span><span>up to the total size</span></div>
       </div>
       <div class="srow">
@@ -235,24 +267,27 @@ export function SpecScreen({ id }) {
         <div><div class="splitbar"><i class="s1" style=${{ width: (f.score_rows / f.rows) * 100 + '%' }}></i><i class="s2" style=${{ width: (f.heal_rows / f.rows) * 100 + '%' }}></i></div><div class="splitnote"><span>score ${f.score_rows}</span><span>heal ${f.heal_rows}</span></div></div></div>`)}
     </section>`}
 
-    <section class="sect"><h2 class="sec">Host model</h2>
+    ${!isShrink && html`<section class="sect"><h2 class="sec">Host model</h2>
       <div class="card row-card"><${ModelLogo} model=${spec.host} size=${24} /><div><div class="mono" style="font-size:13px;word-break:break-all">${spec.host}</div><div class="faint" style="font-size:12px">${hostB != null ? hostB.toFixed(2) + 'B parameters' : ''}</div></div></div>
-    </section>
+    </section>`}
 
-    <section class="sect"><h2 class="sec">Likely ingredients</h2>
+    ${!isShrink && html`<section class="sect"><h2 class="sec">Likely ingredients</h2>
       <div class="faint" style="font-size:12px;margin:-4px 0 8px">Ranked for this spec. You can change them in the builder.</div>
       <div class="card ings">
         ${(spec.ingredients || []).map((g) => html`<div class="ing"><${ModelLogo} model=${g.donor} size=${20} /><div style="min-width:0"><div style="font-weight:500">${g.label}</div><div class="faint ell" style="font-size:12px">${g.donor}</div></div><span class="tag" style="margin-left:auto">${g.kind}</span></div>`)}
         ${!(spec.ingredients || []).length && html`<div class="empty" style="padding:12px 16px">None picked yet.</div>`}
       </div>
-    </section>
+    </section>`}
 
-    <div class="buildcard">
+    ${isShrink ? html`<div class="buildcard shrinkcard">
+      <div class="bc-head"><span class="bc-title">Ready to plan the shrink?</span><span class="faint bc-meta">Drafted by ${spec.drafted_by || 'rules'}.${spec.stub ? ' Stub numbers are not real results.' : ''}</span></div>
+      <div class="bc-row one"><button class="btn primary big" disabled=${!!busy} onClick=${startShrink}><span class="bt"><b>Plan the shrink</b><small>See the size and cost before anything runs</small></span>${busy === 'shrink' ? html`<${Spinner} />` : html`<${Icon} n="arrow" />`}</button></div>
+    </div>` : html`<div class="buildcard">
       <div class="bc-head"><span class="bc-title">How do you want to build it?</span><span class="faint bc-meta">Drafted by ${spec.drafted_by || 'rules'}.${spec.stub ? ' Stub numbers are not real results.' : ''}</span></div>
       <div class="bc-row">
         <button class="btn primary big" disabled=${!!busy} onClick=${startRun}><span class="bt"><b>Let agents build it</b><small>A swarm searches and you watch</small></span>${busy === 'run' ? html`<${Spinner} />` : html`<${Icon} n="arrow" />`}</button>
         <button class="btn big" disabled=${!!busy} onClick=${startBuilder}><span class="bt"><b>Build it myself</b><small>Drag parts onto the host model</small></span>${busy === 'build' ? html`<${Spinner} />` : html`<${Icon} n="arrow" />`}</button>
       </div>
-    </div>
+    </div>`}
   <//></div></main>`;
 }

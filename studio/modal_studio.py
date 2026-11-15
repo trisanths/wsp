@@ -17,6 +17,7 @@ Functions:
     score_remote(program, split, tasks, token, fidelity, options)
                                               compile with training, then evaluate
     base_remote(host, split, tasks)           the host's scores
+    code_version()                            hash of the deployed code (CPU only)
     shrink_remote(plan, split, tasks, fidelity, options)
                                               skill removal: slim, heal, score (see shrink_body)
 Each has an H100 twin (name ending in _h100) for programs with a donor above
@@ -40,9 +41,26 @@ import tempfile
 import time
 import traceback
 
+import importlib.util
+
 import modal
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def read_code_version():
+    """The code hash baked in at deploy time. Inside the container it comes from the environment."""
+    baked = os.environ.get("WSP_STUDIO_CODE_VERSION")
+    if baked is not None:
+        return baked
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "code_version.py")
+    spec = importlib.util.spec_from_file_location("studio_code_version", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.local_hash(REPO_ROOT)
+
+
+CODE_VERSION = read_code_version()
 
 app = modal.App("wsp-studio")
 volume = modal.Volume.from_name("wsp-models", create_if_missing=True)
@@ -53,7 +71,8 @@ image = (
         "torch==2.7.1", "transformers==4.57.1", "accelerate", "huggingface_hub", "requests",
         "safetensors", "zstandard", "numpy", "datasets", "sentencepiece", "protobuf",
     )
-    .env({"HF_HOME": "/vol/hf", "WSP_BACKEND": "hf", "WSP_HF_BATCH_SIZE": "32"})
+    .env({"HF_HOME": "/vol/hf", "WSP_BACKEND": "hf", "WSP_HF_BATCH_SIZE": "32",
+          "WSP_STUDIO_CODE_VERSION": CODE_VERSION})
     .add_local_dir(os.path.join(REPO_ROOT, "wsp"), "/root/wsp", ignore=["**/__pycache__", "**/*.pyc"])
     .add_local_dir(os.path.join(REPO_ROOT, "wsp_eval"), "/root/wsp_eval", ignore=["**/__pycache__", "**/*.pyc"])
     .add_local_dir(os.path.join(REPO_ROOT, "parts_extracted"), "/root/parts_extracted")
@@ -112,6 +131,9 @@ def build_model(program_dict, options, folder, training):
     if not training:
         data["heal"] = None
     program = Program.from_dict(data)
+    limit = options.get("max_heal_min")
+    if training and limit is not None and program.budget_spec is None:
+        program.budget(max_heal_minutes=float(limit))
     catalog = make_catalog(options)
     texts = align_texts_for(program, options)
     extra = {}
@@ -520,7 +542,15 @@ def shrink_body(plan, split, tasks, fidelity, options):
         heals = {}
         seconds["slim"] = 0.0
         seconds["heal"] = 0.0
+        heal_limit_s = None
+        if options.get("max_heal_min") is not None:
+            heal_limit_s = float(options["max_heal_min"]) * 60.0
+        done_arms = []
         for name, rule in arms:
+            if heal_limit_s is not None and len(done_arms) > 0 and seconds["heal"] >= heal_limit_s:
+                log.append("Arm " + name + " was skipped: the heal time limit was used up.")
+                continue
+            done_arms.append((name, rule))
             phase = time.time()
             student, report, healed = shrink_arm(slim, model, tokenizer, plan, rule, rank_texts, heal_texts,
                                                  general_texts, stats, teacher, 0)
@@ -538,6 +568,7 @@ def shrink_body(plan, split, tasks, fidelity, options):
                 report["params_total_after"] / 1e9, report["params_run_after"] / 1e9))
             del student
             free_gpu()
+        arms = done_arms
         del teacher
         del model
         free_gpu()
@@ -585,6 +616,12 @@ def teacher_used(steps, log):
 
 
 COMMON = {"image": image, "volumes": {"/vol": volume}, "timeout": 7200}
+
+
+@app.function(image=image, timeout=120)
+def code_version():
+    """The hash of the code in this deploy. The server compares it with its local files."""
+    return CODE_VERSION
 
 
 @app.function(gpu="L40S", memory=65536, **COMMON)

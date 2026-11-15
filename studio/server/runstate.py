@@ -72,6 +72,8 @@ class RunState:
         self.error = None
         self.started_at = time.time()
         self.ended_at = None
+        self.base_scores = {}      # filled once by load_base_scores; empty means pending
+        self.stopped_early = False  # true when the person pressed Stop before the search finished
         self.agents = {}
         self.order = []
         self.add_agent(new_agent("analyst", "Analyst", "analyst", "maps what each part can do"))
@@ -389,28 +391,37 @@ class RunState:
                 del agent["history"][:-HISTORY_LIMIT]
                 agent["status"] = "scoring"
                 agent["now"] = clip_text("Scoring " + self.readable(row.get("program"), describe), 200)
+            is_best = False
             if status in SCORED_STATUSES:
-                self.add_scored_locked(row, agent_id, agent)
+                is_best = self.add_scored_locked(row, agent_id, agent)
             self.touch()
-        self.add_eval_tools(row, agent_id, describe, scores, status)
+        self.add_eval_tools(row, agent_id, describe, scores, status, is_best)
 
     def add_scored_locked(self, row, agent_id, agent):
-        """Update the curve, the best score and the program table. The lock is held."""
+        """Update the curve, the best score and the program table. The lock is held.
+
+        Only a valid (ok) program sets the best score or an agent's best. A collapsed program still
+        adds a curve point, with the best score so far. Returns True when this row is a new best.
+        """
         key = row["program_hash"]
         target = self.target_score(row.get("scores"))
+        is_best = False
         if target is not None:
-            if self.best_target is None or target > self.best_target:
-                self.best_target = target
+            if row.get("status") == "ok":
+                if self.best_target is None or target > self.best_target:
+                    self.best_target = target
+                    is_best = True
+                if agent is not None and (agent["best"] is None or target > agent["best"]):
+                    agent["best"] = number(target)
             self.curve.append({"eval": len(self.curve) + 1, "best": number(self.best_target),
                                "score": number(target)})
-            if agent is not None and (agent["best"] is None or target > agent["best"]):
-                agent["best"] = number(target)
         current = self.programs.get(key)
         if current is None or row["combined"] > current["row"]["combined"]:
             donors = self.donors_of(row.get("program"))
             self.programs[key] = {"row": row, "donors": donors, "agent": agent_id}
+        return is_best
 
-    def add_eval_tools(self, row, agent_id, describe, scores, status):
+    def add_eval_tools(self, row, agent_id, describe, scores, status, is_best=False):
         """Tool calls and the activity line for an eval row. Takes the lock inside the helpers."""
         name = self.display_name(agent_id)
         compile_status = "ok"
@@ -441,8 +452,6 @@ class RunState:
             self.add_tool(agent_id, "eval(search)", eval_result, eval_status)
             target = self.target_score(scores)
             guards = self.guard_report(scores)
-            with self.lock:
-                is_best = target is not None and self.best_target is not None and target >= self.best_target
             if status == "collapsed":
                 failed = []
                 for guard in guards:
@@ -679,11 +688,21 @@ class RunState:
                 "collapses": agent["collapses"], "lessons": agent["lessons"],
                 "nudges_pending": agent["nudges_pending"]}
 
+    def load_base_scores(self):
+        """Read the host's base scores once, from the run thread. A snapshot never makes this call."""
+        if self.env is None:
+            return
+        try:
+            scores = self.env.base_scores("search")
+        except Exception as error:
+            self.add_activity(None, "error", "bad", "Could not read the host scores: " + str(error))
+            return
+        with self.lock:
+            self.base_scores = dict(scores)
+            self.touch()
+
     def snapshot(self):
         """The run snapshot of the contract."""
-        base_scores = {}
-        if self.env is not None:
-            base_scores = self.env.base_scores("search")
         budget = self.budget_dict()
         with self.lock:
             end = self.ended_at
@@ -699,6 +718,7 @@ class RunState:
                 for entry in leaderboard:
                     if entry["program_hash"] == best["program_hash"]:
                         comparison = entry["comparison"]
+            base_scores = dict(self.base_scores)
             snapshot = {
                 "run_id": self.run_id,
                 "spec": self.spec,
@@ -713,6 +733,7 @@ class RunState:
                 "limits": self.spec.get("limits"),
                 "comparison": comparison,
                 "refused": self.refused,
+                "stopped_early": self.stopped_early,
                 "agents": agents,
                 "leaderboard": leaderboard,
                 "activity": list(self.activity),

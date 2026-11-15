@@ -157,6 +157,7 @@ export function parseHash() {
     return { name: 'run', id, page: 'overview', q };
   }
   if (parts[0] === 'build' && parts[1]) return { name: 'build', id: parts[1], q };
+  if (parts[0] === 'shrink' && parts[1]) return { name: 'shrink', id: parts[1], q };
   if (parts[0] === 'runs') return { name: 'runs', q };
   if (parts[0] === 'parts') return { name: 'parts', q };
   return { name: 'prompt', q };

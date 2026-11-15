@@ -52,7 +52,7 @@ export function Compare({ c, compact, heal }) {
     <div class="cmp-list">${c.rows.map((r) => html`<div class="cmp-row" key=${r.id} title=${r.note || null}>
       <span class="cl">${r.label}${r.stub && html` <${StubBadge} small />`}</span>
       <span class="cv num">${r.measured && r.value != null ? pct(r.value) + '%' : ''}</span>
-      <span class=${'cd num ' + (!r.measured || r.delta == null ? 'faint' : r.beaten ? 'up' : 'down')}>${!r.measured || r.delta == null ? 'not measured' : html`${sgn(r.delta)} <${Icon} n=${r.beaten ? 'check' : 'x'} size=${13} sw=${2.25} />`}</span>
+      <span class=${'cd num ' + (!r.measured || r.delta == null ? 'faint' : r.beaten == null ? 'faint' : r.beaten ? 'up' : 'down')}>${!r.measured || r.delta == null ? 'not measured' : r.beaten == null ? html`${sgn(r.delta)} <span class="cref">reference</span>` : html`${sgn(r.delta)} <${Icon} n=${r.beaten ? 'check' : 'x'} size=${13} sw=${2.25} />`}</span>
     </div>`)}</div>
   </div>`;
 }

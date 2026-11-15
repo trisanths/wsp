@@ -3,6 +3,7 @@
 import csv
 import io
 import json
+import math
 import os
 import re
 import threading
@@ -94,6 +95,9 @@ def new_spec_id():
 
 
 def clamp(value, low, high):
+    """Keep value between low and high. A value that is not a finite number becomes low."""
+    if not math.isfinite(value):
+        return low
     if value < low:
         return low
     if value > high:
@@ -107,10 +111,14 @@ def round_step(value, step):
 
 
 def to_float(value, default):
+    """A finite float, or the default for anything else (text, nan, inf)."""
     try:
-        return float(value)
+        number = float(value)
     except (TypeError, ValueError):
         return default
+    if not math.isfinite(number):
+        return default
+    return number
 
 
 def to_int(value, default):
@@ -981,6 +989,7 @@ def run_overrides(spec, backend, llm_name):
         "host": spec["host"],
         "outputs_dir": settings.out_dir(),
         "catalog_path": catalog_mod.catalog_path_for(backend),
+        "max_heal_min": (spec.get("limits") or {}).get("max_heal_min"),
     }
 
 

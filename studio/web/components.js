@@ -38,6 +38,7 @@ const ICONS = {
   spark: 'M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z',
   file: 'M7 3h7l5 5v13H7zM14 3v5h5',
   scissors: 'M5 5l14 14M5 19L19 5',
+  shrink: 'M4 9h5V4M20 9h-5V4M4 15h5v5M20 15h-5v5',
   server: 'M4 5h16v6H4zM4 13h16v6H4zM8 8h.01M8 16h.01',
 };
 export function Icon({ n, size = 16, sw = 1.75 }) {

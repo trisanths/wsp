@@ -203,10 +203,16 @@ class StudioSwarm(Swarm):
         self.score_seed_program()
         return Swarm.run(self)
 
+    def final_heldout(self):
+        """Skip the held-out pass and its controls after a stop, since they cost GPU time."""
+        if self.controller.gate.stopped:
+            return [], []
+        return Swarm.final_heldout(self)
+
     def score_seed_program(self):
         """Evaluate the program handed over from the builder before the first round."""
         program = self.controller.seed_program
-        if program is None:
+        if program is None or self.controller.gate.stopped:
             return
         self.controller.state.add_activity("you", "handoff", "info", "Scoring the program from the builder first")
         info = self.env.step(program, "you", "Program handed over from the builder")[4]

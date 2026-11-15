@@ -133,6 +133,7 @@ def estimate(program, ctx):
     total = ctx.host_b
     run = ctx.host_b
     unknown = []
+    unsized = []
     parts = []
     for graft in ps.grafts(program):
         if ps.graft_control(graft) is not None:
@@ -141,13 +142,13 @@ def estimate(program, ctx):
         found = part_size_b(part_id, ctx)
         if found is None:
             unknown.append(part_id)
+            unsized.append("the part " + str(part_id))
             continue
         part_total, part_run, hidden = found
         glue = glue_b(graft, hidden, ctx)
         total += part_total + glue
         run += part_run + glue
         parts.append({"id": part_id, "params_b": round(part_total + glue, 4)})
-    unsized = []
     for key in ("carve", "splice", "base_source"):
         if program.get(key) is not None:
             unsized.append("a " + key + " step")
@@ -283,15 +284,20 @@ def check(program, limits, ctx):
     return est, problems
 
 
-def measured_problems(limits, params_b):
-    """Limit messages for a measured parameter count after a compile (total size only)."""
-    if limits is None or params_b is None:
-        return []
+def measured_problems(limits, params_b, run_b=None):
+    """Limit messages for a measured parameter count after a compile (total size, and per token when given)."""
+    problems = []
+    if limits is None:
+        return problems
     max_total = limits.get("max_total_params_b")
-    if max_total is not None and params_b > max_total + EPSILON:
-        return ["Over the total size limit. The compiled model has " + fmt_b(params_b) + "B parameters. The limit is " +
-                fmt_b(max_total) + "B."]
-    return []
+    if params_b is not None and max_total is not None and params_b > max_total + EPSILON:
+        problems.append("Over the total size limit. The compiled model has " + fmt_b(params_b) +
+                        "B parameters. The limit is " + fmt_b(max_total) + "B.")
+    max_run = limits.get("max_run_params_b")
+    if run_b is not None and max_run is not None and run_b > max_run + EPSILON:
+        problems.append("Over the per-token limit. The compiled model runs " + fmt_b(run_b) +
+                        "B parameters per token. The limit is " + fmt_b(max_run) + "B.")
+    return problems
 
 
 # Shrink plans. The estimate never loads the model. It uses the library facts of the source model
@@ -385,7 +391,13 @@ def shrink_limit_problems(limits, est):
     return problems
 
 
-def shrink_check(shrink, limits):
-    """Estimate a shrink plan and check it. Returns (estimate, problems)."""
+def shrink_check(shrink, limits, arms=1):
+    """Estimate a shrink plan and check it. Returns (estimate, problems).
+
+    arms is how many models the run heals (the shrunk model plus each control). The heal limit is
+    checked against the heal time of all of them.
+    """
     est = estimate_shrink(shrink)
-    return est, shrink_limit_problems(limits, est)
+    checked = dict(est)
+    checked["heal_min"] = est["heal_min"] * arms
+    return est, shrink_limit_problems(limits, checked)

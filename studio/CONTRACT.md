@@ -130,6 +130,7 @@ The program dict is the one in `wsp/swarm/program_schema.py` (`host`, `seed`, `m
   "elapsed_s": 312.0,
   "budget": {"evals_used": 18, "evals_total": 30, "compute_used_s": 1620, "compute_total_s": 2700},
   "base_scores": {"gsm8k": 0.23, "if_guard": 0.42},
+  "stopped_early": false,
   "best": {"program_hash": "ab12cd34ef56ab12", "describe": "host + qmath.l8-19@6, heal 300", "scores": {"gsm8k": 0.43, "if_guard": 0.41}, "combined": 0.26, "agent": "planner-2", "program": {}},
   "agents": [
     {"id": "planner-2", "name": "Planner 2", "role": "planner", "blurb": "explores donor blocks",
@@ -162,7 +163,9 @@ The program dict is the one in `wsp/swarm/program_schema.py` (`host`, `seed`, `m
   - `nudge_applied`: `{"nudge"}`.
   - `error`, `system`, `handoff`: null.
 - Agent `now` and leaderboard and agent history use readable program names where they describe a program (for example "Math block L8-19 at L6, heal 300").
-- `curve` has one point per scored eval in order: `best` is the best target score so far, `score` is that eval's target score.
+- `curve` has one point per scored eval in order: `best` is the best target score so far among valid (ok) programs, `score` is that eval's target score. A collapsed program adds a point but never raises `best`. `best` is `null` until the first valid program is scored.
+- `base_scores` is read once when the run thread starts. It is `{}` until then (treat it as pending).
+- `stopped_early` is true when the person pressed Stop. The run still ends with status `done`. The held-out check and its controls are skipped, and the activity says so.
 - `vs_control` is the target score minus its random-part control, or null when no control ran.
 
 ### Agent detail
@@ -237,7 +240,7 @@ All bodies are JSON unless marked.
 | GET | `/api/spec/{id}/research` | | `benchmark_research` (see Benchmark research), 404 when the spec has none |
 | POST | `/api/runs` | `{"spec_id": "...", "program": null}` | `{"run_id": "..."}` |
 | GET | `/api/runs/{id}` | | Run snapshot |
-| GET | `/api/runs/{id}/stream` | | Server-sent events. Each event is `event: snapshot` with the run snapshot as data, sent on every change (at most every 0.5 s) and every 5 s as a heartbeat. |
+| GET | `/api/runs/{id}/stream` | | Server-sent events. Each event is `event: snapshot` with the run snapshot as data, sent on every change (at most every 0.5 s) and every 5 s as a heartbeat. If the server cannot build a snapshot it sends `event: error` with `{"error": "..."}` and the stream goes on. |
 | POST | `/api/runs/{id}/pause` | | `{"ok": true}` |
 | POST | `/api/runs/{id}/resume` | | `{"ok": true}` |
 | POST | `/api/runs/{id}/stop` | | `{"ok": true}` (stops the search; the best program is kept) |
@@ -402,3 +405,8 @@ Each row has `id, label, split, per_task, value, measured, note, stub, result_va
 
 - Stub: a made-up result with `stub: true` and `stub: true` on the comparison. Scores fall smoothly as more is removed, the random control is lower than the skill rule, and the source is above both. No model loads.
 - Modal: `shrink_remote(plan, split, tasks, fidelity, options)` in the `wsp-studio` app (L40S; `shrink_remote_h100` when the source is above 10B parameters). It loads the source, builds the skill and general text from `wsp.healdata` pools (never a benchmark), runs `slim_moe` or `slim_dense`, heals with `slim.heal` and the original as teacher when it fits in memory, saves with `save_slim`, scores with the same `score_all` as builds, and runs the random control (same counts, rule `random`, same heal steps) when `options.control` is true.
+
+
+### Shrink result limit check
+
+On a real (not stub) shrink, the server checks the measured parameters against the spec limits. Over a limit, `result.comparison.verdict` is `failed`, its `headline` starts with "Failed attempt." and lists the problems, and `result.limit_problems` is the list of messages. The result has no `limit_problems` key when it fits. A shrink run checks the heal limit against the heal time of every model it heals (the shrunk model and each control). `POST /api/shrink/{id}/plan` and `/run` read the current spec, so edits made with `PUT /api/spec/{id}` apply at once.

@@ -8,6 +8,7 @@ const CARDS = [
   { icon: 'book', color: 'var(--blue)', label: 'A knowledge model', text: 'A small model that answers general knowledge questions nearly as well as a much bigger one. It has to run on a laptop.' },
   { icon: 'sigma', color: 'var(--purple)', label: 'A math model', text: 'A small model that solves grade-school math word problems step by step. It has to run on a laptop.' },
   { icon: 'bolt', color: 'var(--amber)', label: 'A smaller, faster model', text: 'A smaller and faster version of the host model that keeps most of its accuracy on everyday questions.' },
+  { icon: 'shrink', color: 'var(--red)', label: 'Shrink a model', text: 'A coding-only model: drop everything else from Qwen2.5-Coder-7B and get it under 3B.' },
   { icon: 'grid', color: 'var(--green)', label: 'Browse parts', href: '#/parts' },
 ];
 const EXAMPLES = [

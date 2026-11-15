@@ -6,8 +6,8 @@ import { SkelReveal } from '../motion.js';
 import { ModelLogo } from '../logos.js';
 import { StatusTag, groupByKind, lockOf } from '../cmp.js';
 
-const RUN_LABEL = { starting: 'Starting', running: 'Running', paused: 'Paused', stopping: 'Stopping', done: 'Finished', error: 'Error', gone: 'Not on the server' };
-const RUN_COLOR = { starting: 'var(--blue)', running: 'var(--blue)', paused: 'var(--amber)', stopping: 'var(--amber)', done: 'var(--green)', error: 'var(--red)', gone: 'var(--text-4)' };
+const RUN_LABEL = { planned: 'Planned', starting: 'Starting', running: 'Running', paused: 'Paused', stopping: 'Stopping', done: 'Finished', error: 'Error', gone: 'Not on the server' };
+const RUN_COLOR = { planned: 'var(--text-4)', starting: 'var(--blue)', running: 'var(--blue)', paused: 'var(--amber)', stopping: 'var(--amber)', done: 'var(--green)', error: 'var(--red)', gone: 'var(--text-4)' };
 const LIVE = { starting: 1, running: 1, paused: 1, stopping: 1 };
 
 function ago(ts) {
@@ -20,12 +20,15 @@ function ago(ts) {
 
 export function RunsScreen() {
   const recent = useRecent();
-  const runs = recent.filter((r) => r.kind === 'run');
-  const ids = runs.map((r) => r.id).join(',');
+  const runs = recent.filter((r) => r.kind === 'run' || r.kind === 'shrink');
+  const ids = runs.map((r) => r.id + (r.status || '')).join(',');
   // refresh the status of runs that were still live the last time we saw them
   useEffect(() => {
     let dead = false;
-    runs.filter((r) => !r.status || LIVE[r.status]).forEach((r) => {
+    runs.filter((r) => r.kind === 'shrink' && r.status === 'running' && r.job).forEach((r) => {
+      api.getJob(r.job).then((j) => { if (!dead && j && (j.status === 'done' || j.status === 'error')) patchRecent('shrink', r.id, { status: j.status }); }).catch((e) => { if (!dead && e.status === 404) patchRecent('shrink', r.id, { status: 'gone' }); });
+    });
+    runs.filter((r) => r.kind === 'run' && (!r.status || LIVE[r.status])).forEach((r) => {
       api.getRun(r.id).then((s) => { if (!dead && s) patchRecent('run', r.id, { status: s.status, evals: s.budget && s.budget.evals_used, total: s.budget && s.budget.evals_total }); }).catch((e) => { if (!dead && e.status === 404) patchRecent('run', r.id, { status: 'gone' }); });
     });
     return () => { dead = true; };
@@ -33,12 +36,12 @@ export function RunsScreen() {
   return html`<${TopBar} />
   <main class="screen"><div class="doc wide">
     <h1 class="page-title">Runs</h1>
-    <p class="lede">Runs you opened in this browser, newest first. The status is the last one this page saw.</p>
+    <p class="lede">Runs and shrinks you opened in this browser, newest first. The status is the last one this page saw.</p>
     ${runs.length === 0
       ? html`<div class="card emptycard"><div class="emptyt">No runs yet</div><div class="faint">Draft a spec and let the agents build it. The run shows up here.</div><a class="btn primary" href="#/">New model</a></div>`
-      : html`<div class="card list">${runs.map((r) => html`<a class="lrow" key=${r.id} href=${'#/run/' + r.id}>
-          <${Icon} n="runs" size=${18} />
-          <div class="lmain"><div class="ltitle ell">${r.title || r.id}</div><div class="faint lsub"><span class="mono">${r.id}</span>${r.total ? ' · ' + r.evals + ' of ' + r.total + ' evals' : ''} · opened ${ago(r.ts)}</div></div>
+      : html`<div class="card list">${runs.map((r) => html`<a class="lrow" key=${r.kind + r.id} href=${r.kind === 'shrink' ? '#/shrink/' + r.id + (r.spec ? '?spec=' + r.spec : '') : '#/run/' + r.id}>
+          <${Icon} n=${r.kind === 'shrink' ? 'shrink' : 'runs'} size=${18} />
+          <div class="lmain"><div class="ltitle ell">${r.title || r.id}</div><div class="faint lsub"><span class="mono">${r.id}</span>${r.kind === 'shrink' ? ' · shrink' : ''}${r.total ? ' · ' + r.evals + ' of ' + r.total + ' evals' : ''} · opened ${ago(r.ts)}</div></div>
           <span class="pill"><${Dot} color=${RUN_COLOR[r.status] || 'var(--text-4)'} pulse=${r.status === 'running'} />${RUN_LABEL[r.status] || 'Unknown'}</span>
           <${Icon} n="chevron" size=${16} />
         </a>`)}</div>`}

@@ -21,6 +21,7 @@ the run grow.
 import concurrent.futures
 import copy
 import json
+import math
 import re
 import threading
 import time
@@ -77,9 +78,12 @@ def to_number(value):
     if isinstance(value, bool) or not isinstance(value, (int, float, str)):
         return None
     try:
-        return float(str(value).strip().rstrip("%"))
+        number = float(str(value).strip().rstrip("%"))
     except ValueError:
         return None
+    if not math.isfinite(number):
+        return None
+    return number
 
 
 def clean_score(value):
@@ -459,7 +463,8 @@ def apply_to_spec(spec, proposals):
 
     Benchmarks already on the spec stay as they are. A proposal for one of
     them only adds its reference scores. Limits, size, title and parts are
-    never touched.
+    never touched. A shrink spec has only its own targets and no guard, so a
+    proposal for an id that is not on a shrink spec is not added.
     """
     config, _catalog = catalog_mod.load_catalog(settings.backend())
     specs_mod.add_task_types(config)
@@ -483,6 +488,8 @@ def apply_to_spec(spec, proposals):
                 existing["reference_scores"] = proposal["reference_scores"]
             existing["research"] = True
             proposal["in_spec"] = True
+            continue
+        if spec.get("request_type") == "shrink":
             continue
         entry = specs_mod.entry_for_id(config, task_id, False)
         # A target-type id may be used as a guard when the agent says so. A guard-type id stays a guard.

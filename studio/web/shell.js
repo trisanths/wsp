@@ -4,7 +4,7 @@ import { go, toast, useRoute, useRecent, useTheme, useHealth, useStubFlag, getLa
 import { Icon, Mark, StubBadge, Dot } from './components.js';
 import { IconSwap, SwapText } from './motion.js';
 
-const RUN_COLOR = { running: 'var(--blue)', starting: 'var(--blue)', paused: 'var(--amber)', stopping: 'var(--amber)', done: 'var(--green)', error: 'var(--red)' };
+const RUN_COLOR = { planned: 'var(--text-4)', running: 'var(--blue)', starting: 'var(--blue)', paused: 'var(--amber)', stopping: 'var(--amber)', done: 'var(--green)', error: 'var(--red)' };
 
 function Row({ icon, label, href, onClick, on, rail, badge }) {
   const inner = html`<${Icon} n=${icon} size=${18} /><span class="sb-text">${label}</span>${badge}`;
@@ -30,7 +30,8 @@ export function Sidebar({ rail, onToggle, route }) {
       go('/build/' + r.builder_id + '?spec=' + spec.id);
     } catch (e) { toast('Could not open the builder: ' + e.message, 'err'); }
   };
-  const isRecent = (r) => (r.kind === 'spec' && route.name === 'spec' && route.id === r.id) || (r.kind === 'run' && route.name === 'run' && route.id === r.id);
+  const isRecent = (r) => (r.kind === 'spec' && route.name === 'spec' && route.id === r.id) || (r.kind === 'run' && route.name === 'run' && route.id === r.id) || (r.kind === 'shrink' && route.name === 'shrink' && route.id === r.id);
+  const hrefOf = (r) => '#/' + r.kind + '/' + r.id + (r.kind === 'shrink' && r.spec ? '?spec=' + r.spec : '');
   return html`<aside class=${'sidebar' + (rail ? ' rail' : '')} aria-label="Sidebar">
     <div class="sb-head">
       <a class="logo" href="#/" data-tip=${rail ? 'Sapien' : null} data-tip-side="right" aria-label="Sapien home"><${Mark} size=${24} /><span class="logotext sb-text">Sapien</span></a>
@@ -45,9 +46,9 @@ export function Sidebar({ rail, onToggle, route }) {
     <div class="sb-label sb-text">Recent</div>
     <div class="sb-recent sb-text">
       ${recent.length === 0 && html`<div class="sb-empty">Specs and runs you open show up here.</div>`}
-      ${recent.slice(0, 12).map((r) => html`<a class=${'sb-row sub' + (isRecent(r) ? ' on' : '')} key=${r.kind + r.id} href=${'#/' + r.kind + '/' + r.id} title=${r.title}>
-        <${Icon} n=${r.kind === 'run' ? 'runs' : 'file'} size=${16} /><span class="sb-title">${r.title || r.id}</span>
-        ${r.kind === 'run' && r.status && html`<${Dot} color=${RUN_COLOR[r.status] || 'var(--text-4)'} />`}</a>`)}
+      ${recent.slice(0, 12).map((r) => html`<a class=${'sb-row sub' + (isRecent(r) ? ' on' : '')} key=${r.kind + r.id} href=${hrefOf(r)} title=${r.title}>
+        <${Icon} n=${r.kind === 'run' ? 'runs' : r.kind === 'shrink' ? 'shrink' : 'file'} size=${16} /><span class="sb-title">${r.title || r.id}</span>
+        ${(r.kind === 'run' || r.kind === 'shrink') && r.status && html`<${Dot} color=${RUN_COLOR[r.status] || 'var(--text-4)'} />`}</a>`)}
     </div>
     <div class="sb-foot">
       <button class="sb-row" onClick=${flip} data-tip=${rail ? (theme === 'dark' ? 'Light theme' : 'Dark theme') : null} data-tip-side="right" aria-label=${theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}><${IconSwap} state=${theme === 'dark' ? 'a' : 'b'} a=${html`<${Icon} n="sun" size=${18} />`} b=${html`<${Icon} n="moon" size=${18} />`} /><span class="sb-text"><${SwapText} text=${theme === 'dark' ? 'Light theme' : 'Dark theme'} /></span></button>

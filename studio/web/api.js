@@ -64,6 +64,9 @@ const real = {
   builderSize: (id, program) => req('POST', '/api/builder/' + id + '/size', { program }),
   suggest: (id, program) => req('POST', '/api/builder/' + id + '/suggest', { program }),
   handoff: (id, program) => req('POST', '/api/builder/' + id + '/handoff', { program }),
+  createShrink: (spec_id) => req('POST', '/api/shrink', { spec_id }),
+  shrinkPlan: (id, fields = {}) => req('POST', '/api/shrink/' + id + '/plan', fields),
+  shrinkRun: (id, options = {}) => req('POST', '/api/shrink/' + id + '/run', options),
 };
 
 let impl = real;

@@ -258,8 +258,16 @@ def sse_event(snapshot):
     return "event: snapshot\ndata: " + json.dumps(snapshot) + "\n\n"
 
 
+def error_event(message):
+    return "event: error\ndata: " + json.dumps({"error": message}) + "\n\n"
+
+
 async def snapshot_stream(run):
-    """Send a snapshot on every change (at most every 0.5 s) and a heartbeat every 5 s."""
+    """Send a snapshot on every change (at most every 0.5 s) and a heartbeat every 5 s.
+
+    The snapshot is built in a worker thread so it never blocks the event loop.
+    A failed snapshot sends an error event and the stream goes on.
+    """
     state = run.state
     last_version = -1
     last_sent = 0.0
@@ -268,7 +276,10 @@ async def snapshot_stream(run):
         version = state.version
         now = time.time()
         if version != last_version or now - last_sent >= STREAM_HEARTBEAT_S:
-            yield sse_event(state.snapshot())
+            try:
+                yield sse_event(await asyncio.to_thread(state.snapshot))
+            except Exception as error:
+                yield error_event("Could not build the run snapshot: " + str(error))
             last_version = version
             last_sent = now
         if state.status in ("done", "error"):
@@ -276,7 +287,10 @@ async def snapshot_stream(run):
                 finished_at = now
             if now - finished_at >= STREAM_LINGER_S:
                 if state.version != last_version:
-                    yield sse_event(state.snapshot())
+                    try:
+                        yield sse_event(await asyncio.to_thread(state.snapshot))
+                    except Exception as error:
+                        yield error_event("Could not build the run snapshot: " + str(error))
                 return
         await asyncio.sleep(STREAM_TICK_S)
 

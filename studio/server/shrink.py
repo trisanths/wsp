@@ -26,6 +26,7 @@ from studio.server import modal_backend
 from studio.server import settings
 from studio.server import shrink_models
 from studio.server import shrink_spec
+from studio.server import specs as specs_mod
 from studio.server import sizing
 
 FIDELITIES = ["check", "low", "full"]
@@ -66,6 +67,14 @@ def get_session(shrink_id):
         return _sessions.get(shrink_id)
 
 
+def current_spec(session):
+    """The stored spec for the session, so edits made with PUT /api/spec count. Falls back to the session copy."""
+    stored = specs_mod.get_spec(session.spec["id"])
+    if stored is None:
+        return session.spec
+    return stored
+
+
 def target_ids(spec):
     ids = []
     for item in spec["benchmarks"]:
@@ -80,14 +89,15 @@ def plan_view(session):
     """The plan with its size estimate, the limits, the problems and a summary. Free: no GPU, no model load."""
     with session.lock:
         plan = dict(session.plan)
-    estimate, problems = sizing.shrink_check(plan, session.spec.get("limits"))
+    spec = current_spec(session)
+    estimate, problems = sizing.shrink_check(plan, spec.get("limits"))
     view = dict(plan)
     view["estimate"] = estimate
-    view["limits"] = session.spec.get("limits")
+    view["limits"] = spec.get("limits")
     view["problems"] = problems
     view["ok"] = len(problems) == 0
     view["summary"] = shrink_spec.plan_summary(plan, estimate)
-    view["tasks"] = target_ids(session.spec)
+    view["tasks"] = target_ids(spec)
     view["stub"] = settings.is_stub()
     return view
 
@@ -115,7 +125,7 @@ def run_options(session, body):
         raise ShrinkError("fidelity must be one of " + ", ".join(FIDELITIES))
     tasks = body.get("tasks")
     if tasks is None:
-        tasks = target_ids(session.spec)
+        tasks = target_ids(current_spec(session))
     if not isinstance(tasks, list) or len(tasks) == 0 or not all(isinstance(task, str) for task in tasks):
         raise ShrinkError("tasks must be a list of benchmark ids")
     control = body.get("control", True)
@@ -137,24 +147,30 @@ def start_run(session, body):
     options = run_options(session, body)
     with session.lock:
         plan = dict(session.plan)
-    estimate, problems = sizing.shrink_check(plan, session.spec.get("limits"))
+    spec = current_spec(session)
+    arms = 1
+    if options["control"]:
+        arms += 1
+    if options["general_control"]:
+        arms += 1
+    estimate, problems = sizing.shrink_check(plan, spec.get("limits"), arms)
     if len(problems) > 0:
         raise ShrinkError(" ".join(problems))
     job = {"job_id": "j_" + uuid.uuid4().hex[:8], "action": "shrink", "status": "queued",
            "stub": backend == "stub", "result": None, "budget": None, "error": None, "lock": threading.Lock()}
     builder_mod.add_job(job)
-    _pool.submit(work_job, session, job, plan, options, backend)
+    _pool.submit(work_job, spec, job, plan, options, backend)
     return job["job_id"]
 
 
-def work_job(session, job, plan, options, backend):
+def work_job(spec, job, plan, options, backend):
     with job["lock"]:
         job["status"] = "running"
     try:
         if backend == "stub":
-            result = stub_result(session.spec, plan, options)
+            result = stub_result(spec, plan, options)
         else:
-            result = modal_result(session.spec, plan, options)
+            result = modal_result(spec, plan, options)
         with job["lock"]:
             job["result"] = result
             job["status"] = "done"
@@ -169,6 +185,12 @@ def finish(spec, plan, scores, params_b, active_b, removed, source_scores, contr
     """The result dict of the contract, with the comparison."""
     models = library.get()["models"]
     comparison = compare.build_shrink(spec, scores, params_b, source_scores, control, general, stub, models)
+    problems = []
+    if not stub:
+        problems = sizing.measured_problems(spec.get("limits"), params_b, active_b)
+    if len(problems) > 0:
+        comparison["verdict"] = "failed"
+        comparison["headline"] = "Failed attempt. " + " ".join(problems)
     result = {"params_b": params_b, "active_params_b": active_b, "removed": removed, "scores": scores,
               "source_scores": source_scores, "control": None, "general": None, "comparison": comparison,
               "stub": stub, "heal": heal, "log": log, "seconds": seconds, "plan": dict(plan)}
@@ -176,6 +198,8 @@ def finish(spec, plan, scores, params_b, active_b, removed, source_scores, contr
         result["control"] = {"scores": control}
     if general is not None:
         result["general"] = {"scores": general}
+    if len(problems) > 0:
+        result["limit_problems"] = problems
     if extra:
         result.update(extra)
     return result
@@ -273,10 +297,15 @@ def modal_plan(plan):
 
 def modal_result(spec, plan, options):
     """Run the shrink on a GPU and shape the result. Raises RuntimeError with the remote error."""
+    options = dict(options)
+    options["max_heal_min"] = (spec.get("limits") or {}).get("max_heal_min")
     raw = modal_backend.run_shrink(modal_plan(plan), "search", options["tasks"], options["fidelity"], options)
     params = raw["params"]
     heal = dict(raw["heal"])
     log = list(raw.get("log") or [])
+    warning = modal_backend.deployed_warning()
+    if warning is not None:
+        log.insert(0, warning)
     return finish(spec, plan, raw["scores"], round(params["total_after"] / 1e9, 4),
                   round(params["run_after"] / 1e9, 4), raw["removed"], raw.get("source_scores"),
                   raw.get("control_scores"), raw.get("general_scores"), heal, log, raw.get("seconds") or {}, False,

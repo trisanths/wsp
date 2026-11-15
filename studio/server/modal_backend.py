@@ -33,6 +33,34 @@ def lookup(name):
     return modal.Function.from_name(APP_NAME, name)
 
 
+_deploy_check = {"done": False, "warning": None}
+_deploy_lock = threading.Lock()
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
+def deployed_warning():
+    """A plain warning when the deployed Modal code differs from the local code, else None.
+
+    The check runs once per server process and the answer is kept.
+    """
+    from studio import code_version
+
+    with _deploy_lock:
+        if _deploy_check["done"]:
+            return _deploy_check["warning"]
+        warning = None
+        try:
+            deployed = lookup("code_version").remote()
+            if deployed != code_version.local_hash(REPO_ROOT):
+                warning = "The deployed Modal code is older than the local code. Run modal deploy studio/modal_studio.py."
+        except Exception as error:
+            warning = ("The studio could not read the deployed Modal code version (" + type(error).__name__ +
+                       "). Run modal deploy studio/modal_studio.py.")
+        _deploy_check["done"] = True
+        _deploy_check["warning"] = warning
+        return warning
+
+
 def register():
     """Point the factory's "modal" backend at this module. The wsp package is not changed."""
     factory.CHOICES["backend"]["modal"] = ("studio.server.modal_backend", "ModalCompileEval")
@@ -122,7 +150,7 @@ class ModalCompileEval(CompileEval):
         if data_name is None:
             data_name = self.config["task_types"][self.config["task_type"]]["heal_data"][0]
         return {"catalog_records": records, "align_data": data_name,
-                "align_samples": self.config["align_samples"]}
+                "align_samples": self.config["align_samples"], "max_heal_min": self.config.get("max_heal_min")}
 
     def function(self, base, program):
         return lookup(base + gpu_suffix(program, self.catalog))
@@ -162,8 +190,13 @@ class ModalCompileEval(CompileEval):
                 "gpu": result.get("gpu")}
 
     def heal(self, handle, program):
-        """The heal pass runs inside evaluate(), so this reports no compute."""
-        return {"ok": True, "error": None, "handle": handle, "heal_loss": [], "compute_s": {"heal": 0.0}}
+        """The heal pass runs inside evaluate(), so this reports no compute.
+
+        The new handle holds the program to heal and score, which may have fewer heal steps than the
+        original at low fidelity. "origin" keeps the original so report_for still finds its report.
+        """
+        new_handle = {"program": ps.normalize(program), "origin": handle["program"]}
+        return {"ok": True, "error": None, "handle": new_handle, "heal_loss": [], "compute_s": {"heal": 0.0}}
 
     def evaluate(self, handle, split, tasks, token, fidelity="full"):
         program = handle["program"]
@@ -178,7 +211,7 @@ class ModalCompileEval(CompileEval):
         if not result.get("ok"):
             return {"ok": False, "error": result.get("error"), "scores": {}, "compute_s": seconds}
         with self.lock:
-            self.score_reports[space.program_hash(program)] = result
+            self.score_reports[space.program_hash(handle.get("origin") or program)] = result
         return {"ok": True, "error": None, "scores": result["scores"], "compute_s": seconds,
                 "heal_loss": result.get("heal_loss"), "gpu": result.get("gpu")}
 
