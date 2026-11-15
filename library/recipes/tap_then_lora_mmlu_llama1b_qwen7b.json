@@ -1,0 +1,82 @@
+{
+  "id": "tap_then_lora_mmlu_llama1b_qwen7b",
+  "kind": "recipe",
+  "title": "Tap first, freeze, then a rank-16 LoRA (MMLU)",
+  "status": "candidate",
+  "added_by": "Trisanth",
+  "source": "results/round7_rows.json (run 7)",
+  "updated": "2026-11-14",
+  "skills": [
+    "knowledge",
+    "mmlu",
+    "tap",
+    "lora"
+  ],
+  "models": [
+    "unsloth/Llama-3.2-1B-Instruct",
+    "Qwen/Qwen2.5-7B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "staged tap then LoRA r16 vs the tap alone",
+      "metric": "MMLU dev accuracy, mean over seeds",
+      "value": 0.6893,
+      "control_value": 0.677,
+      "split": "MMLU test, 1000 seeded items (round 6 dev)",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "source": "results/round7_rows.json",
+      "generated": true,
+      "control": "tap alone (run 7 layer map, donor layer 20 at host layer 10, seed 0)"
+    }
+  ],
+  "generated": true,
+  "host": "unsloth/Llama-3.2-1B-Instruct",
+  "program": {
+    "host": "unsloth/Llama-3.2-1B-Instruct",
+    "seed": 0,
+    "masks": null,
+    "task_vectors": [],
+    "grafts": [],
+    "heal": {
+      "steps": 500,
+      "data": "mmlu_aux",
+      "lr": 0.0001,
+      "batch_size": 8,
+      "seq_len": 256
+    },
+    "lora": {
+      "rank": 16,
+      "budget_params": null,
+      "targets": null,
+      "alpha": null,
+      "layers": null
+    },
+    "taps": [
+      {
+        "donor": "Qwen/Qwen2.5-7B-Instruct",
+        "donor_layer": 20,
+        "at": 10,
+        "attn_dim": 256,
+        "heads": 8,
+        "tap_id": null
+      }
+    ],
+    "tap_train": {
+      "data": "mmlu_aux",
+      "steps": 500,
+      "batch_size": 8,
+      "seq_len": 256,
+      "branch_lr": 0.0003,
+      "gate_lr": 0.03
+    }
+  },
+  "text": "host unsloth/Llama-3.2-1B-Instruct\nseed 0\nlora rank 16\ntap Qwen/Qwen2.5-7B-Instruct layer 20 at 10\ntap_train data mmlu_aux steps 500 batch_size 8 seq_len 256 branch_lr 0.0003 gate_lr 0.03\nheal steps 500 data mmlu_aux lr 0.0001 batch_size 8 seq_len 256\n",
+  "program_file": "recipes/tap_then_lora_mmlu_llama1b_qwen7b.wsp",
+  "syntax_gap": null,
+  "components": [],
+  "status_reason": "dev items only; +1.0 over the tap alone"
+}

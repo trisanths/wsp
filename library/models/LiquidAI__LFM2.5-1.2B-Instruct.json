@@ -1,0 +1,72 @@
+{
+  "id": "LiquidAI__LFM2.5-1.2B-Instruct",
+  "kind": "model",
+  "title": "LFM2.5-1.2B-Instruct (1.17B)",
+  "status": "validated",
+  "added_by": "Trisanth",
+  "source": "profiles.json, atlas/zoo.json, docs/donors.md",
+  "updated": "2026-11-14",
+  "skills": [
+    "general",
+    "math"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-1.2B-Instruct"
+  ],
+  "evidence": [],
+  "generated": true,
+  "hf_id": "LiquidAI/LFM2.5-1.2B-Instruct",
+  "family": "lfm2",
+  "params_b": 1.17,
+  "active_params_b": 1.17,
+  "layers": 16,
+  "hidden": 2048,
+  "vocab": 65536,
+  "vocab_source": "docs/donors.md",
+  "tokenizer_family": "lfm2",
+  "license": "lfm1.0",
+  "experts": null,
+  "experts_per_token": null,
+  "needs": {
+    "transformers": "4.57.1",
+    "trust_remote_code": false,
+    "multi_gpu": false,
+    "gpu": "H200"
+  },
+  "scores": {
+    "mmlu_dev_round8": {
+      "value": 0.262,
+      "split": "MMLU test, 1000 seeded items (round 6 dev)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round8_rows.json"
+    },
+    "gsm8k_search_raw": {
+      "value": 0.385,
+      "split": "GSM8K search split (200 items from GSM8K train)",
+      "prompt": "raw 'Question: ... Answer:' prompt, greedy generation (wsp_eval harness)",
+      "source": "results/baselines_rows.json"
+    }
+  },
+  "structure_notes": [
+    {
+      "note": "tap read at layer 11 of 16 gives 49.9 MMLU dev (host 47.5); alone 26.2 on the raw prompt (run 8)",
+      "source": "results/round8_rows.json"
+    },
+    {
+      "note": "docs/donors.md: type lfm2, layers (conv / attn) 16, needs transformers 4.57",
+      "source": "docs/donors.md"
+    },
+    {
+      "note": "conv layers: block parts with conv layers need the conv state cache, which the part cache does not handle yet; taps work",
+      "source": "docs/donors.md"
+    }
+  ],
+  "components": [
+    "tapread_lfm25_12b_l11"
+  ],
+  "arch_sources": [
+    "profiles.json",
+    "atlas/zoo.json",
+    "docs/donors.md"
+  ]
+}

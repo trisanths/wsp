@@ -1,0 +1,70 @@
+{
+  "id": "qmath_l24_contrast512",
+  "kind": "mlp_cluster",
+  "title": "Qwen2.5-Math-1.5B layer 24, 512 MLP neurons by contrast512",
+  "status": "rejected",
+  "added_by": "Trisanth",
+  "source": "results/sweep2_rows.json (run 2)",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "gsm8k"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Math-1.5B"
+  ],
+  "evidence": [
+    {
+      "claim": "graft at host layer 14 with full-rank glue vs a random 512-neuron cluster from the same layer",
+      "metric": "GSM8K search accuracy, mean over seeds",
+      "value": 0.2183,
+      "control_value": 0.2267,
+      "split": "GSM8K search split (200 items from GSM8K train)",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "source": "results/sweep2_rows.json",
+      "generated": true,
+      "control": "random same-size cluster, same layer, same glue",
+      "note": "host unsloth/Llama-3.2-1B-Instruct, 300 heal steps"
+    },
+    {
+      "claim": "graft at host layer 14 with rank-64 glue vs a random 512-neuron cluster from the same layer",
+      "metric": "GSM8K search accuracy, mean over seeds",
+      "value": 0.2417,
+      "control_value": 0.2317,
+      "split": "GSM8K search split (200 items from GSM8K train)",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "source": "results/sweep2_rows.json",
+      "generated": true,
+      "control": "random same-size cluster, same layer, same glue",
+      "note": "host unsloth/Llama-3.2-1B-Instruct, 300 heal steps"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Math-1.5B",
+  "layer": 24,
+  "layers": [
+    24
+  ],
+  "units_file": null,
+  "units_remote": "/vol/units/qmath_l24_contrast512.pt",
+  "signature": {
+    "method": "contrast512 (512 MLP neurons; activation = mean |activation|, contrast = GSM8K text minus WikiText, attribution = estimated loss increase when zeroed)",
+    "data": "contrast on GSM8K train text",
+    "n_units": 512,
+    "fit_r2_pooled_and_per_dim": [
+      0.5742316618437281,
+      0.4494114820109922
+    ],
+    "part_params": 2360832,
+    "extract_seconds": 8.4
+  },
+  "status_reason": "run 2: no selection method beats the random control at any layer (3 seeds, search split; gaps within noise)"
+}

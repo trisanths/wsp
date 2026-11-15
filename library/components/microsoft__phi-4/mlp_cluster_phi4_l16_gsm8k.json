@@ -1,0 +1,113 @@
+{
+  "id": "mlp_cluster_phi4_l16_gsm8k",
+  "kind": "mlp_cluster",
+  "title": "phi-4 layer 16, 64 MLP neurons by GSM8K contrast",
+  "status": "rejected",
+  "added_by": "Person B",
+  "source": "parts_extracted/microsoft__phi-4/records.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "gsm8k"
+  ],
+  "models": [
+    "microsoft/phi-4"
+  ],
+  "evidence": [
+    {
+      "claim": "graft vs a random same-size cluster through the same glue and heal",
+      "metric": "GSM8K accuracy, mean over seeds",
+      "value": 0.385,
+      "control_value": 0.3567,
+      "split": "GSM8K search split (200 items from GSM8K train)",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "source": "results/part_gate_microsoft__phi-4.json",
+      "generated": true,
+      "control": "random same-size cluster, same layer",
+      "note": "host unsloth/Llama-3.2-1B-Instruct, host layer 6, rank-64 glue, 300 heal steps"
+    },
+    {
+      "claim": "graft vs a random same-size cluster through the same glue and heal",
+      "metric": "GSM8K accuracy, mean over seeds",
+      "value": 0.3139,
+      "control_value": 0.3199,
+      "split": "GSM8K test, 1319 items (held-out)",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "source": "results/final_heldout_microsoft__phi-4.json",
+      "generated": true,
+      "control": "random same-size cluster, same layer",
+      "note": "host unsloth/Llama-3.2-1B-Instruct, rank-64 glue, 300 heal steps"
+    },
+    {
+      "claim": "graft vs a host LoRA matched to the glue and part params",
+      "metric": "GSM8K accuracy, mean over seeds",
+      "value": 0.3139,
+      "control_value": 0.371,
+      "split": "GSM8K test, 1319 items (held-out)",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "source": "results/final_heldout_microsoft__phi-4.json",
+      "generated": true,
+      "control": "matched LoRA"
+    }
+  ],
+  "generated": true,
+  "model": "microsoft/phi-4",
+  "layer": 16,
+  "layers": [
+    16
+  ],
+  "units_file": "components/microsoft__phi-4/mlp_cluster_phi4_l16_gsm8k.pt",
+  "units_remote": "/vol/eval/extracted/microsoft__phi-4/mlp_cluster_phi4_l16_gsm8k.pt",
+  "signature": {
+    "function": "more active on gsm8k text than on generic text",
+    "method": "activation contrast: Cohen's d of |activation|",
+    "skill_data": "gsm8k heal split (train), 256 texts",
+    "control_data": "WikiText-2 train, 256 texts",
+    "n_units": 64,
+    "n_units_in_layer": 17920,
+    "unit_effects": [
+      1.7878,
+      1.5931,
+      1.5797,
+      1.4786,
+      1.2633,
+      1.2509,
+      1.2402,
+      1.1507,
+      1.1342,
+      1.0496,
+      1.0492,
+      1.0477,
+      1.0439,
+      1.0188,
+      1.0084,
+      1.004
+    ],
+    "mean_effect": 0.9403,
+    "random_mean_effect": -0.0397,
+    "layer_rank": 1,
+    "extracted": "2026-11-15T01:29:59+00:00",
+    "unit_effects_note": "first 16 of 64 kept here",
+    "selection_note": "contrast effect is a selection statistic, not evidence of function (parts_extracted/README.md)"
+  },
+  "controls": [
+    "components/microsoft__phi-4/mlp_cluster_phi4_l16_gsm8k_control_seed0.pt",
+    "components/microsoft__phi-4/mlp_cluster_phi4_l16_gsm8k_control_seed1.pt",
+    "components/microsoft__phi-4/mlp_cluster_phi4_l16_gsm8k_control_seed2.pt"
+  ],
+  "catalog_id": "mlp_cluster_phi4_l16_gsm8k",
+  "family": "phi3",
+  "status_reason": "heldout gate: mean gain over the random-cluster control is not positive; graft lost to or tied the control on 2 seed(s)"
+}

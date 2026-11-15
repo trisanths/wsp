@@ -1,0 +1,89 @@
+{
+  "id": "qmath_block_8_19",
+  "kind": "block",
+  "title": "Qwen2.5-Math-1.5B layers 8 to 19 as an in-stream block",
+  "status": "rejected",
+  "added_by": "Trisanth",
+  "source": "results/round3_rows.json, results/round4_rows.json (runs 3 and 4)",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "gsm8k"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Math-1.5B"
+  ],
+  "evidence": [
+    {
+      "claim": "block graft with rank-64 glue vs a random same-length block from the same donor",
+      "metric": "GSM8K search accuracy, mean over seeds",
+      "value": 0.3517,
+      "control_value": 0.3633,
+      "split": "GSM8K search split (200 items from GSM8K train)",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "source": "results/round3_rows.json",
+      "generated": true,
+      "control": "random same-length block",
+      "note": "host unsloth/Llama-3.2-1B-Instruct, 300 heal steps, ridge W_in"
+    },
+    {
+      "claim": "block graft with rank-64 glue vs a random same-length block from the same donor",
+      "metric": "GSM8K search accuracy, mean over seeds",
+      "value": 0.3633,
+      "control_value": 0.3783,
+      "split": "GSM8K search split (200 items from GSM8K train)",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "source": "results/round4_rows.json",
+      "generated": true,
+      "control": "random same-length block",
+      "note": "host Qwen/Qwen2.5-0.5B-Instruct, 300 heal steps, ridge W_in"
+    },
+    {
+      "claim": "block graft at Qwen-0.5B layer 7 with a trained donor_lm linear stitch vs a random block with the same stitch",
+      "metric": "GSM8K search accuracy",
+      "value": 0.38,
+      "control_value": 0.375,
+      "split": "GSM8K search split (200 items from GSM8K train)",
+      "seeds": [
+        0
+      ],
+      "source": "results/stitch_graft_s0.json",
+      "generated": true,
+      "control": "random same-length block",
+      "note": "matched LoRA 0.455, host 0.345"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Math-1.5B",
+  "layer": null,
+  "layers": [
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ],
+  "units_file": null,
+  "units_remote": null,
+  "signature": {
+    "method": "whole donor layers run with the donor's own layer code",
+    "part_params": 561573888
+  },
+  "catalog_id": "qmath_block_8_19",
+  "status_reason": "runs 3 and 4: the block equals a random block on both hosts; the stitch graft (1 seed) also ties the random block"
+}

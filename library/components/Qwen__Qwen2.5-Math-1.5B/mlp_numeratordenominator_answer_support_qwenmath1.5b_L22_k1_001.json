@@ -1,0 +1,108 @@
+{
+  "id": "mlp_numeratordenominator_answer_support_qwenmath1.5b_L22_k1_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen2.5-Math-1.5B layer 22, Numerator/denominator answer support",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwenmath1.5b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "fraction_role"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Math-1.5B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'fraction_role' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.167,
+      "control_value": 0.0021,
+      "split": "person_a held-out skill items (fraction_role)",
+      "seeds": null,
+      "source": "person_a/catalog/qwenmath1.5b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0126"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Math-1.5B",
+  "layer": 22,
+  "layers": [
+    22
+  ],
+  "units_file": "components/Qwen__Qwen2.5-Math-1.5B/mlp_numeratordenominator_answer_support_qwenmath1.5b_L22_k1_001.pt",
+  "units_remote": "person_a/parts/qwenmath1.5b/mlp_numeratordenominator_answer_support_qwenmath1.5b_L22_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'fraction_role'",
+    "label": "Numerator/denominator answer support",
+    "num_units": 1,
+    "d_model": 1536,
+    "effect": {
+      "math|search": 0.0003,
+      "math|heldout": 0.0002,
+      "code|search": -0.0008,
+      "code|heldout": -0.0005,
+      "facts|search": 0.0016,
+      "facts|heldout": 0.0021,
+      "multilingual|search": -0.0004,
+      "multilingual|heldout": -0.0012,
+      "general_text|search": -0.0003,
+      "general_text|heldout": 0.0003,
+      "month_offset|search": -0.0024,
+      "month_offset__control|search": -0.0014,
+      "month_offset|heldout": 0.0,
+      "month_offset__control|heldout": -0.0031,
+      "integer_parity|search": -0.0,
+      "integer_parity__control|search": 0.0,
+      "integer_parity|heldout": 0.0,
+      "integer_parity__control|heldout": 0.0,
+      "weekday_offset|search": 0.0031,
+      "weekday_offset__control|search": 0.0,
+      "weekday_offset|heldout": 0.0005,
+      "weekday_offset__control|heldout": -0.0001,
+      "primality_label|search": -0.0001,
+      "primality_label__control|search": 0.0,
+      "primality_label|heldout": -0.0001,
+      "primality_label__control|heldout": 0.0,
+      "product_sign|search": -0.0007,
+      "product_sign__control|search": 0.0072,
+      "product_sign|heldout": 0.0013,
+      "product_sign__control|heldout": 0.0068,
+      "fraction_role|search": 0.1593,
+      "fraction_role__control|search": -0.0099,
+      "fraction_role|heldout": 0.167,
+      "fraction_role__control|heldout": -0.0126
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0531,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0023,
+      0.0031,
+      0.0016,
+      0.002,
+      0.0016
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Unit 4840 promotes denominator/denomin/Den and numerator (raw logits 2.40 and 1.68); its gate is maximally aligned with denominator and numerator input embeddings. Its absolute fraction-token cosine .488 is over twice the runner-up in layer 22. Tests whether this lexical fraction-role direction supports identifying fraction components."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwenmath1.5b/fraction_role.json",
+    "hash": "9a67d44be1012229",
+    "description": "Identify numerator versus denominator from a referenced part of a fraction; controls copy the explicitly provided numeric part.",
+    "name": "fraction_role"
+  },
+  "catalog_id": "mlp_numeratordenominator_answer_support_qwenmath1.5b_L22_k1_001",
+  "exported_copy": "library/qwenmath1.5b/mlp_numeratordenominator_answer_support_qwenmath1.5b_L22_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

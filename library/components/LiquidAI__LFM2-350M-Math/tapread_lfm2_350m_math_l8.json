@@ -1,0 +1,56 @@
+{
+  "id": "tapread_lfm2_350m_math_l8",
+  "kind": "block",
+  "title": "LFM2-350M-Math layers 0..8, tap read point for GSM8K",
+  "status": "candidate",
+  "added_by": "Trisanth",
+  "source": "results/round5_rows.json (run 5)",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "gsm8k"
+  ],
+  "models": [
+    "LiquidAI/LFM2-350M-Math"
+  ],
+  "evidence": [
+    {
+      "claim": "Llama-1B + tap reading layer 8 at host layer 8 vs the host alone",
+      "metric": "GSM8K search accuracy, mean over seeds",
+      "value": 0.3267,
+      "control_value": 0.25,
+      "split": "GSM8K search split (200 items from GSM8K train)",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "source": "results/round5_rows.json",
+      "generated": true,
+      "control": "host alone, no training",
+      "note": "no mismatched control for this tap; on top of LoRA r64 it adds nothing (run 6)"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2-350M-Math",
+  "layer": null,
+  "layers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "units_file": null,
+  "units_remote": null,
+  "signature": {
+    "method": "tap read point: the donor runs layers 0..8 on the prompt and a gated cross-attention branch in the host reads layer 8",
+    "read_layer": 8
+  },
+  "status_reason": "the only run 5 arm above noise (+7.7 over host), search split only",
+  "use": "tap LiquidAI/LFM2-350M-Math layer 8 at <host layer>"
+}

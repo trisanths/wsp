@@ -1,0 +1,83 @@
+{
+  "id": "microsoft__phi-4",
+  "kind": "model",
+  "title": "phi-4 (14.66B)",
+  "status": "validated",
+  "added_by": "Trisanth",
+  "source": "profiles.json, person_a/registry/configs/phi4_14b.json, atlas/zoo.json",
+  "updated": "2026-11-14",
+  "skills": [
+    "knowledge",
+    "math",
+    "reasoning"
+  ],
+  "models": [
+    "microsoft/phi-4"
+  ],
+  "evidence": [],
+  "generated": true,
+  "hf_id": "microsoft/phi-4",
+  "family": "phi3",
+  "params_b": 14.66,
+  "active_params_b": 14.66,
+  "layers": 40,
+  "hidden": 5120,
+  "vocab": 100352,
+  "vocab_source": "person_a/registry/configs/phi4_14b.json",
+  "tokenizer_family": "phi4",
+  "license": "mit",
+  "experts": null,
+  "experts_per_token": null,
+  "needs": {
+    "transformers": "4.57.1",
+    "trust_remote_code": false,
+    "multi_gpu": false,
+    "gpu": "H200"
+  },
+  "scores": {
+    "mmlu_dev": {
+      "value": 0.691,
+      "split": "MMLU test, 1000 seeded items (round 6 dev)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round10_rows.json",
+      "n": 1000
+    },
+    "mmlu_heldout": {
+      "value": 0.7,
+      "split": "MMLU test, 2000 seeded items disjoint from dev (round 7 held-out)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round10_rows.json",
+      "n": 2000
+    },
+    "medmcqa": {
+      "value": 0.571,
+      "split": "MedMCQA validation, 1000 seeded items (round 10)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round10_rows.json",
+      "n": 1000
+    }
+  },
+  "structure_notes": [
+    {
+      "note": "GSM8K-contrast MLP cluster at layer 16 grafted at Llama-1B layer 6: +2.8 over random on the search split, -0.6 on held-out GSM8K (Person B part gate)",
+      "source": "results/final_heldout_microsoft__phi-4.json"
+    },
+    {
+      "note": "mining registry role donor, status later",
+      "source": "person_a/registry/donors.csv"
+    }
+  ],
+  "components": [
+    "mlp_cluster_phi4_l16_gsm8k",
+    "mlp_cluster_phi4_l17_gsm8k",
+    "mlp_cluster_phi4_l18_gsm8k",
+    "attn_heads_phi4_l6_gsm8k",
+    "attn_heads_phi4_l33_gsm8k",
+    "attn_heads_phi4_l5_gsm8k"
+  ],
+  "arch_sources": [
+    "profiles.json",
+    "person_a/registry/configs/phi4_14b.json",
+    "atlas/zoo.json"
+  ]
+}

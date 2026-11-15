@@ -1,0 +1,82 @@
+{
+  "id": "unsloth__gemma-2-9b-it",
+  "kind": "model",
+  "title": "gemma-2-9b-it (9.24B)",
+  "status": "validated",
+  "added_by": "Trisanth",
+  "source": "profiles.json, atlas/zoo.json",
+  "updated": "2026-11-14",
+  "skills": [
+    "knowledge",
+    "general"
+  ],
+  "models": [
+    "unsloth/gemma-2-9b-it"
+  ],
+  "evidence": [],
+  "generated": true,
+  "hf_id": "unsloth/gemma-2-9b-it",
+  "family": "gemma2",
+  "params_b": 9.242,
+  "active_params_b": 9.242,
+  "layers": 42,
+  "hidden": 3584,
+  "vocab": 256000,
+  "vocab_source": "composer/sizes.py VOCAB by tokenizer family",
+  "tokenizer_family": "gemma",
+  "license": "gemma",
+  "experts": null,
+  "experts_per_token": null,
+  "needs": {
+    "transformers": "4.57.1",
+    "trust_remote_code": false,
+    "multi_gpu": false,
+    "gpu": "H200"
+  },
+  "scores": {
+    "mmlu_dev": {
+      "value": 0.727,
+      "split": "MMLU test, 1000 seeded items (round 6 dev)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round10_rows.json",
+      "n": 1000
+    },
+    "mmlu_heldout": {
+      "value": 0.7215,
+      "split": "MMLU test, 2000 seeded items disjoint from dev (round 7 held-out)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round10_rows.json",
+      "n": 2000
+    },
+    "medmcqa": {
+      "value": 0.564,
+      "split": "MedMCQA validation, 1000 seeded items (round 10)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round10_rows.json",
+      "n": 1000
+    },
+    "mmlu_dev_round8": {
+      "value": 0.726,
+      "split": "MMLU test, 1000 seeded items (round 6 dev)",
+      "prompt": "round 6 prompt (Question, lettered options, Answer:), argmax of the option-letter log-probs",
+      "source": "results/round8_rows.json"
+    }
+  },
+  "structure_notes": [
+    {
+      "note": "tap read at layer 29 of 42 reaches the donor: Llama-1B host 72.9, Qwen-0.5B host 72.7 vs 72.6 alone (run 8)",
+      "source": "results/round8_rows.json"
+    },
+    {
+      "note": "loaded with attn_implementation eager in modal_round8.py",
+      "source": "modal_round8.py"
+    }
+  ],
+  "components": [
+    "tapread_gemma_2_9b_it_l29"
+  ],
+  "arch_sources": [
+    "profiles.json",
+    "atlas/zoo.json"
+  ]
+}
