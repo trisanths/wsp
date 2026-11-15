@@ -163,7 +163,10 @@ def test_seam_plan_sizes_a_block_under_the_limit():
     assert comp["n_layers"] == 3
     assert stage["params_total_after_b"] <= 2.47
     assert p["sources"][0]["relation"] == "same_family_other_size"
-    assert [m["method"] for m in p["sources"][0]["methods"]] == ["synth", "feedback"]
+    assert [m["method"] for m in p["sources"][0]["methods"]] == ["synth", "feedback", "tops"]
+    tops = p["sources"][0]["methods"][2]
+    assert tops["runs_in_make"] is False and tops["adds_total_b"] > 0
+    assert p["sources"][0]["chosen"] == "synth"
     assert any("no atlas block" in w or "atlas" in w for w in p["warnings"]) or True
 
 
@@ -785,3 +788,12 @@ def test_live_plan_exact_copy_is_refused_as_the_same_model(tmp_path):
     assert p["sources"][0]["relation"] == "same"
     assert not p["feasible"]
     assert "same model" in " ".join(p["refusals"])
+
+
+def test_tops_is_listed_but_never_chosen_because_make_cannot_run_it():
+    raw = example("qwen15_code_seam")
+    raw["limits"] = {"max_total_params_b": 2.47, "max_active_params_b": 2.4, "max_heal_minutes": 60}
+    p = plan(raw, lineage=static_lineage(), atlas_entries=[], library_models=[], settings={"tops_cut": 0.25})
+    row = p["sources"][0]
+    assert [m["method"] for m in row["methods"]][-1] == "tops"
+    assert row["chosen"] != "tops"

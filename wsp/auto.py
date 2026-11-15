@@ -103,6 +103,8 @@ SETTINGS = {
     "synth_controls": ["random", "scrambled"],
     "gpu_flops": 2.0e14,        # effective bf16 FLOPs per second of one H200 in a heal step (a guess)
     "seam_threshold": 3,
+    "slim_keep": 0.5,           # share of experts a MoE slim keeps when max_total_params_b sets no size
+    "tops_cut": 0.5,            # share of the base layers kept as the shared trunk of a skill top (size estimate)
 }
 
 
@@ -631,6 +633,22 @@ def transplant_addition(base_cfg, source_cfg, k, rank, top_k=2):
     return total, run
 
 
+def tops_addition(base_cfg, base_run, donor_cfg, cut_fraction, rank):
+    """Estimate of one skill top (wsp/tops.py): (stored, run). The measured size comes from SkillTops.count_params."""
+    cut_host = max(1, min(base_cfg["layers"] - 1, int(round(cut_fraction * base_cfg["layers"]))))
+    cut_donor = max(0, min(donor_cfg["layers"] - 1, int(round(cut_host / base_cfg["layers"] * donor_cfg["layers"]))))
+    layers = (donor_cfg["layers"] - cut_donor) * layer_params(donor_cfg)
+    layers_run = (donor_cfg["layers"] - cut_donor) * layer_params(donor_cfg, run=True)
+    stitch = 2 * base_cfg["hidden"] * donor_cfg["hidden"] + base_cfg["hidden"] + donor_cfg["hidden"]
+    head = donor_cfg["vocab"] * donor_cfg["hidden"] if donor_cfg.get("vocab") else 0
+    lora = lora_params(donor_cfg, rank, donor_cfg["layers"] - cut_donor) if rank else 0
+    stored = layers + stitch + head + donor_cfg["hidden"] + lora
+    trunk = cut_host * layer_params(base_cfg, run=True)
+    path = trunk + layers_run + stitch + head + lora
+    base_layers = base_cfg["layers"] * layer_params(base_cfg, run=True)
+    return int(stored), int(max(0, path - base_layers))
+
+
 def delta_addition(base_cfg, rank):
     """Parameters of one rank-r delta over the attention and MLP matrices: (stored, run when active)."""
     hidden = base_cfg["hidden"]
@@ -843,7 +861,7 @@ def plan(request, lineage=None, settings=None, atlas_entries=None, library_model
     if len(req["remove"]) > 0:
         seam_items = [x for x in sources_out if chosen.get(id(x)) in SEAM_STAGES]
         seam_reserve = sum(chosen_add(x, chosen[id(x)])[0] for x in seam_items)
-        slim_info = slim_target(base_cfg, base_total, base_run, limits, seam_reserve)
+        slim_info = slim_target(base_cfg, base_total, base_run, limits, seam_reserve, keep_default=s["slim_keep"])
         if "error" in slim_info:
             refusals.append("remove: " + slim_info["error"])
         else:
@@ -983,7 +1001,7 @@ def plan(request, lineage=None, settings=None, atlas_entries=None, library_model
             "params_b": round(billions(x["facts"]["params"]), 4),
             "methods": [{"method": o["method"], "fits": o["fits"], "reason": o["reason"], "why_not": o["why_not"],
                          "adds_total_b": None if o["add_total"] is None else round(billions(o["add_total"]), 4),
-                         "needs": o.get("needs")} for o in x["options"]],
+                         "needs": o.get("needs"), "runs_in_make": o.get("runs_in_make", True)} for o in x["options"]],
             "chosen": chosen.get(id(x)),
             "components": x["rows"]})
     return {
@@ -1128,6 +1146,14 @@ def _size_option(option, method, base_cfg, base_total, base_run, src_cfg, src_fa
         option.update(add_total=one_total, add_run=one_run)
         _fit(option, head_total, head_run, "even one donor layer with its translation layers", one_total, one_run)
         return
+    if method == "tops":
+        option["runs_in_make"] = False
+        add_total, add_run = tops_addition(base_cfg, base_run, src_cfg, s["tops_cut"], s["lora_rank"])
+        option.update(add_total=add_total, add_run=add_run,
+                      needs="trunk of %d of %d base layers, then the donor's upper layers and head"
+                            % (max(1, int(round(s["tops_cut"] * base_cfg["layers"]))), base_cfg["layers"]))
+        _fit(option, head_total, head_run, "a skill top", add_total, add_run)
+        return
     option["why_not"] = "no size rule for method %s" % method
 
 
@@ -1178,13 +1204,17 @@ def _choose_methods(sources_out, refusals):
     """Pick the first fitting method per source. Plain methods first because the list is in method order."""
     chosen = {}
     for x in sources_out:
-        fitting = [o for o in x["options"] if o["fits"]]
+        fitting = [o for o in x["options"] if o["fits"] and o.get("runs_in_make", True)]
         if fitting:
             chosen[id(x)] = fitting[0]["method"]
             continue
         reasons = []
         for o in x["options"]:
-            reasons.append("%s: %s" % (o["method"], o["why_not"] or "does not fit"))
+            if o["fits"] and not o.get("runs_in_make", True):
+                reasons.append("%s: valid, but wsp.auto.make has no %s stage; build it as a program (wsp/tops.py)"
+                               % (o["method"], o["method"]))
+            else:
+                reasons.append("%s: %s" % (o["method"], o["why_not"] or "does not fit"))
         refusals.append("add %s from %s (relation %s): no method fits. %s" % (
             x["skill"], x["source"], x["rel"]["kind"], "; ".join(reasons)))
     # sources sharing one seam method: when the picks differ but one method fits every seam source, use it
