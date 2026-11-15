@@ -473,6 +473,9 @@ class WspEnv:
         self.charge(job, budget, result.get("compute_s"))
         self.release(job)
         job["state"] = "done"
+        if result.get("heal_loss"):
+            # A backend that defers its heal to evaluate (modal_backend.py) reports the heal losses here.
+            job["heal_loss"] = list(result["heal_loss"])
         scores = result.get("scores") or {}
         missing = []
         for task in self.tasks:

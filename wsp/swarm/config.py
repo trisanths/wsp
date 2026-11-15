@@ -60,6 +60,8 @@ DEFAULTS = {
     "task_type": "math",         # which entry of task_types this run targets
     "task_types": {              # per task type: target tasks and weights, guard tasks, heal data
         "math": {"tasks": {"gsm8k": 1.0}, "guards": ["if_guard"], "heal_data": ["gsm8k_train"]},
+        # Modal runs: the interim scorer in modal_swarm.py grades gsm8k only, so no guard.
+        "math_interim": {"tasks": {"gsm8k": 1.0}, "guards": [], "heal_data": ["gsm8k_train"]},
     },
     "guard_drop": 0.10,          # a guard is penalized when it falls more than 10% below base
     "guard_penalty": 1.0,        # penalty = guard_penalty * relative drop
