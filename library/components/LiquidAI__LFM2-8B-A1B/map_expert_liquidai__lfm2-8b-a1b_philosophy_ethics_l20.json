@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_liquidai__lfm2-8b-a1b_philosophy_ethics_l20",
+  "kind": "expert",
+  "title": "LFM2-8B-A1B layer 20, 8 experts for philosophy_ethics (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "philosophy_ethics"
+  ],
+  "models": [
+    "LiquidAI/LFM2-8B-A1B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 20 of LFM2-8B-A1B on 'philosophy_ethics' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.16123,
+      "control_value": 0.07192,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 20 of LFM2-8B-A1B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 0.85462,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 0.98209,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-8B-A1B",
+  "layer": 20,
+  "layers": [
+    20
+  ],
+  "units_file": "components/LiquidAI__LFM2-8B-A1B/map_expert_liquidai__lfm2-8b-a1b_philosophy_ethics_l20.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "philosophy_ethics",
+    "data": "cais/mmlu all test (subjects: philosophy, moral_disputes, moral_scenarios, logical_fallacies, world_religions): philosophy ethics questions, correct answer text",
+    "n_units": 8,
+    "experts": [
+      0,
+      15,
+      22,
+      2,
+      25,
+      24,
+      28,
+      20
+    ],
+    "details": [
+      {
+        "expert": 0,
+        "skill_freq": 0.045666,
+        "general_freq": 0.00755,
+        "log_ratio": 1.7888,
+        "heldout_log_ratio": 2.9808
+      },
+      {
+        "expert": 15,
+        "skill_freq": 0.299514,
+        "general_freq": 0.086441,
+        "log_ratio": 1.2419,
+        "heldout_log_ratio": 0.9067
+      },
+      {
+        "expert": 22,
+        "skill_freq": 0.207769,
+        "general_freq": 0.08228,
+        "log_ratio": 0.9256,
+        "heldout_log_ratio": 1.1799
+      },
+      {
+        "expert": 2,
+        "skill_freq": 0.216551,
+        "general_freq": 0.098459,
+        "log_ratio": 0.7876,
+        "heldout_log_ratio": 0.8254
+      },
+      {
+        "expert": 25,
+        "skill_freq": 0.296208,
+        "general_freq": 0.165177,
+        "log_ratio": 0.5838,
+        "heldout_log_ratio": 0.4207
+      },
+      {
+        "expert": 24,
+        "skill_freq": 0.074181,
+        "general_freq": 0.042219,
+        "log_ratio": 0.5626,
+        "heldout_log_ratio": 0.5559
+      },
+      {
+        "expert": 28,
+        "skill_freq": 0.116024,
+        "general_freq": 0.072111,
+        "log_ratio": 0.4751,
+        "heldout_log_ratio": 0.7432
+      },
+      {
+        "expert": 20,
+        "skill_freq": 0.033888,
+        "general_freq": 0.021109,
+        "log_ratio": 0.4716,
+        "heldout_log_ratio": 0.2441
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: philosophy, moral_disputes, moral_scenarios, logical_fallacies, world_religions): philosophy ethics questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 8.34,
+  "n_layers": 24,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "7ed1404fdf502a5446c1b67d4fe1533158d6f2ad"
+}

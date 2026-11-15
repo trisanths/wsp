@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_liquidai__lfm2-8b-a1b_computer_science_l8",
+  "kind": "expert",
+  "title": "LFM2-8B-A1B layer 8, 8 experts for computer_science (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "computer_science"
+  ],
+  "models": [
+    "LiquidAI/LFM2-8B-A1B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 8 of LFM2-8B-A1B on 'computer_science' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.2225,
+      "control_value": 0.10112,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 8 of LFM2-8B-A1B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 0.81583,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 0.92263,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-8B-A1B",
+  "layer": 8,
+  "layers": [
+    8
+  ],
+  "units_file": "components/LiquidAI__LFM2-8B-A1B/map_expert_liquidai__lfm2-8b-a1b_computer_science_l8.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "computer_science",
+    "data": "cais/mmlu all test (subjects: college_computer_science, high_school_computer_science, computer_security, machine_learning, electrical_engineering): computer science questions, correct answer text",
+    "n_units": 8,
+    "experts": [
+      16,
+      7,
+      0,
+      12,
+      27,
+      22,
+      1,
+      20
+    ],
+    "details": [
+      {
+        "expert": 16,
+        "skill_freq": 0.223538,
+        "general_freq": 0.079507,
+        "log_ratio": 1.0329,
+        "heldout_log_ratio": 0.8256
+      },
+      {
+        "expert": 7,
+        "skill_freq": 0.178427,
+        "general_freq": 0.063636,
+        "log_ratio": 1.03,
+        "heldout_log_ratio": 1.1175
+      },
+      {
+        "expert": 0,
+        "skill_freq": 0.158014,
+        "general_freq": 0.060863,
+        "log_ratio": 0.953,
+        "heldout_log_ratio": 0.7948
+      },
+      {
+        "expert": 12,
+        "skill_freq": 0.203125,
+        "general_freq": 0.078274,
+        "log_ratio": 0.9528,
+        "heldout_log_ratio": 1.3433
+      },
+      {
+        "expert": 27,
+        "skill_freq": 0.231099,
+        "general_freq": 0.095994,
+        "log_ratio": 0.878,
+        "heldout_log_ratio": 1.2124
+      },
+      {
+        "expert": 22,
+        "skill_freq": 0.257308,
+        "general_freq": 0.12527,
+        "log_ratio": 0.7194,
+        "heldout_log_ratio": 0.8737
+      },
+      {
+        "expert": 1,
+        "skill_freq": 0.431704,
+        "general_freq": 0.238367,
+        "log_ratio": 0.5937,
+        "heldout_log_ratio": 0.6239
+      },
+      {
+        "expert": 20,
+        "skill_freq": 0.096774,
+        "general_freq": 0.067026,
+        "log_ratio": 0.3668,
+        "heldout_log_ratio": 0.5898
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: college_computer_science, high_school_computer_science, computer_security, machine_learning, electrical_engineering): computer science questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 8.34,
+  "n_layers": 24,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "7ed1404fdf502a5446c1b67d4fe1533158d6f2ad"
+}

@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_liquidai__lfm2-8b-a1b_instruction_l18",
+  "kind": "expert",
+  "title": "LFM2-8B-A1B layer 18, 8 experts for instruction (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "instruction"
+  ],
+  "models": [
+    "LiquidAI/LFM2-8B-A1B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 18 of LFM2-8B-A1B on 'instruction' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.16333,
+      "control_value": 0.05792,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 18 of LFM2-8B-A1B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 1.75557,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 1.94874,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-8B-A1B",
+  "layer": 18,
+  "layers": [
+    18
+  ],
+  "units_file": "components/LiquidAI__LFM2-8B-A1B/map_expert_liquidai__lfm2-8b-a1b_instruction_l18.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "instruction",
+    "data": "yahma/alpaca-cleaned train: general instruction following",
+    "n_units": 8,
+    "experts": [
+      6,
+      17,
+      24,
+      23,
+      31,
+      5,
+      19,
+      21
+    ],
+    "details": [
+      {
+        "expert": 6,
+        "skill_freq": 0.11936,
+        "general_freq": 0.001541,
+        "log_ratio": 4.2877,
+        "heldout_log_ratio": 4.5132
+      },
+      {
+        "expert": 17,
+        "skill_freq": 0.019317,
+        "general_freq": 0.000616,
+        "log_ratio": 3.3002,
+        "heldout_log_ratio": 3.2519
+      },
+      {
+        "expert": 24,
+        "skill_freq": 0.080871,
+        "general_freq": 0.012789,
+        "log_ratio": 1.8377,
+        "heldout_log_ratio": 2.1046
+      },
+      {
+        "expert": 23,
+        "skill_freq": 0.090385,
+        "general_freq": 0.02527,
+        "log_ratio": 1.2716,
+        "heldout_log_ratio": 0.967
+      },
+      {
+        "expert": 31,
+        "skill_freq": 0.22344,
+        "general_freq": 0.088136,
+        "log_ratio": 0.9296,
+        "heldout_log_ratio": 0.7723
+      },
+      {
+        "expert": 5,
+        "skill_freq": 0.326798,
+        "general_freq": 0.129584,
+        "log_ratio": 0.9245,
+        "heldout_log_ratio": 2.4306
+      },
+      {
+        "expert": 19,
+        "skill_freq": 0.297967,
+        "general_freq": 0.127581,
+        "log_ratio": 0.8478,
+        "heldout_log_ratio": 1.0154
+      },
+      {
+        "expert": 21,
+        "skill_freq": 0.148479,
+        "general_freq": 0.077812,
+        "log_ratio": 0.6455,
+        "heldout_log_ratio": 0.5349
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "yahma/alpaca-cleaned train: general instruction following",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 8.34,
+  "n_layers": 24,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "7ed1404fdf502a5446c1b67d4fe1533158d6f2ad"
+}

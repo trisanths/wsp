@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_liquidai__lfm2-8b-a1b_science_papers_l2",
+  "kind": "expert",
+  "title": "LFM2-8B-A1B layer 2, 8 experts for science_papers (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "science_papers"
+  ],
+  "models": [
+    "LiquidAI/LFM2-8B-A1B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 2 of LFM2-8B-A1B on 'science_papers' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.16498,
+      "control_value": 0.10468,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 2 of LFM2-8B-A1B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 0.47,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 0.44689,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-8B-A1B",
+  "layer": 2,
+  "layers": [
+    2
+  ],
+  "units_file": "components/LiquidAI__LFM2-8B-A1B/map_expert_liquidai__lfm2-8b-a1b_science_papers_l2.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "science_papers",
+    "data": "ccdv/arxiv-summarization document train: arXiv paper text continuation",
+    "n_units": 8,
+    "experts": [
+      18,
+      19,
+      23,
+      3,
+      16,
+      25,
+      24,
+      5
+    ],
+    "details": [
+      {
+        "expert": 18,
+        "skill_freq": 0.161958,
+        "general_freq": 0.058089,
+        "log_ratio": 1.0243,
+        "heldout_log_ratio": 1.0311
+      },
+      {
+        "expert": 19,
+        "skill_freq": 0.19723,
+        "general_freq": 0.07735,
+        "log_ratio": 0.9352,
+        "heldout_log_ratio": 0.7682
+      },
+      {
+        "expert": 23,
+        "skill_freq": 0.254478,
+        "general_freq": 0.158706,
+        "log_ratio": 0.4719,
+        "heldout_log_ratio": 0.2825
+      },
+      {
+        "expert": 3,
+        "skill_freq": 0.093075,
+        "general_freq": 0.060863,
+        "log_ratio": 0.4242,
+        "heldout_log_ratio": 0.5378
+      },
+      {
+        "expert": 16,
+        "skill_freq": 0.130748,
+        "general_freq": 0.090755,
+        "log_ratio": 0.3648,
+        "heldout_log_ratio": 0.5241
+      },
+      {
+        "expert": 25,
+        "skill_freq": 0.258541,
+        "general_freq": 0.194607,
+        "log_ratio": 0.2839,
+        "heldout_log_ratio": 0.214
+      },
+      {
+        "expert": 24,
+        "skill_freq": 0.098615,
+        "general_freq": 0.086287,
+        "log_ratio": 0.1334,
+        "heldout_log_ratio": 0.053
+      },
+      {
+        "expert": 5,
+        "skill_freq": 0.125208,
+        "general_freq": 0.110786,
+        "log_ratio": 0.1223,
+        "heldout_log_ratio": 0.1644
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "ccdv/arxiv-summarization document train: arXiv paper text continuation",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 8.34,
+  "n_layers": 24,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "7ed1404fdf502a5446c1b67d4fe1533158d6f2ad"
+}

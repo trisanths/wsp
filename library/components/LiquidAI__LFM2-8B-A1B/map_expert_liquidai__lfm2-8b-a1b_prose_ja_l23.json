@@ -1,0 +1,132 @@
+{
+  "id": "map_expert_liquidai__lfm2-8b-a1b_prose_ja_l23",
+  "kind": "expert",
+  "title": "LFM2-8B-A1B layer 23, 7 experts for prose_ja (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "prose_ja"
+  ],
+  "models": [
+    "LiquidAI/LFM2-8B-A1B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 7 experts at layer 23 of LFM2-8B-A1B on 'prose_ja' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.51649,
+      "control_value": 0.06293,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 7 experts at layer 23 of LFM2-8B-A1B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 2.68586,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 2.38854,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-8B-A1B",
+  "layer": 23,
+  "layers": [
+    23
+  ],
+  "units_file": "components/LiquidAI__LFM2-8B-A1B/map_expert_liquidai__lfm2-8b-a1b_prose_ja_l23.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "prose_ja",
+    "data": "wikimedia/wikipedia 20231101.ja train: Japanese encyclopedia text continuation",
+    "n_units": 7,
+    "experts": [
+      17,
+      21,
+      12,
+      29,
+      5,
+      14,
+      15
+    ],
+    "details": [
+      {
+        "expert": 17,
+        "skill_freq": 0.908739,
+        "general_freq": 0.001541,
+        "log_ratio": 6.3169,
+        "heldout_log_ratio": 5.5832
+      },
+      {
+        "expert": 21,
+        "skill_freq": 0.087226,
+        "general_freq": 0.001233,
+        "log_ratio": 4.1822,
+        "heldout_log_ratio": 2.7824
+      },
+      {
+        "expert": 12,
+        "skill_freq": 0.893887,
+        "general_freq": 0.014792,
+        "log_ratio": 4.0949,
+        "heldout_log_ratio": 3.9992
+      },
+      {
+        "expert": 29,
+        "skill_freq": 0.784384,
+        "general_freq": 0.109399,
+        "log_ratio": 1.9691,
+        "heldout_log_ratio": 1.9414
+      },
+      {
+        "expert": 5,
+        "skill_freq": 0.695598,
+        "general_freq": 0.129738,
+        "log_ratio": 1.6786,
+        "heldout_log_ratio": 1.7531
+      },
+      {
+        "expert": 14,
+        "skill_freq": 0.192477,
+        "general_freq": 0.142989,
+        "log_ratio": 0.297,
+        "heldout_log_ratio": 0.2145
+      },
+      {
+        "expert": 15,
+        "skill_freq": 0.05311,
+        "general_freq": 0.040832,
+        "log_ratio": 0.2623,
+        "heldout_log_ratio": 0.446
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "wikimedia/wikipedia 20231101.ja train: Japanese encyclopedia text continuation",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 8.34,
+  "n_layers": 24,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "7ed1404fdf502a5446c1b67d4fe1533158d6f2ad"
+}
