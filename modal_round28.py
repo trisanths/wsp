@@ -173,13 +173,17 @@ GPU = "H200"
 # ---------------------------------------------------------------- cells
 
 
-def spec(request, rule, keep=None, seed=0, heal=0, keep_model=False):
-    return {"request": request, "rule": rule, "keep": keep, "seed": seed, "heal": heal, "keep_model": keep_model}
+def spec(request, rule, keep=None, seed=0, heal=0, keep_model=False, mcq_only=False):
+    return {"request": request, "rule": rule, "keep": keep, "seed": seed, "heal": heal, "keep_model": keep_model,
+            "mcq_only": mcq_only}
 
 
 def build_cells():
     """{name: spec}, in run order. The full model first."""
     cells = {"full_30b": spec(None, None)}
+    # The full model on the multiple-choice benchmarks only, as its own cell, so the clinic and law baselines
+    # exist before the two-hour generation benchmarks of full_30b finish. It repeats full_30b's MCQ numbers.
+    cells["full_30b_mcq"] = spec(None, None, mcq_only=True)
     for request in REQUESTS:
         for n in SIZES_NO_HEAL:
             cells[f"{request}_sal{n}"] = spec(request, "saliency", keep=n, keep_model=(n == 64))
@@ -234,6 +238,8 @@ def make_chunks(names, cells=None):
 def benchmarks_of(cell):
     """The benchmarks a cell scores: all of them for the full model, else its request's."""
     if cell["request"] is None:
+        if cell["mcq_only"]:
+            return [b for b in ALL_BENCH if b not in ("gsm8k", "math500")]
         return list(ALL_BENCH)
     return list(REQUESTS[cell["request"]]["bench"])
 

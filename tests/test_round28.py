@@ -20,11 +20,12 @@ def load_round():
     return module
 
 
-def test_cell_list_has_thirteen_cells_in_order():
+def test_cell_list_has_fourteen_cells_in_order():
     r = load_round()
     names = list(r.CELLS)
-    assert len(names) == 13
+    assert len(names) == 14
     assert names[0] == "full_30b"
+    assert names[1] == "full_30b_mcq"
     for request in r.REQUESTS:
         assert f"{request}_sal64" in r.CELLS
         assert f"{request}_sal48" in r.CELLS
@@ -54,6 +55,7 @@ def test_every_benchmark_is_a_known_skill_and_has_a_row_entry():
 def test_the_full_model_scores_everything_and_a_cell_scores_its_request():
     r = load_round()
     assert r.benchmarks_of(r.CELLS["full_30b"]) == r.ALL_BENCH
+    assert r.benchmarks_of(r.CELLS["full_30b_mcq"]) == [b for b in r.ALL_BENCH if b not in ("gsm8k", "math500")]
     assert r.benchmarks_of(r.CELLS["law_firm_sal64"]) == ["mmlu_law", "mmlu_general_ex_law"]
     assert "gsm8k" in r.benchmarks_of(r.CELLS["accounting_sal48"])
 
@@ -67,7 +69,7 @@ def test_select_cells_fails_loudly():
     with pytest.raises(ValueError):
         r.select_cells(only="clinic_sal64", requests="law_firm")
     assert r.select_cells(smoke=True) == r.SMOKE_CELLS
-    assert r.select_cells(requests="law_firm") == ["full_30b", "law_firm_sal64", "law_firm_sal48",
+    assert r.select_cells(requests="law_firm") == ["full_30b", "full_30b_mcq", "law_firm_sal64", "law_firm_sal48",
                                                    "law_firm_sal32_heal500", "law_firm_random48_s0"]
 
 
@@ -75,8 +77,8 @@ def test_chunks_group_cells_by_request():
     r = load_round()
     chunks = r.make_chunks(r.select_cells())
     assert len(chunks) == 4
-    assert chunks[0] == ["full_30b"]
-    assert sum(len(c) for c in chunks) == 13
+    assert chunks[0] == ["full_30b", "full_30b_mcq"]
+    assert sum(len(c) for c in chunks) == 14
     assert r.make_chunks(r.SMOKE_CELLS) == [r.SMOKE_CELLS]
 
 
