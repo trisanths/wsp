@@ -106,12 +106,25 @@ What it does:
 2. For each skill and each unit kind the model has, it asks the engine for the best units of every layer
    by attribution patching: the estimated loss rise on the skill when a unit is zeroed, minus the same
    on `general_text`. A quantized (FP8) model cannot run this, so the sweep ranks by activation there.
+   Experts that a model keeps as a list of modules are ranked by attribution only.
 3. It builds candidates in the 3 best layers: MLP clusters of 64, 256, and 1024 units, head groups of 4
    and 8, and expert sets of 2, 4, and 8. It adds the layer blocks of
    `atlas/pool_entries/<org>__<name>.json` when `mine/maps.py` has written that file.
 4. It screens the candidates in order, best first, with the same switch-off test and light gate as the
    agents. A part is saved when the light gate passes and its drop is at least 2 standard deviations
    above the drops of the random parts of the same size (z-score, search half).
+
+The order. A summed score always puts the largest part of a layer first, and a score per unit always
+the smallest. So the sweep sorts on a score that does not depend on the size: the summed score of a
+candidate divided by the mean summed score of all candidates of the same kind and size in this run. The
+order tells you which candidates stand out among parts of their own size. It does not tell you which
+size is best.
+
+The z-score. It follows the rule of the row field `signature.z`, which the branch `mining/row-evidence`
+adds (mean and sample standard deviation of the random drops). The engine rounds drops to 4 decimals,
+so the random drops of a small part can all be equal. Then no deviation is measured and there is no
+z-score: the row has `z_search: null` and `random_spread: "below resolution"`, and the part is saved
+only when its drop is at least 0.15 (the lowest target drop of the light gate) above the random drops.
 
 ```bash
 .venv/bin/python mine/sweep.py --short <short_name> --skills law,medicine,math
@@ -121,7 +134,9 @@ What it does:
 
 Skills are the built-in sets (`math`, `code`, `facts`, `multilingual`) and the sets in
 `mine/data/pool_skills.json`. Each screen scores the target, `general_text`, and 5 guard skills from
-other domains (the list is at the top of `mine/sweep.py`), not every skill set.
+other domains (the list is at the top of `mine/sweep.py`), not every skill set. When the model cannot do
+a guard skill, another skill of the same domain takes its place. The summary names every skill that was
+screened with fewer than 5 guards. A skill with fewer than `--min-guards` guards is skipped.
 
 | Option | Default | Meaning |
 |---|---|---|
@@ -134,15 +149,23 @@ other domains (the list is at the top of `mine/sweep.py`), not every skill set.
 | `--rank-items` | 24 | search items per ranking pass |
 | `--z-min` | 2.0 | lowest z-score that passes |
 | `--min-margin` | 0.25 | skip a skill when the base margin over shuffled answers is lower (nats) |
-| `--order` | `round` | `round`: the best candidate of every skill and kind first, then the second best; `global`: highest score first |
+| `--min-guards` | 3 | skip a skill when fewer guard skills than this can be scored |
+| `--order` | `global` | `global`: highest score first over all skills and kinds; `round`: the best candidate of every skill and kind first, then the second best |
 | `--lane` | empty | a name for a second sweep on the same model at the same time |
 | `--rank-only` | off | rank and print the plan only |
 
 - The sweep can be resumed. Run the same command again: rankings and finished screens are kept, and
   `--max-screens` counts only new screens. With `--skills all`, raise `--max-screens`; the default
-  covers only the first candidates of the first round.
+  covers only the candidates with the highest scores.
+- A rerun does not write a row again. If you moved a row out of the catalog, it stays out. A part whose
+  row is in `catalog/<short_name>.rejected.jsonl` is never written. A kept screen is checked again with
+  the light gate of today.
+- A ranking that fails (for example out of memory) is named in the summary, and the run goes on with
+  the other skills and kinds. The next run tries that ranking again. 3 failures in a row stop the ranking.
 - It is safe to run next to an agent run on the same model. The sweep keeps its state in
   `logs/<short_name>/state.lanesweep.json`, and it appends to the catalog under the same lock as the agents.
+  It takes the pinned revision from the agents' state (`state.json`, or the newest `state.lane<N>.json`)
+  and prints which file it used. If the lane files pin different revisions, the sweep stops: tell your human.
 - To rank again from nothing, move `logs/<short_name>/sweep/` away. To screen again, also move the
   lane state file away.
 - The deployed engine needs the methods `attribution_units` and `activation_units`. If the run says a
@@ -152,11 +175,14 @@ Output:
 - Rows in `catalog/<short_name>.jsonl` with tier `screened`, a label such as
   `law, MLP cluster of 256 units, layer 14 (attribution-ranked)`, and `evidence_used`
   `["attribution", "ablation"]` (`["activation", "ablation"]` for a quantized model, `["ablation"]`
-  for a block). Each row has one more field, `sweep`: the ranking method and score, the z-score, and
-  the guard skills. For a pool skill, `skill.source` is `pool` and the row names the dataset.
+  for a block; a block is ranked by the layer map, which is itself an ablation). Each row has one more
+  field, `sweep`: the ranking method and summed score, the z-score (or the gap, when the random drops
+  have no measured spread), and the guard skills. For a pool skill, `skill.source` is `pool` and the row
+  names the dataset.
 - `logs/<short_name>/sweep/results.jsonl`: one line per screen, passed or not, with the reasons.
 - `logs/<short_name>/sweep/rank_<skill>_<kind>.json`: the candidates of each ranking.
-- A summary at the end: candidates ranked, screened, and passed, by kind and by skill.
+- A summary at the end: candidates ranked, screened, and passed, by kind and by skill, then notes:
+  skipped skills, short guard sets, failed rankings, and the parts that passed.
 
 Push the results as in section 7.
 

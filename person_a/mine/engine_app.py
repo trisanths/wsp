@@ -686,15 +686,41 @@ class EngineBase:
     # miner builds parts of 64 to 1024 units, so it needs the best units of EVERY layer. These methods
     # return that, for one skill, next to the same statistic on general_text.
 
-    def _unit_layers(self, kind, layers):
-        # the probe and stat hooks read the fused experts call (hidden, top_k_index, top_k_weights);
-        # experts kept as a ModuleList have no such call, so those layers cannot be ranked here
+    def _expert_list(self, kind, l):
+        # True when the experts of layer l are a ModuleList of per-expert MLPs (adapter style "module_list")
+        return kind == "expert" and self.info["layers"][l]["experts"].get("style") == "module_list"
+
+    def _unit_layers(self, kind, layers, method="attribution"):
+        # Fused experts are read at their call (hidden, top_k_index, top_k_weights). Experts kept as a
+        # ModuleList have no such call. Attribution ranks them with a probe on each expert's output
+        # (_expert_list_probes). The activation ranking counts router picks, which a ModuleList does not
+        # show, so it leaves those layers out.
         out = []
         for l in self._layer_list(kind, layers):
-            if kind == "expert" and self.info["layers"][l]["experts"].get("style") == "module_list":
+            if method != "attribution" and self._expert_list(kind, l):
                 continue
             out.append(l)
         return out
+
+    def _expert_list_probes(self, l, probes, handles):
+        # Probes for experts kept as a ModuleList. adapter.install removes such an expert by zeroing its
+        # output, so the probe is added to the output of every expert module. An expert that gets no token
+        # in a batch is not called and gets no record. One record per call, in case a block calls an
+        # expert more than once.
+        import torch
+
+        experts = self.adapter.get_module(self.layers[l], self.info["layers"][l]["experts"]["path"])
+        records = {}
+        probes[l] = {"list": records}
+
+        def hook_for(i):
+            def hook(module, args, output):
+                probe = torch.zeros_like(output, requires_grad=True)
+                records.setdefault(i, []).append({"probe": probe, "x": output.detach()})
+                return output + probe
+            return hook
+        for i in range(len(experts)):
+            handles.append(experts[i].register_forward_hook(hook_for(i)))
 
     def _attribution_effects(self, payload, kind, skill, layer_list, n_items, token_budget):
         # One tensor per layer: the estimated rise in the skill's mean answer NLL (nats per scored token)
@@ -712,7 +738,10 @@ class EngineBase:
             handles = []
             try:
                 for l in layer_list:
-                    handles.append(self._probe_hook(kind, l, probes))
+                    if self._expert_list(kind, l):
+                        self._expert_list_probes(l, probes, handles)
+                    else:
+                        handles.append(self._probe_hook(kind, l, probes))
                 with torch.enable_grad():
                     logits = self.model(input_ids=ids, attention_mask=mask, use_cache=False).logits.to(ids.device)
                     pj, pp, tgt = self._targets(rows, batch, ids)
@@ -720,15 +749,27 @@ class EngineBase:
                         continue
                     lp = torch.log_softmax(logits[pj, pp].float(), dim=-1).gather(1, tgt[:, None])
                     loss = -lp.sum()
-                    hooked = list(probes.keys())
-                    leaves = []
-                    for l in hooked:
-                        leaves.append(probes[l]["probe"])
-                    grads = torch.autograd.grad(loss, leaves, allow_unused=True)
-                for (l, g) in zip(hooked, grads):
+                    # one entry per probe: (layer, expert index or None, record)
+                    hooked = []
+                    for l in probes:
+                        if "list" in probes[l]:
+                            for i in probes[l]["list"]:
+                                for rec in probes[l]["list"][i]:
+                                    hooked.append((l, i, rec))
+                        else:
+                            hooked.append((l, None, probes[l]))
+                    grads = []
+                    if hooked:
+                        grads = torch.autograd.grad(loss, [h[2]["probe"] for h in hooked], allow_unused=True)
+                for ((l, i, rec), g) in zip(hooked, grads):
                     if g is None:
                         continue
-                    eff = self._effect(kind, l, probes[l], g).float().cpu()
+                    if i is None:
+                        eff = self._effect(kind, l, rec, g).float().cpu()
+                    else:
+                        # the whole output of expert i goes to 0: first-order change in the loss
+                        eff = torch.zeros(self.info["layers"][l]["experts"]["n_experts"])
+                        eff[i] = float(-(g.float() * rec["x"].float()).sum())
                     if l not in acc:
                         acc[l] = torch.zeros_like(eff)
                     acc[l] += eff
@@ -741,6 +782,24 @@ class EngineBase:
             out[l] = acc[l] / max(n_tokens, 1)
         return out, n_tokens
 
+    def _mask_hook(self, kind, l, state):
+        # _stat_hook multiplies a layer's activation by state["mask"] (experts: it indexes the router
+        # picks with it). The mask is made next to the input ids, on cuda:0. On a multi-GPU tier
+        # (device_map "auto") most layers are on other GPUs, and there the stat hook would raise a device
+        # error. This hook goes on the same module BEFORE the stat hook (pre-hooks run in the order they
+        # were registered) and puts the mask on the device of the module's input.
+        entry = self.info["layers"][l]
+        key = {"mlp_cluster": "mlp", "attn_heads": "attn", "expert": "experts"}[kind]
+        mod = self.adapter.get_module(self.layers[l], entry[key]["path"])
+
+        def pre(module, args, kwargs):
+            if kind == "expert":
+                x = args[1] if len(args) >= 3 else kwargs["top_k_index"]
+            else:
+                x = args[0]
+            state["mask"] = state["home_mask"].to(x.device)
+        return mod.register_forward_pre_hook(pre, with_kwargs=True)
+
     def _activation_means(self, payload, kind, skill, layer_list, n_items):
         # One tensor per layer: mean |activation| per unit (experts: router picks per token) on the
         # skill's search items. Same statistic as activation_scan.
@@ -748,18 +807,19 @@ class EngineBase:
 
         rows = self._scan_rows(payload, skill, n_items)
         sums = {}
-        state = {"mask": None}
+        state = {"mask": None, "home_mask": None}
         handles = []
         n_tokens = 0
         try:
             for l in layer_list:
+                handles.append(self._mask_hook(kind, l, state))
                 handles.append(self._stat_hook(kind, l, sums, state))
             with torch.no_grad():
                 for batch in self._batches(rows, 4.0e8):
                     ids, mask = self._pad(rows, batch)
                     m = mask.clone()
                     m[:, 0] = 0
-                    state["mask"] = m
+                    state["home_mask"] = m
                     n_tokens += int(m.sum())
                     self.model(input_ids=ids, attention_mask=mask, use_cache=False)
         finally:
@@ -776,7 +836,7 @@ class EngineBase:
         for name in [skill, reference]:
             if (name, "search") not in sets:
                 raise ValueError("skill '" + name + "' is not in the payload")
-        layer_list = self._unit_layers(kind, layers)
+        layer_list = self._unit_layers(kind, layers, method)
 
         def measure(name):
             if method == "attribution":
@@ -812,6 +872,7 @@ class EngineBase:
     def activation_units(self, payload, kind, skill, layers, top_n=1024, n_items=32):
         # The same per-layer ranking from forward passes only (mean |activation|, or router pick rate for
         # experts, as a ratio to general_text). For quantized models, where attribution_units refuses.
+        # Experts kept as a ModuleList are not ranked here (see _unit_layers).
         return self._unit_ranking(payload, "activation", kind, skill, layers, top_n, n_items, None)
 
 

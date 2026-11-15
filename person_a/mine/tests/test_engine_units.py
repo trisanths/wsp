@@ -73,6 +73,26 @@ class ToyMoe(torch.nn.Module):
         return self.experts(flat, index, weights).reshape(x.shape)
 
 
+class ToyListMoe(torch.nn.Module):
+    # older MoE code: a ModuleList of expert MLPs. Each expert runs on the tokens routed to it, and the
+    # block scales its output by the routing weight.
+    def __init__(self):
+        super().__init__()
+        self.router = torch.nn.Linear(D, N_EXPERTS)
+        self.experts = torch.nn.ModuleList([ToyMlp(10) for _ in range(N_EXPERTS)])
+
+    def forward(self, x):
+        flat = x.reshape(-1, D)
+        weights, index = torch.topk(torch.softmax(self.router(flat), dim=-1), TOP_K, dim=-1)
+        out = torch.zeros_like(flat)
+        for i in range(N_EXPERTS):
+            rows, slot = torch.where(index == i)
+            if rows.numel() == 0:
+                continue                              # an expert with no token is not called
+            out = out.index_add(0, rows, self.experts[i](flat[rows]) * weights[rows, slot].unsqueeze(-1))
+        return out.reshape(x.shape)
+
+
 class ToyLayer(torch.nn.Module):
     def __init__(self, mlp):
         super().__init__()
@@ -89,10 +109,10 @@ class Output:
 
 
 class ToyLM(torch.nn.Module):
-    def __init__(self):
+    def __init__(self, moe):
         super().__init__()
         self.embed = torch.nn.Embedding(VOCAB, D)
-        self.layers = torch.nn.ModuleList([ToyLayer(ToyMlp(20)), ToyLayer(ToyMlp(16)), ToyLayer(ToyMoe())])
+        self.layers = torch.nn.ModuleList([ToyLayer(ToyMlp(20)), ToyLayer(ToyMlp(16)), ToyLayer(moe)])
         self.unembed = torch.nn.Linear(D, VOCAB, bias=False)
         self.config = ToyConfig()
 
@@ -135,9 +155,9 @@ def items(seed, n):
     return out
 
 
-def make_engine():
+def make_engine(list_experts=False):
     torch.manual_seed(0)
-    model = ToyLM()
+    model = ToyLM(ToyListMoe() if list_experts else ToyMoe())
     model.eval()
     for p in model.parameters():
         p.requires_grad_(False)
@@ -309,15 +329,94 @@ def test_ranking(e):
     no_hooks_left(e)
 
 
-def test_module_list_experts_are_left_out(e):
-    # experts kept as a ModuleList have no fused call to hook: the ranking skips those layers
-    old = e.info["layers"][2]["experts"]
-    e.info["layers"][2]["experts"] = dict(old, style="module_list")
+def test_module_list_experts():
+    # Experts kept as a ModuleList: attribution ranks them with a probe on each expert's output. The check
+    # is the derivative of the mean answer NLL with respect to a scale on that output, item by item.
+    e = make_engine(list_experts=True)
+    entry = e.info["layers"][2]["experts"]
+    assert entry == {"path": "mlp.experts", "n_experts": N_EXPERTS, "style": "module_list"}, entry
+    assert e._unit_layers("expert", []) == [2] and e._unit_layers("expert", [], "attribution") == [2]
+    n_items = 7
+    experts = adapter.get_module(e.layers[2], entry["path"])
+    scale = torch.ones(N_EXPERTS, requires_grad=True)
+    handles = []
+    for i in range(N_EXPERTS):
+        handles.append(experts[i].register_forward_hook(lambda module, args, output, i=i: output * scale[i]))
+    total = 0.0
+    count = 0
     try:
-        assert e._unit_layers("expert", []) == []
-        assert e._unit_ranking(PAYLOAD, "activation", "expert", "law", [], 3, 9, None)["layers"] == {}
+        with torch.enable_grad():
+            for ids, start in scored(e, "law", n_items):
+                lp = torch.log_softmax(e.model(input_ids=torch.tensor([ids])).logits[0], dim=-1)
+                for t in range(start, len(ids)):
+                    total = total - lp[t - 1, ids[t]]
+                    count += 1
+            want = -torch.autograd.grad(total / count, [scale])[0]
     finally:
-        e.info["layers"][2]["experts"] = old
+        adapter.remove_all(handles)
+    for budget in [40, 100000]:                                    # several padded batches, then one batch
+        got, n_tokens = e._attribution_effects(PAYLOAD, "expert", "law", [2], n_items, budget)
+        assert n_tokens == count and got[2].shape == want.shape
+        assert torch.allclose(got[2], want, atol=2e-5, rtol=1e-3), (got[2], want)
+    assert float(want.abs().max()) > 1e-4 and int((want != 0).sum()) >= 3      # the check is not on zeros
+    res = e._unit_ranking(PAYLOAD, "attribution", "expert", "law", [], 3, n_items, 40)
+    assert list(res["layers"].keys()) == ["2"] and res["layers"]["2"]["width"] == N_EXPERTS
+    part = {"kind": "expert", "layer": 2, "indices": res["layers"]["2"]["units"]}
+    assert adapter.check_part(e.info, part) is None
+    # the activation ranking needs the router's picks, which a ModuleList does not show: no layers
+    assert e._unit_layers("expert", [], "activation") == []
+    assert e._unit_ranking(PAYLOAD, "activation", "expert", "law", [], 3, 9, None)["layers"] == {}
+    # the dense kinds of the same model are ranked as before
+    assert e._unit_layers("mlp_cluster", [], "activation") == [0, 1]
+    no_hooks_left(e)
+
+
+class OtherDevice(torch.Tensor):
+    # Stands for a tensor on another GPU. An operation that mixes it with a plain tensor raises, as
+    # PyTorch does for two devices. Operations on it alone work. .to(device) gives a plain tensor.
+    moves = []
+
+    @classmethod
+    def __torch_function__(cls, func, types, args=(), kwargs=None):
+        if func is torch.Tensor.to:
+            cls.moves.append(args[1] if len(args) > 1 else (kwargs or {}).get("device"))
+            return torch.tensor(args[0].tolist())
+        for a in args:
+            if type(a) is torch.Tensor:
+                raise RuntimeError("Expected all tensors to be on the same device, but found at least two devices")
+        return super().__torch_function__(func, types, args, kwargs)
+
+
+def test_mask_follows_the_layer(e):
+    # Multi-GPU tiers: the padding mask is made on cuda:0 and the layers are on other GPUs. The mask in
+    # this test is on "another device" than every activation, so a statistic that uses it where it is
+    # raises. The activation path must move it to the activation's device first.
+    tagged = torch.ones(2, 3, dtype=torch.long).as_subclass(OtherDevice)
+    tagged[:, 0] = 0
+    assert int(tagged.sum()) == 4                                   # operations on the mask alone work
+    try:
+        torch.ones(2, 3) * tagged
+        raise AssertionError("the device tag must refuse a mixed operation")
+    except RuntimeError as err:
+        assert "same device" in str(err)
+    real_pad = e._pad
+
+    def pad_elsewhere(rows, batch):
+        ids, mask = real_pad(rows, batch)
+        return ids, mask.as_subclass(OtherDevice)
+    e._pad = pad_elsewhere
+    try:
+        for kind, layers in [("mlp_cluster", [0, 1]), ("attn_heads", [0, 1, 2]), ("expert", [2])]:
+            del OtherDevice.moves[:]
+            got, n_tokens = e._activation_means(PAYLOAD, kind, "law", layers, 9)
+            assert len(OtherDevice.moves) >= len(layers) and all(d == torch.device("cpu") for d in OtherDevice.moves)
+            for layer in layers:
+                want, count = reference_activation(e, kind, layer, "law", 9)
+                assert n_tokens == count
+                assert torch.allclose(got[layer], want, atol=1e-5, rtol=1e-4), (kind, layer)
+    finally:
+        del e._pad
+    no_hooks_left(e)
 
 
 def plain_method(name):
@@ -360,6 +459,7 @@ if __name__ == "__main__":
     test_attribution(engine)
     test_activation(engine)
     test_ranking(engine)
-    test_module_list_experts_are_left_out(engine)
+    test_mask_follows_the_layer(engine)
+    test_module_list_experts()
     test_quantized_refusal(engine)
     print("ok")

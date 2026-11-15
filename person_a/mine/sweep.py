@@ -17,6 +17,8 @@
 #      the engine uses for attribution scans). The ranking reads the "search" half only.
 #      Quantized (FP8) models cannot run the backward pass: attribution_units refuses, and the sweep uses
 #      activation_units instead (forward passes only). The rows then say "activation" in evidence_used.
+#      Experts kept as a ModuleList are ranked by attribution only (a probe on each expert's output); a
+#      quantized model of that style gets no expert candidates.
 #   2. Candidates. MLP clusters of 64, 256, and 1024 units, head groups of 4 and 8, and expert sets of
 #      2, 4, and 8, each in the 3 layers with the highest summed score. A size is skipped when it needs
 #      more than half of the layer (the gate needs random parts of the same size) or more units than
@@ -24,35 +26,58 @@
 #      by mine/maps.py) when that file exists and has the skill.
 #   3. Intervene. Each candidate goes through Miner.screen, the same path the agents use: one ablation,
 #      GATE_N_RANDOM random parts of the same size, and the light gate. A candidate passes when the
-#      light gate passes AND its z-score against the random parts is at least Z_MIN on the search half.
+#      light gate passes AND the z rule passes on the search half (next paragraph).
 #   4. Write. Passing parts go to catalog/<model>.jsonl through Miner.write_part with tier "screened".
 #
-# Order and limits. Round r holds the r-th best candidate of every (skill, kind) pair; inside a round the
-# candidate with the highest score goes first. So a run that stops at --max-screens or --max-hours holds
-# the best candidate of every skill and kind before any second-best one. "--order global" sorts by
-# score alone. A rerun skips finished work: rankings are kept in logs/<model>/<lane>/ and screens in the
-# lane state (Miner.screen caches by part key and target).
+# The z rule. z = (target drop - mean of the random drops) / their sample standard deviation, the rule of
+# evidence.z_score on the branch mining/row-evidence, so a row never holds two different z-scores. The
+# candidate passes when z is at least Z_MIN. The engine rounds drops to 4 decimals, so the random drops of
+# a small part in a wide layer can all be equal. Then the deviation is not measured and z is not
+# defined (null in the row; "random_spread" says "below resolution"). In that case the candidate passes
+# only when its drop is at least NO_SPREAD_GAP above the random drops ("gap_search" in the row).
+#
+# Order and limits. A sum over units always puts the largest part of a layer first, and a mean always
+# the smallest. So the order uses a score that does not depend on the size: the candidate's summed score
+# divided by the mean summed score of all candidates of the same kind, size, and ranking method in this
+# run (blocks of every length are one class). The default order is the highest such score first, over
+# all skills and kinds, so a run that stops at --max-screens or --max-hours holds the candidates with
+# the best attribution. "--order round" gives every (skill, kind) pair its best candidate before any
+# pair gets a second one. The order says which candidates stand out among parts of their own size; it
+# does not say which size is best. A rerun skips finished work: rankings are kept in
+# logs/<model>/<lane>/ and screens in the lane state (Miner.screen caches by part key and target).
+# A ranking that fails is noted in the summary and the run goes on; 3 failures in a row stop the ranking.
+#
+# Reruns and the catalog. The lane state records the catalog id of every row the sweep wrote. A rerun
+# does not write a kept screen again when an id is recorded, so a row that someone moved out of the
+# catalog stays out. A part whose row is in catalog/<model>.rejected.jsonl (mine/regate.py) is never
+# written. A kept screen is judged again by the light gate of today, not by the stored gate result.
 #
 # Guard skills. The agents score every built-in and agent skill in each ablation. A sweep over many
 # skills would then score dozens of sets per screen, so each screen scores only: the target, general_text,
 # and N_GUARDS guard skills from other domains (GUARDS below, one per domain; the guard of the target's
-# own domain is left out, because a real medicine part also moves a second medicine set). A skill keeps
-# the guard set of its first screen, so cached screens stay comparable. The gate thresholds are unchanged.
+# own domain is left out, because a real medicine part also moves a second medicine set). When the model
+# cannot do a guard, the next skill of the same domain that it can do takes the place. A skill with fewer
+# than --min-guards guards is skipped, and a skill with fewer than N_GUARDS gets a note in the summary.
+# A skill keeps the guard set of its first run, so cached screens stay comparable. The gate thresholds
+# are unchanged.
 #
 # Running next to an LLM agent run on the same model is safe:
 #   - State. The sweep sets WSP_LANE to "sweep" (plus --lane), so its state is
 #     logs/<model>/state.lanesweep.json and never the agents' state.json or state.lane<N>.json. It
-#     copies only the pinned revision and the structure from the main state, so it loads the same engine
-#     container as the agents; it does not copy their screens, which used another guard set. A lock
-#     file stops two sweeps from sharing one lane.
+#     copies only the pinned revision and the structure from the agents' state (state.json, or the
+#     newest state.lane<N>.json when the agents run in lanes), so it loads the same engine container as
+#     the agents; it does not copy their screens, which used another guard set. When the lanes pin
+#     different revisions the sweep stops. A lock file stops two sweeps from sharing one lane.
 #   - Catalog. Rows are appended by Miner.write_part, which holds catalog/<model>.jsonl.lock while it
 #     picks the id and appends. The agents hold the same lock, so ids never collide and lines never mix.
 #   - Engine. Calls from both runs queue on the same deployed class; score caches are keyed by set hash.
 #
 # Catalog rows. All existing fields keep their meaning. The sweep adds one field, "sweep" (how the part
-# was ranked, its z-score, the guard skills), and for a pool skill it writes skill.source "pool" with the
-# dataset, because Miner would call it "builtin". One line per new screen also goes to
-# logs/<model>/<lane>/results.jsonl, passed or not.
+# was ranked, its z-score or gap, the guard skills), and for a pool skill it writes skill.source "pool"
+# with the dataset, because Miner would call it "builtin". evidence_used is ["attribution", "ablation"],
+# or ["activation", "ablation"] for a quantized model. A layer block has ["ablation"] alone: its ranking,
+# the layer map, is an ablation too, so a reader of the catalog must expect this third value.
+# One line per new screen also goes to logs/<model>/<lane>/results.jsonl, passed or not.
 #
 # The engine must be deployed from a branch that has attribution_units and activation_units.
 import argparse
@@ -60,6 +85,7 @@ import fcntl
 import json
 import math
 import os
+import re
 import sys
 import time
 
@@ -74,9 +100,10 @@ POOL_ENTRIES = os.path.join(REPO, "atlas", "pool_entries")
 REFERENCE = "general_text"
 
 Z_MIN = 2.0
-# The engine rounds relative drops to 4 decimals, so a spread below this is not measured. Without the
-# floor, five random parts that all round to the same drop would give an infinite z-score.
-STD_FLOOR = 1.0e-4
+# The engine rounds relative drops to 4 decimals. When all random drops are equal after that, their
+# deviation is not measured and no z-score exists. The candidate must then be this far above the random
+# drops: the lowest target drop the light gate accepts, so the part beats random by a full gate step.
+NO_SPREAD_GAP = client.GATE_MIN_TARGET_DROP
 SIZES = {"mlp_cluster": [64, 256, 1024], "attn_heads": [4, 8], "expert": [2, 4, 8]}
 TOP_LAYERS = 3
 RANK_ITEMS = 24
@@ -85,9 +112,11 @@ KIND_TEXT = {"mlp_cluster": "MLP cluster of %d units", "attn_heads": "group of %
              "expert": "set of %d experts"}
 ALL_KINDS = ["mlp_cluster", "attn_heads", "expert", "block"]
 
-# Guard skills: one per domain, in this order. A screen uses the first N_GUARDS that are not in the
-# target's domain and that the model can do (base margin over shuffled answers, as for built-in skills).
+# Guard skills: one per domain, in this order. A screen uses N_GUARDS of them, never one from the target's
+# domain. When the model cannot do a guard (base margin over shuffled answers, as for built-in skills),
+# the next skill of the same domain in DOMAINS that it can do is used.
 N_GUARDS = 5
+MIN_GUARDS = 3
 GUARDS = ["math", "code", "medicine", "law", "prose_zh", "physics", "facts"]
 DOMAINS = {
     "math": ["math", "mathematics_theory"],
@@ -153,16 +182,29 @@ def domain_of(name):
 
 
 def guards_for(target, usable):
-    # the first N_GUARDS guard skills from other domains that exist and that the model can do
+    # One guard per domain, in the order of GUARDS, from domains other than the target's: the domain's
+    # guard, or the next skill of that domain the model can do. Stops at N_GUARDS. The list is shorter
+    # when a whole domain has no usable skill.
     out = []
     for g in GUARDS:
-        if g == target or g not in usable:
+        d = domain_of(g)
+        if d == domain_of(target):
             continue
-        if domain_of(target) is not None and domain_of(g) == domain_of(target):
-            continue
-        out.append(g)
+        for name in [g] + [n for n in DOMAINS[d] if n != g]:
+            if name != target and name in usable:
+                out.append(name)
+                break
         if len(out) == N_GUARDS:
             break
+    return out
+
+
+def spare_guards(usable, known):
+    # skills whose base margin is needed to replace a guard the model cannot do
+    out = []
+    for g in GUARDS:
+        if g not in usable:
+            out.extend(n for n in DOMAINS[domain_of(g)] if n != g and n in known)
     return out
 
 
@@ -175,18 +217,50 @@ def build_payload(specs, target, guards):
 
 # ---------------- z-score ----------------
 
+def is_number(v):
+    return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
+
+
+def numbers(values):
+    return [float(v) for v in values or [] if is_number(v)]
+
+
 def z_score(target_drop, random_drops):
-    # How many standard deviations the candidate's drop is above the drops of the random same-size parts
-    # (sample standard deviation). None when the drop is missing or fewer than 2 random drops exist.
-    vals = []
-    for r in random_drops or []:
-        if r is not None:
-            vals.append(float(r))
-    if target_drop is None or len(vals) < 2:
+    # How many sample standard deviations the candidate's drop is above the drops of the random same-size
+    # parts. None when the drop is missing, when fewer than 2 random drops exist, or when they are all
+    # equal (no measured deviation). Same rule and rounding as evidence.z_score and signature.z on the
+    # branch mining/row-evidence.
+    vals = numbers(random_drops)
+    if not is_number(target_drop) or len(vals) < 2 or max(vals) == min(vals):
         return None
-    mean = sum(vals) / len(vals)
-    var = sum((v - mean) ** 2 for v in vals) / (len(vals) - 1)
-    return round((float(target_drop) - mean) / max(math.sqrt(var), STD_FLOOR), 2)
+    mean = math.fsum(vals) / len(vals)
+    std = math.sqrt(math.fsum((v - mean) ** 2 for v in vals) / (len(vals) - 1))
+    return round((target_drop - mean) / std, 3)
+
+
+def z_rule(target_drop, random_drops, z_min):
+    # The sweep's test after the light gate (see "The z rule" in the header comment).
+    # random_spread: "measured" (z decides), "below resolution" (all random drops equal: the gap decides),
+    # or None (fewer than 2 random drops, or no target drop: nothing to compare, not passed).
+    out = {"passed": False, "z_search": None, "random_spread": None, "gap_search": None, "reason": None}
+    vals = numbers(random_drops)
+    if not is_number(target_drop) or len(vals) < 2:
+        out["reason"] = "no z-score: the target drop or the random drops are missing"
+        return out
+    if max(vals) == min(vals):
+        out["random_spread"] = "below resolution"
+        out["gap_search"] = round(target_drop - vals[0], 4)
+        out["passed"] = out["gap_search"] >= NO_SPREAD_GAP
+        if not out["passed"]:
+            out["reason"] = ("the random drops have no measured spread and the target drop is only "
+                             + str(out["gap_search"]) + " above them (needs " + str(NO_SPREAD_GAP) + ")")
+        return out
+    out["random_spread"] = "measured"
+    out["z_search"] = z_score(target_drop, vals)
+    out["passed"] = out["z_search"] >= z_min
+    if not out["passed"]:
+        out["reason"] = "z-score " + str(out["z_search"]) + " < " + str(z_min)
+    return out
 
 
 # ---------------- candidates ----------------
@@ -271,12 +345,11 @@ def block_candidates(skill, entry, n_layers):
 
 
 def model_kinds(structure):
-    # the unit kinds this model has. Experts kept as a ModuleList cannot be ranked by the engine hooks.
+    # the unit kinds this model has
     kinds = []
     for kind in ["mlp_cluster", "attn_heads", "expert"]:
         for e in structure["layers_detail"]:
-            sub = e.get(KIND_KEYS[kind])
-            if sub and not (kind == "expert" and sub.get("style") == "module_list"):
+            if e.get(KIND_KEYS[kind]):
                 kinds.append(kind)
                 break
     return kinds
@@ -288,25 +361,40 @@ def cand_key(c):
     return client.part_key(c["part"]) + "|" + c["skill"]
 
 
-def order_candidates(cands, mode="round"):
+def score_class(c):
+    # candidates whose summed scores can be compared: the same kind, size, and ranking method.
+    # Blocks are few and not nested, so blocks of every length are one class.
+    if c["kind"] == "block":
+        return ("block",)
+    return (c["kind"], c["size"], c["rank_method"])
+
+
+def order_candidates(cands, mode="global"):
+    # Sorts on norm_score: rank_score divided by the mean rank_score of the candidate's class
+    # (score_class). rank_score is a sum over units, so it grows with the size, and a mean per unit falls
+    # with it; norm_score says how far a candidate stands out among parts of its own kind and size.
+    # "global": highest norm_score first, whatever the skill and kind.
     # "round": round r holds the r-th best candidate of every (skill, kind) pair, and inside a round the
-    # highest score goes first. "global": highest score first, whatever the skill and kind.
-    # With attribution, unit scores and block scores are both nats of loss, so they can be compared. With
-    # the activation fallback the unit scores are ratios, and the order between units and blocks is rough.
+    # highest norm_score goes first.
+    sums = {}
+    for c in cands:
+        sums.setdefault(score_class(c), []).append(c["rank_score"])
     groups = {}
     for c in cands:
+        c = dict(c)
+        mean = math.fsum(sums[score_class(c)]) / len(sums[score_class(c)])
+        c["norm_score"] = float("%.6g" % (c["rank_score"] / mean)) if mean > 0 else 0.0
         groups.setdefault((c["skill"], c["kind"]), []).append(c)
     out = []
     for g in groups:
-        rows = sorted(groups[g], key=lambda c: (-c["rank_score"], c["size"], cand_key(c)))
+        rows = sorted(groups[g], key=lambda c: (-c["norm_score"], c["size"], cand_key(c)))
         for i in range(len(rows)):
-            c = dict(rows[i])
-            c["round"] = i
-            out.append(c)
+            rows[i]["round"] = i
+            out.append(rows[i])
     if mode == "global":
-        out.sort(key=lambda c: (-c["rank_score"], c["skill"], c["kind"], cand_key(c)))
+        out.sort(key=lambda c: (-c["norm_score"], c["skill"], c["kind"], c["size"], cand_key(c)))
     else:
-        out.sort(key=lambda c: (c["round"], -c["rank_score"], c["skill"], c["kind"], cand_key(c)))
+        out.sort(key=lambda c: (c["round"], -c["norm_score"], c["skill"], c["kind"], cand_key(c)))
     return out
 
 
@@ -376,20 +464,68 @@ def lane_dir(short):
     return os.path.join(common.logs_dir(short), os.environ.get("WSP_LANE") or "sweep")
 
 
+def agent_state(short, own):
+    # (state, file name) of the run whose pinned revision a new sweep lane takes: state.json, or, when the
+    # agents run in lanes from the start (run_many --agents N writes no state.json), the newest
+    # state.lane<N>.json that has a revision. The lanes must agree: with two revisions the sweep cannot
+    # tell which engine container is live, and a wrong pick loads a second copy of the model.
+    folder = common.logs_dir(short)
+    main = common.read_json_safe(os.path.join(folder, "state.json"), {})
+    if main.get("revision"):
+        return main, "state.json"
+    found = []
+    if os.path.isdir(folder):
+        for name in sorted(os.listdir(folder)):
+            path = os.path.join(folder, name)
+            if not re.match(r"^state\.lane.+\.json$", name) or path == own:
+                continue
+            state = common.read_json_safe(path, {})
+            if state.get("revision"):
+                found.append((os.path.getmtime(path), name, state))
+    if not found:
+        return {}, None
+    revisions = sorted(set(f[2]["revision"] for f in found))
+    if len(revisions) > 1:
+        raise SystemExit("the state files of " + short + " pin different revisions ("
+                         + ", ".join(f[1] + ": " + str(f[2]["revision"])[:10] for f in found) + "). "
+                         "Write the revision of the live run into " + os.path.relpath(own, common.ROOT)
+                         + " as {\"revision\": \"<sha>\"} and run again.")
+    found.sort(key=lambda f: (f[0], f[1]))
+    return found[-1][2], found[-1][1]
+
+
 def seed_lane_state(short):
-    # A new sweep lane takes the pinned revision and the structure from the model's main state, so it
-    # uses the same engine container as a live agent run. It does not take the screens (another guard set).
+    # A new sweep lane takes the pinned revision and the structure from the agents' state, so it uses the
+    # same engine container as a live agent run. It does not take the screens (another guard set).
+    # Returns the name of the file the revision came from, or None when nothing was copied.
     lane = common.state_path(short)
     main = os.path.join(common.logs_dir(short), "state.json")
     if lane == main or os.path.exists(lane) or os.path.exists(lane + ".bak"):
-        return
-    src = common.read_json_safe(main, {})
+        return None
+    src, name = agent_state(short, lane)
     seed = {}
     for k in ["revision", "model", "structure"]:
         if k in src:
             seed[k] = src[k]
-    if seed:
-        common.write_json_atomic(lane, seed)
+    if not seed:
+        return None
+    common.write_json_atomic(lane, seed)
+    print("revision", str(seed.get("revision"))[:10], "taken from logs/" + short + "/" + name, flush=True)
+    return name
+
+
+def rejected_parts(short):
+    # (part key, skill name) of every row in catalog/<model>.rejected.jsonl; the name is None when the
+    # row has none. mine/regate.py and audits move rows there.
+    path = os.path.join(common.ROOT, "catalog", short + ".rejected.jsonl")
+    out = set()
+    if os.path.exists(path):
+        with open(path) as f:
+            for line in f:
+                if line.strip():
+                    rec = json.loads(line)
+                    out.add((rec.get("part_key"), (rec.get("skill") or {}).get("name")))
+    return out
 
 
 def lock_lane(short):
@@ -482,30 +618,54 @@ class SweepMiner(client.Miner):
         return cands, False
 
     def screen_candidate(self, c, guards, z_min, n_items):
-        # Miner.screen (ablation, random parts, light gate), then the z-score rule; writes the row on a pass
+        # Miner.screen (ablation, random parts, light gate), then the z rule; writes the row on a pass
         skill = c["skill"]
+        key = cand_key(c)
         self.active_payload = build_payload(self.specs, skill, guards)
         res = self.screen(c["part"], skill)
+        # a kept screen holds the gate result of the day it ran: judge its drops by the gate of today
+        gate = client.light_gate(res["drops"], res["random_drops"], skill, self.target_skills())
+        res = dict(res, gate=gate)
         target_drop = res["drops"].get(skill + "|search")
-        z = z_score(target_drop, res["random_drops"])
-        passed = bool(res["gate"]["passed"]) and z is not None and z >= z_min
-        reasons = list(res["gate"]["reasons"])
-        if res["gate"]["passed"] and not passed:
-            reasons.append("z-score " + str(z) + " < " + str(z_min))
-        out = {"passed": passed, "gate_passed": bool(res["gate"]["passed"]), "z_search": z,
-               "target_drop_search": target_drop, "reasons": reasons, "seconds": res["seconds"], "catalog_id": None}
+        rule = z_rule(target_drop, res["random_drops"], z_min)
+        passed = bool(gate["passed"]) and rule["passed"]
+        reasons = list(gate["reasons"])
+        if gate["passed"] and not rule["passed"]:
+            reasons.append(rule["reason"])
         if passed:
-            self.row_extra = {"sweep": {"rank_method": c["rank_method"], "rank_score": c["rank_score"],
-                                        "rank_items": None if c["kind"] == "block" else n_items,
-                                        "reference": REFERENCE, "guards": list(guards), "z_search": z, "z_min": z_min}}
-            if self.specs[skill]["info"]:
-                self.row_extra["skill"] = self.specs[skill]["info"]
-            try:
-                rec = self.write_part(c["part"], label_for(c), skill, res, evidence_for(c),
-                                      rationale_for(c, n_items), "screened")
-            finally:
-                self.row_extra = {}
-            out["catalog_id"] = rec["id"]
+            rejected = rejected_parts(self.short)
+            if (client.part_key(c["part"]), skill) in rejected or (client.part_key(c["part"]), None) in rejected:
+                passed = False
+                reasons.append("the row was rejected before: it is in catalog/" + self.short + ".rejected.jsonl")
+        out = {"passed": passed, "gate_passed": bool(gate["passed"]), "z_search": rule["z_search"],
+               "random_spread": rule["random_spread"], "gap_search": rule["gap_search"],
+               "target_drop_search": target_drop, "reasons": reasons, "seconds": res["seconds"], "catalog_id": None}
+        if not passed:
+            return out
+        written = self.state.setdefault("sweep_written", {})
+        if key in written:
+            # The row was written by an earlier run. It is not written again: when someone moved it out
+            # of the catalog since, it must stay out.
+            out["catalog_id"] = written[key]
+            return out
+        info = {"rank_method": c["rank_method"], "rank_score": c["rank_score"],
+                "rank_items": None if c["kind"] == "block" else n_items,
+                "reference": REFERENCE, "guards": list(guards), "z_search": rule["z_search"], "z_min": z_min,
+                "random_spread": rule["random_spread"]}
+        if rule["random_spread"] == "below resolution":
+            info["gap_search"] = rule["gap_search"]
+            info["gap_min"] = NO_SPREAD_GAP
+        self.row_extra = {"sweep": info}
+        if self.specs[skill]["info"]:
+            self.row_extra["skill"] = self.specs[skill]["info"]
+        try:
+            rec = self.write_part(c["part"], label_for(c), skill, res, evidence_for(c),
+                                  rationale_for(c, n_items), "screened")
+        finally:
+            self.row_extra = {}
+        written[key] = rec["id"]
+        self.save()
+        out["catalog_id"] = rec["id"]
         return out
 
     def _write_part_locked(self, *args, **kwargs):
@@ -583,7 +743,9 @@ def parse_args(argv=None):
     ap.add_argument("--z-min", type=float, default=Z_MIN)
     ap.add_argument("--min-margin", type=float, default=client.BUILTIN_MIN_MARGIN,
                     help="skip a skill when the model's margin over shuffled answers is below this (nats)")
-    ap.add_argument("--order", default="round", choices=["round", "global"])
+    ap.add_argument("--min-guards", type=int, default=MIN_GUARDS,
+                    help="skip a skill when fewer guard skills than this can be scored")
+    ap.add_argument("--order", default="global", choices=["global", "round"])
     ap.add_argument("--lane", default="", help="suffix for a second sweep on the same model at the same time")
     ap.add_argument("--rank-only", action="store_true", help="rank and print the plan; screen nothing")
     args = ap.parse_args(argv)
@@ -608,12 +770,32 @@ def run_sweep(miner, args):
     notes = []
 
     # 1. which skills the model can do
-    margins = miner.base_margins([n for n in specs if n in wanted or n in GUARDS or n == REFERENCE])
-    usable = [n for n in margins if margins[n]["margin"] is not None and margins[n]["margin"] >= args.min_margin]
-    targets = [n for n in wanted if n in usable]
+    def can_do(margins):
+        # the lane state can hold margins of older skill sets: only the sets of this run count
+        return [n for n in margins if n in specs and margins[n].get("id") == specs[n]["id"]
+                and margins[n]["margin"] is not None and margins[n]["margin"] >= args.min_margin]
+
+    usable = can_do(miner.base_margins([n for n in specs if n in wanted or n in GUARDS or n == REFERENCE]))
+    spare = spare_guards(usable, specs)
+    if spare:
+        # the model cannot do a guard: the other skills of its domain are checked, to take its place
+        usable = can_do(miner.base_margins(spare))
     skipped = [n for n in wanted if n not in usable]
     if skipped:
         notes.append("skipped, model near chance (margin < " + str(args.min_margin) + " nats): " + ", ".join(skipped))
+    targets = []
+    for n in wanted:
+        if n in skipped:
+            continue
+        guards = miner.guards(n, usable)
+        if len(guards) < args.min_guards:
+            notes.append("skipped '" + n + "': only " + str(len(guards)) + " guard skills can be scored ("
+                         + (", ".join(guards) or "none") + "); --min-guards " + str(args.min_guards))
+            continue
+        if len(guards) < N_GUARDS:
+            notes.append("'" + n + "' is screened with " + str(len(guards)) + " guard skills, not " + str(N_GUARDS)
+                         + ": " + ", ".join(guards))
+        targets.append(n)
 
     # 2. rank and build candidates
     entry = None
@@ -625,26 +807,39 @@ def run_sweep(miner, args):
             notes.append("no layer blocks: " + os.path.relpath(entry_path, REPO) + " does not exist (run mine/maps.py)")
     cands = []
     out_of_time = False
-    try:
-        for skill in targets:
-            for kind in kinds:
-                if time.time() > deadline:
-                    out_of_time = True
-                    break
-                found, kept = miner.ranked_candidates(skill, kind, args.sizes[kind], args.top_layers, args.rank_items)
-                cands.extend(found)
-                print("ranked", skill, kind, "->", len(found), "candidates", "(kept from an earlier run)" if kept else "",
-                      flush=True)
-            if out_of_time:
+    rank_failed = 0
+    failed_in_a_row = 0
+    for skill in targets:
+        for kind in kinds:
+            if time.time() > deadline:
+                out_of_time = True
                 break
-            cands.extend(block_candidates(skill, entry, n_layers))
-    except Exception as e:
-        if "attribution_units" in str(e) or "activation_units" in str(e):
-            print("The deployed engine may not have the unit-ranking methods; deploy mine/engine_app.py from a "
-                  "branch that has attribution_units.")
-        raise
+            try:
+                found, kept = miner.ranked_candidates(skill, kind, args.sizes[kind], args.top_layers, args.rank_items)
+            except Exception as e:
+                # one bad ranking must not end the run (the rankings before it are paid for), but a dead
+                # engine must stop it
+                rank_failed += 1
+                failed_in_a_row += 1
+                print("ranking failed:", skill, kind, "|", repr(e)[:300], flush=True)
+                notes.append("ranking failed, no candidates for " + skill + " " + kind + ": " + repr(e)[:160])
+                if "attribution_units" in str(e) or "activation_units" in str(e):
+                    notes.append("the deployed engine may not have the unit-ranking methods; deploy "
+                                 "mine/engine_app.py from a branch that has attribution_units")
+                if failed_in_a_row >= 3:
+                    break
+                continue
+            failed_in_a_row = 0
+            cands.extend(found)
+            print("ranked", skill, kind, "->", len(found), "candidates", "(kept from an earlier run)" if kept else "",
+                  flush=True)
+        if out_of_time or failed_in_a_row >= 3:
+            break
+        cands.extend(block_candidates(skill, entry, n_layers))
     if out_of_time:
         notes.append("time limit reached while ranking: not every skill was ranked")
+    if failed_in_a_row >= 3:
+        notes.append("3 rankings in a row failed: ranking stopped, not every skill was ranked")
 
     # 3. order, cut, screen
     ordered = order_candidates(cands, args.order)
@@ -655,8 +850,8 @@ def run_sweep(miner, args):
     if args.rank_only:
         print("plan (" + args.order + " order); nothing is screened or written with --rank-only:")
         for c, cached in work:
-            print("  round", c["round"], "|", label_for(c), "| score", c["rank_score"],
-                  "| screen kept from an earlier run" if cached else "")
+            print("  round", c["round"], "|", label_for(c), "| score", c["rank_score"], "| in its class",
+                  c["norm_score"], "| screen kept from an earlier run" if cached else "")
         if left:
             print("  and", len(left), "more after --max-screens", args.max_screens)
         work = []
@@ -687,15 +882,15 @@ def run_sweep(miner, args):
             row["screened"] = True
             row["passed"] = res["passed"]
             if res["passed"]:
-                passed_lines.append("  " + str(res["catalog_id"]) + " | z " + str(res["z_search"]) + " | target drop "
-                                    + str(res["target_drop_search"]))
+                passed_lines.append("  " + str(res["catalog_id"]) + " | z " + str(res["z_search"]) + " | random spread "
+                                    + str(res["random_spread"]) + " | target drop " + str(res["target_drop_search"]))
             if not cached:
                 new_screens += 1
                 common.append_jsonl(results_path, dict(
                     {"timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"), "skill": c["skill"], "kind": c["kind"],
                      "size": c["size"], "where": c.get("layer", c.get("layers")), "part_key": client.part_key(c["part"]),
-                     "rank_method": c["rank_method"], "rank_score": c["rank_score"], "round": c["round"],
-                     "guards": guards}, **res))
+                     "rank_method": c["rank_method"], "rank_score": c["rank_score"], "norm_score": c["norm_score"],
+                     "round": c["round"], "guards": guards}, **res))
                 print("screen", new_screens, "|", label_for(c), "| drop", res["target_drop_search"], "| z", res["z_search"],
                       "| PASS " + str(res["catalog_id"]) if res["passed"] else "| fail: " + "; ".join(res["reasons"])[:200],
                       flush=True)
@@ -714,6 +909,8 @@ def run_sweep(miner, args):
         notes.extend(passed_lines)
     summary = summarize(list(rows.values()))
     summary["new_screens"] = new_screens
+    summary["rank_failed"] = rank_failed
+    summary["notes"] = notes
     summary["not_screened"] = len([r for r in rows.values() if not r["screened"]])
     summary["stop"] = stop
     print_summary(summary, notes)
