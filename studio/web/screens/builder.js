@@ -80,7 +80,17 @@ export function BuilderScreen({ id, specId }) {
   const [plimit, setPlimit] = useState(PAGE_SIZE);
   const palette = useMemo(() => (cat ? [...cat.parts, ...cat.masks] : []), [cat]);
   const paletteCounts = useMemo(() => countItems(palette, pf), [palette, pf.kind === DELETION]);
-  const paletteShown = useMemo(() => filterItems(palette, pf, q), [palette, pf, q]);
+  // parts for this spec first: the spec's recommended parts, then parts named for its task, then the rest
+  // (filterItems keeps placeable parts ahead of locked ones; this sort is stable inside each of those groups)
+  const paletteShown = useMemo(() => {
+    const shown = filterItems(palette, pf, q);
+    if (!spec) return shown;
+    const rec = new Set((spec.ingredients || []).map((g) => g.part_id));
+    const word = { math: 'math', code: 'code', legal: 'legal', medicine: 'medic' }[spec.task_type];
+    const rank = (x) => (rec.has(x.id) ? 0 : word && (x.label + ' ' + (x.donor || '')).toLowerCase().includes(word) ? 1 : 2);
+    const locked = (x) => (lockOf(x) ? 1 : 0);
+    return shown.map((x, i) => [x, i]).sort((a, b) => (locked(a[0]) - locked(b[0])) || (rank(a[0]) - rank(b[0])) || (a[1] - b[1])).map((p) => p[0]);
+  }, [palette, pf, q, spec && spec.id]);
   useEffect(() => { setPlimit(PAGE_SIZE); }, [pf, q]);
   const [over, setOver] = useState(null);
   const [dragId, setDragId] = useState(null);
@@ -387,7 +397,8 @@ export function BuilderScreen({ id, specId }) {
     });
     return out;
   })();
-  const fmtB = (x) => Number(x.toFixed(3)).toString() + 'B';
+  // billions to 3 decimals, like the limit refusal text; parts under 10M read in millions so they never show as 0B
+  const fmtB = (x) => (x > 0 && x < 0.01 ? Number((x * 1000).toFixed(1)).toString() + 'M' : Number(x.toFixed(3)).toString() + 'B');
   const scoreEvals = program.grafts.some((g) => g.control == null) ? 2 : 1;
   const healMin = est ? est.heal_min : null;
   const lo = { total: !!lim && lim.max_total_params_b != null && totalB > lim.max_total_params_b + 1e-6, run: !!lim && lim.max_run_params_b != null && runB != null && runB > lim.max_run_params_b + 1e-6, heal: !!lim && lim.max_heal_min != null && healMin != null && healMin > lim.max_heal_min + 1e-6 };
