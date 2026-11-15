@@ -47,6 +47,19 @@ import uuid
 import torch
 
 SKILLS = ["gsm8k", "math500", "humaneval", "mbpp", "medmcqa", "mmlu"]
+
+# MMLU test subjects that score one business domain. Each group gives two extra multiple-choice skills:
+#   mmlu_<group>             every TEST item of the group's subjects
+#   mmlu_general_ex_<group>  the general MMLU 1000 (test, shuffled with seed 0) minus those subjects
+# The two never share an item, because the general set drops every item whose subject is in the group.
+MMLU_GROUPS = {
+    "medical": ["clinical_knowledge", "college_medicine", "professional_medicine", "anatomy", "medical_genetics"],
+    "accounting": ["professional_accounting", "high_school_statistics"],
+    "law": ["professional_law", "jurisprudence", "international_law"],
+}
+EXTRA_SKILLS = []
+for _group in MMLU_GROUPS:
+    EXTRA_SKILLS += ["mmlu_" + _group, "mmlu_general_ex_" + _group]
 GENERATIVE = ["gsm8k", "math500", "humaneval", "mbpp"]
 MAX_NEW_TOKENS = {"gsm8k": 512, "math500": 1024, "humaneval": 512, "mbpp": 512}
 LETTERS = ["A", "B", "C", "D"]
@@ -575,8 +588,60 @@ def mmlu_items(count=1000):
     return items
 
 
+def _mmlu_test_rows():
+    """Every row of the MMLU test split, in dataset order. Tests replace this."""
+    from datasets import load_dataset
+
+    return load_dataset("cais/mmlu", "all", split="test")
+
+
+def mmlu_subject_items(subjects, rows=None):
+    """Every MMLU TEST item whose subject is in subjects, in dataset order. Raises when a subject has no item."""
+    if rows is None:
+        rows = _mmlu_test_rows()
+    wanted = set(subjects)
+    items = []
+    seen = set()
+    for index in range(len(rows)):
+        row = rows[index]
+        if row["subject"] not in wanted:
+            continue
+        seen.add(row["subject"])
+        items.append({"id": f"mmlu_test:{index}", "prompt": mcq_prompt(row["question"], row["choices"]),
+                      "gold": int(row["answer"]), "subject": row["subject"]})
+    missing = sorted(wanted - seen)
+    if missing:
+        raise ValueError("no MMLU test items for subject(s): " + ", ".join(missing))
+    return items
+
+
+def mmlu_general_items(exclude_subjects=(), count=1000, rows=None):
+    """The general MMLU set minus some subjects: the test split shuffled with seed 0 (as mmlu_items), the items
+    whose subject is not excluded, the first count. With no exclusion it equals mmlu_items(count)."""
+    if rows is None:
+        rows = _mmlu_test_rows()
+    order = list(range(len(rows)))
+    random.Random(0).shuffle(order)
+    dropped = set(exclude_subjects)
+    items = []
+    for index in order:
+        row = rows[index]
+        if row["subject"] in dropped:
+            continue
+        items.append({"id": f"mmlu_dev:{index}", "prompt": mcq_prompt(row["question"], row["choices"]),
+                      "gold": int(row["answer"]), "subject": row["subject"]})
+        if len(items) >= count:
+            break
+    return items
+
+
 def load_items(skill):
     """Return the eval items of one skill."""
+    for group, subjects in MMLU_GROUPS.items():
+        if skill == "mmlu_" + group:
+            return mmlu_subject_items(subjects)
+        if skill == "mmlu_general_ex_" + group:
+            return mmlu_general_items(subjects)
     if skill == "gsm8k":
         return gsm8k_items()
     if skill == "math500":
@@ -589,7 +654,7 @@ def load_items(skill):
         return medmcqa_items()
     if skill == "mmlu":
         return mmlu_items()
-    raise ValueError(f"unknown skill: {skill!r}; the skills are {', '.join(SKILLS)}")
+    raise ValueError(f"unknown skill: {skill!r}; the skills are {', '.join(SKILLS + EXTRA_SKILLS)}")
 
 
 # ---------------------------------------------------------------- prompts
@@ -799,8 +864,8 @@ def grade_outputs(skill, items, outputs, timeout=10.0, workers=8):
 def evaluate_skill(model, tokenizer, skill, items=None, batch_size=32, max_new_tokens=None, limit=None,
                    timeout=10.0, workers=8):
     """Score one skill. Return {"skill", "score", "correct", "n", "seconds", "records"}."""
-    if skill not in SKILLS:
-        raise ValueError(f"unknown skill: {skill!r}; the skills are {', '.join(SKILLS)}")
+    if skill not in SKILLS and skill not in EXTRA_SKILLS:
+        raise ValueError(f"unknown skill: {skill!r}; the skills are {', '.join(SKILLS + EXTRA_SKILLS)}")
     if items is None:
         items = load_items(skill)
     if limit is not None:
