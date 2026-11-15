@@ -7,6 +7,10 @@ touch it. The catalog is a wsp.catalog.Catalog.
 A graft's "slot" is (donor model, donor layer, host depth). The compile-time
 fit R squared depends only on the slot, never on which units the part holds,
 so fit can veto a placement and help choose `at`, but cannot rank parts.
+
+Each graft also has a glue rank: None for full-rank glue, or an int r. The
+allowed ranks come from config "glue_ranks" (default [None, 64]); rank 64
+was as good as full glue at 7% of the parameters in round 2.
 """
 
 import hashlib
@@ -17,11 +21,19 @@ from wsp.swarm.config import DEFAULTS, heal_data_allowed
 
 GRAFT_TYPES = ["mlp_cluster", "attn_heads", "expert", "block"]
 
-# Mutation moves and rates, adapted from the edit menu in papers.md section
-# 7.2: add 25%, remove 15%, swap 15%, change layer restriction 20% (here:
-# move `at`), consensus 15% (here: change heal steps). The fresh-draft 10%
-# goes to "move", whose third option resets `at` to the default depth.
-MOVE_RATES = [("add", 0.25), ("drop", 0.15), ("swap", 0.15), ("move", 0.30), ("heal", 0.15)]
+# The glue ranks a graft may use when config has no "glue_ranks" key.
+DEFAULT_GLUE_RANKS = [None, 64]
+
+# Mutation moves and rates. The first five follow the edit menu in papers.md
+# section 7.2 and the move set of its recommendation 5: add 25%, remove 15%,
+# swap 15%, change layer restriction 20% (here: move `at`), consensus 15%
+# (here: change heal steps), and the fresh-draft 10% goes to "move", whose
+# third option resets `at` to the default depth. "rank" (change one graft's
+# glue rank) gets 10%, taken from the other five in proportion (each times
+# 0.9). Final odds: add 22.5%, drop 13.5%, swap 13.5%, move 27%, heal 13.5%,
+# rank 10%.
+MOVE_RATES = [("add", 0.225), ("drop", 0.135), ("swap", 0.135), ("move", 0.27), ("heal", 0.135),
+              ("rank", 0.10)]
 
 
 # Hashing.
@@ -70,6 +82,21 @@ def host_layers(config, catalog=None):
         if isinstance(record.get("layers"), int):
             return record["layers"]
     return config["host_layers"]
+
+
+def glue_ranks(config):
+    """The glue ranks a graft may use: config "glue_ranks", else [None, 64]. None is full rank."""
+    ranks = config.get("glue_ranks")
+    if ranks is None:
+        ranks = DEFAULT_GLUE_RANKS
+    return list(ranks)
+
+
+def rank_text(glue_rank):
+    """"full" for full-rank glue, else "r<rank>" (for example r64)."""
+    if glue_rank is None:
+        return "full"
+    return "r" + str(glue_rank)
 
 
 def donor_layer_count(record, config):
@@ -184,7 +211,7 @@ def validate(program, catalog, config=None):
         errors.append("at most " + str(config["max_grafts"]) + " grafts, got " + str(len(grafts)))
     seen = []
     for graft in grafts:
-        errors.extend(validate_graft(graft, catalog, n_host))
+        errors.extend(validate_graft(graft, catalog, n_host, glue_ranks(config)))
         pair = (ps.graft_id(graft), ps.graft_at(graft))
         if pair in seen:
             errors.append("graft " + str(pair[0]) + " at " + str(pair[1]) + " appears twice")
@@ -195,9 +222,12 @@ def validate(program, catalog, config=None):
     return errors
 
 
-def validate_graft(graft, catalog, n_host):
+def validate_graft(graft, catalog, n_host, ranks):
+    """Errors for one graft: known graftable part, `at` in range, glue rank in ranks."""
     errors = []
     part_id = ps.graft_id(graft)
+    if not isinstance(part_id, str):
+        return ["graft id must be a string, got " + repr(part_id)]
     if part_id not in catalog.records:
         return ["unknown part id: " + str(part_id)]
     kind = catalog.records[part_id].get("type")
@@ -209,6 +239,11 @@ def validate_graft(graft, catalog, n_host):
             errors.append(str(part_id) + ": at must be an integer, got " + repr(at))
         elif at < 0 or at > n_host - 1:
             errors.append(str(part_id) + ": at " + str(at) + " is outside 0.." + str(n_host - 1))
+    rank = ps.graft_glue_rank(graft)
+    if rank is not None and (isinstance(rank, bool) or not isinstance(rank, int)):
+        errors.append(str(part_id) + ": glue_rank must be None or an integer, got " + repr(rank))
+    elif rank not in ranks:
+        errors.append(str(part_id) + ": glue_rank " + str(rank) + " not in " + str(ranks))
     return errors
 
 
@@ -283,9 +318,10 @@ def taken_pairs(grafts):
 
 
 def random_program(rng, catalog, config):
-    """One to three random grafts, each at a random host depth, with random heal steps."""
+    """One to three random grafts, each at a random host depth with a random glue rank, and random heal steps."""
     parts = graftable_parts(catalog)
     n_host = host_layers(config, catalog)
+    ranks = glue_ranks(config)
     count = rng.randint(1, min(3, config["max_grafts"]))
     grafts = []
     attempts = 0
@@ -295,7 +331,7 @@ def random_program(rng, catalog, config):
         at = rng.randrange(n_host)
         if (record["id"], at) in taken_pairs(grafts):
             continue
-        grafts.append(ps.make_graft(record["id"], at))
+        grafts.append(ps.make_graft(record["id"], at, glue_rank=rng.choice(ranks)))
     return ps.make_program(config["host"], grafts, random_heal(rng, config))
 
 
@@ -333,8 +369,10 @@ def apply_move(move, program, rng, catalog, config):
         at = default_at(record, config, n_host)
         if at is None or rng.random() < 0.5:
             at = rng.randrange(n_host)
-        grafts.append(ps.make_graft(record["id"], at))
-        return ps.with_grafts(program, grafts), "add " + short_name(record["id"]) + "@" + str(at)
+        rank = rng.choice(glue_ranks(config))
+        grafts.append(ps.make_graft(record["id"], at, glue_rank=rank))
+        note = "add " + short_name(record["id"]) + "@" + str(at) + " with " + rank_text(rank) + " glue"
+        return ps.with_grafts(program, grafts), note
 
     if len(grafts) == 0:
         return None, ""
@@ -360,7 +398,8 @@ def apply_move(move, program, rng, catalog, config):
         at = ps.graft_at(graft)
         if at is None or rng.random() < 0.5:
             at = default_at(new_record, config, n_host)
-        grafts[index] = ps.make_graft(new_record["id"], at)
+        # The new part keeps the old graft's glue rank.
+        grafts[index] = ps.make_graft(new_record["id"], at, glue_rank=ps.graft_glue_rank(graft))
         note = "swap " + short_name(record["id"]) + " for " + short_name(new_record["id"])
         return ps.with_grafts(program, grafts), note
 
@@ -395,6 +434,20 @@ def apply_move(move, program, rng, catalog, config):
         steps = rng.choice(options)
         return ps.with_heal(program, heal_with_steps(steps, config)), "heal " + str(steps) + " steps"
 
+    if move == "rank":
+        current = ps.graft_glue_rank(graft)
+        options = []
+        for rank in glue_ranks(config):
+            if rank != current:
+                options.append(rank)
+        if len(options) == 0:
+            return None, ""
+        rank = rng.choice(options)
+        grafts[index] = ps.graft_with_glue_rank(graft, rank)
+        note = ("glue rank of " + short_name(ps.graft_id(graft)) + " from " + rank_text(current) +
+                " to " + rank_text(rank))
+        return ps.with_grafts(program, grafts), note
+
     raise ValueError("unknown move: " + move)
 
 
@@ -424,7 +477,10 @@ def mutate(program, rng, catalog, config):
 
 
 def crossover(a, b, rng, config=None):
-    """Mix two graft lists. Host, seed and host edits come from a; heal from either."""
+    """Mix two graft lists. Host, seed and host edits come from a; heal from either.
+
+    Each graft is copied whole, so it keeps its own `at` and glue rank.
+    """
     if config is None:
         config = DEFAULTS
     pool = ps.grafts(a) + ps.grafts(b)
@@ -460,7 +516,10 @@ def short_name(part_id):
 
 
 def describe(program):
-    """Short text, for example: host + qmath.l14.c3@9 + rand(qcoder.l10.c0)@5, heal 300 on gsm8k_train."""
+    """Short text, for example: host + qmath.l14.c3@9 + rand(qcoder.l10.c0)@5/r64, heal 300 on gsm8k_train.
+
+    A "/r<rank>" suffix marks low-rank glue; full-rank glue has no suffix.
+    """
     program = ps.normalize(program)
     text = "host"
     if ps.has_host_edits(program):
@@ -474,6 +533,8 @@ def describe(program):
             text += " + " + name + "@default"
         else:
             text += " + " + name + "@" + str(at)
+        if ps.graft_glue_rank(graft) is not None:
+            text += "/" + rank_text(ps.graft_glue_rank(graft))
     steps = ps.heal_steps(program)
     if steps is None:
         text += ", no heal"
@@ -485,7 +546,8 @@ def describe(program):
 def random_glue_control(program, rng, catalog=None):
     """Control 1: the same glue and heal around a random part of the same size from the same donor layer.
 
-    Each graft becomes {"id", "at", "control": "random", "control_seed": s}.
+    Each graft becomes {"id", "at", "control": "random", "control_seed": s,
+    "glue_rank"}, with the glue rank of the graft it replaces.
     """
     grafts = []
     for graft in ps.grafts(program):

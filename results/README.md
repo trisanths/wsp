@@ -173,3 +173,215 @@ Reading:
 - Next: a stored sink vector per graft, RMS matching on the projector, a
   small LoRA on the donor part (the receiver), and a trained stitch, then a
   rerun against the 46.7% LoRA bar.
+
+## Run 5 (2026-11-14): prefill taps on GSM8K
+
+Tap: the donor reads the prompt natively with its own tokenizer; the host
+reads its layer-l states through a gated cross-attention branch at host
+layer k. Host Llama-3.2-1B-Instruct, 300 steps, completion-only loss,
+branch lr 3e-4, gate lr 3e-2, 3 seeds. Raw rows: round5_rows.json.
+
+| Arm | Trainable | Search acc. (sd) | Decode tok/s |
+|---|---|---|---|
+| Host, untrained | 0 | 25.0 | 109 |
+| Qwen2.5-Math-1.5B-Instruct alone (raw prompt) | 0 | 33.0 | 54 |
+| LFM2-350M-Math alone (raw prompt) | 0 | 1.0 | 62 |
+| Tap Qwen-Math L14 into host L10 | 1.8M | 26.7 (1.3) | 95 |
+| Tap Qwen-Math L27 into host L12 | 1.8M | 25.8 (0.8) | 104 |
+| Two taps (L14 and L27) | 3.7M | 27.5 (2.2) | 102 |
+| Control: mismatched messages (L27) | 1.8M | 26.2 (3.8) | 94 |
+| Control: shuffled donor weights (L27) | 1.8M | 22.8 (4.3) | 126 |
+| Tap LFM2-350M-Math L15 into host L12 | 1.6M | 26.3 (0.8) | 75 |
+| Tap LFM2-350M-Math L8 into host L8 | 1.6M | 32.7 (0.8) | 106 |
+| LoRA rank 64 (lr 5e-5) | 45.1M | 47.2 (1.4) | 129 |
+
+Reading:
+- Taps learn the GSM8K output format but carry no reasoning: real donor
+  messages score the same as mismatched ones. During prefill the donor has
+  not solved the problem, so there is little to read (matches "Cross-Model
+  Stitching Transfers Answers, Not Computation", 2026).
+- The LFM2-350M-Math L8 tap is the only arm above noise (+7.7 over host).
+- The donors are weak on the raw prompt (chat-tuned models; LFM2-350M-Math
+  needs its chat template).
+- A one-layer 1.8M adapter is far weaker than a 45M all-layer LoRA, and the
+  earlier rank-1 LoRA (0.7M, 43.5%) shows distribution across layers
+  matters more than size.
+
+Next (round 6): taps on MMLU, where the answer is already in the donor's
+prefill states and fine-tuning cannot add knowledge; and LoRA plus a tap
+against LoRA alone on GSM8K.
+
+## Run 6 (2026-11-14): a tap beats fine-tuning on knowledge
+
+Raw rows: round6_mmlu_rows.json, round6_gsm8k_rows.json.
+
+MMLU. Host Llama-3.2-1B-Instruct, donor Qwen2.5-7B-Instruct. 500 steps on
+8000 MMLU auxiliary_train pairs (prompts up to 240 tokens), batch 8; scored
+on 1000 seeded MMLU test items by the log-probability of " A" to " D".
+Branch lr 3e-4, gate lr 3e-2, LoRA lr 1e-4. 3 seeds.
+
+| Arm | Trainable params | MMLU acc. (sd) |
+|---|---|---|
+| Host, untrained | 0 | 47.5 |
+| Donor alone | 0 | 71.5 |
+| LoRA rank 16 (fine-tuning) | 11.3M | 50.3 (1.1) |
+| Tap donor L20 into host L10 | 2.9M | 67.9 (0.4) |
+| Tap donor L27 into host L12 | 2.9M | 65.6 (4.1) |
+| Control: tap L27 on mismatched messages | 2.9M | 48.6 (0.3) |
+| Tap L27 plus LoRA r16, trained jointly | 14.2M | 49.2 (1.6) |
+
+GSM8K, LoRA rank 64 plus a tap against LoRA alone (same loop, 3 seeds):
+LoRA plus null tap 47.5 (2.3); plus LFM2-350M-Math L8 tap 47.0 (0.9); plus
+Qwen-Math L14 tap 47.5 (4.8). Gates stay near 0.
+
+Reading:
+- The tap recovers 85% of the host-to-donor gap (+20.4 points) with 2.9M
+  trainable parameters and about 100 s of training. Fine-tuning gains 2.8
+  points, because the knowledge is not in its data.
+- The mismatched-message control falls to host level, so the gain comes
+  from the donor's states for that question, not from added capacity.
+- Joint tap plus LoRA training collapses the tap: the LoRA takes the easy
+  path first and the gate stays near 0. Train the tap first, then LoRA.
+- On GSM8K, prefill taps add nothing on top of LoRA: multi-step reasoning
+  is not in the donor's prefill states.
+- These are numbers on a fixed 1000-item MMLU test sample used during
+  development, not a held-out result yet.
+
+## Run 7 (2026-11-14): held-out MMLU, layer map, scaling, TriviaQA
+
+Raw rows: round7_rows.json. Host Llama-3.2-1B-Instruct; tap settings as run 6.
+
+Held-out MMLU (2000 test items disjoint from the dev 1000, scored once):
+
+| Arm | Accuracy by seed | Mean |
+|---|---|---|
+| Host | 44.7 | 44.7 |
+| LoRA rank 16 | 47.0, 48.7, 47.4 | 47.7 |
+| Tap Qwen2.5-7B L20 into host L10 | 67.7, 69.9, 67.2 | 68.3 |
+| Donor Qwen2.5-7B alone | 70.9 | 70.9 |
+
+The tap beats fine-tuning by 20.6 points held out and recovers 90% of the
+host-to-donor gap.
+
+Layer map (dev items, 1 seed; rows donor layer, columns host layer):
+
+| Donor layer | Host L6 | Host L10 | Host L14 |
+|---|---|---|---|
+| 8 | 48.5 | 48.3 | 49.4 |
+| 12 | 47.9 | 48.6 | 48.9 |
+| 16 | 63.8 | 59.3 | 56.3 |
+| 20 | 68.5 | 67.7 | 67.1 |
+| 24 | 53.6 | 63.9 | 60.9 |
+
+Knowledge is readable near 70% of donor depth (layer 20 of 28) and not
+before layer 16.
+
+Donor scaling (dev items, tap into host L10, 2 seeds):
+
+| Donor | Donor alone | Tap mean |
+|---|---|---|
+| Qwen2.5-1.5B (L20) | 58.9 | 58.2 |
+| Qwen2.5-3B (L25) | 66.2 | 57.9 |
+| Qwen2.5-7B (L20) | 71.5 | 67.7 |
+| Qwen2.5-14B (L34) | 78.5 | 73.6 |
+
+A 1B host with a 14B tap beats the 7B donor alone. The 3B row likely
+used a poor donor layer.
+
+Staged training (tap 500 steps, freeze, then LoRA r16 500 steps), dev
+items: 67.9, 69.2, 69.7 (mean 68.9) vs tap alone 67.9.
+
+TriviaQA (1000 validation questions, alias match on a 16-token answer):
+
+| Arm | Accuracy | Decode tok/s |
+|---|---|---|
+| Host | 37.6 | 97 |
+| Donor Qwen2.5-7B | 46.8 | 63 |
+| LoRA rank 16 (3 seeds) | 41.1 | 54 to 57 |
+| Tap L20 into L10 (3 seeds) | 25.0, 34.5, 34.3 | 88 to 121 |
+
+The tap hurts free-form answers even though it decodes at host speed. The
+current tap transfers knowledge into a single next-token choice (MMLU)
+but disrupts multi-token generation. Open question.
+
+Reading against the goal: a single tap stays below its donor, so a weak
+host plus one tap is "most of a big model's knowledge at small-model
+decode cost", not a better model. Round 8 (several donor families) and
+round 9 (taps into the strongest model) test whether composition can
+beat the best source.
+
+## Run 8 (2026-11-14): knowledge taps across donor families
+
+MMLU dev items, same tap settings as run 6, 2 seeds. Taps read donors at
+about 70% depth; Llama-1B host layer 10, Qwen-0.5B host layer 15. Raw
+rows: round8_rows.json. Mistral cells failed (sentencepiece missing in the
+image; fixed for later runs).
+
+| Model | Score (seeds) | Donor alone |
+|---|---|---|
+| Llama-3.2-1B host | 47.5 | |
+| Qwen2.5-0.5B host | 48.0 | |
+| Llama-1B + Gemma-2-9B tap | 72.9 (72.9, 73.0) | 72.6 |
+| Llama-1B + Qwen2.5-14B tap | 70.5 (73.6, 67.4) | 78.5 |
+| Llama-1B + Qwen2.5-7B tap | 66.7 (65.6, 67.7) | 71.5 |
+| Llama-1B + Phi-3.5-mini tap | 66.3 (66.9, 65.7) | 68.5 |
+| Llama-1B + Llama-3.1-8B tap | 53.6 (49.2, 58.0) | 66.6 |
+| Llama-1B + LFM2.5-1.2B tap | 49.9 | 26.2 (raw prompt) |
+| Qwen-0.5B + Qwen2.5-14B tap | 74.8 (74.5, 75.2) | 78.5 |
+| Qwen-0.5B + Gemma-2-9B tap | 72.7 (72.3, 73.1) | 72.6 |
+| Qwen-0.5B + Qwen2.5-7B tap | 69.3 (69.9, 68.7) | 71.5 |
+| Llama-1B + Qwen-7B + Gemma-9B taps | 72.0 (71.0, 73.0) | |
+| Llama-1B + Qwen-14B + Gemma-9B taps | 73.7 (74.1, 73.3) | |
+| Llama-1B + Gemma-9B + Llama-8B taps | 70.7 (69.1, 72.3) | |
+| Llama-1B + Qwen-7B + Llama-8B taps | 64.0 (62.6, 65.5) | |
+
+Reading:
+- Small hosts reach their donors: Llama-1B and Qwen-0.5B with a Gemma-9B
+  tap match Gemma-9B alone (72.9 and 72.7 vs 72.6). Qwen-0.5B with a 14B
+  tap scores 74.8, above every 7B to 9B model here, at 0.5B decode cost.
+- Two taps into a weak host are not additive yet: the pair scores near
+  the better single tap.
+- Llama-3.1-8B at layer 22 and LFM2.5-1.2B are weak or unstable donors in
+  this setup; their read layer and prompt format need tuning.
+
+## Baselines (2026-11-14): full fine-tuning and donor ceilings on GSM8K
+
+Scored with Person B's wsp_eval harness on the GSM8K search split (raw
+prompt). Full fine-tuning: 300 steps, batch 8, seq 384, 30 warmup steps,
+3 seeds. Raw rows: baselines_rows.json. Two chat-mode cells failed in vLLM
+(aclose RuntimeError).
+
+| Model | Trainable | Score by seed | Mean |
+|---|---|---|---|
+| Llama-1B full FT, lr 1e-5 | 1.24B | 36.0, 28.5, 36.0 | 33.5 |
+| Llama-1B full FT, lr 3e-5 | 1.24B | 14.5, 13.5, 13.5 | 13.8 |
+| Qwen-0.5B full FT, lr 1e-5 | 494M | 42.0, 39.5, 42.0 | 41.2 |
+| Qwen-0.5B full FT, lr 3e-5 | 494M | 24.0, 20.0, 19.5 | 21.2 |
+
+Donor ceilings, no training, raw prompt: Llama-3.2-3B-Instruct 59.0,
+LFM2.5-1.2B-Instruct 38.5, Qwen2.5-Math-1.5B-Instruct 32.0,
+LFM2.5-1.2B-Thinking 27.5, Qwen2.5-1.5B-Instruct 7.0, LFM2-350M-Math 1.0.
+
+Reading: at 300 steps, full fine-tuning is worse than LoRA rank 64 (47.2)
+on Llama-1B, so LoRA r64 stays the fine-tuning bar on GSM8K. Chat-tuned
+donors score badly on the raw prompt; donor ceilings need chat-format
+scoring to mean anything.
+
+## Run 9 (2026-11-14): taps into the strongest model do not help
+
+MMLU dev items, 2 seeds; taps read donors at about 70% depth and write
+into the host at about 40% depth. Raw rows: round9_rows.json.
+
+| Host | Alone | With taps (mean of 2 seeds) |
+|---|---|---|
+| Qwen2.5-14B | 78.5 | + Llama-8B 77.9; + Qwen-7B 77.2; + Gemma-9B and Llama-8B 76.5; + Gemma-9B 75.6; mismatched-message control 76.0; LoRA r16 78.1 |
+| Gemma-2-9B | 72.6 | + Qwen-14B 73.0; + Qwen-7B and Llama-8B 72.8 |
+| Qwen2.5-7B | 71.5 | + Gemma-9B 71.8 |
+| Llama-3.1-8B | 66.6 | + Gemma-9B and Qwen-7B 66.5 |
+
+Reading: taps carry a strong donor's knowledge into a weak host (runs 6
+to 8), but a strong host gains nothing from equal or weaker donors, and
+500 steps of MMLU-format training slightly hurt it (as LoRA does). No
+composition beats its best source here. Next: per-item scores for every
+model to measure complementarity (oracle and probability-average
+ensembles) before more composition designs.

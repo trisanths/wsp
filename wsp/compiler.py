@@ -8,11 +8,18 @@ Steps:
 2. Add each task vector: weight * (fine-tuned - base), on its layers and modules.
 3. Evaluate the mask expression and zero every deleted weight.
 4. Add the LoRA, if any. Build and attach the grafts, if any.
-5. Heal: train the glue and the LoRA together.
-6. Save the model, its tokenizer, program.json, and compile_report.json.
-   A LoRA without grafts is merged into the weights, so the output is a
-   plain Hugging Face model. With grafts, the LoRA goes to
-   lora_weights.safetensors and lora.json.
+5. Taps, if any: load each donor, attach the branches, and train only the
+   taps on (prompt, completion) pairs.
+6. Heal: train the glue and the LoRA together. With taps, the taps are
+   frozen first and heal trains on pairs with the taps reading the
+   donors (staged training, since joint training collapsed the tap).
+7. Save the model, its tokenizer, program.json, and compile_report.json.
+   A LoRA without grafts or taps is merged into the weights, so the
+   output is a plain Hugging Face model. With grafts or taps, the LoRA
+   goes to lora_weights.safetensors and lora.json, and the taps go to
+   taps.json and tap_weights.safetensors. A tap program also writes
+   grafts.json (an empty list when it has no grafts), so tools that look
+   for grafts.json load it with wsp.load.
 """
 
 import json
@@ -110,25 +117,38 @@ def remove_stale_outputs(output_dir):
     host_dir = os.path.join(output_dir, "host")
     if os.path.isdir(host_dir):
         shutil.rmtree(host_dir)
-    for name in ["grafts.json", "graft_weights.safetensors", "lora.json", "lora_weights.safetensors"]:
+    for name in ["grafts.json", "graft_weights.safetensors", "lora.json", "lora_weights.safetensors",
+                 "taps.json", "tap_weights.safetensors"]:
         path = os.path.join(output_dir, name)
         if os.path.exists(path):
             os.remove(path)
 
 
-def compile_program(program, catalog, output_dir, align_texts=None, heal_texts=None, device=None, cache_dir=None):
+def compile_program(program, catalog, output_dir, align_texts=None, heal_texts=None, device=None, cache_dir=None,
+                    tap_pairs=None, heal_pairs=None):
     """Build the program's model and save it to output_dir. Return output_dir.
 
     align_texts: texts for the W_in ridge fit. None skips the fit, so W_in
         starts random and the heal pass trains it.
     heal_texts: training texts for the heal pass. None loads them from the
-        program's heal data name.
+        program's heal data name. Not used when the program has taps.
+    tap_pairs: (prompt, completion) pairs for the tap training. None loads
+        them from wsp.pairs by the tap_train data name.
+    heal_pairs: pairs for the heal pass of a program with taps. None uses
+        tap_pairs when the heal data name is the tap data name, and loads
+        them from wsp.pairs otherwise.
     """
     import transformers
 
     check_same_base(program, catalog)
     if program.lora_spec is not None and program.heal_spec is None:
         raise CompileError("a program with a LoRA needs a heal spec: call .heal(...) to train it")
+    if len(program.taps) > 0 and program.tap_train_spec is None:
+        raise CompileError("a program with taps needs a tap_train spec: call .tap_train(...) to train them")
+    if len(program.taps) == 0 and program.tap_train_spec is not None:
+        raise CompileError("a program with a tap_train spec needs at least one tap")
+    if len(program.taps) > 0:
+        check_pair_names(program, tap_pairs, heal_pairs)
     torch.manual_seed(program.seed)
     if device is None:
         device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -171,7 +191,7 @@ def compile_program(program, catalog, output_dir, align_texts=None, heal_texts=N
     remove_stale_outputs(output_dir)
     tokenizer.save_pretrained(output_dir)
     host_changed = program.masks is not None or len(program.task_vectors) > 0
-    if len(program.grafts) > 0 and host_changed:
+    if (len(program.grafts) > 0 or len(program.taps) > 0) and host_changed:
         # host/ holds the host without the LoRA. The LoRA is saved on its own.
         model.save_pretrained(os.path.join(output_dir, "host"))
 
@@ -179,7 +199,12 @@ def compile_program(program, catalog, output_dir, align_texts=None, heal_texts=N
     if program.lora_spec is not None:
         lora_params = add_lora(program.lora_spec, model, report)
 
-    if len(program.grafts) > 0:
+    if len(program.taps) > 0:
+        compile_taps(program, catalog, model, tokenizer, output_dir, report, align_texts, device, cache_dir,
+                     lora_params, tap_pairs, heal_pairs)
+        if program.lora_spec is not None:
+            save_lora(model, output_dir, report)
+    elif len(program.grafts) > 0:
         compile_grafts(program, catalog, model, tokenizer, output_dir, report,
                        align_texts, heal_texts, device, cache_dir, lora_params)
         if program.lora_spec is not None:
@@ -267,19 +292,11 @@ def run_heal(program, model, tokenizer, heal_texts, params, report):
                       "trainable_params": trainable}
 
 
-def compile_grafts(program, catalog, model, tokenizer, output_dir, report, align_texts, heal_texts, device, cache_dir,
-                   lora_params=None):
-    """Build, fit, attach, and heal the grafts. Save their weights.
-
-    lora_params: LoRA parameters on the host, trained by the same heal pass.
-    """
-    from safetensors.torch import save_file
-
+def attach_program_grafts(program, catalog, model, tokenizer, report, align_texts, device, cache_dir):
+    """Build, fit, and attach the program's grafts. Record them in report["grafts"]. Return their metas."""
     from wsp.assemble import build_graft
-    from wsp.graft import attach_grafts, freeze_all_but_glue, glue_parameters
+    from wsp.graft import attach_grafts
 
-    model.to(device)
-    model.eval()
     placements = []
     metas = []
     for spec in program.grafts:
@@ -289,19 +306,263 @@ def compile_grafts(program, catalog, model, tokenizer, output_dir, report, align
     attach_grafts(model, placements)
     model.wsp_grafts.to(device)
     report["grafts"] = metas
+    return metas
 
-    if program.heal_spec is not None:
+
+def heal_parameters(model, lora_params):
+    """Freeze the host and return the glue, part LoRA, and host LoRA parameters, and the part LoRA count.
+
+    With no grafts on the model, only the host LoRA parameters come back.
+    """
+    from wsp.graft import freeze_all_but_glue, glue_parameters, part_lora_parameters
+
+    params = []
+    part_lora = []
+    if getattr(model, "wsp_grafts", None) is not None:
         freeze_all_but_glue(model)
         params = glue_parameters(model)
-        if lora_params is not None:
-            for param in lora_params:
-                param.requires_grad_(True)
-                params.append(param)
-        run_heal(program, model, tokenizer, heal_texts, params, report)
+        # A part LoRA (the receiver) trains with the glue.
+        part_lora = part_lora_parameters(model)
+        for param in part_lora:
+            params.append(param)
+    else:
+        for param in model.parameters():
+            param.requires_grad_(False)
+    if lora_params is not None:
+        for param in lora_params:
+            param.requires_grad_(True)
+            params.append(param)
+    count = 0
+    for param in part_lora:
+        count += param.numel()
+    return params, count
 
-    state = {}
-    for key, value in model.wsp_grafts.state_dict().items():
-        state[key] = value.detach().cpu().contiguous()
-    save_file(state, os.path.join(output_dir, "graft_weights.safetensors"))
+
+def save_grafts(model, output_dir, metas):
+    """Write grafts.json and, when there are grafts, graft_weights.safetensors."""
+    from safetensors.torch import save_file
+
+    if len(metas) > 0:
+        state = {}
+        for key, value in model.wsp_grafts.state_dict().items():
+            state[key] = value.detach().cpu().contiguous()
+        save_file(state, os.path.join(output_dir, "graft_weights.safetensors"))
     with open(os.path.join(output_dir, "grafts.json"), "w") as f:
         json.dump(metas, f, indent=2)
+
+
+def compile_grafts(program, catalog, model, tokenizer, output_dir, report, align_texts, heal_texts, device, cache_dir,
+                   lora_params=None):
+    """Build, fit, attach, and heal the grafts. Save their weights.
+
+    lora_params: LoRA parameters on the host, trained by the same heal pass.
+    """
+    model.to(device)
+    model.eval()
+    metas = attach_program_grafts(program, catalog, model, tokenizer, report, align_texts, device, cache_dir)
+
+    if program.heal_spec is not None:
+        params, part_lora_count = heal_parameters(model, lora_params)
+        run_heal(program, model, tokenizer, heal_texts, params, report)
+        report["heal"]["part_lora_params"] = part_lora_count
+
+    save_grafts(model, output_dir, metas)
+
+
+def model_width(model):
+    """Return the hidden size of a model's decoder (the text part of a multimodal config)."""
+    config = model.config
+    if hasattr(config, "get_text_config"):
+        config = config.get_text_config()
+    return config.hidden_size
+
+
+def load_tap_donors(program, device):
+    """Load each distinct tap donor once, in bf16 on device. Return donor_id -> (model, tokenizer)."""
+    import transformers
+
+    donors = {}
+    for spec in program.taps:
+        if spec.donor in donors:
+            continue
+        donor = transformers.AutoModelForCausalLM.from_pretrained(spec.donor, dtype=torch.bfloat16)
+        donor.to(device)
+        donor.eval()
+        for param in donor.parameters():
+            param.requires_grad_(False)
+        donor_tokenizer = transformers.AutoTokenizer.from_pretrained(spec.donor)
+        donors[spec.donor] = (donor, donor_tokenizer)
+    return donors
+
+
+def build_taps(program, model, donors, device):
+    """Make one TapBranch per tap and attach them to the host. Return the placements.
+
+    Taps with the same donor and donor_layer share one tap index, so they
+    read one memory.
+    """
+    from wsp.parts import find_decoder_layers
+    from wsp.tap import TapBranch, attach_taps
+
+    _, host_layers = find_decoder_layers(model, 0)
+    indices = {}
+    placements = []
+    for number, spec in enumerate(program.taps):
+        if spec.at >= len(host_layers):
+            raise CompileError(f"tap {number} is at host layer {spec.at}, but the host has {len(host_layers)} layers")
+        donor = donors[spec.donor][0]
+        _, donor_layers = find_decoder_layers(donor, 0)
+        if spec.donor_layer >= len(donor_layers):
+            raise CompileError(f"tap {number} reads donor layer {spec.donor_layer}, but {spec.donor} has "
+                               f"{len(donor_layers)} layers")
+        key = (spec.donor, spec.donor_layer)
+        if key not in indices:
+            indices[key] = len(indices)
+        tap_id = spec.tap_id
+        if tap_id is None:
+            tap_id = f"tap{number}"
+        branch = TapBranch(model_width(model), model_width(donor), attn_dim=spec.attn_dim, heads=spec.heads,
+                           donor_id=spec.donor, donor_layer=spec.donor_layer, tap_id=tap_id)
+        placements.append((spec.at, branch, indices[key]))
+    attach_taps(model, placements)
+    model.wsp_taps.to(device=device, dtype=torch.float32)
+    return placements
+
+
+def tap_param_groups(model):
+    """Return optimizer groups for the taps: the gates in one, the rest in the other (no lr set)."""
+    gates = []
+    others = []
+    for branch in model.wsp_taps:
+        for name, param in branch.named_parameters():
+            if name == "gate":
+                gates.append(param)
+            else:
+                others.append(param)
+    return gates, others
+
+
+def check_pair_names(program, tap_pairs, heal_pairs):
+    """Raise CompileError for a pairs name that wsp.pairs does not know.
+
+    This runs before any model loads. Without it, a bad heal data name
+    fails only after the donors load and the taps train.
+    """
+    from wsp.pairs import pair_names
+
+    names = pair_names()
+    spec = program.tap_train_spec
+    if tap_pairs is None and spec.data not in names:
+        raise CompileError(f"unknown tap_train data {spec.data!r}; the pairs names are {', '.join(names)}")
+    heal = program.heal_spec
+    if heal is None or heal_pairs is not None or heal.data == spec.data:
+        return
+    if len(program.grafts) == 0 and program.lora_spec is None:
+        # This heal does not run (see compile_taps).
+        return
+    if heal.data not in names:
+        raise CompileError(f"unknown heal data {heal.data!r}: in a program with taps, heal data is a pairs "
+                           f"name, one of {', '.join(names)}")
+
+
+def pairs_by_name(name, tokenizer, seed=0):
+    from wsp.pairs import pairs_for
+
+    return pairs_for(name, tokenizer, seed=seed)
+
+
+def train_program_taps(program, model, tokenizer, donors, pairs, report):
+    """Train only the taps (stage 1). Record it in report["taps"]."""
+    import time
+
+    from wsp.tap import tap_meta, tap_param_count, tap_train
+
+    spec = program.tap_train_spec
+    gates, others = tap_param_groups(model)
+    groups = [{"params": others, "lr": spec.branch_lr}, {"params": gates, "lr": spec.gate_lr}]
+    start = time.time()
+    losses = tap_train(model, tokenizer, donors, pairs, groups, steps=spec.steps, lr=spec.branch_lr,
+                       batch_size=spec.batch_size, seq_len=spec.seq_len, seed=program.seed)
+    seconds = round(time.time() - start, 1)
+    final_gates = []
+    for branch in model.wsp_taps:
+        final_gates.append(float(branch.gate.detach()))
+    donor_ids = []
+    for donor_id in donors:
+        donor_ids.append(donor_id)
+    report["taps"] = {"spec": spec.to_dict(), "taps": tap_meta(model), "donors": donor_ids, "losses": losses,
+                      "gates": final_gates, "trainable_params": tap_param_count(model), "pairs": len(pairs),
+                      "seconds": seconds}
+
+
+def heal_after_taps(program, model, tokenizer, donors, pairs, params, part_lora_count, report):
+    """Train params with the taps frozen (stage 2). Record it in report["heal"].
+
+    The loop is wsp.tap.tap_train on (prompt, completion) pairs, so the
+    taps read the donors the same way as in stage 1. The seed is the
+    program seed plus 50, the same offset as the staged arm in round 7.
+    """
+    import time
+
+    from wsp.tap import tap_parameters, tap_train
+
+    spec = program.heal_spec
+    for param in tap_parameters(model):
+        param.requires_grad_(False)
+    trainable = 0
+    for param in params:
+        trainable += param.numel()
+    start = time.time()
+    losses = tap_train(model, tokenizer, donors, pairs, params, steps=spec.steps, lr=spec.lr,
+                       batch_size=spec.batch_size, seq_len=spec.seq_len, seed=program.seed + 50)
+    report["heal"] = {"spec": spec.to_dict(), "losses": losses, "seconds": round(time.time() - start, 1),
+                      "trainable_params": trainable, "part_lora_params": part_lora_count,
+                      "staged_after_taps": True, "pairs": len(pairs)}
+
+
+def save_program_taps(model, output_dir, report):
+    """Save the tap branches and their donor ids, so wsp.load can rebuild them."""
+    from wsp.tap import save_taps
+
+    save_taps(model, output_dir, meta={"donors": report["taps"]["donors"]})
+
+
+def compile_taps(program, catalog, model, tokenizer, output_dir, report, align_texts, device, cache_dir,
+                 lora_params, tap_pairs, heal_pairs):
+    """Attach grafts and taps, train the taps, then heal with the taps frozen. Save grafts and taps.
+
+    The LoRA, if any, is saved by the caller.
+    """
+    from wsp.tap import set_tap_sources, tap_cost
+
+    model.to(device)
+    model.eval()
+    metas = []
+    if len(program.grafts) > 0:
+        metas = attach_program_grafts(program, catalog, model, tokenizer, report, align_texts, device, cache_dir)
+
+    donors = load_tap_donors(program, device)
+    build_taps(program, model, donors, device)
+    set_tap_sources(model, tokenizer, donors)
+
+    spec = program.tap_train_spec
+    if tap_pairs is None:
+        tap_pairs = pairs_by_name(spec.data, tokenizer)
+    # tap_train freezes everything but its params, so a LoRA or the glue
+    # stays at its start during stage 1.
+    train_program_taps(program, model, tokenizer, donors, tap_pairs, report)
+
+    if program.heal_spec is not None and (len(metas) > 0 or program.lora_spec is not None):
+        if heal_pairs is None:
+            if program.heal_spec.data == spec.data:
+                heal_pairs = tap_pairs
+            else:
+                heal_pairs = pairs_by_name(program.heal_spec.data, tokenizer)
+        params, part_lora_count = heal_parameters(model, lora_params)
+        heal_after_taps(program, model, tokenizer, donors, heal_pairs, params, part_lora_count, report)
+
+    for param in model.parameters():
+        param.requires_grad_(False)
+    save_grafts(model, output_dir, metas)
+    save_program_taps(model, output_dir, report)
+    report["taps"]["cost"] = tap_cost(model)

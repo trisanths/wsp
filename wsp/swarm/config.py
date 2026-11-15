@@ -45,7 +45,12 @@ DEFAULTS = {
     "guard_drop": 0.10,          # a guard is penalized when it falls more than 10% below base
     "guard_penalty": 1.0,        # penalty = guard_penalty * relative drop
     "collapse_fraction": 0.5,    # collapse when any task falls below half its base
-    "base_scores": None,         # {split: {task: score}}, needed by the local backend only
+    # Host scores, needed by the local backend. Search split measured 2026-11-15 by
+    # modal_eval.py::base_scores (hf backend, same prompts as every candidate).
+    # Held-out (GSM8K test n=1319, if_guard n=410) measured once, 2026-11-15, by
+    # modal_eval.py::base_scores --split heldout; the held-out ledger refuses a rerun.
+    "base_scores": {"search": {"gsm8k": 0.23, "if_guard": 0.42},
+                    "heldout": {"gsm8k": 0.201, "if_guard": 0.488}},
 
     # Program space (spec 4.1).
     "host": "unsloth/Llama-3.2-1B-Instruct",

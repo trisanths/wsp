@@ -4,6 +4,19 @@ A graft reads the host hidden state, maps it into the donor's width with
 w_in, runs the frozen donor part, maps the result back with w_out, and adds
 it to the hidden state. w_out starts at zero, so a fresh graft changes
 nothing. Only w_in and w_out train.
+
+Three options change the donor input after w_in:
+  sink        a stored donor state replaces the mapped vector at each
+              sequence's first real position. That position is the donor's
+              attention sink (the BOS, or the first text token when there is
+              no BOS). Sink states are huge and do not depend on the input,
+              and a mapped vector there breaks attention for every later
+              token. The audit cut the stitch penalty 2.1x to 3.4x with it.
+  rms match   each other mapped vector is scaled to the donor's typical RMS
+              at the input point, times a trained scalar that starts at 1.
+  part LoRA   wsp.lora adapters on the linears inside the donor part (the
+              receiver), trained with the glue. B starts at zero, so a new
+              part LoRA changes nothing.
 """
 
 import inspect
@@ -69,6 +82,20 @@ class Graft(nn.Module):
         self.host_cache_len = 0
         self.host_layer = None
         self.stitch_inputs = {}
+        # The sink and RMS options are off until set_sink and set_rms_match
+        # turn them on. A None buffer or parameter is left out of the state.
+        self.register_buffer("sink", None)
+        self.register_buffer("donor_rms", None)
+        self.register_parameter("rms_scale", None)
+
+    def set_sink(self, vector):
+        """Feed the part this donor state, shape (d_donor,), at each sequence's first real position."""
+        self.sink = vector.detach().to(torch.float32).reshape(-1).clone()
+
+    def set_rms_match(self, donor_rms):
+        """Scale each mapped vector to donor_rms times a trained scalar that starts at 1."""
+        self.donor_rms = torch.as_tensor(donor_rms, dtype=torch.float32).detach().reshape(()).clone()
+        self.rms_scale = nn.Parameter(torch.ones((), dtype=torch.float32))
 
     def set_w_in(self, w):
         """Start w_in from a full (d_donor, d_in) matrix, for example a ridge fit.
@@ -97,18 +124,66 @@ class Graft(nn.Module):
         self.stitch_inputs = {}
         return self.w_in(states)
 
+    def match_rms(self, x):
+        """Scale each row of x to RMS donor_rms * rms_scale."""
+        rms = torch.sqrt(x.pow(2).mean(dim=-1, keepdim=True) + 1e-12)
+        target = self.donor_rms.to(x.device) * self.rms_scale.to(x.device)
+        return x * (target / rms)
+
+    def put_sink(self, x):
+        """Replace x at each sequence's first real position with the sink vector.
+
+        The first real position is the first 1 in pad_mask, so left padding
+        works, or 0 when there is no mask. A cached call holds only the new
+        tokens, which start at host_cache_len, so a decode step or a later
+        prefill chunk that does not hold the first position changes nothing.
+        """
+        batch, seq, _ = x.shape
+        start = 0
+        if self.host_uses_cache:
+            start = self.host_cache_len
+        if self.pad_mask is None:
+            first = torch.zeros(batch, dtype=torch.long, device=x.device)
+            has_real = torch.ones(batch, dtype=torch.bool, device=x.device)
+        else:
+            real = self.pad_mask.to(x.device) != 0
+            # argmax gives the first maximum, so the first real position.
+            first = real.long().argmax(dim=-1)
+            has_real = real.any(dim=-1)
+        positions = torch.arange(start, start + seq, device=x.device)
+        hit = (positions.view(1, seq) == first.view(batch, 1)) & has_real.view(batch, 1)
+        sink = self.sink.to(device=x.device, dtype=x.dtype).view(1, 1, -1)
+        return torch.where(hit.unsqueeze(-1), sink, x)
+
     def forward(self, h):
-        part_dtype = next(self.part.parameters()).dtype
+        dtype = part_dtype(self.part)
         x = self.map_in(h)
+        if self.rms_scale is not None:
+            x = self.match_rms(x)
+        if self.sink is not None:
+            x = self.put_sink(x)
         if isinstance(self.part, (AttnHeadsPart, BlockPart)):
             if self.host_uses_cache:
-                x = self.part(x.to(part_dtype), attention_mask=self.pad_mask, cache_len=self.host_cache_len)
+                x = self.part(x.to(dtype), attention_mask=self.pad_mask, cache_len=self.host_cache_len)
             else:
-                x = self.part(x.to(part_dtype), attention_mask=self.pad_mask)
+                x = self.part(x.to(dtype), attention_mask=self.pad_mask)
         else:
-            x = self.part(x.to(part_dtype))
+            x = self.part(x.to(dtype))
         delta = self.w_out(x.to(torch.float32))
         return h + delta.to(h.dtype)
+
+
+def part_dtype(part):
+    """Return the dtype of the donor weights in a part.
+
+    Part LoRA factors are float32 whatever the donor dtype, so they are
+    skipped. A part with no weights runs in float32.
+    """
+    for name, param in part.named_parameters():
+        if name.endswith("lora_A") or name.endswith("lora_B"):
+            continue
+        return param.dtype
+    return torch.float32
 
 
 def replace_hidden(output, fn):
@@ -183,8 +258,11 @@ def attach_grafts(host_model, placements):
     for graft in grafts:
         if isinstance(getattr(graft, "part", None), (AttnHeadsPart, BlockPart)):
             has_part_cache = True
+    # A graft with a sink reads the 2D mask to find each row's first real
+    # token, so it needs a 2D mask too.
+    needs_2d_mask = has_part_cache or any_sink(grafts)
     generation_config = getattr(host_model, "generation_config", None)
-    if has_part_cache and generation_config is not None:
+    if needs_2d_mask and generation_config is not None:
         # Some checkpoints (Gemma 3) ask generate for a static hybrid cache.
         # Part caches need the default dynamic cache and a 2D mask.
         if getattr(generation_config, "cache_implementation", None) is not None:
@@ -203,6 +281,15 @@ def attach_grafts(host_model, placements):
                     "attn_heads and block grafts need a 2D attention_mask when the host uses a "
                     "cache; static and hybrid caches give a 4D mask that hides the padding, so "
                     "use the default dynamic cache (generation_config.cache_implementation = None)"
+                )
+            # Without the 2D mask, a sink would go on position 0, which is a
+            # pad under left padding. We check at call time, because
+            # set_sink can run after attach_grafts.
+            if any_sink(grafts):
+                raise ValueError(
+                    "a graft with a sink needs a 2D attention_mask to find each row's first real "
+                    "token; a static cache gives a 4D mask that hides the padding, so use the "
+                    "default dynamic cache (generation_config.cache_implementation = None)"
                 )
             mask = None
         cache_len = host_cache_length(past, found["cache_position"])
@@ -259,6 +346,14 @@ def attach_grafts(host_model, placements):
         if decoder is not None:
             handles.append(decoder.register_forward_pre_hook(store_direct_call_context, with_kwargs=True))
     return handles
+
+
+def any_sink(grafts):
+    """Return True when any graft in the list has a sink."""
+    for graft in grafts:
+        if getattr(graft, "sink", None) is not None:
+            return True
+    return False
 
 
 def decoder_of(host_model, layer_index):
@@ -355,7 +450,7 @@ def disable_cache(model):
 
 
 def glue_parameters(host_model):
-    """Return the w_in and w_out parameters of every graft.
+    """Return the w_in and w_out parameters of every graft, and the RMS scale when it is on.
 
     w_in can be any module (a trained stitch, for example), so all of its
     parameters count as glue and train during heal.
@@ -366,12 +461,33 @@ def glue_parameters(host_model):
             params.append(param)
         for param in graft.w_out.parameters():
             params.append(param)
+        rms_scale = getattr(graft, "rms_scale", None)
+        if rms_scale is not None:
+            params.append(rms_scale)
+    return params
+
+
+def part_lora_parameters(host_model):
+    """Return the LoRA factors inside every graft part (empty when no part has a LoRA)."""
+    from wsp.lora import LoRALinear
+
+    params = []
+    for graft in host_model.wsp_grafts:
+        part = getattr(graft, "part", None)
+        if part is None:
+            continue
+        for module in part.modules():
+            if isinstance(module, LoRALinear):
+                params.append(module.lora_A)
+                params.append(module.lora_B)
     return params
 
 
 def freeze_all_but_glue(host_model):
-    """Freeze everything, then unfreeze the glue."""
+    """Freeze everything, then unfreeze the glue and any part LoRA."""
     for param in host_model.parameters():
         param.requires_grad_(False)
     for param in glue_parameters(host_model):
+        param.requires_grad_(True)
+    for param in part_lora_parameters(host_model):
         param.requires_grad_(True)

@@ -155,13 +155,28 @@ def test_identity_stitch_has_no_penalty(trained_donor):
     host = copy.deepcopy(trained_donor)
     stitch = build_stitch({"kind": "linear"}, 48, 48)
     init_from_ridge(stitch, torch.eye(48))
-    found = stitch_penalty(host, tiny_tokenizer(), 1, trained_donor, 2, stitch, cycle_texts(8, seed=3))
+    # This tokenizer adds no BOS, so position 0 is the first word, and these
+    # texts start with different words. The mean sink is not each text's own
+    # position-0 state then, so the exact check runs with the sink off.
+    found = stitch_penalty(host, tiny_tokenizer(), 1, trained_donor, 2, stitch, cycle_texts(8, seed=3), sink=False)
     assert abs(found["penalty"]) < 1e-5
     assert found["r2"] > 0.9999
     assert found["pairs"] > 0
+    assert found["sink"] is False
+    # When every text starts with the same word, the position-0 state is the
+    # same for all of them, so the mean sink is exact too.
+    same_start = []
+    for text in cycle_texts(8, seed=3):
+        same_start.append("the " + text)
+    found = stitch_penalty(host, tiny_tokenizer(), 1, trained_donor, 2, stitch, same_start)
+    assert found["sink"] is True
+    assert abs(found["penalty"]) < 1e-5
 
 
 def test_donor_lm_lowers_donor_loss_and_beats_ridge(trained_donor):
+    # This tiny donor has no BOS and its position-0 state depends on the
+    # first word, so a mean sink does not fit it. The sink stays off here;
+    # the sink tests use a donor with a BOS.
     tokenizer = tiny_tokenizer()
     host = perturbed_copy(trained_donor, noise=1.2, seed=1)
     texts = cycle_texts(64, seed=0)
@@ -170,7 +185,7 @@ def test_donor_lm_lowers_donor_loss_and_beats_ridge(trained_donor):
 
     ridge = build_stitch({"kind": "linear"}, 48, 48)
     ridge_init(ridge, host, tokenizer, 1, trained_donor, tokenizer, 2, train)
-    ridge_found = stitch_penalty(host, tokenizer, 1, trained_donor, 2, ridge, held_out)
+    ridge_found = stitch_penalty(host, tokenizer, 1, trained_donor, 2, ridge, held_out, sink=False)
     assert ridge_found["penalty"] > 0.05
 
     stitch = build_stitch({"kind": "mlp"}, 48, 48)
@@ -179,7 +194,9 @@ def test_donor_lm_lowers_donor_loss_and_beats_ridge(trained_donor):
     for param in trained_donor.parameters():
         before.append(param.detach().clone())
     result = train_stitch(host, tokenizer, 1, trained_donor, tokenizer, 2, stitch, train, objective="donor_lm",
-                          steps=30, lr=3e-3, batch_size=8, seq_len=32, eval_texts=held_out)
+                          steps=30, lr=3e-3, batch_size=8, seq_len=32, eval_texts=held_out, sink=False)
+    assert result["sink"] is False
+    assert "penalty_no_sink" not in result["after"]
     assert len(result["losses"]) == 30
     assert sum(result["losses"][-5:]) < sum(result["losses"][:5])
     # The stitch starts from the ridge map, so "before" is the ridge penalty.
@@ -371,6 +388,9 @@ def expected_logits(out, host_dir, donor_dir, host_layer, w_in, text):
     for key in state:
         if key.startswith("0."):
             own[key[2:]] = state[key].float()
+    # The compile measured a sink on the align texts, so the graft has one.
+    if "sink" in own:
+        graft.set_sink(own["sink"])
     graft.load_state_dict(own, strict=True)
     host = transformers.LlamaForCausalLM.from_pretrained(host_dir, dtype=torch.float32).eval()
     attach_grafts(host, [(host_layer, graft)])

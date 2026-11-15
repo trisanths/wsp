@@ -60,14 +60,21 @@ def match_offsets(host_ends, donor_ends):
     return pairs
 
 
-def ridge_fit(x, y, lam=1e-2, holdout=0.1, seed=0):
+# The audit found that lam 1e-2 costs 0.05 nats of stitch penalty on an
+# exact identity map, and lam 1e-6 recovers it (penalty 1.5e-6).
+RIDGE_LAM = 1e-6
+
+
+def ridge_fit(x, y, lam=RIDGE_LAM, holdout=0.1, seed=0):
     """Fit y ~ x @ w.T with ridge. Return (w, r2, r2_dim), scored on a holdout.
 
     w has shape (d_donor, d_host). lam is scaled by the mean diagonal of X^T X,
-    so it has no units. r2 pools the error over all output dims, so a few
-    dims with huge variance can decide it. r2_dim is the mean of each output
-    dim's own r2, so every dim counts the same. Dims that are constant on the
-    holdout are left out of r2_dim.
+    so it has no units and the fit does not change when x is scaled. The
+    default is small, so an exact linear relation comes back exactly. r2
+    pools the error over all output dims, so a few dims with huge variance
+    can decide it. r2_dim is the mean of each output dim's own r2, so every
+    dim counts the same. Dims that are constant on the holdout are left out
+    of r2_dim.
     """
     n = x.shape[0]
     if n < 20:
@@ -112,15 +119,21 @@ def ridge_fit(x, y, lam=1e-2, holdout=0.1, seed=0):
 
 
 def collect_pairs(host_model, host_tokenizer, host_layer, donor_model, donor_tokenizer,
-                  donor_capture, texts, max_pairs=20000):
+                  donor_capture, texts, max_pairs=20000, stats=None):
     """Run both models on each text and stack matched (host, donor) hidden rows.
 
     The host row is the output of decoder layer host_layer, read with a
     forward hook on that layer. That is the same tensor the graft hook gets.
     The donor row comes from donor_capture(donor_model, input_ids), which
     returns (seq, d_donor). Both models see their default special tokens.
-    Only rows that alignment_tokens picks enter the fit. Returns (x, y) as
-    float32 tensors.
+    Only rows that alignment_tokens picks enter the fit, so the first
+    position (the BOS, or the first text token when there is no BOS) never
+    does. Returns (x, y) as float32 tensors.
+
+    stats: None, or a dict that gets two donor measures at the donor point:
+    "sink", the mean donor state at position 0 over the texts that ran (the
+    attention sink), and "rms", the mean root mean square of the donor rows
+    in y.
     """
     from wsp.parts import find_decoder_layers
 
@@ -138,6 +151,8 @@ def collect_pairs(host_model, host_tokenizer, host_layer, donor_model, donor_tok
     xs = []
     ys = []
     total = 0
+    sink_sum = None
+    sink_count = 0
     for text in texts:
         if total >= max_pairs:
             break
@@ -167,12 +182,27 @@ def collect_pairs(host_model, host_tokenizer, host_layer, donor_model, donor_tok
         xs.append(host_hidden.float().cpu()[host_rows])
         ys.append(donor_hidden.float().cpu()[donor_rows])
         total += len(pairs)
+        if stats is not None:
+            first = donor_hidden[0].float().cpu()
+            if sink_sum is None:
+                sink_sum = first.clone()
+            else:
+                sink_sum += first
+            sink_count += 1
 
     if len(xs) == 0:
         raise ValueError("no matching tokens found in any text")
     x = torch.cat(xs, dim=0)[:max_pairs]
     y = torch.cat(ys, dim=0)[:max_pairs]
+    if stats is not None:
+        stats["sink"] = sink_sum / sink_count
+        stats["rms"] = mean_rms(y)
     return x, y
+
+
+def mean_rms(rows):
+    """Return the mean over rows of each row's root mean square, as a float."""
+    return float(rows.float().pow(2).mean(dim=-1).sqrt().mean())
 
 
 def mlp_input_capture(layer_module_norm):

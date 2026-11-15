@@ -352,10 +352,11 @@ def swarm_eval(model_path, split, tasks):
     Set config["local_eval"] = "wsp_eval.harness:swarm_eval" in wsp/swarm/config.py.
     Part 3's env owns the comparison budget; calls here are also counted under
     the namespace in WSP_BUDGET_NS (default "swarm") and logged to experiments.jsonl
-    with fit_r2. Grafted models always generate with the hf backend.
+    with fit_r2. Every model, plain or grafted, generates with the hf backend, so
+    candidates and the host base scores are produced the same way.
     """
     namespace = os.environ.get("WSP_BUDGET_NS", "swarm")
-    result = evaluate(model_path, split, tasks, namespace=namespace, note="swarm")
+    result = evaluate(model_path, split, tasks, namespace=namespace, note="swarm", backend="hf")
     scores = {}
     for task in tasks:
         scores[task] = result["tasks"][task]["score"]
