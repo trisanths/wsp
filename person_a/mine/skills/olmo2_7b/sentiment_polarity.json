@@ -1,0 +1,1140 @@
+{
+ "name": "sentiment_polarity",
+ "description": "Classify affective English descriptions as positive or negative; matched control repeats an explicitly supplied polarity label.",
+ "hash": "0e78dfc17b5fea13",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\npos='wonderful excellent delightful fantastic superb enjoyable amazing brilliant pleasant lovely satisfying outstanding impressive terrific'.split()\nneg='terrible awful dreadful horrible disappointing unpleasant miserable disgusting lousy frustrating atrocious depressing boring annoying'.split()\nitems=[];control=[]\nfor i in range(112):\n label=['positive','negative'][i%2]; adj=random.choice(pos if label=='positive' else neg); noun=random.choice(['movie','book','meal','trip','show','service','hotel','experience']); ref=random.choice(['positive','negative'])\n text=f'Text: \"The {noun} was {adj}.\" Reference label: {ref}. '\n items.append({'prompt':text+'Classify the sentiment of the text as positive or negative. Answer:','answer':' '+label})\n control.append({'prompt':text+'Copy the reference label, not the sentiment. Answer:','answer':' '+ref})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Text: \"The book was depressing.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The service was miserable.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The trip was terrible.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The trip was unpleasant.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was lovely.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was unpleasant.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was terrible.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was impressive.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The trip was pleasant.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The trip was dreadful.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was lovely.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was boring.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was awful.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was outstanding.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was terrible.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The trip was fantastic.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was lovely.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was depressing.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was amazing.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was outstanding.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was pleasant.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was boring.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was outstanding.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The trip was terrible.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was pleasant.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was annoying.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was enjoyable.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was lovely.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was outstanding.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was miserable.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was pleasant.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The trip was lovely.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was lousy.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was amazing.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was wonderful.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was depressing.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was enjoyable.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The service was lousy.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The trip was awful.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was disappointing.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was disgusting.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was horrible.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was lousy.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was superb.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was miserable.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The service was delightful.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was amazing.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was terrific.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was terrible.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was delightful.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The service was brilliant.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was lousy.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was fantastic.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was frustrating.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The service was horrible.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was lovely.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Text: \"The service was pleasant.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was pleasant.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was superb.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was superb.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was annoying.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was superb.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was fantastic.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was atrocious.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was terrible.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was depressing.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was terrific.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was disappointing.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was annoying.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was terrible.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The service was annoying.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was excellent.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was enjoyable.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was impressive.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was impressive.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The trip was delightful.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was wonderful.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was wonderful.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The trip was depressing.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was dreadful.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was annoying.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was atrocious.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was lovely.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was amazing.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The service was miserable.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was terrific.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was boring.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was excellent.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was terrible.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was amazing.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was brilliant.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was boring.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was impressive.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was frustrating.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The trip was excellent.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was boring.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was outstanding.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was awful.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was delightful.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was dreadful.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was miserable.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was amazing.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The service was enjoyable.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was terrible.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was pleasant.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The trip was dreadful.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The service was awful.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was frustrating.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was horrible.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was unpleasant.\" Reference label: positive. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was horrible.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was terrific.\" Reference label: negative. Classify the sentiment of the text as positive or negative. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Text: \"The service was enjoyable.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was fantastic.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was amazing.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was pleasant.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was excellent.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The service was miserable.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was superb.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The trip was terrible.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was wonderful.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was superb.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was miserable.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The service was awful.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The service was delightful.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was disgusting.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was lovely.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was amazing.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was annoying.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was superb.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was frustrating.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was delightful.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The trip was fantastic.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was lovely.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The trip was excellent.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was terrible.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was awful.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was enjoyable.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The trip was lovely.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was impressive.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was enjoyable.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was lousy.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was boring.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was atrocious.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was frustrating.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was terrific.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was lovely.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The trip was pleasant.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The trip was delightful.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The trip was dreadful.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was annoying.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was atrocious.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was outstanding.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was miserable.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was lousy.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was outstanding.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was amazing.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was terrible.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was pleasant.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was miserable.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was dreadful.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was annoying.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The service was lousy.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was lousy.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The service was annoying.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was excellent.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was fantastic.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was dreadful.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Text: \"The show was annoying.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was superb.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The trip was awful.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was horrible.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The trip was dreadful.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was horrible.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The service was miserable.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was terrible.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was boring.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was lovely.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was amazing.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was boring.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was lovely.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was outstanding.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was disappointing.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was impressive.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was delightful.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was frustrating.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was pleasant.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was outstanding.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was awful.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was amazing.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was terrible.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The trip was terrible.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was enjoyable.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was amazing.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The service was pleasant.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was wonderful.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was depressing.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was disappointing.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was depressing.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The service was brilliant.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was depressing.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was boring.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was terrific.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was terrible.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The trip was depressing.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was horrible.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The trip was unpleasant.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was pleasant.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was impressive.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was wonderful.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was terrific.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was terrible.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was lovely.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was unpleasant.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The show was terrible.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was depressing.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The service was horrible.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The experience was brilliant.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was pleasant.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was unpleasant.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The movie was impressive.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The book was terrific.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The hotel was outstanding.\" Reference label: positive. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " positive",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"The meal was boring.\" Reference label: negative. Copy the reference label, not the sentiment. Answer:",
+    "continuation": " negative",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 3.1853
+}

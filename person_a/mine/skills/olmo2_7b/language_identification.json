@@ -1,0 +1,1220 @@
+{
+ "name": "language_identification",
+ "description": "Identify six European languages from short phrases; matched controls copy explicitly supplied language names.",
+ "hash": "a1a3c79ccfdba93d",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\ndata={'French':['bonjour tout le monde','je vous remercie beaucoup','je ne comprends pas','nous sommes ici','comment allez-vous','je voudrais un livre','il fait beau ce matin','je suis avec vous'],'German':['guten Morgen zusammen','vielen Dank','ich verstehe das nicht','wo ist der Bahnhof','wie geht es Ihnen','ich brauche ein Buch','das Wetter ist heute gut','ich freue mich sehr'],'Spanish':['hola a todos','muchas gracias por su ayuda','no entiendo nada','estamos en casa','estoy muy bien','quiero un libro','hace buen tiempo hoy','estoy muy contento'],'Italian':['buongiorno a tutti','grazie mille per il tuo aiuto','non capisco niente','dove si trova la stazione','come stai oggi','vorrei un libro','mi piace molto','sono molto felice'],'Portuguese':['bom dia a todos','muito obrigado pela ajuda','estamos aqui juntos','onde fica o hotel','eu gosto muito disso','eu gostaria de um livro','hoje estamos em casa','estou muito feliz'],'English':['good morning everyone','thank you very much for your help','I do not understand','where is the train station','how are you today','I would like a book','the weather is nice today','I am very happy']}\nitems=[];control=[]\nfor i in range(120):\n lang=list(data)[i%6]; phrase=data[lang][(i//6)%8]; ref=random.choice(list(data)); text=f'Text: \"{phrase}\". Reference language: {ref}. '\n items.append({'prompt':text+'Identify the language of the text. Answer in English:','answer':' '+lang})\n control.append({'prompt':text+'Copy the reference language. Answer in English:','answer':' '+ref})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Text: \"grazie mille per il tuo aiuto\". Reference language: English. Identify the language of the text. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"vielen Dank\". Reference language: French. Identify the language of the text. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"buongiorno a tutti\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"buongiorno a tutti\". Reference language: Spanish. Identify the language of the text. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"non capisco niente\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"thank you very much for your help\". Reference language: English. Identify the language of the text. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"wie geht es Ihnen\". Reference language: French. Identify the language of the text. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"onde fica o hotel\". Reference language: German. Identify the language of the text. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"je voudrais un livre\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"wie geht es Ihnen\". Reference language: English. Identify the language of the text. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"I am very happy\". Reference language: English. Identify the language of the text. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"dove si trova la stazione\". Reference language: French. Identify the language of the text. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"where is the train station\". Reference language: Spanish. Identify the language of the text. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"wo ist der Bahnhof\". Reference language: Italian. Identify the language of the text. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"come stai oggi\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"estamos aqui juntos\". Reference language: French. Identify the language of the text. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"das Wetter ist heute gut\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"how are you today\". Reference language: Italian. Identify the language of the text. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"hola a todos\". Reference language: French. Identify the language of the text. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"eu gosto muito disso\". Reference language: Spanish. Identify the language of the text. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"muchas gracias por su ayuda\". Reference language: Italian. Identify the language of the text. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"thank you very much for your help\". Reference language: German. Identify the language of the text. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"ich freue mich sehr\". Reference language: French. Identify the language of the text. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"il fait beau ce matin\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"hola a todos\". Reference language: French. Identify the language of the text. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"estoy muy contento\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"estou muito feliz\". Reference language: French. Identify the language of the text. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"wo ist der Bahnhof\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"quiero un libro\". Reference language: Spanish. Identify the language of the text. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"das Wetter ist heute gut\". Reference language: German. Identify the language of the text. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"muito obrigado pela ajuda\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"comment allez-vous\". Reference language: French. Identify the language of the text. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"bonjour tout le monde\". Reference language: Italian. Identify the language of the text. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"hola a todos\". Reference language: English. Identify the language of the text. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"muchas gracias por su ayuda\". Reference language: French. Identify the language of the text. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"sono molto felice\". Reference language: German. Identify the language of the text. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"ich verstehe das nicht\". Reference language: German. Identify the language of the text. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"bom dia a todos\". Reference language: French. Identify the language of the text. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"dove si trova la stazione\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"estamos aqui juntos\". Reference language: English. Identify the language of the text. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"comment allez-vous\". Reference language: Italian. Identify the language of the text. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"ich freue mich sehr\". Reference language: Spanish. Identify the language of the text. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"I would like a book\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"wo ist der Bahnhof\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"je vous remercie beaucoup\". Reference language: Italian. Identify the language of the text. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"je vous remercie beaucoup\". Reference language: Italian. Identify the language of the text. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"I am very happy\". Reference language: German. Identify the language of the text. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"estamos en casa\". Reference language: English. Identify the language of the text. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"onde fica o hotel\". Reference language: German. Identify the language of the text. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"nous sommes ici\". Reference language: English. Identify the language of the text. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"eu gosto muito disso\". Reference language: Spanish. Identify the language of the text. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"eu gostaria de um livro\". Reference language: Spanish. Identify the language of the text. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"je vous remercie beaucoup\". Reference language: Italian. Identify the language of the text. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"hoje estamos em casa\". Reference language: French. Identify the language of the text. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"estou muito feliz\". Reference language: Spanish. Identify the language of the text. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"non capisco niente\". Reference language: German. Identify the language of the text. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"no entiendo nada\". Reference language: Spanish. Identify the language of the text. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"ich verstehe das nicht\". Reference language: French. Identify the language of the text. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"muito obrigado pela ajuda\". Reference language: Spanish. Identify the language of the text. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"I would like a book\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Text: \"bom dia a todos\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"vorrei un libro\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"eu gostaria de um livro\". Reference language: German. Identify the language of the text. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"the weather is nice today\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"ich brauche ein Buch\". Reference language: French. Identify the language of the text. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"hace buen tiempo hoy\". Reference language: Spanish. Identify the language of the text. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"non capisco niente\". Reference language: German. Identify the language of the text. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"bonjour tout le monde\". Reference language: Italian. Identify the language of the text. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"no entiendo nada\". Reference language: English. Identify the language of the text. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"thank you very much for your help\". Reference language: German. Identify the language of the text. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"guten Morgen zusammen\". Reference language: Italian. Identify the language of the text. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"estoy muy contento\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"vielen Dank\". Reference language: Spanish. Identify the language of the text. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"estamos en casa\". Reference language: Spanish. Identify the language of the text. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"nous sommes ici\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"muchas gracias por su ayuda\". Reference language: German. Identify the language of the text. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"where is the train station\". Reference language: German. Identify the language of the text. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"onde fica o hotel\". Reference language: Spanish. Identify the language of the text. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"estoy muy bien\". Reference language: French. Identify the language of the text. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"je voudrais un livre\". Reference language: French. Identify the language of the text. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"hoje estamos em casa\". Reference language: Italian. Identify the language of the text. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"vielen Dank\". Reference language: Spanish. Identify the language of the text. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"grazie mille per il tuo aiuto\". Reference language: English. Identify the language of the text. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"the weather is nice today\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"where is the train station\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"je ne comprends pas\". Reference language: French. Identify the language of the text. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"je suis avec vous\". Reference language: Spanish. Identify the language of the text. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"mi piace molto\". Reference language: Italian. Identify the language of the text. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"grazie mille per il tuo aiuto\". Reference language: Spanish. Identify the language of the text. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"dove si trova la stazione\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"mi piace molto\". Reference language: Italian. Identify the language of the text. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"nous sommes ici\". Reference language: Spanish. Identify the language of the text. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"how are you today\". Reference language: English. Identify the language of the text. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"je suis avec vous\". Reference language: Italian. Identify the language of the text. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"estamos en casa\". Reference language: French. Identify the language of the text. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"quiero un libro\". Reference language: Spanish. Identify the language of the text. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"ich brauche ein Buch\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"je ne comprends pas\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"bonjour tout le monde\". Reference language: German. Identify the language of the text. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"good morning everyone\". Reference language: Spanish. Identify the language of the text. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"il fait beau ce matin\". Reference language: English. Identify the language of the text. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"I do not understand\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"estamos aqui juntos\". Reference language: German. Identify the language of the text. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"come stai oggi\". Reference language: English. Identify the language of the text. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"estoy muy bien\". Reference language: Spanish. Identify the language of the text. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"sono molto felice\". Reference language: French. Identify the language of the text. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"ich verstehe das nicht\". Reference language: German. Identify the language of the text. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"hace buen tiempo hoy\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"muito obrigado pela ajuda\". Reference language: German. Identify the language of the text. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"bom dia a todos\". Reference language: English. Identify the language of the text. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"buongiorno a tutti\". Reference language: English. Identify the language of the text. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"no entiendo nada\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"I do not understand\". Reference language: German. Identify the language of the text. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"vorrei un libro\". Reference language: Italian. Identify the language of the text. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"good morning everyone\". Reference language: Italian. Identify the language of the text. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"good morning everyone\". Reference language: Portuguese. Identify the language of the text. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"I do not understand\". Reference language: Italian. Identify the language of the text. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"guten Morgen zusammen\". Reference language: German. Identify the language of the text. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"guten Morgen zusammen\". Reference language: English. Identify the language of the text. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"je ne comprends pas\". Reference language: French. Identify the language of the text. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Text: \"where is the train station\". Reference language: German. Copy the reference language. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"vorrei un libro\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"estamos en casa\". Reference language: English. Copy the reference language. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"je suis avec vous\". Reference language: Italian. Copy the reference language. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"estamos en casa\". Reference language: French. Copy the reference language. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"the weather is nice today\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"bom dia a todos\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"ich brauche ein Buch\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"hace buen tiempo hoy\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"muito obrigado pela ajuda\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"no entiendo nada\". Reference language: Spanish. Copy the reference language. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"I am very happy\". Reference language: German. Copy the reference language. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"onde fica o hotel\". Reference language: German. Copy the reference language. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"je voudrais un livre\". Reference language: French. Copy the reference language. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"nous sommes ici\". Reference language: English. Copy the reference language. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"where is the train station\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"wie geht es Ihnen\". Reference language: French. Copy the reference language. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"bom dia a todos\". Reference language: French. Copy the reference language. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"estou muito feliz\". Reference language: Spanish. Copy the reference language. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"grazie mille per il tuo aiuto\". Reference language: Spanish. Copy the reference language. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"eu gostaria de um livro\". Reference language: German. Copy the reference language. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"estamos en casa\". Reference language: Spanish. Copy the reference language. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"bonjour tout le monde\". Reference language: German. Copy the reference language. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"sono molto felice\". Reference language: German. Copy the reference language. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"mi piace molto\". Reference language: Italian. Copy the reference language. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"il fait beau ce matin\". Reference language: English. Copy the reference language. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"grazie mille per il tuo aiuto\". Reference language: English. Copy the reference language. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"hola a todos\". Reference language: English. Copy the reference language. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"estamos aqui juntos\". Reference language: French. Copy the reference language. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"vorrei un libro\". Reference language: Italian. Copy the reference language. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"comment allez-vous\". Reference language: French. Copy the reference language. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"je vous remercie beaucoup\". Reference language: Italian. Copy the reference language. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"il fait beau ce matin\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"good morning everyone\". Reference language: Italian. Copy the reference language. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"I would like a book\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"estoy muy bien\". Reference language: Spanish. Copy the reference language. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"thank you very much for your help\". Reference language: German. Copy the reference language. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"muchas gracias por su ayuda\". Reference language: French. Copy the reference language. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"ich freue mich sehr\". Reference language: French. Copy the reference language. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"estamos aqui juntos\". Reference language: English. Copy the reference language. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"je voudrais un livre\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"nous sommes ici\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"dove si trova la stazione\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"wie geht es Ihnen\". Reference language: English. Copy the reference language. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"buongiorno a tutti\". Reference language: English. Copy the reference language. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"ich brauche ein Buch\". Reference language: French. Copy the reference language. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"hola a todos\". Reference language: French. Copy the reference language. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"thank you very much for your help\". Reference language: English. Copy the reference language. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"wo ist der Bahnhof\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"estamos aqui juntos\". Reference language: German. Copy the reference language. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"je suis avec vous\". Reference language: Spanish. Copy the reference language. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"I do not understand\". Reference language: German. Copy the reference language. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"quiero un libro\". Reference language: Spanish. Copy the reference language. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"I do not understand\". Reference language: Italian. Copy the reference language. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"sono molto felice\". Reference language: French. Copy the reference language. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"ich verstehe das nicht\". Reference language: German. Copy the reference language. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"dove si trova la stazione\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"I am very happy\". Reference language: English. Copy the reference language. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"vielen Dank\". Reference language: Spanish. Copy the reference language. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"nous sommes ici\". Reference language: Spanish. Copy the reference language. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Text: \"buongiorno a tutti\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"estou muito feliz\". Reference language: French. Copy the reference language. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"hoje estamos em casa\". Reference language: French. Copy the reference language. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"where is the train station\". Reference language: Spanish. Copy the reference language. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"vielen Dank\". Reference language: French. Copy the reference language. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"good morning everyone\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"hace buen tiempo hoy\". Reference language: Spanish. Copy the reference language. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"das Wetter ist heute gut\". Reference language: German. Copy the reference language. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"muito obrigado pela ajuda\". Reference language: Spanish. Copy the reference language. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"eu gosto muito disso\". Reference language: Spanish. Copy the reference language. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"onde fica o hotel\". Reference language: German. Copy the reference language. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"estoy muy contento\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"ich freue mich sehr\". Reference language: Spanish. Copy the reference language. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"onde fica o hotel\". Reference language: Spanish. Copy the reference language. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"non capisco niente\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"muchas gracias por su ayuda\". Reference language: German. Copy the reference language. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"eu gosto muito disso\". Reference language: Spanish. Copy the reference language. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"wo ist der Bahnhof\". Reference language: Italian. Copy the reference language. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"das Wetter ist heute gut\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"je vous remercie beaucoup\". Reference language: Italian. Copy the reference language. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"come stai oggi\". Reference language: English. Copy the reference language. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"muito obrigado pela ajuda\". Reference language: German. Copy the reference language. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"guten Morgen zusammen\". Reference language: Italian. Copy the reference language. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"dove si trova la stazione\". Reference language: French. Copy the reference language. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"thank you very much for your help\". Reference language: German. Copy the reference language. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"mi piace molto\". Reference language: Italian. Copy the reference language. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"hola a todos\". Reference language: French. Copy the reference language. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"good morning everyone\". Reference language: Spanish. Copy the reference language. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"hoje estamos em casa\". Reference language: Italian. Copy the reference language. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"ich verstehe das nicht\". Reference language: German. Copy the reference language. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"come stai oggi\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"how are you today\". Reference language: Italian. Copy the reference language. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"estoy muy contento\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"eu gostaria de um livro\". Reference language: Spanish. Copy the reference language. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"ich verstehe das nicht\". Reference language: French. Copy the reference language. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"the weather is nice today\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"bonjour tout le monde\". Reference language: Italian. Copy the reference language. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"no entiendo nada\". Reference language: English. Copy the reference language. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"how are you today\". Reference language: English. Copy the reference language. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"vielen Dank\". Reference language: Spanish. Copy the reference language. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"guten Morgen zusammen\". Reference language: English. Copy the reference language. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"buongiorno a tutti\". Reference language: Spanish. Copy the reference language. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"no entiendo nada\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"je ne comprends pas\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"estoy muy bien\". Reference language: French. Copy the reference language. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"bom dia a todos\". Reference language: English. Copy the reference language. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"bonjour tout le monde\". Reference language: Italian. Copy the reference language. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"I would like a book\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"je ne comprends pas\". Reference language: French. Copy the reference language. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"grazie mille per il tuo aiuto\". Reference language: English. Copy the reference language. Answer in English:",
+    "continuation": " English",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"wo ist der Bahnhof\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"non capisco niente\". Reference language: German. Copy the reference language. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"non capisco niente\". Reference language: German. Copy the reference language. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"quiero un libro\". Reference language: Spanish. Copy the reference language. Answer in English:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"muchas gracias por su ayuda\". Reference language: Italian. Copy the reference language. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"guten Morgen zusammen\". Reference language: German. Copy the reference language. Answer in English:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"je vous remercie beaucoup\". Reference language: Italian. Copy the reference language. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"je ne comprends pas\". Reference language: French. Copy the reference language. Answer in English:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"comment allez-vous\". Reference language: Italian. Copy the reference language. Answer in English:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Text: \"I do not understand\". Reference language: Portuguese. Copy the reference language. Answer in English:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 2.8553
+}

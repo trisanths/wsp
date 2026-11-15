@@ -1,0 +1,820 @@
+{
+ "name": "legal_vocabulary",
+ "description": "Retrieve legal terminology from concise definitions; control explicitly provides the term.",
+ "hash": "934e46b4c47daf59",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\npairs=[('the person who brings a civil lawsuit','plaintiff'),('the person accused or sued in a legal proceeding','defendant'),('the official who presides over a court proceeding','judge'),('the group of citizens that decides facts at a trial','jury'),('the formal decision of a jury','verdict'),('a written law enacted by a legislature','statute'),('a legally enforceable agreement between parties','contract'),('a lawyer acting on behalf of a client','attorney'),('a court order requiring someone to testify','subpoena'),('a court order prohibiting or requiring an action','injunction'),('a sworn written statement','affidavit'),('lying under oath','perjury'),('the legal proceeding in which evidence is examined to determine guilt','trial'),('the tribunal where legal cases are heard','court'),('the formal accusation of a serious crime by a grand jury','indictment'),('a finding that a defendant is guilty','conviction'),('a finding that a defendant is not guilty','acquittal'),('a request for a higher court to review a decision','appeal'),('money deposited to secure release pending trial','bail'),('a prior judicial decision used as an authority in later cases','precedent')]\ntemplates=['Legal vocabulary: {d}. Term:','What legal term means {d}? Answer:','Give the legal term for {d}. Answer:','Definition: {d}. In law this is called:']\nitems=[];control=[]\nfor t in templates:\n for d,a in pairs:\n  p=t.format(d=d);items.append({'prompt':p,'answer':' '+a});control.append({'prompt':'Reference term: '+a+'. Copy the reference term. '+p,'answer':' '+a})\nrandom.shuffle(items);random.shuffle(control)\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Legal vocabulary: a court order prohibiting or requiring an action. Term:",
+    "continuation": " injunction",
+    "digits_only": false
+   },
+   {
+    "context": "What legal term means the person who brings a civil lawsuit? Answer:",
+    "continuation": " plaintiff",
+    "digits_only": false
+   },
+   {
+    "context": "Give the legal term for the person who brings a civil lawsuit. Answer:",
+    "continuation": " plaintiff",
+    "digits_only": false
+   },
+   {
+    "context": "What legal term means the person accused or sued in a legal proceeding? Answer:",
+    "continuation": " defendant",
+    "digits_only": false
+   },
+   {
+    "context": "What legal term means the group of citizens that decides facts at a trial? Answer:",
+    "continuation": " jury",
+    "digits_only": false
+   },
+   {
+    "context": "Definition: lying under oath. In law this is called:",
+    "continuation": " perjury",
+    "digits_only": false
+   },
+   {
+    "context": "Definition: the formal decision of a jury. In law this is called:",
+    "continuation": " verdict",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: a court order requiring someone to testify. Term:",
+    "continuation": " subpoena",
+    "digits_only": false
+   },
+   {
+    "context": "What legal term means a finding that a defendant is not guilty? Answer:",
+    "continuation": " acquittal",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: the tribunal where legal cases are heard. Term:",
+    "continuation": " court",
+    "digits_only": false
+   },
+   {
+    "context": "Definition: a written law enacted by a legislature. In law this is called:",
+    "continuation": " statute",
+    "digits_only": false
+   },
+   {
+    "context": "Definition: a legally enforceable agreement between parties. In law this is called:",
+    "continuation": " contract",
+    "digits_only": false
+   },
+   {
+    "context": "Definition: a finding that a defendant is not guilty. In law this is called:",
+    "continuation": " acquittal",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: a finding that a defendant is guilty. Term:",
+    "continuation": " conviction",
+    "digits_only": false
+   },
+   {
+    "context": "Give the legal term for the formal decision of a jury. Answer:",
+    "continuation": " verdict",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: the person accused or sued in a legal proceeding. Term:",
+    "continuation": " defendant",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: the formal decision of a jury. Term:",
+    "continuation": " verdict",
+    "digits_only": false
+   },
+   {
+    "context": "Definition: the tribunal where legal cases are heard. In law this is called:",
+    "continuation": " court",
+    "digits_only": false
+   },
+   {
+    "context": "What legal term means the legal proceeding in which evidence is examined to determine guilt? Answer:",
+    "continuation": " trial",
+    "digits_only": false
+   },
+   {
+    "context": "Definition: the group of citizens that decides facts at a trial. In law this is called:",
+    "continuation": " jury",
+    "digits_only": false
+   },
+   {
+    "context": "Give the legal term for the formal accusation of a serious crime by a grand jury. Answer:",
+    "continuation": " indictment",
+    "digits_only": false
+   },
+   {
+    "context": "Give the legal term for the official who presides over a court proceeding. Answer:",
+    "continuation": " judge",
+    "digits_only": false
+   },
+   {
+    "context": "Give the legal term for the tribunal where legal cases are heard. Answer:",
+    "continuation": " court",
+    "digits_only": false
+   },
+   {
+    "context": "Definition: the official who presides over a court proceeding. In law this is called:",
+    "continuation": " judge",
+    "digits_only": false
+   },
+   {
+    "context": "Definition: the formal accusation of a serious crime by a grand jury. In law this is called:",
+    "continuation": " indictment",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: lying under oath. Term:",
+    "continuation": " perjury",
+    "digits_only": false
+   },
+   {
+    "context": "Definition: a finding that a defendant is guilty. In law this is called:",
+    "continuation": " conviction",
+    "digits_only": false
+   },
+   {
+    "context": "Definition: a sworn written statement. In law this is called:",
+    "continuation": " affidavit",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: a sworn written statement. Term:",
+    "continuation": " affidavit",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: the formal accusation of a serious crime by a grand jury. Term:",
+    "continuation": " indictment",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: a prior judicial decision used as an authority in later cases. Term:",
+    "continuation": " precedent",
+    "digits_only": false
+   },
+   {
+    "context": "Definition: the person accused or sued in a legal proceeding. In law this is called:",
+    "continuation": " defendant",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: a lawyer acting on behalf of a client. Term:",
+    "continuation": " attorney",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: a written law enacted by a legislature. Term:",
+    "continuation": " statute",
+    "digits_only": false
+   },
+   {
+    "context": "Give the legal term for a finding that a defendant is not guilty. Answer:",
+    "continuation": " acquittal",
+    "digits_only": false
+   },
+   {
+    "context": "Give the legal term for a sworn written statement. Answer:",
+    "continuation": " affidavit",
+    "digits_only": false
+   },
+   {
+    "context": "Give the legal term for the legal proceeding in which evidence is examined to determine guilt. Answer:",
+    "continuation": " trial",
+    "digits_only": false
+   },
+   {
+    "context": "What legal term means the tribunal where legal cases are heard? Answer:",
+    "continuation": " court",
+    "digits_only": false
+   },
+   {
+    "context": "What legal term means a legally enforceable agreement between parties? Answer:",
+    "continuation": " contract",
+    "digits_only": false
+   },
+   {
+    "context": "Give the legal term for a court order prohibiting or requiring an action. Answer:",
+    "continuation": " injunction",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "What legal term means a finding that a defendant is guilty? Answer:",
+    "continuation": " conviction",
+    "digits_only": false
+   },
+   {
+    "context": "What legal term means a court order prohibiting or requiring an action? Answer:",
+    "continuation": " injunction",
+    "digits_only": false
+   },
+   {
+    "context": "Give the legal term for a court order requiring someone to testify. Answer:",
+    "continuation": " subpoena",
+    "digits_only": false
+   },
+   {
+    "context": "Definition: a prior judicial decision used as an authority in later cases. In law this is called:",
+    "continuation": " precedent",
+    "digits_only": false
+   },
+   {
+    "context": "Give the legal term for a lawyer acting on behalf of a client. Answer:",
+    "continuation": " attorney",
+    "digits_only": false
+   },
+   {
+    "context": "What legal term means a lawyer acting on behalf of a client? Answer:",
+    "continuation": " attorney",
+    "digits_only": false
+   },
+   {
+    "context": "Definition: money deposited to secure release pending trial. In law this is called:",
+    "continuation": " bail",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: a legally enforceable agreement between parties. Term:",
+    "continuation": " contract",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: the group of citizens that decides facts at a trial. Term:",
+    "continuation": " jury",
+    "digits_only": false
+   },
+   {
+    "context": "Give the legal term for a finding that a defendant is guilty. Answer:",
+    "continuation": " conviction",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: the official who presides over a court proceeding. Term:",
+    "continuation": " judge",
+    "digits_only": false
+   },
+   {
+    "context": "What legal term means a prior judicial decision used as an authority in later cases? Answer:",
+    "continuation": " precedent",
+    "digits_only": false
+   },
+   {
+    "context": "What legal term means the formal decision of a jury? Answer:",
+    "continuation": " verdict",
+    "digits_only": false
+   },
+   {
+    "context": "What legal term means the official who presides over a court proceeding? Answer:",
+    "continuation": " judge",
+    "digits_only": false
+   },
+   {
+    "context": "Definition: a court order requiring someone to testify. In law this is called:",
+    "continuation": " subpoena",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: money deposited to secure release pending trial. Term:",
+    "continuation": " bail",
+    "digits_only": false
+   },
+   {
+    "context": "Give the legal term for the person accused or sued in a legal proceeding. Answer:",
+    "continuation": " defendant",
+    "digits_only": false
+   },
+   {
+    "context": "Give the legal term for a request for a higher court to review a decision. Answer:",
+    "continuation": " appeal",
+    "digits_only": false
+   },
+   {
+    "context": "What legal term means money deposited to secure release pending trial? Answer:",
+    "continuation": " bail",
+    "digits_only": false
+   },
+   {
+    "context": "Give the legal term for lying under oath. Answer:",
+    "continuation": " perjury",
+    "digits_only": false
+   },
+   {
+    "context": "Give the legal term for a written law enacted by a legislature. Answer:",
+    "continuation": " statute",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: the person who brings a civil lawsuit. Term:",
+    "continuation": " plaintiff",
+    "digits_only": false
+   },
+   {
+    "context": "Definition: the legal proceeding in which evidence is examined to determine guilt. In law this is called:",
+    "continuation": " trial",
+    "digits_only": false
+   },
+   {
+    "context": "What legal term means a written law enacted by a legislature? Answer:",
+    "continuation": " statute",
+    "digits_only": false
+   },
+   {
+    "context": "What legal term means a request for a higher court to review a decision? Answer:",
+    "continuation": " appeal",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: a request for a higher court to review a decision. Term:",
+    "continuation": " appeal",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: a finding that a defendant is not guilty. Term:",
+    "continuation": " acquittal",
+    "digits_only": false
+   },
+   {
+    "context": "Give the legal term for a prior judicial decision used as an authority in later cases. Answer:",
+    "continuation": " precedent",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: the legal proceeding in which evidence is examined to determine guilt. Term:",
+    "continuation": " trial",
+    "digits_only": false
+   },
+   {
+    "context": "Definition: the person who brings a civil lawsuit. In law this is called:",
+    "continuation": " plaintiff",
+    "digits_only": false
+   },
+   {
+    "context": "Definition: a court order prohibiting or requiring an action. In law this is called:",
+    "continuation": " injunction",
+    "digits_only": false
+   },
+   {
+    "context": "What legal term means the formal accusation of a serious crime by a grand jury? Answer:",
+    "continuation": " indictment",
+    "digits_only": false
+   },
+   {
+    "context": "What legal term means a court order requiring someone to testify? Answer:",
+    "continuation": " subpoena",
+    "digits_only": false
+   },
+   {
+    "context": "Give the legal term for the group of citizens that decides facts at a trial. Answer:",
+    "continuation": " jury",
+    "digits_only": false
+   },
+   {
+    "context": "Give the legal term for money deposited to secure release pending trial. Answer:",
+    "continuation": " bail",
+    "digits_only": false
+   },
+   {
+    "context": "Definition: a lawyer acting on behalf of a client. In law this is called:",
+    "continuation": " attorney",
+    "digits_only": false
+   },
+   {
+    "context": "Definition: a request for a higher court to review a decision. In law this is called:",
+    "continuation": " appeal",
+    "digits_only": false
+   },
+   {
+    "context": "What legal term means lying under oath? Answer:",
+    "continuation": " perjury",
+    "digits_only": false
+   },
+   {
+    "context": "Give the legal term for a legally enforceable agreement between parties. Answer:",
+    "continuation": " contract",
+    "digits_only": false
+   },
+   {
+    "context": "What legal term means a sworn written statement? Answer:",
+    "continuation": " affidavit",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Reference term: verdict. Copy the reference term. Legal vocabulary: the formal decision of a jury. Term:",
+    "continuation": " verdict",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: precedent. Copy the reference term. Legal vocabulary: a prior judicial decision used as an authority in later cases. Term:",
+    "continuation": " precedent",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: perjury. Copy the reference term. Definition: lying under oath. In law this is called:",
+    "continuation": " perjury",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: court. Copy the reference term. Definition: the tribunal where legal cases are heard. In law this is called:",
+    "continuation": " court",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: court. Copy the reference term. Legal vocabulary: the tribunal where legal cases are heard. Term:",
+    "continuation": " court",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: attorney. Copy the reference term. What legal term means a lawyer acting on behalf of a client? Answer:",
+    "continuation": " attorney",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: judge. Copy the reference term. What legal term means the official who presides over a court proceeding? Answer:",
+    "continuation": " judge",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: jury. Copy the reference term. What legal term means the group of citizens that decides facts at a trial? Answer:",
+    "continuation": " jury",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: precedent. Copy the reference term. Give the legal term for a prior judicial decision used as an authority in later cases. Answer:",
+    "continuation": " precedent",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: indictment. Copy the reference term. Legal vocabulary: the formal accusation of a serious crime by a grand jury. Term:",
+    "continuation": " indictment",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: statute. Copy the reference term. What legal term means a written law enacted by a legislature? Answer:",
+    "continuation": " statute",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: affidavit. Copy the reference term. Legal vocabulary: a sworn written statement. Term:",
+    "continuation": " affidavit",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: affidavit. Copy the reference term. Definition: a sworn written statement. In law this is called:",
+    "continuation": " affidavit",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: conviction. Copy the reference term. Definition: a finding that a defendant is guilty. In law this is called:",
+    "continuation": " conviction",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: judge. Copy the reference term. Give the legal term for the official who presides over a court proceeding. Answer:",
+    "continuation": " judge",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: acquittal. Copy the reference term. Give the legal term for a finding that a defendant is not guilty. Answer:",
+    "continuation": " acquittal",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: verdict. Copy the reference term. What legal term means the formal decision of a jury? Answer:",
+    "continuation": " verdict",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: acquittal. Copy the reference term. What legal term means a finding that a defendant is not guilty? Answer:",
+    "continuation": " acquittal",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: indictment. Copy the reference term. What legal term means the formal accusation of a serious crime by a grand jury? Answer:",
+    "continuation": " indictment",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: indictment. Copy the reference term. Definition: the formal accusation of a serious crime by a grand jury. In law this is called:",
+    "continuation": " indictment",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: appeal. Copy the reference term. Legal vocabulary: a request for a higher court to review a decision. Term:",
+    "continuation": " appeal",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: subpoena. Copy the reference term. Definition: a court order requiring someone to testify. In law this is called:",
+    "continuation": " subpoena",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: subpoena. Copy the reference term. What legal term means a court order requiring someone to testify? Answer:",
+    "continuation": " subpoena",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: appeal. Copy the reference term. Give the legal term for a request for a higher court to review a decision. Answer:",
+    "continuation": " appeal",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: bail. Copy the reference term. Definition: money deposited to secure release pending trial. In law this is called:",
+    "continuation": " bail",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: injunction. Copy the reference term. Definition: a court order prohibiting or requiring an action. In law this is called:",
+    "continuation": " injunction",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: affidavit. Copy the reference term. Give the legal term for a sworn written statement. Answer:",
+    "continuation": " affidavit",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: jury. Copy the reference term. Give the legal term for the group of citizens that decides facts at a trial. Answer:",
+    "continuation": " jury",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: acquittal. Copy the reference term. Definition: a finding that a defendant is not guilty. In law this is called:",
+    "continuation": " acquittal",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: judge. Copy the reference term. Legal vocabulary: the official who presides over a court proceeding. Term:",
+    "continuation": " judge",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: trial. Copy the reference term. Give the legal term for the legal proceeding in which evidence is examined to determine guilt. Answer:",
+    "continuation": " trial",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: perjury. Copy the reference term. Legal vocabulary: lying under oath. Term:",
+    "continuation": " perjury",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: appeal. Copy the reference term. What legal term means a request for a higher court to review a decision? Answer:",
+    "continuation": " appeal",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: conviction. Copy the reference term. Legal vocabulary: a finding that a defendant is guilty. Term:",
+    "continuation": " conviction",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: conviction. Copy the reference term. Give the legal term for a finding that a defendant is guilty. Answer:",
+    "continuation": " conviction",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: contract. Copy the reference term. Legal vocabulary: a legally enforceable agreement between parties. Term:",
+    "continuation": " contract",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: precedent. Copy the reference term. Definition: a prior judicial decision used as an authority in later cases. In law this is called:",
+    "continuation": " precedent",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: attorney. Copy the reference term. Give the legal term for a lawyer acting on behalf of a client. Answer:",
+    "continuation": " attorney",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: bail. Copy the reference term. What legal term means money deposited to secure release pending trial? Answer:",
+    "continuation": " bail",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: affidavit. Copy the reference term. What legal term means a sworn written statement? Answer:",
+    "continuation": " affidavit",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Reference term: indictment. Copy the reference term. Give the legal term for the formal accusation of a serious crime by a grand jury. Answer:",
+    "continuation": " indictment",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: defendant. Copy the reference term. What legal term means the person accused or sued in a legal proceeding? Answer:",
+    "continuation": " defendant",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: contract. Copy the reference term. Give the legal term for a legally enforceable agreement between parties. Answer:",
+    "continuation": " contract",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: jury. Copy the reference term. Definition: the group of citizens that decides facts at a trial. In law this is called:",
+    "continuation": " jury",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: attorney. Copy the reference term. Legal vocabulary: a lawyer acting on behalf of a client. Term:",
+    "continuation": " attorney",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: verdict. Copy the reference term. Give the legal term for the formal decision of a jury. Answer:",
+    "continuation": " verdict",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: plaintiff. Copy the reference term. Legal vocabulary: the person who brings a civil lawsuit. Term:",
+    "continuation": " plaintiff",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: trial. Copy the reference term. What legal term means the legal proceeding in which evidence is examined to determine guilt? Answer:",
+    "continuation": " trial",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: perjury. Copy the reference term. Give the legal term for lying under oath. Answer:",
+    "continuation": " perjury",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: jury. Copy the reference term. Legal vocabulary: the group of citizens that decides facts at a trial. Term:",
+    "continuation": " jury",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: plaintiff. Copy the reference term. Definition: the person who brings a civil lawsuit. In law this is called:",
+    "continuation": " plaintiff",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: plaintiff. Copy the reference term. What legal term means the person who brings a civil lawsuit? Answer:",
+    "continuation": " plaintiff",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: contract. Copy the reference term. What legal term means a legally enforceable agreement between parties? Answer:",
+    "continuation": " contract",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: judge. Copy the reference term. Definition: the official who presides over a court proceeding. In law this is called:",
+    "continuation": " judge",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: court. Copy the reference term. What legal term means the tribunal where legal cases are heard? Answer:",
+    "continuation": " court",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: trial. Copy the reference term. Legal vocabulary: the legal proceeding in which evidence is examined to determine guilt. Term:",
+    "continuation": " trial",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: conviction. Copy the reference term. What legal term means a finding that a defendant is guilty? Answer:",
+    "continuation": " conviction",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: defendant. Copy the reference term. Give the legal term for the person accused or sued in a legal proceeding. Answer:",
+    "continuation": " defendant",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: perjury. Copy the reference term. What legal term means lying under oath? Answer:",
+    "continuation": " perjury",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: bail. Copy the reference term. Legal vocabulary: money deposited to secure release pending trial. Term:",
+    "continuation": " bail",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: defendant. Copy the reference term. Definition: the person accused or sued in a legal proceeding. In law this is called:",
+    "continuation": " defendant",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: verdict. Copy the reference term. Definition: the formal decision of a jury. In law this is called:",
+    "continuation": " verdict",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: appeal. Copy the reference term. Definition: a request for a higher court to review a decision. In law this is called:",
+    "continuation": " appeal",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: injunction. Copy the reference term. Give the legal term for a court order prohibiting or requiring an action. Answer:",
+    "continuation": " injunction",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: bail. Copy the reference term. Give the legal term for money deposited to secure release pending trial. Answer:",
+    "continuation": " bail",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: court. Copy the reference term. Give the legal term for the tribunal where legal cases are heard. Answer:",
+    "continuation": " court",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: statute. Copy the reference term. Give the legal term for a written law enacted by a legislature. Answer:",
+    "continuation": " statute",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: injunction. Copy the reference term. What legal term means a court order prohibiting or requiring an action? Answer:",
+    "continuation": " injunction",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: statute. Copy the reference term. Legal vocabulary: a written law enacted by a legislature. Term:",
+    "continuation": " statute",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: acquittal. Copy the reference term. Legal vocabulary: a finding that a defendant is not guilty. Term:",
+    "continuation": " acquittal",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: attorney. Copy the reference term. Definition: a lawyer acting on behalf of a client. In law this is called:",
+    "continuation": " attorney",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: statute. Copy the reference term. Definition: a written law enacted by a legislature. In law this is called:",
+    "continuation": " statute",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: subpoena. Copy the reference term. Give the legal term for a court order requiring someone to testify. Answer:",
+    "continuation": " subpoena",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: injunction. Copy the reference term. Legal vocabulary: a court order prohibiting or requiring an action. Term:",
+    "continuation": " injunction",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: subpoena. Copy the reference term. Legal vocabulary: a court order requiring someone to testify. Term:",
+    "continuation": " subpoena",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: contract. Copy the reference term. Definition: a legally enforceable agreement between parties. In law this is called:",
+    "continuation": " contract",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: trial. Copy the reference term. Definition: the legal proceeding in which evidence is examined to determine guilt. In law this is called:",
+    "continuation": " trial",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: precedent. Copy the reference term. What legal term means a prior judicial decision used as an authority in later cases? Answer:",
+    "continuation": " precedent",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: plaintiff. Copy the reference term. Give the legal term for the person who brings a civil lawsuit. Answer:",
+    "continuation": " plaintiff",
+    "digits_only": false
+   },
+   {
+    "context": "Reference term: defendant. Copy the reference term. Legal vocabulary: the person accused or sued in a legal proceeding. Term:",
+    "continuation": " defendant",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 8.9204
+}

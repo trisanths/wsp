@@ -1,0 +1,980 @@
+{
+ "name": "pronoun_gender",
+ "description": "Choose the gendered subject pronoun referring back to a named person (e.g. 'Mary was tired, so' -> ' she'). Control: same sentences, answer is the name repeated ('Mary was tired, so Mary rested. Who rested? Answer:' -> ' Mary').",
+ "hash": "98863de46f0a916d",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nM=['John','David','Michael','James','Robert','Peter','Thomas','Paul','Mark','George','Daniel','Kevin']\nF=['Mary','Sarah','Emma','Linda','Susan','Lisa','Anna','Laura','Emily','Jessica','Rachel','Alice']\nS=[('was tired, so','rested'),('was hungry, so','ate'),('was late, so','ran'),('felt cold, so','left'),('was bored, so','slept'),('lost the keys, so','waited')]\nitems=[];ctrl=[]\nfor n in M+F:\n    p=' he' if n in M else ' she'\n    for a,b in random.sample(S,4):\n        items.append({'prompt':f'{n} {a}','answer':p})\n        ctrl.append({'prompt':f'{n} {a} {n} {b}. Who {b}? Answer:','answer':' '+n})\njson.dump({'items':items,'control':ctrl},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Peter was hungry, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Michael felt cold, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Michael was bored, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "David was hungry, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Mary was bored, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "James was late, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "John lost the keys, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Rachel was tired, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Rachel lost the keys, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Sarah was tired, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Robert was bored, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Linda felt cold, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Sarah was bored, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Daniel was tired, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Laura was late, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "John was tired, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Kevin felt cold, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Jessica lost the keys, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Laura was bored, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Susan was late, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Robert felt cold, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "David lost the keys, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Thomas was bored, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Michael was hungry, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Emma was tired, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Paul was hungry, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Peter was late, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Paul was bored, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Emily was hungry, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "George was tired, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Rachel was bored, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Laura was hungry, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Daniel was hungry, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Alice was late, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Emily was late, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Paul was late, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Mark was late, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Anna was bored, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Kevin was hungry, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "James lost the keys, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Emily lost the keys, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Lisa was late, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "David was bored, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Peter was tired, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "James was tired, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Peter lost the keys, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Paul lost the keys, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Anna was hungry, so",
+    "continuation": " she",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Emma was bored, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Susan felt cold, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Anna was tired, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Mary lost the keys, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Lisa was bored, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Thomas was tired, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Alice felt cold, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Kevin was tired, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Alice was bored, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "John felt cold, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Lisa lost the keys, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Mark was tired, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Emma felt cold, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Rachel was hungry, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "John was hungry, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Alice was tired, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Emma was late, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Jessica was tired, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Thomas was late, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Daniel felt cold, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Sarah lost the keys, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Jessica felt cold, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Jessica was late, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Linda was late, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Daniel lost the keys, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Michael was late, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Laura was tired, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "George was late, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Robert was hungry, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Lisa was hungry, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Mark felt cold, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "James was hungry, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Emily was tired, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "George was bored, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Robert was late, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Susan was tired, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Thomas was hungry, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Anna felt cold, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Kevin was late, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Linda was bored, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "George lost the keys, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Mary was tired, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Linda lost the keys, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Susan was bored, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Mark lost the keys, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "David felt cold, so",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Sarah felt cold, so",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Mary was hungry, so",
+    "continuation": " she",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Linda was bored, so Linda slept. Who slept? Answer:",
+    "continuation": " Linda",
+    "digits_only": false
+   },
+   {
+    "context": "Paul was hungry, so Paul ate. Who ate? Answer:",
+    "continuation": " Paul",
+    "digits_only": false
+   },
+   {
+    "context": "Michael was hungry, so Michael ate. Who ate? Answer:",
+    "continuation": " Michael",
+    "digits_only": false
+   },
+   {
+    "context": "Mary was tired, so Mary rested. Who rested? Answer:",
+    "continuation": " Mary",
+    "digits_only": false
+   },
+   {
+    "context": "David was bored, so David slept. Who slept? Answer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Mark lost the keys, so Mark waited. Who waited? Answer:",
+    "continuation": " Mark",
+    "digits_only": false
+   },
+   {
+    "context": "Robert was bored, so Robert slept. Who slept? Answer:",
+    "continuation": " Robert",
+    "digits_only": false
+   },
+   {
+    "context": "Michael was late, so Michael ran. Who ran? Answer:",
+    "continuation": " Michael",
+    "digits_only": false
+   },
+   {
+    "context": "Laura was late, so Laura ran. Who ran? Answer:",
+    "continuation": " Laura",
+    "digits_only": false
+   },
+   {
+    "context": "Sarah was bored, so Sarah slept. Who slept? Answer:",
+    "continuation": " Sarah",
+    "digits_only": false
+   },
+   {
+    "context": "Emma was late, so Emma ran. Who ran? Answer:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Kevin was late, so Kevin ran. Who ran? Answer:",
+    "continuation": " Kevin",
+    "digits_only": false
+   },
+   {
+    "context": "Alice was bored, so Alice slept. Who slept? Answer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Kevin felt cold, so Kevin left. Who left? Answer:",
+    "continuation": " Kevin",
+    "digits_only": false
+   },
+   {
+    "context": "Thomas was bored, so Thomas slept. Who slept? Answer:",
+    "continuation": " Thomas",
+    "digits_only": false
+   },
+   {
+    "context": "Susan was tired, so Susan rested. Who rested? Answer:",
+    "continuation": " Susan",
+    "digits_only": false
+   },
+   {
+    "context": "Sarah felt cold, so Sarah left. Who left? Answer:",
+    "continuation": " Sarah",
+    "digits_only": false
+   },
+   {
+    "context": "Lisa lost the keys, so Lisa waited. Who waited? Answer:",
+    "continuation": " Lisa",
+    "digits_only": false
+   },
+   {
+    "context": "Peter was tired, so Peter rested. Who rested? Answer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Alice was late, so Alice ran. Who ran? Answer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Kevin was hungry, so Kevin ate. Who ate? Answer:",
+    "continuation": " Kevin",
+    "digits_only": false
+   },
+   {
+    "context": "David felt cold, so David left. Who left? Answer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Susan was bored, so Susan slept. Who slept? Answer:",
+    "continuation": " Susan",
+    "digits_only": false
+   },
+   {
+    "context": "Anna felt cold, so Anna left. Who left? Answer:",
+    "continuation": " Anna",
+    "digits_only": false
+   },
+   {
+    "context": "George was bored, so George slept. Who slept? Answer:",
+    "continuation": " George",
+    "digits_only": false
+   },
+   {
+    "context": "Peter was hungry, so Peter ate. Who ate? Answer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "Kevin was tired, so Kevin rested. Who rested? Answer:",
+    "continuation": " Kevin",
+    "digits_only": false
+   },
+   {
+    "context": "Rachel lost the keys, so Rachel waited. Who waited? Answer:",
+    "continuation": " Rachel",
+    "digits_only": false
+   },
+   {
+    "context": "Emily lost the keys, so Emily waited. Who waited? Answer:",
+    "continuation": " Emily",
+    "digits_only": false
+   },
+   {
+    "context": "George lost the keys, so George waited. Who waited? Answer:",
+    "continuation": " George",
+    "digits_only": false
+   },
+   {
+    "context": "Laura was bored, so Laura slept. Who slept? Answer:",
+    "continuation": " Laura",
+    "digits_only": false
+   },
+   {
+    "context": "Thomas was tired, so Thomas rested. Who rested? Answer:",
+    "continuation": " Thomas",
+    "digits_only": false
+   },
+   {
+    "context": "George was tired, so George rested. Who rested? Answer:",
+    "continuation": " George",
+    "digits_only": false
+   },
+   {
+    "context": "Emma was tired, so Emma rested. Who rested? Answer:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Daniel lost the keys, so Daniel waited. Who waited? Answer:",
+    "continuation": " Daniel",
+    "digits_only": false
+   },
+   {
+    "context": "Robert felt cold, so Robert left. Who left? Answer:",
+    "continuation": " Robert",
+    "digits_only": false
+   },
+   {
+    "context": "Jessica lost the keys, so Jessica waited. Who waited? Answer:",
+    "continuation": " Jessica",
+    "digits_only": false
+   },
+   {
+    "context": "George was late, so George ran. Who ran? Answer:",
+    "continuation": " George",
+    "digits_only": false
+   },
+   {
+    "context": "Susan was late, so Susan ran. Who ran? Answer:",
+    "continuation": " Susan",
+    "digits_only": false
+   },
+   {
+    "context": "Alice was tired, so Alice rested. Who rested? Answer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "Peter lost the keys, so Peter waited. Who waited? Answer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "David was hungry, so David ate. Who ate? Answer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Mary lost the keys, so Mary waited. Who waited? Answer:",
+    "continuation": " Mary",
+    "digits_only": false
+   },
+   {
+    "context": "Anna was bored, so Anna slept. Who slept? Answer:",
+    "continuation": " Anna",
+    "digits_only": false
+   },
+   {
+    "context": "Michael was bored, so Michael slept. Who slept? Answer:",
+    "continuation": " Michael",
+    "digits_only": false
+   },
+   {
+    "context": "David lost the keys, so David waited. Who waited? Answer:",
+    "continuation": " David",
+    "digits_only": false
+   },
+   {
+    "context": "Daniel was tired, so Daniel rested. Who rested? Answer:",
+    "continuation": " Daniel",
+    "digits_only": false
+   },
+   {
+    "context": "Emma felt cold, so Emma left. Who left? Answer:",
+    "continuation": " Emma",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Jessica was late, so Jessica ran. Who ran? Answer:",
+    "continuation": " Jessica",
+    "digits_only": false
+   },
+   {
+    "context": "Lisa was hungry, so Lisa ate. Who ate? Answer:",
+    "continuation": " Lisa",
+    "digits_only": false
+   },
+   {
+    "context": "Robert was hungry, so Robert ate. Who ate? Answer:",
+    "continuation": " Robert",
+    "digits_only": false
+   },
+   {
+    "context": "Anna was hungry, so Anna ate. Who ate? Answer:",
+    "continuation": " Anna",
+    "digits_only": false
+   },
+   {
+    "context": "Jessica was tired, so Jessica rested. Who rested? Answer:",
+    "continuation": " Jessica",
+    "digits_only": false
+   },
+   {
+    "context": "Emily was hungry, so Emily ate. Who ate? Answer:",
+    "continuation": " Emily",
+    "digits_only": false
+   },
+   {
+    "context": "Daniel was hungry, so Daniel ate. Who ate? Answer:",
+    "continuation": " Daniel",
+    "digits_only": false
+   },
+   {
+    "context": "Laura was tired, so Laura rested. Who rested? Answer:",
+    "continuation": " Laura",
+    "digits_only": false
+   },
+   {
+    "context": "Peter was late, so Peter ran. Who ran? Answer:",
+    "continuation": " Peter",
+    "digits_only": false
+   },
+   {
+    "context": "James lost the keys, so James waited. Who waited? Answer:",
+    "continuation": " James",
+    "digits_only": false
+   },
+   {
+    "context": "Mark was tired, so Mark rested. Who rested? Answer:",
+    "continuation": " Mark",
+    "digits_only": false
+   },
+   {
+    "context": "Paul lost the keys, so Paul waited. Who waited? Answer:",
+    "continuation": " Paul",
+    "digits_only": false
+   },
+   {
+    "context": "Rachel was tired, so Rachel rested. Who rested? Answer:",
+    "continuation": " Rachel",
+    "digits_only": false
+   },
+   {
+    "context": "Rachel was bored, so Rachel slept. Who slept? Answer:",
+    "continuation": " Rachel",
+    "digits_only": false
+   },
+   {
+    "context": "Susan felt cold, so Susan left. Who left? Answer:",
+    "continuation": " Susan",
+    "digits_only": false
+   },
+   {
+    "context": "Paul was late, so Paul ran. Who ran? Answer:",
+    "continuation": " Paul",
+    "digits_only": false
+   },
+   {
+    "context": "Lisa was late, so Lisa ran. Who ran? Answer:",
+    "continuation": " Lisa",
+    "digits_only": false
+   },
+   {
+    "context": "Sarah was tired, so Sarah rested. Who rested? Answer:",
+    "continuation": " Sarah",
+    "digits_only": false
+   },
+   {
+    "context": "Thomas was hungry, so Thomas ate. Who ate? Answer:",
+    "continuation": " Thomas",
+    "digits_only": false
+   },
+   {
+    "context": "Jessica felt cold, so Jessica left. Who left? Answer:",
+    "continuation": " Jessica",
+    "digits_only": false
+   },
+   {
+    "context": "John lost the keys, so John waited. Who waited? Answer:",
+    "continuation": " John",
+    "digits_only": false
+   },
+   {
+    "context": "Lisa was bored, so Lisa slept. Who slept? Answer:",
+    "continuation": " Lisa",
+    "digits_only": false
+   },
+   {
+    "context": "Alice felt cold, so Alice left. Who left? Answer:",
+    "continuation": " Alice",
+    "digits_only": false
+   },
+   {
+    "context": "John was tired, so John rested. Who rested? Answer:",
+    "continuation": " John",
+    "digits_only": false
+   },
+   {
+    "context": "Emily was tired, so Emily rested. Who rested? Answer:",
+    "continuation": " Emily",
+    "digits_only": false
+   },
+   {
+    "context": "Daniel felt cold, so Daniel left. Who left? Answer:",
+    "continuation": " Daniel",
+    "digits_only": false
+   },
+   {
+    "context": "James was late, so James ran. Who ran? Answer:",
+    "continuation": " James",
+    "digits_only": false
+   },
+   {
+    "context": "Paul was bored, so Paul slept. Who slept? Answer:",
+    "continuation": " Paul",
+    "digits_only": false
+   },
+   {
+    "context": "Mark was late, so Mark ran. Who ran? Answer:",
+    "continuation": " Mark",
+    "digits_only": false
+   },
+   {
+    "context": "Rachel was hungry, so Rachel ate. Who ate? Answer:",
+    "continuation": " Rachel",
+    "digits_only": false
+   },
+   {
+    "context": "John felt cold, so John left. Who left? Answer:",
+    "continuation": " John",
+    "digits_only": false
+   },
+   {
+    "context": "Laura was hungry, so Laura ate. Who ate? Answer:",
+    "continuation": " Laura",
+    "digits_only": false
+   },
+   {
+    "context": "Sarah lost the keys, so Sarah waited. Who waited? Answer:",
+    "continuation": " Sarah",
+    "digits_only": false
+   },
+   {
+    "context": "Mary was hungry, so Mary ate. Who ate? Answer:",
+    "continuation": " Mary",
+    "digits_only": false
+   },
+   {
+    "context": "John was hungry, so John ate. Who ate? Answer:",
+    "continuation": " John",
+    "digits_only": false
+   },
+   {
+    "context": "Linda lost the keys, so Linda waited. Who waited? Answer:",
+    "continuation": " Linda",
+    "digits_only": false
+   },
+   {
+    "context": "James was hungry, so James ate. Who ate? Answer:",
+    "continuation": " James",
+    "digits_only": false
+   },
+   {
+    "context": "Thomas was late, so Thomas ran. Who ran? Answer:",
+    "continuation": " Thomas",
+    "digits_only": false
+   },
+   {
+    "context": "Mary was bored, so Mary slept. Who slept? Answer:",
+    "continuation": " Mary",
+    "digits_only": false
+   },
+   {
+    "context": "Emily was late, so Emily ran. Who ran? Answer:",
+    "continuation": " Emily",
+    "digits_only": false
+   },
+   {
+    "context": "Linda was late, so Linda ran. Who ran? Answer:",
+    "continuation": " Linda",
+    "digits_only": false
+   },
+   {
+    "context": "Emma was bored, so Emma slept. Who slept? Answer:",
+    "continuation": " Emma",
+    "digits_only": false
+   },
+   {
+    "context": "Linda felt cold, so Linda left. Who left? Answer:",
+    "continuation": " Linda",
+    "digits_only": false
+   },
+   {
+    "context": "James was tired, so James rested. Who rested? Answer:",
+    "continuation": " James",
+    "digits_only": false
+   },
+   {
+    "context": "Mark felt cold, so Mark left. Who left? Answer:",
+    "continuation": " Mark",
+    "digits_only": false
+   },
+   {
+    "context": "Michael felt cold, so Michael left. Who left? Answer:",
+    "continuation": " Michael",
+    "digits_only": false
+   },
+   {
+    "context": "Anna was tired, so Anna rested. Who rested? Answer:",
+    "continuation": " Anna",
+    "digits_only": false
+   },
+   {
+    "context": "Robert was late, so Robert ran. Who ran? Answer:",
+    "continuation": " Robert",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 3.7266
+}

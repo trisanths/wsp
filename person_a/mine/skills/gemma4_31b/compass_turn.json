@@ -1,0 +1,1220 @@
+{
+ "name": "compass_turn",
+ "description": "Compute the final compass heading after a clockwise or counterclockwise turn; controls copy the starting heading.",
+ "hash": "428d1fca52fcae6a",
+ "agent_items": false,
+ "generator_code": "import json,random\nrandom.seed(0)\nitems=[]; control=[]\nwords=['north','east','south','west']\nprefix='Find the final compass direction. Answer with one word.\\nFacing north, turn right 90 degrees. Final direction: east\\nFacing east, turn left 90 degrees. Final direction: north\\n'\ncprefix='Copy the starting compass direction. Answer with one word.\\nFacing north, turn right 90 degrees. Starting direction: north\\nFacing east, turn left 90 degrees. Starting direction: east\\n'\nfor i in range(120):\n d=random.randrange(4); side=random.choice(['right','left']); steps=random.choice([1,2,3]); angle=steps*90\n sentence=f'Facing {words[d]}, turn {side} {angle} degrees. '\n result=words[(d+steps*(1 if side=='right' else -1))%4]\n items.append({'prompt':prefix+sentence+'Final direction:','answer':' '+result})\n control.append({'prompt':cprefix+sentence+'Starting direction:','answer':' '+words[d]})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn right 90 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn right 90 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn right 180 degrees. Final direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn right 180 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn left 180 degrees. Final direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn left 180 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn right 180 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn left 180 degrees. Final direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn left 180 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn left 90 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn right 270 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn right 270 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn left 90 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn right 90 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn right 90 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn right 90 degrees. Final direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn left 270 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn right 270 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn left 180 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn left 180 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn left 180 degrees. Final direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn right 270 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn right 180 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn right 90 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn left 270 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn right 270 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn left 90 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn right 180 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn left 90 degrees. Final direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn right 270 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn left 270 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn right 90 degrees. Final direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn left 180 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn right 270 degrees. Final direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn right 270 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn left 180 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn right 270 degrees. Final direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn left 270 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn left 180 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn right 270 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn right 90 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn left 180 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn left 90 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn left 270 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn right 270 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn left 90 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn right 90 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn left 270 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn left 90 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn right 270 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn left 270 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn left 90 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn right 270 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn left 90 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn right 180 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn right 90 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn left 90 degrees. Final direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn right 180 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn left 270 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn right 180 degrees. Final direction:",
+    "continuation": " south",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn right 270 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn right 270 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn right 90 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn left 90 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn left 90 degrees. Final direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn right 180 degrees. Final direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn left 90 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn left 90 degrees. Final direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn left 180 degrees. Final direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn right 270 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn left 180 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn left 270 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn left 270 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn right 180 degrees. Final direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn left 180 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn right 270 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn right 180 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn left 270 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn right 90 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn right 270 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn right 180 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn right 180 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn left 180 degrees. Final direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn left 90 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn right 180 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn right 270 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn right 90 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn right 180 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn right 270 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn left 180 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn right 90 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn left 90 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn right 180 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn right 90 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn left 90 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn right 180 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn right 180 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn right 270 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn left 180 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn left 180 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn left 90 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn right 90 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn left 180 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn right 270 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn left 270 degrees. Final direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn left 270 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn left 270 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn right 270 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn left 180 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn right 270 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn left 90 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing north, turn left 270 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn left 270 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn right 90 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn right 180 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn right 270 degrees. Final direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn right 90 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing south, turn left 270 degrees. Final direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing east, turn right 270 degrees. Final direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Find the final compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Final direction: east\nFacing east, turn left 90 degrees. Final direction: north\nFacing west, turn left 180 degrees. Final direction:",
+    "continuation": " east",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn right 180 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn right 270 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn left 270 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn right 90 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn left 90 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn left 90 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn right 270 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn right 180 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn right 270 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn left 270 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn left 90 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn right 90 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn left 180 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn right 270 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn right 270 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn right 180 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn right 180 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn left 270 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn right 180 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn right 270 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn right 90 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn right 180 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn left 180 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn left 180 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn right 90 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn left 90 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn left 180 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn right 270 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn right 90 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn right 90 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn right 90 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn right 270 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn right 90 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn right 180 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn left 90 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn left 270 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn right 270 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn right 270 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn right 180 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn right 270 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn left 180 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn left 180 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn left 180 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn left 90 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn left 90 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn left 90 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn left 270 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn left 180 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn left 270 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn left 180 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn right 90 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn left 270 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn left 90 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn right 90 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn left 270 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn left 270 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn left 180 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn right 270 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn left 270 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn left 90 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn right 180 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn left 90 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn left 90 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn left 90 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn right 90 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn right 270 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn right 180 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn right 270 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn left 270 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn left 180 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn left 90 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn right 270 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn left 180 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn left 270 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn left 180 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn right 270 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn left 270 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn right 90 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn left 270 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn right 270 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn right 270 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn left 180 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn left 180 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn right 270 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn right 270 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn right 180 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn left 180 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn left 180 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn right 180 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn right 270 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn right 90 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn right 270 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn left 270 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn left 90 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn right 180 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn left 90 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn left 90 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn left 180 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn right 180 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn right 180 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn right 270 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn right 180 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn left 270 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn right 270 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn right 90 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn right 270 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn left 180 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn right 180 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn right 270 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn right 90 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn right 180 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn left 90 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn right 90 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn right 180 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing north, turn left 180 degrees. Starting direction:",
+    "continuation": " north",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing south, turn left 270 degrees. Starting direction:",
+    "continuation": " south",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing east, turn left 90 degrees. Starting direction:",
+    "continuation": " east",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn left 180 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn right 90 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the starting compass direction. Answer with one word.\nFacing north, turn right 90 degrees. Starting direction: north\nFacing east, turn left 90 degrees. Starting direction: east\nFacing west, turn right 90 degrees. Starting direction:",
+    "continuation": " west",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 1.4844
+}

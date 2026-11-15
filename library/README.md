@@ -174,6 +174,7 @@ non-benchmark text, and its description is stored in `selection_data` on each en
 - `block`: one per model, skill, and block (a run of layers chosen on the search half). `layers` lists them.
 - `expert`: one per model, skill, and MoE layer. The `.pt` file holds `{kind, model, layer, indices}`.
 - Each entry has `params_b`, `n_layers`, `hidden`, `family`, `architecture`, `license`, and `revision` at top level.
+- Expert entries hold the top 3 layers per skill (by mean held-out log ratio). The full maps are in `atlas/pool_entries/`.
 - All are `candidate`. The numbers come from the donor alone and say where a skill lives, not that a part helps a host.
 - Blocks need `split_half_r` of at least 0.5 and a held-out `check_mass` of at least 0.2. Expert layers need 2 experts.
 

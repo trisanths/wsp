@@ -98,3 +98,48 @@ def test_thresholds_are_options(tmp_path, capsys):
     out = capsys.readouterr().out
     assert "wrote 3 block and 2 expert entries" in out
     assert lib.validate(library) == []
+
+
+def many_layer_map(tmp_path):
+    def rows(held, search):
+        return [{"expert": 1, "skill_freq": 0.2, "general_freq": 0.1, "log_ratio": search, "heldout_log_ratio": held},
+                {"expert": 2, "skill_freq": 0.2, "general_freq": 0.1, "log_ratio": search, "heldout_log_ratio": held}]
+    data = fake_map()
+    data["expert_maps"] = {"law": {"0": [1, 2], "1": [1, 2], "2": [1, 2], "3": [1, 2], "4": [1, 2]}}
+    data["expert_details"] = {"law": {"0": rows(0.9, 1.0), "1": rows(0.5, 2.0), "2": rows(0.5, 1.0),
+                                      "3": rows(0.1, 1.0), "4": rows(0.0, 1.0)}}
+    entries = tmp_path / "entries"
+    entries.mkdir()
+    with open(entries / "Org__Tiny-7B.json", "w") as f:
+        json.dump(data, f)
+    library = str(tmp_path / "library")
+    os.makedirs(library)
+    shutil.copy(os.path.join(REPO, "library", "index.jsonl"), library)
+    return str(entries), library
+
+
+def expert_layers(library):
+    names = os.listdir(os.path.join(library, "components/Org__Tiny-7B"))
+    return sorted(n for n in names if n.startswith("map_expert") and n.endswith(".json"))
+
+
+def test_top_expert_layers_by_heldout_mean(tmp_path, capsys):
+    entries, library = many_layer_map(tmp_path)
+    run(entries, library)
+    out = capsys.readouterr().out
+    assert expert_layers(library) == ["map_expert_org__tiny-7b_law_l0.json", "map_expert_org__tiny-7b_law_l1.json",
+                                      "map_expert_org__tiny-7b_law_l2.json"]
+    assert "held-out mean not above 0: 2" in out
+    assert lib.validate(library) == []
+
+
+def test_max_expert_layers_option(tmp_path):
+    entries, library = many_layer_map(tmp_path)
+    run(entries, library, "--max-expert-layers-per-skill", "1")
+    assert expert_layers(library) == ["map_expert_org__tiny-7b_law_l0.json"]
+
+
+def test_tie_goes_to_higher_search_ratio(tmp_path):
+    entries, library = many_layer_map(tmp_path)
+    run(entries, library, "--max-expert-layers-per-skill", "2")
+    assert expert_layers(library) == ["map_expert_org__tiny-7b_law_l0.json", "map_expert_org__tiny-7b_law_l1.json"]

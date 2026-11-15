@@ -1,0 +1,900 @@
+{
+ "name": "organ_functions",
+ "description": "Retrieve anatomical structures from their functions; matched reference-copy control.",
+ "hash": "ba739345b0a9182e",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\npairs=[('pumps blood throughout the body','heart'),('produces bile and detoxifies the blood','liver'),('stores bile produced by the liver','gallbladder'),('stores urine before excretion','bladder'),('controls thinking, memory, and voluntary movement','brain'),('secretes insulin and glucagon','pancreas'),('filters blood and produces urine','kidney'),('contains alveoli where oxygen enters the blood','lung'),('churns food and secretes gastric acid','stomach'),('filters blood and helps recycle old red blood cells','spleen'),('produces thyroid hormones that regulate metabolism','thyroid'),('carries food from the throat to the stomach','esophagus'),('carries air from the larynx toward the bronchi','trachea'),('contracts below the lungs during inhalation','diaphragm'),('is the largest organ and covers the body','skin'),('contains the retina and detects light','eye'),('contains the cochlea and detects sound','ear'),('connects a muscle to a bone','tendon'),('connects one bone to another bone','ligament'),('carries blood away from the heart','artery'),('carries blood toward the heart','vein'),('is the main artery leaving the left ventricle','aorta')]\ntemplates=['Anatomy: Which structure {d}? Answer:','Name the anatomical structure that {d}. Answer:','Function: {d}. Structure:','In human anatomy, what {d}? Answer:']\nitems=[];control=[]\nfor t in templates:\n for d,a in pairs:\n  p=t.format(d=d);items.append({'prompt':p,'answer':' '+a});control.append({'prompt':'Reference structure: '+a+'. Copy the reference structure. '+p,'answer':' '+a})\nrandom.shuffle(items);random.shuffle(control)\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Name the anatomical structure that carries blood away from the heart. Answer:",
+    "continuation": " artery",
+    "digits_only": false
+   },
+   {
+    "context": "In human anatomy, what contains alveoli where oxygen enters the blood? Answer:",
+    "continuation": " lung",
+    "digits_only": false
+   },
+   {
+    "context": "In human anatomy, what carries blood toward the heart? Answer:",
+    "continuation": " vein",
+    "digits_only": false
+   },
+   {
+    "context": "In human anatomy, what filters blood and helps recycle old red blood cells? Answer:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Name the anatomical structure that is the main artery leaving the left ventricle. Answer:",
+    "continuation": " aorta",
+    "digits_only": false
+   },
+   {
+    "context": "In human anatomy, what stores urine before excretion? Answer:",
+    "continuation": " bladder",
+    "digits_only": false
+   },
+   {
+    "context": "In human anatomy, what contains the retina and detects light? Answer:",
+    "continuation": " eye",
+    "digits_only": false
+   },
+   {
+    "context": "Name the anatomical structure that is the largest organ and covers the body. Answer:",
+    "continuation": " skin",
+    "digits_only": false
+   },
+   {
+    "context": "Function: contracts below the lungs during inhalation. Structure:",
+    "continuation": " diaphragm",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: Which structure contracts below the lungs during inhalation? Answer:",
+    "continuation": " diaphragm",
+    "digits_only": false
+   },
+   {
+    "context": "In human anatomy, what carries blood away from the heart? Answer:",
+    "continuation": " artery",
+    "digits_only": false
+   },
+   {
+    "context": "In human anatomy, what stores bile produced by the liver? Answer:",
+    "continuation": " gallbladder",
+    "digits_only": false
+   },
+   {
+    "context": "Function: produces thyroid hormones that regulate metabolism. Structure:",
+    "continuation": " thyroid",
+    "digits_only": false
+   },
+   {
+    "context": "In human anatomy, what produces thyroid hormones that regulate metabolism? Answer:",
+    "continuation": " thyroid",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: Which structure contains alveoli where oxygen enters the blood? Answer:",
+    "continuation": " lung",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: Which structure is the largest organ and covers the body? Answer:",
+    "continuation": " skin",
+    "digits_only": false
+   },
+   {
+    "context": "Function: contains the cochlea and detects sound. Structure:",
+    "continuation": " ear",
+    "digits_only": false
+   },
+   {
+    "context": "Function: connects a muscle to a bone. Structure:",
+    "continuation": " tendon",
+    "digits_only": false
+   },
+   {
+    "context": "Function: is the largest organ and covers the body. Structure:",
+    "continuation": " skin",
+    "digits_only": false
+   },
+   {
+    "context": "Function: carries air from the larynx toward the bronchi. Structure:",
+    "continuation": " trachea",
+    "digits_only": false
+   },
+   {
+    "context": "In human anatomy, what filters blood and produces urine? Answer:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Function: produces bile and detoxifies the blood. Structure:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "In human anatomy, what controls thinking, memory, and voluntary movement? Answer:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "In human anatomy, what carries food from the throat to the stomach? Answer:",
+    "continuation": " esophagus",
+    "digits_only": false
+   },
+   {
+    "context": "Name the anatomical structure that produces thyroid hormones that regulate metabolism. Answer:",
+    "continuation": " thyroid",
+    "digits_only": false
+   },
+   {
+    "context": "Function: secretes insulin and glucagon. Structure:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Function: contains alveoli where oxygen enters the blood. Structure:",
+    "continuation": " lung",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: Which structure contains the cochlea and detects sound? Answer:",
+    "continuation": " ear",
+    "digits_only": false
+   },
+   {
+    "context": "Function: stores bile produced by the liver. Structure:",
+    "continuation": " gallbladder",
+    "digits_only": false
+   },
+   {
+    "context": "Function: filters blood and helps recycle old red blood cells. Structure:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Name the anatomical structure that contains alveoli where oxygen enters the blood. Answer:",
+    "continuation": " lung",
+    "digits_only": false
+   },
+   {
+    "context": "Name the anatomical structure that filters blood and produces urine. Answer:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Function: is the main artery leaving the left ventricle. Structure:",
+    "continuation": " aorta",
+    "digits_only": false
+   },
+   {
+    "context": "Name the anatomical structure that contains the cochlea and detects sound. Answer:",
+    "continuation": " ear",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: Which structure produces bile and detoxifies the blood? Answer:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "In human anatomy, what secretes insulin and glucagon? Answer:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: Which structure carries blood away from the heart? Answer:",
+    "continuation": " artery",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: Which structure carries blood toward the heart? Answer:",
+    "continuation": " vein",
+    "digits_only": false
+   },
+   {
+    "context": "Name the anatomical structure that carries air from the larynx toward the bronchi. Answer:",
+    "continuation": " trachea",
+    "digits_only": false
+   },
+   {
+    "context": "In human anatomy, what carries air from the larynx toward the bronchi? Answer:",
+    "continuation": " trachea",
+    "digits_only": false
+   },
+   {
+    "context": "Function: churns food and secretes gastric acid. Structure:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "In human anatomy, what produces bile and detoxifies the blood? Answer:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: Which structure pumps blood throughout the body? Answer:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Name the anatomical structure that connects one bone to another bone. Answer:",
+    "continuation": " ligament",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Function: carries blood toward the heart. Structure:",
+    "continuation": " vein",
+    "digits_only": false
+   },
+   {
+    "context": "In human anatomy, what is the main artery leaving the left ventricle? Answer:",
+    "continuation": " aorta",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: Which structure secretes insulin and glucagon? Answer:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: Which structure churns food and secretes gastric acid? Answer:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "In human anatomy, what contains the cochlea and detects sound? Answer:",
+    "continuation": " ear",
+    "digits_only": false
+   },
+   {
+    "context": "Function: pumps blood throughout the body. Structure:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Function: carries blood away from the heart. Structure:",
+    "continuation": " artery",
+    "digits_only": false
+   },
+   {
+    "context": "Name the anatomical structure that carries food from the throat to the stomach. Answer:",
+    "continuation": " esophagus",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: Which structure produces thyroid hormones that regulate metabolism? Answer:",
+    "continuation": " thyroid",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: Which structure stores bile produced by the liver? Answer:",
+    "continuation": " gallbladder",
+    "digits_only": false
+   },
+   {
+    "context": "Function: connects one bone to another bone. Structure:",
+    "continuation": " ligament",
+    "digits_only": false
+   },
+   {
+    "context": "Function: contains the retina and detects light. Structure:",
+    "continuation": " eye",
+    "digits_only": false
+   },
+   {
+    "context": "Name the anatomical structure that filters blood and helps recycle old red blood cells. Answer:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Name the anatomical structure that connects a muscle to a bone. Answer:",
+    "continuation": " tendon",
+    "digits_only": false
+   },
+   {
+    "context": "Name the anatomical structure that produces bile and detoxifies the blood. Answer:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Name the anatomical structure that secretes insulin and glucagon. Answer:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Name the anatomical structure that stores bile produced by the liver. Answer:",
+    "continuation": " gallbladder",
+    "digits_only": false
+   },
+   {
+    "context": "Name the anatomical structure that controls thinking, memory, and voluntary movement. Answer:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "In human anatomy, what pumps blood throughout the body? Answer:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Name the anatomical structure that pumps blood throughout the body. Answer:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Function: stores urine before excretion. Structure:",
+    "continuation": " bladder",
+    "digits_only": false
+   },
+   {
+    "context": "Function: carries food from the throat to the stomach. Structure:",
+    "continuation": " esophagus",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: Which structure carries air from the larynx toward the bronchi? Answer:",
+    "continuation": " trachea",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: Which structure is the main artery leaving the left ventricle? Answer:",
+    "continuation": " aorta",
+    "digits_only": false
+   },
+   {
+    "context": "Name the anatomical structure that contains the retina and detects light. Answer:",
+    "continuation": " eye",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: Which structure connects one bone to another bone? Answer:",
+    "continuation": " ligament",
+    "digits_only": false
+   },
+   {
+    "context": "In human anatomy, what connects a muscle to a bone? Answer:",
+    "continuation": " tendon",
+    "digits_only": false
+   },
+   {
+    "context": "Function: controls thinking, memory, and voluntary movement. Structure:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "In human anatomy, what churns food and secretes gastric acid? Answer:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: Which structure controls thinking, memory, and voluntary movement? Answer:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "In human anatomy, what contracts below the lungs during inhalation? Answer:",
+    "continuation": " diaphragm",
+    "digits_only": false
+   },
+   {
+    "context": "Name the anatomical structure that carries blood toward the heart. Answer:",
+    "continuation": " vein",
+    "digits_only": false
+   },
+   {
+    "context": "Function: filters blood and produces urine. Structure:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: Which structure connects a muscle to a bone? Answer:",
+    "continuation": " tendon",
+    "digits_only": false
+   },
+   {
+    "context": "Name the anatomical structure that stores urine before excretion. Answer:",
+    "continuation": " bladder",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: Which structure filters blood and produces urine? Answer:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: Which structure contains the retina and detects light? Answer:",
+    "continuation": " eye",
+    "digits_only": false
+   },
+   {
+    "context": "In human anatomy, what connects one bone to another bone? Answer:",
+    "continuation": " ligament",
+    "digits_only": false
+   },
+   {
+    "context": "Name the anatomical structure that contracts below the lungs during inhalation. Answer:",
+    "continuation": " diaphragm",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: Which structure filters blood and helps recycle old red blood cells? Answer:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "In human anatomy, what is the largest organ and covers the body? Answer:",
+    "continuation": " skin",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: Which structure carries food from the throat to the stomach? Answer:",
+    "continuation": " esophagus",
+    "digits_only": false
+   },
+   {
+    "context": "Name the anatomical structure that churns food and secretes gastric acid. Answer:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: Which structure stores urine before excretion? Answer:",
+    "continuation": " bladder",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Reference structure: eye. Copy the reference structure. Function: contains the retina and detects light. Structure:",
+    "continuation": " eye",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: artery. Copy the reference structure. Name the anatomical structure that carries blood away from the heart. Answer:",
+    "continuation": " artery",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: spleen. Copy the reference structure. Name the anatomical structure that filters blood and helps recycle old red blood cells. Answer:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: gallbladder. Copy the reference structure. Anatomy: Which structure stores bile produced by the liver? Answer:",
+    "continuation": " gallbladder",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: stomach. Copy the reference structure. Anatomy: Which structure churns food and secretes gastric acid? Answer:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: skin. Copy the reference structure. Name the anatomical structure that is the largest organ and covers the body. Answer:",
+    "continuation": " skin",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: vein. Copy the reference structure. Name the anatomical structure that carries blood toward the heart. Answer:",
+    "continuation": " vein",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: heart. Copy the reference structure. In human anatomy, what pumps blood throughout the body? Answer:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: skin. Copy the reference structure. Function: is the largest organ and covers the body. Structure:",
+    "continuation": " skin",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: kidney. Copy the reference structure. Name the anatomical structure that filters blood and produces urine. Answer:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: heart. Copy the reference structure. Function: pumps blood throughout the body. Structure:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: aorta. Copy the reference structure. Function: is the main artery leaving the left ventricle. Structure:",
+    "continuation": " aorta",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: esophagus. Copy the reference structure. Anatomy: Which structure carries food from the throat to the stomach? Answer:",
+    "continuation": " esophagus",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: brain. Copy the reference structure. Name the anatomical structure that controls thinking, memory, and voluntary movement. Answer:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: artery. Copy the reference structure. Function: carries blood away from the heart. Structure:",
+    "continuation": " artery",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: ligament. Copy the reference structure. Function: connects one bone to another bone. Structure:",
+    "continuation": " ligament",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: ear. Copy the reference structure. Function: contains the cochlea and detects sound. Structure:",
+    "continuation": " ear",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: trachea. Copy the reference structure. Anatomy: Which structure carries air from the larynx toward the bronchi? Answer:",
+    "continuation": " trachea",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: aorta. Copy the reference structure. In human anatomy, what is the main artery leaving the left ventricle? Answer:",
+    "continuation": " aorta",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: lung. Copy the reference structure. Anatomy: Which structure contains alveoli where oxygen enters the blood? Answer:",
+    "continuation": " lung",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: heart. Copy the reference structure. Name the anatomical structure that pumps blood throughout the body. Answer:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: tendon. Copy the reference structure. Function: connects a muscle to a bone. Structure:",
+    "continuation": " tendon",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: diaphragm. Copy the reference structure. In human anatomy, what contracts below the lungs during inhalation? Answer:",
+    "continuation": " diaphragm",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: ear. Copy the reference structure. Name the anatomical structure that contains the cochlea and detects sound. Answer:",
+    "continuation": " ear",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: stomach. Copy the reference structure. In human anatomy, what churns food and secretes gastric acid? Answer:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: bladder. Copy the reference structure. Anatomy: Which structure stores urine before excretion? Answer:",
+    "continuation": " bladder",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: vein. Copy the reference structure. In human anatomy, what carries blood toward the heart? Answer:",
+    "continuation": " vein",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: artery. Copy the reference structure. Anatomy: Which structure carries blood away from the heart? Answer:",
+    "continuation": " artery",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: bladder. Copy the reference structure. Function: stores urine before excretion. Structure:",
+    "continuation": " bladder",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: tendon. Copy the reference structure. Name the anatomical structure that connects a muscle to a bone. Answer:",
+    "continuation": " tendon",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: vein. Copy the reference structure. Function: carries blood toward the heart. Structure:",
+    "continuation": " vein",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: diaphragm. Copy the reference structure. Name the anatomical structure that contracts below the lungs during inhalation. Answer:",
+    "continuation": " diaphragm",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: diaphragm. Copy the reference structure. Function: contracts below the lungs during inhalation. Structure:",
+    "continuation": " diaphragm",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: ear. Copy the reference structure. Anatomy: Which structure contains the cochlea and detects sound? Answer:",
+    "continuation": " ear",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: spleen. Copy the reference structure. In human anatomy, what filters blood and helps recycle old red blood cells? Answer:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: vein. Copy the reference structure. Anatomy: Which structure carries blood toward the heart? Answer:",
+    "continuation": " vein",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: trachea. Copy the reference structure. Name the anatomical structure that carries air from the larynx toward the bronchi. Answer:",
+    "continuation": " trachea",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: aorta. Copy the reference structure. Name the anatomical structure that is the main artery leaving the left ventricle. Answer:",
+    "continuation": " aorta",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: artery. Copy the reference structure. In human anatomy, what carries blood away from the heart? Answer:",
+    "continuation": " artery",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: pancreas. Copy the reference structure. Name the anatomical structure that secretes insulin and glucagon. Answer:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: liver. Copy the reference structure. In human anatomy, what produces bile and detoxifies the blood? Answer:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: spleen. Copy the reference structure. Function: filters blood and helps recycle old red blood cells. Structure:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: diaphragm. Copy the reference structure. Anatomy: Which structure contracts below the lungs during inhalation? Answer:",
+    "continuation": " diaphragm",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: liver. Copy the reference structure. Function: produces bile and detoxifies the blood. Structure:",
+    "continuation": " liver",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Reference structure: liver. Copy the reference structure. Anatomy: Which structure produces bile and detoxifies the blood? Answer:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: tendon. Copy the reference structure. Anatomy: Which structure connects a muscle to a bone? Answer:",
+    "continuation": " tendon",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: aorta. Copy the reference structure. Anatomy: Which structure is the main artery leaving the left ventricle? Answer:",
+    "continuation": " aorta",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: lung. Copy the reference structure. Function: contains alveoli where oxygen enters the blood. Structure:",
+    "continuation": " lung",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: gallbladder. Copy the reference structure. In human anatomy, what stores bile produced by the liver? Answer:",
+    "continuation": " gallbladder",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: trachea. Copy the reference structure. In human anatomy, what carries air from the larynx toward the bronchi? Answer:",
+    "continuation": " trachea",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: kidney. Copy the reference structure. In human anatomy, what filters blood and produces urine? Answer:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: heart. Copy the reference structure. Anatomy: Which structure pumps blood throughout the body? Answer:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: kidney. Copy the reference structure. Function: filters blood and produces urine. Structure:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: lung. Copy the reference structure. Name the anatomical structure that contains alveoli where oxygen enters the blood. Answer:",
+    "continuation": " lung",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: pancreas. Copy the reference structure. Anatomy: Which structure secretes insulin and glucagon? Answer:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: brain. Copy the reference structure. Anatomy: Which structure controls thinking, memory, and voluntary movement? Answer:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: trachea. Copy the reference structure. Function: carries air from the larynx toward the bronchi. Structure:",
+    "continuation": " trachea",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: pancreas. Copy the reference structure. Function: secretes insulin and glucagon. Structure:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: eye. Copy the reference structure. In human anatomy, what contains the retina and detects light? Answer:",
+    "continuation": " eye",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: ligament. Copy the reference structure. Name the anatomical structure that connects one bone to another bone. Answer:",
+    "continuation": " ligament",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: thyroid. Copy the reference structure. Function: produces thyroid hormones that regulate metabolism. Structure:",
+    "continuation": " thyroid",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: thyroid. Copy the reference structure. In human anatomy, what produces thyroid hormones that regulate metabolism? Answer:",
+    "continuation": " thyroid",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: bladder. Copy the reference structure. In human anatomy, what stores urine before excretion? Answer:",
+    "continuation": " bladder",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: ligament. Copy the reference structure. Anatomy: Which structure connects one bone to another bone? Answer:",
+    "continuation": " ligament",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: skin. Copy the reference structure. Anatomy: Which structure is the largest organ and covers the body? Answer:",
+    "continuation": " skin",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: ligament. Copy the reference structure. In human anatomy, what connects one bone to another bone? Answer:",
+    "continuation": " ligament",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: stomach. Copy the reference structure. Name the anatomical structure that churns food and secretes gastric acid. Answer:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: ear. Copy the reference structure. In human anatomy, what contains the cochlea and detects sound? Answer:",
+    "continuation": " ear",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: stomach. Copy the reference structure. Function: churns food and secretes gastric acid. Structure:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: tendon. Copy the reference structure. In human anatomy, what connects a muscle to a bone? Answer:",
+    "continuation": " tendon",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: bladder. Copy the reference structure. Name the anatomical structure that stores urine before excretion. Answer:",
+    "continuation": " bladder",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: thyroid. Copy the reference structure. Anatomy: Which structure produces thyroid hormones that regulate metabolism? Answer:",
+    "continuation": " thyroid",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: eye. Copy the reference structure. Name the anatomical structure that contains the retina and detects light. Answer:",
+    "continuation": " eye",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: liver. Copy the reference structure. Name the anatomical structure that produces bile and detoxifies the blood. Answer:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: kidney. Copy the reference structure. Anatomy: Which structure filters blood and produces urine? Answer:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: brain. Copy the reference structure. Function: controls thinking, memory, and voluntary movement. Structure:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: eye. Copy the reference structure. Anatomy: Which structure contains the retina and detects light? Answer:",
+    "continuation": " eye",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: lung. Copy the reference structure. In human anatomy, what contains alveoli where oxygen enters the blood? Answer:",
+    "continuation": " lung",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: esophagus. Copy the reference structure. Name the anatomical structure that carries food from the throat to the stomach. Answer:",
+    "continuation": " esophagus",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: spleen. Copy the reference structure. Anatomy: Which structure filters blood and helps recycle old red blood cells? Answer:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: gallbladder. Copy the reference structure. Function: stores bile produced by the liver. Structure:",
+    "continuation": " gallbladder",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: skin. Copy the reference structure. In human anatomy, what is the largest organ and covers the body? Answer:",
+    "continuation": " skin",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: gallbladder. Copy the reference structure. Name the anatomical structure that stores bile produced by the liver. Answer:",
+    "continuation": " gallbladder",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: pancreas. Copy the reference structure. In human anatomy, what secretes insulin and glucagon? Answer:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: esophagus. Copy the reference structure. Function: carries food from the throat to the stomach. Structure:",
+    "continuation": " esophagus",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: thyroid. Copy the reference structure. Name the anatomical structure that produces thyroid hormones that regulate metabolism. Answer:",
+    "continuation": " thyroid",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: esophagus. Copy the reference structure. In human anatomy, what carries food from the throat to the stomach? Answer:",
+    "continuation": " esophagus",
+    "digits_only": false
+   },
+   {
+    "context": "Reference structure: brain. Copy the reference structure. In human anatomy, what controls thinking, memory, and voluntary movement? Answer:",
+    "continuation": " brain",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 7.8752
+}
