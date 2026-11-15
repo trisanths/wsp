@@ -23,7 +23,7 @@ from wsp.align import ridge_fit
 from wsp.assemble import rebuild_graft
 from wsp.graft import Graft, attach_grafts, glue_parameters, part_lora_parameters
 from wsp.heal import heal
-from wsp.lora import LoRALinear, apply_part_lora, graft_budget
+from wsp.lora import FusedExpertsLoRA, LoRALinear, apply_part_lora, graft_budget
 from wsp.parts import build_attn_heads, build_block_part, build_mlp_cluster
 from wsp.program import GraftSpec
 from wsp.stitch import build_stitch, donor_sink, ridge_init, stitch_penalty, train_stitch
@@ -568,10 +568,95 @@ def test_part_lora_wraps_part_linears_and_starts_as_noop(name, builder, expected
     check_part_lora(part, d_donor, expected)
 
 
-def test_part_lora_wraps_every_expert_linear(tmp_path):
-    # Mixtral experts name their linears w1, w2 and w3.
+def test_part_lora_wraps_fused_experts(tmp_path):
+    # Transformers 5 keeps the Mixtral experts as fused 3D tensors, so the
+    # part LoRA wraps the whole experts module, with one update per expert.
     part, d_donor = experts_part(tmp_path)
-    check_part_lora(part, d_donor, ["w1", "w2", "w3"] * 2)
+    part = part.float()
+    torch.manual_seed(4)
+    x = torch.randn(2, 6, d_donor)
+    with torch.no_grad():
+        before = part(x)
+    params = apply_part_lora(part, 2)
+    assert isinstance(part.experts, FusedExpertsLoRA)
+    assert sorted(part.experts.factors.keys()) == ["down_proj", "gate_up_proj"]
+    # 2 experts. gate_up_proj is (2, 144, 48) and down_proj is (2, 48, 72).
+    total = 0
+    for param in params:
+        total += param.numel()
+    assert total == 2 * 2 * ((144 + 48) + (48 + 72))
+    with torch.no_grad():
+        assert torch.equal(part(x), before)
+    lora_ids = set()
+    for param in params:
+        lora_ids.add(id(param))
+    for name, param in part.named_parameters():
+        assert param.requires_grad == (id(param) in lora_ids), name
+
+    # With B set, each expert runs on its own merged weight.
+    with torch.no_grad():
+        for param in params:
+            if param.dim() == 3 and param.abs().sum() == 0:
+                param.normal_(0, 0.1)
+        base = part.experts.base
+        merged = copy.deepcopy(base)
+        for name, factors in part.experts.factors.items():
+            weight = getattr(merged, name)
+            weight.copy_(weight + part.experts.scale * factors.delta())
+        plain = copy.deepcopy(part)
+        plain.experts = merged
+        assert torch.allclose(part(x), plain(x), atol=1e-5)
+        assert not torch.allclose(part(x), before)
+
+
+def test_part_lora_on_a_fused_expert_graft_heals_and_reloads(tmp_path, monkeypatch):
+    from tests.test_expert import save_host_and_catalog
+    from tests.test_mixed_compile import TEXTS
+
+    local_fetch(monkeypatch)
+    _, donor_dir = save_donor(tmp_path, tiny_mixtral)
+    host_dir, catalog = save_host_and_catalog(tmp_path, donor_dir, [1, 4])
+    out = str(tmp_path / "out")
+    program = Program(host=host_dir).graft("exp", part_lora_rank=2).heal(steps=3, lr=1e-2, batch_size=2, seq_len=16)
+    program.compile(out, catalog, align_texts=TEXTS, heal_texts=TEXTS, device="cpu")
+
+    meta = json.load(open(os.path.join(out, "grafts.json")))[0]
+    assert meta["part_lora_params"] == 2 * 2 * ((144 + 48) + (48 + 72))
+    saved = load_file(os.path.join(out, "graft_weights.safetensors"))
+    assert "0.part.experts.base.gate_up_proj" in saved
+    moved = 0.0
+    for key in saved:
+        if key.endswith("lora_B"):
+            moved += float(saved[key].abs().sum())
+    assert moved > 0
+
+    loaded, _ = load(out, dtype=torch.bfloat16)
+    assert isinstance(loaded.wsp_grafts[0].part.experts, FusedExpertsLoRA)
+    for key, value in loaded.wsp_grafts.state_dict().items():
+        assert torch.equal(value, saved[key].to(value.dtype)), key
+
+
+def lfm2_part(tmp_path, kind):
+    from tests.test_lfm2 import ATTENTION_LAYER, saved_donor
+    from wsp.parts import attn_tensor_names, mlp_tensor_names
+
+    config, _, read = saved_donor(tmp_path)
+    if kind == "mlp_cluster":
+        names = mlp_tensor_names(config, ATTENTION_LAYER)
+        part = build_mlp_cluster(config, ATTENTION_LAYER, torch.tensor([0, 5, 17, 40]), read(names))
+    else:
+        names = attn_tensor_names(config, ATTENTION_LAYER)
+        part = build_attn_heads(config, ATTENTION_LAYER, torch.arange(2), read(names))
+    return part, config.hidden_size
+
+
+@pytest.mark.parametrize("kind,expected", [
+    ("mlp_cluster", ["w1", "w2", "w3"]),
+    ("attn_heads", ["k_proj", "out_proj", "q_proj", "v_proj"]),
+])
+def test_part_lora_wraps_lfm2_part_linears(tmp_path, kind, expected):
+    part, d_donor = lfm2_part(tmp_path, kind)
+    check_part_lora(part, d_donor, expected)
 
 
 def capture_compiled_model(monkeypatch):
