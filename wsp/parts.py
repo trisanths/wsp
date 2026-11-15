@@ -1036,6 +1036,7 @@ def _find_block(config, first, last):
     result = {}
     result["to_module"] = to_module
     result["to_checkpoint"] = to_checkpoint
+    result["converters"] = _expert_converters(model)
     result["layers"] = []
     result["prefixes"] = []
     for index in range(first, last + 1):
@@ -1053,12 +1054,58 @@ def block_layer_prefixes(config, first, last):
     return _find_block(config, first, last)["prefixes"]
 
 
+def _layer_fused_experts(layer_module, layer_prefix, converters):
+    """Return the fused experts of one decoder layer, or None when it has none.
+
+    The result has the keys that _expert_sources and _fused_expert_tensor
+    read: moe_prefix, experts, num_experts and converters.
+    """
+    for name, child in layer_module.named_children():
+        experts = getattr(child, "experts", None)
+        if experts is None or isinstance(experts, nn.ModuleList):
+            continue
+        param_names = _fused_param_names(experts)
+        count = getattr(experts, "num_experts", None)
+        if count is None:
+            count = getattr(experts, param_names[0]).shape[0]
+        found = {}
+        found["moe_prefix"] = f"{layer_prefix}.{name}"
+        found["experts"] = experts
+        found["num_experts"] = count
+        found["converters"] = converters
+        return found
+    return None
+
+
 def block_tensor_names(config, first, last):
-    """List the checkpoint tensor names of donor decoder layers first..last."""
+    """List the checkpoint tensor names of donor decoder layers first..last.
+
+    A Transformers 5 MoE layer holds its experts fused, but most
+    checkpoints store each expert's tensors on their own. For those we list
+    the per-expert names, and build_block_part fuses them.
+    """
     found = _find_block(config, first, last)
     names = []
     for layer_module, prefix in zip(found["layers"], found["prefixes"]):
-        names += _prefixed_keys(layer_module, prefix)
+        keys = _prefixed_keys(layer_module, prefix)
+        moe = _layer_fused_experts(layer_module, prefix, found["converters"])
+        if moe is None:
+            names += keys
+            continue
+        fused = {}
+        for param_name in _fused_param_names(moe["experts"]):
+            converter, _ = _expert_sources(moe, param_name, 0)
+            if converter is not None:
+                fused[f"{moe['moe_prefix']}.experts.{param_name}"] = param_name
+        for key in keys:
+            if key not in fused:
+                names.append(key)
+                continue
+            for e in range(moe["num_experts"]):
+                _, sources = _expert_sources(moe, fused[key], e)
+                for name in sources:
+                    if name not in names:
+                        names.append(name)
     return _checkpoint_names(found, names)
 
 
@@ -1193,10 +1240,22 @@ def build_block_part(config, first, last, tensors):
     frozen parameters.
     """
     found = _find_block(config, first, last)
-    tensors = _module_named(tensors, found)
+    # A copy, so the fused expert tensors we add stay out of the caller's dict.
+    tensors = dict(_module_named(tensors, found))
     text_config = _text_config(config)
     block_config = copy.deepcopy(text_config)
     block_config._attn_implementation = "eager"
+
+    # Fuse per-expert checkpoint tensors into the 3D tensors the layers hold.
+    for meta_layer, prefix in zip(found["layers"], found["prefixes"]):
+        moe = _layer_fused_experts(meta_layer, prefix, found["converters"])
+        if moe is None:
+            continue
+        ids = list(range(moe["num_experts"]))
+        for param_name in _fused_param_names(moe["experts"]):
+            full = f"{moe['moe_prefix']}.experts.{param_name}"
+            if full not in tensors:
+                tensors[full] = _fused_expert_tensor(moe, param_name, ids, tensors, text_config)
 
     first_key = _prefixed_keys(found["layers"][0], found["prefixes"][0])[0]
     dtype = tensors[first_key].dtype

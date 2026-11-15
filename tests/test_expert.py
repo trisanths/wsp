@@ -3,6 +3,7 @@ import os
 
 import pytest
 import torch
+from safetensors.torch import load_file
 from transformers import LlamaConfig, LlamaForCausalLM, MixtralConfig, MixtralForCausalLM
 from transformers import Qwen3MoeConfig, Qwen3MoeForCausalLM
 
@@ -258,3 +259,52 @@ def test_lfm2_moe_dense_layer_has_no_experts():
     config = tiny_lfm2_moe().config
     with pytest.raises(ValueError, match="no MoE block"):
         find_moe_block(config, 0)
+
+
+@pytest.mark.parametrize("maker", [tiny_mixtral, tiny_qwen3_moe, tiny_lfm2_moe])
+def test_block_over_moe_layers_reads_per_expert_checkpoint(tmp_path, maker):
+    # The checkpoint stores each expert's tensors on their own, and the
+    # Transformers 5 layer holds them fused. The block part asks for the
+    # per-expert names and fuses them, as from_pretrained does.
+    from wsp.parts import block_tensor_names, build_block_part
+    from tests.test_block import capture_block
+
+    donor, donor_dir = save_donor(tmp_path, maker)
+    donor = donor.eval()
+    donor.config._attn_implementation = "eager"
+    config = fetch_config(donor_dir)
+    names = block_tensor_names(config, 1, 2)
+    for name in names:
+        assert not name.endswith("experts.gate_up_proj"), name
+    tensors = read_tensors(local_range_reader(os.path.join(donor_dir, "model.safetensors")), names)
+    part = build_block_part(config, 1, 2, tensors)
+    ids = torch.randint(3, 300, (2, 7))
+    x, y = capture_block(donor, 1, 2, ids)
+    with torch.no_grad():
+        assert torch.allclose(part(x), y - x, atol=1e-5)
+
+
+def test_moe_block_graft_with_part_lora_compiles_heals_and_reloads(tmp_path, monkeypatch):
+    # The block part fuses the per-expert checkpoint tensors, the part LoRA
+    # wraps the fused experts inside it, and wsp.load rebuilds both.
+    from wsp.lora import FusedExpertsLoRA
+
+    local_fetch(monkeypatch)
+    _, donor_dir = save_donor(tmp_path, tiny_lfm2_moe)
+    host_dir, _ = save_host_and_catalog(tmp_path, donor_dir, [1, 4])
+    record = {"id": "moeblock", "type": "block", "model": donor_dir, "layers": [1, 2]}
+    catalog_path = tmp_path / "block_catalog.jsonl"
+    catalog_path.write_text(json.dumps(record) + "\n")
+    catalog = Catalog.load(str(catalog_path))
+    out = str(tmp_path / "out")
+    program = Program(host=host_dir).graft("moeblock", part_lora_rank=2).heal(steps=3, lr=1e-2, batch_size=2,
+                                                                             seq_len=16)
+    program.compile(out, catalog, align_texts=TEXTS, heal_texts=TEXTS, device="cpu")
+
+    loaded, _ = load(out, dtype=torch.bfloat16)
+    part = loaded.wsp_grafts[0].part
+    assert isinstance(part.layers[0].feed_forward.experts, FusedExpertsLoRA)
+    saved = load_file(os.path.join(out, "graft_weights.safetensors"))
+    assert "0.part.layers.0.feed_forward.experts.base.gate_up_proj" in saved
+    for key, value in loaded.wsp_grafts.state_dict().items():
+        assert torch.equal(value, saved[key].to(value.dtype)), key
