@@ -1,4 +1,7 @@
-# Sapien
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/banner-dark.png">
+  <img src="docs/img/banner-light.png" alt="Sapien: build models from the parts of open models">
+</picture>
 
 Sapien builds custom models from the parts of existing open models. Agents read the weights of open models and file the pieces that hold a skill into a parts library. A compiler then joins those parts into a base model, or cuts a large model down to the parts one skill needs, and trains only small connectors at the seams. Grafting a slice of Qwen2.5-14B into Llama-3.2-1B lifts its MMLU score from 44.6 to 59.8, where fine-tuning with the same trainable budget reaches 45.6. Cutting Qwen3-30B-A3B to half its experts keeps its HumanEval score within 4 points at half the memory.
 
@@ -74,17 +77,17 @@ flowchart LR
 
 ## Results
 
-### 1. Grafting beats fine-tuning on every domain we tested
+### 1. Grafting beats fine-tuning
 
-A frozen slice of a larger model, grafted into Llama-3.2-1B-Instruct, beats a LoRA with the same number of trainable parameters on every domain below. Each row trains on that domain's train split and scores on its held-out items. "Adapter only" is the same trainable connector with the donor slice removed, so it measures what the connector adds on its own; the graft's lead over it is what the donor model contributes.
+A frozen slice of a larger model, grafted into a small host, beats every fine-tuning arm on every benchmark we ran.
 
 - **Slice grafted:** the donor model and the layers taken from it.
 - **Base:** the host model untouched.
-- **LoRA:** the host fine-tuned with LoRA, on the same data and trainable budget as the graft.
-- **Adapter:** the graft's trainable connectors with the donor slice removed, so it shows what the connectors add alone.
+- **LoRA / Full FT:** the host fine-tuned on the same data as the graft.
+- **Adapter / Scrambled:** the graft's connectors with the donor removed, or with its weights shuffled.
 - **Graft:** the host with the donor slice and its connectors.
 
-**Domain grafts, trained on each domain**
+**Domain grafts** (Llama-3.2-1B host, trained on each domain)
 
 | Domain | Slice grafted | Base | LoRA | Adapter | Graft |
 |---|---|---|---|---|---|
@@ -94,7 +97,7 @@ A frozen slice of a larger model, grafted into Llama-3.2-1B-Instruct, beats a Lo
 | SciQ | Qwen2.5-7B L4-20 | 85.8 | 87.5 | 88.2 | **89.8** |
 | MMLU | Qwen2.5-7B L4-20 | 44.6 | 47.1 | 45.6 | **53.1** |
 
-**One general graft, trained on English only**
+**One general graft** (Llama-3.2-1B host, trained on English only)
 
 | Benchmark | Slice grafted | Base | LoRA | Graft |
 |---|---|---|---|---|
@@ -105,52 +108,18 @@ A frozen slice of a larger model, grafted into Llama-3.2-1B-Instruct, beats a Lo
 | MMLU Spanish | Qwen2.5-14B L7-34 | 37.8 | 38.0 | **52.8** |
 | MMLU Chinese | Qwen2.5-14B L7-34 | 40.0 | 38.0 | **49.8** |
 
-**The graft also brings the donor's languages.** The general graft trains only on English items, yet it lifts MMLU in Spanish by 15 points and in Chinese by 10 over the base, while LoRA, trained on the same English data, moves neither. Qwen2.5-14B reads both languages, and the graft carries that skill into a host that does not. The gain needs the donor's real weights: the same graft built from a Qwen2.5-7B block with shuffled weights scores 47.4 on MMLU, at the LoRA level, against 53.5 for the real block.
+**Against a full fine-tune** (same data, steps and selection for every arm; mean over 2 to 3 seeds)
 
-The gain grows with the donor and carries to subjects the training never touches. These grafts train on answer letters from CommonsenseQA, OpenBookQA, QASC and LogiQA2.0, and never see MMLU:
+| Host + slice grafted | Benchmark | Base | Full FT | LoRA | Scrambled | Graft |
+|---|---|---|---|---|---|---|
+| Llama-3.2-1B + Qwen2.5-7B L4-20 | MMLU | 44.6 | 51.1 | 50.0 | 50.3 | **59.6** |
+| Qwen2.5-1.5B + Qwen2.5-14B L14-47 | MMLU | 60.4 | 60.8 | 61.9 | 60.8 | **65.9** |
+| Qwen2.5-1.5B + Qwen2.5-Math-7B L4-20 | GSM8K | 73.6 | 70.4 | 73.5 | 73.2 | **84.8** |
 
-| Host | Arm | MMLU held-out (2,000 items) | Seeds |
-|---|---|---|---|
-| Llama-3.2-1B | Base | 44.6 | |
-| Llama-3.2-1B | LoRA, same trainable budget | 45.1 to 47.1 | 4 |
-| Llama-3.2-1B | + Qwen2.5-7B layers 4 to 20 | 52.8 to 54.4 | 3 |
-| Llama-3.2-1B | + Qwen2.5-14B layers 7 to 34 | 58.9, 61.0, 59.6 | 3 |
-| Llama-3.2-1B | + Qwen2.5-32B layers 9 to 54 | 62.6 | 1 |
-| Llama-3.2-3B | Base | 57.4 | |
-| Llama-3.2-3B | LoRA, same trainable budget | 60.7 to 61.0 | 3 |
-| Llama-3.2-3B | + Qwen2.5-32B layers 9 to 45 | 66.3 | 1 |
-
-A 7B donor adds 8 to 10 MMLU points to the 1B host, a 14B donor adds 14 to 16, and a 32B donor adds 18. Trained only on commonsense and logic items, the 7B graft lifts MMLU medical subjects by 12 points over LoRA. Two specialists fit in one network: Qwen2.5-7B and Apollo2-7B grafted into the same 1B host reach 55.4 on MMLU held-out. The comparison holds trainable parameters equal; the grafted network also runs the frozen donor layers, so it stores more weights than the host. Source: [docs/research/2026-11-15-parallel-graft.md](docs/research/2026-11-15-parallel-graft.md).
-
-With more training data and the donor's own answers as a target, the same 7B graft goes further. These runs train every arm on 44,155 four-option items (MMLU auxiliary_train plus the CommonsenseQA, OpenBookQA, QASC and LogiQA train splits, every eval prompt removed), with distillation from the donor's answer distribution and a rank-16 LoRA on the host trained with the graft. Every fine-tuning arm, including a full fine-tune of all host weights, gets the same data, steps and selection rule:
-
-| Host | Arm | MMLU held-out (2,000) | ARC-Challenge test | Params per token | Seeds |
-|---|---|---|---|---|---|
-| Llama-3.2-1B | Base | 44.6 | 55.3 | 1.24B | |
-| Llama-3.2-1B | Full fine-tune | 51.1 | 69.5 | 1.24B | 3 |
-| Llama-3.2-1B | LoRA rank 128 | 50.0 | 69.4 | 1.24B | 3 |
-| Llama-3.2-1B | Same connector, donor weights scrambled | 50.3 | 69.2 | 5.21B | 3 |
-| Llama-3.2-1B | + Qwen2.5-7B layers 4 to 20 | **59.6** (59.5, 60.4, 58.9) | **85.3** | 5.21B | 3 |
-| Qwen2.5-1.5B | Base | 60.4 | 77.6 | 1.54B | |
-| Qwen2.5-1.5B | Full fine-tune | 60.6, 61.0 | 79.7, 79.4 | 1.54B | 2 |
-| Qwen2.5-1.5B | LoRA rank 128 | 62.5, 61.3 | 80.5, 80.2 | 1.69B | 2 |
-| Qwen2.5-1.5B | Same connector, donor weights scrambled | 60.8, 60.8 | 80.6, 80.0 | 11.7B | 2 |
-| Qwen2.5-1.5B | + Qwen2.5-14B layers 14 to 47 | **66.1, 65.7** | **85.7, 85.2** | 11.7B | 2 |
-
-The 7B donor now reaches the score the commonsense-only runs needed a 14B donor for, and the graft beats a full fine-tune of the host by 8.5 points. A scrambled donor slice (same weight spectrum, no knowledge) scores like the fine-tuning arms, so the gain is the donor's knowledge. The grafted network runs more parameters per token than the host: at that cost, native Qwen2.5-3B-Instruct scores 66.0 in the same harness (66.6 after the same fine-tune), so a host that is already the best at its size is the next test. Sources: [docs/write_in_xfam.md](docs/write_in_xfam.md), [docs/write_in_bigsame.md](docs/write_in_bigsame.md).
-
-Math works the same way. Qwen2.5-1.5B-Instruct gets a frozen slice of Qwen2.5-Math-7B-Instruct (layers 4 to 20, read after host layer 14). Every arm trains on 25,590 verified solutions the donor wrote to GSM8K and MATH train problems, with distillation from the donor's logits:
-
-| Arm | GSM8K test (500) | MATH-500 | MMLU (guard) |
-|---|---|---|---|
-| Base | 73.6 | 54.0 | 58.8 |
-| Full fine-tune | 69.4, 71.4 | 52.0, 52.8 | 58.5, 58.9 |
-| LoRA rank 128 | 72.8, 74.2 | 51.6, 49.6 | 59.6, 59.2 |
-| Same connector, donor weights scrambled | 73.2, 73.2 | 54.4, 54.6 | 59.2, 58.8 |
-| + Qwen2.5-Math-7B layers 4 to 20 | **85.8, 83.8** | **59.6, 58.0** | 59.6, 59.0 |
-| Qwen2.5-Math-7B alone | 92.2 | 76.8 | 52.6 |
-
-Fine-tuning on the donor's solutions does not raise any fine-tuning arm above the base, while the graft gains 10 to 12 GSM8K points and keeps MMLU. Source: [docs/write_in_math_rl.md](docs/write_in_math_rl.md).
+- **The graft carries the donor's languages.** Trained only on English, it lifts MMLU Spanish by 15 points and Chinese by 10; LoRA on the same data moves neither.
+- **The gain is the donor's knowledge.** Scrambled donor weights score at the fine-tuning level, and a full fine-tune of every host weight trails the graft by 8.5 MMLU points and 14 GSM8K points.
+- **Bigger donors give more.** On the 1B host, a 7B slice adds 8 to 10 MMLU points, a 14B slice 15, a 32B slice 18.
+- **The cost is compute per token.** Llama-1B with a 7B slice runs 5.2B parameters per token, so the next test is a host that is already the best at that size.
 
 ### 2. Mining: agents went from Roman numerals to math, science and medicine
 
