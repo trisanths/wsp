@@ -1,0 +1,740 @@
+{
+ "name": "cyrillic_transliteration",
+ "description": "Convert romanized Russian words to Cyrillic under an explicit deterministic transliteration table; matched control copies the Latin form.",
+ "hash": "558286f8b4118210",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nwords='kot dom mir stol park son les nos rot sad voda reka ruka noga mama papa brat sestra kniga shkola okno more nebo gora pole volk zima leto vesna osen veter sneg grad grib sup sok hleb gorod most teatr kino metro radio muzyka sport futbol tennis robot telefon banka gazeta karta lampa shkaf stena dver kover kovyor ryba ptica korova moloko slovo bukva zhuk chaj shuba chudo mech luch doch noch chai kraj raj maj geroj'.split()\n# Standard simple transliteration, excluding ambiguous soft-sign restoration.\nwords=[w for w in words if w not in ['osen','dver','doch','noch','kovyor']]\nmapping=dict(zip('abvgdezijklmnoprstufhy','\u0430\u0431\u0432\u0433\u0434\u0435\u0437\u0438\u0439\u043a\u043b\u043c\u043d\u043e\u043f\u0440\u0441\u0442\u0443\u0444\u0445\u044b')); digraph={'zh':'\u0436','ch':'\u0447','sh':'\u0448','ya':'\u044f','yu':'\u044e','yo':'\u0451','ts':'\u0446'}\ndef convert(w):\n out='';i=0\n while i<len(w):\n  if w[i:i+2] in digraph:out+=digraph[w[i:i+2]];i+=2\n  else:out+=mapping.get(w[i],w[i]);i+=1\n return out\nitems=[];control=[]\nfor w in words:\n text=f'Romanized Russian word: {w}\\n'\n items.append({'prompt':text+'Transliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\\nCyrillic:', 'answer':' '+convert(w)})\n control.append({'prompt':text+'Copy the original Latin spelling unchanged.\\nLatin:', 'answer':' '+w})\nrandom.shuffle(items);random.shuffle(control)\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Romanized Russian word: korova\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043a\u043e\u0440\u043e\u0432\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: ruka\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0440\u0443\u043a\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: son\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0441\u043e\u043d",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: gazeta\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0433\u0430\u0437\u0435\u0442\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: ptica\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043f\u0442\u0438c\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: park\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043f\u0430\u0440\u043a",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: mech\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043c\u0435\u0447",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: mir\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043c\u0438\u0440",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: kniga\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043a\u043d\u0438\u0433\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: reka\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0440\u0435\u043a\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: sad\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0441\u0430\u0434",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: stol\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0441\u0442\u043e\u043b",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: pole\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043f\u043e\u043b\u0435",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: hleb\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0445\u043b\u0435\u0431",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: grad\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0433\u0440\u0430\u0434",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: sup\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0441\u0443\u043f",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: zima\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0437\u0438\u043c\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: robot\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0440\u043e\u0431\u043e\u0442",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: kraj\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043a\u0440\u0430\u0439",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: stena\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0441\u0442\u0435\u043d\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: zhuk\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0436\u0443\u043a",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: okno\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043e\u043a\u043d\u043e",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: more\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043c\u043e\u0440\u0435",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: chudo\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0447\u0443\u0434\u043e",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: dom\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0434\u043e\u043c",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: telefon\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0442\u0435\u043b\u0435\u0444\u043e\u043d",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: raj\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0440\u0430\u0439",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: bukva\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0431\u0443\u043a\u0432\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: voda\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0432\u043e\u0434\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: veter\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0432\u0435\u0442\u0435\u0440",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: gora\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0433\u043e\u0440\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: geroj\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0433\u0435\u0440\u043e\u0439",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: brat\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0431\u0440\u0430\u0442",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: sestra\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0441\u0435\u0441\u0442\u0440\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: sneg\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0441\u043d\u0435\u0433",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: moloko\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043c\u043e\u043b\u043e\u043a\u043e",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Romanized Russian word: shuba\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0448\u0443\u0431\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: kot\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043a\u043e\u0442",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: chaj\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0447\u0430\u0439",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: shkaf\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0448\u043a\u0430\u0444",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: slovo\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0441\u043b\u043e\u0432\u043e",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: volk\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0432\u043e\u043b\u043a",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: gorod\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0433\u043e\u0440\u043e\u0434",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: kover\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043a\u043e\u0432\u0435\u0440",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: les\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043b\u0435\u0441",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: maj\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043c\u0430\u0439",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: mama\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043c\u0430\u043c\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: teatr\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0442\u0435\u0430\u0442\u0440",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: shkola\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0448\u043a\u043e\u043b\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: radio\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0440\u0430\u0434\u0438\u043e",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: nos\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043d\u043e\u0441",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: futbol\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0444\u0443\u0442\u0431\u043e\u043b",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: chai\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0447\u0430\u0438",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: tennis\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0442\u0435\u043d\u043d\u0438\u0441",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: rot\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0440\u043e\u0442",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: papa\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043f\u0430\u043f\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: ryba\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0440\u044b\u0431\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: karta\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043a\u0430\u0440\u0442\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: metro\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043c\u0435\u0442\u0440\u043e",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: noga\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043d\u043e\u0433\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: grib\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0433\u0440\u0438\u0431",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: leto\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043b\u0435\u0442\u043e",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: muzyka\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043c\u0443\u0437\u044b\u043a\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: most\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043c\u043e\u0441\u0442",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: luch\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043b\u0443\u0447",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: kino\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043a\u0438\u043d\u043e",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: nebo\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043d\u0435\u0431\u043e",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: lampa\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u043b\u0430\u043c\u043f\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: vesna\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0432\u0435\u0441\u043d\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: sport\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0441\u043f\u043e\u0440\u0442",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: banka\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0431\u0430\u043d\u043a\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: sok\nTransliterate to lowercase Cyrillic (zh=\u0436, ch=\u0447, sh=\u0448, ts=\u0446, j=\u0439, y=\u044b, h=\u0445). Do not add letters.\nCyrillic:",
+    "continuation": " \u0441\u043e\u043a",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Romanized Russian word: most\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " most",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: sestra\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " sestra",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: stena\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " stena",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: korova\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " korova",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: robot\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " robot",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: les\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " les",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: veter\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " veter",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: teatr\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " teatr",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: chai\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " chai",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: park\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " park",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: chaj\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " chaj",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: tennis\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " tennis",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: slovo\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " slovo",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: stol\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " stol",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: noga\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " noga",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: leto\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " leto",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: metro\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " metro",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: maj\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " maj",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: grib\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " grib",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: kover\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " kover",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: kniga\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " kniga",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: futbol\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " futbol",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: gazeta\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " gazeta",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: karta\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " karta",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: luch\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " luch",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: sup\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " sup",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: voda\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " voda",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: banka\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " banka",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: dom\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " dom",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: radio\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " radio",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: pole\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " pole",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: son\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " son",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: mir\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " mir",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: brat\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " brat",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: ryba\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " ryba",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: sad\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " sad",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Romanized Russian word: shuba\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " shuba",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: gora\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " gora",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: lampa\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " lampa",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: ruka\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " ruka",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: ptica\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " ptica",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: rot\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " rot",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: sport\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " sport",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: muzyka\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " muzyka",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: shkola\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " shkola",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: vesna\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " vesna",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: volk\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " volk",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: kot\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " kot",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: sneg\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " sneg",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: mech\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " mech",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: mama\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " mama",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: zhuk\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " zhuk",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: telefon\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " telefon",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: kino\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " kino",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: zima\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " zima",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: sok\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " sok",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: bukva\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " bukva",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: nebo\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " nebo",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: reka\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " reka",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: papa\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " papa",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: shkaf\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " shkaf",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: chudo\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " chudo",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: hleb\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " hleb",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: more\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " more",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: geroj\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " geroj",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: kraj\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " kraj",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: okno\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " okno",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: gorod\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " gorod",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: nos\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " nos",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: raj\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " raj",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: moloko\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " moloko",
+    "digits_only": false
+   },
+   {
+    "context": "Romanized Russian word: grad\nCopy the original Latin spelling unchanged.\nLatin:",
+    "continuation": " grad",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 6.6481
+}

@@ -1,0 +1,1220 @@
+{
+ "name": "named_entity_type",
+ "description": "Classify familiar proper names as person, organization, or location; matched control copies the final word of the same proper name.",
+ "hash": "8144d8a68ea01185",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\ngroups={'person':['Albert Einstein','Marie Curie','Isaac Newton','Charles Darwin','Ada Lovelace','Alan Turing','William Shakespeare','Jane Austen','Mark Twain','Nelson Mandela','Mahatma Gandhi','Leonardo da Vinci','Vincent van Gogh','Wolfgang Amadeus Mozart','Ludwig van Beethoven','Michael Jordan','Serena Williams','Lionel Messi','Barack Obama','Angela Merkel'], 'organization':['Microsoft','Google','Apple Inc','International Monetary Fund','United Nations','World Health Organization','European Union','World Bank','NASA','UNESCO','Red Cross','Amnesty International','Greenpeace','Toyota','Samsung','IBM','Intel','Amazon','Harvard University','Stanford University'], 'location':['Paris','London','Tokyo','Berlin','Rome','Madrid','Beijing','Sydney','Moscow','Cairo','New York','Los Angeles','Mount Everest','Sahara Desert','Pacific Ocean','Atlantic Ocean','Grand Canyon','Lake Victoria','South Africa','New Zealand']}\nitems=[];control=[]\nfor label,entities in groups.items():\n for entity in entities:\n  for template in ['The article mentions \"{}\".','The highlighted name is \"{}\".']:\n   record=template.format(entity)\n   items.append({'prompt':f'Classify the named entity as person, organization, or location.\\n{record}\\nAnswer:','answer':' '+label})\n   control.append({'prompt':f'Copy only the final word of the named entity.\\n{record}\\nAnswer:','answer':' '+entity.split()[-1]})\nrandom.shuffle(items);random.shuffle(control)\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Pacific Ocean\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Wolfgang Amadeus Mozart\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"New York\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Marie Curie\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Amnesty International\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"London\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"South Africa\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Google\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Alan Turing\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Apple Inc\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Mahatma Gandhi\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Alan Turing\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Tokyo\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Albert Einstein\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"NASA\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Tokyo\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Red Cross\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Barack Obama\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Cairo\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"New Zealand\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Michael Jordan\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Angela Merkel\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Nelson Mandela\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"IBM\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Moscow\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Charles Darwin\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Sydney\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"European Union\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Microsoft\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"European Union\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"International Monetary Fund\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Cairo\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"New Zealand\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Ludwig van Beethoven\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Amazon\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Madrid\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Toyota\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"World Bank\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Sahara Desert\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Greenpeace\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Charles Darwin\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Nelson Mandela\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Beijing\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Harvard University\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Intel\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Greenpeace\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Serena Williams\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Ada Lovelace\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"United Nations\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Isaac Newton\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Paris\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Mount Everest\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Sydney\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Ada Lovelace\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Samsung\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Mark Twain\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Amazon\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"New York\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"UNESCO\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Rome\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Atlantic Ocean\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"World Bank\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Mount Everest\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Madrid\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Vincent van Gogh\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Google\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Microsoft\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"NASA\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"World Health Organization\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Samsung\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Los Angeles\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Harvard University\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Leonardo da Vinci\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Grand Canyon\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Amnesty International\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Jane Austen\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Pacific Ocean\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Albert Einstein\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"International Monetary Fund\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Wolfgang Amadeus Mozart\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Intel\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Jane Austen\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Apple Inc\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"South Africa\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Beijing\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Isaac Newton\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Lionel Messi\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Berlin\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Vincent van Gogh\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Moscow\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Grand Canyon\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Marie Curie\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"IBM\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Angela Merkel\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Atlantic Ocean\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"United Nations\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Stanford University\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Leonardo da Vinci\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Stanford University\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Mark Twain\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"William Shakespeare\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Ludwig van Beethoven\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Michael Jordan\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Lake Victoria\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Toyota\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Los Angeles\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Paris\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Mahatma Gandhi\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Red Cross\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Barack Obama\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Lionel Messi\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"London\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Berlin\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"World Health Organization\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"UNESCO\".\nAnswer:",
+    "continuation": " organization",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Rome\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe highlighted name is \"Serena Williams\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"William Shakespeare\".\nAnswer:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Lake Victoria\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the named entity as person, organization, or location.\nThe article mentions \"Sahara Desert\".\nAnswer:",
+    "continuation": " location",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"NASA\".\nAnswer:",
+    "continuation": " NASA",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Marie Curie\".\nAnswer:",
+    "continuation": " Curie",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Lionel Messi\".\nAnswer:",
+    "continuation": " Messi",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Nelson Mandela\".\nAnswer:",
+    "continuation": " Mandela",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Leonardo da Vinci\".\nAnswer:",
+    "continuation": " Vinci",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Madrid\".\nAnswer:",
+    "continuation": " Madrid",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Mark Twain\".\nAnswer:",
+    "continuation": " Twain",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Mount Everest\".\nAnswer:",
+    "continuation": " Everest",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Michael Jordan\".\nAnswer:",
+    "continuation": " Jordan",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"International Monetary Fund\".\nAnswer:",
+    "continuation": " Fund",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Mahatma Gandhi\".\nAnswer:",
+    "continuation": " Gandhi",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Mahatma Gandhi\".\nAnswer:",
+    "continuation": " Gandhi",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Toyota\".\nAnswer:",
+    "continuation": " Toyota",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"London\".\nAnswer:",
+    "continuation": " London",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"New York\".\nAnswer:",
+    "continuation": " York",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Isaac Newton\".\nAnswer:",
+    "continuation": " Newton",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Moscow\".\nAnswer:",
+    "continuation": " Moscow",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Nelson Mandela\".\nAnswer:",
+    "continuation": " Mandela",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Mount Everest\".\nAnswer:",
+    "continuation": " Everest",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"South Africa\".\nAnswer:",
+    "continuation": " Africa",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Ada Lovelace\".\nAnswer:",
+    "continuation": " Lovelace",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"London\".\nAnswer:",
+    "continuation": " London",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"International Monetary Fund\".\nAnswer:",
+    "continuation": " Fund",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"World Bank\".\nAnswer:",
+    "continuation": " Bank",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"World Health Organization\".\nAnswer:",
+    "continuation": " Organization",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Grand Canyon\".\nAnswer:",
+    "continuation": " Canyon",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Google\".\nAnswer:",
+    "continuation": " Google",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Toyota\".\nAnswer:",
+    "continuation": " Toyota",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"United Nations\".\nAnswer:",
+    "continuation": " Nations",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Barack Obama\".\nAnswer:",
+    "continuation": " Obama",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Berlin\".\nAnswer:",
+    "continuation": " Berlin",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Sahara Desert\".\nAnswer:",
+    "continuation": " Desert",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Samsung\".\nAnswer:",
+    "continuation": " Samsung",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Samsung\".\nAnswer:",
+    "continuation": " Samsung",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"William Shakespeare\".\nAnswer:",
+    "continuation": " Shakespeare",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Alan Turing\".\nAnswer:",
+    "continuation": " Turing",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Grand Canyon\".\nAnswer:",
+    "continuation": " Canyon",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Vincent van Gogh\".\nAnswer:",
+    "continuation": " Gogh",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"UNESCO\".\nAnswer:",
+    "continuation": " UNESCO",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Alan Turing\".\nAnswer:",
+    "continuation": " Turing",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Microsoft\".\nAnswer:",
+    "continuation": " Microsoft",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Red Cross\".\nAnswer:",
+    "continuation": " Cross",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Tokyo\".\nAnswer:",
+    "continuation": " Tokyo",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Los Angeles\".\nAnswer:",
+    "continuation": " Angeles",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Leonardo da Vinci\".\nAnswer:",
+    "continuation": " Vinci",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Sydney\".\nAnswer:",
+    "continuation": " Sydney",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Madrid\".\nAnswer:",
+    "continuation": " Madrid",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Charles Darwin\".\nAnswer:",
+    "continuation": " Darwin",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Cairo\".\nAnswer:",
+    "continuation": " Cairo",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Beijing\".\nAnswer:",
+    "continuation": " Beijing",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Vincent van Gogh\".\nAnswer:",
+    "continuation": " Gogh",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Wolfgang Amadeus Mozart\".\nAnswer:",
+    "continuation": " Mozart",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Jane Austen\".\nAnswer:",
+    "continuation": " Austen",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Apple Inc\".\nAnswer:",
+    "continuation": " Inc",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"New Zealand\".\nAnswer:",
+    "continuation": " Zealand",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Wolfgang Amadeus Mozart\".\nAnswer:",
+    "continuation": " Mozart",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Sydney\".\nAnswer:",
+    "continuation": " Sydney",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Serena Williams\".\nAnswer:",
+    "continuation": " Williams",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Albert Einstein\".\nAnswer:",
+    "continuation": " Einstein",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Apple Inc\".\nAnswer:",
+    "continuation": " Inc",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Pacific Ocean\".\nAnswer:",
+    "continuation": " Ocean",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Ludwig van Beethoven\".\nAnswer:",
+    "continuation": " Beethoven",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Moscow\".\nAnswer:",
+    "continuation": " Moscow",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Albert Einstein\".\nAnswer:",
+    "continuation": " Einstein",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Michael Jordan\".\nAnswer:",
+    "continuation": " Jordan",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Atlantic Ocean\".\nAnswer:",
+    "continuation": " Ocean",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Intel\".\nAnswer:",
+    "continuation": " Intel",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Barack Obama\".\nAnswer:",
+    "continuation": " Obama",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"European Union\".\nAnswer:",
+    "continuation": " Union",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Sahara Desert\".\nAnswer:",
+    "continuation": " Desert",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Amnesty International\".\nAnswer:",
+    "continuation": " International",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Angela Merkel\".\nAnswer:",
+    "continuation": " Merkel",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"William Shakespeare\".\nAnswer:",
+    "continuation": " Shakespeare",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Los Angeles\".\nAnswer:",
+    "continuation": " Angeles",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Microsoft\".\nAnswer:",
+    "continuation": " Microsoft",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"IBM\".\nAnswer:",
+    "continuation": " IBM",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Pacific Ocean\".\nAnswer:",
+    "continuation": " Ocean",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Harvard University\".\nAnswer:",
+    "continuation": " University",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Paris\".\nAnswer:",
+    "continuation": " Paris",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"NASA\".\nAnswer:",
+    "continuation": " NASA",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"European Union\".\nAnswer:",
+    "continuation": " Union",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Paris\".\nAnswer:",
+    "continuation": " Paris",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Rome\".\nAnswer:",
+    "continuation": " Rome",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Stanford University\".\nAnswer:",
+    "continuation": " University",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Amazon\".\nAnswer:",
+    "continuation": " Amazon",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Isaac Newton\".\nAnswer:",
+    "continuation": " Newton",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Red Cross\".\nAnswer:",
+    "continuation": " Cross",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Beijing\".\nAnswer:",
+    "continuation": " Beijing",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"New Zealand\".\nAnswer:",
+    "continuation": " Zealand",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Atlantic Ocean\".\nAnswer:",
+    "continuation": " Ocean",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"World Health Organization\".\nAnswer:",
+    "continuation": " Organization",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Ada Lovelace\".\nAnswer:",
+    "continuation": " Lovelace",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Charles Darwin\".\nAnswer:",
+    "continuation": " Darwin",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"United Nations\".\nAnswer:",
+    "continuation": " Nations",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Jane Austen\".\nAnswer:",
+    "continuation": " Austen",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Lake Victoria\".\nAnswer:",
+    "continuation": " Victoria",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Greenpeace\".\nAnswer:",
+    "continuation": " Greenpeace",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Stanford University\".\nAnswer:",
+    "continuation": " University",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Berlin\".\nAnswer:",
+    "continuation": " Berlin",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Intel\".\nAnswer:",
+    "continuation": " Intel",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Amazon\".\nAnswer:",
+    "continuation": " Amazon",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Google\".\nAnswer:",
+    "continuation": " Google",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"New York\".\nAnswer:",
+    "continuation": " York",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Lake Victoria\".\nAnswer:",
+    "continuation": " Victoria",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"World Bank\".\nAnswer:",
+    "continuation": " Bank",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Lionel Messi\".\nAnswer:",
+    "continuation": " Messi",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Tokyo\".\nAnswer:",
+    "continuation": " Tokyo",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Harvard University\".\nAnswer:",
+    "continuation": " University",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Angela Merkel\".\nAnswer:",
+    "continuation": " Merkel",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Mark Twain\".\nAnswer:",
+    "continuation": " Twain",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Rome\".\nAnswer:",
+    "continuation": " Rome",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"IBM\".\nAnswer:",
+    "continuation": " IBM",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"UNESCO\".\nAnswer:",
+    "continuation": " UNESCO",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Serena Williams\".\nAnswer:",
+    "continuation": " Williams",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Greenpeace\".\nAnswer:",
+    "continuation": " Greenpeace",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Ludwig van Beethoven\".\nAnswer:",
+    "continuation": " Beethoven",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Marie Curie\".\nAnswer:",
+    "continuation": " Curie",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"Amnesty International\".\nAnswer:",
+    "continuation": " International",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe highlighted name is \"Cairo\".\nAnswer:",
+    "continuation": " Cairo",
+    "digits_only": false
+   },
+   {
+    "context": "Copy only the final word of the named entity.\nThe article mentions \"South Africa\".\nAnswer:",
+    "continuation": " Africa",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 7.3224
+}

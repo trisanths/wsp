@@ -1,0 +1,1220 @@
+{
+ "name": "polite_formula",
+ "description": "Choose conventional English courtesy expressions for gratitude, requests and apologies; control copies a reference expression.",
+ "hash": "5ffe453ff4825863",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\ndata={'thanks':['Someone held the door open for you','A colleague helped you finish a difficult task','A friend gave you a thoughtful gift','A stranger returned your lost wallet','Someone offered you a seat','Your neighbor watered your plants','A waiter brought your meal','A friend drove you home'],'sorry':['You accidentally stepped on someone\\'s foot','You arrived late to an important meeting','You spilled coffee on a friend\\'s shirt','You forgot a friend\\'s birthday','You accidentally interrupted someone','You broke a borrowed cup','You made an embarrassing mistake','You accidentally bumped into a stranger'],'please':['You politely ask someone to pass the salt','You politely request a glass of water','You ask someone to open a window','You politely ask for directions','You request help carrying a heavy bag','You politely ask someone to wait','You request permission to enter','You politely ask someone to be quiet']}\nitems=[];control=[]\nfor i in range(120):\n label=list(data)[i%3]; event=data[label][(i//3)%8]; ref=random.choice(list(data)); text=f'Situation: {event}. Reference word: {ref}. '\n items.append({'prompt':text+'Which courtesy word best fits: thanks, sorry, or please? Answer:','answer':' '+label})\n control.append({'prompt':text+'Copy the reference word. Answer:','answer':' '+ref})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Situation: A stranger returned your lost wallet. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You spilled coffee on a friend's shirt. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A colleague helped you finish a difficult task. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A colleague helped you finish a difficult task. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Your neighbor watered your plants. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask for directions. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally stepped on someone's foot. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally bumped into a stranger. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A friend gave you a thoughtful gift. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally stepped on someone's foot. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to be quiet. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A friend drove you home. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to be quiet. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You made an embarrassing mistake. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A colleague helped you finish a difficult task. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You broke a borrowed cup. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally interrupted someone. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely request a glass of water. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to pass the salt. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You arrived late to an important meeting. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You ask someone to open a window. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask for directions. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You made an embarrassing mistake. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Someone offered you a seat. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to pass the salt. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You request permission to enter. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally bumped into a stranger. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You made an embarrassing mistake. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You ask someone to open a window. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally interrupted someone. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You forgot a friend's birthday. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Someone held the door open for you. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Someone held the door open for you. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to pass the salt. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You ask someone to open a window. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A friend drove you home. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally interrupted someone. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You arrived late to an important meeting. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A friend drove you home. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You broke a borrowed cup. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Someone held the door open for you. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You made an embarrassing mistake. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask for directions. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You made an embarrassing mistake. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A friend gave you a thoughtful gift. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A friend gave you a thoughtful gift. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to be quiet. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You request permission to enter. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally bumped into a stranger. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A waiter brought your meal. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You arrived late to an important meeting. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You forgot a friend's birthday. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A friend gave you a thoughtful gift. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You broke a borrowed cup. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally bumped into a stranger. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Your neighbor watered your plants. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You request help carrying a heavy bag. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally interrupted someone. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You forgot a friend's birthday. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask for directions. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Situation: You arrived late to an important meeting. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A stranger returned your lost wallet. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You forgot a friend's birthday. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to wait. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You spilled coffee on a friend's shirt. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You request help carrying a heavy bag. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Your neighbor watered your plants. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Someone held the door open for you. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You request help carrying a heavy bag. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask for directions. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally stepped on someone's foot. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You request permission to enter. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You spilled coffee on a friend's shirt. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You request permission to enter. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A waiter brought your meal. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You ask someone to open a window. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to be quiet. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally bumped into a stranger. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to pass the salt. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A friend gave you a thoughtful gift. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You broke a borrowed cup. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You spilled coffee on a friend's shirt. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A stranger returned your lost wallet. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to wait. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to be quiet. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Someone offered you a seat. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A waiter brought your meal. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Your neighbor watered your plants. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A stranger returned your lost wallet. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A friend drove you home. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Your neighbor watered your plants. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A waiter brought your meal. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely request a glass of water. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A waiter brought your meal. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You request permission to enter. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You ask someone to open a window. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You spilled coffee on a friend's shirt. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Someone offered you a seat. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Someone held the door open for you. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely request a glass of water. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Someone offered you a seat. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to wait. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You broke a borrowed cup. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A colleague helped you finish a difficult task. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to pass the salt. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A friend drove you home. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally interrupted someone. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You request help carrying a heavy bag. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You forgot a friend's birthday. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You arrived late to an important meeting. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A colleague helped you finish a difficult task. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You request help carrying a heavy bag. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to wait. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A stranger returned your lost wallet. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely request a glass of water. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely request a glass of water. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to wait. Reference word: sorry. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally stepped on someone's foot. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally stepped on someone's foot. Reference word: please. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Someone offered you a seat. Reference word: thanks. Which courtesy word best fits: thanks, sorry, or please? Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Situation: You politely ask someone to be quiet. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A stranger returned your lost wallet. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You request permission to enter. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A waiter brought your meal. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You request permission to enter. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to wait. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You arrived late to an important meeting. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You spilled coffee on a friend's shirt. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You request help carrying a heavy bag. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You forgot a friend's birthday. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You request help carrying a heavy bag. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to be quiet. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally bumped into a stranger. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A friend gave you a thoughtful gift. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A waiter brought your meal. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to be quiet. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally stepped on someone's foot. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You arrived late to an important meeting. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally bumped into a stranger. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A stranger returned your lost wallet. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You forgot a friend's birthday. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You request permission to enter. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Someone held the door open for you. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A friend drove you home. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Your neighbor watered your plants. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Someone offered you a seat. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A stranger returned your lost wallet. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to pass the salt. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You broke a borrowed cup. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A stranger returned your lost wallet. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Someone held the door open for you. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A friend gave you a thoughtful gift. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Someone offered you a seat. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely request a glass of water. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask for directions. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to pass the salt. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask for directions. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You ask someone to open a window. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You made an embarrassing mistake. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You broke a borrowed cup. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A friend gave you a thoughtful gift. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A waiter brought your meal. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A friend drove you home. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally stepped on someone's foot. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A colleague helped you finish a difficult task. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You spilled coffee on a friend's shirt. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to pass the salt. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask for directions. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You made an embarrassing mistake. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You broke a borrowed cup. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A waiter brought your meal. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to wait. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You ask someone to open a window. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to wait. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A friend drove you home. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally interrupted someone. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A friend drove you home. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to be quiet. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You spilled coffee on a friend's shirt. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A waiter brought your meal. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Situation: A colleague helped you finish a difficult task. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally bumped into a stranger. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You broke a borrowed cup. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to be quiet. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You spilled coffee on a friend's shirt. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely request a glass of water. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You request help carrying a heavy bag. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally interrupted someone. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You forgot a friend's birthday. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You arrived late to an important meeting. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally bumped into a stranger. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You request permission to enter. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You made an embarrassing mistake. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally bumped into a stranger. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Your neighbor watered your plants. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You ask someone to open a window. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You arrived late to an important meeting. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You made an embarrassing mistake. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally interrupted someone. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A friend gave you a thoughtful gift. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A colleague helped you finish a difficult task. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You forgot a friend's birthday. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally stepped on someone's foot. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A friend drove you home. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask for directions. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Your neighbor watered your plants. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to pass the salt. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely request a glass of water. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You broke a borrowed cup. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally interrupted someone. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A colleague helped you finish a difficult task. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely request a glass of water. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You request permission to enter. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You forgot a friend's birthday. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally interrupted someone. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to wait. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Someone held the door open for you. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You request help carrying a heavy bag. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely request a glass of water. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You spilled coffee on a friend's shirt. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally stepped on someone's foot. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A colleague helped you finish a difficult task. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You request help carrying a heavy bag. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Someone offered you a seat. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to pass the salt. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You arrived late to an important meeting. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Someone held the door open for you. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask for directions. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Someone offered you a seat. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A stranger returned your lost wallet. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You made an embarrassing mistake. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Your neighbor watered your plants. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Your neighbor watered your plants. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You ask someone to open a window. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You ask someone to open a window. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You accidentally stepped on someone's foot. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: A friend gave you a thoughtful gift. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Someone offered you a seat. Reference word: thanks. Copy the reference word. Answer:",
+    "continuation": " thanks",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: Someone held the door open for you. Reference word: sorry. Copy the reference word. Answer:",
+    "continuation": " sorry",
+    "digits_only": false
+   },
+   {
+    "context": "Situation: You politely ask someone to wait. Reference word: please. Copy the reference word. Answer:",
+    "continuation": " please",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 2.2828
+}

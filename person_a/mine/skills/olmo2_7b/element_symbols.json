@@ -1,0 +1,920 @@
+{
+ "name": "element_symbols",
+ "description": "Decode chemical element symbols into element names, with explicitly supplied element-name copy controls.",
+ "hash": "df3fdb5ffd396783",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nsymbols='H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Fe Cu Zn Ag Sn Au Hg Pb Ni Co'.split()\nnames='hydrogen helium lithium beryllium boron carbon nitrogen oxygen fluorine neon sodium magnesium aluminum silicon phosphorus sulfur chlorine argon potassium calcium iron copper zinc silver tin gold mercury lead nickel cobalt'.split()\nlookup=dict(zip(symbols,names));items=[];control=[]\nfor template in ['The chemical symbol {s} stands for the element','Periodic table: {s} is the symbol for','In chemistry, the element with symbol {s} is']:\n for s in symbols:\n  a=lookup[s];p=template.format(s=s)\n  items.append({'prompt':p,'answer':' '+a});control.append({'prompt':'Reference element: '+a+'. Copy the reference element. '+p,'answer':' '+a})\nrandom.shuffle(items);random.shuffle(control)\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Periodic table: Mg is the symbol for",
+    "continuation": " magnesium",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol S is",
+    "continuation": " sulfur",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: Au is the symbol for",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol N is",
+    "continuation": " nitrogen",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: Si is the symbol for",
+    "continuation": " silicon",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol Na is",
+    "continuation": " sodium",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol Ni is",
+    "continuation": " nickel",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: N is the symbol for",
+    "continuation": " nitrogen",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol Au is",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol Si stands for the element",
+    "continuation": " silicon",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol Pb is",
+    "continuation": " lead",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol K stands for the element",
+    "continuation": " potassium",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: Hg is the symbol for",
+    "continuation": " mercury",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol Li is",
+    "continuation": " lithium",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol O stands for the element",
+    "continuation": " oxygen",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol P stands for the element",
+    "continuation": " phosphorus",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol Sn stands for the element",
+    "continuation": " tin",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol Hg stands for the element",
+    "continuation": " mercury",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol Cu is",
+    "continuation": " copper",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: Co is the symbol for",
+    "continuation": " cobalt",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol Ca is",
+    "continuation": " calcium",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: Cl is the symbol for",
+    "continuation": " chlorine",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol Al is",
+    "continuation": " aluminum",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol P is",
+    "continuation": " phosphorus",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: Li is the symbol for",
+    "continuation": " lithium",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: Cu is the symbol for",
+    "continuation": " copper",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: Ag is the symbol for",
+    "continuation": " silver",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol Cl stands for the element",
+    "continuation": " chlorine",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: K is the symbol for",
+    "continuation": " potassium",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: H is the symbol for",
+    "continuation": " hydrogen",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol Co stands for the element",
+    "continuation": " cobalt",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol Ni stands for the element",
+    "continuation": " nickel",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol Ne stands for the element",
+    "continuation": " neon",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: F is the symbol for",
+    "continuation": " fluorine",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol He stands for the element",
+    "continuation": " helium",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol B is",
+    "continuation": " boron",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol Ca stands for the element",
+    "continuation": " calcium",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol He is",
+    "continuation": " helium",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: B is the symbol for",
+    "continuation": " boron",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: Ar is the symbol for",
+    "continuation": " argon",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: Sn is the symbol for",
+    "continuation": " tin",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol C is",
+    "continuation": " carbon",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: Ca is the symbol for",
+    "continuation": " calcium",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: Na is the symbol for",
+    "continuation": " sodium",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: Al is the symbol for",
+    "continuation": " aluminum",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "In chemistry, the element with symbol Fe is",
+    "continuation": " iron",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol Ag is",
+    "continuation": " silver",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol Au stands for the element",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol C stands for the element",
+    "continuation": " carbon",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol F stands for the element",
+    "continuation": " fluorine",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: C is the symbol for",
+    "continuation": " carbon",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: P is the symbol for",
+    "continuation": " phosphorus",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol Zn stands for the element",
+    "continuation": " zinc",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: Be is the symbol for",
+    "continuation": " beryllium",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol Na stands for the element",
+    "continuation": " sodium",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol Li stands for the element",
+    "continuation": " lithium",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol Ar is",
+    "continuation": " argon",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol Sn is",
+    "continuation": " tin",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: Ni is the symbol for",
+    "continuation": " nickel",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: He is the symbol for",
+    "continuation": " helium",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: Ne is the symbol for",
+    "continuation": " neon",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol Ag stands for the element",
+    "continuation": " silver",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol Pb stands for the element",
+    "continuation": " lead",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: S is the symbol for",
+    "continuation": " sulfur",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol F is",
+    "continuation": " fluorine",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol Ne is",
+    "continuation": " neon",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol Co is",
+    "continuation": " cobalt",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: Pb is the symbol for",
+    "continuation": " lead",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol Al stands for the element",
+    "continuation": " aluminum",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol Cu stands for the element",
+    "continuation": " copper",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: O is the symbol for",
+    "continuation": " oxygen",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol Si is",
+    "continuation": " silicon",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol O is",
+    "continuation": " oxygen",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: Fe is the symbol for",
+    "continuation": " iron",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol Ar stands for the element",
+    "continuation": " argon",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol B stands for the element",
+    "continuation": " boron",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol N stands for the element",
+    "continuation": " nitrogen",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol Mg is",
+    "continuation": " magnesium",
+    "digits_only": false
+   },
+   {
+    "context": "Periodic table: Zn is the symbol for",
+    "continuation": " zinc",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol Cl is",
+    "continuation": " chlorine",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol Be is",
+    "continuation": " beryllium",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol Fe stands for the element",
+    "continuation": " iron",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol S stands for the element",
+    "continuation": " sulfur",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol Be stands for the element",
+    "continuation": " beryllium",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol K is",
+    "continuation": " potassium",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol H is",
+    "continuation": " hydrogen",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol Zn is",
+    "continuation": " zinc",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol Mg stands for the element",
+    "continuation": " magnesium",
+    "digits_only": false
+   },
+   {
+    "context": "In chemistry, the element with symbol Hg is",
+    "continuation": " mercury",
+    "digits_only": false
+   },
+   {
+    "context": "The chemical symbol H stands for the element",
+    "continuation": " hydrogen",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Reference element: fluorine. Copy the reference element. The chemical symbol F stands for the element",
+    "continuation": " fluorine",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: sodium. Copy the reference element. Periodic table: Na is the symbol for",
+    "continuation": " sodium",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: lithium. Copy the reference element. Periodic table: Li is the symbol for",
+    "continuation": " lithium",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: beryllium. Copy the reference element. Periodic table: Be is the symbol for",
+    "continuation": " beryllium",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: silver. Copy the reference element. Periodic table: Ag is the symbol for",
+    "continuation": " silver",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: silver. Copy the reference element. The chemical symbol Ag stands for the element",
+    "continuation": " silver",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: lithium. Copy the reference element. In chemistry, the element with symbol Li is",
+    "continuation": " lithium",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: sulfur. Copy the reference element. The chemical symbol S stands for the element",
+    "continuation": " sulfur",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: fluorine. Copy the reference element. Periodic table: F is the symbol for",
+    "continuation": " fluorine",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: cobalt. Copy the reference element. The chemical symbol Co stands for the element",
+    "continuation": " cobalt",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: beryllium. Copy the reference element. The chemical symbol Be stands for the element",
+    "continuation": " beryllium",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: nickel. Copy the reference element. The chemical symbol Ni stands for the element",
+    "continuation": " nickel",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: magnesium. Copy the reference element. The chemical symbol Mg stands for the element",
+    "continuation": " magnesium",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: zinc. Copy the reference element. Periodic table: Zn is the symbol for",
+    "continuation": " zinc",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: nickel. Copy the reference element. Periodic table: Ni is the symbol for",
+    "continuation": " nickel",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: phosphorus. Copy the reference element. The chemical symbol P stands for the element",
+    "continuation": " phosphorus",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: hydrogen. Copy the reference element. In chemistry, the element with symbol H is",
+    "continuation": " hydrogen",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: zinc. Copy the reference element. In chemistry, the element with symbol Zn is",
+    "continuation": " zinc",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: argon. Copy the reference element. Periodic table: Ar is the symbol for",
+    "continuation": " argon",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: sulfur. Copy the reference element. Periodic table: S is the symbol for",
+    "continuation": " sulfur",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: copper. Copy the reference element. Periodic table: Cu is the symbol for",
+    "continuation": " copper",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: aluminum. Copy the reference element. The chemical symbol Al stands for the element",
+    "continuation": " aluminum",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: aluminum. Copy the reference element. In chemistry, the element with symbol Al is",
+    "continuation": " aluminum",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: nitrogen. Copy the reference element. Periodic table: N is the symbol for",
+    "continuation": " nitrogen",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: tin. Copy the reference element. In chemistry, the element with symbol Sn is",
+    "continuation": " tin",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: sodium. Copy the reference element. In chemistry, the element with symbol Na is",
+    "continuation": " sodium",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: nickel. Copy the reference element. In chemistry, the element with symbol Ni is",
+    "continuation": " nickel",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: hydrogen. Copy the reference element. Periodic table: H is the symbol for",
+    "continuation": " hydrogen",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: chlorine. Copy the reference element. The chemical symbol Cl stands for the element",
+    "continuation": " chlorine",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: lead. Copy the reference element. The chemical symbol Pb stands for the element",
+    "continuation": " lead",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: copper. Copy the reference element. In chemistry, the element with symbol Cu is",
+    "continuation": " copper",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: cobalt. Copy the reference element. Periodic table: Co is the symbol for",
+    "continuation": " cobalt",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: cobalt. Copy the reference element. In chemistry, the element with symbol Co is",
+    "continuation": " cobalt",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: oxygen. Copy the reference element. In chemistry, the element with symbol O is",
+    "continuation": " oxygen",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: neon. Copy the reference element. Periodic table: Ne is the symbol for",
+    "continuation": " neon",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: chlorine. Copy the reference element. Periodic table: Cl is the symbol for",
+    "continuation": " chlorine",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: mercury. Copy the reference element. In chemistry, the element with symbol Hg is",
+    "continuation": " mercury",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: phosphorus. Copy the reference element. In chemistry, the element with symbol P is",
+    "continuation": " phosphorus",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: iron. Copy the reference element. The chemical symbol Fe stands for the element",
+    "continuation": " iron",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: sodium. Copy the reference element. The chemical symbol Na stands for the element",
+    "continuation": " sodium",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: fluorine. Copy the reference element. In chemistry, the element with symbol F is",
+    "continuation": " fluorine",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: lead. Copy the reference element. In chemistry, the element with symbol Pb is",
+    "continuation": " lead",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: silver. Copy the reference element. In chemistry, the element with symbol Ag is",
+    "continuation": " silver",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: copper. Copy the reference element. The chemical symbol Cu stands for the element",
+    "continuation": " copper",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: iron. Copy the reference element. Periodic table: Fe is the symbol for",
+    "continuation": " iron",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Reference element: oxygen. Copy the reference element. The chemical symbol O stands for the element",
+    "continuation": " oxygen",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: silicon. Copy the reference element. The chemical symbol Si stands for the element",
+    "continuation": " silicon",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: beryllium. Copy the reference element. In chemistry, the element with symbol Be is",
+    "continuation": " beryllium",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: nitrogen. Copy the reference element. The chemical symbol N stands for the element",
+    "continuation": " nitrogen",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: boron. Copy the reference element. Periodic table: B is the symbol for",
+    "continuation": " boron",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: sulfur. Copy the reference element. In chemistry, the element with symbol S is",
+    "continuation": " sulfur",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: potassium. Copy the reference element. Periodic table: K is the symbol for",
+    "continuation": " potassium",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: potassium. Copy the reference element. In chemistry, the element with symbol K is",
+    "continuation": " potassium",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: gold. Copy the reference element. The chemical symbol Au stands for the element",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: helium. Copy the reference element. In chemistry, the element with symbol He is",
+    "continuation": " helium",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: gold. Copy the reference element. Periodic table: Au is the symbol for",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: tin. Copy the reference element. The chemical symbol Sn stands for the element",
+    "continuation": " tin",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: chlorine. Copy the reference element. In chemistry, the element with symbol Cl is",
+    "continuation": " chlorine",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: mercury. Copy the reference element. Periodic table: Hg is the symbol for",
+    "continuation": " mercury",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: aluminum. Copy the reference element. Periodic table: Al is the symbol for",
+    "continuation": " aluminum",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: lithium. Copy the reference element. The chemical symbol Li stands for the element",
+    "continuation": " lithium",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: calcium. Copy the reference element. The chemical symbol Ca stands for the element",
+    "continuation": " calcium",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: carbon. Copy the reference element. Periodic table: C is the symbol for",
+    "continuation": " carbon",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: silicon. Copy the reference element. Periodic table: Si is the symbol for",
+    "continuation": " silicon",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: neon. Copy the reference element. In chemistry, the element with symbol Ne is",
+    "continuation": " neon",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: potassium. Copy the reference element. The chemical symbol K stands for the element",
+    "continuation": " potassium",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: magnesium. Copy the reference element. Periodic table: Mg is the symbol for",
+    "continuation": " magnesium",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: gold. Copy the reference element. In chemistry, the element with symbol Au is",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: nitrogen. Copy the reference element. In chemistry, the element with symbol N is",
+    "continuation": " nitrogen",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: argon. Copy the reference element. In chemistry, the element with symbol Ar is",
+    "continuation": " argon",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: mercury. Copy the reference element. The chemical symbol Hg stands for the element",
+    "continuation": " mercury",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: hydrogen. Copy the reference element. The chemical symbol H stands for the element",
+    "continuation": " hydrogen",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: carbon. Copy the reference element. The chemical symbol C stands for the element",
+    "continuation": " carbon",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: boron. Copy the reference element. The chemical symbol B stands for the element",
+    "continuation": " boron",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: carbon. Copy the reference element. In chemistry, the element with symbol C is",
+    "continuation": " carbon",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: iron. Copy the reference element. In chemistry, the element with symbol Fe is",
+    "continuation": " iron",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: neon. Copy the reference element. The chemical symbol Ne stands for the element",
+    "continuation": " neon",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: calcium. Copy the reference element. Periodic table: Ca is the symbol for",
+    "continuation": " calcium",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: helium. Copy the reference element. The chemical symbol He stands for the element",
+    "continuation": " helium",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: tin. Copy the reference element. Periodic table: Sn is the symbol for",
+    "continuation": " tin",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: zinc. Copy the reference element. The chemical symbol Zn stands for the element",
+    "continuation": " zinc",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: phosphorus. Copy the reference element. Periodic table: P is the symbol for",
+    "continuation": " phosphorus",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: argon. Copy the reference element. The chemical symbol Ar stands for the element",
+    "continuation": " argon",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: calcium. Copy the reference element. In chemistry, the element with symbol Ca is",
+    "continuation": " calcium",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: helium. Copy the reference element. Periodic table: He is the symbol for",
+    "continuation": " helium",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: magnesium. Copy the reference element. In chemistry, the element with symbol Mg is",
+    "continuation": " magnesium",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: oxygen. Copy the reference element. Periodic table: O is the symbol for",
+    "continuation": " oxygen",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: boron. Copy the reference element. In chemistry, the element with symbol B is",
+    "continuation": " boron",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: lead. Copy the reference element. Periodic table: Pb is the symbol for",
+    "continuation": " lead",
+    "digits_only": false
+   },
+   {
+    "context": "Reference element: silicon. Copy the reference element. In chemistry, the element with symbol Si is",
+    "continuation": " silicon",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 12.3215
+}

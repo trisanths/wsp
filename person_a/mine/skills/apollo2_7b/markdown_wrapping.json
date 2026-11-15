@@ -1,0 +1,980 @@
+{
+ "name": "markdown_wrapping",
+ "description": "Wrap literal words with canonical Markdown bold, italic, inline-code or strikethrough syntax. Control repeats the literal word without formatting.",
+ "hash": "586676e52fa539bd",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nstyles={'bold':'**','italic':'*','inline code':'`','strikethrough':'~~'}\nitems=[];control=[]\nfor i in range(96):\n style=list(styles)[i%4];word=random.choice(['hello','world','sample','note','test','example','text','word']);mark=styles[style];p=f'Word: {word}. Requested Markdown style: {style}.\\n'\n items.append({'prompt':p+'Write only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:','answer':' '+mark+word+mark})\n control.append({'prompt':p+'Write only the unformatted word, with no markup. Answer:','answer':' '+word})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Word: text. Requested Markdown style: strikethrough.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " ~~text~~",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: bold.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " **example**",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: strikethrough.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " ~~test~~",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: strikethrough.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " ~~word~~",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: bold.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " **world**",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: italic.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " *world*",
+    "digits_only": false
+   },
+   {
+    "context": "Word: text. Requested Markdown style: italic.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " *text*",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: bold.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " **note**",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: strikethrough.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " ~~world~~",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: inline code.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " `test`",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: bold.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " **test**",
+    "digits_only": false
+   },
+   {
+    "context": "Word: sample. Requested Markdown style: strikethrough.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " ~~sample~~",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: bold.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " **example**",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: italic.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " *note*",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: inline code.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " `test`",
+    "digits_only": false
+   },
+   {
+    "context": "Word: hello. Requested Markdown style: inline code.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " `hello`",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: strikethrough.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " ~~word~~",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: bold.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " **world**",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: bold.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " **note**",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: inline code.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " `word`",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: strikethrough.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " ~~example~~",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: inline code.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " `test`",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: bold.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " **example**",
+    "digits_only": false
+   },
+   {
+    "context": "Word: sample. Requested Markdown style: inline code.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " `sample`",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: strikethrough.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " ~~note~~",
+    "digits_only": false
+   },
+   {
+    "context": "Word: hello. Requested Markdown style: inline code.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " `hello`",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: inline code.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " `example`",
+    "digits_only": false
+   },
+   {
+    "context": "Word: hello. Requested Markdown style: italic.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " *hello*",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: bold.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " **word**",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: italic.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " *example*",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: inline code.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " `test`",
+    "digits_only": false
+   },
+   {
+    "context": "Word: text. Requested Markdown style: italic.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " *text*",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: strikethrough.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " ~~word~~",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: strikethrough.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " ~~example~~",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: strikethrough.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " ~~example~~",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: bold.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " **test**",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: inline code.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " `word`",
+    "digits_only": false
+   },
+   {
+    "context": "Word: text. Requested Markdown style: italic.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " *text*",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: bold.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " **world**",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: inline code.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " `test`",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: italic.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " *example*",
+    "digits_only": false
+   },
+   {
+    "context": "Word: sample. Requested Markdown style: inline code.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " `sample`",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: bold.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " **word**",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: bold.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " **word**",
+    "digits_only": false
+   },
+   {
+    "context": "Word: sample. Requested Markdown style: strikethrough.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " ~~sample~~",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: italic.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " *world*",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: strikethrough.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " ~~world~~",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: strikethrough.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " ~~note~~",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Word: text. Requested Markdown style: italic.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " *text*",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: strikethrough.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " ~~world~~",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: bold.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " **world**",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: inline code.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " `test`",
+    "digits_only": false
+   },
+   {
+    "context": "Word: sample. Requested Markdown style: italic.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " *sample*",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: italic.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " *note*",
+    "digits_only": false
+   },
+   {
+    "context": "Word: sample. Requested Markdown style: inline code.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " `sample`",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: inline code.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " `example`",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: italic.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " *example*",
+    "digits_only": false
+   },
+   {
+    "context": "Word: text. Requested Markdown style: bold.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " **text**",
+    "digits_only": false
+   },
+   {
+    "context": "Word: hello. Requested Markdown style: strikethrough.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " ~~hello~~",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: strikethrough.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " ~~example~~",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: inline code.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " `example`",
+    "digits_only": false
+   },
+   {
+    "context": "Word: hello. Requested Markdown style: italic.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " *hello*",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: strikethrough.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " ~~test~~",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: bold.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " **note**",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: bold.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " **world**",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: strikethrough.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " ~~note~~",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: inline code.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " `word`",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: bold.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " **note**",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: strikethrough.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " ~~word~~",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: inline code.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " `example`",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: italic.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " *word*",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: bold.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " **test**",
+    "digits_only": false
+   },
+   {
+    "context": "Word: sample. Requested Markdown style: inline code.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " `sample`",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: italic.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " *note*",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: strikethrough.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " ~~word~~",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: strikethrough.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " ~~note~~",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: inline code.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " `world`",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: bold.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " **world**",
+    "digits_only": false
+   },
+   {
+    "context": "Word: text. Requested Markdown style: bold.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " **text**",
+    "digits_only": false
+   },
+   {
+    "context": "Word: sample. Requested Markdown style: bold.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " **sample**",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: inline code.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " `world`",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: bold.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " **note**",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: italic.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " *world*",
+    "digits_only": false
+   },
+   {
+    "context": "Word: hello. Requested Markdown style: bold.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " **hello**",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: strikethrough.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " ~~word~~",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: inline code.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " `test`",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: italic.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " *world*",
+    "digits_only": false
+   },
+   {
+    "context": "Word: sample. Requested Markdown style: italic.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " *sample*",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: inline code.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " `world`",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: strikethrough.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " ~~world~~",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: inline code.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " `note`",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: italic.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " *test*",
+    "digits_only": false
+   },
+   {
+    "context": "Word: hello. Requested Markdown style: italic.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " *hello*",
+    "digits_only": false
+   },
+   {
+    "context": "Word: text. Requested Markdown style: italic.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " *text*",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: italic.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " *note*",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: italic.\nWrite only the formatted word. Use asterisks for bold/italic, backticks for code, and tildes for strikethrough. Answer:",
+    "continuation": " *test*",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Word: sample. Requested Markdown style: italic.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Word: hello. Requested Markdown style: inline code.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " hello",
+    "digits_only": false
+   },
+   {
+    "context": "Word: sample. Requested Markdown style: inline code.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: strikethrough.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " world",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: bold.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " word",
+    "digits_only": false
+   },
+   {
+    "context": "Word: hello. Requested Markdown style: italic.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " hello",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: bold.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " test",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: italic.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " note",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: inline code.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " test",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: bold.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: bold.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " world",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: italic.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " world",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: italic.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: strikethrough.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " word",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: bold.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "Word: hello. Requested Markdown style: bold.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " hello",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: italic.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " note",
+    "digits_only": false
+   },
+   {
+    "context": "Word: hello. Requested Markdown style: strikethrough.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " hello",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: bold.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " word",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: strikethrough.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: bold.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " world",
+    "digits_only": false
+   },
+   {
+    "context": "Word: text. Requested Markdown style: italic.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " text",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: italic.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " test",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: inline code.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " test",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: bold.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " note",
+    "digits_only": false
+   },
+   {
+    "context": "Word: text. Requested Markdown style: strikethrough.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " text",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: inline code.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: strikethrough.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " world",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: italic.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: inline code.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " world",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: bold.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " note",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: italic.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " note",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: italic.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: strikethrough.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " note",
+    "digits_only": false
+   },
+   {
+    "context": "Word: sample. Requested Markdown style: inline code.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: strikethrough.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: bold.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " world",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: strikethrough.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " note",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: inline code.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " word",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: bold.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " note",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: italic.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " world",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: strikethrough.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " word",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: inline code.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " test",
+    "digits_only": false
+   },
+   {
+    "context": "Word: text. Requested Markdown style: italic.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " text",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: strikethrough.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " test",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: inline code.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " test",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: italic.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " note",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: inline code.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " example",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Word: word. Requested Markdown style: italic.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " word",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: bold.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " world",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: inline code.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " world",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: strikethrough.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " note",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: strikethrough.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " note",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: bold.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " word",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: strikethrough.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " word",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: strikethrough.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " word",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: inline code.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: inline code.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " test",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: strikethrough.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: strikethrough.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " world",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: bold.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " note",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: inline code.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " test",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: strikethrough.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " world",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: bold.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " test",
+    "digits_only": false
+   },
+   {
+    "context": "Word: sample. Requested Markdown style: inline code.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: inline code.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " test",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: strikethrough.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " word",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: inline code.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "Word: text. Requested Markdown style: italic.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " text",
+    "digits_only": false
+   },
+   {
+    "context": "Word: sample. Requested Markdown style: italic.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Word: sample. Requested Markdown style: inline code.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Word: hello. Requested Markdown style: inline code.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " hello",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: inline code.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " world",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: bold.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " note",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: italic.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " world",
+    "digits_only": false
+   },
+   {
+    "context": "Word: hello. Requested Markdown style: italic.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " hello",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: inline code.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " word",
+    "digits_only": false
+   },
+   {
+    "context": "Word: hello. Requested Markdown style: italic.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " hello",
+    "digits_only": false
+   },
+   {
+    "context": "Word: text. Requested Markdown style: bold.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " text",
+    "digits_only": false
+   },
+   {
+    "context": "Word: text. Requested Markdown style: italic.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " text",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: strikethrough.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " word",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: italic.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " test",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: strikethrough.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " test",
+    "digits_only": false
+   },
+   {
+    "context": "Word: note. Requested Markdown style: inline code.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " note",
+    "digits_only": false
+   },
+   {
+    "context": "Word: sample. Requested Markdown style: bold.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Word: word. Requested Markdown style: inline code.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " word",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: bold.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " world",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: strikethrough.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "Word: test. Requested Markdown style: bold.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " test",
+    "digits_only": false
+   },
+   {
+    "context": "Word: text. Requested Markdown style: italic.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " text",
+    "digits_only": false
+   },
+   {
+    "context": "Word: sample. Requested Markdown style: strikethrough.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Word: sample. Requested Markdown style: strikethrough.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Word: text. Requested Markdown style: bold.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " text",
+    "digits_only": false
+   },
+   {
+    "context": "Word: example. Requested Markdown style: bold.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " example",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: bold.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " world",
+    "digits_only": false
+   },
+   {
+    "context": "Word: world. Requested Markdown style: italic.\nWrite only the unformatted word, with no markup. Answer:",
+    "continuation": " world",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 4.4487
+}
