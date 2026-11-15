@@ -30,12 +30,58 @@ def backend():
     return value
 
 
+DEFAULT_OPENAI_MODEL = "gpt-5.4-mini"
+
+
 def llm():
-    """The LLM choice for spec drafting and the agents: none (default) or a provider name."""
-    value = os.environ.get("WSP_STUDIO_LLM", "none").strip()
-    if value == "":
-        return "none"
+    """The LLM for spec drafting and the agents.
+
+    WSP_STUDIO_LLM picks it: none, openai_compat, anthropic, modal_vllm, or
+    auto. auto (the default) uses openai_compat when OPENAI_API_KEY is set,
+    anthropic when ANTHROPIC_API_KEY is set, and none otherwise.
+    """
+    load_env()
+    value = os.environ.get("WSP_STUDIO_LLM", "auto").strip()
+    if value == "" or value == "auto":
+        if os.environ.get("OPENAI_API_KEY"):
+            value = "openai_compat"
+        elif os.environ.get("ANTHROPIC_API_KEY"):
+            value = "anthropic"
+        else:
+            value = "none"
+    if value == "openai_compat":
+        set_openai_default()
     return value
+
+
+def openai_model():
+    """The OpenAI model for openai_compat. WSP_STUDIO_OPENAI_MODEL, else gpt-5.4-mini."""
+    value = os.environ.get("WSP_STUDIO_OPENAI_MODEL", "").strip()
+    if value == "":
+        return DEFAULT_OPENAI_MODEL
+    return value
+
+
+def set_openai_default():
+    """Give every swarm config an openai_model, since the swarm DEFAULTS have none.
+
+    This changes the in-memory defaults only; wsp/swarm/config.py is not edited.
+    """
+    config_mod.DEFAULTS["openai_model"] = openai_model()
+    from wsp.swarm import factory
+    factory.CHOICES["llm"]["openai_compat"] = ("studio.server.llm_openai", "StudioOpenAILLM")
+
+
+def llm_model():
+    """The model name shown in the UI, or None when no LLM is in use."""
+    name = llm()
+    if name == "openai_compat":
+        return openai_model()
+    if name == "anthropic":
+        return "claude-sonnet-5-5"
+    if name == "none":
+        return None
+    return name
 
 
 def pace_s():

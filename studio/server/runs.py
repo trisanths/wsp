@@ -11,6 +11,7 @@ from wsp.swarm import factory
 from wsp.swarm import space
 
 from studio.server import catalog as catalog_mod
+from studio.server import envs
 from studio.server import programs
 from studio.server import settings
 from studio.server import specs as specs_mod
@@ -53,7 +54,7 @@ def target_ids(spec):
 def start_run(spec, program=None):
     """Start a run for a spec. Returns the run id. Raises RunError for a bad program."""
     config = make_run_config(spec)
-    parts = factory.build_run(config)
+    parts = envs.build_run(config)
     catalog = parts["catalog"]
     if program is not None:
         try:

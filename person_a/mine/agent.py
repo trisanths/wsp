@@ -421,9 +421,12 @@ class Session:
 
 
 def run(short, budget_usd=25.0, max_hours=3.0, max_screens=60, use_notes=True, effort=REASONING_EFFORT,
-        person=None):
+        person=None, focus=None):
     load_dotenv(os.path.join(common.ROOT, ".env"), override=True)
     run_id = "run-" + time.strftime("%Y%m%d-%H%M%S")
+    lane = os.environ.get("WSP_LANE", "")
+    if lane != "":
+        run_id = run_id + "-lane" + lane
     person = person or os.environ.get("WSP_PERSON") or "unknown"
     memory = SharedMemory(person, short, run_id)
     session = Session(short, budget_usd, max_hours, max_screens, memory)
@@ -432,8 +435,12 @@ def run(short, budget_usd=25.0, max_hours=3.0, max_screens=60, use_notes=True, e
     miner.base()
     log_dir = common.logs_dir(short)
     transcript_path = os.path.join(log_dir, run_id + ".jsonl")
-    llm = OpenAI()
+    # a hung request must not freeze the run: 3 minutes per request, then retry (max 2 retries)
+    llm = OpenAI(timeout=180, max_retries=2)
     system_text = instructions(miner, use_notes)
+    if focus:
+        system_text = system_text + ("\nYour focus in this run (other agents are covering the rest in parallel "
+                                     "and sharing results through memory): " + focus + "\n")
     if memory.enabled:
         arch = structure.get("model_class", "") + " " + miner.row.get("architecture", "")
         recalled = memory.recall_text("parts found in " + arch + " " + miner.row.get("kind", "") + " models; "

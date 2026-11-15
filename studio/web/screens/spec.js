@@ -26,7 +26,7 @@ function BenchRow({ b, onChange, onRemove }) {
       <span style="display:flex;align-items:center;gap:8px"><span class="val" style=${{ color: isT ? 'var(--good)' : 'var(--bad)' }}>${isT ? 'aim for ' : 'stay above '}${pct(val, 0)}%</span><button class="xbtn" title="Remove" onClick=${onRemove}><${Icon} n="x" size=${14} /></button></span>
     </div>
     <${Slider} value=${val} min=${0} max=${1} step=${0.01} ticks=${ticks} color=${isT ? 'var(--good)' : 'var(--bad)'} ariaLabel=${b.name} onChange=${(v) => onChange({ [key]: Math.round(v * 100) / 100 })} />
-    <div class="note"><span>${isT ? 'Host starts at ' + pct(b.base) + '%' : 'Host starts at ' + pct(b.base) + '%. A guard keeps the model from losing this skill.'}${b.lora != null ? '. Fine-tuning (LoRA) reaches ' + pct(b.lora) + '%.' : ''}</span></div>
+    <div class="note"><span>${b.base == null ? 'Host score not measured yet. The first run measures it' + (isT ? '.' : '. A guard keeps the model from losing this skill.') : isT ? 'Host starts at ' + pct(b.base) + '%' : 'Host starts at ' + pct(b.base) + '%. A guard keeps the model from losing this skill.'}${b.lora != null ? '. Fine-tuning (LoRA) reaches ' + pct(b.lora) + '%.' : ''}</span></div>
   </div>`;
 }
 

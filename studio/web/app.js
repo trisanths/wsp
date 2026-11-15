@@ -1,5 +1,5 @@
 import { html, render, useEffect } from './lib.js';
-import { useRoute, markStub } from './util.js';
+import { useRoute, markStub, setHealth } from './util.js';
 import { api } from './api.js';
 import { Toasts } from './components.js';
 import { PromptScreen } from './screens/prompt.js';
@@ -9,7 +9,7 @@ import { BuilderScreen } from './screens/builder.js';
 
 function App() {
   const r = useRoute();
-  useEffect(() => { api.health().then((h) => { if (h && h.stub) markStub(true); }).catch(() => {}); }, []);
+  useEffect(() => { api.health().then((h) => { setHealth(h); if (h && h.stub) markStub(true); }).catch(() => {}); }, []);
   let screen;
   if (r.name === 'spec') screen = html`<${SpecScreen} key=${r.id} id=${r.id} />`;
   else if (r.name === 'run') screen = html`<${RunScreen} key=${r.id} id=${r.id} agent=${r.agent} />`;

@@ -131,6 +131,21 @@ class Miner:
     # ---------- catalog ----------
 
     def write_part(self, part, label, target, screen_result, evidence_used, weight_rationale, tier, confirm=None):
+        # parallel agents on the same model share catalog/<model>.jsonl: hold a file lock while
+        # choosing the id and appending, so two agents never write the same id
+        import fcntl
+        lock_path = common.catalog_path(self.short) + ".lock"
+        os.makedirs(os.path.dirname(lock_path), exist_ok=True)
+        with open(lock_path, "w") as lock_file:
+            fcntl.flock(lock_file, fcntl.LOCK_EX)
+            try:
+                return self._write_part_locked(part, label, target, screen_result, evidence_used,
+                                               weight_rationale, tier, confirm)
+            finally:
+                fcntl.flock(lock_file, fcntl.LOCK_UN)
+
+    def _write_part_locked(self, part, label, target, screen_result, evidence_used, weight_rationale, tier,
+                           confirm=None):
         import torch
 
         path = common.catalog_path(self.short)

@@ -86,6 +86,9 @@ All your models in parallel:
 .venv/bin/python mine/run_many.py --models <a>,<b>,<c> --budget-usd 25 --max-hours 3 --person <your name>
 ```
 - `--budget-usd` caps OpenAI spend **per model**. Modal GPU time is extra; the run log prints both.
+- `--agents 3` runs 3 agents on each model at once, each with a different focus (attention heads, early MLP
+  neurons, late MLP neurons, experts/blocks). They share findings through the memory. This is faster, and each agent
+  has its own `--budget-usd`, so lower that (e.g. `--agents 3 --budget-usd 10`).
 - `--person` labels your entries in the shared memory, so other agents can see who tried what.
 - To cut OpenAI cost, add `--effort medium`. OpenAI is most of the cost: about $8 for a high-effort run
   on the small model, against about $1 of Modal.

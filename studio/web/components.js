@@ -1,5 +1,5 @@
 import { html, useState, useEffect, useRef } from './lib.js';
-import { agentColor, agentInitials, tokenizeLine, useStubFlag, useToasts, clamp, pct, go } from './util.js';
+import { agentColor, agentInitials, tokenizeLine, useStubFlag, useHealth, useToasts, clamp, pct, go } from './util.js';
 
 const ICONS = {
   plus: 'M12 5v14M5 12h14',
@@ -38,12 +38,15 @@ export function Logo() {
 
 export function TopBar({ children, right, crumb }) {
   const stub = useStubFlag();
+  const health = useHealth();
+  const modal = health && health.backend === 'modal';
   return html`<header class="topbar">
     <${Logo} />
     ${crumb != null && html`<span class="faint">/</span><span class="crumb">${crumb}</span>`}
     ${children}
     <span class="grow"></span>
-    ${stub && html`<${StubBadge} />`}
+    ${health && health.llm_model && html`<span class="pill hide-sm" title="The model the planning agents use">agents: ${health.llm_model}</span>`}
+    ${modal ? html`<span class="pill" title="Jobs run on Modal GPUs">Modal GPU</span>` : stub && html`<${StubBadge} />`}
     ${right}
   </header>`;
 }

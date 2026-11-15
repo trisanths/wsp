@@ -16,13 +16,25 @@ Open http://localhost:8765. The server serves `studio/web/` at `/` and the API u
 | Variable | Default | Values |
 |---|---|---|
 | `WSP_STUDIO_BACKEND` | `stub` | `stub`, `local`, `modal` |
-| `WSP_STUDIO_LLM` | `none` | `none`, `anthropic`, `modal_vllm`, `openai_compat` |
+| `WSP_STUDIO_LLM` | `auto` | `auto`, `none`, `openai_compat`, `anthropic`, `modal_vllm` |
+| `WSP_STUDIO_OPENAI_MODEL` | `gpt-5.4-mini` | any OpenAI chat model |
 | `WSP_STUDIO_PACE_S` | `0.8` | seconds of delay after each stub eval |
 | `WSP_STUDIO_OUT` | `outputs/studio` | where specs, uploads and run files go |
 
-The server reads `.env` the same way `wsp/swarm/config.py` does. Every response from the stub backend carries `"stub": true`. The `modal` backend is selectable here and is not run in tests.
+The server reads `.env` the same way `wsp/swarm/config.py` does. `auto` uses OpenAI when `OPENAI_API_KEY` is set, Anthropic when `ANTHROPIC_API_KEY` is set, and no LLM otherwise. With no LLM, specs are drafted by rules and the agents are the scripted ones. With an LLM, the spec draft, the agents and one builder suggestion use it, and a failed LLM call falls back to the rules. `server/llm_openai.py` sends `max_completion_tokens` and the default temperature, which the GPT-5 and o-series models need.
 
-With the LLM set to `none`, specs are drafted by rules and the agents are the scripted ones. With an LLM, the spec draft and the agents use it, and a failed LLM call falls back to the rules.
+Every response from the stub backend carries `"stub": true`, and the web app shows a STUB badge on every number.
+
+## Real GPUs (Modal)
+
+    MODAL_PROFILE=trisanth .venv/bin/modal deploy studio/modal_studio.py
+    MODAL_PROFILE=trisanth WSP_STUDIO_BACKEND=modal .venv/bin/uvicorn studio.server.app:app --port 8771
+
+`studio/modal_studio.py` is the `wsp-studio` Modal app. Each call compiles one program, trains its taps, then its LoRA or heal, and scores it in one GPU container (L40S, or H100 when a donor is above about 10B parameters). Redeploy after a change to `wsp/`, `wsp_eval/` or `parts_extracted/`, since they are copied into the image.
+
+- MMLU is scored as in rounds 6 and 7: the log-prob of " A" to " D", on the round 6 dev items (search, 1000) and the round 7 held-out items (2000). Host check on Modal: 47.8 (logged: 47.5). A 500-step Qwen2.5-7B tap scored 64.7 in the studio (run 6 three-seed mean: 67.9). Other tasks use the eval harness.
+- The palette offers the taps measured in runs 6 to 8 and the extracted mlp and attn parts. A tap's size counts its donor, which stays in memory and runs on the prompt.
+- The swarm's agents propose catalog grafts only. Taps reach an agent run through a builder handoff.
 
 ## Files
 
@@ -32,7 +44,10 @@ With the LLM set to `none`, specs are drafted by rules and the agents are the sc
 - `server/tracking.py`: pause and stop, agent proxies and the swarm subclass.
 - `server/runstate.py`: run state and the snapshot.
 - `server/builder.py`: builder sessions, jobs and suggestions.
-- `server/catalog.py`: the builder palette.
+- `server/catalog.py`: the builder palette, including the measured taps.
+- `server/envs.py`: builds a run's env, with the Modal backend when it is chosen.
+- `server/modal_backend.py`: the backend that calls the `wsp-studio` Modal app.
+- `server/llm_openai.py`: the OpenAI client for GPT-5 models.
 - `server/programs.py`: program text render, parse and validate.
 
 Run files go to `outputs/studio/`: `specs/<id>.json`, `uploads/<spec_id>/`, `runs/<run_id>/` (the swarm's log plus `studio_snapshot.json`).
@@ -41,7 +56,7 @@ Run files go to `outputs/studio/`: `specs/<id>.json`, `uploads/<spec_id>/`, `run
 
 - In stub mode the compute cap is at least 450 seconds per eval, because the stub cost model charges 300 to 450 seconds per eval and a 45 minute cap would otherwise end a run after about 9 evals.
 - The stub catalog has no deletion masks, so the studio adds the real masks from `catalog.jsonl` to its stub palette. The stub ignores masks when it scores.
-- Stub base scores come from the stub world (GSM8K 0.25, IFEval 0.70). The drafted spec shows the measured Llama-1B search-split bases (0.23, 0.42), and the run snapshot shows the base scores the env uses.
+- Stub base scores come from the stub world (GSM8K 0.25, IFEval 0.70), and a stub spec shows those. On Modal the spec shows the measured Llama-1B bases (GSM8K 0.23, IFEval 0.42, MMLU 0.475).
 
 ## Tests
 
