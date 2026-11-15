@@ -131,3 +131,9 @@ something fails. Each entry: what went wrong, then the rule.
   norm returned float32 into a bf16 head. Add at least one bf16 test of each
   forward path (CPU supports bf16 matmuls), and cast explicitly at every
   module boundary that mixes a donor's and a base's parameters.
+- A version port must keep working on the old version until every user
+  moves. merge-tf5 imports transformers.conversion_mapping (5.x only) at the
+  top of a code path in wsp/parts.py, so merging it into main broke 295
+  tests under 4.57.1, the version every running round uses. Guard
+  version-specific imports and run the suite under both versions before a
+  port lands.
