@@ -1,0 +1,427 @@
+{
+ "cost_dollars": 0.012,
+ "endpoint": "search",
+ "fetched_at": "2026-11-15T02:23:06Z",
+ "key": "634169ab0e129b26d4179499bb333555a3320fdebe630cf0283013db1961189d",
+ "params": {
+  "category": "publication",
+  "contents": {
+   "highlights": true
+  },
+  "end_published_date": "2026-11-14T00:00:00Z",
+  "exclude_domains": [
+   "*.kaggle.com",
+   "github.com/TIGER-AI-Lab/MMLU-Pro",
+   "github.com/google-deepmind/bbeh",
+   "github.com/openai/grade-school-math",
+   "huggingface.co/datasets",
+   "kaggle.com",
+   "paperswithcode.com/dataset",
+   "tensorflow.org/datasets"
+  ],
+  "num_results": 5,
+  "output_schema": {
+   "properties": {
+    "claims": {
+     "items": {
+      "properties": {
+       "claim": {
+        "type": "string"
+       },
+       "layer_hint": {
+        "type": "string"
+       },
+       "model": {
+        "type": "string"
+       },
+       "strength": {
+        "enum": [
+         "weak",
+         "medium",
+         "strong"
+        ],
+        "type": "string"
+       }
+      },
+      "required": [
+       "claim",
+       "layer_hint",
+       "model",
+       "strength"
+      ],
+      "type": "object"
+     },
+     "maxItems": 5,
+     "type": "array"
+    }
+   },
+   "required": [
+    "claims"
+   ],
+   "type": "object"
+  },
+  "query": "Which transformer layers and MLP neurons carry arithmetic and grade-school math reasoning in large language models?",
+  "system_prompt": "Prefer peer-reviewed papers and arXiv preprints about transformer language models. Give layer locations as fractions of model depth where you can, name the model each claim was measured on, and rate how strong the evidence is.",
+  "type": "deep-lite"
+ },
+ "response": {
+  "auto_date": null,
+  "context": null,
+  "cost_dollars": {
+   "contents": null,
+   "search": null,
+   "total": 0.012
+  },
+  "notices": null,
+  "output": {
+   "content": {
+    "claims": [
+     {
+      "claim": "In Llama-3-8B, arithmetic is carried by sparse MLP neurons in layers 16\u201331 (about 50\u201397% of depth); ablating 320 identified neurons drops accuracy from 92.0% to 0.3%.",
+      "layer_hint": "middle-to-late MLP layers",
+      "model": "Llama-3-8B",
+      "strength": "strong"
+     },
+     {
+      "claim": "In a 32-layer LLM, arithmetic answer-writing MLPs operate in layers 16\u201332 (50\u2013100% depth); roughly 200 neurons per layer (~1.5%) suffice.",
+      "layer_hint": "middle-to-late MLP layers",
+      "model": "32-layer LLM",
+      "strength": "strong"
+     },
+     {
+      "claim": "For grade-school math on Llama-2-7B, arithmetic-reasoning neurons occur in feed-forward layers, including layer 21 and 27.",
+      "layer_hint": "middle-to-late feed-forward layers",
+      "model": "Llama-2-7B",
+      "strength": "medium"
+     },
+     {
+      "claim": "In a 32-layer model, arithmetic result information is written by MLPs around layer 20 (62.5% depth), after attention transfers operand/operator information to the final token.",
+      "layer_hint": "middle-to-late MLP layers",
+      "model": "32-layer transformer LM",
+      "strength": "strong"
+     },
+     {
+      "claim": "Base-10 addition in Llama-3.1-8B is localized to 28 neurons in layer 18 (56% depth).",
+      "layer_hint": "middle MLP layer",
+      "model": "Llama-3.1-8B",
+      "strength": "strong"
+     }
+    ]
+   },
+   "grounding": [
+    {
+     "citations": [
+      {
+       "title": "Fine-Grained Manipulation of Arithmetic Neurons",
+       "url": "https://doi.org/10.18653/v1/2025.blackboxnlp-1.27"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "Fine-Grained Manipulation of Arithmetic Neurons",
+       "url": "https://doi.org/10.18653/v1/2025.blackboxnlp-1.27"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "Fine-Grained Manipulation of Arithmetic Neurons",
+       "url": "https://doi.org/10.18653/v1/2025.blackboxnlp-1.27"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "Fine-Grained Manipulation of Arithmetic Neurons",
+       "url": "https://doi.org/10.18653/v1/2025.blackboxnlp-1.27"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].strength"
+    },
+    {
+     "citations": [
+      {
+       "title": "Arithmetic Without Algorithms: Language Models Solve Math With a Bag of Heuristics",
+       "url": "https://doi.org/10.48550/arxiv.2410.21272"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "Arithmetic Without Algorithms: Language Models Solve Math With a Bag of Heuristics",
+       "url": "https://doi.org/10.48550/arxiv.2410.21272"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "Arithmetic Without Algorithms: Language Models Solve Math With a Bag of Heuristics",
+       "url": "https://doi.org/10.48550/arxiv.2410.21272"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "Arithmetic Without Algorithms: Language Models Solve Math With a Bag of Heuristics",
+       "url": "https://doi.org/10.48550/arxiv.2410.21272"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].strength"
+    },
+    {
+     "citations": [
+      {
+       "title": "An Investigation of Neuron Activation as a Unified Lens to Explain Chain-of-Thought Eliciting Arithmetic Reasoning of LLMs",
+       "url": "https://doi.org/10.48550/arxiv.2406.12288"
+      }
+     ],
+     "confidence": "medium",
+     "field": "claims[2].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "An Investigation of Neuron Activation as a Unified Lens to Explain Chain-of-Thought Eliciting Arithmetic Reasoning of LLMs",
+       "url": "https://doi.org/10.48550/arxiv.2406.12288"
+      }
+     ],
+     "confidence": "medium",
+     "field": "claims[2].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "An Investigation of Neuron Activation as a Unified Lens to Explain Chain-of-Thought Eliciting Arithmetic Reasoning of LLMs",
+       "url": "https://doi.org/10.48550/arxiv.2406.12288"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[2].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "An Investigation of Neuron Activation as a Unified Lens to Explain Chain-of-Thought Eliciting Arithmetic Reasoning of LLMs",
+       "url": "https://doi.org/10.48550/arxiv.2406.12288"
+      }
+     ],
+     "confidence": "medium",
+     "field": "claims[2].strength"
+    },
+    {
+     "citations": [
+      {
+       "title": "A Mechanistic Interpretation of Arithmetic Reasoning in Language Models using Causal Mediation Analysis",
+       "url": "https://doi.org/10.18653/v1/2023.emnlp-main.435"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[3].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "A Mechanistic Interpretation of Arithmetic Reasoning in Language Models using Causal Mediation Analysis",
+       "url": "https://doi.org/10.18653/v1/2023.emnlp-main.435"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[3].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "A Mechanistic Interpretation of Arithmetic Reasoning in Language Models using Causal Mediation Analysis",
+       "url": "https://doi.org/10.18653/v1/2023.emnlp-main.435"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[3].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "A Mechanistic Interpretation of Arithmetic Reasoning in Language Models using Causal Mediation Analysis",
+       "url": "https://doi.org/10.18653/v1/2023.emnlp-main.435"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[3].strength"
+    },
+    {
+     "citations": [
+      {
+       "title": "Comparing Sparsified MLPs and Transcoders: Many Transcoder Features Are Neurons in Disguise",
+       "url": "https://doi.org/10.48550/arxiv.2610.24521"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[4].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "Comparing Sparsified MLPs and Transcoders: Many Transcoder Features Are Neurons in Disguise",
+       "url": "https://doi.org/10.48550/arxiv.2610.24521"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[4].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "Comparing Sparsified MLPs and Transcoders: Many Transcoder Features Are Neurons in Disguise",
+       "url": "https://doi.org/10.48550/arxiv.2610.24521"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[4].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "Comparing Sparsified MLPs and Transcoders: Many Transcoder Features Are Neurons in Disguise",
+       "url": "https://doi.org/10.48550/arxiv.2610.24521"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[4].strength"
+    }
+   ]
+  },
+  "resolved_search_type": "",
+  "results": [
+   {
+    "author": "Wenzhuo Du, Rui Zheng, Tongxu Luo, Stephen Chung, Jie Fu",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "It is a longstanding challenge to understand how neural models perform mathematical rea soning. Recent mechanistic interpretability work indicates that large language models (LLMs) use a \u201cbag of heuristics\u201d in middle to late-layer MLP neurons for arithmetic, where each heuristic promotes logits for specific nu merical patterns. Building on this, we aim for ... -grained manipulation of these heuris tic neurons to causally steer model predictions towards specific arithmetic outcomes, moving beyond simply disrupting accuracy.\n\n...\n\nRecent mechanistic interpretability work indicates that large language models (LLMs) per form tasks (jylin et al., 2024; Nikankin et al., 2024), including arithmetic (a fundamental class of mathe matical problems), by activating a set of sparse neu rons. In particular, Nikankin et al. (2024) finds that LLMs solve arithmetic prompts by utilizing \u201ca bag of heuristics\u201d. Each heuristic, embedded within a set of sparse neurons in the middle- to late-layer Multi-Layer Perceptrons (MLPs), activates upon detecting specific patterns in either the operands or the results, thereby increasing the logits of tokens within these patterns. The combination of these neurons constitutes the mechanism used to produce arithmetic answers. ... 1 provides two heuris tic examples, activating results patterns { ..6} and { ..7} .\n\n...\n\nArithmetic Neurons Arithmetic neurons are a specific set of neurons, typically found to be sparsely activated within the middle and late layers of MLP in LLMs. These neurons play a signifi cant role in the arithmetic prediction capabilities of LLMs. Formally, considering an LLM denoted as"
+    ],
+    "id": "https://exa.ai/library/publication/pqpcqgsd2m7",
+    "image": null,
+    "published_date": "2025-01-01T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Fine-Grained Manipulation of Arithmetic Neurons",
+    "url": "https://doi.org/10.18653/v1/2025.blackboxnlp-1.27"
+   },
+   {
+    "author": "Yaniv Nikankin, Anja Reusch, Aaron Mueller, Yonatan Belinkov",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "Do large language models (LLMs) solve reasoning tasks by learning robust gener alizable algorithms, or do they memorize training data? To investigate this ques tion, we use arithmetic reasoning as a representative task. Using causal analysis, we identify a subset of the model (a circuit) that explains most of the model\u2019s be havior for basic arithmetic logic and examine its functionality. By zooming in on the level of individual circuit neurons, we discover a sparse set of important neu rons that implement simple heuristics. Each heuristic identifies a numerical input pattern and outputs corresponding answers. We hypothesize that the combination of these heuristic neurons is the mechanism used to produce correct arithmetic an swers. To test this, we categorize each neuron into several heuristic types\u2014such as neurons that activate when an operand falls within a certain range\u2014and find that the unordered combination of these heuristic types is the mechanism that explains most of the model\u2019s accuracy on arithmetic prompts. Finally, we demonstrate that this mechanism appears as the main source of arithmetic accuracy early in training. Overall, our experimental results across several LLMs show that LLMs perform arithmetic using neither robust algorithms nor memorization; rather, they rely on a \u201cbag of heuristics\u201d.\n\n...\n\nThe patching results, shown in Figure 2a, reveal that the MLP layers affect the output probabilities more than the attention heads. The first MLP affects the representation at the operator and operand positions (see Appendix B.1), while middle- and late-layer MLPs exhibit a strong effect at the final position, likely reflecting their role in predicting the answer token in that position (further discussed in Section 2.2).\n\n...\n\nWe find that the answer can only be extracted with high accuracy from the final position ... Figure 3), after the token representation is processed by the later layers of the model, starting from layer l = 16. Given that the arithmetic circuit contains only MLPs in these layers (Figure 2), this suggests that these MLPs in layers [16, 32] are the components that write the correct answer into the representation at the last position. The following section zooms into these middle- and late-layer MLPs, and presents evidence for the role they play in generating the correct answer\u2014 specifically, in how they promote the correct answer token through a combination of many independent arithmetic heuristics\n\n...\n\nWe hypothesize that for each operator, the highest-effect neurons are sufficient to explain most of the model\u2019s arithmetic behavior. To verify this, we measure the faithfulness of the arithmetic circuit when mean ablating non-circuit components and lower effect MLP neurons in middle- and late-layer MLPs. The results (Figure 4b) confirm that only 200 neurons (roughly 1.5%) per layer are needed to achieve high faithfulness and correctly compute arithmetic prompts.\n\n...\n\n7 CONCLUSIONS Do LLMs rely on a robust algorithm or on memorization to solve arithmetic tasks? Our analysis suggests that the mechanism behind the arithmetic abilities of LLMs is somewhere in the middle: LLMs implement a bag of heuristics\u2014a combination of many memorized rules\u2014to perform arith metic reasoning. To reach this conclusion, we performed a set of causal analysis experiments to locate a circuit, i.e., a subset of model components, responsible for arithmetic calculations. We ex amined the circuit at the level of individual neurons and pinpointed the arithmetic calculations to a sparse set of MLP neurons. We showed that each neuron acts as a memorized heuristic, activating for a specific pattern of inputs, and that the combination of many such neurons is required to cor rectly answer the prompts. In addition, we found that this mechanism gradually evolves over the course of training, emerging steadily rather than appearing abruptly or replacing other mechanisms."
+    ],
+    "id": "https://exa.ai/library/publication/8b3b75mpwj5",
+    "image": null,
+    "published_date": "2024-10-28T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Arithmetic Without Algorithms: Language Models Solve Math With a Bag of Heuristics",
+    "url": "https://doi.org/10.48550/arxiv.2410.21272"
+   },
+   {
+    "author": "Daking Rai, Ziyu Yao",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "Large language models (LLMs) have shown strong arithmetic reasoning capabilities when prompted with Chain-of-Thought (CoT) prompts. ... To fill this gap, in this work, we investigate \"neuron activation\" as a lens to provide a unified explanation to observations made by prior work. Specifically, we look into neurons within the feed-forward layers of LLMs that may have activated their arithmetic reasoning capabilities, using Llama2 (Touvron et al., 2023) as an example.\n\n...\n\nDataset and Model Setup We conduct our experiment on the GSM8k dataset (Cobbe et al., 2021) , which is widely used for evaluating the arithmetic reasoning capabilities of LLMs. It consists of diverse grade school math word problems and only requires basic arithmetic operations to solve, often involving problem-solving steps ranging from two to eight. We use Llama2-7B (Touvron et al., 2023) as our model to investigate the reasoning capabilities in LLMs. However, we believe that our findings apply to other transformer-based decoderonly LLMs as well.\n\n...\n\nTo answer this question, we apply the proposed approach in Section 3 to automatically identify neurons implying a set of 7 concepts, including logical connectors, which plays a crucial role in deciding the reasoning direction, a set of four arithmetic operations (i.e., add, subtract, multiply, and division), and others (equals to and calculation), which are also important to arithmetic reasoning. Though they may not fully encompass arithmetic reasoning, these concepts are sufficient for an initial investigation of neuron activation. The seed token set S name for each concept, the identified neuron examples, and the expanded concept tokens found in the identified neurons, are presented in Table 3 . The specific implementation details are included in Appendix C. We find a total of 113 neurons associated with the listed concept in Llama2-7B. We performed manual validation of the results and didn't find any objection. For instance, the \"L21N7027\" neuron, corresponding to the 21st layer and 7027-th row of V 21 , projects with high coefficients to tokens such as \"+\", \"U+4e0e\", \"&\", \"and\", \"U+acfc\", \"plus\", \"+\", \"AND\", \"U+3068\", etc., and GPT-4 reasonably classified it as a neuron that promotes \"Arithmetic Addition\". Notably, we discovered neurons that group certain concepts using different language characters. For instance, the \"L21N7027\" neuron promotes tokens like \"and\" and \"+\" with their corresponding translation for Chinese (U+4e0e) and Japanese (U+3068). Additionally, we also found some neurons with somewhat polysemantic characteristics, where a single neuron promotes multiple concepts. For instance, \"L27N10751\" promotes tokens related to both addition (+, plus, +=, ..) and subtraction (-, minus, -+, ..). Table 3 : List of concepts related to arithmetic reasoning along with their seed tokens and the count of discovered neurons in Llama2-7B."
+    ],
+    "id": "https://exa.ai/library/publication/5nrj67qtx3k",
+    "image": null,
+    "published_date": "2024-06-18T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "An Investigation of Neuron Activation as a Unified Lens to Explain Chain-of-Thought Eliciting Arithmetic Reasoning of LLMs",
+    "url": "https://doi.org/10.48550/arxiv.2406.12288"
+   },
+   {
+    "author": "Alessandro Stolfo, Yonatan Belinkov, Mrinmaya Sachan",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "Mathematical reasoning in large language mod els (LMs) has garnered significant attention in recent work, but there is a limited under standing of how these models process and store information related to arithmetic tasks within their architecture. In order to improve our un derstanding of this aspect of language mod els, we present a mechanistic interpretation of Transformer-based LMs on arithmetic ques tions using a causal mediation analysis frame work. By intervening on the activations of spe cific model components and measuring the re sulting changes in predicted probabilities, we identify the subset of parameters responsible for specific predictions. This provides insights into how information related to arithmetic is processed by LMs. Our experimental results indicate that LMs process the input by trans mitting the information relevant to the query from mid-sequence early layers to the final to ken using the attention mechanism. Then, this information is processed by a set of MLP mod ules, which generate result-related information that is incorporated into the residual stream. To assess the specificity of the observed activation dynamics, we compare the effects of different model components on arithmetic queries with other tasks, including number retrieval from prompts and ... questions.\n\n...\n\nOur findings show that the model processes the input by convey ing information about the operator and the operands from mid-sequence early layers to the final token using attention. At this location, the information is processed by a set of MLP modules, which output result-related information into the residual stream (shown in Figure 1). We verify this finding for bi and tri-variate arithmetic queries across four pre trained language models with different sizes: 2.8B, 6B, and 7B parameters.\n\n...\n\nOur analysis reveals four primary activation sites: the MLP module situated at the first layer corre sponding to the tokens of the two operands; the intermediate attention blocks at the last token of the sequence; and the MLP modules in the middle to-late layers, also located at the last token of the sequence. It is expected to observe a high effect for the first MLPs associated with the tokens that vary (i.e., the operands), as such modules are likely to affect the representation of the tokens, which is subsequently used for the next token prediction. On the other hand, of particular interest is the high effect detected at the attention modules in layers 11\u201318 and in the MLPs around layer 20. As for the flow of information tied to the opera tor, the activations display a parallel pattern: high effect is registered at early MLPs associated with the operator tokens and at the same last-token MLP and attention locations. We report the visualization of the operator-related results in Appendix C. A possible explanation of the model\u2019s behavior on this task is that the attention mechanism facil itates the propagation of operand- and operator related information from the first layers early in the sequence to the last token. Here, this infor mation is processed by the MLP modules, which incorporate the information about the result of the computation in the residual stream. This hypoth esis aligns with the existing theory that attributes the responsibility of moving and extracting infor mation within Transformer-based models to the attention mechanism (Elhage et al., 2021; Geva et al., 2023), while the feed-forward layers are as sociated with performing computations, retrieving facts and information (Geva et al., 2022; ... These results are consistent with our hypothesis that operand-related information is transferred by the attention mechanism to the end of the sequence and then processed by the MLPs to obtain the result of the computation."
+    ],
+    "id": "https://exa.ai/library/publication/9ytb09kh59g",
+    "image": null,
+    "published_date": "2023-01-01T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "A Mechanistic Interpretation of Arithmetic Reasoning in Language Models using Causal Mediation Analysis",
+    "url": "https://doi.org/10.18653/v1/2023.emnlp-main.435"
+   },
+   {
+    "author": "Stepan Shabalin, Mateusz Piotrowski",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "Transcoder features important to arithmetic are neuron features. Feucht et al. [2026] localize base-10 addition in Llama-3.1-8B to 28 neurons of the layer-18 MLP, which write into a lowdimensional output subspace and organize into Fourier periods. We find"
+    ],
+    "id": "https://exa.ai/library/publication/23nsrmbct60",
+    "image": null,
+    "published_date": "2026-10-17T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Comparing Sparsified MLPs and Transcoders: Many Transcoder Features Are Neurons in Disguise",
+    "url": "https://doi.org/10.48550/arxiv.2610.24521"
+   }
+  ],
+  "search_time": 4353.8,
+  "statuses": null,
+  "warnings": null
+ },
+ "sdk_version": "2.28.0"
+}

@@ -173,13 +173,19 @@ def depth_band(at, n_host):
 
 
 def graft_pattern(graft, program, catalog, config):
-    """The judge's pattern for one graft: part id, depth band, and whether heal is used."""
+    """The judge's pattern for one graft: part id, depth band, heal or noheal, and glue rank.
+
+    For example "stub_qmath_l14_c0|middle|heal|r64". The glue rank is part
+    of the pattern because full and rank-64 glue behave differently (round
+    2), so killing the full-rank pattern leaves the rank-64 one open.
+    """
     steps = ps.heal_steps(program)
     healed = "noheal"
     if steps is not None and steps > 0:
         healed = "heal"
     band = depth_band(resolved_at(graft, catalog, config), host_layers(config, catalog))
-    return ps.graft_id(graft) + "|" + band + "|" + healed
+    rank = rank_text(ps.graft_glue_rank(graft))
+    return ps.graft_id(graft) + "|" + band + "|" + healed + "|" + rank
 
 
 def program_patterns(program, catalog, config):

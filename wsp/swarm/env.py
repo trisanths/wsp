@@ -19,6 +19,23 @@ Order inside every step (spec 5, rule 3), implemented only here:
 A compile error charges the compute it used and no token. A failure after
 the token spend is infra_error and keeps the token (no refunds).
 
+Cascade heal (design section 14): below full fidelity ("check" and "low")
+the heal runs config low_fidelity_heal_steps steps (default 50), or the
+program's own steps when it asks for fewer, and charges compute for those
+steps. A promotion to full compiles and heals again at the program's own
+steps and charges that. The backend is handed the program with its heal
+steps changed, so every backend and every arm follows the same rule. Each
+eval row records heal_steps_used (None when no heal ran).
+
+Promotion pricing: fidelity levels are nested question sets, so a promotion
+pays only the FEE difference, but only when the level already paid scored
+the same model, meaning it ran the same heal steps the new level will run.
+A promotion that heals again at other steps (50 below full, then the
+program's own 300) scores a new model, no earlier answers carry over, and
+it pays the whole level (1.0 FEE at full). Programs with no heal, heal 0,
+or a heal at or below the short heal, and every program when
+low_fidelity_heal_steps is None, keep the nested price.
+
 step_many runs a batch in five phases so the results do not depend on thread
 timing: checks (in order), compile and heal (threads), token spends (in
 order), evals (threads), rows (in order). Compute is checked once at the
@@ -65,9 +82,10 @@ class WspEnv:
         self.guards = guard_tasks(config)
         self.tasks = all_tasks(config)
         self.n_host = space.host_layers(config, catalog)
+        check_low_heal_steps(config["low_fidelity_heal_steps"])
         self.base = {}
         self.cache = {}              # (hash, split, fidelity) -> scored result
-        self.paid = {}               # (hash, split) -> FEE fraction already paid
+        self.paid = {}               # (hash, split, heal steps used) -> FEE fraction already paid on that model
         self.probe_cache = {}        # probe hash -> probe result
         self.known_fits = {}         # slot key -> fit_r2
         self.history = []            # compact search rows
@@ -257,9 +275,33 @@ class WspEnv:
             self.log_event("compute_overshoot", "compute cap overshot by " + str(round(over, 1)) + " s",
                            extra={"overshoot_s": over})
 
-    def eval_cost(self, program_hash, split, fidelity):
-        """FEE for one eval. Fidelity levels are nested, so a promotion pays only the difference."""
-        cost = fidelity_cost(self.config, fidelity) - self.paid.get((program_hash, split), 0.0)
+    def heal_steps_for(self, program, fidelity):
+        """The heal steps to run for a program at a fidelity, or None when it has no heal.
+
+        Full fidelity heals at the program's own steps. A lower fidelity heals
+        with config low_fidelity_heal_steps, or the program's own steps when
+        it asks for fewer. With that key set to None every fidelity heals at
+        the program's own steps.
+        """
+        steps = ps.heal_steps(program)
+        if steps is None or fidelity == "full":
+            return steps
+        short = self.config["low_fidelity_heal_steps"]
+        if short is None or short >= steps:
+            return steps
+        return short
+
+    def eval_cost(self, program, program_hash, split, fidelity):
+        """FEE for one eval of a program at a fidelity.
+
+        Fidelity levels are nested, so a promotion pays only the difference,
+        and only against a level that scored the same model: one that ran
+        the heal steps this fidelity will run. Otherwise it pays the whole
+        level (see "Promotion pricing" at the top of this file).
+        """
+        steps = self.heal_steps_for(program, fidelity)
+        already = self.paid.get((program_hash, split, steps), 0.0)
+        cost = fidelity_cost(self.config, fidelity) - already
         if cost < 0:
             cost = 0.0
         return round(cost, 3)
@@ -294,7 +336,7 @@ class WspEnv:
                 job["dup_of"] = first_of_key[key]
                 continue
             first_of_key[key] = job["index"]
-            job["cost"] = self.eval_cost(job["hash"], split, job["fidelity"])
+            job["cost"] = self.eval_cost(job["program"], job["hash"], split, job["fidelity"])
             affordable = budget.eval_remaining() - planned >= job["cost"] - 1e-9
             if not can_work or not affordable:
                 job["status"] = "budget_exhausted"
@@ -402,8 +444,13 @@ class WspEnv:
                 self.release(job)
                 return
         if ps.heal(program) is not None:
+            steps = self.heal_steps_for(program, job["fidelity"])
+            heal_program = program
+            if steps != ps.heal_steps(program):
+                heal_program = ps.with_heal_steps(program, steps)
+            job["heal_steps_used"] = steps
             try:
-                healed = self.backend.heal(job["handle"], program)
+                healed = self.backend.heal(job["handle"], heal_program)
             except Exception as error:
                 healed = {"ok": False, "error": type(error).__name__ + ": " + str(error), "compute_s": {}}
             self.charge(job, budget, healed.get("compute_s"))
@@ -457,12 +504,14 @@ class WspEnv:
         if first["status"] == "scored":
             job["status"] = "cache_hit"
             job["cached"] = {"scores": dict(first["scores"]), "report": list(first["report"]),
-                             "heal_loss": list(first["heal_loss"]), "token": first["token"]}
+                             "heal_loss": list(first["heal_loss"]), "token": first["token"],
+                             "heal_steps_used": first["heal_steps_used"]}
         else:
             job["status"] = first["status"]
             job["rejected"] = list(first["rejected"])
             job["report"] = list(first["report"])
             job["error"] = first["error"]
+            job["heal_steps_used"] = first["heal_steps_used"]
         job["extra"]["duplicate_of_index"] = first["index"]
 
     def finish_row(self, job, split, budget, control):
@@ -478,6 +527,7 @@ class WspEnv:
         row["eval_count"] = job["eval_count"]
         row["compute_s"] = dict(job["compute"])
         row["heal_loss"] = list(job["heal_loss"])
+        row["heal_steps_used"] = job["heal_steps_used"]
         extra = dict(job["extra"])
 
         if job["program"] is not None:
@@ -497,6 +547,7 @@ class WspEnv:
             report = cached["report"]
             scores = cached["scores"]
             row["heal_loss"] = list(cached["heal_loss"])
+            row["heal_steps_used"] = cached["heal_steps_used"]
             row["cache_hit"] = True
             extra["cached_token"] = cached["token"]
         fill_fit(row, report)
@@ -539,9 +590,10 @@ class WspEnv:
                                                "graft_report": list(job["report"])}
         if row["status"] in SCORED and job["key"] is not None:
             self.cache[job["key"]] = {"scores": dict(row["scores"]), "report": list(job["report"]),
-                                      "heal_loss": list(row["heal_loss"]), "token": row["token"]}
+                                      "heal_loss": list(row["heal_loss"]), "token": row["token"],
+                                      "heal_steps_used": row["heal_steps_used"]}
             fraction = fidelity_cost(self.config, row["fidelity"])
-            paid_key = (job["hash"], split)
+            paid_key = (job["hash"], split, row["heal_steps_used"])
             if fraction > self.paid.get(paid_key, 0.0):
                 self.paid[paid_key] = fraction
         if row["status"] != "budget_exhausted":
@@ -630,6 +682,7 @@ class WspEnv:
     def finish_probe(self, row, result):
         self.stamp(row, self.budget)
         row["status"] = result["status"]
+        row["heal_steps_used"] = None          # a probe never heals
         if row["program_hash"] is not None:
             row["extra"]["patterns"] = space.program_patterns(row["program"], self.catalog, self.config)
         result["fit_r2"] = dict(row["fit_r2"])
@@ -722,12 +775,21 @@ def make_job(index, candidate):
         "eval_count": 0.0,
         "report": [],
         "heal_loss": [],
+        "heal_steps_used": None,
         "rejected": [],
         "scores": None,
         "cached": None,
         "dup_of": None,
         "compute": {},
     }
+
+
+def check_low_heal_steps(value):
+    """Raise ValueError unless config low_fidelity_heal_steps is None or a whole number 0 or more."""
+    if value is None:
+        return
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        raise ValueError("low_fidelity_heal_steps must be None or an integer of 0 or more, got " + repr(value))
 
 
 def fill_fit(row, report):

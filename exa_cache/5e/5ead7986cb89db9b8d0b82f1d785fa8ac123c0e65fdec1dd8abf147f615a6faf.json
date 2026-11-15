@@ -1,0 +1,459 @@
+{
+ "cost_dollars": 0.012,
+ "endpoint": "search",
+ "fetched_at": "2026-11-15T02:23:28Z",
+ "key": "5ead7986cb89db9b8d0b82f1d785fa8ac123c0e65fdec1dd8abf147f615a6faf",
+ "params": {
+  "category": "publication",
+  "contents": {
+   "highlights": true
+  },
+  "end_published_date": "2026-11-14T00:00:00Z",
+  "exclude_domains": [
+   "*.kaggle.com",
+   "github.com/TIGER-AI-Lab/MMLU-Pro",
+   "github.com/google-deepmind/bbeh",
+   "github.com/openai/grade-school-math",
+   "huggingface.co/datasets",
+   "kaggle.com",
+   "paperswithcode.com/dataset",
+   "tensorflow.org/datasets"
+  ],
+  "num_results": 5,
+  "output_schema": {
+   "properties": {
+    "claims": {
+     "items": {
+      "properties": {
+       "claim": {
+        "type": "string"
+       },
+       "layer_hint": {
+        "type": "string"
+       },
+       "model": {
+        "type": "string"
+       },
+       "strength": {
+        "enum": [
+         "weak",
+         "medium",
+         "strong"
+        ],
+        "type": "string"
+       }
+      },
+      "required": [
+       "claim",
+       "layer_hint",
+       "model",
+       "strength"
+      ],
+      "type": "object"
+     },
+     "maxItems": 5,
+     "type": "array"
+    }
+   },
+   "required": [
+    "claims"
+   ],
+   "type": "object"
+  },
+  "query": "How much task skill can small trained adapters or interface layers learn on their own around frozen or random transformer weights?",
+  "system_prompt": "Prefer peer-reviewed papers and arXiv preprints about transformer language models. Give layer locations as fractions of model depth where you can, name the model each claim was measured on, and rate how strong the evidence is.",
+  "type": "deep-lite"
+ },
+ "response": {
+  "auto_date": null,
+  "context": null,
+  "cost_dollars": {
+   "contents": null,
+   "search": null,
+   "total": 0.012
+  },
+  "notices": null,
+  "output": {
+   "content": {
+    "claims": [
+     {
+      "claim": "Direct evidence for adapters trained around genuinely frozen random transformer weights is strongest in the 2026 LottaLoRA preprint: across nine benchmarks and architectures up to 900M-parameter Transformers, frozen random backbones plus trained low-rank LoRA adapters recovered 96\u2013100% of fully trained performance while training 0.5\u201340% as many parameters. The result suggests that, in those experiments, task information can be represented in a relatively small adapter subspace, but the supplied result does not identify a single universal rank or exact transformer layer fractions.",
+      "layer_hint": "The random-scaffold result is described for LoRA adapters over frozen backbones, not as a specific insertion fraction. Therefore no defensible layer-depth fraction can be extracted from the supplied summary.",
+      "model": "Architectures ranging from single-layer classifiers to 900M-parameter Transformers; the supplied summary does not name the individual Transformer model(s) or benchmark-by-benchmark ranks.",
+      "strength": "strong"
+     },
+     {
+      "claim": "A complementary arXiv study shows that even with all intermediate transformer weights randomly initialized and frozen, training only input and output embeddings can achieve perfect accuracy on four algorithmic tasks and accurate performance across seven tasks, including modular arithmetic, associative recall, decimal addition, parenthesis balancing, and aspects of text generation. This demonstrates that frozen random transformer computation can expose useful task circuits, but it is not adapter-layer evidence and should not be equated with adapter capacity.",
+      "layer_hint": "Only the embedding and unembedding layers are trained; all intermediate layers remain frozen random. Thus the trainable interface is at the model boundaries, not at a reported fractional depth location.",
+      "model": "Randomly initialized transformer sequence models; the supplied result does not specify a named pretrained model or exact depth.",
+      "strength": "strong"
+     },
+     {
+      "claim": "For ordinary adapters on pretrained transformers, very small trainable modules can approach or exceed full fine-tuning: Tiny-Attention reports GLUE performance above other parameter-efficient methods and full fine-tuning while updating 0.05% of parameters. Its adapter is inserted between each layer's attention module and feed-forward network, and uses per-head dimension 1.",
+      "layer_hint": "The adapter is placed at the attention-to-FFN interface in every transformer layer, approximately at the midpoint of each layer's computation rather than at one particular fraction of total model depth.",
+      "model": "The supplied result identifies a pretrained language model evaluated on GLUE but does not name its model or depth.",
+      "strength": "strong"
+     },
+     {
+      "claim": "Layer selection matters: Adaptable Adapters on a 24-layer transformer used about 13\u201315 adapter layers on average (roughly 0.54\u20130.63 of model depth), while retaining performance comparable to the full adapter architecture; an AA-focused 13-layer design reduced trainable parameters from 3M to 1.7M and improved low-data GLUE scores by 4.24, 5.57, and 2.35 points in the reported settings.",
+      "layer_hint": "Selected layers occupy about 13\u201315 of 24 layers, or approximately 54\u201363% of depth; the supplied summary does not list which exact layer indices were selected.",
+      "model": "A 24-layer pretrained transformer evaluated on GLUE; the supplied result does not name the model.",
+      "strength": "strong"
+     },
+     {
+      "claim": "Overall answer: small interface adapters can learn substantial task skill, potentially nearly all of the fully trained model's benchmark performance in the random-scaffold LoRA experiments, but the evidence is not yet enough to claim that arbitrary small adapters around arbitrary random transformers will do so. Conventional adapter studies establish strong performance on pretrained, not random, backbones; the random-backbone result is concentrated in one recent preprint and reports broad recovery rather than a universal capacity law.",
+      "layer_hint": "The best-supported depth statement is that useful adapters can be distributed through roughly half to two-thirds of layers in a 24-layer pretrained transformer, while the random-backbone LoRA summary gives no layer-fraction ablation.",
+      "model": "Evidence spans unnamed pretrained GLUE transformers, a 24-layer GLUE transformer, and random frozen backbones up to 900M-parameter Transformers; exact per-model adapter ranks and layer placements are unavailable in the supplied search results.",
+      "strength": "medium"
+     }
+    ]
+   },
+   "grounding": [
+    {
+     "citations": [
+      {
+       "title": "A Little Rank Goes a Long Way: Random Scaffolds with LoRA Adapters Are All You Need",
+       "url": "https://doi.org/10.48550/arxiv.2604.08749"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "A Little Rank Goes a Long Way: Random Scaffolds with LoRA Adapters Are All You Need",
+       "url": "https://doi.org/10.48550/arxiv.2604.08749"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "A Little Rank Goes a Long Way: Random Scaffolds with LoRA Adapters Are All You Need",
+       "url": "https://doi.org/10.48550/arxiv.2604.08749"
+      }
+     ],
+     "confidence": "medium",
+     "field": "claims[0].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "A Little Rank Goes a Long Way: Random Scaffolds with LoRA Adapters Are All You Need",
+       "url": "https://doi.org/10.48550/arxiv.2604.08749"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].strength"
+    },
+    {
+     "citations": [
+      {
+       "title": "Algorithmic Capabilities of Random Transformers",
+       "url": "https://doi.org/10.48550/arxiv.2410.04368"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "Algorithmic Capabilities of Random Transformers",
+       "url": "https://doi.org/10.48550/arxiv.2410.04368"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "Algorithmic Capabilities of Random Transformers",
+       "url": "https://doi.org/10.48550/arxiv.2410.04368"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "Algorithmic Capabilities of Random Transformers",
+       "url": "https://doi.org/10.48550/arxiv.2410.04368"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].strength"
+    },
+    {
+     "citations": [
+      {
+       "title": "Tiny-Attention Adapter: Contexts Are More Important Than the Number of Parameters",
+       "url": "https://doi.org/10.18653/v1/2022.emnlp-main.444"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[2].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "Tiny-Attention Adapter: Contexts Are More Important Than the Number of Parameters",
+       "url": "https://doi.org/10.18653/v1/2022.emnlp-main.444"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[2].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "Tiny-Attention Adapter: Contexts Are More Important Than the Number of Parameters",
+       "url": "https://doi.org/10.18653/v1/2022.emnlp-main.444"
+      }
+     ],
+     "confidence": "medium",
+     "field": "claims[2].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "Tiny-Attention Adapter: Contexts Are More Important Than the Number of Parameters",
+       "url": "https://doi.org/10.18653/v1/2022.emnlp-main.444"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[2].strength"
+    },
+    {
+     "citations": [
+      {
+       "title": "Adaptable Adapters",
+       "url": "https://doi.org/10.18653/v1/2022.naacl-main.274"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[3].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "Adaptable Adapters",
+       "url": "https://doi.org/10.18653/v1/2022.naacl-main.274"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[3].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "Adaptable Adapters",
+       "url": "https://doi.org/10.18653/v1/2022.naacl-main.274"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[3].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "Adaptable Adapters",
+       "url": "https://doi.org/10.18653/v1/2022.naacl-main.274"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[3].strength"
+    },
+    {
+     "citations": [
+      {
+       "title": "A Little Rank Goes a Long Way: Random Scaffolds with LoRA Adapters Are All You Need",
+       "url": "https://doi.org/10.48550/arxiv.2604.08749"
+      },
+      {
+       "title": "Tiny-Attention Adapter: Contexts Are More Important Than the Number of Parameters",
+       "url": "https://doi.org/10.18653/v1/2022.emnlp-main.444"
+      },
+      {
+       "title": "Adapters: A Unified Library for Parameter-Efficient and Modular Transfer Learning",
+       "url": "https://doi.org/10.48550/arxiv.2311.11077"
+      },
+      {
+       "title": "Adaptable Adapters",
+       "url": "https://doi.org/10.18653/v1/2022.naacl-main.274"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[4].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "Adaptable Adapters",
+       "url": "https://doi.org/10.18653/v1/2022.naacl-main.274"
+      },
+      {
+       "title": "A Little Rank Goes a Long Way: Random Scaffolds with LoRA Adapters Are All You Need",
+       "url": "https://doi.org/10.48550/arxiv.2604.08749"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[4].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "A Little Rank Goes a Long Way: Random Scaffolds with LoRA Adapters Are All You Need",
+       "url": "https://doi.org/10.48550/arxiv.2604.08749"
+      },
+      {
+       "title": "Tiny-Attention Adapter: Contexts Are More Important Than the Number of Parameters",
+       "url": "https://doi.org/10.18653/v1/2022.emnlp-main.444"
+      },
+      {
+       "title": "Adaptable Adapters",
+       "url": "https://doi.org/10.18653/v1/2022.naacl-main.274"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[4].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "A Little Rank Goes a Long Way: Random Scaffolds with LoRA Adapters Are All You Need",
+       "url": "https://doi.org/10.48550/arxiv.2604.08749"
+      },
+      {
+       "title": "Tiny-Attention Adapter: Contexts Are More Important Than the Number of Parameters",
+       "url": "https://doi.org/10.18653/v1/2022.emnlp-main.444"
+      },
+      {
+       "title": "Adaptable Adapters",
+       "url": "https://doi.org/10.18653/v1/2022.naacl-main.274"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[4].strength"
+    }
+   ]
+  },
+  "resolved_search_type": "",
+  "results": [
+   {
+    "author": "Hananel Hazan, Yanbo Zhang, Benedikt Hartl, Michael Levin",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "How many of a neural network's parameters actually encode task-specific information? We investigate this question with LottaLoRA, a training paradigm in which every backbone weight is drawn at random and frozen; only low-rank LoRA adapters are trained. Across nine benchmarks spanning diverse architecture families from single-layer classifiers to 900M parameter Transformers low-rank adapters over frozen random backbones recover 96-100% of fully trained performance while training only 0.5-40% of the parameters. The task-specific signal therefore occupies a subspace orders of magnitude smaller than the full parameter count suggests. Three mechanistic findings underpin this result:(1) the frozen backbone is actively exploited when static the learned scaling~$\u03b2$ remains strictly positive across all architectures but when the scaffold is destabilized, the optimizer silences it and the LoRA factors absorb all task information; (2) the frozen backbone is preferable but interchangeable any random initialization works equally well, provided it remains fixed throughout training; and (3) the minimum LoRA rank at which performance saturates estimates the intrinsic dimensionality of the task, reminiscent of the number of components retained in Principal Component Analysis (PCA). The construction is formally analogous to Reservoir Computing unfolded along the depth axis of a feedforward network. Because the backbone is determined by a random seed alone, models can be distributed as adapters plus seed a footprint that grows with task complexity, not model size, so that storage and memory savings compound as architectures scale."
+    ],
+    "id": "https://exa.ai/library/publication/vq9gbjpjkq8",
+    "image": null,
+    "published_date": "2026-04-09T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "A Little Rank Goes a Long Way: Random Scaffolds with LoRA Adapters Are All You Need",
+    "url": "https://doi.org/10.48550/arxiv.2604.08749"
+   },
+   {
+    "author": "Ziqian Zhong, Jacob Andreas",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "Trained transformer models have been found to implement interpretable procedures for tasks like arithmetic and associative recall, but little is understood about how the circuits that implement these procedures originate during training. To what extent do they depend on the supervisory signal provided to models, and to what extent are they attributable to behavior already present in models at the beginning of training? To investigate these questions, we investigate what functions can be learned by randomly initialized transformers in which only the embedding layers are optimized, so that the only input-output mappings learnable from data are those already implemented (up to a choice of encoding scheme) by the randomly initialized model. We find that these random transformers can perform a wide range of meaningful algorithmic tasks, including modular arithmetic, in-weights and in-context associative recall, decimal addition, parenthesis balancing, and even some aspects of natural language text generation. Our results indicate that some algorithmic capabilities are present in transformers (and accessible via appropriately structured inputs) even before these models are trained.\n\n...\n\nTo disentangle these possibilities, we investigate the behavior of randomly initialized transformer models in which only the embedding layers are optimized, leaving all other model-internal parameters fixed. If such embedding-only training is successful, it implies that the randomly initialized model's behavior on some subspace already corresponds to the input-output mapping of interest, up to a choice of encoding scheme-in other words, that the randomly initialized model can already perform the target task, and it suffices to find an encoding of inputs and outputs that induces the target behavior.\n\nIn experiments on seven tasks, we find that embedding-only training yields accurate models for a diverse set of problems spanning arithmetic, associative recall, and sequence generation-in some cases substantially outperforming similarly trained recurrent models.\n\n...\n\nTraining In this work, we examine language models with frozen intermediate layers, which we call random transformers. In these models, we fix the randomly chosen parameters intermediate layers, and train only the embedding layer E and unembedding layer U .\n\n...\n\nRandom transformers learn to perform all four tasks Random transformers with trained embeddings and unembeddings obtain perfect accuracy on all four tasks consistently across restartssometimes outperforming fully trained recurrent networks (Table 1 ). These results thus point toward the role of a transformer-specific inductive bias in the effectiveness of embedding-only training.\n\n...\n\nWe have shown that transformer sequence models can accomplish a variety of meaningful tasks when only their embedding layers are optimized. For tasks involving memorization, these results show that much of models' \"knowledge\" can be encapsulated by input embeddings rather than models' internal parameters. For more algorithmic tasks like arithmetic and parenthesis balancing, which require relatively sophisticated circuits to perform, our experiments show that versions of these circuits can be accessed in random transformers (but not LSTM sequence models) simply by constructing appropriate input and output embeddings that confine models' internal states to low-dimensional subspaces in which these tasks are performed. However, our experiments have also highlighted several important differences between embeddingonly and fully trained models, especially with regard to their parameter efficiency and information"
+    ],
+    "id": "https://exa.ai/library/publication/75tjk4zcsyy",
+    "image": null,
+    "published_date": "2024-10-06T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Algorithmic Capabilities of Random Transformers",
+    "url": "https://doi.org/10.48550/arxiv.2410.04368"
+   },
+   {
+    "author": "Hongyu Zhao, Hao Tan, Hongyuan Mei",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "Adapter-tuning is a paradigm that transfers a pretrained language model to downstream tasks by adding and tuning a small number of new parameters. Previously proposed adapter architectures are all feed-forward neural net works. In this paper, we investigate the effec tiveness of using tiny-attention\u2014i.e., attention with extremely small per-head dimensionality\u2014 as adapters. Our tiny-attention adapter learns to modify the hidden states at each position di rectly conditioned on the hidden states at all the other positions, which is missed by the previ ously proposed adapters. Moreover, we view its multiple attention heads as a mixture of experts and propose to average their weights during de ployment, which further reduces its inference computation cost. On the GLUE benchmark, our tiny-attention adapter outperforms the other parameter-efficient transfer learning methods as well as full fine-tuning while only updating 0.05% of the parameters.\n\n...\n\nTransferring a large pretrained language model (PLM) is a de facto paradigm of performing down stream tasks in natural language processing (NLP). A general approach is adapter-tuning, which means inserting adapters\u2014i.e., neural networks with small numbers of parameters\u2014into each pretrained layer and only updating the adapter parameters. Adapter-tuning is parameter-efficient and enjoys low computation cost since it keeps the PLM frozen. But it underperforms full fine-tuning which updates all the parameters of the PLM.\n\n...\n\nTransferring the language model involves updat ing its trainable parameters to minimize a task specific loss(\u02c6y, y) where y is the ground-truth label for the given x. For adapter-tuning, the trainable parameters only include those of the task-specific decoder and those of the adapters. Figure 2b shows a language model layer with our tiny-attention adapter placed between its attention module and feed-forward net: during training, only the decoder and adapter parameters (blue) are updated while the pretrained parameters (green) are all kept frozen. 2.1 Tiny-Attention Adapter Our adapter has an attentative structure: as shown in Figure 2b, at each position t, it takes as input the intermediate embeddings z (\u2113)from not only the current position (information flow indi cated by blue arrows ) but also all the other positions (information flow shown by red arrows ). For each token t, it produces a task-specific modification z\u02dc (\u2113) t . Then the modified embeddings z (\u2113) t + z\u02dc (\u2113) t are fed into the layer \u2113 feed-forward net for producing h (\u2113) t . As shown in Figure 2c, the internal architecture of our tiny-attention adapter resembles an ordinary multi-head attention mechanism.\n\n...\n\nAttention allows the task-specific modification z\u02dc (\u2113) t for each token t to aggregate useful information from its full con texts at t = 0, 1, . . . , T. It is analogous to how 6627 the attention modules in the pretrained language model learned to construct contextual representa tions which helped optimize the language modeling objective during pretraining. Therefore, when the pretrained attention modules are frozen, it seems natural to adopt new trainable attention modules for their desired behavior. The key difference between our tiny-attention and an ordinary attention is that our per-head di mension is tiny: i.e., z\u02dc (\u2113,m) t \u2208 R D and D is very small. Throughout our experiments, we set D = 1. Why tiny-attention? Smaller dimensionality means fewer trainable parameters and less compu tation cost; thus it is preferred.\n\n...\n\nIt inspires us to propose a parameter-averaging trick that is able to further reduce the storage and computation cost of our method. Precisely, after training, we average the output projection matrices O (\u2113,m) as well as the attention parameters inside Attn (m) across the attention heads. Then we only store the averaged parameters. During inference, we only use a single attention head into which the stored parameters have been loaded. That way, although we may have trained M > 1 attention heads, our storage and inference cost will be as low as if we had only trained a single head. The techni cal details of this trick is discussed in Appendix A.\n\n...\n\nThe single-head version (Tiny-Attn-1H) trains 176K parameters, which only counts as 0.05% of the PLM parame ters."
+    ],
+    "id": "https://exa.ai/library/publication/d057dmys2sj",
+    "image": null,
+    "published_date": "2022-01-01T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Tiny-Attention Adapter: Contexts Are More Important Than the Number of Parameters",
+    "url": "https://doi.org/10.18653/v1/2022.emnlp-main.444"
+   },
+   {
+    "author": "Nafise Sadat Moosavi, Quentin Delfosse, Kristian Kersting, Iryna Gurevych",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "Adapters provide a parameter-efficient alternative for the full finetuning in which we can only finetune lightweight neural network layers on top of pretrained weights. Adapter layers are initialized randomly. However, existing work uses the same adapter architecture-i.e., the same adapter layer on top of each layer of the pretrained model-for every dataset, regardless of the properties of the dataset or the amount of available training data. In this work, we introduce adaptable adapters that contain (1) learning different activation functions for different layers and different input data, and (2) a learnable switch to select and only use the beneficial adapter layers. We show that adaptable adapters achieve on-par performances with the standard adapter architecture while using a considerably smaller number of adapter layers. In addition, we show that the selected adapter architecture by adaptable adapters transfers well across different data settings and similar tasks. We propose to use adaptable adapters for designing efficient and effective adapter architectures. The resulting adapters (a) contain about 50% of the learning parameters of the standard adapter and are therefore more efficient at training and inference, and require less storage space, and (b) achieve considerably higher performances in low-data settings. ... Adapters are lightweight neural net work layers that are added on top of each layer of the pretrained model. As opposed to the standard model fine-tuning, in which all layers are fine-tuned for the target task, adapter-based tuning freezes the transformer layers and only trains the newly added adapter layers. Since the majority of parameters\u2014 i.e., the layers of the large pretrained model\u2014are shared between different downstream tasks, the use of adapters results in parameter-efficient transfer learning.\n\n...\n\nWe can use the selected architecture by AA for designing a new adapter architecture, i.e., to only include an adapter layer-with a rational function-at layers in which the switch has selected the adapter layer over the identity function. We call this architecture AA-focused. Note that compared to AA, AA-focused is more efficient both at training and inference time, as it includes a fewer number of layers and no switch functions. It also requires less storage space for saving the new adapter weights. ... Also, training AA includes both the architecture selection and training of the adapter layers, which are initialized randomly, simultaneously. As a result, as we see in our evaluations, AA-focused achieves higher performances as its training is only focused on training the adapter layers.\n\n...\n\nWe make the following observations from the results of Table 2: \u2022 AA achieves on-par performances with the Baseline, and on average it uses about 13-15 layers out of 24 layers. We can use this insight for designing efficient adapter architectures."
+    ],
+    "id": "https://exa.ai/library/publication/8flxpw1cnnm",
+    "image": null,
+    "published_date": "2022-01-01T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Adaptable Adapters",
+    "url": "https://doi.org/10.18653/v1/2022.naacl-main.274"
+   },
+   {
+    "author": "Clifton Poth, Hannah Sterz, Indraneil Paul, Sukannya Purkayastha, Leon Engl\u00e4nder, Timo Imhof, et al.",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "language model be com posed of a set of pre-trained parameters \u0398 (frozen) and a set of parameters \u03a6 (where \u03a6 can either be ... introduced or \u03a6 \u2282 \u0398). During fine-tuning, adapter methods optimize only \u03a6 according to a loss function L on a dataset D"
+    ],
+    "id": "https://exa.ai/library/publication/m12pdv25yyj",
+    "image": null,
+    "published_date": "2023-11-18T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Adapters: A Unified Library for Parameter-Efficient and Modular Transfer Learning",
+    "url": "https://doi.org/10.48550/arxiv.2311.11077"
+   }
+  ],
+  "search_time": 11755,
+  "statuses": null,
+  "warnings": null
+ },
+ "sdk_version": "2.28.0"
+}

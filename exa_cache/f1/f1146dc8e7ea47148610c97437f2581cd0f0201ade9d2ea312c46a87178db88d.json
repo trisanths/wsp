@@ -1,0 +1,381 @@
+{
+ "cost_dollars": 0.012,
+ "endpoint": "search",
+ "fetched_at": "2026-11-15T02:23:33Z",
+ "key": "f1146dc8e7ea47148610c97437f2581cd0f0201ade9d2ea312c46a87178db88d",
+ "params": {
+  "category": "publication",
+  "contents": {
+   "highlights": true
+  },
+  "end_published_date": "2026-11-14T00:00:00Z",
+  "exclude_domains": [
+   "*.kaggle.com",
+   "github.com/TIGER-AI-Lab/MMLU-Pro",
+   "github.com/google-deepmind/bbeh",
+   "github.com/openai/grade-school-math",
+   "huggingface.co/datasets",
+   "kaggle.com",
+   "paperswithcode.com/dataset",
+   "tensorflow.org/datasets"
+  ],
+  "num_results": 5,
+  "output_schema": {
+   "properties": {
+    "claims": {
+     "items": {
+      "properties": {
+       "claim": {
+        "type": "string"
+       },
+       "layer_hint": {
+        "type": "string"
+       },
+       "model": {
+        "type": "string"
+       },
+       "strength": {
+        "enum": [
+         "weak",
+         "medium",
+         "strong"
+        ],
+        "type": "string"
+       }
+      },
+      "required": [
+       "claim",
+       "layer_hint",
+       "model",
+       "strength"
+      ],
+      "type": "object"
+     },
+     "maxItems": 5,
+     "type": "array"
+    }
+   },
+   "required": [
+    "claims"
+   ],
+   "type": "object"
+  },
+  "query": "Reusing or transplanting individual mixture-of-experts experts into other models, including dense models",
+  "system_prompt": "Prefer peer-reviewed papers and arXiv preprints about transformer language models. Give layer locations as fractions of model depth where you can, name the model each claim was measured on, and rate how strong the evidence is.",
+  "type": "deep-lite"
+ },
+ "response": {
+  "auto_date": null,
+  "context": null,
+  "cost_dollars": {
+   "contents": null,
+   "search": null,
+   "total": 0.012
+  },
+  "notices": null,
+  "output": {
+   "content": {
+    "claims": [
+     {
+      "claim": "MoE experts can be reused across adjacent layers: ReXMoE lets routers draw from grouped neighboring-layer expert pools, improving language-modeling and downstream performance at 0.5B\u20137B scale.",
+      "layer_hint": "adjacent MoE layers",
+      "model": "0.5B\u20137B transformer models",
+      "strength": "strong"
+     },
+     {
+      "claim": "Trained MoE experts can be selected, grouped, concatenated into dense FFNs, and refined by distillation; this beats dense-to-dense pruning by 6.3 points average downstream accuracy after ~4B-token distillation.",
+      "layer_hint": "MoE FFN layers",
+      "model": "Qwen3-30B-A3B; also DeepSeek-V2-Lite and GPT-OSS-20B",
+      "strength": "strong"
+     },
+     {
+      "claim": "Dense checkpoints can be reused to initialize MoE experts by copying the dense FFN weights into each expert, then training a router.",
+      "layer_hint": "FFN layers",
+      "model": "Llama 3 dense checkpoints",
+      "strength": "medium"
+     },
+     {
+      "claim": "MoErging reuses independently trained specialized models through sparse or dense routing, enabling decentralized collaborative learning.",
+      "layer_hint": "model-level experts",
+      "model": "independently trained expert models",
+      "strength": "medium"
+     }
+    ]
+   },
+   "grounding": [
+    {
+     "citations": [
+      {
+       "title": "ReXMoE: Reusing Experts with Minimal Overhead in Mixture-of-Experts",
+       "url": "https://doi.org/10.48550/arxiv.2510.17483"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "ReXMoE: Reusing Experts with Minimal Overhead in Mixture-of-Experts",
+       "url": "https://doi.org/10.48550/arxiv.2510.17483"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "ReXMoE: Reusing Experts with Minimal Overhead in Mixture-of-Experts",
+       "url": "https://doi.org/10.48550/arxiv.2510.17483"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "ReXMoE: Reusing Experts with Minimal Overhead in Mixture-of-Experts",
+       "url": "https://doi.org/10.48550/arxiv.2510.17483"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].strength"
+    },
+    {
+     "citations": [
+      {
+       "title": "Pruning and Distilling Mixture-of-Experts into Dense Language Models",
+       "url": "https://arxiv.org/abs/2605.28207"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "Pruning and Distilling Mixture-of-Experts into Dense Language Models",
+       "url": "https://arxiv.org/abs/2605.28207"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "Pruning and Distilling Mixture-of-Experts into Dense Language Models",
+       "url": "https://arxiv.org/abs/2605.28207"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "Pruning and Distilling Mixture-of-Experts into Dense Language Models",
+       "url": "https://arxiv.org/abs/2605.28207"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].strength"
+    },
+    {
+     "citations": [
+      {
+       "title": "Llama 3 Meets MoE: Efficient Upcycling",
+       "url": "http://arxiv.org/abs/2412.09952"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[2].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "Llama 3 Meets MoE: Efficient Upcycling",
+       "url": "http://arxiv.org/abs/2412.09952"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[2].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "Llama 3 Meets MoE: Efficient Upcycling",
+       "url": "http://arxiv.org/abs/2412.09952"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[2].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "Llama 3 Meets MoE: Efficient Upcycling",
+       "url": "http://arxiv.org/abs/2412.09952"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[2].strength"
+    },
+    {
+     "citations": [
+      {
+       "title": "A Survey on Model MoErging: Recycling and Routing Among Specialized Experts for Collaborative Learning",
+       "url": "https://doi.org/10.48550/arxiv.2408.07057"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[3].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "A Survey on Model MoErging: Recycling and Routing Among Specialized Experts for Collaborative Learning",
+       "url": "https://doi.org/10.48550/arxiv.2408.07057"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[3].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "A Survey on Model MoErging: Recycling and Routing Among Specialized Experts for Collaborative Learning",
+       "url": "https://doi.org/10.48550/arxiv.2408.07057"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[3].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "A Survey on Model MoErging: Recycling and Routing Among Specialized Experts for Collaborative Learning",
+       "url": "https://doi.org/10.48550/arxiv.2408.07057"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[3].strength"
+    }
+   ]
+  },
+  "resolved_search_type": "",
+  "results": [
+   {
+    "author": "Zheyue Tan, Zhiyuan Li, Tao Yuan, Dong Ming Zhou, Weilin Liu, Yueqing Zhuang, et al.",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "Mixture-of-Experts (MoE) architectures have emerged as a promising approach to scale Large Language Models (LLMs). MoE boosts the efficiency by activat ing a subset of experts per token. Recent works show that fine-grained experts substantially enriches the combinatorial flexibility of active experts and enhances model expressiveness. However, such a design is fundamentally limited by the layer-local routing mechanism: each layer is restricted to its own expert pool. This requires a careful trade-off between expert dimensionality and routing di versity given fixed parameter budgets. We describe REXMOE, a novel MoE ar chitecture that improves routing beyond the existing layer-local approaches by allowing routers to reuse experts across adjacent layers. REXMOE decouples ex pert dimensionality from per-layer budgets, enabling richer expert combinations without sacrificing individual expert capacity or inflating overall parameters. To this end, we propose a new progressive scaling routing (PSR) strategy to grad ually increase the candidate expert pool during training. As a result, REXMOE improves both language modeling and downstream task performance. Extensive experiments on models ranging from 0.5B to 7B parameters across different ar chitectures demonstrate that REXMOE consistently improves performance under fixed architectural dimensions, confirming REXMOE as new design paradigm for parameter-efficient and scalable MoE-based LLMs.\n\n...\n\nAs illustrated in Figure 1, REXMOE reuses experts across adjacent layers with only negligible additional router parameters, while PSR gradually expands the candidate expert pool during training.\n\n...\n\nTo overcome the limitation of the layer-local routing mechanism, we expand the candidate expert pool by allowing the router to select from experts in grouped adjacent layers. Consider an L-layer MoE. Let r denote the expert reuse frequency across layers, and let E irepresent the candidate expert pool of the i-th layer. In REXMOE, the grouped candidate expert pool for layer l is defined as:\n\nU := [ i\u2208 GE i, G = { l/r + k | 1 \u2264 k \u2264 r} (4)\n\nHere, group G is formed by r consecutive layers starting from the \u230a l/r -th layer. In this way, the candidate expert pool of each layer becomes r times larger than in the vanilla setting. The computation of each layer\u2019s MoE block is then formulated as: h\u2032 =X rN i=1 gi Ui(h) (5) where Ui \u2208 U is the i-th expert in the expanded pool. By increasing r, the enlarged the candidate pool enables more diverse expert combinations and yielding performance gains.\n\nDiscussion. A specific router configuration can restrict routing to only local experts, in which case the model reduces to the vanilla MoE. This guarantees that our method always matches the baseline performance under the most constrained setting. When expert reuse is enabled, however, each MoE block includes a larger set of experts, which allows for more diverse expert combinations but can also lead to imbalanced routing patterns. Consequently, load imbalance becomes a critical bottleneck that not only limits generalization but also introduces challenges during training.\n\n...\n\nAnother key component of REXMOE is the Progressive Scaling Routing (PSR) strategy, which gradually increases the number of candidate experts during training. When reusing experts from r layers in a TopK MoE with N experts per layer, each router can access up to rN candidates. Instead of training the router to select from all rN candidates from the start, we adopt a progressive scheme: the number of available candidates begins at N and is linearly expanded over the course of training. At iteration t, the candidate expert pool size Nt is defined as:"
+    ],
+    "id": "https://exa.ai/library/publication/8flvmwjlrng",
+    "image": null,
+    "published_date": "2025-10-20T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "ReXMoE: Reusing Experts with Minimal Overhead in Mixture-of-Experts",
+    "url": "https://doi.org/10.48550/arxiv.2510.17483"
+   },
+   {
+    "author": "Junhyuck Kim, Jihun Yun, Haechan Kim, Gyeongman Kim, Joonghyun Bae, Jaewoong Cho",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "Mixture-of-Experts (MoE) is now the dominant architecture for frontier language models, yet it requires all expert parameters to be loaded in memory, making it less preferable for memory-constrained deployment. Existing compression methods reduce the number of experts but the output remains an MoE model with the same fundamental limitation. We present the first systematic framework for converting a trained MoE into a standard fully dense architecture: experts are scored, selected, and grouped, then concatenated into a dense FFN and refined by knowledge distillation from the MoE teacher. We evaluate 7 scoring, 5 grouping, and 2 magnitude scaling methods across a range of selected expert counts on Qwen3-30B A3B, yielding 350 configurations. We find that the choice of scoring method is the most impactful, with our novel diversity-aware scoring consistently outperforming prior methods on Qwen3-30B-A3B, DeepSeek-V2-Lite, and GPT-OSS-20B. Under a controlled comparison at matched parameter count, MoE-to-dense outperforms dense-to-dense pruning by +6.3 pp in average downstream accuracy after \u223c 4B-token distillation at 1.6\u00d7 faster training wall-clock speed.\n\n...\n\nRecent work has demonstrated that MoE models can be compressed into a smaller MoE by reducing the number of experts (Table 1). While highly effective, the resulting models still require loading all remaining experts into memory, preserving the fundamental memory inefficiency. Although individual methods can be adapted to produce dense outputs, no prior work has systematically studied MoE-to-dense conversion. To fill this gap, we introduce the first systematic framework for converting a trained MoE language model into a standard fully dense architecture. Our approach proceeds in three steps: (1) experts are scored by importance, and the top-scoring experts are selected, grouped, and merged within groups, (2) the merged experts are concatenated into a dense FFN, with down-projection matrices scaled to preserve output magnitude, and (3) knowledge distillation (Hinton et al., 2015) from the MoE teacher recovers quality lost during compression. Figure 1 illustrates the pipeline. To identify the best recipe, we evaluate 7 different expert scoring methods, including our novel diversity-aware scoring metric, 5 different grouping methods, 2 different down-projection scaling options, and a wide range of the number of selected experts on Qwen3-30B-A3B, resulting in 350 combinations.\n\n...\n\nWe present a method for converting a Mixture-of-Experts (MoE) language model into a dense model with a total number of parameters equivalent to the active number of parameters of the teacher MoE model. Given experts per MoE layer with routed per token, the method selects the top- experts by importance ( \u2265 ), assigns them to groups (copying directly when = , or merging via score-weighted averaging when > ), and concatenates the resulting weights into a standard dense FFN. Knowledge distillation from the MoE teacher then recovers quality lost during compression."
+    ],
+    "id": "https://exa.ai/library/publication/4lrr6b1j90p",
+    "image": null,
+    "published_date": "2026-05-27T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Pruning and Distilling Mixture-of-Experts into Dense Language Models",
+    "url": "https://arxiv.org/abs/2605.28207"
+   },
+   {
+    "author": "Aditya Vavre, Ethan He, Dennis Liu, Zijie Yan, June Yang, Nima Tajbakhsh, et al.",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "Sparse Upcycling[15] is a way to reuse the sunk training costs of a dense language model by initializing a sparsely activated MoE model from a dense checkpoint.\n\n...\n\n3.1 Upcycling Technique The upcycling method is illustrated in Figure 1. We follow a similar approach to [15] and [10]. We assume we have access to a dense checkpoint of a pre-trained language model. We convert a subset of the feed-forward layers in the dense model to MoE layers. To upcycle a feed-forward layer to a N Expert Top-k MoE layer, we simply copy the weights of the feed-forward layer N times to initialize the experts i.e., each expert is a copy of the original feed-forward layer. Additionally, we add a router which is initialized with random weights. All of the remaining weights including the embedding layer are simply copied from the dense checkpoint. Upcycling can be challenging to implement in a distributed training setting when the dense checkpoint contains a large number of parameters, as is typical with large language models (LLMs). This is because upcycling significantly increases the total parameter count, and each device typically holds a full copy of the shared model parameters and gradients, which can cause memory requirements to exceed the capacity of each node. To address this issue, we implement online upcycling in NeMo, enabling users to upcycle by supplying a dense checkpoint and a parallel training configuration. For efficient implementation, the dense checkpoint is sharded based on the specified parallel training con figuration, and weights are upcycled independently on each device, avoiding additional computation and eliminating the need for cross-device weight copying. We make our implementation available in NeMo 4."
+    ],
+    "id": "https://exa.ai/library/publication/ntclfj621n7",
+    "image": null,
+    "published_date": "2024-12-13T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Llama 3 Meets MoE: Efficient Upcycling",
+    "url": "http://arxiv.org/abs/2412.09952"
+   },
+   {
+    "author": "Prateek Yadav, Colin Raffel, Muqeeth, Mohammed, Lucas Caccia, Liu, Haokun, Tianlong Chen, et al.",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "Broadly, our survey focuses on \u201cMoErging\u201d, a new paradigm for decentralized model development that aims to recycle expert models trained asynchronously by distributed contributors. We can organize the stages and components of MoErging methods into three categories: (1) experts, (2) routing, and (3) application. The experts are the specialized models that are trained and shared by individual contributors. Importantly, experts are trained independently, i.e. the expert contributors do not have access to one another\u2019s compute or data. Once expert models have been shared, MoErging methods perform routing, which aims to select and aggregate the contributor-provided expert models in order to improve performance or generalization. To process a given query or adapt to a target dataset, routing can operate in various ways, for example: (1) adaptively select a single expert model, (2) route different examples or processing steps to different experts, (3) learn a layer to extract relevant information from all experts, and/or (4) combine the expert models in an adaptive way.\n\n...\n\n2.2.4 Expert Selection When routing among experts, some MoErging methods make a Sparse selection (i.e. choosing only a subset of the experts) while others perform Dense routing (i.e. making use of all experts at once). Considerations: Expert selection strategy governs the number of experts used, impacting computational efficiency and knowledge aggregation. Sparse selection (subset of experts) enhances efficiency by activating only the most relevant experts, crucial with large expert pools to avoid processing all experts (Muqeeth et al., 2024a; Xu et al., 2024).\n\n...\n\nas any inaccuracy in selection can lead to information loss and reduced performance. Dense routing (all experts) maximizes knowledge aggregation potential and is advantageous when experts have overlapping, but complementary, skills for richer representations (Cheng et al., 2024; Zhao et al., 2024a). Dense routing is computationally expensive, particularly with many experts, and may degrade performance if irrelevant experts introduce noise and redundancy. Choosing between sparse and dense expert selection is thus a trade-off between computational efficiency, routing accuracy, and desired knowledge aggregation."
+    ],
+    "id": "https://exa.ai/library/publication/z310dr184t5",
+    "image": null,
+    "published_date": "2024-08-13T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "A Survey on Model MoErging: Recycling and Routing Among Specialized Experts for Collaborative Learning",
+    "url": "https://doi.org/10.48550/arxiv.2408.07057"
+   },
+   {
+    "author": "Ethan He, Abhinav Khattar, Ryan Prenger, Vijay Anand Korthikanti, Zijie Yan, Tong Liu, et al.",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "Upcycling pre-trained dense language models into sparse mixture-of-experts (MoE) models is an efficient approach to increase the model capacity of already trained models. However, optimal techniques for upcycling at scale remain unclear. In this work, we conduct an extensive study of upcycling methods and hyperparameters for billion-parameter scale language models. We propose a novel \u201cvirtual group\u201d initialization scheme and weight scaling approach to enable upcycling into fine-grained MoE architectures. Through ablations, we find that upcycling outperforms continued dense model training. In addition, we show that softmax-then-topK expert routing improves over topK-then-softmax approach and higher granularity MoEs can help improve accuracy. Finally, we upcycled Nemotron-4 15B on 1T tokens and compared it to a continuously trained version of the same model on the same 1T tokens: the continuous trained model achieved 65.3% MMLU, whereas the upcycled model achieved 67.6%.\n\n...\n\n2.1.1 Upcycling Upcycling is the approach of converting a trained dense model into an MoE [15]. The most obvious way to convert a dense model into an MoE model without losing accuracy is to duplicate the MLP layer weights multiple times and use a randomized router, weighting the output of MLP layers by\n\n...\n\nUnlike standard MoE upcycling [15] where we can copy the dense MLP weights to MoE experts, granularity reduces the size of every MoE expert. This makes copying the dense MLP weights to MoE experts non-trivial. An intuitive way to upcycle a dense model into finegrained MoE would be to:\n\n1. segment the dense layer into several shards (G) in the FFN dimension. 2. replicate each shard several times (E). 3. route to some experts (T) at training time."
+    ],
+    "id": "https://exa.ai/library/publication/mc2l1rcl65s",
+    "image": null,
+    "published_date": "2024-10-10T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Upcycling Large Language Models into Mixture of Experts",
+    "url": "https://doi.org/10.48550/arxiv.2410.07524"
+   }
+  ],
+  "search_time": 4646.6,
+  "statuses": null,
+  "warnings": null
+ },
+ "sdk_version": "2.28.0"
+}

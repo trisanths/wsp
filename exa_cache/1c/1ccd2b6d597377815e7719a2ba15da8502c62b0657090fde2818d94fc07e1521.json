@@ -1,0 +1,351 @@
+{
+ "cost_dollars": 0.012,
+ "endpoint": "search",
+ "fetched_at": "2026-11-15T02:22:54Z",
+ "key": "1ccd2b6d597377815e7719a2ba15da8502c62b0657090fde2818d94fc07e1521",
+ "params": {
+  "category": "publication",
+  "contents": {
+   "highlights": true
+  },
+  "end_published_date": "2026-11-14T00:00:00Z",
+  "exclude_domains": [
+   "*.kaggle.com",
+   "github.com/TIGER-AI-Lab/MMLU-Pro",
+   "github.com/google-deepmind/bbeh",
+   "github.com/openai/grade-school-math",
+   "huggingface.co/datasets",
+   "kaggle.com",
+   "paperswithcode.com/dataset",
+   "tensorflow.org/datasets"
+  ],
+  "num_results": 5,
+  "output_schema": {
+   "properties": {
+    "claims": {
+     "items": {
+      "properties": {
+       "claim": {
+        "type": "string"
+       },
+       "layer_hint": {
+        "type": "string"
+       },
+       "model": {
+        "type": "string"
+       },
+       "strength": {
+        "enum": [
+         "weak",
+         "medium",
+         "strong"
+        ],
+        "type": "string"
+       }
+      },
+      "required": [
+       "claim",
+       "layer_hint",
+       "model",
+       "strength"
+      ],
+      "type": "object"
+     },
+     "maxItems": 5,
+     "type": "array"
+    }
+   },
+   "required": [
+    "claims"
+   ],
+   "type": "object"
+  },
+  "query": "Model stitching between language models: do linear map fit scores such as R squared or CKA predict how well the stitched model performs?",
+  "system_prompt": "Prefer peer-reviewed papers and arXiv preprints about transformer language models. Give layer locations as fractions of model depth where you can, name the model each claim was measured on, and rate how strong the evidence is.",
+  "type": "deep-lite"
+ },
+ "response": {
+  "auto_date": null,
+  "context": null,
+  "cost_dollars": {
+   "contents": null,
+   "search": null,
+   "total": 0.012
+  },
+  "notices": null,
+  "output": {
+   "content": {
+    "claims": [
+     {
+      "claim": "No. Linear-map fit scores such as R\u00b2 and CKA do not reliably predict stitched-model task performance; CKA can be low while accuracy remains high, and R\u00b2 can move inversely with performance.",
+      "layer_hint": "Vision ResNet/Tiny-10 experiments, not language models.",
+      "model": "ResNet and Tiny-10",
+      "strength": "strong"
+     },
+     {
+      "claim": "For language models, CKA measures structural similarity of representations but ignores task usefulness; stitching performance is task-centric and can reveal differences CKA misses.",
+      "layer_hint": "Small 3\u20134 layer GeLU/SoLU transformer models; stitching evaluated across layers.",
+      "model": "GeLU and SoLU transformer models",
+      "strength": "medium"
+     },
+     {
+      "claim": "For language-model residual streams, affine stitching can transfer features and approximate next-token performance, but performance is generally limited by the weaker/smaller source model.",
+      "layer_hint": "Residual-stream layers; no layer fraction specified.",
+      "model": "Language models of different sizes",
+      "strength": "medium"
+     }
+    ]
+   },
+   "grounding": [
+    {
+     "citations": [
+      {
+       "title": "Similarity and Matching of Neural Network Representations",
+       "url": "https://papers.neurips.cc/paper_files/paper/2021/file/2cb274e6ce940f47beb8011d8ecb1462-Paper.pdf"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "Similarity and Matching of Neural Network Representations",
+       "url": "https://papers.neurips.cc/paper_files/paper/2021/file/2cb274e6ce940f47beb8011d8ecb1462-Paper.pdf"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "Similarity and Matching of Neural Network Representations",
+       "url": "https://papers.neurips.cc/paper_files/paper/2021/file/2cb274e6ce940f47beb8011d8ecb1462-Paper.pdf"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "Similarity and Matching of Neural Network Representations",
+       "url": "https://papers.neurips.cc/paper_files/paper/2021/file/2cb274e6ce940f47beb8011d8ecb1462-Paper.pdf"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].strength"
+    },
+    {
+     "citations": [
+      {
+       "title": "Understanding the Inner-workings of Language Models Through Representation Dissimilarity",
+       "url": "https://doi.org/10.18653/v1/2023.emnlp-main.403"
+      },
+      {
+       "title": "Understanding the Inner Workings of Language Models Through Representation Dissimilarity",
+       "url": "https://doi.org/10.48550/arxiv.2310.14993"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "Understanding the Inner-workings of Language Models Through Representation Dissimilarity",
+       "url": "https://doi.org/10.18653/v1/2023.emnlp-main.403"
+      },
+      {
+       "title": "Understanding the Inner Workings of Language Models Through Representation Dissimilarity",
+       "url": "https://doi.org/10.48550/arxiv.2310.14993"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "Understanding the Inner-workings of Language Models Through Representation Dissimilarity",
+       "url": "https://doi.org/10.18653/v1/2023.emnlp-main.403"
+      },
+      {
+       "title": "Understanding the Inner Workings of Language Models Through Representation Dissimilarity",
+       "url": "https://doi.org/10.48550/arxiv.2310.14993"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "Understanding the Inner-workings of Language Models Through Representation Dissimilarity",
+       "url": "https://doi.org/10.18653/v1/2023.emnlp-main.403"
+      },
+      {
+       "title": "Understanding the Inner Workings of Language Models Through Representation Dissimilarity",
+       "url": "https://doi.org/10.48550/arxiv.2310.14993"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].strength"
+    },
+    {
+     "citations": [
+      {
+       "title": "Transferring Linear Features Across Language Models With Model Stitching",
+       "url": "https://papers.neurips.cc/paper_files/paper/2025/file/4569a868e7aa891248832ec08445d071-Paper-Conference.pdf"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[2].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "Transferring Linear Features Across Language Models With Model Stitching",
+       "url": "https://papers.neurips.cc/paper_files/paper/2025/file/4569a868e7aa891248832ec08445d071-Paper-Conference.pdf"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[2].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "Transferring Linear Features Across Language Models With Model Stitching",
+       "url": "https://papers.neurips.cc/paper_files/paper/2025/file/4569a868e7aa891248832ec08445d071-Paper-Conference.pdf"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[2].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "Transferring Linear Features Across Language Models With Model Stitching",
+       "url": "https://papers.neurips.cc/paper_files/paper/2025/file/4569a868e7aa891248832ec08445d071-Paper-Conference.pdf"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[2].strength"
+    }
+   ]
+  },
+  "resolved_search_type": "",
+  "results": [
+   {
+    "author": null,
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "\u2022 Observing the matchability of representations as a quite robust property of common vision models, we have a wide range of examples in our hands when we know that representations are functionally similar. This permits us to study the relation between representational similarity measures and functional similarity. In our experiments, we show that the values of similarity indices are not necessarily indicative of task performance on a stitched network, and perhaps more surprisingly, high-performance stitchings can have differences in the values of similarity indices such as Centered Kernel Alignment (CKA) [Cortes et al., 2012, Kornblith et al., 2019]. This also reflects on phenomena experienced by the \u2018end-users\u2019 of these indices. For instance, in the context of continual learning Mirzadeh et al. [2021] observe that CKA remains constant, while the accuracy on previous tasks drops drastically (Section 6).\n\n...\n\nOur brief summarizing statement in this section acts as a warning for the end-users of statistical similarity indices: By their nature, similarity indices depend on the task only indirectly, and their values are not necessarily indicative of task performance on a stitched network.\n\n...\n\n6.2 Experiment 3: Similarity indices and task performance In this set of experiments, we monitor the CKA, R 2 LR, CCA and SVCCA indices throughout the training process of the stitching layer trained with task loss matching. We measure these values\n\n...\n\nFigure 5: CKA and performance measures throughout the train ing\n\n...\n\nbetween Model 2 activations and the transformed activations of Model 1. Figure 4 shows the results for CKA and R 2 LR. We observe that CKA has a large variance from the first step of the training process, and it is decreasing while the performance of the stitched model is increasing. This experiment also highlights that R 2\n\nLR can correlate inversely with the performance: as the training proceeds with decreasing cross-entropy, the R 2\n\nLR values also decrease. Indeed, since we initialized the task loss training from the optimal least squares matching, the distances naturally must increase under any training process. However, this highlights the fact that the least squares matching is ignorant of\n\nthe decision boundaries in a neural network.\n\n...\n\n##### 6.3 Experiment 4: Low CKA value with high accuracy\n\nWe now show that it is easy to align representations in a way that results in high task performance while the CKA value at the alignment is small. The setup is the following: we take one trained model and stitch it with itself, utilizing a linear stitching layer initialised with the identity mapping.\n\nWith this initialization we essentially reproduce the original model, thus, this trivially results in a Frankenstein network with the same performance as the original model. We train this stitching layer with an additional loss term that penalizes the CKA value at the stitching, meanwhile we maintain the task performance with the usual cross-entropy term. We use the CKA value itself as the penalty, as it is differentiable by definition and thus suitable for gradient-based optimization.\n\nFigure 5 shows the outcome of such a training process. We find that the CKA value drops by a large amount (achieving lower than 0.7), whereas the accuracy remains essentially unchanged.\n\nAs a baseline, we provide the CKA values between representations of the transformed activations of\n\nModel 1 and Model 2 averaged over 10 different network pairs and all layers. ResNet: 0.922 \u00b1 0.098, Tiny-10: 0.883 \u00b1 0.050. For further baseline CKA values we also refer to Kornblith et al. [2019].\n\n...\n\nFor example, assuming that a similarity index s is invariant under a given class C of transformations, it is not surprising that the high value of a similarity index s(A, B) does not indicate the relative performance of the activations A and B: indeed, given a set of activations A, s(AF, A) = 1 for any F \u2208 C , while the task loss of the transformed activations AF typically varies greatly. On the other hand, it is somewhat surprising that high-performance matchings can have a significant drop in the values of meaningful similarity indices such as CKA.\n\n...\n\nThe inadequateness of CKA as a direct matching method CKA is not directly suitable as an objective for direct matching, since it is invariant to orthogonal transformations. A stitching with an optimal CKA value can be arbitrarily transformed via orthogonal transformations without affecting\n\nCKA, but most of these equivalent solutions are unsuitable for the matching task as trained models are not invariant for arbitrary rotations in the activation spaces."
+    ],
+    "id": "https://papers.neurips.cc/paper_files/paper/2021/file/2cb274e6ce940f47beb8011d8ecb1462-Paper.pdf",
+    "image": null,
+    "published_date": null,
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Similarity and Matching of Neural Network Representations",
+    "url": "https://papers.neurips.cc/paper_files/paper/2021/file/2cb274e6ce940f47beb8011d8ecb1462-Paper.pdf"
+   },
+   {
+    "author": "Davis Brown, Charles Godfrey, Nicholas Konz, Jonathan H. Tu, Henry Kvinge",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "Model stitching extracts features from earlier layers of model f and plugs them into the later layers of model g (possibly mediated by a small, learnable, connecting layer), and evaluates downstream performance of the resulting \u201cstitched\u201d model. Stitching takes a task-centric view towards representations, operating under the assumption that if two models have similar representations then these representations should be reconcilable by a simple transformation to such an extent that the downstream task can still be solved. On the other hand, CKA compares the statistical structure of the representations obtained in two different model s/layers from a fixed set of input datapoints, ignor ing any relationship to performance on the task for which the models were trained.\n\n...\n\nCentered kernel alignment (CKA) (Korn blith et al., 2019): Let D = { x1, . ... , xd} be a set of model inputs. For models f and g with layers l and m respectively, let Af,l,g,m be the covariance matrix of f\u2264 l(D) and g\u2264 m(D). Then the CKA score for models f and g at layers l and m respec tively and evaluated at D is\n\n|| Af,l,g,m|| 2 F || Af,l,f,l|| F || Ag,m,g,m|| F , (1) where || \u00b7 || F is the Frobenious norm. Higher CKA scores indicate more structural similarity between representations. In our experiments we use an un biased estimator of eq. (1) to calculate CKA in batches (see appendix C for details).\n\n...\n\nAs pointed out in (Bansal et al., 2021) such an analysis is not possible using CKA, which only de tects distance between distributions of hidden fea tures (displayed for our GeLU and SoLU models in figs. 4 and 5), not their usefulness for a machine learning task. Further, the differences in layer ex pressiveness between GeLU and SoLU models are not easily elicited by evaluation on downstream tasks, but can be seen through linear stitching."
+    ],
+    "id": "https://exa.ai/library/publication/30269x41yfz",
+    "image": null,
+    "published_date": "2023-01-01T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Understanding the Inner-workings of Language Models Through Representation Dissimilarity",
+    "url": "https://doi.org/10.18653/v1/2023.emnlp-main.403"
+   },
+   {
+    "author": "Davis Brown, Charles Godfrey, Nicholas Konz, Jonathan H. Tu, Henry Kvinge",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "Stitching takes a task-centric view towards representations, operating under the assumption that if two models have similar representations then these representations should be reconcilable by a simple transformation to such an extent that the downstream task can still be solved. On the other hand, CKA compares the statistical structure of the representations obtained in two different model s/layers from a fixed set of input datapoints, ignor ing any relationship to performance on the task for which the models were trained.\n\n...\n\nHigher CKA scores indicate more structural similarity between representations.\n\n...\n\nAs pointed out in (Bansal et al., 2021) such an analysis is not possible using CKA, which only de tects distance between distributions of hidden fea tures (displayed for our GeLU and SoLU models in figs. 4 and 5), not their usefulness for a machine learning task. Further, the differences in layer ex pressiveness between GeLU and SoLU models are not easily elicited by evaluation on downstream tasks, but can be seen through linear stitching."
+    ],
+    "id": "https://exa.ai/library/publication/yz4x9zg48qb",
+    "image": null,
+    "published_date": "2023-10-23T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Understanding the Inner Workings of Language Models Through Representation Dissimilarity",
+    "url": "https://doi.org/10.48550/arxiv.2310.14993"
+   },
+   {
+    "author": null,
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "In this work, we demonstrate that affine mappings between residual streams of language models is a cheap way to effectively transfer represented features between models. We apply this technique to transfer the weights of Sparse Autoencoders (SAEs) between models of different sizes to compare their representations. We find that small and large models learn similar representation spaces, which motivates training expensive components like SAEs on a smaller model and transferring to a larger model at a FLOPs savings. In particular, using a small-to-large transferred SAE as initialization can lead to 50% cheaper training runs when training SAEs on larger models. Next, we show that transferred probes and steering vectors can effectively recover ground truth performance. Finally, we dive deeper into feature-level transferability, finding that semantic and structural features transfer noticeably differently while specific classes of functional features have their roles faithfully mapped. Overall, our findings illustrate similarities and differences in the linear representation spaces of small and large models and demonstrate a method for improving the training efficiency of SAEs.\n\n...\n\nIn this setup (visualized in Figure 1a), we will consider the two stitching mappings T\u2191, which maps \u201cup\u201d from A to B, and T\u2193, which maps \u201cdown\u201d from B to A. Furthermore, we will assume that both T\u2191 and T\u2193 are affine transformations:\n\n...\n\nT\u2193 : R dB \u2192 R dA , hB 7\u2192 hBP\u2193 + b\u2193 , (2)\n\nwhere hA and hB are activations from A and B, P\u2191 \u2208 R dA\u00d7 dB , b\u2191 \u2208 R dB , P\u2193 \u2208 R dB\u00d7 dA , and b\u2193 \u2208 R dA . Ideally, we would like T{\u2191 ,\u2193} to be faithful to the downstream objective (i.e., language modeling). In practice, training directly on the next-token prediction objective would involve backpropagating gradients over the back halves of A and B, which is unnecessarily expensive. We find that the reconstruction mean squared error (MSE) is a sufficient training objective to align the models. Despite the dimensionality gap, we also still desire \u201calmost\u201d-invertible transformations i.e. T\u2191 \u25e6 T\u2193 should be close to an identity and vice versa. Therefore, we also introduce a regularization penalty that encourages T\u2191 and T\u2193 to invert each other with relative strength \u03b1, finding that the penalty improves fidelity (ablation in \u00a7A.2) and has further motivation when we consider transferring SAEs in \u00a73.1 and \u00a7B.1. Formally, we train T\u2191 and T\u2193 concurrently via the loss function on a token t\n\nL (t) = MSE T\u2191 \u25e6 A \u2113A (t), B \u2113B (t) + MSE T\u2193 \u25e6 B \u2113B (t), A \u2113A (t) + \u03b1MSE T\u2193 \u25e6 T\u2191 \u25e6 A \u2113A (t), A \u2113A (t) + \u03b1MSE T\u2191 \u25e6 T\u2193 \u25e6 B \u2113B (t), B \u2113B (t) . (3)\n\nWe always learn the mappings from a fixed residual stream layer of model A to the layer in model B that maximizes the average correlation from Singular Vector Canonical Correlation Analysis (SVCCA) across a small sample of model activations [Raghu et al., 2017] (more details in \u00a7A.1). Using this procedure, the model-layer pairs that we stitch between are shown in Table 1.\n\nDownstream Performance. In Table 1, we compute the downstream fidelity of mapping from A to B, mapping from B to A, and mapping in both inverse directions. First, we observe that next-token prediction performance is close to ground truth, supporting a weak universality hypothesis that models trained on the same data share features despite differing scales. However, we also find that downstream performance is consistently bottlenecked by the worse (generally smaller) model A. This result suggests that the gap between how A and B use their latent spaces prevents linear stitching between A and B from recovering the full performance of B. Finally, the inverse operation can be nearly lossless despite the intrinsic dimension mismatch prohibiting perfect invertibility."
+    ],
+    "id": "https://papers.neurips.cc/paper_files/paper/2025/file/4569a868e7aa891248832ec08445d071-Paper-Conference.pdf",
+    "image": null,
+    "published_date": null,
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Transferring Linear Features Across Language Models With Model Stitching",
+    "url": "https://papers.neurips.cc/paper_files/paper/2025/file/4569a868e7aa891248832ec08445d071-Paper-Conference.pdf"
+   },
+   {
+    "author": null,
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "CKA \u2248 1 means representations are close according to CKA. Error \u2248 0% means representations are close according to stitching.\n\n...\n\nTable 1 contains a qualitative summary of our results, comparing stitching with CKA. While in some cases the results of stitching and CKA agree, in several cases, stitching obtains results that align more closely with the intuitions that well-performing networks learn similar representations, and that more resources results in better versions of the same representations. In particular, in experiments where stitching indicates that a certain representation is better than another, CKA by its design can only indicate that the two representations are far from each other. Moreover, in some experiments CKA indicates that representations are far where we intuitively believe that they should be close, e.g. when networks only differ by two random initializations, or when one is trained with a supervised and\n\nanother with a self-supervised task. 2 In contrast, in these settings, model-stitching reveals that the \ntwo models have nearly equivalent representations, in the sense that they can be stitched to each other \nwith low penalty."
+    ],
+    "id": "https://papers.neurips.cc/paper_files/paper/2021/file/01ded4259d101feb739b06c399e9cd9c-Paper.pdf",
+    "image": null,
+    "published_date": null,
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Revisiting Model Stitching to Compare Neural Representations",
+    "url": "https://papers.neurips.cc/paper_files/paper/2021/file/01ded4259d101feb739b06c399e9cd9c-Paper.pdf"
+   }
+  ],
+  "search_time": 3502.9,
+  "statuses": null,
+  "warnings": null
+ },
+ "sdk_version": "2.28.0"
+}

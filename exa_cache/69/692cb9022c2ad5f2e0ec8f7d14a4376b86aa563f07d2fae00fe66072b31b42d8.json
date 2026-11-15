@@ -1,0 +1,433 @@
+{
+ "cost_dollars": 0.012,
+ "endpoint": "search",
+ "fetched_at": "2026-11-15T02:23:11Z",
+ "key": "692cb9022c2ad5f2e0ec8f7d14a4376b86aa563f07d2fae00fe66072b31b42d8",
+ "params": {
+  "category": "publication",
+  "contents": {
+   "highlights": true
+  },
+  "end_published_date": "2026-11-14T00:00:00Z",
+  "exclude_domains": [
+   "*.kaggle.com",
+   "github.com/TIGER-AI-Lab/MMLU-Pro",
+   "github.com/google-deepmind/bbeh",
+   "github.com/openai/grade-school-math",
+   "huggingface.co/datasets",
+   "kaggle.com",
+   "paperswithcode.com/dataset",
+   "tensorflow.org/datasets"
+  ],
+  "num_results": 5,
+  "output_schema": {
+   "properties": {
+    "claims": {
+     "items": {
+      "properties": {
+       "claim": {
+        "type": "string"
+       },
+       "layer_hint": {
+        "type": "string"
+       },
+       "model": {
+        "type": "string"
+       },
+       "strength": {
+        "enum": [
+         "weak",
+         "medium",
+         "strong"
+        ],
+        "type": "string"
+       }
+      },
+      "required": [
+       "claim",
+       "layer_hint",
+       "model",
+       "strength"
+      ],
+      "type": "object"
+     },
+     "maxItems": 5,
+     "type": "array"
+    }
+   },
+   "required": [
+    "claims"
+   ],
+   "type": "object"
+  },
+  "query": "Which layers and neurons of code language models carry programming skill, and can that skill be transferred to another model?",
+  "system_prompt": "Prefer peer-reviewed papers and arXiv preprints about transformer language models. Give layer locations as fractions of model depth where you can, name the model each claim was measured on, and rate how strong the evidence is.",
+  "type": "deep-lite"
+ },
+ "response": {
+  "auto_date": null,
+  "context": null,
+  "cost_dollars": {
+   "contents": null,
+   "search": null,
+   "total": 0.012
+  },
+  "notices": null,
+  "output": {
+   "content": {
+    "claims": [
+     {
+      "claim": "Programming skill is carried mainly by middle-layer, language-agnostic semantic/abstract representations; lower layers encode language-specific syntax and higher layers encode abstract concepts and token prediction.",
+      "layer_hint": "middle layers",
+      "model": "Llama-3.1-8B and Qwen2.5-Coder-32B; Codegen-Mono and Ploycoder",
+      "strength": "strong"
+     },
+     {
+      "claim": "Yes: programming skill can transfer across models/languages through shared abstract representations; activation states from one language generalize to others, and fine-tuning on one language transfers to held-out languages.",
+      "layer_hint": "middle layers",
+      "model": "Code LLMs tested in the abstract-representation study",
+      "strength": "strong"
+     },
+     {
+      "claim": "Layer locations are model-specific: Qwen2.5-Coder-7B processes concepts around layers 17\u201319, while DeepSeek-Coder-V1-6.7B processes them around layers 6\u20137.",
+      "layer_hint": "Qwen ~L17\u201319; DeepSeek ~L6\u20137",
+      "model": "Qwen2.5-Coder-7B and DeepSeek-Coder-V1-6.7B",
+      "strength": "medium"
+     },
+     {
+      "claim": "Language-specific neurons are concentrated in lower layers, while language-agnostic concept layers in middle layers support general code generation and transfer.",
+      "layer_hint": "lower and middle layers",
+      "model": "Llama-based models; Llama-3.1-8B and Qwen2.5-Coder-32B",
+      "strength": "strong"
+     }
+    ]
+   },
+   "grounding": [
+    {
+     "citations": [
+      {
+       "title": "LLMs program using Reusable and Composable Abstract Representations",
+       "url": "https://doi.org/10.48550/arxiv.2610.19238"
+      },
+      {
+       "title": "Neuron-Guided Interpretation of Code LLMs: Where, Why, and How? | Proceedings of the ACM on Software Engineering",
+       "url": "https://dl.acm.org/doi/10.1145/3797083"
+      },
+      {
+       "title": "Looking into Black Box Code Language Models",
+       "url": "https://doi.org/10.1109/icsc67292.2026.00011"
+      },
+      {
+       "title": "Beyond Syntax: How Do LLMs Understand Code?",
+       "url": "https://doi.org/10.1109/icse-nier66352.2025.00023"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "LLMs program using Reusable and Composable Abstract Representations",
+       "url": "https://doi.org/10.48550/arxiv.2610.19238"
+      },
+      {
+       "title": "Neuron-Guided Interpretation of Code LLMs: Where, Why, and How? | Proceedings of the ACM on Software Engineering",
+       "url": "https://dl.acm.org/doi/10.1145/3797083"
+      },
+      {
+       "title": "Beyond Syntax: How Do LLMs Understand Code?",
+       "url": "https://doi.org/10.1109/icse-nier66352.2025.00023"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "Neuron-Guided Interpretation of Code LLMs: Where, Why, and How? | Proceedings of the ACM on Software Engineering",
+       "url": "https://dl.acm.org/doi/10.1145/3797083"
+      },
+      {
+       "title": "Looking into Black Box Code Language Models",
+       "url": "https://doi.org/10.1109/icsc67292.2026.00011"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "LLMs program using Reusable and Composable Abstract Representations",
+       "url": "https://doi.org/10.48550/arxiv.2610.19238"
+      },
+      {
+       "title": "Neuron-Guided Interpretation of Code LLMs: Where, Why, and How? | Proceedings of the ACM on Software Engineering",
+       "url": "https://dl.acm.org/doi/10.1145/3797083"
+      },
+      {
+       "title": "Looking into Black Box Code Language Models",
+       "url": "https://doi.org/10.1109/icsc67292.2026.00011"
+      },
+      {
+       "title": "Beyond Syntax: How Do LLMs Understand Code?",
+       "url": "https://doi.org/10.1109/icse-nier66352.2025.00023"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[0].strength"
+    },
+    {
+     "citations": [
+      {
+       "title": "LLMs program using Reusable and Composable Abstract Representations",
+       "url": "https://doi.org/10.48550/arxiv.2610.19238"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "LLMs program using Reusable and Composable Abstract Representations",
+       "url": "https://doi.org/10.48550/arxiv.2610.19238"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "LLMs program using Reusable and Composable Abstract Representations",
+       "url": "https://doi.org/10.48550/arxiv.2610.19238"
+      }
+     ],
+     "confidence": "medium",
+     "field": "claims[1].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "LLMs program using Reusable and Composable Abstract Representations",
+       "url": "https://doi.org/10.48550/arxiv.2610.19238"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[1].strength"
+    },
+    {
+     "citations": [
+      {
+       "title": "What, Where, and How: Disentangling the Roles of Task, Language, and Model in Code Model Representations",
+       "url": "https://arxiv.org/abs/2607.21491"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[2].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "What, Where, and How: Disentangling the Roles of Task, Language, and Model in Code Model Representations",
+       "url": "https://arxiv.org/abs/2607.21491"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[2].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "What, Where, and How: Disentangling the Roles of Task, Language, and Model in Code Model Representations",
+       "url": "https://arxiv.org/abs/2607.21491"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[2].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "What, Where, and How: Disentangling the Roles of Task, Language, and Model in Code Model Representations",
+       "url": "https://arxiv.org/abs/2607.21491"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[2].strength"
+    },
+    {
+     "citations": [
+      {
+       "title": "How Programming Concepts and Neurons Are Shared in Code Language Models",
+       "url": "https://doi.org/10.48550/arxiv.2506.01074"
+      },
+      {
+       "title": "Neuron-Guided Interpretation of Code LLMs: Where, Why, and How? | Proceedings of the ACM on Software Engineering",
+       "url": "https://dl.acm.org/doi/10.1145/3797083"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[3].claim"
+    },
+    {
+     "citations": [
+      {
+       "title": "How Programming Concepts and Neurons Are Shared in Code Language Models",
+       "url": "https://doi.org/10.48550/arxiv.2506.01074"
+      },
+      {
+       "title": "Neuron-Guided Interpretation of Code LLMs: Where, Why, and How? | Proceedings of the ACM on Software Engineering",
+       "url": "https://dl.acm.org/doi/10.1145/3797083"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[3].layer_hint"
+    },
+    {
+     "citations": [
+      {
+       "title": "How Programming Concepts and Neurons Are Shared in Code Language Models",
+       "url": "https://doi.org/10.48550/arxiv.2506.01074"
+      },
+      {
+       "title": "Neuron-Guided Interpretation of Code LLMs: Where, Why, and How? | Proceedings of the ACM on Software Engineering",
+       "url": "https://dl.acm.org/doi/10.1145/3797083"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[3].model"
+    },
+    {
+     "citations": [
+      {
+       "title": "How Programming Concepts and Neurons Are Shared in Code Language Models",
+       "url": "https://doi.org/10.48550/arxiv.2506.01074"
+      },
+      {
+       "title": "Neuron-Guided Interpretation of Code LLMs: Where, Why, and How? | Proceedings of the ACM on Software Engineering",
+       "url": "https://dl.acm.org/doi/10.1145/3797083"
+      }
+     ],
+     "confidence": "high",
+     "field": "claims[3].strength"
+    }
+   ]
+  },
+  "resolved_search_type": "",
+  "results": [
+   {
+    "author": "Casper L. Christensen, Kyle J. Ray, Dmitry Manning-Coe, Adam S. Shai, Paul M. Riechers",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "When writing code, the same computation can be expressed in different programming languages and through different implementation strategies. We show that the activations of LLMs capture this shared structure in reusable and composable abstract representations when they generate code. These representations emerge in the middle layers, are reusable across programming languages, and afford the model an impressive amount of generalization ability when generating code under various interventions. Using activation steering, we show that function, programming language, and implementation strategy can be independently manipulated. The independent interventions on language and function can be flexibly composed to control code generation, even in cases when the prompt contains no information about language and function. We additionally find that finetuning on examples of arbitrarily defined functions in one programming language transfers to other languages, consistent with the models reusing abstract features of code generation that are shared across different examples. Finally, to study how such abstract representations come to be, we implement a minimal model of shared, reusable, and composable structure in a synthetic setting, and show that transformers trained on such data learn representations that reuse these parts flexibly across contexts.\n\n...\n\nThis allows knowledge acquired in one setting to support programming in another; understanding a graph-search algorithm in Python can help a programmer implement it in Java, even when the implementation requires different language constructs and data structures. Rather than learning every realization independently, programmers can reuse their understanding of the computation while adapting its implementation to the setting. In this work, we show that coding models also learn such abstractions from the shared computational structure of program data. These representations are built from reusable contributions that decompose into (i) what a program computes, (ii) the language in which it is expressed, and (iii) its implementation strategy.\n\n...\n\nThe preceding experiments show that a specified computation can be realized in different programming languages through a reusable internal state. But the value of an abstraction is not only that it supports different realizations: it should also allow information acquired from one realization to support another. We therefore ask whether reading a single program produces a computational state that can be reused beyond the example's language. We present one implementation, harvest the persistent state accumulated at a shared suffix, and transplant that state into an otherwise example-free prompt. We pick 2 regular algorithms and 2 \"nonce\" algorithms (arbitrary sequences of steps that do not have a \"common\" name) for each model that exhibits the best performance when attention to the example is masked. Crucially, the target programming language is specified only after the state has been formed, separating acquisition of the computation from the choice of its subsequent realization. We intervene only with programs that successfully survive masking as in Section 3.2. Figure 5a shows that states transplanted from a single prompt with a single language generalize broadly to all other languages. What the model stores at the suffix is thus sufficient for rendering the algorithm in far more languages than it has seen it in. Finally, we try an extreme version of generalization: fine-tune existing models on just a single unseen algorithm in Python to see if they generalize to held-out languages. Wu et al. (2026) already showed that training on multiple languages in parallel improves held-out language performance. However, ... Figure 5b shows the results for an invented algorithm vantril."
+    ],
+    "id": "https://exa.ai/library/publication/74cjtzd8vw3",
+    "image": null,
+    "published_date": "2026-10-13T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "LLMs program using Reusable and Composable Abstract Representations",
+    "url": "https://doi.org/10.48550/arxiv.2610.19238"
+   },
+   {
+    "author": "YinZhe, GuXiaodong, ShenBeijun",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "Code language models have demonstrated strong capabilities across a wide range of code intelligence tasks. While the majority of existing research prioritizes performance improvements on benchmark datasets, few of them have focused on the internal interpretability of models\u2014how specific neurons affect linguistic features such as syntax and semantics, which is critical for model transparency, controllability, and reliability. Although various neuron interpretability techniques have been developed in NLP, directly applying them to source code yields suboptimal results due to the unique characteristics of programming languages, such as their formal structure, hierarchical organization, and executability. In this work, we empirically investigate the intrinsic mechanisms of code LLMs at the neuron level, aiming to localize both language-specific neurons (i.e., neurons that are selectively responsive to individual programming languages) and concept layers (i.e., feed-forward layers that encode language-agnostic representations of code). Our study employs two state-of-the-art models, Llama-3.1-8B and Qwen2.5-Coder-32B, across five programming languages: C++, Java, Python, Go, and JavaScript. By analyzing neuron activation patterns in response to multilingual code inputs, we investigate the role of individual neurons and the contribution of different layers during output generation. Our empirical findings reveal that: (1) code LLMs contain neurons specialized for individual programming languages, alongside a universal subset that supports general-purpose code generation; and (2) lower layers primarily encode language-specific syntactic structures, while middle layers capture semantic abstractions that generalize across languages, manifesting as concept layers. To demonstrate the practical usability of these findings, we apply our findings to three downstream tasks: neuron-guided fine-tuning for code generation, clone detection using concept-layer embeddings, and transfer learning guided by concept-layer representations for code summarization. Experimental evaluations show that each strategy consistently improves the performance of multilingual code LLMs."
+    ],
+    "id": "https://dl.acm.org/doi/10.1145/3797083",
+    "image": "https://dl.acm.org/cms/asset/e874ed4d-9d72-4c20-9060-8cea205a7394/3712438.cover.jpg",
+    "published_date": "2026-06-30T17:48:05.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Neuron-Guided Interpretation of Code LLMs: Where, Why, and How? | Proceedings of the ACM on Software Engineering",
+    "url": "https://dl.acm.org/doi/10.1145/3797083"
+   },
+   {
+    "author": "Muhammad Umair Haider, Umar Farooq, A. B. Siddique, Mark Marron",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "Abstract\u2014Language Models (LMs) have shown their applica tion for tasks pertinent to code and several code LMs have been proposed recently. The majority of the studies in this direction only focus on the improvements in performance of the LMs on different benchmarks, whereas LMs are considered black boxes. Besides this, a handful of works attempt to understand the role of attention layers in the code LMs. Nonetheless, feed-forward layers remain under-explored which consist of two-thirds of a typical transformer model\u2019s parameters. In this work, we attempt to gain insights into the inner workings of code language models by examining the feed-forward layers. To conduct our investigations, we use two state-of-the-art code LMs, Codegen-Mono and Ploycoder, and three widely used programming languages, Java, Go, and Python. We focus on examining the organization of stored concepts, the editability of these concepts, and the roles of different layers and input context size variations for output generation. Our empirical findings demonstrate that lower layers capture syntactic patterns while higher layers encode abstract concepts and semantics. We show concepts of interest can be edited within feed-forward layers without compromising code LM performance. Additionally, we observe initial layers serve as \u201cthinking\u201d layers, while later layers are crucial for predicting subsequent code tokens. Furthermore, we discover earlier layers can accurately predict smaller contexts, but larger contexts need critical later layers\u2019 contributions. We anticipate these findings will facilitate better understanding, debugging, and testing of code LMs.\n\n...\n\nOur investigation revealed that the FF layers of code LMs are responsible for capturing a wide range of information, spanning from fundamental syntactic patterns such as key words and n-grams to more abstract concepts and semantics. Notably, the initial layers predominantly capture low-level syntactic elements (e.g., keywords, n-grams), while the higher layers capture more abstract and higher-level semantics, such as iterators and other complex programming constructs.\n\n...\n\nCode LMs follow the transformer architecture [42], which incorporates interconnected self-attention and FF layers. Each FF layer operates as a position-wise function, independently processing input vectors. The FF layers function using two matrices: one representing keys and the other values. The first matrix serves as a set of key vectors, while the second matrix serves as a set of corresponding values for these keys. Specifically, transformers employ ReLU non-linearity and the function of FF layers can be expressed as: FF(x) = ReLU(x\u00b7 K"
+    ],
+    "id": "https://exa.ai/library/publication/2dsjs14dgf6",
+    "image": null,
+    "published_date": "2026-02-02T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Looking into Black Box Code Language Models",
+    "url": "https://doi.org/10.1109/icsc67292.2026.00011"
+   },
+   {
+    "author": "Marc North, Amir Atapour\u2013Abarghouei, Nelly Bencomo",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "Within software engineering research, Large Language Models (LLMs) are often treated as \u2018black boxes\u2019, with only their inputs and outputs being considered. In this paper, we take a machine interpretability approach to examine how LLMs internally represent and process code.We focus on variable declaration and function scope, training classifier probes on the residual streams of LLMs as they process code written in different programming languages to explore how LLMs internally represent these concepts across different programming languages. We also look for specific attention heads that support these representations and examine how they behave for inputs of different languages.Our results show that LLMs have an understanding \u2014 and internal representation \u2014 of language-independent coding semantics that goes beyond the syntax of any specific programming language, using the same internal components to process code, regardless of the programming language that the code is written in. Furthermore, we find evidence that these language-independent semantic components exist in the middle layers of LLMs and are supported by language-specific components in the earlier layers that parse the syntax of specific languages and feed into these later semantic components.Finally, we discuss the broader implications of our work, particularly in relation to concerns that AI, with its reliance on large datasets to learn new programming languages, might limit innovation in programming language design. By demonstrating that LLMs have a language-independent representation of code, we argue that LLMs may be able to flexibly learn the syntax of new programming languages while retaining their semantic understanding of universal coding concepts. In doing so, LLMs could promote creativity in future programming language design, providing tools that augment rather than constrain the future of software engineering."
+    ],
+    "id": "https://exa.ai/library/publication/8wlsygyzwl7",
+    "image": null,
+    "published_date": "2025-04-27T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Beyond Syntax: How Do LLMs Understand Code?",
+    "url": "https://doi.org/10.1109/icse-nier66352.2025.00023"
+   },
+   {
+    "author": "Piotr Wilam",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "Do independently trained language models come to represent the same thing in the same way? We answer for code, extending a recently introduced concept-circuit extraction method to a 2x2 design -- Python and Rust crossed with Qwen2.5-Coder-7B and DeepSeek-Coder-V1-6.7B -- and measuring a complete inventory of grammatical concepts (58 Python, 57 Rust) identically in all four cells: the smallest design that separates what depends on the task, the language, and the model. The answer splits into three parts. What earns dedicated circuitry is set by the task: the models agree on which concepts receive circuits (Spearman $\u03c1$ = 0.638 for Python, 0.673 for Rust, both p < $10^{-7}$). Where those circuits sit is set by the model: Qwen processes concepts in a late band (~L17-19), DeepSeek at L6-7, for both languages. How circuits grow across layers is also set by the model: Qwen gives its atomic concepts an early spike that DeepSeek does not. \"Are circuits universal?\" thus has no single answer: yes for What, no for Where and How -- universality is a property of representational content, not of computational organisation. None of this structure was fixed in advance. The agreement could have landed anywhere between independence and identity; it lands at $\u03c1\\approx 0.65$. Rust constructs receive 2-3x more concept-specific circuitry than their Python equivalents, in both models. Both models share neurons between the languages (6/7 and 7/7 paired constructs), DeepSeek 1.94x more than Qwen -- a direction no prior result predicts. And Qwen binds nine keywords of Rust's type-and-trait machinery into one tight neuron cluster (Jaccard 0.535 vs null 0.112, p < 0.001), a semantic dimension invisible in surface syntax. Ablation and linear probes confirm the circuits are functional. All claims are scoped to this 2x2; whether the per-model profile predicts a third model is the designed next test."
+    ],
+    "id": "https://exa.ai/library/publication/0rtf9f9wm81",
+    "image": null,
+    "published_date": "2026-07-23T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "What, Where, and How: Disentangling the Roles of Task, Language, and Model in Code Model Representations",
+    "url": "https://arxiv.org/abs/2607.21491"
+   }
+  ],
+  "search_time": 5110.8,
+  "statuses": null,
+  "warnings": null
+ },
+ "sdk_version": "2.28.0"
+}
