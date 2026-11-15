@@ -351,7 +351,7 @@ def library_ingredients(task_id):
     out = []
     seen = []
     for entry in library.get()["parts"]:
-        if entry["status"] == "rejected" or entry["tap_only"]:
+        if entry["status"] == "rejected" or entry.get("tap_only"):
             continue
         hit = False
         for skill in entry["skills"]:

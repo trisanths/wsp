@@ -114,8 +114,12 @@ def test_source_without_a_name_is_the_smallest_with_the_skill(client):
 def test_every_skill_is_a_healdata_pool():
     from wsp import healdata
 
-    assert set(shrink_models.SKILL_LABELS) == set(healdata.SOURCES)
+    # Every pool is a valid skill. A pool healdata adds later has no studio label yet and
+    # falls back to "<pool> text", so the studio keeps working when the pools grow.
     assert shrink_spec.SKILL_POOLS == sorted(healdata.SOURCES)
+    for name in ("code", "math", "medicine", "general", "prose"):
+        assert name in healdata.SOURCES
+    assert shrink_spec.label_of("some_new_pool") == "some_new_pool text"
 
 
 def test_lists_match_wsp_slim():

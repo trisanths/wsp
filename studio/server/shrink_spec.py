@@ -89,7 +89,7 @@ def round_up(value, step):
 
 
 def label_of(skill):
-    return models_mod.SKILL_LABELS.get(skill, skill)
+    return models_mod.SKILL_LABELS.get(skill, str(skill) + " text")
 
 
 def default_rule(method):

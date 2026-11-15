@@ -172,14 +172,23 @@ SKILL_WORDS = [
     ("code", ["code", "coding", "coder", "programming", "programmer", "python", "software", "developer"]),
     ("math", ["math", "maths", "mathematics", "arithmetic", "algebra", "calculus", "gsm8k"]),
     ("medicine", ["medical", "medicine", "clinical", "health", "doctor", "biomedical", "healthcare"]),
+    ("law", ["law", "legal", "lawyer", "contract", "contracts", "statute", "court"]),
+    ("multilingual", ["multilingual", "translation", "translate", "translator", "languages"]),
+    ("reasoning", ["reasoning", "logic", "logical", "puzzle", "puzzles"]),
+    ("knowledge", ["knowledge", "facts", "factual", "trivia", "encyclopedia"]),
     ("prose", ["prose", "writing", "story", "stories", "essay", "essays", "creative"]),
     ("general", ["general", "chat", "chatbot", "assistant", "conversation", "instruction"]),
 ]
+# Words for the pools the studio knows by name. A pool wsp/healdata.py adds later still works:
+# skill_label falls back to "<pool> text" and SKILL_TAGS to the pool name.
 SKILL_LABELS = {"code": "coding text", "math": "math text", "medicine": "medical text",
-                "general": "general chat text", "prose": "prose"}
+                "general": "general chat text", "prose": "prose", "law": "legal text",
+                "multilingual": "text in several languages", "reasoning": "reasoning text",
+                "knowledge": "factual text"}
 # The library tags a model with these words for each pool.
 SKILL_TAGS = {"code": ["code"], "math": ["math"], "medicine": ["medicine"], "general": ["general", "knowledge"],
-              "prose": ["general"]}
+              "prose": ["general"], "law": ["law"], "multilingual": ["multilingual"], "reasoning": ["reasoning"],
+              "knowledge": ["knowledge", "general"]}
 
 
 def skill_from_text(text):
