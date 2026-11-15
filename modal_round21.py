@@ -770,9 +770,10 @@ def probe_go(arms, names, po):
         value = best["transfer"][name]
         members_ok[name] = bool(value is not None and value > TRANSFER_MIN)
     z = None if stat is None else stat["z"]
-    drift_ok = bool(best["drift"] < po["c"].drift_tolerance)
+    guard_value = best.get("harm") if best.get("harm") is not None else best["drift"]
+    drift_ok = bool(guard_value < po["c"].drift_tolerance)
     z_ok = bool(z is not None and z > Z_MIN)
-    return {"transfer_over_0.3_on_every_member": members_ok, "drift": best["drift"], "drift_under_tolerance": drift_ok,
+    return {"transfer_over_0.3_on_every_member": members_ok, "drift": best["drift"], "harm": best.get("harm"), "drift_under_tolerance": drift_ok,
             "content_z": stat, "content_z_by_member": by_member, "content_z_over_2": z_ok, "controls": controls,
             "go": bool(all(members_ok.values()) and drift_ok and z_ok)}
 

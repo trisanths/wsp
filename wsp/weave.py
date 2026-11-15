@@ -981,15 +981,59 @@ def kl_to_cache(model, cache, batch_size=8):
     return {"kl": total / tokens, "tokens": int(tokens)}
 
 
+def nll_on_cache(model, cache, batch_size=8):
+    """Mean next-token loss of the model on the cached texts, in nats per token.
+
+    Uses only the cached token ids. Returns {"nll": float, "tokens": int}.
+    """
+    device = probe.model_device(model)
+    lengths = cache["lengths"]
+    offsets = np.concatenate([[0], np.cumsum(lengths)])
+    vocab = int(cache["vocab"])
+    total = 0.0
+    tokens = 0.0
+    for start in range(0, len(lengths), batch_size):
+        stop = min(start + batch_size, len(lengths))
+        width = int(lengths[start:stop].max())
+        count = stop - start
+        ids = np.zeros((count, width), dtype=np.int64)
+        attention = np.zeros((count, width), dtype=np.int64)
+        for row in range(count):
+            lo = int(offsets[start + row])
+            hi = int(offsets[start + row + 1])
+            ids[row, :hi - lo] = cache["ids"][lo:hi]
+            attention[row, :hi - lo] = 1
+        ids_t = torch.from_numpy(ids).to(device)
+        att_t = torch.from_numpy(attention).to(device)
+        logits = model(input_ids=ids_t, attention_mask=att_t).logits.float()[..., :vocab]
+        logp = torch.log_softmax(logits[:, :-1], dim=-1)
+        target = ids_t[:, 1:].to(logp.device)
+        picked = logp.gather(-1, target.unsqueeze(-1)).squeeze(-1)
+        mask = att_t[:, 1:].float().to(logp.device)
+        total += float((-picked * mask).sum())
+        tokens += float(mask.sum())
+        del logits, logp
+    if tokens == 0:
+        return {"nll": 0.0, "tokens": 0}
+    return {"nll": total / tokens, "tokens": int(tokens)}
+
+
 class ProbeObjective:
     """Forward-only search objective from teacher caches. No generation and no benchmark.
 
     For each member i with its own pool texts: the teacher is the member's
     cache. transfer_i = gap closed between KL(member_i || host) and 0, so the
-    host scores 0 and the member itself scores 1. Drift is KL(host || model)
-    on general texts, from the host's cache. The objective is
+    host scores 0 and the member itself scores 1. The guard is harm on
+    general text: the model's next-token loss there minus the host's. A
+    mix may move away from the host; it may not get worse at general text.
+    (The first real run showed why: a true fine-tune sits 0.4 nats of KL
+    from its host on general text, so a KL guard scored every member far
+    below the untouched host.) The objective is
 
-        mean over members of transfer_i - drift_weight * max(0, drift - drift_tolerance)
+        mean over members of transfer_i - drift_weight * max(0, harm - drift_tolerance)
+
+    With guard="kl" the old measure, KL(host || model), is the guard. Both
+    numbers are always reported ("harm" and "drift").
 
     Members whose gap to the host is zero (no signal on their pool) are
     left out of the mean and reported as None. Call calibrate(host model)
@@ -999,7 +1043,7 @@ class ProbeObjective:
     """
 
     def __init__(self, member_names, member_caches, drift_cache, drift_tolerance=0.05, drift_weight=10.0,
-                 batch_size=8, host_pool_caches=None):
+                 batch_size=8, host_pool_caches=None, guard="nll"):
         if len(set(member_names)) != len(member_names):
             raise ValueError("member names must be unique")
         self.names = list(member_names)
@@ -1009,8 +1053,12 @@ class ProbeObjective:
         self.drift_weight = float(drift_weight)
         self.batch_size = batch_size
         self.host_pool_caches = dict(host_pool_caches or {})
+        if guard not in ("nll", "kl"):
+            raise ValueError("guard must be 'nll' or 'kl'")
+        self.guard = guard
         self.baseline = None
         self.drift_floor = None
+        self.host_nll = None
 
     def calibrate(self, model):
         """Measure KL(member || host) on every member pool with the host weights in the model."""
@@ -1019,7 +1067,8 @@ class ProbeObjective:
             base[name] = kl_to_cache(model, self.caches[name], self.batch_size)["kl"]
         self.baseline = base
         self.drift_floor = kl_to_cache(model, self.drift_cache, self.batch_size)["kl"]
-        return {"baseline_kl": dict(base), "drift_floor": self.drift_floor}
+        self.host_nll = nll_on_cache(model, self.drift_cache, self.batch_size)["nll"]
+        return {"baseline_kl": dict(base), "drift_floor": self.drift_floor, "host_nll": self.host_nll}
 
     def scores(self, model):
         """Forward passes only. Returns {"transfer": {name: value or None}, "member_kl": {...}, "drift": float}."""
@@ -1032,7 +1081,9 @@ class ProbeObjective:
             kls[name] = kl
             transfers[name] = probe.gap_closed(self.baseline[name], kl, 0.0)
         drift = kl_to_cache(model, self.drift_cache, self.batch_size)["kl"]
-        out = {"transfer": transfers, "member_kl": kls, "drift": drift}
+        nll = nll_on_cache(model, self.drift_cache, self.batch_size)["nll"]
+        out = {"transfer": transfers, "member_kl": kls, "drift": drift, "general_nll": nll,
+               "harm": nll - self.host_nll}
         if len(self.host_pool_caches) > 0:
             pool_drift = {}
             for label in sorted(self.host_pool_caches):
@@ -1056,10 +1107,13 @@ class ProbeObjective:
         mean = self.mean_transfer(scores)
         if mean is None:
             mean = 0.0
-        excess = max(0.0, scores["drift"] - self.drift_tolerance)
+        guard_value = scores["drift"]
+        if self.guard == "nll":
+            guard_value = scores.get("harm", scores["drift"])
+        excess = max(0.0, guard_value - self.drift_tolerance)
         penalty = self.drift_weight * excess
         detail = {"transfer": dict(scores["transfer"]), "mean_transfer": mean, "drift": scores["drift"],
-                  "drift_excess": excess, "penalty": penalty}
+                  "harm": scores.get("harm"), "guard": self.guard, "drift_excess": excess, "penalty": penalty}
         return mean - penalty, detail
 
 

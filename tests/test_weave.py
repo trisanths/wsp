@@ -682,3 +682,25 @@ def test_probe_objective_drives_search_and_restores_host():
     zero = [e for e in result["log"] if e["label"] == "zero"][0]
     assert abs(zero["objective_a"]) < 0.02
     assert result["best"]["objective_a"] > 0.3
+
+
+def test_probe_guard_is_harm_on_general_text_not_distance_from_the_host():
+    host, member, tokenizer, cache, general, objective = probe_setup()
+    info = objective.calibrate(host)
+    assert info["host_nll"] > 0.0
+    at_host = objective.scores(host)
+    assert abs(at_host["harm"]) < 1e-6
+    assert objective(at_host)[0] == pytest.approx(0.0, abs=1e-6)
+    own = objective.scores(member)
+    assert own["drift"] > 0.0
+    assert own["harm"] == pytest.approx(own["general_nll"] - info["host_nll"])
+    # The KL guard charges the member for being different; the harm guard charges it only for being worse.
+    kl_guard = weave.ProbeObjective(["m"], {"m": cache}, general, batch_size=4, guard="kl", drift_tolerance=0.0)
+    kl_guard.calibrate(host)
+    nll_guard = weave.ProbeObjective(["m"], {"m": cache}, general, batch_size=4, drift_tolerance=0.0)
+    nll_guard.calibrate(host)
+    value_kl, detail_kl = kl_guard(kl_guard.scores(member))
+    value_nll, detail_nll = nll_guard(nll_guard.scores(member))
+    assert detail_kl["penalty"] > 0.0
+    assert detail_nll["penalty"] == pytest.approx(10.0 * max(0.0, own["harm"]))
+    assert detail_nll["guard"] == "nll" and detail_kl["guard"] == "kl"
