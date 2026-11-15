@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WSP Swarm Dashboard</title>
+  <meta name="description" content="Part 3 of weight-space programming: an agent swarm and equal-budget baselines searching for graft programs, with every number labeled.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%232a78d6'/%3E%3Cpath d='M3 12 L6 7 L9 9 L13 4' stroke='white' stroke-width='1.6' fill='none'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to the dashboard</a>
+  <header class="page-head">
+    <div class="wrap">
+      <p class="eyebrow">Weight-space programming, part 3</p>
+      <h1>Agents searching for model grafts on an equal budget</h1>
+      <div id="data-banner" class="banner" role="status">Loading the data snapshot.</div>
+      <p class="lede">
+        A program in this language takes a small host model, Llama-3.2-1B-Instruct with 16 layers, and grafts
+        parts from other donor models into it: a cluster of MLP neurons, a few attention heads, a mixture-of-experts
+        expert or a whole block. Each graft sits at one host layer (its <code>at</code>) and joins the host through a
+        trained glue of some rank, and an optional heal pass trains the glue on task data. The environment compiles each
+        program, scores it on a GSM8K search split and charges two budgets: eval tokens, counted in full-eval
+        equivalents (FEE), and GPU-seconds. An agent swarm (an analyst that maps which parts help, planners that propose
+        programs, and a rule judge that keeps the best) races baselines that get exactly the same two budgets:
+        evolutionary search, random search, a random-part search, greedy union, LoRA and full fine-tuning. The best few
+        programs of each run are then scored once on a held-out split, next to a random-part control and a no-graft
+        control, so a gain that comes from heal training alone shows up as a control that scores just as well.
+      </p>
+      <p id="snapshot" class="meta"></p>
+      <nav class="toc" aria-label="Sections">
+        <a href="#race">The race</a>
+        <a href="#log-section">Agent log</a>
+        <a href="#inspector">Program inspector</a>
+        <a href="#fit-section">Fit vs score</a>
+        <a href="#budget-section">Budget</a>
+        <a href="#real-section">Real runs</a>
+        <a href="#parts-section">Parts</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="wrap">
+    <div class="dataset-bar card">
+      <label class="field">
+        <span class="field-label">Dataset</span>
+        <select id="dataset-select" aria-describedby="dataset-summary"></select>
+      </label>
+      <p id="dataset-summary" class="dataset-summary"></p>
+    </div>
+
+    <section id="race" class="card" aria-labelledby="race-title">
+      <div class="section-head">
+        <h2 id="race-title">The race: best score so far</h2>
+        <p class="section-note">Each thin line is one seed, the thick line is the median over seeds and the shaded band
+          runs from the worst seed to the best. Only full-fidelity search evals that ended "ok" count toward the best.
+          A combined score of 0 is the host's own score; 1 would close all of the host's headroom on GSM8K.</p>
+      </div>
+      <div id="arm-toggles" class="chips" role="group" aria-label="Arms shown on the charts"></div>
+      <div class="chart-grid">
+        <figure class="chart">
+          <figcaption id="chart-evals-title" class="chart-title">Best combined score against evals spent</figcaption>
+          <div id="chart-evals" class="chart-body"></div>
+        </figure>
+        <figure class="chart">
+          <figcaption id="chart-compute-title" class="chart-title">Best combined score against GPU-seconds</figcaption>
+          <div id="chart-compute" class="chart-body"></div>
+        </figure>
+      </div>
+      <p id="times-fewer" class="callout"></p>
+      <details class="table-view">
+        <summary>Table view of the race</summary>
+        <div id="race-table"></div>
+      </details>
+    </section>
+
+    <section id="log-section" class="card log-layout" aria-labelledby="log-title">
+      <div class="log-col">
+        <div class="section-head">
+          <h2 id="log-title">Agent log</h2>
+          <p class="section-note">Every eval each agent ran, newest first. Pick a row to inspect its program.</p>
+        </div>
+        <div class="filters" role="group" aria-label="Filter the agent log">
+          <label class="field"><span class="field-label">Arm</span><select id="filter-arm"></select></label>
+          <label class="field"><span class="field-label">Seed</span><select id="filter-seed"></select></label>
+          <label class="field"><span class="field-label">Status</span><select id="filter-status"></select></label>
+          <label class="field"><span class="field-label">Agent</span><select id="filter-agent"></select></label>
+          <label class="field field-wide"><span class="field-label">Search</span>
+            <input id="filter-text" type="search" placeholder="part, hypothesis or program hash" autocomplete="off"></label>
+          <label class="check"><input id="filter-events" type="checkbox"> Show analyst and judge notes</label>
+        </div>
+        <p id="log-count" class="meta" aria-live="polite"></p>
+        <div id="log-list" class="log-list" role="list"></div>
+        <button id="log-more" class="button" type="button" hidden>Show more rows</button>
+      </div>
+      <aside id="inspector" class="inspector" aria-labelledby="inspector-title">
+        <h2 id="inspector-title">Program inspector</h2>
+        <div id="inspector-body"><p class="meta">Pick a row in the agent log to see its program.</p></div>
+      </aside>
+    </section>
+
+    <section id="fit-section" class="card" aria-labelledby="fit-title">
+      <div class="section-head">
+        <h2 id="fit-title">Fit vs score</h2>
+        <p class="section-note">One point per graft in every scored full-fidelity search eval: its fit_r2 (how well the
+          glue maps the host's activations into the part before any heal) against the eval's combined score.</p>
+      </div>
+      <figure class="chart">
+        <figcaption id="fit-chart-title" class="chart-title">fit_r2 against combined score</figcaption>
+        <div id="fit-chart" class="chart-body"></div>
+        <p class="caption-strong">fit_r2 is a placement check, not a part ranking.</p>
+      </figure>
+      <div id="fit-legend" class="legend"></div>
+      <p id="fit-arms" class="meta"></p>
+    </section>
+
+    <section id="budget-section" class="card" aria-labelledby="budget-title">
+      <div class="section-head">
+        <h2 id="budget-title">Budget</h2>
+        <p class="section-note">What each arm spent of its search budget, as the median over seeds with the range in
+          brackets. Probes are fit-only compiles: they cost GPU-seconds and no eval token.</p>
+      </div>
+      <p id="budget-equal" class="equal-line"></p>
+      <div id="budget-table"></div>
+    </section>
+
+    <section id="real-section" class="card" aria-labelledby="real-title">
+      <div class="section-head">
+        <h2 id="real-title">Real runs</h2>
+        <p class="section-note">Runs on Modal GPUs with the real compiler, heal and model, scored with the interim
+          scorer.</p>
+      </div>
+      <div id="smoke-panel"></div>
+      <div id="final-panel"></div>
+    </section>
+
+    <section id="parts-section" class="card" aria-labelledby="parts-title">
+      <div class="section-head">
+        <h2 id="parts-title">Parts</h2>
+        <p class="section-note">The real parts extracted so far for the pilot runs. The stub datasets use a simulated
+          catalog of about 40 parts instead.</p>
+      </div>
+      <div id="parts-panel"></div>
+    </section>
+  </main>
+
+  <footer class="page-foot">
+    <div class="wrap" id="footer"></div>
+  </footer>
+  <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
+</body>
+</html>

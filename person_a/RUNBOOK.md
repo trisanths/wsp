@@ -4,7 +4,8 @@ You are a Claude Code agent helping one teammate on the weight-space programming
 Your job: run the **parts-mining pipeline** on the models assigned to your teammate, then push
 the parts it finds to GitHub. Read this whole file before you run anything.
 
-> Status: written against the v2 pipeline interface (`person_a/mine/`). If a command below
+> Status: v2 pipeline pushed. Load-tested so far: qwenmath1.5b, k2horizon7b, lfm2.5_8b_a1b. Other models are
+> untested, so ALWAYS run `--smoke` first. Written against the v2 pipeline interface (`person_a/mine/`). If a command below
 > fails because a file is missing, `git pull` first. If it is still missing, stop and tell your
 > human; do not write your own replacement.
 
@@ -45,7 +46,16 @@ Secrets. Never paste a key into chat or a file that gets committed.
   ```bash
   printf "Paste OpenAI key: "; read -s k; echo "OPENAI_API_KEY=$k" > .env; chmod 600 .env; unset k; echo; echo saved
   ```
-- **Modal secrets** (once per Modal workspace; skip a step if `modal secret list` already shows it):
+- **past.dev key (shared memory between all teammates' agents).** Use the team's shared `past_sk_...` key;
+  get it privately from Hanav. Your human runs this in **their own terminal**:
+  ```bash
+  printf "Paste past.dev key: "; read -s k; echo "PAST_API_KEY=$k" >> .env; unset k; echo; echo saved
+  ```
+  Check it with `.venv/bin/python mine/shared_memory.py check`, which should end with `RESULT: OK`.
+  With the key, every agent logs each attempt and lesson to the shared audience `wsp-mining` and
+  searches it before proposing. Without the key, runs still work, but without shared memory.
+- **Modal secrets** (once per Modal workspace; skip a step if `modal secret list` already shows it).
+  The engine needs only `hf-token`, because the agent runs on your laptop:
   ```bash
   .venv/bin/modal secret create openai-key --from-dotenv .env
   .venv/bin/modal secret create hf-token HF_TOKEN=<hugging face token>   # human runs this one
@@ -69,13 +79,17 @@ your human says so. Load failures on custom-code models (`k2*`, `g9v3*`) are the
 ## 5. Run the mining
 One model:
 ```bash
-.venv/bin/python mine/run.py --model <short_name> --budget-usd 25 --max-hours 3
+.venv/bin/python mine/run.py --model <short_name> --budget-usd 25 --max-hours 3 --person <your name>
 ```
 All your models in parallel:
 ```bash
-.venv/bin/python mine/run_many.py --models <a>,<b>,<c> --budget-usd 25 --max-hours 3
+.venv/bin/python mine/run_many.py --models <a>,<b>,<c> --budget-usd 25 --max-hours 3 --person <your name>
 ```
 - `--budget-usd` caps OpenAI spend **per model**. Modal GPU time is extra; the run log prints both.
+- `--person` labels your entries in the shared memory, so other agents can see who tried what.
+- To cut OpenAI cost, add `--effort medium`. OpenAI is most of the cost: about $8 for a high-effort run
+  on the small model, against about $1 of Modal.
+- To stop a run, use **Ctrl-C** (or `kill -INT`), never `kill -9`, so it shuts down its Modal sandbox.
 - Runs can be resumed: if one stops, run the same command again and it continues where it left off.
 - Run long jobs in the background and report progress to your human at milestones, not constantly.
 

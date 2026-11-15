@@ -1,0 +1,154 @@
+{
+ "cost_dollars": 0.007,
+ "endpoint": "search",
+ "fetched_at": "2026-11-15T02:22:49Z",
+ "key": "06d9ed66bb227a237dc0873f0dbbb8695bb1cd6debd6db0464b96759c3b2c8af",
+ "params": {
+  "category": "publication",
+  "contents": {
+   "highlights": {
+    "max_characters": 1200,
+    "query": "GSM8K MLP neurons"
+   }
+  },
+  "end_published_date": "2026-11-14T00:00:00Z",
+  "exclude_domains": [
+   "*.kaggle.com",
+   "github.com/TIGER-AI-Lab/MMLU-Pro",
+   "github.com/google-deepmind/bbeh",
+   "github.com/openai/grade-school-math",
+   "huggingface.co/datasets",
+   "kaggle.com",
+   "paperswithcode.com/dataset",
+   "tensorflow.org/datasets"
+  ],
+  "num_results": 5,
+  "query": "MLP neurons in the early layers of Qwen2.5-Math-1.5B and their role in GSM8K",
+  "type": "auto"
+ },
+ "response": {
+  "auto_date": null,
+  "context": null,
+  "cost_dollars": {
+   "contents": null,
+   "search": {
+    "neural": 0.007
+   },
+   "total": 0.007
+  },
+  "notices": null,
+  "output": null,
+  "resolved_search_type": "",
+  "results": [
+   {
+    "author": "Yang, An, Beichen Zhang, Binyuan Hui, Bofei Gao, Bowen Yu, Li, Chengpeng, et al.",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     ". In this report, we introduce a series of math-specific large language models, Qwen2.5-Math, Qwen2.5-Math-RM, and Qwen2.5-Math-Instruct-1.5B/7B/72B. To provide a comprehensive understanding of the technical"
+    ],
+    "id": "https://exa.ai/library/publication/gx46sx3tk6m",
+    "image": null,
+    "published_date": "2024-09-18T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Qwen2.5-Math Technical Report: Toward Mathematical Expert Model via Self-Improvement",
+    "url": "https://doi.org/10.48550/arxiv.2409.12122"
+   },
+   {
+    "author": "Park, Yein, Minbyul Jeong, Jaewoo Kang",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "Transformer circuit models the internal computation of its architecture as a directed acyclic graph (DAG) G = (N, E), where each node in N corresponds to a distinct component in the model: attention heads Al,j (at layer l and head j), MLP modules Ml for each layer, the input node I (embeddings) and the output node O (logits), following (Nanda et al., 2023; Conmy et al., 2023; Ameisen et al., 2025):\n\n...\n\n| | Post-Training | | | List of Emergent Attention | Heads in Circuits | # | of Heads | | --- | --- | --- | --- | --- | --- | --- | --- | | | Qwen-2.5-Math-1.5B | | (Baseline) | L0H7, L21H10, L2H6, | L11H1, L14H10 ... | 56 | | | | DeepSeek-R1-Distill-Qwen-1.5B | | | L5H0, L5H2, L5H4, | L6H10, L7H7 ... | 32 | | | | SFT | with OpenR1-Math-220k | | L0H8, L11H3, L3H3, | L5H1, L7H3 ... | 34 | | | | GRPO | with OpenR1-Math-220k | | L0H8, L5H1, L7H1, | L18H11, L11H8 ... | 19 | | | | GRPO | with GSM8K | | L0H8, L5H1, L7H2, | L3H3, L21H2 ... | 20 | |\n\n\u2022 Think On/Off Model: Qwen3-8B (Yang et al., 2025), which features a Think On/Off capability across various open source models, allowing for controlled study of selective reasoning activation. Datasets. Our training and evaluation cover the well-established, widely-used reasoning datasets: \u2022 Training: For SFT and GRPO, we utilize standard, large-scale reasoning datasets, including OpenR1-Math-220k (Hugging Face, 2025) and GSM8K (Cobbe et al., 2021), which contain a diverse set of mathematical problems and their solutions. \u2022 Evaluation: To assess both in-domain and out-of-domain generalization, we employed a comprehensive suite of benchmarks: AIME\u201924 and AIME\u201925 (American Invitational Mathe matics Examination) (AIME, 2025), AMC (American Mathematics Competitions) (AI-MO, 2024), GPQA (Graduate-Level Google-Proof Q&A) (Rein et al., 2024), MATH-500 (Light man et al., 2024) and TriviaQA (Joshi et al., 2017) for general knowledge. Details of the experimental setup are provided in Appendix A.1.\n\n...\n\nThis also clarifies why RL-trained ... GRPO is primarily optimizing the use of existing knowledge and computational pathways, rather than building entirely new ones from scratch. Quantitative Analysis. With the similar approach of Section 4.2, we make a difference among the scales of each attention heads. When we scale up the activation of GRPO reasoning heads with baseline model, up to 1.3 higher activation, we observe actual performance gain with the heads from 100 step checkpoints GRPO GSM8K circuits. The performance of MATH benchmark increases from 56 to 60, while other benchmarks like AIME\u201924 and AMC decrease. Meanwhile, when we scale up 1.3 higher for the one head emergent from 2500 step checkpoints GRPO Math-220k, the performance of AMC goes slightly down, and MATH goes slightly up, while AIME\u201924 remains static. On the other side, when we scale down by half using that same attention heads emerging from 100 step checkpoints GRPO GSM8K circuits, AIME\u201924 performance decreases sharply from 13.3 to 3.3. However, MATH and AMC score increase, 56 to 63, and 38.5 to 42.1. This trade-off is impressive as some task specific heads affect strongly to that performance, while it may harm or make model confused to do other tasks. As heads of 100 step checkpoints GRPO GSM8K circuits are mostly coming from AIME dataset basis, it surely affect AIME the most, while scaling down its presence could help model to do reasoning better at other benchmarks.\n\n...\n\n\u2022 SFT (Wei et al., 2022a): learning rate 4.0e \u2212 5, 5 training epochs, 100 steps for saving and circuit construction, Bfloat16, warm-up ratio 0.03. \u2022 GRPO (Shao et al., 2024) with OpenrR1-Math-220k: learning rate 1.0e \u2212 6 for main result and 2.0e \u2212 5 for comparison in 7, 3 training epochs, 100 steps for saving and circuit construction, Bfloat16, warm-up ratio 0.1, reward weights 1.0, 16 generations. \u2022 GRPO (Shao et al., 2024) with GSM8K: learning rate 5e \u2212 6, 1 training epoch, 100 steps for saving and circuit construction, Bfloat16, warm-up ratio 0.1, reward weights 1.0, 16 generations. For the system prompt of GRPO training, we use basic recipes of OpenR1 Hugging Face (2025).\n\n...\n\nFigure 6: Analysis of Emergent Attention Head in Qwen2.5-Math-1.5B during GRPO with GSM8k (Cobbe et al., 2021) dataset. (A) denotes a cohort analysis of attention head activation over training checkpoints. The blue line tracks the absolute number of newly activated heads com pared to the base model, while the red dashed line indicates the number of original heads that are maintained. The stacked areas represent cohorts of heads, color-coded by the checkpoint at which they first emerged, showing their persistence and evolution over time. (B) shows a heatmap detailing the changes in activation frequency. Red cells denote heads from the original base model, with fading intensity indicating their gradual deactivation. Blue cells represent newly emerged heads, with darker shades signifying higher activation frequency across checkpoints. Heads active in the final checkpoint are outlined with a black border."
+    ],
+    "id": "https://exa.ai/library/publication/yrtb7ckqhz8",
+    "image": null,
+    "published_date": "2025-09-30T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Thinking Sparks!: Emergent Attention Heads in Reasoning Models During Post Training",
+    "url": "https://doi.org/10.48550/arxiv.2509.25758"
+   },
+   {
+    "author": "Aadim Nepal, Safal Shrestha, Shrestha, Anubhav, Minwu Kim, Naghiyev, Jalal, Ravid Shwartz-Ziv, et al.",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "wise ablation on base and trained variants, we find that math reasoning depends on a few ... these layers reduces math accuracy by as much as 80%, whereas factual recall tasks only show relatively smaller drops. This suggests that specialized layers"
+    ],
+    "id": "https://exa.ai/library/publication/jv8ywqf5c39",
+    "image": null,
+    "published_date": "2025-06-27T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Layer Importance for Mathematical Reasoning is Forged in Pre-Training and Invariant after Post-Training",
+    "url": "https://doi.org/10.48550/arxiv.2506.22638"
+   },
+   {
+    "author": "Alessandro Stolfo, Yonatan Belinkov, Mrinmaya Sachan",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     "(l) t = A (l) h (l-1) 1 , ... ) (h (l-1) t ),\n\nwhere at layer l, \u03c3 is the sigmoid nonlinearity, W (l) f c and W (l) proj are two matrices that parameterize the multilayer perceptron (MLP) of the Transformer block and A (l) is the attention mechanism. 2"
+    ],
+    "id": "https://exa.ai/library/publication/gdk3bm17p1l",
+    "image": null,
+    "published_date": "2023-05-24T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "A Mechanistic Interpretation of Arithmetic Reasoning in Language Models using Causal Mediation Analysis",
+    "url": "https://doi.org/10.3929/ethz-b-000653504"
+   },
+   {
+    "author": "Nathan Hu, Jake Ward, Thomas Icard, Christopher Potts",
+    "crawl_date": null,
+    "entities": null,
+    "extras": null,
+    "favicon": null,
+    "highlight_scores": null,
+    "highlights": [
+     ". Traditional transcoders are trained to fully replace an MLP's computation. We instead train adapters to approximate the difference between base and target model MLPs, such that MLP \u2113 base (x) + T \u2113 (x) \u2248 MLP \u2113 target (x). More precisely, we build a"
+    ],
+    "id": "https://exa.ai/library/publication/vqg7wtn8t8j",
+    "image": null,
+    "published_date": "2026-02-24T00:00:00.000Z",
+    "score": null,
+    "snapshot_at": null,
+    "subpages": null,
+    "summary": null,
+    "text": null,
+    "title": "Transcoder Adapters for Reasoning-Model Diffing",
+    "url": "http://arxiv.org/abs/2602.20904"
+   }
+  ],
+  "search_time": 360.8,
+  "statuses": null,
+  "warnings": null
+ },
+ "sdk_version": "2.28.0"
+}

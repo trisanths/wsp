@@ -1,0 +1,42 @@
+model: IFM/K2-Horizon-7B | revision: 1ad5223c80f635ede5fb926f6304dc7228246a4b | GPU: L40S
+structure: {
+ "n_layers": 36,
+ "d_model": 4096,
+ "layers_with": {
+  "attn": 36,
+  "mlp": 36,
+  "experts": 0
+ },
+ "example": {
+  "attn": {
+   "path": "self_attn.o_proj",
+   "n_heads": 32,
+   "head_dim": 128,
+   "type": "K2HorizonAttention"
+  },
+  "mlp": {
+   "path": "mlp.down_proj",
+   "width": 12288
+  }
+ },
+ "hf_id": "IFM/K2-Horizon-7B",
+ "revision": "1ad5223c80f635ede5fb926f6304dc7228246a4b",
+ "load_seconds": 159.1,
+ "model_class": "K2HorizonForCausalLM",
+ "vocab": 250624
+}
+base scores (geometric-mean prob of answer tokens):
+   code|heldout 0.42968
+   code|search 0.43182
+   facts|heldout 0.181
+   facts|search 0.2558
+   general_text|heldout 0.06848
+   general_text|search 0.0693
+   math|heldout 0.75674
+   math|search 0.71761
+   multilingual|heldout 0.20991
+   multilingual|search 0.18889
+margin vs shuffled answers (nats; < 0.25 => built-in skill skipped): {'math': 1.0734, 'code': 0.5213, 'facts': 7.9817, 'multilingual': 3.0758, 'general_text': 0.8047}
+skipped skills: []
+one ablation {"kind": "attn_heads", "layer": 18, "indices": [0, 1]} -> {"math|search": -0.001, "math|heldout": 0.0082, "code|search": -0.0123, "code|heldout": -0.0153, "facts|search": 0.0052, "facts|heldout": -0.0008, "multilingual|search": 0.0019, "multilingual|heldout": 0.004, "general_text|search": 0.0117, "general_text|heldout": 0.0131} in 13.9 s
+smoke OK in 213.8 s (wall clock, includes model load)

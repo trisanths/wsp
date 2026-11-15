@@ -48,6 +48,13 @@ same way the real ones do:
   exactly. With heal steps s, c = 1 - exp(-s / 100). Content strength per
   graft is fit + (1 - fit) * c * fit (300 steps closes most of the gap).
   Unhealed glue hurts: each graft costs harm * (1 - c), so heal 0 hurts.
+- Cascade short heal: below full fidelity the env heals with config
+  low_fidelity_heal_steps (50 by default) and the backend scores the steps
+  it actually ran. 50 steps give c = 0.39 (300 give 0.95), so each graft's
+  strength, glue gain and leftover harm sit between the unhealed and the
+  fully healed values, and the score lands between the heal-0 and the
+  full-heal scores. STUB ASSUMPTION: no short heal has been measured yet;
+  the curve shape is the same c(s) used for 0, 100, 300 and 600 steps.
 - Eval: base + heal-only gain + the best graft's glue gain (glue gains do
   not stack across grafts, a STUB ASSUMPTION since round 2 only had single
   grafts) + sum of content * strength - harm - interference for grafts at the
@@ -363,6 +370,7 @@ class StubWorld:
     # Heal and eval.
 
     def heal_closeness(self, steps):
+        """c in [0, 1): how far a heal of this many steps closes the gap (0 steps or no heal: 0)."""
         if steps is None or steps <= 0:
             return 0.0
         return 1.0 - math.exp(-steps / 100.0)

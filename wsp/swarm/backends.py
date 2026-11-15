@@ -49,9 +49,15 @@ class CompileEval:
         raise NotImplementedError
 
     def heal(self, handle, program):
-        """Run the program's heal pass on a compiled handle.
+        """Run the heal block of `program` on a compiled handle.
 
-        Only called when the program has a heal block.
+        Only called when the program has a heal block. Heal with the steps
+        in the program given here, which can differ from the compiled one:
+        below full fidelity the env passes the program with its heal steps
+        cut to config low_fidelity_heal_steps (the cascade's short heal), and
+        a promotion to full compiles again and passes the program's own
+        steps. A backend that defers the heal to evaluate() must keep the
+        heal block it was given here.
         Returns {"ok", "error", "handle", "heal_loss": [floats], "compute_s": {"heal": s}}.
         """
         raise NotImplementedError
@@ -80,7 +86,16 @@ class CompileEval:
 
 
 class StubCompileEval(CompileEval):
-    """The STUB backend: deterministic, instant, with the stub cost model."""
+    """The STUB backend: deterministic, instant, with the stub cost model.
+
+    A handle is {"program", "graft_report", "program_hash"}. evaluate()
+    scores handle["program"], so the heal steps it sees are the ones heal()
+    ran: heal() puts the program it was given (the short heal below full
+    fidelity) into the handle. A handle that was never healed scores as if
+    the program's own heal ran. The eval noise is keyed by the compiled
+    program's hash, so the short and full heals of one program differ by
+    the heal alone.
+    """
 
     name = "stub"
 
@@ -101,20 +116,23 @@ class StubCompileEval(CompileEval):
         except KeyError as error:
             return {"ok": False, "error": "STUB: the stub world has no part " + str(error),
                     "handle": None, "graft_report": [], "compute_s": {"compile": phase_time}, "stub": True}
-        handle = {"program": ps.normalize(program), "graft_report": report}
+        handle = {"program": ps.normalize(program), "graft_report": report,
+                  "program_hash": space.program_hash(program)}
         return {"ok": True, "error": None, "handle": handle, "graft_report": report,
                 "compute_s": {"compile": phase_time}, "stub": True}
 
     def heal(self, handle, program):
-        return {"ok": True, "error": None, "handle": handle,
+        """Heal with the steps of the program given (the short heal below full fidelity), charging for them."""
+        healed = {"program": ps.normalize(program), "graft_report": handle["graft_report"],
+                  "program_hash": handle["program_hash"]}
+        return {"ok": True, "error": None, "handle": healed,
                 "heal_loss": self.world.heal_loss(program),
                 "compute_s": {"heal": stub.heal_cost(program)}, "stub": True}
 
     def evaluate(self, handle, split, tasks, token, fidelity="full"):
         fraction = fidelity_cost(self.config, fidelity)
-        program = handle["program"]
-        scores = self.world.scores(program, handle["graft_report"], split, tasks, fidelity, fraction,
-                                   space.program_hash(program), self.guards)
+        scores = self.world.scores(handle["program"], handle["graft_report"], split, tasks, fidelity, fraction,
+                                   handle["program_hash"], self.guards)
         return {"ok": True, "error": None, "scores": scores,
                 "compute_s": {"eval": stub.eval_cost(fraction)}, "stub": True}
 
@@ -133,9 +151,11 @@ class LocalCompileEval(CompileEval):
     """Trisanth's compile on this machine, and Person B's eval harness.
 
     compile() builds the program with heal set to None (the compiler runs the
-    ridge fit and writes compile_report.json). heal() compiles the full
-    program, which runs the heal pass inside the compiler, so its time
-    includes a second assembly. evaluate() calls config["local_eval"]
+    ridge fit and writes compile_report.json). heal() compiles the program it
+    is given, which runs the heal pass inside the compiler, so its time
+    includes a second assembly. Its folder is named by that program's hash,
+    so the cascade's short heal and the full heal of one program land in
+    different folders. evaluate() calls config["local_eval"]
     ("module:function", called as fn(model_path, split, tasks)).
     """
 

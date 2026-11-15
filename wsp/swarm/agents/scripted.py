@@ -3,8 +3,9 @@
 - ScriptedAnalyst ranks parts by eval evidence, starting from the signature
   hint, and lists good placements from known fit. Fit picks placements only.
 - ScriptedPlanner mixes exploitation (mutate a frontier program) with
-  exploration (graft a top part at its best known placement). It asks for a
-  probe when a graft sits at a depth whose fit is unknown.
+  exploration (graft a top part at its best known placement, with a glue
+  rank drawn from config glue_ranks). It asks for a probe when a graft sits
+  at a depth whose fit is unknown.
 - RuleJudge ranks on search scores only, keeps a top-k frontier (ties within
   tie_margin go to fewer parameters), kills patterns after kill_after
   collapses or fit rejections, and retires parents after retire_after failed
@@ -203,8 +204,10 @@ class ScriptedPlanner(Planner):
                 at = 0
             if at > n_host - 1:
                 at = n_host - 1
-        graft = ps.make_graft(part_id, at)
-        name = space.short_name(part_id) + "@" + str(at)
+        # The glue rank comes from the same rng as everything else, so a seed fixes it.
+        rank = rng.choice(space.glue_ranks(config))
+        graft = ps.make_graft(part_id, at, glue_rank=rank)
+        name = space.short_name(part_id) + "@" + str(at) + " with " + space.rank_text(rank) + " glue"
         estimate = cap_map.get("estimates", {}).get(task, {}).get(part_id, 0.0)
 
         if len(parents) > 0 and rng.random() < 0.5:

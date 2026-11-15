@@ -3,6 +3,7 @@
 import json
 import os
 import random
+import re
 import threading
 
 import pytest
@@ -11,14 +12,16 @@ from wsp.catalog import Catalog
 from wsp.program import Program
 from wsp.swarm import factory, space, stub
 from wsp.swarm import program_schema as ps
+from wsp.swarm.agents.scripted import ScriptedAnalyst, ScriptedPlanner
 from wsp.swarm.backends import StubCompileEval
+from wsp.swarm.baselines import run_baseline
 from wsp.swarm.budget import Ledger, LocalBudget
-from wsp.swarm.config import load_dotenv, make_config
+from wsp.swarm.config import DEFAULTS, INTEGRATION_DEFAULTS, REPO_ROOT, load_dotenv, make_config
 from wsp.swarm.env import HeldoutRefused, WspEnv
 from wsp.swarm.interfaces import LLMNotConfigured, NullLLM, make_memory_listener
 from wsp.swarm.log import RunLog, read_rows
 from wsp.swarm.scoring import score_with_config
-from wsp.swarm.swarm import run_swarm
+from wsp.swarm.swarm import Swarm, run_swarm
 
 HOST = "unsloth/Llama-3.2-1B-Instruct"
 MATH_PART = "stub_qmath_l14_c0"     # donor layer 14 of 28, default host depth 8
@@ -724,9 +727,10 @@ def test_memory_listener_records_search_rows_only():
             calls.append((kind, text))
 
     listener = make_memory_listener(FakeMemory())
+    # The pattern is in space.graft_pattern's current format, which now ends in the glue rank.
     base = {"type": "eval", "split": "search", "status": "collapsed", "describe": "host + a@3, heal 0",
             "combined": -0.4, "fit_r2": {"a@3": 0.71}, "scores": {"gsm8k": 0.1}, "token": 4, "agent": "planner-1",
-            "round": 2, "hypothesis": "h", "extra": {"patterns": ["a|early|noheal"]}}
+            "round": 2, "hypothesis": "h", "extra": {"patterns": ["a|early|noheal|full"]}}
     listener(base)
     held = dict(base)
     held["split"] = "heldout"
@@ -736,3 +740,318 @@ def test_memory_listener_records_search_rows_only():
         kinds.append(kind)
     assert kinds == ["step", "collapse"]
     assert "-0.400" in calls[0][1] and "0.71" in calls[0][1]
+
+
+# Config defaults.
+
+# MockLLM's scripted replies: only a test sets them, and a mock with neither is a setup error.
+TEST_HOOK_KEYS = ["mock_fn", "mock_replies"]
+
+
+def config_keys_read(folder):
+    """Every key that code under folder reads as config["key"] or config.get("key"), with the files that read it."""
+    pattern = re.compile(r'(?<![A-Za-z_])config(?:\.get\(|\[)"([a-z_0-9]+)"')
+    found = {}
+    for root, dirs, files in os.walk(folder):
+        for name in sorted(files):
+            if not name.endswith(".py"):
+                continue
+            with open(os.path.join(root, name), encoding="utf-8") as handle:
+                text = handle.read()
+            for key in pattern.findall(text):
+                if key not in found:
+                    found[key] = []
+                found[key].append(name)
+    return found
+
+
+def test_every_config_key_the_swarm_reads_has_a_default():
+    read = config_keys_read(os.path.join(REPO_ROOT, "wsp", "swarm"))
+    assert "llm_temperature" in read and "exa_cache_dir" in read and "memory_level" in read
+    missing = []
+    for key in sorted(read):
+        if key in DEFAULTS or key in INTEGRATION_DEFAULTS or key in TEST_HOOK_KEYS:
+            continue
+        missing.append(key + " (read in " + ", ".join(read[key]) + ")")
+    assert missing == []
+
+
+def test_config_tables():
+    config = make_config()
+    assert config["glue_ranks"] == [None, 64] and space.glue_ranks(config) == [None, 64]
+    assert config["low_fidelity_heal_steps"] == 50
+    assert config["local_eval"] == "wsp_eval.harness:swarm_eval"      # Person B's eval hook stays
+    assert config["agents"] == "auto" and config["memory_cleanup"] is True
+    for key in INTEGRATION_DEFAULTS:
+        # Apart from DEFAULTS, so compare.py's --llm-config may still set them for the swarm_llm arm.
+        assert key not in DEFAULTS
+        assert config[key] == INTEGRATION_DEFAULTS[key]
+    changed = make_config({"llm_temperature": 0.2, "glue_ranks": [64], "exa_exclude_domains": ["a.org"]})
+    assert changed["llm_temperature"] == 0.2 and changed["glue_ranks"] == [64]
+    changed["exa_exclude_domains"].append("b.org")
+    assert INTEGRATION_DEFAULTS["llm_temperature"] == 0.7 and INTEGRATION_DEFAULTS["exa_exclude_domains"] == []
+
+
+def test_integration_defaults_match_each_modules_fallback():
+    """A config from make_config builds every client with the same settings as a bare dict."""
+    from wsp.swarm.agents import llm_agents
+    from wsp.swarm.literature import ExaLiterature
+    from wsp.swarm.llm import MockLLM
+    from wsp.swarm.memory import PastMemory
+
+    config = make_config()
+    assert llm_agents.llm_settings(config, 2, 1) == llm_agents.llm_settings({"seed": 0}, 2, 1)
+    assert config["llm_batch_wait_s"] == llm_agents.DEFAULT_BATCH_WAIT_S
+
+    hooks = {"mock_replies": ["{}"]}
+    ours = MockLLM(make_config(hooks))
+    bare = MockLLM(dict(hooks))
+    for name in ["tries", "backoff_s", "timeout_s", "workers"]:
+        assert getattr(ours, name) == getattr(bare, name), name
+
+    ours = PastMemory(config)
+    bare = PastMemory({})
+    for name in ["base_url", "key_env", "default_level", "poll_s", "http_timeout_s", "max_retries", "backoff_s",
+                 "membership_timeout_s", "cold_query", "max_chars", "verify_cleanup", "state_path"]:
+        assert getattr(ours, name) == getattr(bare, name), name
+
+    ours = ExaLiterature(config, "off")
+    bare = ExaLiterature({}, "off")
+    for name in ["search_type", "priors_path", "cache_dir", "end_date", "exclude_domains", "quote_chars",
+                 "max_query_chars", "max_live_calls", "retries", "backoff_s", "timeout_s", "sdk_version"]:
+        assert getattr(ours, name) == getattr(bare, name), name
+
+
+# Glue rank in exploration and in the judge's patterns.
+
+def explore_draws(tmp_path, overrides, seed, draws=40):
+    """Glue ranks and programs from the scripted planner's explore move, with a fresh rng per call."""
+    run = build(tmp_path, overrides)
+    env = run["env"]
+    config = run["config"]
+    observation, info = env.reset()
+    ctx = {"config": config, "env": env}
+    cap_map = ScriptedAnalyst(config).build_map(observation, ctx)
+    planner = ScriptedPlanner(2, config)
+    rng = random.Random(seed)
+    ranks = []
+    programs = []
+    for draw in range(draws):
+        proposal = planner.explore(observation, cap_map, [], rng, env.catalog, config)
+        assert space.validate(proposal["program"], env.catalog, config) == []
+        rank = proposal["program"]["grafts"][0]["glue_rank"]
+        assert space.rank_text(rank) + " glue" in proposal["hypothesis"]
+        ranks.append(rank)
+        programs.append(proposal["program"])
+    return ranks, programs
+
+
+def test_scripted_explore_samples_the_glue_rank(tmp_path):
+    ranks, programs = explore_draws(tmp_path / "a", None, 0)
+    assert None in ranks and 64 in ranks
+    again, programs_again = explore_draws(tmp_path / "b", None, 0)
+    assert again == ranks and programs_again == programs          # one seed, one sequence
+    other, programs_other = explore_draws(tmp_path / "c", None, 1)
+    assert programs_other != programs
+    low_only, programs_low = explore_draws(tmp_path / "d", {"glue_ranks": [64]}, 0)
+    assert low_only == [64] * 40
+
+
+def test_graft_pattern_includes_the_glue_rank(tmp_path):
+    catalog = stub_catalog()
+    config = make_config()
+    assert space.program_patterns(one_graft(MATH_PART, 8), catalog, config) == [MATH_PART + "|middle|heal|full"]
+    assert space.program_patterns(one_graft(MATH_PART, 8, glue_rank=64), catalog, config) == \
+        [MATH_PART + "|middle|heal|r64"]
+    assert space.program_patterns(one_graft(MATH_PART, 8, steps=0), catalog, config) == \
+        [MATH_PART + "|middle|noheal|full"]
+
+    # Two collapses kill the full-rank patterns; the rank-64 version of the same grafts stays open.
+    run = build(tmp_path)
+    env = run["env"]
+    config = run["config"]
+    places = [("stub_qmath_l6_c0", 2), ("stub_qmath_l10_c0", 5), ("stub_qmath_l14_c0", 8), ("stub_qmath_l20_c0", 11)]
+
+    def weak(seed, rank):
+        grafts = []
+        for part_id, at in places:
+            grafts.append(ps.make_graft(part_id, at, glue_rank=rank))
+        return ps.make_program(HOST, grafts, ps.make_heal(steps=0), seed=seed)
+
+    rows = env.step_many([{"program": weak(0, None), "agent": "t", "hypothesis": "4 unhealed"},
+                          {"program": weak(1, None), "agent": "t", "hypothesis": "4 unhealed again"}])
+    assert rows[0]["status"] == "collapsed" and rows[1]["status"] == "collapsed"
+    analyst, planners, judge = factory.build_agents(config)
+    swarm = Swarm(config, env, analyst, planners, judge, run["memory"], run["literature"], run["llm"])
+    verdict = judge.update([], rows, swarm.judge_ctx)
+    full_patterns = space.program_patterns(weak(0, None), env.catalog, config)
+    assert sorted(verdict["killed"]) == sorted(full_patterns)
+    swarm.killed = verdict["killed"]
+    assert swarm.screen("t", {"program": weak(2, None)}, set()) is None
+    opened = swarm.screen("t", {"program": weak(0, 64)}, set())
+    assert opened is not None and opened["program"]["grafts"][0]["glue_rank"] == 64
+
+
+# Cascade heal: a short heal below full fidelity, the program's own heal on promotion.
+
+def test_low_fidelity_heals_short_and_a_promotion_heals_in_full(tmp_path):
+    run = build(tmp_path)
+    env = run["env"]
+    budget = run["budget"]
+    row = env.step(math_program(steps=300), "t", "low first", fidelity="low")[4]
+    assert row["status"] == "ok" and row["fidelity"] == "low" and row["heal_steps_used"] == 50
+    assert row["program"]["heal"]["steps"] == 300            # the row logs the program as written
+    assert row["compute_s"]["compile"] == 25.0 and row["compute_s"]["heal"] == 25.0   # 0.5 s per step per graft
+    assert row["compute_s"]["eval"] == pytest.approx(120.0 * 0.34)
+    assert budget.eval_used() == pytest.approx(0.34)
+
+    promoted = env.step(math_program(steps=300), "t", "promote", fidelity="full")[4]
+    assert promoted["status"] == "ok" and promoted["heal_steps_used"] == 300
+    assert promoted["compute_s"] == {"compile": 25.0, "heal": 150.0, "eval": 120.0}
+    # The promotion healed again (300 steps, not 50), so it scored a new model and pays the whole level.
+    assert promoted["extra"]["eval_cost"] == 1.0
+    assert budget.eval_used() == pytest.approx(1.34)
+    assert budget.compute_used() == pytest.approx(25.0 + 25.0 + 40.8 + 25.0 + 150.0 + 120.0)
+
+    again = env.step(math_program(steps=300), "t", "low again", fidelity="low")[4]
+    assert again["status"] == "cache_hit" and again["heal_steps_used"] == 50 and again["compute_s"] == {}
+    pair = env.step_many([{"program": math_program(steps=100), "agent": "t", "hypothesis": "a", "fidelity": "low"},
+                          {"program": math_program(steps=100), "agent": "t", "hypothesis": "b", "fidelity": "low"}])
+    assert pair[0]["heal_steps_used"] == 50 and pair[1]["status"] == "cache_hit" and pair[1]["heal_steps_used"] == 50
+
+    # A program asking for fewer steps keeps its own; a program with no heal block heals nothing.
+    zero = env.step(math_program(steps=0), "t", "heal 0", fidelity="low")[4]
+    assert zero["heal_steps_used"] == 0 and zero["compute_s"]["heal"] == 0.0
+    bare = env.step(math_program(steps=None), "t", "no heal", fidelity="low")[4]
+    assert bare["heal_steps_used"] is None and "heal" not in bare["compute_s"]
+
+    probe = env.probe(math_program(at=7), "t")
+    assert probe["status"] == "ok"
+    for logged in read_rows(env.log.path):
+        if logged["type"] == "eval":
+            assert "heal_steps_used" in logged
+        if logged["type"] == "probe":
+            assert logged["heal_steps_used"] is None
+
+
+def fee_costs(env, program, fidelities):
+    """Step one program at each fidelity in turn; return each row's eval_cost (None for a free row)."""
+    costs = []
+    for fidelity in fidelities:
+        row = env.step(program, "t", "pricing " + fidelity, fidelity=fidelity)[4]
+        assert row["status"] in ("ok", "collapsed", "cache_hit"), row["status"]
+        if row["token"] is None or row["cache_hit"]:
+            costs.append(None)
+        else:
+            costs.append(row["extra"]["eval_cost"])
+    return costs
+
+
+def test_promotion_pays_the_difference_only_on_the_same_model(tmp_path):
+    run = build(tmp_path / "short")
+    env = run["env"]
+    budget = run["budget"]
+    # 300 steps: low heals 50, full heals 300, a new model, so full pays the whole level.
+    assert fee_costs(env, math_program(steps=300), ["low", "full", "low"]) == [0.34, 1.0, None]
+    # check and low both heal 50, so low pays the difference; full heals 600 and pays 1.0.
+    assert fee_costs(env, math_program(steps=600), ["check", "low", "full"]) == [0.16, 0.18, 1.0]
+    # heal 0 and no heal block run the same model at every level: nested price.
+    assert fee_costs(env, math_program(steps=0), ["low", "full"]) == [0.34, 0.66]
+    assert fee_costs(env, math_program(steps=None), ["low", "full"]) == [0.34, 0.66]
+    # Full first, then low: the low eval heals 50, a different model, so it pays its own level.
+    assert fee_costs(env, math_program(at=7, steps=300), ["full", "low"]) == [1.0, 0.34]
+    paid = (0.34 + 1.0) + (0.16 + 0.18 + 1.0) + (0.34 + 0.66) + (0.34 + 0.66) + (1.0 + 0.34)
+    assert budget.eval_used() == pytest.approx(paid)
+
+    # A program at or below the short heal keeps the nested price; one above it does not.
+    env = build(tmp_path / "hundred", {"low_fidelity_heal_steps": 100})["env"]
+    assert fee_costs(env, math_program(steps=100), ["low", "full"]) == [0.34, 0.66]
+    assert fee_costs(env, math_program(steps=300), ["low", "full"]) == [0.34, 1.0]
+
+    # With the short heal off, every level heals the program's own steps: nested price.
+    env = build(tmp_path / "none", {"low_fidelity_heal_steps": None})["env"]
+    assert fee_costs(env, math_program(steps=300), ["check", "low", "full"]) == [0.16, 0.18, 0.66]
+
+
+def test_low_fidelity_heal_steps_none_and_bad_values(tmp_path):
+    run = build(tmp_path / "none", {"low_fidelity_heal_steps": None})
+    row = run["env"].step(math_program(steps=300), "t", "old behavior", fidelity="low")[4]
+    assert row["heal_steps_used"] == 300 and row["compute_s"]["heal"] == 150.0
+    run = build(tmp_path / "hundred", {"low_fidelity_heal_steps": 100})
+    row = run["env"].step(math_program(steps=600), "t", "100-step short heal", fidelity="check")[4]
+    assert row["fidelity"] == "check" and row["heal_steps_used"] == 100 and row["compute_s"]["heal"] == 50.0
+    for value in [-1, "50", 2.5, True]:
+        with pytest.raises(ValueError):
+            build(tmp_path / ("bad" + str(value)), {"low_fidelity_heal_steps": value})
+
+
+def test_stub_short_heal_lands_between_no_heal_and_full_heal():
+    config = make_config()
+    catalog = stub_catalog()
+    backend = StubCompileEval(config, catalog)
+    tasks = ["gsm8k", "if_guard"]
+    cells = [("stub_qmath_l10_c0", 6, 64), (MATH_PART, 8, None), ("stub_qcoder_l24_c0", 14, 64),
+             ("stub_qmath_l10-12_blk", None, 64)]
+    for part_id, at, rank in cells:
+        program = one_graft(part_id, at, glue_rank=rank)
+        report = backend.world.graft_report(program, 16, backend.default_depth)
+        values = []
+        for steps in [0, 50, 300]:
+            healed = ps.with_heal_steps(program, steps)
+            values.append(backend.world.expected_scores(healed, report, "search", tasks, ["if_guard"]))
+        for task in tasks:
+            assert values[0][task] < values[1][task] < values[2][task], (part_id, task)
+
+    # The backend scores the heal it ran. Both heals share the compiled program's noise key,
+    # so their gap is the heal's effect alone.
+    program = one_graft("stub_qmath_l10_c0", 6, glue_rank=64)
+    compiled = backend.compile(program)
+    short = backend.heal(compiled["handle"], ps.with_heal_steps(program, 50))
+    full = backend.heal(compiled["handle"], program)
+    assert short["compute_s"] == {"heal": 25.0} and full["compute_s"] == {"heal": 150.0}
+    assert compiled["handle"]["program"]["heal"]["steps"] == 300            # heal() never edits the handle it got
+    short_scores = backend.evaluate(short["handle"], "search", tasks, 0, "low")["scores"]
+    full_scores = backend.evaluate(full["handle"], "search", tasks, 0, "low")["scores"]
+    assert short_scores["gsm8k"] < full_scores["gsm8k"]
+    report = compiled["graft_report"]
+    expected_short = backend.world.expected_scores(ps.with_heal_steps(program, 50), report, "search", tasks, ["if_guard"])
+    expected_full = backend.world.expected_scores(program, report, "search", tasks, ["if_guard"])
+    gap = full_scores["gsm8k"] - short_scores["gsm8k"]
+    assert abs(gap - (expected_full["gsm8k"] - expected_short["gsm8k"])) < 2e-4
+    assert backend.evaluate(compiled["handle"], "search", tasks, 0, "low")["scores"] == full_scores
+
+
+def heal_rows(summary):
+    """Scored search eval rows of a run, split by fidelity: {"low": [...], "full": [...]}."""
+    out = {"low": [], "full": []}
+    for row in read_rows(summary["log_path"]):
+        if row["type"] == "eval" and row["split"] == "search" and row["status"] in ("ok", "collapsed"):
+            out[row["fidelity"]].append(row)
+    return out
+
+
+def test_every_arm_heals_short_below_full_and_the_cascade_costs_less_compute(tmp_path):
+    for method in ["swarm", "evolve", "random"]:
+        config = run_config(tmp_path / method, {"eval_budget": 8, "cascade": True, "method": method,
+                                                 "run_id": "cascade-" + method})
+        if method == "swarm":
+            summary = run_swarm(config)
+        else:
+            summary = run_baseline(config)
+        rows = heal_rows(summary)
+        assert len(rows["low"]) > 0 and len(rows["full"]) > 0, method
+        for fidelity in ["low", "full"]:
+            for row in rows[fidelity]:
+                steps = ps.heal_steps(row["program"])
+                expected = steps
+                if fidelity == "low" and steps is not None and steps > 50:
+                    expected = 50
+                assert row["heal_steps_used"] == expected, method
+                if expected is not None:
+                    count = max(1, len(row["program"]["grafts"]))
+                    assert row["compute_s"]["heal"] == 0.5 * expected * count, method
+
+    # The same scripted swarm with the old rule (full heal at every fidelity) spends more compute per FEE.
+    short = run_swarm(run_config(tmp_path / "short", {"eval_budget": 8, "cascade": True}))
+    old = run_swarm(run_config(tmp_path / "old", {"eval_budget": 8, "cascade": True, "low_fidelity_heal_steps": None}))
+    assert short["compute_used_s"] / short["eval_used"] < old["compute_used_s"] / old["eval_used"]
