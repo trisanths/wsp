@@ -33,6 +33,14 @@ MEASURED = {
     "gpu": "H200",
 }
 
+def data_dir_for(donor_id):
+    """The pool cache for a donor. The pool holds the donor's own answer-letter probabilities, so every donor but
+    the measured one gets its own folder (the measured donor keeps the folder the wi_xfam rows used)."""
+    if donor_id == MEASURED["donor"]:
+        return xfam.DATA_DIR
+    return xfam.DATA_DIR + "_" + donor_id.replace("/", "__")
+
+
 def eligible(skill, rel, base_cfg, src_cfg):
     """(True, reason) when pgraft applies to this source, else (False, why not)."""
     from wsp import auto
@@ -98,7 +106,7 @@ def stage_info(x, base_cfg, s, controls_run):
         "slice_params": int(sz["slice_params"]), "glue_params": int(sz["glue_params"]),
         "params_stored_added": int(sz["add_total"]), "params_per_token_added": int(sz["add_run"]),
         "data": {
-            "pool": "xfam_mc_%s" % xfam.DATA_VERSION, "dir": s.get("pgraft_data_dir") or xfam.DATA_DIR,
+            "pool": "xfam_mc_%s" % xfam.DATA_VERSION, "dir": s.get("pgraft_data_dir") or data_dir_for(x["source"]),
             "train_items": "MMLU auxiliary_train, CommonsenseQA, OpenBookQA, QASC, LogiQA train (benchmark train splits)",
             "soft_labels": "the donor's answer-letter distribution on every item, scored once and cached",
             "removed": "every prompt equal to a prompt of an eval set",

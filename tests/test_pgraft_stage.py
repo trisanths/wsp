@@ -224,3 +224,11 @@ def test_a_pgraft_plan_that_is_not_feasible_does_not_run(tmp_path):
     p["refusals"] = ["test"]
     with pytest.raises(auto.PlanError):
         auto.make(req, str(tmp_path), backend, plan_=p)
+
+
+def test_each_donor_has_its_own_pool_cache():
+    from wsp import xfam
+
+    assert pgraft_stage.data_dir_for(pgraft_stage.MEASURED["donor"]) == xfam.DATA_DIR
+    other = pgraft_stage.data_dir_for("Qwen/Qwen2.5-14B-Instruct")
+    assert other != xfam.DATA_DIR and other.endswith("Qwen__Qwen2.5-14B-Instruct")

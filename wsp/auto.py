@@ -1369,6 +1369,10 @@ def _format_pgraft(st, out):
     out("     Enc depth %d (%d to %d, %.2fM)  Dec rank %d (%.2fM)  per-token gate (%d)  host LoRA rank %d (%.2fM)" % (
         st["enc"]["depth"], st["enc"]["d_host"], st["enc"]["d_donor"], st["enc"]["params"] / 1e6, st["dec"]["rank"],
         st["dec"]["params"] / 1e6, st["gate_params"], st["lora_rank"], st["lora_params"] / 1e6))
+    reads = st["enc"].get("reads") or [st["host_layer"]]
+    if len(reads) > 1:
+        out("     Enc reads a learned mix of host layers %d..%d (each RMS-normed), not host layer %d alone" % (
+            reads[0], reads[-1], st["host_layer"]))
     d = st["data"]
     out("     data pool %s: %s; %s; %s" % (d["pool"], d["train_items"], d["soft_labels"], d["size"]))
     out("     prompts removed: %s. Text: %s" % (d["removed"], d["text"]))
