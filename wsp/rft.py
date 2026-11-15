@@ -286,7 +286,10 @@ def apps_item(row, max_chars=3500):
     io_raw = row["input_output"]
     if not io_raw:
         return None
-    io_data = json.loads(io_raw) if isinstance(io_raw, str) else io_raw
+    try:
+        io_data = json.loads(io_raw) if isinstance(io_raw, str) else io_raw
+    except ValueError:
+        return None
     if io_data.get("fn_name") or not io_data.get("inputs"):
         return None
     cases = [[a, b] for a, b in zip(io_data["inputs"], io_data["outputs"]) if isinstance(a, str) and isinstance(b, str)]
@@ -296,7 +299,10 @@ def apps_item(row, max_chars=3500):
             "output. " + skills_eval.CODE_INSTRUCTION + "\n\n" + row["question"].strip())
     refs = []
     if row.get("solutions"):
-        sols = json.loads(row["solutions"]) if isinstance(row["solutions"], str) else row["solutions"]
+        try:
+            sols = json.loads(row["solutions"]) if isinstance(row["solutions"], str) else row["solutions"]
+        except ValueError:
+            sols = []
         refs = [s for s in sols if isinstance(s, str)]
     return {"id": f"apps:{row['problem_id']}", "source": "apps_" + str(row.get("difficulty")), "kind": "stdin",
             "user": user, "cases": cases[:MAX_STDIN_CASES], "reference": refs[0] if refs else ""}

@@ -181,3 +181,10 @@ def test_pass_rate_stats():
     assert s["prompts"] == 3 and abs(s["mean_pass"] - 0.5) < 1e-9
     assert abs(s["solved_any"] - 2 / 3) < 1e-9 and abs(s["solved_all"] - 1 / 3) < 1e-9
     assert rft.pass_rate_stats({})["prompts"] == 0
+
+
+def test_apps_item_survives_huge_integers():
+    big = "9" * 9000
+    row = {"problem_id": 3, "question": "q", "difficulty": "d", "solutions": "[" + big + "]",
+           "input_output": "{\"inputs\": [\"1\"], \"outputs\": [" + big + "]}"}
+    assert rft.apps_item(row) is None

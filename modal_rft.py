@@ -140,6 +140,9 @@ def build_data(ace_cap=MAX_PER_SOURCE["ace"], apps_cap=MAX_PER_SOURCE["apps"]):
 
     from wsp import skills_eval
 
+    import sys
+
+    sys.set_int_max_str_digits(0)
     safe_reload()
     stats = {"format": rft.RFT_FORMAT, "sources": {}, "dropped_overlap": {}, "reference": {}}
     started = time.time()
