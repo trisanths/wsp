@@ -475,6 +475,15 @@ def cell(config):
                               dec_rank=c["dec_rank"], dec_depth=c["dec_depth"], read_layers=e.get("read_layers"))
             eg.part.to("cuda")
             extras.append([eg, e_donor, e_tok, e])
+        if arm == "shuffled":
+            # Same block and pipeline, the knowledge destroyed: permute every block tensor's entries. Alignment
+            # still trains the encoder against the real donor, so only the block's weights differ from "real".
+            gen = torch.Generator(device="cpu").manual_seed(1000 + seed)
+            with torch.no_grad():
+                for p in graft.part.parameters():
+                    flat = p.data.flatten()
+                    perm = torch.randperm(flat.numel(), generator=gen).to(flat.device)
+                    p.data.copy_(flat[perm].view_as(p.data))
         pgraft.attach(base, [graft] + [x[0] for x in extras])
         for x in extras:
             eg, e_donor, e_tok, e = x
@@ -1006,7 +1015,22 @@ def batch_h15():
     return out
 
 
-BATCHES = {"h1": batch_h1, "h2": batch_h2, "h3": batch_h3, "h4": batch_h4, "h5": batch_h5, "h6": batch_h6, "h7": batch_h7, "h8": batch_h8, "h9": batch_h9, "h10": batch_h10, "h11": batch_h11, "h12": batch_h12, "h13": batch_h13, "h14": batch_h14, "h15": batch_h15}
+def batch_h16():
+    """Is it the donor's knowledge? The winning grafts with every block tensor shuffled (same pipeline), and
+    the knowledge-free donor Phi-4 already failed. Plus a 3B-host second seed of 1200-step alignment."""
+    out = []
+    k = {"objective": "mc", "align_steps": 600, "task_steps": 1000, "enc_depth": 2, "mc_train": "general"}
+    q14 = dict(k, domain="knowledge14", part={"type": "block", "first": 7, "last": 34}, read_layers=list(range(1, 8)))
+    out.append(dict(q14, name="sh-q14-r1to7", arm="shuffled"))
+    out.append(dict(q14, name="sh-q14-r1to7-s1", arm="shuffled", seed=1))
+    q7 = dict(k, domain="knowledge", part={"type": "block", "first": 4, "last": 20})
+    out.append(dict(q7, name="sh-q7", arm="shuffled"))
+    out.append(dict(q14, name="w-a1200-s1", arm="real", align_steps=1200, seed=1))
+    out.append(dict(q14, name="w-a1200-s2", arm="real", align_steps=1200, seed=2))
+    return out
+
+
+BATCHES = {"h1": batch_h1, "h2": batch_h2, "h3": batch_h3, "h4": batch_h4, "h5": batch_h5, "h6": batch_h6, "h7": batch_h7, "h8": batch_h8, "h9": batch_h9, "h10": batch_h10, "h11": batch_h11, "h12": batch_h12, "h13": batch_h13, "h14": batch_h14, "h15": batch_h15, "h16": batch_h16}
 
 
 @app.function(image=image, volumes={"/vol": volume}, gpu="H200", memory=262144, timeout=5 * 3600)
