@@ -107,6 +107,36 @@ The gain grows with the donor and carries to subjects the training never touches
 
 A 7B donor adds 8 to 10 MMLU points to the 1B host, a 14B donor adds 14 to 16, and a 32B donor adds 18. Trained only on commonsense and logic items, the 7B graft lifts MMLU medical subjects by 12 points over LoRA. Two specialists fit in one network: Qwen2.5-7B and Apollo2-7B grafted into the same 1B host reach 55.4 on MMLU held-out. The comparison holds trainable parameters equal; the grafted network also runs the frozen donor layers, so it stores more weights than the host. Source: [docs/research/2026-11-15-parallel-graft.md](docs/research/2026-11-15-parallel-graft.md).
 
+With more training data and the donor's own answers as a target, the same 7B graft goes further. These runs train every arm on 44,155 four-option items (MMLU auxiliary_train plus the CommonsenseQA, OpenBookQA, QASC and LogiQA train splits, every eval prompt removed), with distillation from the donor's answer distribution and a rank-16 LoRA on the host trained with the graft. Every fine-tuning arm, including a full fine-tune of all host weights, gets the same data, steps and selection rule:
+
+| Host | Arm | MMLU held-out (2,000) | ARC-Challenge test | Params per token | Seeds |
+|---|---|---|---|---|---|
+| Llama-3.2-1B | Base | 44.6 | 55.3 | 1.24B | |
+| Llama-3.2-1B | Full fine-tune | 51.1 | 69.5 | 1.24B | 3 |
+| Llama-3.2-1B | LoRA rank 128 | 50.0 | 69.4 | 1.24B | 3 |
+| Llama-3.2-1B | Same connector, donor weights scrambled | 50.3 | 69.2 | 5.21B | 3 |
+| Llama-3.2-1B | + Qwen2.5-7B layers 4 to 20 | **59.6** (59.5, 60.4, 58.9) | **85.3** | 5.21B | 3 |
+| Qwen2.5-1.5B | Base | 60.4 | 77.6 | 1.54B | |
+| Qwen2.5-1.5B | Full fine-tune | 60.6, 61.0 | 79.7, 79.4 | 1.54B | 2 |
+| Qwen2.5-1.5B | LoRA rank 128 | 62.5, 61.3 | 80.5, 80.2 | 1.69B | 2 |
+| Qwen2.5-1.5B | Same connector, donor weights scrambled | 60.8, 60.8 | 80.6, 80.0 | 11.7B | 2 |
+| Qwen2.5-1.5B | + Qwen2.5-14B layers 14 to 47 | **66.1, 65.7** | **85.7, 85.2** | 11.7B | 2 |
+
+The 7B donor now reaches the score the commonsense-only runs needed a 14B donor for, and the graft beats a full fine-tune of the host by 8.5 points. A scrambled donor slice (same weight spectrum, no knowledge) scores like the fine-tuning arms, so the gain is the donor's knowledge. The grafted network runs more parameters per token than the host: at that cost, native Qwen2.5-3B-Instruct scores 66.0 in the same harness (66.6 after the same fine-tune), so a host that is already the best at its size is the next test. Sources: [docs/write_in_xfam.md](docs/write_in_xfam.md), [docs/write_in_bigsame.md](docs/write_in_bigsame.md).
+
+Math works the same way. Qwen2.5-1.5B-Instruct gets a frozen slice of Qwen2.5-Math-7B-Instruct (layers 4 to 20, read after host layer 14). Every arm trains on 25,590 verified solutions the donor wrote to GSM8K and MATH train problems, with distillation from the donor's logits:
+
+| Arm | GSM8K test (500) | MATH-500 | MMLU (guard) |
+|---|---|---|---|
+| Base | 73.6 | 54.0 | 58.8 |
+| Full fine-tune | 69.4, 71.4 | 52.0, 52.8 | 58.5, 58.9 |
+| LoRA rank 128 | 72.8, 74.2 | 51.6, 49.6 | 59.6, 59.2 |
+| Same connector, donor weights scrambled | 73.2, 73.2 | 54.4, 54.6 | 59.2, 58.8 |
+| + Qwen2.5-Math-7B layers 4 to 20 | **85.8, 83.8** | **59.6, 58.0** | 59.6, 59.0 |
+| Qwen2.5-Math-7B alone | 92.2 | 76.8 | 52.6 |
+
+Fine-tuning on the donor's solutions does not raise any fine-tuning arm above the base, while the graft gains 10 to 12 GSM8K points and keeps MMLU. Source: [docs/write_in_math_rl.md](docs/write_in_math_rl.md).
+
 ### 2. Mining: agents went from Roman numerals to math, science and medicine
 
 Mining agents started on skills small enough to check exactly: Roman numerals, compass directions, the next month or weekday, ordinal words. Switching off one MLP cluster in layer 25 of LFM2.5-2.6B dropped its Roman-numeral score by 0.372 while its matched control moved by 0.001. Each attempt, pass or fail, went to past.dev as one sentence with its numbers, so an agent mining Gemma could read what another agent had found in Qwen.
@@ -154,6 +184,21 @@ Served on vLLM 0.32 on one H200, the 64-expert model halves weight memory, solve
 |---|---|---|---|
 | Full Qwen3-30B-A3B | 56.93 GiB | 90.2 | 259 / 2486 |
 | Keep 64 experts | 29.92 GiB | 88.4 | 259 / 3021 |
+
+Quantization and speculative decoding stack on top. All rows are vLLM 0.32, greedy, one run each; HumanEval moves about 2 points between configs with the same weights ([docs/efficiency.md](docs/efficiency.md)):
+
+| Model | GPU | Weight memory | HumanEval | MBPP | Decode tok/s, batch 1 / 32 |
+|---|---|---|---|---|---|
+| Full, INT4 (GPTQ) | A10G 24 GB | 15.7 GiB | 90.2 | 84.4 | 133 / 1107 |
+| Full, INT4, EAGLE-3 draft head | A10G 24 GB | 16.0 GiB | 92.1 | 84.4 | 219 / 1452 |
+| Full, bf16, EAGLE-3 draft head | H200 | 57.3 GiB | 90.2 | 84.4 | 467 / 4679 |
+| Full, INT4, EAGLE-3 with 7 draft tokens | H200 | 16.0 GiB | 90.9 | 85.2 | 556 / 5873 |
+| Keep 64 experts, INT4 | H200 | 8.7 GiB | 89.0 | 81.3 | 217 / 4208 |
+| Keep 64 experts, INT4 | L4 24 GB | 8.7 GiB | 87.2 | 82.9 | 89 / 800 |
+
+The full model in INT4 fits a 24 GB card with no HumanEval loss, and EAGLE-3 roughly doubles batch-1 speed at the same accuracy (539 against 234 tok/s on real HumanEval requests in bf16, 778 in INT4 with 7 draft tokens). The 64-expert model in INT4 is 8.7 GiB.
+
+Verified self-training lifts the 32-expert model. One round samples 10,594 train problems with tests (MBPP train, validation and prompt splits, LeetCodeDataset, APPS and AceCode-87K, with any problem that shares a 13-gram with a HumanEval or MBPP test item dropped), keeps the answers that pass their tests, adds passing answers from the full 30B model, and trains on them. Under vLLM it moves the healed 8.78B model from 82.9 to 83.5 on HumanEval and from 73.2 to 77.0 on MBPP, against 90.9 and 83.7 for the full model in the same harness (one seed; the HumanEval change is inside the noise) ([docs/rft.md](docs/rft.md)).
 
 The same method works at 235B. On Qwen3-235B-A22B-Instruct-2507 (8 H200s, no training), keeping 64 of 128 experts cuts the model from 235.1B to 121.5B parameters and scores 92.7 HumanEval and 87.2 MBPP, against 93.3 and 87.5 for the full model ([docs/moonshot.md](docs/moonshot.md)).
 
