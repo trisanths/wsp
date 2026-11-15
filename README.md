@@ -19,6 +19,57 @@ sapien score out --skills gsm8k,mmlu
 Start with [docs/quickstart.md](docs/quickstart.md) (three requests as
 programs) and [docs/language.md](docs/language.md) (every statement).
 
+## Parallel graft: results (2026-11-15)
+
+A frozen block of layers from a bigger model in another family runs as a
+side branch inside a small host. It is one network: the block's weights
+are copied in, and the full donor never runs.
+
+```
+host layers 1..7 ──► learned mix ──► encoder ──► donor block (frozen, e.g. Qwen2.5-14B layers 7..34)
+                                                        │
+host layer 7 ◄──── + gate × decoder ◄───────────────────┘        (gate starts at 0, so a fresh graft = the base)
+   │
+   ▼
+host layers 8..16 ──► answer
+```
+
+Training has two steps. First, **align**: the encoder learns to feed the
+block inputs that look like the donor's own hidden states. Second,
+**integrate**: the encoder, decoder and gate train on multiple-choice data
+whose sources don't overlap the benchmarks (checked by `wsp/healdata.py`).
+The donor block never trains. LoRA gets the same trainable-parameter
+budget. The "adapter only" control is the same encoder and decoder with no
+donor block. Code: `wsp/pgraft.py`, `modal_hill.py`. Details:
+[docs/research/2026-11-15-parallel-graft.md](docs/research/2026-11-15-parallel-graft.md).
+
+**By domain** (host Llama-3.2-1B, trained on that domain's data, scored on
+items set aside from the same sources; MedMCQA is a separate benchmark):
+
+| Domain (eval) | Base | LoRA | Adapter only | Graft | Donor |
+|---|---|---|---|---|---|
+| Math (AQuA) | 25.5 | 34.5 | 39.0 | **52.0** | Qwen2.5-Math-7B |
+| Medicine (HeadQA) | 45.8 | 51.7 | 42.8 | **54.8** | Apollo2-7B |
+| Medicine (MedMCQA, unseen benchmark) | 41.4 | 39.7 | 37.8 | **45.1** | Apollo2-7B |
+| Science (SciQ) | 85.8 | 87.5 | 88.2 | **89.8** | Qwen2.5-7B |
+| General knowledge (MMLU held-out) | 44.6 | 47.1 | 45.6 | **53.1** | Qwen2.5-7B |
+
+**General knowledge as the donor grows** (MMLU held-out; configs picked on a
+separate dev split):
+
+| Host | Base | LoRA | Qwen2.5-7B graft | 14B graft | 32B graft |
+|---|---|---|---|---|---|
+| Llama-3.2-1B | 44.6 | 46.0 | 53.6 (2 seeds) | 59.8 (3 seeds) | 62.6 (1 seed) |
+| Llama-3.2-3B | 57.4 | 60.7 | about equal to LoRA | 66.0 | 66.3 (1 seed) |
+
+Limits:
+- Math needs a math donor. A general donor's graft doesn't beat LoRA on math.
+- A Phi-4 donor fails (about 47–48) even though it aligns well.
+- The shuffled-block control and the 8B host haven't run yet.
+- The compiled network is much larger than the host, because it carries the
+  donor's layers. The match with LoRA is in trainable parameters, not in
+  total size.
+
 ## Status
 
 Built and tested on CPU with tiny models: the text syntax and the Python
@@ -40,7 +91,7 @@ Shown by the logs ([results/README.md](results/README.md)):
 
 Not proven:
 
-- No Sapien program has beaten its controls yet. Donor blocks did not beat a
+- Apart from the parallel graft above, no Sapien program has beaten its controls yet. Donor blocks did not beat a
   random block or a rank-1 LoRA (run 3). A block written into a 0.5B base
   gained as much from a random block (run 14b). A skill MoE with specialist
   MLPs did not clearly beat the base or the base plus LoRA on GSM8K, MBPP,
