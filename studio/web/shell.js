@@ -33,7 +33,7 @@ export function Sidebar({ rail, onToggle, route }) {
   const isRecent = (r) => (r.kind === 'spec' && route.name === 'spec' && route.id === r.id) || (r.kind === 'run' && route.name === 'run' && route.id === r.id);
   return html`<aside class=${'sidebar' + (rail ? ' rail' : '')} aria-label="Sidebar">
     <div class="sb-head">
-      <a class="logo" href="#/" data-tip=${rail ? 'wsp studio' : null} data-tip-side="right" aria-label="wsp studio home"><${Mark} size=${24} /><span class="logotext sb-text">wsp studio</span></a>
+      <a class="logo" href="#/" data-tip=${rail ? 'Sapien' : null} data-tip-side="right" aria-label="Sapien home"><${Mark} size=${24} /><span class="logotext sb-text">Sapien</span></a>
       <button class="rbtn sb-toggle" onClick=${onToggle} data-tip=${rail ? 'Expand sidebar' : 'Collapse sidebar'} data-tip-side=${rail ? 'right' : 'bottom'} aria-label=${rail ? 'Expand sidebar' : 'Collapse sidebar'}><${Icon} n="panel" size=${18} /></button>
     </div>
     <nav class="sb-nav">

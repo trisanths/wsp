@@ -1,6 +1,6 @@
-# wsp studio visual style
+# Sapien visual style
 
-The studio follows the look of a calm, document-like agent workspace: monochrome surfaces, a serif display headline, system UI text, hairline borders, a left sidebar, and a composer docked at the bottom. The values below were measured on a reference agent app (manus.im) on 2026-11-14 and are used here as a palette and type scale only. The studio keeps its own name, wordmark, icons, illustrations, and copy. Do not copy any logo, product name, image asset, or text from the reference.
+The studio follows the look of a calm, document-like agent workspace: monochrome surfaces, a serif display headline, system UI text, hairline borders, a left sidebar, and a composer docked at the bottom. The values below were measured on a reference agent app (manus.im) on 2026-11-14 and are used here as a palette and type scale only. Sapien keeps its own name, wordmark, icons, illustrations, and copy. Do not copy any logo, product name, image asset, or text from the reference.
 
 ## Themes
 
@@ -65,7 +65,7 @@ No gradients on UI chrome. Colour lives in data (bars, lines, status dots) and i
 
 ## Layout per screen
 
-- App shell: sidebar on the left, main area on the right. Sidebar content: the studio wordmark (our own text "wsp studio" with a simple geometric mark we draw), then rows "New model", "Runs", "Builder", "Parts library", then a "Recent" heading (12px, `--text-3`) and the last specs and runs the viewer opened (kept in localStorage), then a footer with the theme toggle and the backend status (STUB or Modal GPU).
+- App shell: sidebar on the left, main area on the right. Sidebar content: the Sapien wordmark (our own text "Sapien" with a simple geometric mark we draw), then rows "New model", "Runs", "Builder", "Parts library", then a "Recent" heading (12px, `--text-3`) and the last specs and runs the viewer opened (kept in localStorage), then a footer with the theme toggle and the backend status (STUB or Modal GPU).
 - Home: headline centred in the upper third, a row of entry cards under it (each with a coloured 20px stroke icon and a 14px/500 label), example chips under the cards, and the composer docked near the bottom of the main area. Attachments show as chips inside the composer.
 - Spec: a centred document column (max 720px) with the serif title, the summary, and sections with 16px/500 headings. The "how do you want to build it" choice sits in a sticky card at the bottom like the composer.
 - Run: header with the run title in serif and status. Agent cards on the left of the main area, stats on the right, the floating progress bar docked at the bottom like the composer (radius 22, `--bg-raised`, `--shadow-float`).

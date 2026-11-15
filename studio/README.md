@@ -1,6 +1,6 @@
-# wsp studio
+# Sapien
 
-wsp studio is a web app on top of the wsp compiler and its agent swarm. A person describes a model, adjusts a drafted spec, and then lets the swarm build it or builds it on a canvas. `studio/CONTRACT.md` lists every route and JSON shape.
+Sapien (the code lives in `studio/`) is a web app on top of the wsp compiler and its agent swarm. A person describes a model, adjusts a drafted spec, and then lets the swarm build it or builds it on a canvas. `studio/CONTRACT.md` lists every route and JSON shape.
 
 ## Run
 

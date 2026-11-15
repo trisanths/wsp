@@ -51,7 +51,7 @@ export function Mark({ size = 24 }) {
   return html`<svg class="mark" width=${size} height=${size} viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="7" fill="var(--btn-bg)"/><path d="M7.5 6.5v11M12 6.5v11M16.5 6.5v11" stroke="var(--btn-fg)" stroke-width="2" stroke-linecap="round"/><path d="M12 10.8v2.4" stroke="var(--btn-bg)" stroke-width="4"/></svg>`;
 }
 export function Logo() {
-  return html`<a class="logo" href="#/"><${Mark} /><span class="logotext">wsp studio</span></a>`;
+  return html`<a class="logo" href="#/"><${Mark} /><span class="logotext">Sapien</span></a>`;
 }
 
 export function TopBar({ children, right }) {
@@ -59,7 +59,7 @@ export function TopBar({ children, right }) {
   const health = useHealth();
   const [open, setOpen] = useState(false);
   const modal = health && health.backend === 'modal';
-  const label = health && health.llm_model ? health.llm_model + ' agents' : 'wsp studio agents';
+  const label = health && health.llm_model ? health.llm_model + ' agents' : 'Sapien agents';
   return html`<header class="topbar">
     <div class="picker-wrap">
       <button class="picker" onClick=${() => setOpen(!open)} aria-haspopup="menu" aria-expanded=${open}><span>${label}</span><${Icon} n="down" size=${14} /></button>

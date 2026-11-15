@@ -1,4 +1,4 @@
-"""The wsp studio FastAPI app: the API under /api and the web app from studio/web/ at /."""
+"""The Sapien FastAPI app (the wsp studio): the API under /api and the web app from studio/web/ at /."""
 
 import asyncio
 import json
@@ -20,7 +20,7 @@ from studio.server import specs as specs_mod
 
 settings.load_env()
 
-app = FastAPI(title="wsp studio")
+app = FastAPI(title="Sapien")
 
 STREAM_TICK_S = 0.5
 STREAM_HEARTBEAT_S = 5.0

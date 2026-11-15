@@ -1,6 +1,6 @@
-# wsp studio: API contract
+# Sapien: API contract
 
-wsp studio is a web app for building models with wsp. A person describes a model in plain words, adjusts a drafted spec, and then either lets an agent swarm build the model or builds it on a drag-and-drop canvas.
+Sapien (the code lives in `studio/`) is a web app for building models with wsp. A person describes a model in plain words, adjusts a drafted spec, and then either lets an agent swarm build the model or builds it on a drag-and-drop canvas.
 
 This file is the contract between the server (`studio/server/`) and the web app (`studio/web/`). Both sides build against it. If a side needs a change, change this file first.
 
