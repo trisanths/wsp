@@ -59,6 +59,63 @@ const FINDINGS = [
   { id: 'f_mock_graft_random', title: 'A cross-family MLP graft did not beat its random control', claim: 'A 512-neuron Qwen2.5-Math-1.5B layer 18 cluster grafted into Llama-1B at layer 10 scored 25.0 on GSM8K search; a random control scored 33.0.', setup: 'run 1: Llama-3.2-1B-Instruct host, 300 heal steps, 1 seed', numbers: { host: 25.0, graft: 25.0, random_control: 33.0 }, numbers_source: 'results/README.md', status: 'candidate', status_reason: null, source: 'results/graft_run1_s0.json', skills: ['math', 'graft'], evidence: 'graft vs random cluster', about: { parts: ['qmath_l18_contrast512'], models: [HOST, 'Qwen/Qwen2.5-Math-1.5B'] } },
   { id: 'f_mock_lora_bar', title: 'A rank-1 LoRA beats block grafts on Llama-1B', claim: 'On Llama-1B a rank-1 LoRA scores 43.5 on GSM8K search; the donor blocks score 35 to 36.', setup: 'run 3', numbers: { lora_r1: 43.5, blocks: [35.2, 36.3] }, numbers_source: 'results/README.md', status: 'validated', status_reason: null, source: 'results/round3_rows.json', skills: ['lora'], evidence: 'rank-1 LoRA vs block graft', about: { parts: [], models: [HOST] } },
 ];
+/* ---------- demo mode: the real parts library ---------- */
+// Demo mode shows the real library the server holds (GET /api/catalog and the library lists), not the
+// small list above. The server's made-up stub parts are left out, and every non-rejected part is
+// placeable, as on the GPU backend. The mock part ids the demo programs use map to real library parts.
+// With no server (a plain static host), the small list above stays.
+const REAL_ID = {
+  qmath_l18_contrast512: 'mlp_cluster_qwen25math15b_l16_gsm8k',
+  qmath_block_8_19: 'tapread_lfm2_350m_math_l8',
+  r1_block_10_21: 'block/LiquidAI/LFM2-350M-Math/6-10',
+  mistral_heads_8: 'attn_heads_qwen25math15b_l20_gsm8k',
+  qmath_l10_activation512: 'pilot_qmath15_l12_top512',
+  phi_block_4_11: 'block/LiquidAI/LFM2-350M-Math/1-5',
+  lfm_experts_2: 'expert_early_calendar-context_expert_for_month_arithmet_lfm2_24b_a2b_L4_k1_001',
+  gemma_block_5_12: 'map_block_liquidai__lfm2-8b-a1b_code_l0_0',
+  qcoder_block_6_17: 'map_block_liquidai__lfm2-8b-a1b_code_l0_0',
+  saul_block_4_13: 'block/Equall/Saul-7B-Instruct-v1/14-14',
+  map_expert_lfm2_8b_biology_l14: 'expert_month-successor_expert_pool_l8_lfm2_24b_a2b_L8_k3_001',
+  bio_block_8_15: 'tapread_phi_35_mini_l22',
+  qwen14_block_14_34: 'tapread_gemma_2_9b_it_l29',
+};
+async function loadRealLibrary() {
+  if (!DEMO) return null;
+  const get = (u) => fetch(u, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))));
+  try {
+    const [cat, rec, fin, sti] = await Promise.all([get('/api/catalog'), get('/api/library/recipes'), get('/api/library/findings'), get('/api/library/stitches').catch(() => ({ stitches: [] }))]);
+    if (!cat || !Array.isArray(cat.parts) || !cat.parts.length) return null;
+    return { cat, recipes: rec.recipes || [], findings: fin.findings || [], stitches: sti.stitches || [] };
+  } catch (e) { return null; }
+}
+// the task a part serves, for the sample scores: from its label and donor (library skill tags are broad)
+function taskOf(p) {
+  const t = (p.label + ' ' + p.donor).toLowerCase();
+  if (/math|gsm8k/.test(t)) return 'math';
+  if (/code|coder/.test(t) || (p.skills || []).includes('code')) return 'code';
+  if (/saul|law|legal/.test(t) || (p.skills || []).includes('law')) return 'legal';
+  return 'general';
+}
+const REAL = await loadRealLibrary();
+if (REAL) {
+  const kept = REAL.cat.parts.filter((p) => p.source !== 'stub');
+  PARTS.length = 0;
+  for (const p of kept) {
+    const { usable_reason, from_library, source, ...q } = p;
+    const span = (q.layers ? q.layers[1] - q.layers[0] : 0) + 1;
+    PARTS.push({ ...q, params_m: q.params_m != null ? q.params_m : 45 * span, task: taskOf(p), power: 0.3, short: q.id.slice(0, 24), usable: q.status !== 'rejected' });
+  }
+  // the parts the demo's winning programs use are the strong ones in the sample scores (their parts contribute)
+  const strong = new Set(['qmath_l18_contrast512', 'qmath_block_8_19', 'r1_block_10_21', 'mistral_heads_8', 'qmath_l10_activation512'].map((id) => REAL_ID[id]));
+  for (const p of PARTS) if (strong.has(p.id)) p.power = 0.5;
+  MASKS.length = 0;
+  for (const m of REAL.cat.masks || []) { const { usable_reason, ...q } = m; MASKS.push({ ...q, usable: q.status !== 'rejected' }); }
+  RECIPES.length = 0; RECIPES.push(...REAL.recipes);
+  FINDINGS.length = 0; FINDINGS.push(...REAL.findings);
+}
+/** A part id the demo programs use, as a real library id when the real library is loaded. */
+const realId = (id) => (REAL && REAL_ID[id]) || id;
+
 attachMockFindings();
 function attachMockFindings() {
   for (const p of PARTS) if (!p.findings) p.findings = [];
@@ -183,7 +240,7 @@ function evalProgram(spec, p) {
   for (const b of spec.benchmarks) {
     const nz = noise(JSON.stringify(p) + b.id) * 0.012;
     if (b.kind === 'target') {
-      const lift0 = (gain + healBonus + loraBonus) * (DEMO ? 0.25 : 0.66) * (b.id === 'yours' ? 1.05 : 1);
+      const lift0 = (gain + healBonus + loraBonus) * (DEMO ? 0.35 : 0.66) * (b.id === 'yours' ? 1.05 : 1);
       const lift = DEMO ? 0.12 * Math.tanh(lift0 / 0.12) : lift0;
       scores[b.id] = clamp(b.base + lift - penalty * 0.6 + nz, 0.01, 0.98);
       tsum += scores[b.id]; tn++;
@@ -351,7 +408,7 @@ function makeSpec(prompt, files, id) {
     budget: { evals: 30, compute_min: 45, min_evals: 5, max_evals: 120 },
     limits: { max_total_params_b: maxp, max_run_params_b: Math.min(maxp, 1.8), max_heal_min: 20 }, comparators: { distill: {} },
     benchmarks: bench, available_benchmarks: available,
-    ingredients: T.ing.map((pid) => ({ part_id: pid, label: PART[pid].label, donor: PART[pid].donor, kind: PART[pid].kind })),
+    ingredients: T.ing.map(realId).filter((pid) => PART[pid]).map((pid) => ({ part_id: pid, label: PART[pid].label, donor: PART[pid].donor, kind: PART[pid].kind })),
     drafted_by: 'rules', stub: true,
   };
   return DEMO ? demoLook(out, type) : out;
@@ -364,7 +421,7 @@ function demoLook(spec, type) {
   spec.budget = clone(look.budget); spec.size = clone(look.size); spec.limits = clone(look.limits);
   spec.benchmarks = [...clone(look.benchmarks).map((b) => { delete b.research; delete b.reference_scores; return b; }), ...yours];
   const ids = spec.ingredients.map((g) => g.part_id);
-  for (const pid of look.extraIngredients) if (!ids.includes(pid)) spec.ingredients.push({ part_id: pid, label: PART[pid].label, donor: PART[pid].donor, kind: PART[pid].kind });
+  for (const pid of look.extraIngredients.map(realId)) if (PART[pid] && !ids.includes(pid)) spec.ingredients.push({ part_id: pid, label: PART[pid].label, donor: PART[pid].donor, kind: PART[pid].kind });
   const used = new Set(spec.benchmarks.map((b) => b.id));
   spec.available_benchmarks = Object.values(BENCH_LIB).filter((b) => !used.has(b.id)).map((b) => { const c = clone(b); delete c.recommended; delete c.lora; return c; });
   spec.drafted_by = 'the planner';
@@ -512,6 +569,10 @@ function genProgram(run, a) {
   const spec = run.spec;
   const rel = GRAFT_PARTS.filter((p) => p.task === spec.task_type || Math.random() < 0.25);
   let pool = rel.length ? rel : GRAFT_PARTS;
+  // demo mode draws from the whole real library: keep to parts that fit the size limit at all
+  // and lean on the parts that score well for this task, so the run finds a real leader
+  if (REAL && Math.random() < 0.5) { const good = pool.filter((p) => p.power >= 0.5 && p.task === spec.task_type); if (good.length) pool = good; }
+  if (REAL) { const room = (spec.size.max_params_b - HOST_B) * 1000; const fit = pool.filter((p) => p.params_m <= room); pool = fit.length ? fit : GRAFT_PARTS.filter((p) => p.params_m <= room); if (!pool.length) pool = GRAFT_PARTS; }
   if (a.bias.small) pool = [...pool].sort((x, y) => x.params_m - y.params_m).slice(0, 3);
   if (a.bias.donor && a.lastDonor) pool = pool.filter((p) => p.donor !== a.lastDonor) || pool;
   if (!pool.length) pool = GRAFT_PARTS;
@@ -547,7 +608,8 @@ function genProgram(run, a) {
     prog.masks = { op: 'use', id: m.id };
   }
   if (Math.random() < 0.85) prog.heal = { steps: pick([100, 300, 300, 600]), data: healPool(spec), lr: 0.0003, batch_size: 8, seq_len: 384 };
-  if (Math.random() < 0.2) prog.lora = { rank: pick([8, 16, 32]) };
+  // the compiler allows a host LoRA only on a program with no parts
+  if (!prog.grafts.length && Math.random() < 0.2) prog.lora = { rank: pick([8, 16, 32]) };
   return prog;
 }
 
@@ -1058,10 +1120,10 @@ export const mockApi = {
     logAct(run, 'you', 'nudge', 'info', text, { to: aid, to_name: a.name });
     return { ok: true };
   },
-  async catalog() { await lat(); return clone({ stub: true, host: { model: HOST, layers: HOST_LAYERS, params_b: HOST_B }, parts: PARTS.map(({ task, power, short, ...p }) => p), masks: MASKS, train: TRAIN, product: 'Sapien', kinds: ['block', 'attn_heads', 'mlp_cluster', 'expert', 'inserted_layer'].map((k) => ({ kind: k, name: k, count: PARTS.filter((p) => p.kind === k).length })), library: { atlas: false, counts: { candidate: PARTS.filter((p) => p.status === 'candidate').length, validated: PARTS.filter((p) => p.status === 'validated').length, rejected: PARTS.filter((p) => p.status === 'rejected').length } } }); },
+  async catalog() { await lat(); return clone({ stub: true, host: { model: HOST, layers: HOST_LAYERS, params_b: HOST_B }, parts: PARTS.map(({ task, power, short, ...p }) => p), masks: MASKS, train: TRAIN, product: 'Sapien', counts: { total: PARTS.length + MASKS.length, placeable: PARTS.filter((p) => p.usable !== false).length }, kinds: ['block', 'attn_heads', 'mlp_cluster', 'expert', 'inserted_layer'].map((k) => ({ kind: k, name: k, count: PARTS.filter((p) => p.kind === k).length })), library: { atlas: false, counts: { candidate: PARTS.filter((p) => p.status === 'candidate').length, validated: PARTS.filter((p) => p.status === 'validated').length, rejected: PARTS.filter((p) => p.status === 'rejected').length } } }); },
   async recipes() { await lat(); return clone({ recipes: RECIPES }); },
   async findings() { await lat(); return clone({ findings: FINDINGS }); },
-  async stitches() { await lat(); return { stitches: [] }; },
+  async stitches() { await lat(); return { stitches: REAL ? clone(REAL.stitches) : [] }; },
   async programText(program) { await sleep(60); return { text: programText(program) }; },
   async programParse(text) { await sleep(80); return { program: parseProgram(text) }; },
   async programValidate(program) { await sleep(60); return { errors: validateProgram(program) }; },
@@ -1074,7 +1136,7 @@ export const mockApi = {
     {
       const q = clone(program);
       if (action === 'heal' && !q.heal) q.heal = { steps: 300 };
-      if (action === 'train') { if (!q.lora) q.lora = { rank: 16 }; if (!q.heal) q.heal = { steps: 300 }; }
+      if (action === 'train') { if (!q.lora && !(q.grafts || []).length) q.lora = { rank: 16 }; if (!q.heal) q.heal = { steps: 300 }; }
       const problems = limitProblems(spec.limits, estimateOf(q));
       if (problems.length) { const e = new Error(problems.join(' ')); e.status = 400; throw e; }
     }
@@ -1100,7 +1162,7 @@ export const mockApi = {
       const b = getBuilder(j.bid);
       let p = clone(j.program);
       if (j.action === 'heal' && !p.heal) p.heal = { steps: 300, data: 'math', lr: 0.0003, batch_size: 8, seq_len: 384 };
-      if (j.action === 'train') { if (!p.lora) p.lora = { rank: 16 }; if (!p.heal) p.heal = { steps: 300, data: 'math', lr: 0.0003, batch_size: 8, seq_len: 384 }; }
+      if (j.action === 'train') { if (!p.lora && !(p.grafts || []).length) p.lora = { rank: 16 }; if (!p.heal) p.heal = { steps: 300, data: 'math', lr: 0.0003, batch_size: 8, seq_len: 384 }; }
       const ev = withSynth(j.spec, p, evalProgram(j.spec, p));
       let result;
       if (j.action === 'compile') {
@@ -1145,7 +1207,7 @@ export const mockApi = {
       const p = clonep(); p.heal = { steps: 300, data: 'math', lr: 0.0003, batch_size: 8, seq_len: 384 };
       out.push({ title: 'Add a heal pass of 300 steps.', detail: 'Grafts without a heal usually lose a few points. Heal trains only the glue.', tag: 'likely +2 to 3', program: p });
     }
-    if (program.grafts.length && !program.lora) {
+    if (!program.grafts.length && !program.lora) {
       const p = clonep(); p.lora = { rank: 16 };
       if (!p.heal) p.heal = { steps: 300, data: 'math', lr: 0.0003, batch_size: 8, seq_len: 384 };
       out.push({ title: 'Add a rank 16 LoRA on top.', detail: 'It closes part of the gap to the fine-tuning bar.', tag: 'bigger change', program: p });
@@ -1184,7 +1246,7 @@ function shiftTimes(run, d) {
   run.agents.forEach((a) => { a.thinking.forEach((x) => { x.ts += d; }); a.tools.forEach((x) => { x.ts += d; }); a.nudges.forEach((x) => { x.ts += d; }); });
 }
 function demoHeal(steps) { return { steps, data: 'math', lr: 0.0003, batch_size: 8, seq_len: 384 }; }
-const demoGraft = (id, at, rank = 16) => ({ id, at, control: null, control_seed: 0, glue_rank: rank });
+const demoGraft = (id, at, rank = 16) => ({ id: realId(id), at, control: null, control_seed: 0, glue_rank: rank });
 const demoProg = (grafts, heal) => ({ host: HOST, seed: 0, masks: null, task_vectors: [], grafts, heal: heal ? demoHeal(heal) : null, lora: null });
 
 function prespin(run, until) {
@@ -1292,7 +1354,7 @@ function seedEmptyRun(legal) {
     vclock += 4.5;
     const a = r.agents.find((x) => x.id === aid);
     const prog = demoProg([demoGraft(pid, at)], 300);
-    const part = PART[pid];
+    const part = PART[realId(pid)];
     const tot = paramsOf(prog);
     const text = part.label + ' at L' + at + ' would bring the total to ' + tot.toFixed(2) + 'B, over the 1.30B limit. Refused before any eval.';
     think(a, part.label + ' (' + part.donor.split('/').pop() + ' ' + (part.layers[0] === part.layers[1] ? 'L' + part.layers[0] : 'L' + part.layers[0] + '-' + part.layers[1]) + ') adds ' + part.params_m + 'M parameters. The host is 1.24B, so the total is ' + tot.toFixed(2) + 'B and the limit is 1.30B. I try a smaller part next.');
@@ -1334,7 +1396,11 @@ function seedBuilder(spec) {
   ];
   const budget = { evals_used: 9, evals_total: 12, compute_used_s: 802, compute_total_s: 2700 };
   builders.set(R.builder, { id: R.builder, spec_id: R.specMath, budget: clone(budget) });
-  const put = (k, v) => { try { const key = storageKey(k); if (sessionStorage.getItem(key) == null) sessionStorage.setItem(key, JSON.stringify(v)); } catch (e) { /* storage can be off */ } };
+  // the stored draft is kept across reloads, unless it was seeded from another library (real or mock)
+  const lib = (REAL ? 'real' : 'mock') + ':3';
+  let fresh = false;
+  try { fresh = sessionStorage.getItem(storageKey('wsp.seedlib')) !== lib; sessionStorage.setItem(storageKey('wsp.seedlib'), lib); } catch (e) { /* storage can be off */ }
+  const put = (k, v) => { try { const key = storageKey(k); if (fresh || sessionStorage.getItem(key) == null) sessionStorage.setItem(key, JSON.stringify(v)); } catch (e) { /* storage can be off */ } };
   put('wsp.prog.' + R.builder, final);
   put('wsp.att.' + R.builder, attempts);
   put('wsp.budget.' + R.builder, budget);
