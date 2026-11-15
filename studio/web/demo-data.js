@@ -2,13 +2,15 @@
 // plays the live run. Nothing here talks to a network. The numbers are sample numbers for a
 // 1.24B host (Llama-3.2-1B-Instruct); the one Demo pill in the top bar labels the whole app.
 
-import { DEMO } from './demo-flag.js';
+import { DEMO, storageKey } from './demo-flag.js';
 import { addRecent, getRecent, patchRecent } from './util.js';
 
 export const DEMO_IDS = {
   specMath: 'sp_demo_math',
   specLegal: 'sp_demo_legal',
   specShrink: 'sp_demo_code',
+  specSolver: 'sp_demo_solver',
+  specClause: 'sp_demo_clause',
   runLive: 'run_demo_live',
   runDone: 'run_demo_done',
   runEmpty: 'run_demo_empty',
@@ -266,16 +268,19 @@ export function nudgeThought(text) {
 // The sidebar and the Runs page list what was opened in this browser. Demo mode fills them with the demo objects.
 export function seedDemoRecents() {
   if (!DEMO) return;
+  // reseed when the seed changes; this list holds demo items only (its storage key is demo-only)
+  const VERSION = '2';
+  let seen = null;
+  try { seen = localStorage.getItem('sapien.demo.seed'); } catch (e) { /* storage can be off */ }
   const have = getRecent();
-  if (have.some((r) => r.id === DEMO_IDS.runLive || r.id === DEMO_IDS.specMath)) return;
+  if (seen === VERSION && have.some((r) => r.id === DEMO_IDS.runLive)) return;
+  try { localStorage.removeItem(storageKey('wsp.recent')); localStorage.setItem('sapien.demo.seed', VERSION); } catch (e) { /* storage can be off */ }
   const now = Date.now();
   const min = 60 * 1000;
-  // oldest first: addRecent puts each new item at the top
+  // oldest first: addRecent puts each new item at the top. One row per demo object, each with its own title.
   const items = [
-    { kind: 'spec', id: DEMO_IDS.specShrink, title: CODE_SHRINK_SPEC.title, ago: 26 * 60 },
-    { kind: 'run', id: DEMO_IDS.runEmpty, title: 'Contract reader', status: 'empty', evals: 0, total: 60, ago: 22 * 60 },
-    { kind: 'spec', id: DEMO_IDS.specMath, title: MATH_LOOK.title, ago: 5 * 60 + 40 },
-    { kind: 'run', id: DEMO_IDS.runDone, title: MATH_LOOK.title, status: 'done', evals: 80, total: 80, ago: 4 * 60 + 12 },
+    { kind: 'run', id: DEMO_IDS.runEmpty, title: 'Clause checker under 1.3B', status: 'empty', evals: 0, total: 60, ago: 22 * 60 },
+    { kind: 'run', id: DEMO_IDS.runDone, title: 'Grade-school math solver', status: 'done', evals: 80, total: 80, ago: 4 * 60 + 12 },
     { kind: 'shrink', id: DEMO_IDS.shrink, spec: DEMO_IDS.specShrink, title: 'Shrink: ' + CODE_SHRINK_SPEC.title, status: 'done', job: DEMO_SHRINK_JOB, ago: 60 + 8 },
     { kind: 'spec', id: DEMO_IDS.specLegal, title: LEGAL_LOOK.title, ago: 11 },
     { kind: 'run', id: DEMO_IDS.runLive, title: MATH_LOOK.title, status: 'running', evals: 32, total: 80, ago: 3 },

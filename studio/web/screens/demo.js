@@ -41,16 +41,16 @@ const open = (sc) => { location.hash = sc.hash; };
 export function DemoScreen() {
   if (!DEMO) {
     return html`<${TopBar} />
-    <main class="screen demo-page">
-      <h1 class="display">Demo tour</h1>
+    <main class="screen"><div class="doc wide demo-page">
+      <h1 class="page-title">Demo tour</h1>
       <p class="demo-lede">Demo mode fills every screen with sample data and runs without a server, so you can show the whole product from start to finish.</p>
       <div class="demo-cta"><button class="btn primary" onClick=${() => setDemo(true, '#/demo')}>Turn on demo mode</button></div>
       <p class="demo-note">A small Demo label stays in the top bar while it is on, so sample numbers are never read as measured results. You can also press Ctrl+Shift+D (Cmd+Shift+D on a Mac) on any screen.</p>
-    </main>`;
+    </div></main>`;
   }
   return html`<${TopBar} />
-  <main class="screen demo-page">
-    <h1 class="display">Demo tour</h1>
+  <main class="screen"><div class="doc wide demo-page">
+    <h1 class="page-title">Demo tour</h1>
     <p class="demo-lede">Every screen below runs on sample data. Start the tour to walk through them in order, or open any scene on its own. A small control at the bottom right moves between scenes.</p>
     <div class="demo-cta">
       <button class="btn primary" onClick=${() => open(SCENES[0])}>Start the tour</button>
@@ -64,7 +64,7 @@ export function DemoScreen() {
         <a class="demo-open" href=${s.hash}>Open<${Icon} n="arrow" size=${14} /></a>
       </div>`)}</div>
     </section>`)}
-  </main>`;
+  </div></main>`;
 }
 
 export function DemoControl() {

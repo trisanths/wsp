@@ -56,7 +56,7 @@ export function Sidebar({ rail, onToggle, route }) {
     </div>
     <div class="sb-foot">
       <button class="sb-row" onClick=${flip} data-tip=${rail ? (theme === 'dark' ? 'Light theme' : 'Dark theme') : null} data-tip-side="right" aria-label=${theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}><${IconSwap} state=${theme === 'dark' ? 'a' : 'b'} a=${html`<${Icon} n="sun" size=${18} />`} b=${html`<${Icon} n="moon" size=${18} />`} /><span class="sb-text"><${SwapText} text=${theme === 'dark' ? 'Light theme' : 'Dark theme'} /></span></button>
-      <button class=${'sb-row sb-switch' + (DEMO ? ' is-on' : '')} role="switch" aria-checked=${DEMO ? 'true' : 'false'} onClick=${() => (DEMO ? setDemo(false, '#/') : setDemo(true, '#/demo'))} data-tip=${rail ? (DEMO ? 'Turn off demo mode' : 'Turn on demo mode') : null} data-tip-side="right" aria-label="Demo mode" title="Show every screen with sample data, no server needed"><${Icon} n="play" size=${18} /><span class="sb-text sb-grow">Demo mode</span><span class="sw-track sb-text" aria-hidden="true"><span class="sw-knob"></span></span></button>
+      <button class=${'sb-row sb-switch' + (DEMO ? ' is-on' : '')} role="switch" aria-checked=${DEMO ? 'true' : 'false'} onClick=${() => (DEMO ? setDemo(false, '#/') : setDemo(true, '#/demo'))} data-tip=${rail ? (DEMO ? 'Turn off demo mode' : 'Turn on demo mode') : null} data-tip-side="right" aria-label="Demo mode" title="Show every screen with sample data, no server needed"><${Icon} n="spark" size=${18} /><span class="sb-text sb-grow">Demo mode</span><span class="sw-track sb-text" aria-hidden="true"><span class="sw-knob"></span></span></button>
       ${!DEMO && html`<div class="sb-status" title=${modal ? 'Jobs run on Modal GPUs' : stub ? 'Stub backend: numbers are not real results' : 'Backend'}>
         <${Icon} n="server" size=${18} />
         <span class="sb-text">${modal ? 'Modal GPU' : stub ? html`Stub backend <${StubBadge} small />` : health ? health.backend : 'Connecting'}</span>
@@ -78,6 +78,13 @@ export function Shell({ children }) {
       prev.current = route.name;
     }
   }, [route.name]);
+  // a window that narrows below the breakpoint folds the sidebar to the rail, so the page keeps its width
+  useEffect(() => {
+    let was = wide();
+    const f = () => { const now = wide(); if (was && !now) setRail(true); was = now; };
+    window.addEventListener('resize', f);
+    return () => window.removeEventListener('resize', f);
+  }, []);
   return html`<div class="shell">
     <${Sidebar} rail=${rail} onToggle=${() => setRail(!rail)} route=${route} />
     <div class="main-area">${children}</div>

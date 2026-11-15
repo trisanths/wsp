@@ -1278,6 +1278,9 @@ function seedDoneRun(spec) {
 function seedEmptyRun(legal) {
   const lim = { max_total_params_b: 1.3, max_run_params_b: 1.3, max_heal_min: 20 };
   const sp = clone(legal); sp.limits = lim; sp.size.max_params_b = 1.3;
+  sp.id = V.DEMO_IDS.specClause; sp.title = 'Clause checker under 1.3B';
+  specs.set(sp.id, sp);
+  researchOf.set(sp.id, { started: Date.now() - 90000, plan: researchPlan(sp), mode: null, applied: false });
   const r = newRun(sp);
   runs.delete(r.id); r.id = V.DEMO_IDS.runEmpty; runs.set(r.id, r);
   r.activity = []; r.actId = 0;
@@ -1356,8 +1359,13 @@ function seedDemo() {
   const sess = { id: R.shrink, spec_id: R.specShrink, plan: clone(code.shrink) };
   shrinks.set(R.shrink, sess);
   shrinkJobs.set(V.DEMO_SHRINK_JOB, { sess, plan: clone(sess.plan), t0: 0, done: null });
+  // the finished and the empty run each get their own spec, so the sidebar shows distinct titles
+  const solver = clone(math); solver.id = R.specSolver; solver.title = 'Grade-school math solver';
+  specs.set(R.specSolver, solver);
+  researchOf.set(R.specSolver, { started: Date.now() - 90000, plan: researchPlan(solver), mode: null, applied: false });
+  applyResearch(solver);
   seedEmptyRun(legal);
-  seedDoneRun(math);
+  seedDoneRun(solver);
   seedLiveRun(math);
   seedBuilder(math);
   V.seedDemoRecents();
