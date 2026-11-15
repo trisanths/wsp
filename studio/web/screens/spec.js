@@ -6,6 +6,7 @@ import { SubtleNum, AutoHeight, SkelReveal, reduced } from '../motion.js';
 import { ModelLogo } from '../logos.js';
 import { ResearchBlock, RefList, AlsoConsidered, refTicks } from './research.js';
 import { ShrinkSection } from './shrink-spec.js';
+import { CompilerPlan } from './frontdoor.js';
 
 // slider with optional tick marks (fractions of the range are given as values)
 export function Slider({ value, min, max, step, onChange, ticks = [], color, ariaLabel }) {
@@ -286,6 +287,8 @@ export function SpecScreen({ id }) {
         ${!(spec.ingredients || []).length && html`<div class="empty" style="padding:12px 16px">None picked yet.</div>`}
       </div>
     </section>`}
+
+    <${CompilerPlan} spec=${spec} />
 
     ${isShrink ? html`<div class="buildcard shrinkcard">
       <div class="bc-head"><span class="bc-title">Ready to plan the shrink?</span><span class="faint bc-meta">Drafted by ${spec.drafted_by || 'rules'}.${spec.stub ? ' Stub numbers are not real results.' : ''}</span></div>

@@ -1050,3 +1050,6 @@ export const mockApi = {
     return { run_id: r.id };
   },
 };
+
+import { makeExtra } from './mock-extra.js';
+Object.assign(mockApi, makeExtra({ getSpec }));

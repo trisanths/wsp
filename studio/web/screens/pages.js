@@ -6,6 +6,7 @@ import { SkelReveal } from '../motion.js';
 import { ModelLogo } from '../logos.js';
 import { StatusTag, lockOf, filterItems, countItems, FilterRow, NO_FILTER, PAGE_SIZE } from '../cmp.js';
 import { openProgramInBuilder } from './shared.js';
+import { MeasuredResults } from './measured.js';
 
 const RUN_LABEL = { planned: 'Planned', starting: 'Starting', running: 'Running', paused: 'Paused', stopping: 'Stopping', done: 'Finished', stopped: 'Stopped', error: 'Error', gone: 'Not on the server' };
 const RUN_COLOR = { planned: 'var(--text-4)', starting: 'var(--blue)', running: 'var(--blue)', paused: 'var(--amber)', stopping: 'var(--amber)', done: 'var(--green)', stopped: 'var(--text-3)', error: 'var(--red)', gone: 'var(--text-4)' };
@@ -163,7 +164,7 @@ function FindingsTab({ q, focus, onPart }) {
     ${rows.length === 0 && html`<div class="empty" style="margin-top:30px">No findings match.</div>`}`;
 }
 
-const TABS = [['parts', 'Parts', 'Search parts'], ['recipes', 'Recipes', 'Search recipes'], ['findings', 'Findings', 'Search findings']];
+const TABS = [['parts', 'Parts', 'Search parts'], ['recipes', 'Recipes', 'Search recipes'], ['findings', 'Findings', 'Search findings'], ['results', 'Results', 'Search parts']];
 
 export function PartsScreen() {
   const [cat, setCat] = useState(null);
@@ -194,5 +195,6 @@ export function PartsScreen() {
     ${tab === 'parts' && html`<${PartsTab} cat=${cat} q=${q} onFinding=${openFinding} />`}
     ${tab === 'recipes' && html`<${RecipesTab} q=${q} onPart=${openPart} />`}
     ${tab === 'findings' && html`<${FindingsTab} q=${q} focus=${focus} onPart=${openPart} />`}
+    ${tab === 'results' && html`<${MeasuredResults} />`}
   <//></div></main>`;
 }

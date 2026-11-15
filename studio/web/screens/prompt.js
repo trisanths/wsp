@@ -3,6 +3,7 @@ import { api } from '../api.js';
 import { go, toast } from '../util.js';
 import { TopBar, Icon, Composer } from '../components.js';
 import { ThinkLine, reduced } from '../motion.js';
+import { MeasuredHome } from './measured.js';
 
 const CARDS = [
   { icon: 'book', color: 'var(--blue)', label: 'A knowledge model', text: 'A small model that answers general knowledge questions nearly as well as a much bigger one. It has to run on a laptop.' },
@@ -100,6 +101,7 @@ export function PromptScreen() {
           <h1 class="display t-stagger-line t-stagger-line--1">What should your model be good at?</h1>
           <div class="entry-row t-stagger-line t-stagger-line--2">${CARDS.map((c) => html`<a class="entry t-learn" key=${c.label} href=${c.href || null} role=${c.href ? null : 'button'} tabindex="0" onClick=${c.href ? null : () => fill(c.text)} onKeyDown=${c.href ? null : (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fill(c.text); } }}><span class="eic" style=${{ color: c.color }}><${Icon} n=${c.icon} size=${20} /></span><span class="elabel">${c.label}</span><${Chevron} /></a>`)}</div>
           <div class="examples t-stagger-line t-stagger-line--3">${EXAMPLES.map((x) => html`<button class="exchip" key=${x} onClick=${() => fill(x)}>${x}</button>`)}</div>
+          <${MeasuredHome} onTry=${fill} />
           </div>`}
     </div>
     ${html`<div class="dock" onDragEnter=${onEnter} onDragOver=${(e) => e.preventDefault()} onDragLeave=${onLeave} onDrop=${onDrop}>
