@@ -86,4 +86,4 @@ def test_unclosed_fence_counts_and_side_by_side(tmp_path):
     paths = demo.write_side_by_side(results, str(tmp_path))
     assert all(os.path.exists(p) for p in paths)
     assert demo.write_side_by_side({"full_30b": results["full_30b"]}, str(tmp_path)) is None
-    assert len(demo.select_prompts(True)) == 1 and len(demo.select_prompts(False)) == 8
+    assert len(demo.select_prompts(True)) == 8 and len(demo.select_prompts(False)) == 8

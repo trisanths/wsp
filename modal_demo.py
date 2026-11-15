@@ -14,7 +14,7 @@ in a subprocess in the container (Python asserts, SQLite against a fixture, bash
 regex prompt and the two non-code prompts have no test; they get a keyword check that is only a hint, and the
 text is there to read. One run, greedy, so one sample per prompt: it shows behaviour, it is not a benchmark.
 
-Smoke (one prompt, one cell):
+Smoke (all prompts, the full model only):
 
     modal run modal_demo.py --smoke
 
@@ -133,7 +133,8 @@ PROMPTS = [
     {"id": "code_function_tests", "kind": "code", "title": "Write a function with tests",
      "text": "Write a Python function `merge_intervals(intervals)` that takes a list of [start, end] pairs and "
              "returns the merged list of non-overlapping intervals, sorted by start. Intervals that touch, such "
-             "as [1, 2] and [2, 3], are merged. Include pytest tests."},
+             "as [1, 2] and [2, 3], are merged. Include pytest tests. Keep it compact: no docstrings, "
+             "and at most four test cases."},
     {"id": "code_fix_bug", "kind": "code", "title": "Fix a bug in a pasted snippet",
      "text": "This function should return one average per full window, but it returns one value too few. "
              "Fix it and say what was wrong.\n\n```python\n" + AVERAGE_CODE + "```"},
@@ -356,7 +357,8 @@ def grade_prompt(prompt, text):
 
 
 def select_prompts(smoke):
-    return PROMPTS[:1] if smoke else PROMPTS
+    """All prompts, also in smoke (smoke only runs one cell, the full model, and does not write the side-by-side)."""
+    return PROMPTS
 
 
 def log(cell, message):
