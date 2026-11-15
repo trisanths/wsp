@@ -66,6 +66,12 @@ Deploy the GPU engine (once per workspace, and again after pulling engine change
 ```bash
 .venv/bin/modal deploy mine/engine_app.py
 ```
+The app `swarmy-mine` serves every run in its Modal workspace: agent runs, sweeps, and map jobs. A
+deploy replaces the engine for all of them at once. A deploy from a checkout that is behind `main`
+removes the newer engine methods (`attribution_units`, `activation_units`, `expert_pick_rates`,
+`builtin_info`, `skill_maps(modules=...)`) for every caller, and an error in the file stops every
+container at startup. So run `git pull --rebase origin main` and the tests of section 8a first. When
+you share the workspace with teammates, one person deploys: ask your human who that is.
 
 ## 4. Check the setup first (cheap, about $1-3 per model)
 ```bash
@@ -120,11 +126,13 @@ candidate divided by the mean summed score of all candidates of the same kind an
 order tells you which candidates stand out among parts of their own size. It does not tell you which
 size is best.
 
-The z-score. It follows the rule of the row field `signature.z`, which the branch `mining/row-evidence`
-adds (mean and sample standard deviation of the random drops). The engine rounds drops to 4 decimals,
-so the random drops of a small part can all be equal. Then no deviation is measured and there is no
-z-score: the row has `z_search: null` and `random_spread: "below resolution"`, and the part is saved
-only when its drop is at least 0.15 (the lowest target drop of the light gate) above the random drops.
+The z-score. It follows the rule of the row field `signature.z` (section 6): mean and sample standard
+deviation of the random drops. The engine rounds drops to 4 decimals, so the random drops of a small
+part can all be equal, or differ in one rounding step. Fewer than 3 distinct random drops are not a
+measured deviation (`signature.z_flag` marks the same rows). The row then has
+`random_spread: "below resolution"`, and the part is saved only when its drop is at least 0.15 (the
+lowest target drop of the light gate) above the largest random drop. `z_search` is null when all random
+drops are equal.
 
 ```bash
 .venv/bin/python mine/sweep.py --short <short_name> --skills law,medicine,math
@@ -157,9 +165,12 @@ screened with fewer than 5 guards. A skill with fewer than `--min-guards` guards
 - The sweep can be resumed. Run the same command again: rankings and finished screens are kept, and
   `--max-screens` counts only new screens. With `--skills all`, raise `--max-screens`; the default
   covers only the candidates with the highest scores.
-- A rerun does not write a row again. If you moved a row out of the catalog, it stays out. A part whose
-  row is in `catalog/<short_name>.rejected.jsonl` is never written. A kept screen is checked again with
-  the light gate of today.
+- A rerun does not write a row again. If you moved a row out of the catalog, it stays out, and the
+  summary lists it under "passed, but the row an earlier run wrote is not in catalog/..." with its key.
+  To have the row written again, remove that key from `sweep_written` in the lane state file and run
+  again (the kept screen makes that free). A part whose row is in
+  `catalog/<short_name>.rejected.jsonl` is never written. A kept screen is checked again with the light
+  gate of today.
 - A ranking that fails (for example out of memory) is named in the summary, and the run goes on with
   the other skills and kinds. The next run tries that ranking again. 3 failures in a row stop the ranking.
 - It is safe to run next to an agent run on the same model. The sweep keeps its state in
@@ -167,7 +178,9 @@ screened with fewer than 5 guards. A skill with fewer than `--min-guards` guards
   It takes the pinned revision from the agents' state (`state.json`, or the newest `state.lane<N>.json`)
   and prints which file it used. If the lane files pin different revisions, the sweep stops: tell your human.
 - To rank again from nothing, move `logs/<short_name>/sweep/` away. To screen again, also move the
-  lane state file away.
+  lane state file and its backup away: `logs/<short_name>/state.lanesweep.json` and
+  `logs/<short_name>/state.lanesweep.json.bak` (with `--lane x`: `state.lanesweepx.json` and its
+  `.bak`). The sweep reads the backup when the state file is missing.
 - The deployed engine needs the methods `attribution_units` and `activation_units`. If the run says a
   method is missing, the engine was deployed from an older branch: tell your human.
 
@@ -190,9 +203,14 @@ Push the results as in section 7.
 - `catalog/<short_name>.jsonl`: one line per part. The fields are:
   - `id`, `type` (`mlp_cluster` | `attn_heads` | `expert` | `block`)
   - `label`, `tier` (`screened`, or `confirmed` if the optional stricter check passed)
-  - `model`, `layer`/`layers`, `units` (path to the `.pt` index file), `d_model`
+  - `model`, `revision` (the weights the part was mined on), `layer`/`layers`, `units` (path to the
+    `.pt` index file), `num_units`, `d_model`
   - `signature` (score drops per skill)
-  - whether the label was built-in or agent-defined, and the agent's weight rationale
+  - `skill` (the target: `name`, and `source` `builtin`, `agent`, or `pool`), `trained_on`,
+    `evidence_used`, and the weight rationale
+  - `part_key` (kind, layer, and a hash of the unit indices: the same part has the same key) and
+    `created` (local time of the machine that wrote the row)
+  - `sweep` (rows of `mine/sweep.py` only, section 5b)
   - in `signature`: `z` (the target drop on the search half as a z-score against the random same-size
     parts: the drop minus their mean, divided by their sample standard deviation; null with fewer than
     2 random drops or when they are all equal), `random_n`, `random_mean`, `random_std`. Read `z` as a
@@ -205,13 +223,25 @@ Push the results as in section 7.
   - in `signature`: `guard` (for `search` and for `heldout`: the skill, other than the target and its
     own control, whose score moved most when the part was off, as `skill`, `drop`, `abs`)
   - `selection_data` (the data the part was selected on): `skill`, `source` (`agent` | `builtin` |
-    `pool`), `path` and `hash` of the frozen test for an agent skill, `description`, `datasets`,
+    `pool`, or `unknown` when no file names the skill), `path` and `hash` of the frozen test for an
+    agent skill, `hash` and `dataset` of the set for a pool skill, `description`, `datasets`,
     `control`, `off_target` (the other skills the gate checked) with `off_target_data`, `pool` (the
     text pool of `wsp/healdata.py` that matches the skill, or null) with `pool_match`, and
     `reported_benchmarks` (the dataset ids in the selection data that are in the `BANNED` list of
     `wsp/healdata.py`; null means not checked). `builtin_basis` says where the built-in
     descriptions came from: `engine`, `local file`, `git history`, or
     `git history, version uncertain`. `items_sha` names the version of a built-in set.
+    `builtin_version` is the commit of the built-in file that the backfill used (`git history`).
+    `note` says that `wsp/healdata.py` was not found, so `pool` and `reported_benchmarks` are null.
+    The field `pool` here follows another rule than `selection_sources[skill].pool` of a map entry
+    (section 8a): here the skill name, then the dataset, then the first word of the name decide; a map
+    entry looks at the dataset only. So `law` and the `prose_*` skills have a pool here and null there.
+  - in `selection_data`, for a pool skill (rows of `mine/sweep.py`): the `hash` names the set of
+    `mine/data/pool_skills.json` that was scored, for the target and in `off_target_data`.
+    `mine/enrich_rows.py` keeps these as the row stores them when the pool file is built again.
+    `pool_hash_matches` says if the pool file of today still has the target's set (null: no set of
+    that name). `hash_unverified: true` marks a set that the backfill took from the pool file of its
+    own day, because the row did not record it.
     `selection_data` is null, with the reason in `selection_note`, when the files behind it could
     not be read at the time the row was written; `mine/enrich_rows.py` fills it in.
   - in `selection_data`, for an agent skill: `path_matches` (does the file at `path` still have the
@@ -238,7 +268,10 @@ Rows written before these fields existed get them from the stored numbers, with 
 ```bash
 .venv/bin/python mine/enrich_rows.py --model <short_name>      # repeat --model for more models
 ```
-It keeps every field and the row order, and it never touches `*.rejected.jsonl`.
+It keeps the row order and every field, apart from notes that no longer hold: `selection_note` once
+`selection_data` is filled, `routing_note` once `routing` is filled, and in `selection_data` the keys
+`note`, `builtin_version`, `builtin_candidates`, `builtin_note`, `path_hash`, `path_note`,
+`hash_unverified`, and `pool_hash_matches` of an earlier run. It never touches `*.rejected.jsonl`.
 - Run it on the machine that mines the model, after the run has stopped and the catalog is pushed.
   It rewrites every line of the file, so a teammate who appends rows to the same file on another
   machine gets a merge conflict.
@@ -246,9 +279,10 @@ It keeps every field and the row order, and it never touches `*.rejected.jsonl`.
   model that has no `logs/<short_name>/` folder on this machine (the run can be on another machine),
   unless you pass `--force`. A fresh `git pull` or checkout also gives the log files new times, so
   wait 10 minutes after one.
-- Do not run it while an agent run or `mine/regate.py` works on the model, also not with `--force`.
-  The backfill holds the catalog lock against new rows, but the agent's `confirm_math` tool and
-  `regate.py` replace the file without that lock and can write the old rows back.
+- The backfill, the agent's `confirm_math` tool, and `mine/regate.py` each replace the catalog file.
+  All three hold the catalog lock of `write_part` while they read the file and write it, so none of
+  them writes old rows back. An agent run that started from a checkout before this lock was added
+  still replaces the file without it: stop such a run before a backfill or a sweep on the same model.
 - For rows without an engine-reported description, the built-in sets come from the git history of
   `mine/data/builtin_skills.json`. The engine uses the file from its last deploy, and git does not
   hold the deploy time. A row made after the commit of a newer version gets
@@ -256,7 +290,9 @@ It keeps every field and the row order, and it never touches `*.rejected.jsonl`.
   version, and pass `--live-since <commit>=<YYYY-MM-DDTHH:MM:SS>` (local time).
 - `--routing` also fills `routing` for expert rows; that one flag calls the GPU engine, and it
   prints the number of engine calls first. The engine is built for the `revision` of each row. A row
-  with a `no routing, final:` note is not asked again unless you add `--retry-routing`.
+  with a `no routing, final:` note is not asked again unless you add `--retry-routing`. For a pool
+  skill the backfill sends the set of `mine/data/pool_skills.json` to the engine, when its hash is
+  the one in the row; a pool file built again since gives a final note.
 
 ## 7. Push your results (no merge conflicts by design)
 Every model writes only its **own** files, so teammates never edit the same file.
@@ -324,10 +360,21 @@ do not go into the plain call.
   more models. A plain run sends the same call as before, so it works with an older engine.
 - An entry that exists is skipped. With `--modules`, an entry is skipped when it has the
   `module_maps` field. `--force` always measures again, the plain passes included.
+- An entry stores `skill_hashes`, the hash of each skill set it was measured on. A `--modules` run
+  keeps a plain entry only when these are the hashes of today's sets. An entry from before that field
+  is compared by the dataset and description strings alone, so after `pool_skills.json` or
+  `builtin_skills.json` was built again, run such an entry with `--force`.
+- Do not start a `--modules` job for a model that a plain job from an older checkout still works on.
+  The old `maps.py` writes its entry at the end without a check and can put a plain entry over one
+  that has module maps. Wait for the old job to end, or pass only models that have an entry.
 - A plain run does not replace an entry that has `module_maps` unless `--force` is set.
 - `maps_many.py --modules` writes `atlas/pool_logs/<key>.modules-failed` when the run of a model
   fails, and does not start that model again in later `--modules` runs. `--retry-failed` starts
   it again. A run that ends well removes the file. Read `atlas/pool_logs/<key>.log` first.
+  A run that leaves a model out for this reason ends with exit code 1. The mark is also written when
+  the failure says nothing about the model (no Modal login, an engine whose containers do not start):
+  after such a run, pass `--retry-failed`. For a model whose module call reached the timeout, add
+  `--layers-per-call N` with a smaller N, or the same plan runs again.
 
 Output: `atlas/pool_entries/<org>__<name>.json`. Fields per skill:
 - `layer_maps[skill]`: `scores` and `influence` (one number per layer), `blocks`, `block_mass`,
@@ -370,13 +417,17 @@ Output: `atlas/pool_entries/<org>__<name>.json`. Fields per skill:
 - `selection_sources[skill]`: `dataset`, `description`, `pool` (the `wsp/healdata.py` pool that
   draws on the same dataset, or null), and `reported_benchmark` (true when the dataset id is in
   the `BANNED` list of `wsp/healdata.py`). Mining may use benchmark data, so read this field
-  before you train or select on a skill's text.
+  before you train or select on a skill's text. `pool` here is matched by the dataset only; the
+  `selection_data.pool` of a catalog row (section 6) is also matched by the skill name.
 - `reported_benchmark_skills`: the names of the skills with `reported_benchmark` true, or null
   when `wsp/healdata.py` was not found. `benchmark_free` is written as true for every entry, as
   before, and does not look at the skill list. An entry can have `benchmark_free: true` and a
   list of reported skills here: trust the list. The owner decides if `benchmark_free` goes away.
 - A plain entry that `--modules` extends keeps its layer fields as they were written. An entry
-  from before `block_z` existed gets `block_z` only from a `--force` run.
+  from before `block_z` existed gets `block_z`, `block_z_windows`, `block_z_disjoint_windows`, and
+  `block_z_disjoint` from its stored search scores (no GPU). Its held-out scores were not stored, so
+  `block_z_heldout` and `block_z_disjoint_heldout` hold null for every block, and `block_z_note` says
+  so. The held-out values need a `--force` run.
 
 Tests (CPU only, no Modal call), each prints `ok`:
 ```bash

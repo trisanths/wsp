@@ -387,6 +387,27 @@ def test_routing():
     assert routing is None and "no pick rates" in note, note
     assert evidence.log_ratio(None, 0.2) is None and evidence.log_ratio(0.2, 0.2) == 0.0
 
+    # Each counted token picks top-k experts, so the rates of a layer add up to top-k. A sum that is
+    # off by more than 1% means the hook did not see one row of indices per token: no routing, final.
+    def with_rates(rates, top_k):
+        res = json.loads(json.dumps(result))
+        res["rates"]["sk|search"]["layers"]["3"] = {"rates": rates, "tokens": 40, "top_k": top_k}
+        return evidence.routing_fields([1], 3, "sk", res)
+    routing, note = with_rates([0.0, 0.5, 0.25, 1.35], 2)       # adds up to 2.1
+    assert routing is None and note.startswith(evidence.FINAL) and "add up to 2.1" in note, note
+    routing, note = with_rates([0.0, 0.5, 0.25, 1.26], 2)       # 2.01: within the rounding of the rates
+    assert routing is not None and note is None, note
+
+
+def test_banned_match():
+    # the rule of wsp/healdata.py: the id itself, or an id that ends with "/<banned id>"
+    assert evidence.banned_match("openai/gsm8k", ["openai/gsm8k"])
+    assert evidence.banned_match("SomeOrg/GSM8K ", ["gsm8k"])
+    assert evidence.banned_match("gsm8k", ["gsm8k"])
+    assert not evidence.banned_match("someorg/gsm8k-extra", ["gsm8k"])
+    assert not evidence.banned_match("someorg/not-gsm8k", ["gsm8k"])
+    assert evidence.reported_benchmarks([{"source": "pool", "datasets": ["someorg/gsm8k"]}], ["gsm8k"]) == ["someorg/gsm8k"]
+
 
 test_z()
 test_guard()
@@ -395,4 +416,5 @@ test_path_check()
 test_merge_uncertain()
 test_real_files()
 test_routing()
+test_banned_match()
 print("ok")

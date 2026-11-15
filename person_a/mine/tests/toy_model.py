@@ -33,7 +33,7 @@ class Attention(torch.nn.Module):
     def forward(self, x):
         # causal running mean of the values: position t sees positions 0..t
         v = torch.tanh(self.v_proj(x))
-        steps = torch.arange(1, x.shape[1] + 1, dtype=x.dtype).view(1, -1, 1)
+        steps = torch.arange(1, x.shape[1] + 1, dtype=x.dtype, device=x.device).view(1, -1, 1)
         return self.o_proj(v.cumsum(dim=1) / steps)
 
 

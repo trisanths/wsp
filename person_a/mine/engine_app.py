@@ -507,7 +507,8 @@ class EngineBase:
 
             def pre(module, args, kwargs):
                 idx = args[1] if len(args) >= 3 else kwargs["top_k_index"]
-                flat_mask = state["mask"].reshape(-1).bool()
+                # the mask is made on cuda:0; on a multi-GPU tier this layer can be on another GPU
+                flat_mask = state["mask"].reshape(-1).bool().to(idx.device)
                 sel = idx[flat_mask] if idx.shape[0] == flat_mask.shape[0] else idx
                 counts = torch.bincount(sel.reshape(-1), minlength=n_exp)[:n_exp].float()
                 if l not in sums:
@@ -524,7 +525,7 @@ class EngineBase:
 
         def pre_cols(module, args):
             x = args[0]
-            m = state["mask"]
+            m = state["mask"].to(x.device)  # see the expert branch: the layer can be on another GPU
             if x.dim() == 2:
                 xm = x.float() * m.reshape(-1, 1).float()
             else:
@@ -891,11 +892,11 @@ class EngineBase:
         return out, n_tokens
 
     def _mask_hook(self, kind, l, state):
-        # _stat_hook multiplies a layer's activation by state["mask"] (experts: it indexes the router
-        # picks with it). The mask is made next to the input ids, on cuda:0. On a multi-GPU tier
-        # (device_map "auto") most layers are on other GPUs, and there the stat hook would raise a device
-        # error. This hook goes on the same module BEFORE the stat hook (pre-hooks run in the order they
-        # were registered) and puts the mask on the device of the module's input.
+        # _stat_hook multiplies a layer's activation by state["mask"]. The mask is made next to the input
+        # ids, on cuda:0. On a multi-GPU tier (device_map "auto") most layers are on other GPUs. This hook
+        # goes on the same module BEFORE the stat hook (pre-hooks run in the order they were registered)
+        # and puts the mask on the device of the module's input. _stat_hook also moves the mask itself,
+        # so skill_maps and activation_scan, which do not use this hook, work on those tiers too.
         entry = self.info["layers"][l]
         key = {"mlp_cluster": "mlp", "attn_heads": "attn", "expert": "experts"}[kind]
         mod = self.adapter.get_module(self.layers[l], entry[key]["path"])
@@ -911,30 +912,39 @@ class EngineBase:
     def _activation_means(self, payload, kind, skill, layer_list, n_items):
         # One tensor per layer: mean |activation| per unit (experts: router picks per token) on the
         # skill's search items. Same statistic as activation_scan.
+        # Experts are counted with adapter.install_pick_counter, the hook of expert_pick_rates, and not
+        # with _stat_hook: that hook takes batch rows for tokens when a model passes the router indices
+        # as (batch, seq, k). A layer whose indices do not fit the batch gets no ranking.
         import torch
 
         rows = self._scan_rows(payload, skill, n_items)
         sums = {}
         state = {"mask": None, "home_mask": None}
         handles = []
+        bad = {}
         n_tokens = 0
         try:
             for l in layer_list:
-                handles.append(self._mask_hook(kind, l, state))
-                handles.append(self._stat_hook(kind, l, sums, state))
+                if kind == "expert":
+                    self.adapter.install_pick_counter(self.info, self.layers, l, sums, state, bad, handles)
+                else:
+                    handles.append(self._mask_hook(kind, l, state))
+                    handles.append(self._stat_hook(kind, l, sums, state))
             with torch.no_grad():
                 for batch in self._batches(rows, 4.0e8):
                     ids, mask = self._pad(rows, batch)
                     m = mask.clone()
                     m[:, 0] = 0
                     state["home_mask"] = m
+                    state["mask"] = m  # the pick counter moves it to the device of the indices
                     n_tokens += int(m.sum())
                     self.model(input_ids=ids, attention_mask=mask, use_cache=False)
         finally:
             self.adapter.remove_all(handles)
         out = {}
         for l in sums:
-            out[l] = (sums[l]["sum"] / max(sums[l]["n"], 1.0)).float().cpu()
+            if l not in bad:
+                out[l] = (sums[l]["sum"] / max(sums[l]["n"], 1.0)).float().cpu()
         return out, n_tokens
 
     def _unit_ranking(self, payload, method, kind, skill, layers, top_n, n_items, token_budget):

@@ -58,6 +58,7 @@
 # Selection uses the "search" half of each set; the "heldout" half only checks it.
 import argparse
 import datetime
+import hashlib
 import importlib.util
 import json
 import math
@@ -115,8 +116,11 @@ def load_skills():
     sources = {}
     for name in ["math", "code", REFERENCE]:
         items = builtin[name]["items"]
-        skills[name] = {"hash": "maps-builtin-" + name, "control": None,
-                        "items": {"search": items["search"][:N_SEARCH], "heldout": items["heldout"][:N_HELDOUT]}}
+        used = {"search": items["search"][:N_SEARCH], "heldout": items["heldout"][:N_HELDOUT]}
+        # The hash names the items: the engine keeps tokens and base scores by this hash while a
+        # container lives, and the built-in file can be built again in that time.
+        digest = hashlib.sha256(json.dumps(used, sort_keys=True).encode()).hexdigest()[:12]
+        skills[name] = {"hash": "maps-builtin-" + name + "-" + digest, "control": None, "items": used}
         sources[name] = builtin[name]["description"]
     for name in pool:
         skills[name] = {"hash": "maps-" + pool[name]["hash"], "control": None, "items": pool[name]["items"]}
@@ -584,11 +588,20 @@ def write_entry(path, entry, force=False):
     return True
 
 
-def plain_entry_fits(entry, model, revision, sources):
+def skill_hashes(payload):
+    return dict((name, payload["skills"][name]["hash"]) for name in payload["skills"])
+
+
+def plain_entry_fits(entry, model, revision, sources, hashes=None):
     # True when a --modules run can keep the layer and expert maps of this entry and add the module
     # maps to it: the same model revision and the same skill text. An entry of another revision or
     # of other skill sets is measured again from the start.
+    # hashes: skill_hashes() of the payload of this run. An entry that stores skill_hashes is
+    # compared by them, so sets built again with other items and the same descriptions do not fit.
+    # An entry from before that field has only the dataset and description strings to compare.
     if entry is None or "layer_maps" not in entry or not entry.get("layers"):
+        return False
+    if hashes is not None and entry.get("skill_hashes") is not None and entry["skill_hashes"] != hashes:
         return False
     return entry.get("model") == model and entry.get("revision") == revision and entry.get("selection_data") == sources
 
@@ -671,10 +684,35 @@ def measure_modules(call, chunks, path, stamp):
     return state
 
 
+BLOCK_Z_NOTE = ("block_z, block_z_windows, block_z_disjoint_windows, and block_z_disjoint were computed by a "
+                "--modules run from the stored search scores (rounded to 5 places). The held-out scores of this "
+                "entry were not stored, so the held-out values are null.")
+
+
+def with_block_z(lm):
+    # A layer map written before block_z existed, with the block z-scores that need no GPU: they come
+    # from the stored search scores and blocks. The held-out lists hold null for every block.
+    if "block_z" in lm or "scores" not in lm or "blocks" not in lm:
+        return lm
+    out = dict(lm)
+    n_others, n_disjoint = block_window_counts(lm["scores"], lm["blocks"])
+    out["block_z"] = block_z(lm["scores"], lm["blocks"])
+    out["block_z_heldout"] = [None] * len(lm["blocks"])
+    out["block_z_windows"] = n_others
+    out["block_z_disjoint_windows"] = n_disjoint
+    out["block_z_disjoint"] = block_z_disjoint(lm["scores"], lm["blocks"])
+    out["block_z_disjoint_heldout"] = [None] * len(lm["blocks"])
+    out["block_z_note"] = BLOCK_Z_NOTE
+    return out
+
+
 def add_module_fields(entry, state, sources, selection_sources):
     # The plain entry with the module fields added. The fields that the plain run wrote stay as
-    # they are; an entry written before selection_sources existed gets it now (it is not measured).
+    # they are; an entry written before selection_sources existed gets it now (it is not measured),
+    # and a layer map written before block_z existed gets the block z-scores of its search scores.
     out = dict(entry)
+    if isinstance(out.get("layer_maps"), dict):
+        out["layer_maps"] = dict((name, with_block_z(out["layer_maps"][name])) for name in out["layer_maps"])
     out.update(module_fields(state["increases"], sources))
     out["module_engine_seconds"] = state["engine_seconds"]
     out["module_calls"] = state["calls"]
@@ -727,9 +765,10 @@ def main():
     start = time.time()
     engine = modal.Cls.from_name(common.APP_NAME, gpu)(model_key=key, hf_id=row["hf_id"], revision=revision)
     entry = None
+    hashes = skill_hashes(payload)
     if args.modules and not args.force:
         entry = read_entry(out_path)
-        if plain_entry_fits(entry, row["hf_id"], revision, sources):
+        if plain_entry_fits(entry, row["hf_id"], revision, sources, hashes):
             print("keeping the layer and expert maps of", out_path, "and adding the module maps", flush=True)
         else:
             if entry is not None:
@@ -741,6 +780,7 @@ def main():
         res["revision"] = revision
         res["gpu"] = gpu
         entry = build_entry(row["hf_id"], res, sources, row, details)
+        entry["skill_hashes"] = hashes  # the items every map of this entry was measured on
         entry["wall_seconds"] = round(time.time() - start, 1)
         # written now, before any module call, so a module call that fails does not lose it
         if write_entry(out_path, entry, args.force):
@@ -764,9 +804,6 @@ def main():
                          "module call for one layer do not fit the " + str(CALL_TIMEOUT) + " s call timeout")
     print("module maps:", len(chunks), "engine calls of at most", 1 + 2 * len(chunks[0]), "scoring passes | plain run:",
           "no time known" if per_pass is None else str(round(per_pass, 1)) + " s per pass", flush=True)
-    hashes = {}
-    for name in payload["skills"]:
-        hashes[name] = payload["skills"][name]["hash"]
     stamp = {"model": row["hf_id"], "revision": revision, "layers": entry["layers"], "skills": hashes}
     partial = partial_path(row["hf_id"])
     if args.force and os.path.exists(partial):
@@ -783,7 +820,7 @@ def main():
         raise
     # the entry may have been written again while the module calls ran: add to the file as it is now
     current = read_entry(out_path)
-    if plain_entry_fits(current, row["hf_id"], revision, sources):
+    if plain_entry_fits(current, row["hf_id"], revision, sources, hashes):
         entry = current
     entry = add_module_fields(entry, state, sources, details)
     write_entry(out_path, entry, True)

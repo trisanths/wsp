@@ -266,8 +266,10 @@ def make_lookup(agent, builtin, pool=None):
     # "description"}}, and "hash_candidates" when more than one frozen test of that name is known
     # (the hash is None then); builtin: the output of builtin_sources; pool: the output of local_pool, or
     # None to read the pool file only when a name is in neither of the others. An agent skill
-    # cannot take a built-in name (skills.define refuses it), and the miner scores agent and built-in
-    # skills only, so the order agent, built-in, pool is the order of what a row can hold.
+    # cannot take a built-in or pool name (skills.define refuses both). An LLM agent run scores agent
+    # and built-in skills only, and a sweep (mine/sweep.py) scores built-in and pool skills only and
+    # passes no agent skills, so the order agent, built-in, pool is the order of what a row can hold.
+    # enrich_rows.py does not rely on that order for a pool skill: see enrich_rows.row_lookup.
     held = {"pool": pool}
 
     def lookup(name):
@@ -370,7 +372,7 @@ def selection_data(target, effect, lookup, healdata, builtin_basis):
     # time), or "git history, version uncertain" (backfill: see merge_uncertain).
     info = lookup(target)
     out = {"skill": target, "source": info["source"]}
-    for key in ["path", "hash", "description", "dataset", "datasets", "items_sha"]:
+    for key in ["path", "hash", "description", "dataset", "datasets", "items_sha", "hash_unverified"]:
         if key in info:
             out[key] = info[key]
     out["control"] = target + "__control" if (target + "__control|search") in effect else None
@@ -390,8 +392,12 @@ def selection_data(target, effect, lookup, healdata, builtin_basis):
         else:
             out["off_target_data"][name] = {"source": other["source"], "description": other.get("description"),
                                             "datasets": other.get("datasets") or []}
-            if other.get("items_sha"):
-                out["off_target_data"][name]["items_sha"] = other["items_sha"]
+            # A pool set is named by its hash, like an agent test: the pool file can be built again
+            # with other items, and then the hash says which set this row was scored on.
+            # hash_unverified: the backfill took the entry from the pool file of its own day.
+            for key in ["items_sha", "dataset", "hash", "hash_unverified"]:
+                if other.get(key):
+                    out["off_target_data"][name][key] = other[key]
     out["builtin_basis"] = builtin_basis
     if healdata is None:
         # not checked is not the same as none found

@@ -389,14 +389,8 @@ class Session:
             return view
         if name == "confirm_math":
             path = common.catalog_path(self.short)
-            records = []
-            if os.path.exists(path):
-                with open(path) as f:
-                    for line in f:
-                        if line.strip():
-                            records.append(json.loads(line))
             target = None
-            for r in records:
+            for r in read_catalog(path):
                 if r["id"] == args.get("catalog_id"):
                     target = r
             if target is None:
@@ -411,17 +405,37 @@ class Session:
                 part = {"kind": target["type"], "layer": target["layer"], "indices": idx}
             res = m.confirm(part)
             if res["passed"]:
-                for r in records:
-                    if r["id"] == target["id"]:
-                        r["tier"] = "confirmed"
-                        r["signature"]["confirm"] = res
-                tmp = path + ".tmp"
-                with open(tmp, "w") as f:
+                # The engine call above can take minutes, and other lanes and sweeps append rows in that
+                # time. Read the catalog again under the lock of write_part and change only this row.
+                with common.catalog_lock(self.short):
+                    records = read_catalog(path)
+                    found = False
                     for r in records:
-                        f.write(json.dumps(r) + "\n")
-                os.replace(tmp, path)
+                        if r["id"] == target["id"]:
+                            r["tier"] = "confirmed"
+                            r["signature"]["confirm"] = dict(res)
+                            found = True
+                    if found:
+                        tmp = path + ".confirm.tmp"
+                        with open(tmp, "w") as f:
+                            for r in records:
+                                f.write(json.dumps(r) + "\n")
+                        os.replace(tmp, path)
+                if not found:
+                    # mine/regate.py or an audit moved the row out while the engine call ran
+                    res["note"] = "the row left the catalog during the check; its tier was not changed"
             return res
         return {"error": "unknown tool " + name}
+
+
+def read_catalog(path):
+    records = []
+    if os.path.exists(path):
+        with open(path) as f:
+            for line in f:
+                if line.strip():
+                    records.append(json.loads(line))
+    return records
 
 
 OPEN_DOMAIN_TEXT = (

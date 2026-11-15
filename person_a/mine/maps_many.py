@@ -7,6 +7,11 @@
 # A --modules run that fails leaves atlas/pool_logs/<key>.modules-failed, and later --modules runs
 # do not start that model again (a model that fails the same way each time would cost a GPU call
 # each time). --retry-failed starts it again; a run that ends well removes the file.
+# A run that leaves a model out for that reason ends with exit code 1, so a script does not read
+# "0 models to map" as "all done". A failure that says nothing about the model also leaves the mark
+# (no Modal login, an engine whose containers do not start): after such a run pass --retry-failed.
+# --layers-per-call N goes to maps.py: use it with --retry-failed for a model whose module call
+# reached the timeout, because the plan from the plain run would be the same again.
 # When maps.py reports an engine without skill_maps(modules=...), no more models are started.
 # Set MODAL_PROFILE to choose the Modal workspace. Stop with Ctrl-C (kill -INT), never kill -9.
 import argparse
@@ -22,11 +27,21 @@ sys.path.insert(0, HERE)
 import maps  # noqa: E402
 
 
-def maps_command(key, modules):
+def maps_command(key, modules, layers_per_call=0):
     cmd = [sys.executable, "-u", os.path.join(HERE, "maps.py"), "--zoo-key", key]
     if modules:
         cmd.append("--modules")
+        if layers_per_call > 0:
+            cmd.extend(["--layers-per-call", str(layers_per_call)])
     return cmd
+
+
+def end_code(failed, left_out, old_engine):
+    # The exit code of a run: the old-engine code, 1 when a model failed or was left out because its
+    # last --modules run failed (nothing was measured for it), else 0.
+    if old_engine:
+        return maps.OLD_ENGINE_EXIT
+    return 1 if failed or left_out else 0
 
 
 def failed_path(log_dir, key):
@@ -103,6 +118,8 @@ def main():
     ap.add_argument("--modules", action="store_true", help="passed to maps.py: also map attention and feed-forward")
     ap.add_argument("--retry-failed", action="store_true",
                     help="with --modules: also start the models whose last --modules run failed")
+    ap.add_argument("--layers-per-call", type=int, default=0,
+                    help="with --modules: passed to maps.py (layers per engine call; default: from the plain run)")
     args = ap.parse_args()
     with open(maps.ZOO) as f:
         zoo = json.load(f)["models"]
@@ -133,16 +150,18 @@ def main():
     if left_out:
         print("not started, the last --modules run failed (use --retry-failed):", ", ".join(left_out))
     print(len(todo), "models to map, jobs", args.jobs, flush=True)
-    failed, not_started, old_engine = run_all(todo, args.jobs, args.modules, log_dir)
+    def command(key, modules):
+        return maps_command(key, modules, args.layers_per_call)
+    failed, not_started, old_engine = run_all(todo, args.jobs, args.modules, log_dir, command)
     if failed:
         print("FAILED:", ", ".join(failed), "(see atlas/pool_logs/<key>.log)")
     if old_engine:
         print(maps.OLD_ENGINE_MESSAGE)
         if not_started:
             print("not started:", ", ".join(not_started))
-        sys.exit(maps.OLD_ENGINE_EXIT)
-    if failed:
-        sys.exit(1)
+    code = end_code(failed, left_out, old_engine)
+    if code:
+        sys.exit(code)
 
 
 if __name__ == "__main__":
