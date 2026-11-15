@@ -428,6 +428,65 @@ layer):
 Reading several host layers beats reading one: +3 to +5 points on dev. The
 best two configurations are re-tested on new seeds in h8.
 
+### h6: a size control (Llama-3.2-3B-Instruct host)
+
+The grafted 1B network carries about 3.5B frozen donor parameters, so a
+fair question is whether a bigger plain model does better. One seed:
+
+| cell | MMLU dev | held-out | MMLU-med | MedMCQA |
+|---|---|---|---|---|
+| 1B base | 48.0 | 44.6 | 52.6 | 41.4 |
+| 3B base | 59.6 | 57.4 | 69.4 | 57.0 |
+| 3B + LoRA | 62.0 | **60.9** | 68.8 | 55.6 |
+| 3B + identity | 59.1 | 58.1 | 70.4 | 56.2 |
+| 3B + Qwen7B graft at host 12 | 59.6 | 59.1 | 70.4 | 54.7 |
+| 3B + Qwen7B graft at host 8 | **62.8** | 60.7 | 68.6 | 54.8 |
+
+On the 3B host, the 7B graft ties LoRA. h9 tries multi-layer reads,
+graft plus LoRA, and the 14B donor on this host.
+
+### h7: a stronger donor (Qwen2.5-14B-Instruct, 48 layers)
+
+| cell | MMLU dev | held-out | MMLU-med | MMLU-math | humanities | MedMCQA |
+|---|---|---|---|---|---|---|
+| block 7..34, seed 0 | 57.8 | **58.1** | 65.4 | 45.2 | 69.4 | 44.8 |
+| block 7..34, seed 1 | 57.6 | 57.0 | 63.6 | 47.6 | 67.0 | 46.6 |
+| block 7..34, all domains | **59.5** | 56.4 | 61.4 | 45.6 | 69.8 | **46.7** |
+| block 10..40 | 56.7 | 54.8 | 62.0 | 46.2 | 67.6 | 44.6 |
+| block 4..24 | 48.0 | 48.4 | 52.4 | 34.6 | 56.6 | 39.7 |
+| LoRA (14B budget) | 45.3 | 45.1 | 48.4 | 31.6 | 54.8 | 40.0 |
+| identity | 45.7 | 46.1 | 51.0 | 29.8 | 54.0 | 42.7 |
+
+The 1B host with a 14B block scores 58 on MMLU held-out, 13 points above
+the base and the matched LoRA. That is above the untrained 3B model
+(57.4) but below 3B + LoRA (60.9). The block has to reach the donor's
+deeper layers: 4..24 barely helps.
+
+### h8: multi-layer reads on new seeds
+
+| cell | MMLU dev | held-out |
+|---|---|---|
+| read 1..7, write 7, seed 1 | 53.6 | 53.8 |
+| read 1..7, write 7, seed 2 | 55.8 | 56.6 |
+| read 3,7,11, write 11, seed 1 | 55.1 | 56.2 |
+| read 3,7,11, write 11, seed 2 | 48.2 | 45.4 (collapsed) |
+| read 1..11, write 11 | 55.7 | **57.1** |
+| read 0..15, write 15 | 56.1 | 55.5 |
+| read 1,3,5,7,9, write 9 | 55.4 | 55.0 |
+| read 3,7,11, all domains | 54.6 | 53.8 |
+| LoRA, 2x budget, all domains | 45.4 | 47.9 |
+
+Against the single-read graft (52.8 and 54.4 on these seeds), dense
+reads add about 1 to 3 points. The sparse 3,7,11 read is unstable: one
+seed fell back to the base. Dense reads (1..7, 1..11) did not collapse.
+
+### h5: two donors in one network (partial)
+
+Qwen2.5-7B at host 7 plus Apollo2-7B at host 10, trained on all four
+domains: MMLU dev 56.2, held-out 55.4, MMLU-med 63.6, MedMCQA 45.6. That
+is above the single Qwen7B graft on all domains (53.9 held-out). The
+other composition cells are still running.
+
 ## Also fixed
 
 `wsp/healdata.py`: the `reasoning` pool crashed on LogiQA2.0. In that

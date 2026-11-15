@@ -879,7 +879,33 @@ def batch_h9():
     return out
 
 
-BATCHES = {"h1": batch_h1, "h2": batch_h2, "h3": batch_h3, "h4": batch_h4, "h5": batch_h5, "h6": batch_h6, "h7": batch_h7, "h8": batch_h8, "h9": batch_h9}
+def batch_h10():
+    """The 14B donor (h7's winner, block 7..34) with dense multi-layer reads, spans around it, a medicine
+    specialist added later in the host, and the h8 two-donor cell that ran out of memory."""
+    out = []
+    blk = {"type": "block", "first": 7, "last": 34}
+    k = {"objective": "mc", "align_steps": 600, "task_steps": 1000, "enc_depth": 2, "part": blk,
+         "domain": "knowledge14", "mc_train": "general", "arm": "real"}
+    for seed in (0, 1):
+        out.append(dict(k, name=f"q14-read1to7-w7-s{seed}", read_layers=list(range(1, 8)), seed=seed))
+        out.append(dict(k, name=f"q14-read1to11-w11-s{seed}", host_layer=11, read_layers=list(range(1, 12)),
+                        seed=seed))
+    out.append(dict(k, name="q14-span7-40", part={"type": "block", "first": 7, "last": 40}))
+    out.append(dict(k, name="q14-span4-34", part={"type": "block", "first": 4, "last": 34}))
+    out.append(dict(k, name="q14-span7-34-host5", host_layer=5))
+    out.append(dict(k, name="q14-span7-34-dec512", dec_rank=512))
+    med = {"domain": "medicine", "host_layer": 11, "first": 4, "last": 20}
+    out.append(dict(k, name="q14+apollo-w11-all", mc_train="all", extra_grafts=[med]))
+    out.append(dict(k, name="q14-lora-2x-all", arm="lora", mc_train="all", lora_budget_mult=2.0))
+    win = {"type": "block", "first": 4, "last": 20}
+    math = {"domain": "math7b", "host_layer": 13, "first": 4, "last": 20, "read_layers": [5, 9, 13]}
+    out.append({"objective": "mc", "align_steps": 600, "task_steps": 1000, "enc_depth": 2, "part": win,
+                "domain": "knowledge", "mc_train": "all", "arm": "real", "host_layer": 7,
+                "read_layers": list(range(1, 8)), "extra_grafts": [math], "name": "m-qwen7b-r7+math7b-r13-all"})
+    return out
+
+
+BATCHES = {"h1": batch_h1, "h2": batch_h2, "h3": batch_h3, "h4": batch_h4, "h5": batch_h5, "h6": batch_h6, "h7": batch_h7, "h8": batch_h8, "h9": batch_h9, "h10": batch_h10}
 
 
 @app.local_entrypoint()
