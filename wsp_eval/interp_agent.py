@@ -86,7 +86,8 @@ def capability_map(task, band_drops):
 
 class InterpAgent:
     def __init__(self, catalog_path=None, tasks=None, split="search", max_evals=80, band_size=4,
-                 min_band_size=1, namespace="interp", log_path=None, ids=None, noise_multiplier=2.0):
+                 min_band_size=1, namespace="interp", log_path=None, ids=None, noise_multiplier=2.0,
+                 own_task_only=False, localize=True):
         self.catalog_path = catalog_path
         self.tasks = tasks
         self.split = split
@@ -98,6 +99,10 @@ class InterpAgent:
         self.only_ids = ids
         # A drop counts as real only if it exceeds noise_multiplier binomial standard errors.
         self.noise_multiplier = noise_multiplier
+        # own_task_only: measure each component on its own skill only (cheap; one task per component).
+        # localize: probe layer bands after the whole-component probe.
+        self.own_task_only = own_task_only
+        self.localize = localize
         self.evals_used = 0
         self.queue = []
         self.full_scores = {}      # id -> {task: score} with the full component
@@ -140,6 +145,10 @@ class InterpAgent:
     def tasks_for(self, record):
         if self.tasks is not None:
             return self.tasks
+        if self.own_task_only:
+            own = self.own_tasks(record)
+            if own is not None:
+                return own
         tasks = []
         for other in self.records:
             if other["base"] != record["base"]:
@@ -191,6 +200,8 @@ class InterpAgent:
                 self.log("localize " + record["id"], {"kind": "skip_localization", "component": record["id"]},
                          {"reason": "effect on " + focus + " (" + _fmt(effect) + ") is within noise (" +
                           _fmt(noise) + ") on the search split"})
+                return
+            if not self.localize:
                 return
             layers = components.component_layers(record, self.catalog_path)
             bands = make_bands(layers, self.band_size)

@@ -187,8 +187,32 @@ def multiple_choice_prompt(subject, question, options):
     return "\n".join(lines)
 
 
+def mmlupro_cot_prompt(subject, question, options):
+    lines = []
+    lines.append("The following is a multiple choice question about " + subject + ". Think step by step, "
+                 "then finish with \"The answer is (X)\" where X is the letter of the correct option.")
+    lines.append("")
+    lines.append("Question: " + question.strip())
+    lines.append("Options:")
+    for i in range(len(options)):
+        lines.append(LETTERS[i] + ". " + str(options[i]).strip())
+    return "\n".join(lines)
+
+
+def extract_final_letter(output, num_options):
+    """The letter in the last 'answer is (X)' of a chain-of-thought output, or None."""
+    valid = LETTERS[:num_options]
+    found = None
+    for match in re.finditer(r"answer is:?\s*\(?([A-J])\)?(?![a-zA-Z])", output, re.IGNORECASE):
+        letter = match.group(1).upper()
+        if letter in valid:
+            found = letter
+    return found
+
+
 class MMLUProTask(Task):
-    max_new_tokens = 32
+    """MMLU-Pro, zero-shot chain of thought (a direct-letter prompt left a 1B model at chance)."""
+    max_new_tokens = 512
 
     def __init__(self, category=None):
         self.category = category
@@ -205,14 +229,14 @@ class MMLUProTask(Task):
                 continue
             items.append({
                 "id": "mmlupro-" + str(row["question_id"]),
-                "messages": _user(multiple_choice_prompt(row["category"], row["question"], row["options"])),
+                "messages": _user(mmlupro_cot_prompt(row["category"], row["question"], row["options"])),
                 "answer": row["answer"],
                 "num_options": len(row["options"]),
             })
         return items
 
     def score(self, output, item):
-        letter = extract_letter(output, item["num_options"])
+        letter = extract_final_letter(output, item["num_options"])
         if letter == item["answer"]:
             return 1.0
         return 0.0

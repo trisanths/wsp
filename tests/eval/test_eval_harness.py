@@ -151,3 +151,11 @@ def test_gsm8k_splits_match_wsp_data():
     assert splits.heal_texts("gsm8k")[0] == format_gsm8k(heal[0])
     heldout_ids = set(item["id"] for item in splits.split_items(task, "heldout"))
     assert len(heldout_ids) == 1319
+
+
+def test_mmlupro_cot_extraction():
+    task = tasks_module.get_task("mmlupro:biology")
+    item = {"answer": "C", "num_options": 10}
+    assert task.score("A cell... so the answer is (B). Wait, recheck: The answer is (C).", item) == 1.0
+    assert task.score("The answer is C", item) == 1.0
+    assert task.score("A is wrong, C looks right", item) == 0.0   # no explicit final answer

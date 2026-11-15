@@ -110,10 +110,12 @@ def eval_remote(program_dict, split, tasks, namespace):
 
 
 @app.function(image=image, volumes={"/vol": volume}, gpu="L4", memory=32768, timeout=6 * 3600)
-def interp_remote(max_evals, band_size, ids):
+def interp_remote(max_evals, band_size, ids, own_task_only=True, localize=False):
     from wsp_eval.interp_agent import InterpAgent
     _prepare_catalog()
-    agent = InterpAgent(max_evals=max_evals, band_size=band_size, ids=ids)
+    os.environ["WSP_DELETE_PROBE_MODELS"] = "1"
+    agent = InterpAgent(max_evals=max_evals, band_size=band_size, ids=ids, own_task_only=own_task_only,
+                        localize=localize)
     summary = agent.run()
     volume.commit()
     with open("/vol/eval/catalog.jsonl") as f:
@@ -190,11 +192,11 @@ def eval_program(program_path: str, split: str = "search", tasks: str = "", name
 
 
 @app.local_entrypoint()
-def interp(max_evals: int = 80, band_size: int = 4, ids: str = ""):
+def interp(max_evals: int = 80, band_size: int = 4, ids: str = "", localize: bool = False):
     id_list = None
     if ids.strip():
         id_list = ids.split()
-    result = interp_remote.remote(max_evals, band_size, id_list)
+    result = interp_remote.remote(max_evals, band_size, id_list, True, localize)
     print(result["summary"])
     with open("outputs/catalog_with_signatures.jsonl", "w") as f:
         f.write(result["catalog"])

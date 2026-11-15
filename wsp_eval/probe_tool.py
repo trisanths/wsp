@@ -12,7 +12,10 @@ Every probe runs two eval() calls (full and ablated) on the search split,
 charged to the "interp" budget namespace by default. Generations are cached,
 so the "full" call is cheap after the first probe of a component.
 """
-from wsp_eval import catalog, components, harness, tasks as tasks_module
+import os
+import shutil
+
+from wsp_eval import catalog, components, config, harness, tasks as tasks_module
 
 
 def default_tasks(record):
@@ -55,6 +58,14 @@ def probe(component, layers, tasks=None, split="search", namespace="interp", ful
         for task in tasks:
             full_scores[task] = full_result["tasks"][task]["score"]
     ablated_result = harness.evaluate(ablated_model, split, tasks, namespace=namespace, note=note + " (ablated)")
+
+    # On a shared volume, compiled probe models add up fast (2.5 GB each for a 1B model).
+    # Generations stay cached by model hash, so deleting the weights loses no scores.
+    if os.environ.get("WSP_DELETE_PROBE_MODELS") == "1":
+        work_models = config.work_path("models")
+        for path in (full_model, ablated_model):
+            if os.path.abspath(path).startswith(os.path.abspath(work_models)):
+                shutil.rmtree(path, ignore_errors=True)
 
     ablated_scores = {}
     drop = {}
