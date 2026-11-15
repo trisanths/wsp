@@ -79,96 +79,13 @@ PRESETS = {
 }
 
 
-def letters_of(tok):
-    return [tok(" " + c, add_special_tokens=False).input_ids[-1] for c in "ABCD"]
+# Data, scoring and decode helpers live in wsp/xfam.py, shared with the compiler (method "pgraft" of wsp/auto.py).
+from wsp.xfam import build_pool, decode_tps, letter_probs, letters_of  # noqa: E402
 
 
 def build_eval_sets():
-    """MMLU dev 1000, held-out 2000 (test), ARC-Challenge test, OpenBookQA test, as (prompt, gold) lists."""
-    from datasets import load_dataset
-
-    from modal_round6 import mmlu_prompt
-    from modal_round7 import mmlu_split
-
-    import transformers
-    tok = transformers.AutoTokenizer.from_pretrained(HOST)
-    _, dev = mmlu_split(tok, heldout=False)
-    _, held = mmlu_split(tok, heldout=True)
-    out = {"mmlu_dev": [list(x) for x in dev], "mmlu_held": [list(x) for x in held]}
-    arc = load_dataset("allenai/ai2_arc", "ARC-Challenge", split="test")
-    items = []
-    for r in arc:
-        labels, texts = list(r["choices"]["label"]), list(r["choices"]["text"])
-        if len(texts) != 4 or r["answerKey"] not in labels:
-            continue
-        items.append([mmlu_prompt(r["question"], texts), labels.index(r["answerKey"])])
-    out["arc_c"] = items
-    obqa = load_dataset("allenai/openbookqa", "main", split="test")
-    items = []
-    for r in obqa:
-        labels, texts = list(r["choices"]["label"]), list(r["choices"]["text"])
-        if len(texts) != 4 or r["answerKey"] not in labels:
-            continue
-        items.append([mmlu_prompt(r["question_stem"], texts), labels.index(r["answerKey"])])
-    out["obqa"] = items
-    return out
-
-
-def build_pool(evals):
-    """Training pool: MMLU auxiliary_train items plus the round 23 MC pools; minus any prompt in an eval set."""
-    from datasets import load_dataset
-
-    import modal_round23pg as r23
-    from modal_round6 import mmlu_prompt
-
-    banned = {p for k in evals for p, _ in evals[k]}
-    rng = random.Random(7)
-    aux = load_dataset("cais/mmlu", "auxiliary_train", split="train")
-    order = list(range(len(aux)))
-    rng.shuffle(order)
-    items, seen = [], set()
-    for index in order:
-        row = aux[index]
-        if "train" in row and isinstance(row["train"], dict):
-            row = row["train"]
-        if len(row["choices"]) != 4:
-            continue
-        prompt = mmlu_prompt(row["question"], row["choices"])
-        if len(prompt) > 1400 or prompt in banned or prompt in seen:
-            continue
-        seen.add(prompt)
-        items.append([prompt, int(row["answer"])])
-        if len(items) >= AUX_COUNT:
-            break
-    n_aux = len(items)
-    mc = r23.mc_items()
-    for prompt, gold in mc["train"] + mc["eval"]:
-        if prompt in banned or prompt in seen:
-            continue
-        seen.add(prompt)
-        items.append([prompt, int(gold)])
-    rng.shuffle(items)
-    return items, n_aux
-
-
-def letter_probs(model, tok, items, batch=32):
-    import torch
-
-    ids = letters_of(tok)
-    tok.padding_side = "left"
-    if tok.pad_token is None:
-        tok.pad_token = tok.eos_token
-    order = sorted(range(len(items)), key=lambda i: len(items[i][0]))
-    out = [None] * len(items)
-    for s in range(0, len(order), batch):
-        idx = order[s:s + batch]
-        enc = tok([items[i][0] for i in idx], return_tensors="pt", padding=True).to(model.device)
-        with torch.no_grad():
-            logits = model(**enc).logits[:, -1, :].float()[:, ids]
-        probs = torch.softmax(logits, -1).cpu().tolist()
-        for i, p in zip(idx, probs):
-            out[i] = [round(x, 5) for x in p]
-    return out
+    from wsp import xfam
+    return xfam.build_eval_sets(HOST)
 
 
 @app.function(image=image, volumes={"/vol": volume}, gpu="H100", memory=131072, timeout=3 * 3600)
@@ -203,25 +120,8 @@ def prep():
 
 
 def score(model, tok, items, bs=16):
-    from modal_round6 import score_mmlu
-    return score_mmlu(model, tok, [tuple(x) for x in items], batch_size=bs)
-
-
-def decode_tps(model, tok, new=96):
-    import torch
-    try:
-        tok.padding_side = "left"
-        enc = tok("The history of the Roman Empire begins", return_tensors="pt").to(model.device)
-        model.eval()
-        with torch.no_grad():
-            model.generate(**enc, max_new_tokens=8, do_sample=False)
-            torch.cuda.synchronize()
-            t = time.time()
-            out = model.generate(**enc, max_new_tokens=new, do_sample=False, min_new_tokens=new)
-            torch.cuda.synchronize()
-        return round((out.shape[1] - enc["input_ids"].shape[1]) / (time.time() - t), 2)
-    except Exception as e:  # recorded, not fatal
-        return f"error: {repr(e)[:120]}"
+    from wsp import xfam
+    return xfam.score_letters(model, tok, items, bs=bs)
 
 
 def _cell(name, seed, smoke=False, overrides=None):
