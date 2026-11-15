@@ -795,6 +795,57 @@ def estimate(run, rounds, shards, k, teacher_k, smoke=False):
     return hours
 
 
+# ---------------------------------------------------------------- side-by-side demo answers
+
+DEMO_PROMPTS = [
+    ("triage", "A nurse line call: a 3-year-old has had a fever of 39.4 C for two days, is drinking less than usual, "
+               "and has had two wet diapers today. The child is alert but fussy. How urgent is this, what questions "
+               "should be asked next, and what are the signs that mean the child must go to the emergency room now?"),
+    ("drug interaction", "A 72-year-old patient takes warfarin for atrial fibrillation and the clinic wants to start "
+                         "her on trimethoprim-sulfamethoxazole for a urinary infection. What is the interaction, what "
+                         "should be monitored, and is there a safer choice?"),
+    ("lab value meaning", "A 45-year-old woman has a TSH of 8.2 mIU/L with a normal free T4, and she reports fatigue "
+                          "and weight gain. What does this result mean, and what is the usual next step?"),
+    ("patient-friendly explanation", "Explain to a patient with newly diagnosed type 2 diabetes, in plain language at "
+                                     "a sixth-grade reading level, what an A1C of 8.1 percent means and what they can "
+                                     "do over the next three months."),
+    ("differential", "A 34-year-old woman has had three weeks of fatigue, joint pain in both hands, a facial rash "
+                     "that gets worse in sunlight, and mouth sores. List a differential diagnosis in order of "
+                     "likelihood and the first tests to order."),
+    ("dosing check", "Check this order: amoxicillin 500 mg by mouth every 8 hours for a 14 kg, 4-year-old child with "
+                     "acute otitis media. Is the dose in a normal range, and what is the usual dose by weight?"),
+    ("discharge instructions", "Write discharge instructions for an adult patient leaving the clinic after a "
+                               "diagnosis of uncomplicated acute bronchitis. Include home care, medicines, and when "
+                               "to return."),
+    ("coding question", "A visit note says: established patient, 25 minutes of total time, one stable chronic illness "
+                        "(hypertension) reviewed, medication refill given. Which E/M office visit level fits, and what "
+                        "in the note supports it? Do not discuss insurance payment."),
+]
+
+
+@app.function(image=vllm_image, volumes={"/vol": volume}, gpu="H200", memory=131072, cpu=16, timeout=2 * 3600,
+              single_use_containers=True)
+def demo_outputs(model_ref, name, out_path, max_tokens=700):
+    """Greedy answers of one model to the eight demo questions. Writes out_path (JSON)."""
+    import transformers
+    from vllm import LLM, SamplingParams
+
+    from wsp import skills_eval
+
+    safe_reload()
+    tokenizer = transformers.AutoTokenizer.from_pretrained(BASE)
+    llm = LLM(model=model_dir(model_ref), tokenizer=BASE, dtype="bfloat16", seed=0, gpu_memory_utilization=0.90,
+              max_model_len=4096, max_num_seqs=16)
+    prompts = [skills_eval.render_prompt(tokenizer, text) for _, text in DEMO_PROMPTS]
+    outs = llm.generate(prompts, SamplingParams(temperature=0.0, max_tokens=max_tokens), use_tqdm=False)
+    rows = [{"kind": kind, "question": text, "answer": o.outputs[0].text.strip(),
+             "tokens": len(o.outputs[0].token_ids)} for (kind, text), o in zip(DEMO_PROMPTS, outs)]
+    write_json(out_path, {"cell": name, "model": model_ref, "rows": rows})
+    commit()
+    log(name, f"demo answers written to {out_path}")
+    return rows
+
+
 @app.local_entrypoint()
 def main(stage: str = "estimate", run: str = "k64", rounds: int = 3, shards: int = 4, k: int = 8, teacher_k: int = 4,
          smoke: bool = False, epochs: int = 2, first_round: int = 1, teacher_from: str = "",
@@ -822,6 +873,11 @@ def main(stage: str = "estimate", run: str = "k64", rounds: int = 3, shards: int
         row = score_model.remote(STARTS[run], f"{run}_start", f"{ROOT}/{run}/score_start.json", False,
                                  "lp,cot,heldout", 64 if smoke else 0)
         print(json.dumps({k_: row.get(k_) for k_ in ("cell", "lp", "cot", "n", "scores", "cot_cut", "cot_chars", "heldout_by_source", "error")}, indent=1))
+    elif stage == "demo":
+        if not from_model:
+            raise SystemExit("--from-model is required for stage demo")
+        rows = demo_outputs.remote(from_model, tag, f"{ROOT}/demo_{tag}.json")
+        print(json.dumps(rows, indent=1)[:2000])
     elif stage == "speed":
         row = score_model.remote(STARTS[run] if run in STARTS else run, f"{run}_speed", f"{ROOT}/speed_{run.replace('/', '_')}.json",
                                  True, "heldout", 0)
