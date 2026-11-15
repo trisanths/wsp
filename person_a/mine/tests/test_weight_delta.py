@@ -2,11 +2,15 @@
 #   .venv/bin/python mine/tests/test_weight_delta.py
 # The math and the name matching run on small synthetic safetensors files in a temp folder.
 # Nothing here touches Modal or the network.
+import contextlib
+import io
 import json
 import math
 import os
 import sys
 import tempfile
+import threading
+import time
 
 import torch
 from safetensors.torch import save_file
@@ -309,10 +313,30 @@ def check_synthetic_report(report):
     # The member-only adapter is in no group.
     assert "adapter" not in layer1
 
-    # Outside the layers: only the final norm matched. embed and lm_head differ in shape.
+    # Outside the layers: only the final norm matched. embed and lm_head differ in shape. Their
+    # groups have no value and say why, so a reader cannot take "resized" for "not stored".
     outside = report["outside_layers"]
-    assert outside["embed"] is None and outside["lm_head"] is None and outside["other"] is None
+    assert outside["other"] is None
     assert outside["norm"]["rel"] == 0.0 and outside["norm"]["cosine"] == 1.0
+    assert "shape_mismatch" not in outside["norm"]
+    embed_group = outside["embed"]
+    assert embed_group["rel"] is None and embed_group["cosine"] is None
+    assert embed_group["tensors"] == 0 and embed_group["params"] == 0
+    assert len(embed_group["shape_mismatch"]) == 1
+    left_out = embed_group["shape_mismatch"][0]
+    assert left_out["name"] == "model.embed_tokens.weight"
+    assert left_out["member_shape"] == [3, 2] and left_out["reference_shape"] == [4, 2]
+    # The 3 shared rows: difference only in row 2 (1 element): (1, 4, 3, 3).
+    assert left_out["shared_rows"]["rows"] == 3
+    assert close(left_out["shared_rows"]["rel"], math.sqrt(1.0 / 3.0))
+    assert close(left_out["shared_rows"]["cosine"], 3.0 / math.sqrt(12.0))
+    head_group = outside["lm_head"]
+    assert head_group["rel"] is None and head_group["tensors"] == 0
+    assert head_group["shape_mismatch"][0]["name"] == "lm_head.weight"
+    # Different width: no rows to compare.
+    assert head_group["shape_mismatch"][0]["shared_rows"] is None
+    # A group whose tensors all have equal shapes carries no such list.
+    assert "shape_mismatch" not in report["per_layer"][0]["attn"]
 
     # Summary over both layers, attn: diff^2 1 + 4, r^2 6 + 6.
     assert close(report["summary"]["layers"]["attn"]["rel"], math.sqrt(5.0 / 12.0))
@@ -474,6 +498,301 @@ def test_reader_agrees_with_safetensors():
         ckpt.close()
 
 
+# ---------- damaged checkpoints ----------
+
+def save_layers(path, layers, value=1.0):
+    tensors = {}
+    for i in layers:
+        tensors["model.layers." + str(i) + ".mlp.up_proj.weight"] = torch.full((2, 2), value)
+        tensors["model.layers." + str(i) + ".self_attn.q_proj.weight"] = torch.full((2, 2), value)
+    save_file(tensors, path)
+
+
+def expect_pair_error(member_dir, reference_dir, *words):
+    try:
+        wd.compare_folders(member_dir, reference_dir)
+    except wd.PairError as e:
+        for word in words:
+            assert word in str(e), (word, str(e))
+    else:
+        raise AssertionError("expected a PairError with " + str(words))
+
+
+def test_incomplete_checkpoint_fails():
+    with tempfile.TemporaryDirectory() as folder:
+        reference_dir = os.path.join(folder, "reference")
+        os.makedirs(reference_dir)
+        save_layers(os.path.join(reference_dir, "model.safetensors"), range(8))
+
+        # The member lost its index file and shard 1 of 2. Every tensor it still has matches the
+        # reference, so the 90% rule alone would pass it as a complete model.
+        lost_shard = os.path.join(folder, "lost_shard")
+        os.makedirs(lost_shard)
+        save_layers(os.path.join(lost_shard, "model-00002-of-00002.safetensors"), range(4, 8))
+        expect_pair_error(lost_shard, reference_dir, "1 of 2 shards")
+        try:
+            wd.weight_files(lost_shard)
+        except wd.PairError as e:
+            assert "model-00002-of-00002.safetensors" in str(e) and "1 of 2 shards" in str(e), str(e)
+        else:
+            raise AssertionError("a folder with 1 of 2 shards and no index must raise")
+
+        # Both shards, no index: complete, so it is read.
+        save_layers(os.path.join(lost_shard, "model-00001-of-00002.safetensors"), range(4))
+        assert len(wd.weight_files(lost_shard)) == 2
+        assert wd.compare_folders(lost_shard, reference_dir)["layers"] == 8
+
+        # Layers 4 to 7 only, in a file whose name does not show that something is missing.
+        gap = os.path.join(folder, "gap")
+        os.makedirs(gap)
+        save_layers(os.path.join(gap, "model.safetensors"), range(4, 8))
+        expect_pair_error(gap, reference_dir, "member", "no tensor for decoder layer", "0, 1, 2, 3")
+
+        # Layers 0 to 3 only: no gap, but fewer layers than the reference.
+        short = os.path.join(folder, "short")
+        os.makedirs(short)
+        save_layers(os.path.join(short, "model.safetensors"), range(4))
+        expect_pair_error(short, reference_dir, "4 decoder layers", "8")
+
+        # A reference without layer 6 of 20: 95% of the member's layer tensors still match, so
+        # the 90% rule passes. The missing layer must stop the pair.
+        many = os.path.join(folder, "many")
+        os.makedirs(many)
+        save_layers(os.path.join(many, "model.safetensors"), range(20))
+        holed = os.path.join(folder, "holed")
+        os.makedirs(holed)
+        save_layers(os.path.join(holed, "model.safetensors"), [i for i in range(20) if i != 6])
+        expect_pair_error(many, holed, "reference", "no tensor for decoder layer", "6")
+
+
+def test_non_finite_weights_fail():
+    # An inf gave cosine exactly 1.0, and a NaN gave rel NaN in every group that held the tensor.
+    for bad in [float("inf"), float("-inf"), float("nan")]:
+        for broken in ["member", "reference"]:
+            with tempfile.TemporaryDirectory() as folder:
+                for name in ["member", "reference"]:
+                    os.makedirs(os.path.join(folder, name))
+                    weight = t([[1.0, 2.0], [3.0, 4.0]])
+                    if name == broken:
+                        weight[1, 0] = bad
+                    save_file({"model.layers.0.mlp.up_proj.weight": weight,
+                               "model.layers.0.self_attn.q_proj.weight": t([[1.0, 0.0], [0.0, 1.0]])},
+                              os.path.join(folder, name, "model.safetensors"))
+                expect_pair_error(os.path.join(folder, "member"), os.path.join(folder, "reference"),
+                                  "model.layers.0.mlp.up_proj.weight", "not finite")
+
+
+def test_files_closed_after_error():
+    # Modal cannot reload a volume while a file of it is open, and containers are reused, so a
+    # failed pair must not leave its shards open for the next pair.
+    made = []
+    real = wd.Checkpoint
+
+    class Recorded(real):
+        def __init__(self, folder):
+            real.__init__(self, folder)
+            made.append(self)
+
+    with tempfile.TemporaryDirectory() as folder:
+        for name in ["member", "reference"]:
+            os.makedirs(os.path.join(folder, name))
+            save_layers(os.path.join(folder, name, "model.safetensors"), range(3))
+        # Cut the end off the member file: the tensor stored last cannot be read in full.
+        path = os.path.join(folder, "member", "model.safetensors")
+        with open(path, "rb") as f:
+            data = f.read()
+        with open(path, "wb") as f:
+            f.write(data[:len(data) - 4])
+        wd.Checkpoint = Recorded
+        try:
+            expect_pair_error(os.path.join(folder, "member"), os.path.join(folder, "reference"), "short read")
+        finally:
+            wd.Checkpoint = real
+    assert len(made) == 2
+    for ckpt in made:
+        assert ckpt.files == {}, "shard files left open: " + str(sorted(ckpt.files))
+
+
+def test_layer_group_with_shape_mismatch():
+    # A layer tensor of another shape is left out of its group value, and the group says so.
+    with tempfile.TemporaryDirectory() as folder:
+        for name in ["member", "reference"]:
+            os.makedirs(os.path.join(folder, name))
+            tensors = {}
+            for i in range(12):
+                tensors["model.layers." + str(i) + ".mlp.up_proj.weight"] = torch.ones(2, 2)
+            tensors["model.layers.3.gate.weight"] = torch.ones(2, 2 if name == "member" else 3)
+            save_file(tensors, os.path.join(folder, name, "model.safetensors"))
+        report = wd.compare_folders(os.path.join(folder, "member"), os.path.join(folder, "reference"))
+    layer3 = report["per_layer"][3]
+    assert layer3["mlp"]["rel"] == 0.0 and "shape_mismatch" not in layer3["mlp"]
+    assert layer3["gate"]["rel"] is None and layer3["gate"]["tensors"] == 0
+    assert layer3["gate"]["shape_mismatch"] == [{"name": "model.layers.3.gate.weight", "member_shape": [2, 2],
+                                                 "reference_shape": [2, 3], "shared_rows": None}]
+    assert "gate" not in report["per_layer"][2]
+    # The printed table must cope with a group that has no value.
+    report.update({"member": "o/m", "reference": "o/h", "relation": "host"})
+    assert "largest mlp rel (12 layers have mlp)" in wd.format_table(report)
+
+
+# ---------- the local entry point ----------
+
+class FakeFunction:
+    # Stands in for a Modal function: .remote(...) runs a local function and records the call.
+    def __init__(self, fn):
+        self.fn = fn
+        self.calls = []
+        self.lock = threading.Lock()
+        self.running = 0
+        self.most_running = 0
+
+    def remote(self, *arguments):
+        with self.lock:
+            self.calls.append(arguments)
+            self.running = self.running + 1
+            self.most_running = max(self.most_running, self.running)
+        try:
+            # Long enough that the calls overlap when nothing caps them.
+            time.sleep(0.05)
+            return self.fn(*arguments)
+        finally:
+            with self.lock:
+                self.running = self.running - 1
+
+
+def run_main(**options):
+    # Runs the entry point with its output captured. Returns (exit code, printed text).
+    out = io.StringIO()
+    code = 0
+    with contextlib.redirect_stdout(out):
+        try:
+            wd.main.info.raw_f(**options)
+        except SystemExit as e:
+            code = e.code
+    return code, out.getvalue()
+
+
+def test_entry_point():
+    import common
+
+    with tempfile.TemporaryDirectory() as folder:
+        member_dir, reference_dir = write_pair(folder)
+        measured = wd.compare_folders(member_dir, reference_dir)
+        measured.update({"compute_seconds": 0.1, "peak_memory_gb": 0.5})
+
+        members = ["o/good", "o/unlike", "o/nofetch", "o/nopin", "o/crash", "o/second"]
+        families_path = os.path.join(folder, "families.json")
+        with open(families_path, "w") as f:
+            json.dump({"families": [{"name": "fam", "host": "o/host",
+                                     "members": [{"id": hf_id} for hf_id in members]}]}, f)
+        out_dir = os.path.join(folder, "out")
+        broken = {"on": True}
+        marks = {"value": 1}
+
+        def fake_pin(hf_id):
+            if broken["on"] and hf_id == "o/nopin":
+                raise RuntimeError("HTTP 503 for " + hf_id)
+            return "rev-" + hf_id
+
+        def fake_fetch(hf_id, revision):
+            assert revision == "rev-" + hf_id
+            if broken["on"] and hf_id == "o/nofetch":
+                raise RuntimeError("download stopped")
+            return {"model": hf_id, "gb": 0.0, "seconds": 0.0}
+
+        def fake_measure(member, member_revision, reference, reference_revision):
+            assert member_revision == "rev-" + member and reference_revision == "rev-o/host"
+            if broken["on"] and member == "o/unlike":
+                return {"error": "only 1 of the member's 10 layer tensors match"}
+            if broken["on"] and member == "o/crash":
+                raise RuntimeError("container lost")
+            result = dict(measured)
+            result["mark"] = marks["value"]
+            return result
+
+        def files():
+            return sorted(os.listdir(out_dir)) if os.path.exists(out_dir) else []
+
+        def path_of(member):
+            return wd.pair_path(member, "o/host", out_dir=out_dir)
+
+        saved = (wd.fetch, wd.measure, wd.OUT_DIR, wd.FAMILIES, common.pin_revision)
+        try:
+            wd.fetch = FakeFunction(fake_fetch)
+            wd.measure = FakeFunction(fake_measure)
+            wd.OUT_DIR = out_dir
+            wd.FAMILIES = families_path
+            common.pin_revision = fake_pin
+
+            # Run 1: four different failures and two good pairs. One failed model must not stop the rest.
+            code, text = run_main(family="fam", jobs=2)
+            assert code == 1, (code, text)
+            assert files() == ["o__good__vs__o__host.json", "o__second__vs__o__host.json"], files()
+            failed = [line for line in text.split("\n") if line.startswith("FAILED:")]
+            assert len(failed) == 4, text
+            by_member = {line.split()[1]: line for line in failed}
+            assert "only 1 of the member's 10 layer tensors match" in by_member["o/unlike"]
+            assert "download stopped" in by_member["o/nofetch"], by_member["o/nofetch"]
+            assert "HTTP 503" in by_member["o/nopin"], by_member["o/nopin"]
+            assert "container lost" in by_member["o/crash"]
+            assert "done: 2 pairs written, 4 failed" in text
+            # A model with no revision is not downloaded, and a pair with a missing model is not measured.
+            assert sorted(call[0] for call in wd.fetch.calls) == ["o/crash", "o/good", "o/host", "o/nofetch",
+                                                                  "o/second", "o/unlike"]
+            assert sorted(call[0] for call in wd.measure.calls) == ["o/crash", "o/good", "o/second", "o/unlike"]
+            # --jobs caps the containers of each step.
+            assert wd.fetch.most_running == 2, wd.fetch.most_running
+            assert wd.measure.most_running == 2, wd.measure.most_running
+            with open(path_of("o/good")) as f:
+                report = json.load(f)
+            assert report["member"] == "o/good" and report["reference"] == "o/host"
+            assert report["relation"] == "host" and report["family"] == "fam" and report["host"] == "o/host"
+            assert report["member_revision"] == "rev-o/good" and report["reference_revision"] == "rev-o/host"
+            assert report["layers"] == 2 and report["mark"] == 1
+            assert len(report["measured_at"]) == 20 and report["measured_at"].endswith("Z")
+            # The table of a written pair is printed.
+            assert "o/good against o/host (host): 2 layers" in text and "largest attn rel" in text
+
+            # Run 2: the failures are gone. The two finished pairs are skipped and the four others run.
+            broken["on"] = False
+            marks["value"] = 2
+            wd.fetch = FakeFunction(fake_fetch)
+            wd.measure = FakeFunction(fake_measure)
+            code, text = run_main(family="fam", jobs=2)
+            assert code == 0, (code, text)
+            assert text.count("exists:") == 2 and "done: 4 pairs written, 0 failed" in text, text
+            assert sorted(call[0] for call in wd.measure.calls) == ["o/crash", "o/nofetch", "o/nopin", "o/unlike"]
+            assert len(files()) == 6
+            with open(path_of("o/good")) as f:
+                assert json.load(f)["mark"] == 1          # not measured again
+            with open(path_of("o/nopin")) as f:
+                assert json.load(f)["mark"] == 2
+
+            # Run 3: every file exists, so nothing starts.
+            wd.fetch = FakeFunction(fake_fetch)
+            wd.measure = FakeFunction(fake_measure)
+            code, text = run_main(family="fam")
+            assert code == 0 and "nothing to do" in text and text.count("exists:") == 6
+            assert wd.fetch.calls == [] and wd.measure.calls == []
+
+            # Run 4: --force measures a finished pair again and replaces its file.
+            marks["value"] = 3
+            code, text = run_main(member="o/good", reference="o/host", force=True)
+            assert code == 0 and "done: 1 pairs written, 0 failed" in text, text
+            with open(path_of("o/good")) as f:
+                assert json.load(f)["mark"] == 3
+
+            # Run 5: a forced run that fails keeps the old file and leaves no temp file.
+            broken["on"] = True
+            code, text = run_main(member="o/crash", reference="o/host", force=True)
+            assert code == 1 and "FAILED: o/crash against o/host" in text
+            with open(path_of("o/crash")) as f:
+                assert json.load(f)["mark"] == 2
+            assert len(files()) == 6 and all(name.endswith(".json") for name in files())
+        finally:
+            wd.fetch, wd.measure, wd.OUT_DIR, wd.FAMILIES, common.pin_revision = saved
+
+
 # ---------- families, paths, table ----------
 
 def test_families_file():
@@ -533,6 +852,18 @@ def test_paths_and_atomic_write():
         with open(target) as f:
             assert json.load(f) == {"a": 2}
         assert os.listdir(os.path.dirname(target)) == ["out.json"]
+        # NaN and Infinity are not JSON. A report that holds one is refused, the file of the
+        # last good run stays as it was, and no temp file is left beside it.
+        for bad in [float("nan"), float("inf")]:
+            try:
+                wd.write_json_atomic(target, {"a": bad})
+            except ValueError:
+                pass
+            else:
+                raise AssertionError("a non-finite number must not be written")
+        with open(target) as f:
+            assert json.load(f) == {"a": 2}
+        assert os.listdir(os.path.dirname(target)) == ["out.json"]
 
 
 def test_format_table():
@@ -551,12 +882,23 @@ def test_format_table():
     assert "layer   0" in lines[start + 1] and "1.333333" in lines[start + 1]
     assert "  largest conv rel (1 layers have conv):" in lines
     assert "largest norm rel" not in text
-    assert lines[-1].startswith("  outside the layers: norm rel 0.000000")
+    # The resized embedding reaches the printed table with its shared-row numbers.
+    assert lines[-1] == ("  outside the layers: embed shape mismatch [3, 2] against [4, 2],"
+                         " 3 shared rows rel 0.577350 cosine 0.86602540;"
+                         " lm_head shape mismatch [3, 2] against [3, 3], no shared rows;"
+                         " norm rel 0.000000 cosine 1.00000000"), lines[-1]
 
 
 if __name__ == "__main__":
     tests = [(name, fn) for name, fn in sorted(globals().items()) if name.startswith("test_") and callable(fn)]
+    failed = []
     for name, fn in tests:
-        fn()
-        print("pass", name)
+        try:
+            fn()
+            print("pass", name)
+        except Exception as e:
+            failed.append(name)
+            print("FAIL", name, "-", type(e).__name__, str(e)[:300])
+    if failed:
+        raise SystemExit(str(len(failed)) + " of " + str(len(tests)) + " tests failed: " + ", ".join(failed))
     print("ok")

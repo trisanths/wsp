@@ -47,6 +47,7 @@ WRAPPERS = ["model", "language_model"]
 ATTN_PARTS = ["self_attn", "attn", "attention"]
 MLP_PARTS = ["mlp", "feed_forward", "ffn"]
 LAYER_PATTERN = re.compile(r"^layers\.(\d+)\.(.+)$")
+SHARD_PATTERN = re.compile(r"^(.+)-(\d+)-of-(\d+)\.safetensors$")
 MIN_LAYER_MATCH = 0.9
 
 app = modal.App(APP_NAME)
@@ -179,6 +180,25 @@ def check_layer_match(member_index, matched, unmatched_member, shape_mismatch):
     return good, total, fraction
 
 
+def layer_count(index, who):
+    # The number of decoder layers of one checkpoint. The layers must be numbered 0..N-1 with
+    # none missing: a gap means that part of the checkpoint is not in the folder (a lost shard),
+    # and a map built from the rest would look complete.
+    found = set()
+    for key in index:
+        if index[key]["layer"] is not None:
+            found.add(index[key]["layer"])
+    if len(found) == 0:
+        return 0
+    count = max(found) + 1
+    missing = [str(i) for i in range(count) if i not in found]
+    if missing:
+        more = "" if len(missing) <= 8 else " and " + str(len(missing) - 8) + " more"
+        raise PairError("the " + who + " has no tensor for decoder layer(s) " + ", ".join(missing[:8]) + more
+                        + " (its highest layer is " + str(count - 1) + "): the checkpoint folder is incomplete")
+    return count
+
+
 # ---------- math ----------
 
 def pair_sums(member, reference):
@@ -246,8 +266,10 @@ def aggregate(rows, layers):
         for kind in sorted(kinds):
             entry[kind] = group_stats(kinds[kind])
         per_layer.append(entry)
-    # The three standard kinds are always present (None when the checkpoint stores no such
-    # tensor, for example a tied lm_head), so a reader can tell "absent" from "forgotten".
+    # The three standard kinds are always present, so a reader can tell "absent" from
+    # "forgotten". None means that neither checkpoint has a tensor of that kind with a partner
+    # (for example a tied lm_head that is not stored). A tensor that both have with different
+    # shapes is not None: note_mismatches gives its group a "shape_mismatch" list.
     outside_layers = {"embed": None, "lm_head": None, "other": None}
     for kind in sorted(outside):
         outside_layers[kind] = group_stats(outside[kind])
@@ -255,6 +277,23 @@ def aggregate(rows, layers):
     for kind in sorted(by_kind):
         summary["layers"][kind] = group_stats(by_kind[kind])
     return per_layer, outside_layers, summary
+
+
+def note_mismatches(per_layer, outside_layers, shape_mismatch):
+    # A group value covers tensors of equal shape only. A tensor that both checkpoints have with
+    # different shapes (an embedding with added tokens) is listed in its group, with the numbers
+    # over the shared rows when there are any. Without this list, a reader of the groups alone
+    # takes a resized embedding for one that is not stored.
+    for row in shape_mismatch:
+        if row["layer"] is None:
+            groups = outside_layers
+        else:
+            groups = per_layer[row["layer"]]
+        if groups.get(row["kind"]) is None:
+            groups[row["kind"]] = {"rel": None, "cosine": None, "tensors": 0, "params": 0}
+        groups[row["kind"]].setdefault("shape_mismatch", []).append(
+            {"name": row["name"], "member_shape": row["member_shape"],
+             "reference_shape": row["reference_shape"], "shared_rows": row.get("shared_rows")})
 
 
 # ---------- checkpoints ----------
@@ -287,6 +326,18 @@ def weight_files(folder):
         for name in sorted(os.listdir(folder)):
             if name.endswith(".safetensors"):
                 names.append(name)
+        # With no index, the shard names are the only record of how many files the checkpoint
+        # has. "model-00002-of-00002" alone is half a model, not a model.
+        shards = {}
+        for name in names:
+            found = SHARD_PATTERN.match(name)
+            if found:
+                shards.setdefault((found.group(1), int(found.group(3))), []).append(name)
+        for stem, total in sorted(shards):
+            have = shards[(stem, total)]
+            if len(have) != total:
+                raise PairError(folder + " has " + str(len(have)) + " of " + str(total) + " shards of '"
+                                + stem + "' and no model.safetensors.index.json: " + ", ".join(have))
     if len(names) == 0:
         raise PairError("no safetensors files in " + folder)
     return [os.path.join(folder, name) for name in names]
@@ -376,15 +427,22 @@ def tensor_sums(member, member_name, reference, reference_name, rows=None):
     total = [0.0, 0.0, 0.0, 0.0]
     if len(shape) == 0:
         add_sums(total, pair_sums(member.read(member_name), reference.read(reference_name)))
-        return total
-    if rows is None:
-        rows = shape[0]
-    row_elems = count_elements(shape[1:])
-    step = max(1, CHUNK_ELEMS // max(1, row_elems))
-    for first in range(0, rows, step):
-        last = min(rows, first + step)
-        add_sums(total, pair_sums(member.read(member_name, first, last),
-                                  reference.read(reference_name, first, last)))
+    else:
+        if rows is None:
+            rows = shape[0]
+        row_elems = count_elements(shape[1:])
+        step = max(1, CHUNK_ELEMS // max(1, row_elems))
+        for first in range(0, rows, step):
+            last = min(rows, first + step)
+            add_sums(total, pair_sums(member.read(member_name, first, last),
+                                      reference.read(reference_name, first, last)))
+    # One inf or NaN weight makes the sums inf or NaN. rel and cosine built from them are wrong
+    # (an inf gives cosine exactly 1) and they spread into every group that holds the tensor,
+    # so the pair stops here with the name of the tensor.
+    for value in total:
+        if not math.isfinite(value):
+            raise PairError("the sums for tensor " + member_name + " are not finite: the member or the "
+                            "reference holds a NaN or infinite weight in it")
     return total
 
 
@@ -392,15 +450,29 @@ def compare_folders(member_folder, reference_folder, log=None):
     # Everything the job measures for one pair, from two folders of safetensors files.
     member = Checkpoint(member_folder)
     reference = Checkpoint(reference_folder)
+    # The shard files are closed on every path out of here. The Modal container is reused for
+    # the next pair, and it cannot reload the volume while a file of the volume is open.
+    try:
+        return compare_checkpoints(member, reference, log)
+    finally:
+        member.close()
+        reference.close()
+
+
+def compare_checkpoints(member, reference, log=None):
     member_index = index_names(member.tensors)
     reference_index = index_names(reference.tensors)
     matched, unmatched_member, unmatched_reference, shape_mismatch = match_names(member_index, reference_index)
     good, total, fraction = check_layer_match(member_index, matched, unmatched_member, shape_mismatch)
 
-    layers = 0
-    for key in member_index:
-        if member_index[key]["layer"] is not None:
-            layers = max(layers, member_index[key]["layer"] + 1)
+    # The 90% rule counts the member's tensors only, so a member that lost whole layers passes
+    # it at 100%. The layer numbering and the layer count catch that case.
+    layers = layer_count(member_index, "member")
+    reference_layers = layer_count(reference_index, "reference")
+    if layers != reference_layers:
+        raise PairError("the member has " + str(layers) + " decoder layers and the reference has "
+                        + str(reference_layers) + ": not the same architecture, or a checkpoint folder "
+                        "is incomplete")
 
     # Layers in order, the tensors outside the layers first.
     matched.sort(key=lambda row: (-1 if row["layer"] is None else row["layer"], row["key"]))
@@ -433,10 +505,9 @@ def compare_folders(member_folder, reference_folder, log=None):
             sums = tensor_sums(member, row["name"], reference, row["reference_name"], rows=shared)
             rel, cosine = rel_and_cosine(sums)
             row["shared_rows"] = {"rows": shared, "rel": rel, "cosine": cosine}
-    member.close()
-    reference.close()
 
     per_layer, outside_layers, summary = aggregate(rows, layers)
+    note_mismatches(per_layer, outside_layers, shape_mismatch)
     kinds = []
     for kind in sorted(summary["layers"]):
         kinds.append(kind)
@@ -508,7 +579,8 @@ def measure(member, member_revision, reference, reference_revision):
     except PairError as e:
         return {"error": str(e)}
     result["compute_seconds"] = round(time.time() - start, 1)
-    # ru_maxrss is in KB on Linux.
+    # ru_maxrss is in KB on Linux. It is the maximum of the process, and a container is reused,
+    # so the number can come from an earlier pair that ran in this container.
     result["peak_memory_gb"] = round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1e6, 2)
     result["container"] = {"cpu": MEASURE_CPU, "memory_mb": MEASURE_MEMORY_MB}
     return result
@@ -577,10 +649,13 @@ def select_pairs(families, family="", everything=False, member="", reference="")
 def write_json_atomic(path, data):
     # Write to a temp file and rename, so a stopped run never leaves half a file that a later
     # run would skip as done.
+    # allow_nan=False: NaN and Infinity are not JSON and strict parsers reject them. The text is
+    # built before the temp file is opened, so a refused report leaves no file behind.
+    text = json.dumps(data, indent=1, allow_nan=False)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     tmp = path + ".tmp"
     with open(tmp, "w") as f:
-        json.dump(data, f, indent=1)
+        f.write(text)
         f.flush()
         os.fsync(f.fileno())
     os.replace(tmp, path)
@@ -615,8 +690,20 @@ def format_table(report, top=5):
     outside = []
     for kind in sorted(report["outside_layers"]):
         group = report["outside_layers"][kind]
-        if group is not None:
+        if group is None:
+            continue
+        if group["tensors"] > 0:
             outside.append(kind + " rel " + show(group["rel"], 6) + " cosine " + show(group["cosine"], 8))
+        # A resized embedding has no group value. Its shared-row numbers are printed in its place.
+        for item in group.get("shape_mismatch", []):
+            text = kind + " shape mismatch " + str(item["member_shape"]) + " against " + str(item["reference_shape"])
+            shared = item["shared_rows"]
+            if shared is None:
+                text = text + ", no shared rows"
+            else:
+                text = (text + ", " + str(shared["rows"]) + " shared rows rel " + show(shared["rel"], 6)
+                        + " cosine " + show(shared["cosine"], 8))
+            outside.append(text)
     lines.append("  outside the layers: " + ("; ".join(outside) if outside else "no matched tensor"))
     return "\n".join(lines)
 
@@ -659,20 +746,28 @@ def main(family: str = "", all: bool = False, member: str = "", reference: str =
         return
 
     # Pin each model once, so that every pair of this run sees the same weights of a shared host.
+    # A lookup that fails (one Hub error in up to 27 requests) fails the pairs of that model and
+    # leaves the other pairs to run.
     revisions = {}
+    failed_models = {}
     for pair in todo:
         for hf_id in [pair["member"], pair["reference"]]:
-            if hf_id not in revisions:
+            if hf_id in revisions or hf_id in failed_models:
+                continue
+            try:
                 revisions[hf_id] = common.pin_revision(hf_id)
-                print("pinned", hf_id, revisions[hf_id][:10], flush=True)
+            except Exception as e:
+                failed_models[hf_id] = "revision lookup failed: " + repr(e)[:300]
+                print("PIN FAILED:", hf_id, failed_models[hf_id], flush=True)
+                continue
+            print("pinned", hf_id, revisions[hf_id][:10], flush=True)
 
     # Step 1: bring every model into the volume cache, one container per model.
     models = sorted(revisions)
-    failed_models = {}
     fetched = run_capped(fetch, [(hf_id, revisions[hf_id]) for hf_id in models], jobs)
     for hf_id, result in zip(models, fetched):
         if isinstance(result, Exception):
-            failed_models[hf_id] = repr(result)[:300]
+            failed_models[hf_id] = "download failed: " + repr(result)[:300]
             print("FETCH FAILED:", hf_id, failed_models[hf_id], flush=True)
         else:
             print("in cache:", result, flush=True)
@@ -685,7 +780,8 @@ def main(family: str = "", all: bool = False, member: str = "", reference: str =
     for pair in todo:
         broken = [hf_id for hf_id in [pair["member"], pair["reference"]] if hf_id in failed_models]
         if broken:
-            failures.append((pair, "model not downloaded: " + ", ".join(broken)))
+            reasons = [hf_id + " (" + failed_models[hf_id] + ")" for hf_id in broken]
+            failures.append((pair, "model not in the cache: " + "; ".join(reasons)))
         else:
             runnable.append(pair)
 

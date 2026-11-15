@@ -159,6 +159,8 @@ It uses CPU containers and no GPU, no agent, and no LLM.
 The families are in `atlas/lineage/families.json`: a short name, the host, and the members.
 A member with an `ancestor` was tuned from that model and not from the host. The job measures
 such a member against the host and against the ancestor. The file has 6 families and 23 pairs.
+The ancestor `unsloth/Meta-Llama-3.1-8B` is not a model of `atlas/zoo.json`. Every host and
+every member is.
 
 What the job measures, for one pair (member, reference):
 - For each tensor that the two checkpoints have with the same shape: `rel`, which is
@@ -178,6 +180,13 @@ name starts with `layers.<N>.` after that step. Vision tower layers stay outside
 90% of the layer tensors of the member match the reference in name and shape, the pair fails
 with a message and no file is written.
 
+A pair also fails, with a message and no file, in these cases:
+- The decoder layers of the member or of the reference are not numbered 0 to N-1 with none
+  missing, or the two models do not have the same number of layers.
+- A folder has no `model.safetensors.index.json` and fewer `model-XXXXX-of-YYYYY.safetensors`
+  files than YYYYY.
+- A compared tensor holds a NaN or an infinite value. The message names the tensor.
+
 Commands (from `person_a/`, in the Modal workspace that has the volume `swarmy-models`):
 ```bash
 .venv/bin/modal run mine/weight_delta.py --family lfm2          # one family
@@ -188,10 +197,16 @@ Commands (from `person_a/`, in the Modal workspace that has the volume `swarmy-m
 - Use `modal run` only. The app `swarmy-delta` is ephemeral. Do not run `modal deploy` on it.
 - `--jobs` is the largest number of containers that run at the same time (default 4).
 - A pair whose output file exists is skipped. Add `--force` to measure it again.
+- A model whose revision lookup or download fails does not stop the run. Its pairs are listed
+  as `FAILED`, the other pairs are measured, and the command exits with code 1. Run the same
+  command again to measure only the pairs that have no file.
 - Step 1 downloads each model once (`*.safetensors` and `*.json` of the pinned revision) into
   the volume cache `/models/hf_cache`, one container per model. Step 2 starts one container
   per pair (8 CPU, 8 GB) and reads the cache. The job reads tensors in slices of at most
   16.8 million elements and never loads a whole model.
+- `--all` downloads all 27 models before it measures the first pair. The files that match the
+  two patterns add up to 800.3 GB (Hub file listings, 2026-11-14). Each of the 7 Qwen 32B
+  models is 65.5 GB, and the two Gemma models are 54.9 GB and 54.05 GB.
 - Measured on LiquidAI/LFM2-1.2B-Tool against LiquidAI/LFM2-1.2B (2.34 GB each, 2026-11-14):
   4.8 s to compare, peak process memory 1.09 GB. Larger pairs have not been run.
 
@@ -201,18 +216,32 @@ the Hugging Face id with `/` replaced by `__`. The fields are:
 - `member_revision`, `reference_revision`: the pinned commits
 - `layers`: the number of decoder layers of the member; `kinds`: the module kinds found
 - `per_layer`: one object per layer, `{"layer": N, "attn": {...}, "mlp": {...}, "norm": {...}}`.
-  Each group has `rel`, `cosine`, `tensors`, and `params`.
-- `outside_layers`: the groups `embed`, `lm_head`, `norm`, `other`. A group is `null` when no
-  tensor of that kind matched (for example a tied `lm_head` that the checkpoint does not store).
+  Each group has `rel`, `cosine`, `tensors`, and `params`. A layer object has a kind only when
+  the layer has tensors of that kind, so read it with `entry.get("attn")`. In LFM2-1.2B, layers
+  2, 5, 8, 10, 12, and 14 have `attn` and the other 10 layers have `conv`.
+- `outside_layers`: the groups `embed`, `lm_head`, `norm`, `other`. A group is `null` when
+  neither model stores a tensor of that kind with a partner in the other model (for example a
+  tied `lm_head` that the checkpoint does not store).
+- A group with a `shape_mismatch` list (outside the layers or in a layer) has tensors that the
+  two models store with different shapes. Each item has `name`, `member_shape`,
+  `reference_shape`, and `shared_rows` (`rows`, `rel`, `cosine` over the rows that both models
+  have, or `null` when another dimension differs). `rel` and `cosine` of the group cover only
+  its tensors of equal shape. They are `null`, with `tensors` 0, when the group has none: an
+  embedding with added tokens gives `"embed": {"rel": null, ..., "shape_mismatch": [...]}`.
 - `summary`: `all` (every compared tensor) and `layers` (one group per module kind over all layers)
 - `tensors`: one row per compared tensor: `name`, `shape`, `layer`, `kind`, `rel`, `cosine`,
   `diff_norm`, `reference_norm`, and `reference_name` when the reference uses another name
 - `unmatched_member`, `unmatched_reference`: tensors that only one model has
 - `shape_mismatch`: tensors with the same name and different shapes. When only the number of
   rows differs (an embedding with added tokens), `shared_rows` has `rel` and `cosine` over the
-  rows that both models have. These tensors are not part of any group value.
+  rows that both models have. These tensors are not part of any group value and not part of
+  `summary`. Their groups list them (see above).
 - `counts`: totals for the lists above and `layer_match_fraction`
 - `dtype` (`float64`, the arithmetic), `source_dtypes` (the stored dtypes of each model)
-- `weights_gb`, `compute_seconds`, `peak_memory_gb`, `container`, `measured_at` (UTC)
+- `weights_gb`, `compute_seconds`, `peak_memory_gb`, `container`, `measured_at` (UTC).
+  `peak_memory_gb` is the maximum of the container process. Modal reuses a container for a
+  later pair, so the number can come from an earlier, larger pair of the same run.
 
-For each pair the job also prints, per module kind, the 5 layers with the largest `rel`.
+For each pair the job also prints, per module kind, the 5 layers with the largest `rel`, and
+one line for the tensors outside the layers. That line shows the shared-row `rel` of a
+resized embedding.
