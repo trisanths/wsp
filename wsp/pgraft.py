@@ -418,7 +418,7 @@ def sparse_part(part, first, keep):
 
 def build(base, donor, host_layer, first, last, control=None, enc_depth=1, dec_rank=64, dec_depth=1,
           gate_bias=0.0, out_rms=1.0, d_donor=None, write_layer=None, logit=False, tail=None, read_layers=None,
-          keep=None):
+          keep=None, part=None):
     """Make one ParallelGraft that runs donor layers first..last, and attach it after base layer host_layer.
 
     The block is the donor's own decoder layer code, built from the loaded
@@ -428,8 +428,9 @@ def build(base, donor, host_layer, first, last, control=None, enc_depth=1, dec_r
     d_host = hidden_size(base)
     if d_donor is None:
         d_donor = hidden_size(donor)
-    part = None
-    if control != "identity":
+    if control != "identity" and part is not None:
+        pass  # a ready-made part (for example wsp.moe_fast.block_part) shares the donor's modules
+    elif control != "identity":
         tensors = {}
         for name, value in donor.state_dict().items():
             tensors[name] = value.detach()
