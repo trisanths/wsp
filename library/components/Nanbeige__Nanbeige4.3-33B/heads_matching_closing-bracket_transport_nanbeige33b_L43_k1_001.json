@@ -1,0 +1,96 @@
+{
+  "id": "heads_matching_closing-bracket_transport_nanbeige33b_L43_k1_001",
+  "kind": "attn_heads",
+  "title": "Nanbeige4.3-33B layer 43, matching closing-bracket transport",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/nanbeige33b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "bracket_closure"
+  ],
+  "models": [
+    "Nanbeige/Nanbeige4.3-33B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'bracket_closure' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2486,
+      "control_value": -0.0068,
+      "split": "person_a held-out skill items (bracket_closure)",
+      "seeds": null,
+      "source": "person_a/catalog/nanbeige33b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0031"
+    }
+  ],
+  "generated": true,
+  "model": "Nanbeige/Nanbeige4.3-33B",
+  "layer": 43,
+  "layers": [
+    43
+  ],
+  "units_file": "components/Nanbeige__Nanbeige4.3-33B/heads_matching_closing-bracket_transport_nanbeige33b_L43_k1_001.pt",
+  "units_remote": "person_a/parts/nanbeige33b/heads_matching_closing-bracket_transport_nanbeige33b_L43_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'bracket_closure'",
+    "label": "matching closing-bracket transport",
+    "num_units": 1,
+    "d_model": 7168,
+    "effect": {
+      "math|search": -0.0003,
+      "math|heldout": -0.0002,
+      "code|search": 0.0018,
+      "code|heldout": 0.0005,
+      "facts|search": 0.0061,
+      "facts|heldout": 0.0108,
+      "multilingual|search": -0.0006,
+      "multilingual|heldout": -0.0005,
+      "general_text|search": 0.0015,
+      "general_text|heldout": 0.0041,
+      "digit_copy|search": -0.0046,
+      "digit_copy__control|search": -0.0039,
+      "digit_copy|heldout": -0.0073,
+      "digit_copy__control|heldout": -0.0054,
+      "product_sign|search": -0.0674,
+      "product_sign__control|search": 0.0003,
+      "product_sign|heldout": -0.0527,
+      "product_sign__control|heldout": 0.0054,
+      "bracket_closure|search": 0.306,
+      "bracket_closure__control|search": 0.0053,
+      "bracket_closure|heldout": 0.2486,
+      "bracket_closure__control|heldout": 0.0031
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.102,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0071,
+      -0.0031,
+      -0.0162,
+      -0.0178,
+      -0.0042
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "All-layer OV scan ranks L43H55 highest for opening-to-matching-closing preference (.1335). Each of (, [, { maps most strongly to its corresponding closer among 43 probes (.057, .110, .080). Search ablation reduces bracket_closure .306 while matched copy control .005 and built-ins <=.006."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/nanbeige33b/bracket_closure.json",
+    "hash": "851dde178348dce1",
+    "description": "Supply matching closing delimiter for an unfinished literal expression; matched control copies a supplied closing delimiter.",
+    "name": "bracket_closure"
+  },
+  "catalog_id": "heads_matching_closing-bracket_transport_nanbeige33b_L43_k1_001",
+  "exported_copy": "library/nanbeige33b/heads_matching_closing-bracket_transport_nanbeige33b_L43_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}
