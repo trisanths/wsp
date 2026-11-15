@@ -3,7 +3,8 @@ import { clamp } from '../util.js';
 import { Icon, Menu } from '../components.js';
 import { SubtleNum } from '../motion.js';
 import { ModelLogo } from '../logos.js';
-import { Slider } from './spec.js';
+import { Slider, sizeRef } from './spec.js';
+import { useHealExample } from './measured.js';
 
 // Shared by the spec page ("What to remove") and the shrink page.
 
@@ -77,6 +78,7 @@ export function Pick({ label, value, items, onPick, width = 300 }) {
 }
 
 export function ShrinkSection({ spec, edit, onChangeSource }) {
+  const healExample = useHealExample();
   const sh = spec.shrink;
   if (!sh) return null;
   const moe = sh.method === 'experts';
@@ -114,9 +116,10 @@ export function ShrinkSection({ spec, edit, onChangeSource }) {
     </div>
     <div class="srow">
       <div class="top"><span class="nm">Target size</span><span class="val"><${SubtleNum} text=${target.toFixed(1)} />B stored</span></div>
+      <div class="rs-why">${moe ? 'The size to cut the model down to. It sets how many experts stay, and the server picks the closest count that fits.' : 'The size to cut the model down to.'}</div>
       <${Slider} value=${target} min=${tMin} max=${tMax} step=${0.1} ticks=${[{ v: src, kind: 'host', label: 'source ' + src.toFixed(2) + 'B' }]} ariaLabel="Target size in billions of parameters"
         onChange=${(v) => setSh(moe ? { target_params_b: Math.round(v * 10) / 10, keep_experts: null } : { target_params_b: Math.round(v * 10) / 10 })} />
-      <div class="note"><span>${moe ? 'Moving this sets how many experts stay. The server picks the closest count that fits.' : 'The size after layers, neurons and heads are removed.'}</span><span>${tMin}B to ${tMax}B</span></div>
+      <div class="note"><span>${sizeRef(target)}</span><span>${tMin}B to ${tMax}B</span></div>
     </div>
     ${moe && html`<div class="srow">
       <div class="top"><span class="nm">Experts kept per layer</span><span class="val"><${SubtleNum} text=${String(keep)} /> of ${nExp}</span></div>
@@ -125,8 +128,9 @@ export function ShrinkSection({ spec, edit, onChangeSource }) {
     </div>`}
     <div class="srow">
       <div class="top"><span class="nm">Heal steps</span><span class="val"><${SubtleNum} text=${String(steps)} /> steps</span></div>
+      <div class="rs-why">Training steps after the cut, where the cut model learns to match the original's outputs. More steps take longer and usually win back more.</div>
       <${Slider} value=${steps} min=${0} max=${1000} step=${50} ariaLabel="Heal steps" onChange=${(v) => setSh({ heal_steps: v })} />
-      <div class="note"><span>After removal the model trains to copy the original. More steps cost more time and usually recover more.</span><span>0 to 1000</span></div>
+      <div class="note"><span>${healExample || ''}</span><span>0 to 1000</span></div>
     </div>
   </section>`;
 }

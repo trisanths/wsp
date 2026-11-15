@@ -7,12 +7,12 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const clone = (x) => JSON.parse(JSON.stringify(x));
 
 const CAVEATS = [
-  'One run per cell, so a gap of a few points may be noise.',
-  'Two rows have a 500-step distillation heal on code text from the healdata pools. The other rows are raw cuts with no training.',
-  'The healed 32 expert model (73.8, 61.9) does not beat Qwen2.5-Coder-7B (85.4, 86.0) at a similar total size. It runs 3.0B params per token against 7.6B.',
-  'Removing experts keeps the parameters run per token at about 3.0B, so it shrinks storage and memory, not speed.',
-  'Other skills fall: MMLU goes from 77.8 to 44.9 at 64 experts.',
-  'The 32 expert rows share one size, 8.78B, because the same number of experts per layer gives the same size.',
+  'Each score is from one run, so a gap of a few points may be noise.',
+  'Two rows got a 500-step fine-tune after the cut, learning to match the full model on code text. The other rows got no training.',
+  'Even fine-tuned, the 32-expert model (73.8 and 61.9) scores below Qwen2.5-Coder-7B (85.4 and 86.0), a coding model of about the same size.',
+  'Cutting experts makes the model smaller to store but not faster. Each token still runs through about 3.0B parameters, against 7.6B for Qwen2.5-Coder-7B.',
+  'Other skills drop. General knowledge (MMLU) falls from 77.8 to 44.9 with 64 experts kept.',
+  'All 32-expert rows are the same size, 8.78B, because size depends only on how many experts are kept.',
 ];
 const row = (label, experts_kept, rule, total_params_b, scores, is_control = false, is_full = false, heal_steps = 0) => ({ label, experts_kept, rule, total_params_b, scores, is_control, is_full, heal_steps });
 

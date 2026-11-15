@@ -12,13 +12,12 @@ const CARDS = [
   { icon: 'sigma', color: 'var(--purple)', label: 'A math model', text: 'A small model that solves grade-school math word problems step by step. It has to run on a laptop.' },
   { icon: 'bolt', color: 'var(--amber)', label: 'A smaller, faster model', text: 'A smaller and faster version of the host model that keeps most of its accuracy on everyday questions.' },
   { icon: 'shrink', color: 'var(--red)', label: 'Shrink a model', text: 'A coding-only model: drop everything else from Qwen2.5-Coder-7B and get it under 3B.' },
-  { icon: 'grid', color: 'var(--green)', label: 'Browse parts', href: '#/parts' },
 ];
 const EXAMPLES = [
-  'Drop everything but legal reasoning',
+  'A model to teach me math',
   'A 500M model for support-ticket routing',
-  'The best Python helper under 2B parameters',
-  'A model that knows medicine and still does math',
+  'A small model for medicine and math',
+  'A legal helper under 2B parameters',
 ];
 const STATES = ['Reading your files', 'Picking benchmarks', 'Drafting the spec'];
 const HOLD_MS = 1100;
@@ -130,7 +129,6 @@ export function PromptScreen() {
         <${Composer} taRef=${ta} clearRef=${clearRef} disabled=${busy} autoFocus label="Describe your model" value=${text} onInput=${setText} onSubmit=${submit} over=${over} chips=${chips} extra=${over && html`<div class="dropveil">Drop files to attach them</div>`} onAttach=${() => fileIn.current.click()} placeholder="Describe the model you need and where it has to run" />
         <input ref=${fileIn} type="file" multiple hidden onChange=${(e) => { addFiles(e.target.files); e.target.value = ''; }} />
         <div class="dock-sp"><${SponsorStrip} /></div>
-        <div class="dock-note">Files can be examples, questions with answers, or documents. Part is held out for scoring, part is used to heal.</div>
       </div>
     </div>`}
   </main>`;

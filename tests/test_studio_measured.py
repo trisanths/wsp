@@ -71,7 +71,7 @@ def test_caveats_are_plain_sentences(client):
     caveats = client.get("/api/measured").json()[0]["caveats"]
     assert len(caveats) >= 4
     text = " ".join(caveats)
-    assert "One run per cell" in text and "3.0B" in text and "44.9" in text
+    assert "one run" in text and "3.0B" in text and "44.9" in text
     assert "No heal has run yet" not in text and "500-step" in text
     for char in [chr(8212), chr(8211)]:
         assert char not in text

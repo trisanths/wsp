@@ -310,14 +310,14 @@ function Meters({ snap }) {
   if (b.compute_used_s > 0 && snap.elapsed_s > 0) c.push((snap.elapsed_s / b.compute_used_s) * (b.compute_total_s - b.compute_used_s));
   const left = c.length ? Math.max(0, Math.min(...c) - (run ? Math.max(0, now - recv) : 0)) : null;
   const done = ended(snap);
-  const tile = (label, big, of, frac, note, key) => html`<div class="pl-meter" key=${key}>
+  const tile = (label, big, of, frac, note, key, tip) => html`<div class="pl-meter" key=${key} data-tip=${tip || null} data-tip-side="bottom">
     <div class="pl-mlab">${label}</div>
     <div class="pl-mval"><span class="num"><${SubtleNum} text=${big} /></span><span class="pl-mof">${of}</span></div>
     <div class="pl-mbar"><i style=${{ width: frac * 100 + '%' }}></i></div>
     <div class="pl-mnote">${note}</div>
   </div>`;
   return html`<div class="pl-meters">
-    ${tile('Evals used', String(b.evals_used), ' of ' + b.evals_total + ' evals', evalFrac, evalFrac >= 1 ? 'Eval budget used' : b.evals_total - b.evals_used + ' evals left', 'e')}
+    ${tile('Evals used', String(b.evals_used), ' of ' + b.evals_total + ' evals', evalFrac, evalFrac >= 1 ? 'Eval budget used' : b.evals_total - b.evals_used + ' evals left', 'e', 'One eval is one scored attempt: a program is built, healed and scored on the targets and guards. Fit checks are free.')}
     ${tile('GPU time used', String(m1(gpuU)), ' of ' + m1(gpuT) + ' GPU minutes', gpuFrac, gpuFrac >= 1 ? 'GPU budget used' : m1(Math.max(0, gpuT - gpuU)) + ' GPU minutes left', 'g')}
     ${tile('Time', dur(el), done ? ' in total' : ' elapsed', done ? 1 : evalFrac, done ? (snap.stopped_early ? 'Stopped before the budget ran out' : 'The run has ended') : snap.status === 'paused' ? 'Paused, the clock is stopped' : left != null ? 'About ' + dur(left) + ' left, at the pace so far' : 'Time left shows after the first eval', 't')}
   </div>`;

@@ -1,6 +1,7 @@
 import { html, useState, useEffect } from '../lib.js';
 import { api } from '../api.js';
 import { ModelLogo } from '../logos.js';
+import { Icon } from '../components.js';
 
 // Measured results: real scores from the compiler, shown with a small "measured" tag (never the STUB badge).
 // Scores from the server are percent points (0 to 100).
@@ -29,6 +30,17 @@ function useMeasured() {
   return list;
 }
 
+/** One measured fine-tune after a cut, as a sentence that gives heal steps a scale, or null before the data loads. */
+export function useHealExample() {
+  const list = useMeasured();
+  for (const r of list || []) {
+    const healed = (r.rows || []).find((x) => x.heal_steps && !x.is_control);
+    const raw = healed && r.rows.find((x) => !x.heal_steps && !x.is_control && x.rule === healed.rule && x.experts_kept === healed.experts_kept);
+    if (raw) return 'Measured: ' + healed.heal_steps + ' steps took a ' + healed.experts_kept + '-expert cut of ' + short(r.model).replace(/-Instruct.*$/, '') + ' from ' + num(raw.scores.humaneval) + ' to ' + num(healed.scores.humaneval) + ' on HumanEval.';
+  }
+  return null;
+}
+
 export function MeasuredTag() {
   return html`<span class="tag g mtag" title="Scored by the compiler on real weights">measured</span>`;
 }
@@ -38,17 +50,32 @@ function Bar({ value, control }) {
   return html`<span class=${'mbar' + (control ? ' ctl' : '')} aria-hidden="true"><i style=${{ width: w + '%' }}></i></span>`;
 }
 
-function RowLabel({ row }) {
-  return html`<span class="ml">${row.label}${row.is_control && html` <span class="tag mctl" title="A control: it picks experts by a rule that should not work, so it shows what chance looks like">control</span>`}</span>`;
+// plain names for the rows; the compiler's own label stays as the hover title
+function plainLabel(row, result) {
+  const skill = result.skill || 'the skill';
+  if (row.is_full) return 'Full model, all ' + (result.experts_per_layer || row.experts_kept) + ' experts';
+  const what = { saliency: 'experts chosen for ' + skill, freq: 'most-used experts', random: 'random experts', selective: 'experts used more on ' + skill + ' than elsewhere' }[row.rule];
+  if (!what) return row.label;
+  return 'Keep ' + row.experts_kept + ' ' + what + (row.heal_steps ? ', then fine-tuned' : '');
+}
+
+// each control sits right under the row it checks: same experts kept, same fine-tune
+function ordered(rows) {
+  return rows.map((r, i) => [r, i]).sort(([a, i], [b, j]) => (b.is_full - a.is_full) || (b.experts_kept - a.experts_kept)
+    || ((a.heal_steps || 0) - (b.heal_steps || 0)) || (a.is_control - b.is_control) || (i - j)).map(([r]) => r);
+}
+
+function RowLabel({ row, result }) {
+  return html`<span class="ml" title=${row.label}>${plainLabel(row, result)}${row.is_control && html` <span class="tag mctl" title="A check: the same number of experts, picked without the method. A real result has to beat it.">control</span>`}</span>`;
 }
 
 // the table of one result: HumanEval against total size, with a bar
-export function MeasuredTable({ result, mark }) {
-  const rows = result.rows || [];
+export function MeasuredTable({ result, mark, only }) {
+  const rows = ordered((result.rows || []).filter((row) => !only || only(row)));
   return html`<div class="mtable" role="table" aria-label=${result.title}>
-    <div class="mrow mhead" role="row"><span role="columnheader">Row</span><span role="columnheader" class="r">Size</span><span role="columnheader" class="r">HumanEval</span><span role="columnheader" class="mbarcol"></span><span role="columnheader" class="r">MBPP</span></div>
-    ${rows.map((row) => html`<div class=${'mrow' + (mark && mark(row) ? ' on' : '')} role="row" key=${row.label}>
-      <${RowLabel} row=${row} />
+    <div class="mrow mhead" role="row"><span role="columnheader">Model</span><span role="columnheader" class="r">Size</span><span role="columnheader" class="r" title="HumanEval: Python coding problems, percent solved">HumanEval</span><span role="columnheader" class="mbarcol"></span><span role="columnheader" class="r" title="MBPP: short Python problems, percent solved">MBPP</span></div>
+    ${rows.map((row) => html`<div class=${'mrow' + (mark && mark(row) ? ' on' : '') + (row.is_control ? ' mrow-ctl' : '')} role="row" key=${row.label}>
+      <${RowLabel} row=${row} result=${result} />
       <span class="r num" role="cell">${sizeText(row.total_params_b)}</span>
       <span class="r num" role="cell">${num(row.scores.humaneval)}</span>
       <${Bar} value=${row.scores.humaneval} control=${row.is_control} />
@@ -57,29 +84,42 @@ export function MeasuredTable({ result, mark }) {
   </div>`;
 }
 
+// the notes, as one footnote under the card
 export function Caveats({ result }) {
-  return html`<ul class="mcav">${(result.caveats || []).map((c) => html`<li key=${c}>${c}</li>`)}</ul>`;
+  const notes = result.caveats || [];
+  if (!notes.length) return null;
+  return html`<p class="mnote"><span class="mnote-k">Notes.</span> ${notes.join(' ')}</p>`;
 }
 
 function Meta({ result }) {
-  return html`<div class="mmeta faint">${short(result.model)} · ${result.runs_per_cell} run per cell · heal: ${result.heal} · scored with ${result.scorer} · ${result.date}</div>`;
+  return html`<div class="mmeta faint">${short(result.model)} · ${result.date}</div>`;
 }
 
-export function MeasuredCard({ result, onTry }) {
+export function MeasuredCard({ result, onTry, only }) {
   return html`<div class="card mcard">
     <div class="mhd"><${ModelLogo} model=${result.model} size=${20} /><h3 class="mtitle">${result.title}</h3><${MeasuredTag} /></div>
     <${Meta} result=${result} />
-    <${MeasuredTable} result=${result} />
+    <${MeasuredTable} result=${result} only=${only} />
+    ${onTry && html`<div class="mfoot"><span class="faint small">Source: ${result.source}, scored with ${result.scorer}</span><button class="btn sm" onClick=${() => onTry(TRY_TEXT)}>Try this request</button></div>`}
     <${Caveats} result=${result} />
-    ${onTry && html`<div class="mfoot"><span class="faint small">${result.source}</span><button class="btn sm" onClick=${() => onTry(TRY_TEXT)}>Try this request</button></div>`}
   </div>`;
 }
 
-// home screen: one calm card under the entry cards
+// the home card shows the method against its random controls; the Results page keeps every row
+const homeRow = (row) => row.is_full || row.rule === 'saliency' || row.rule === 'random';
+
+// home screen: one card under the entry cards, collapsed until opened
 export function MeasuredHome({ onTry }) {
   const list = useMeasured();
+  const [open, setOpen] = useState(false);
   if (!list || !list.length) return null;
-  return html`<section class="mhome"><h2 class="mh">Measured so far</h2><${MeasuredCard} result=${list[0]} onTry=${onTry} /></section>`;
+  const result = list[0];
+  return html`<section class="mhome">
+    <h2 class="mh"><button class="mtoggle" aria-expanded=${open ? 'true' : 'false'} onClick=${() => setOpen((o) => !o)}>
+      <span class="mtk">Measured so far</span><span class="mtsub">${result.title}</span><span class=${'mchev' + (open ? ' open' : '')}><${Icon} n="chevron" size=${14} /></span>
+    </button></h2>
+    ${open && html`<${MeasuredCard} result=${result} onTry=${onTry} only=${homeRow} />`}
+  </section>`;
 }
 
 // parts library page: a Results section
