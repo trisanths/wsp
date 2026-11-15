@@ -48,7 +48,8 @@ THRESHOLDS = {
     "min_gain": 0.1,          # nats: real gain over the best control mean
     "min_z": 2.0,             # content_z floor when two or more control seeds exist
     "harm": 0.05,             # nats: contribution below minus this is harmful
-    "max_drift": 0.1,         # nats above the control median (or above zero with no controls): KL(base || compiled, only this part open)
+    "max_drift": 0.1,         # nats of floor added to the control allowance (the whole limit with no controls): KL(base || compiled, only this part open)
+    "drift_ratio": 5.0,       # a part may drift this many times the control median: the planted part that works reads 2 to 3.5 times it
     "min_seeds_survive": 5,   # a part is "survives compile" only with this many seeds, else "survives provisional"
     "min_items": 6,           # items per half; fewer and the part is skipped
     "alone_share": 0.5,       # a part "needs others" when alone gain is under this share of its group gain
@@ -863,7 +864,8 @@ def part_verdict(m, th):
     Applied in this order:
     harmful               contribution below minus harm
     no gap                the donor is not better than the base by min_gap
-    harmful               drift above max_drift plus drift_ref (the median drift of the control compiles, 0 when none ran)
+    harmful               drift above max_drift + drift_ratio * drift_ref (drift_ref is the median drift of the control
+                          compiles, 0 when none ran, so the floor alone applies then)
     no better than controls  contribution at most min_contribution, or contribution not above the best control
                           mean contribution by min_gain, or content_z below min_z
     survives provisional  everything passed with fewer than min_seeds_survive seeds
@@ -874,7 +876,7 @@ def part_verdict(m, th):
         return "harmful"
     if m.get("donor_gap") is None or m["donor_gap"] < th["min_gap"]:
         return "no gap"
-    if m.get("drift") is not None and m["drift"] > th["max_drift"] + (m.get("drift_ref") or 0.0):
+    if m.get("drift") is not None and m["drift"] > th["max_drift"] + th["drift_ratio"] * (m.get("drift_ref") or 0.0):
         return "harmful"
     if contribution is None or contribution <= th["min_contribution"]:
         return "no better than controls"
