@@ -182,7 +182,7 @@ def mbpp_train_order():
 
 
 def humaneval():
-    data = load("openai_humaneval", split="test")
+    data = load("openai/openai_humaneval", split="test")
     items = []
     for row in data:
         items.append({"prompt": row["prompt"], "test": row["test"], "entry_point": row["entry_point"]})
@@ -455,10 +455,19 @@ def score_generation(model, tokenizer, kind, items):
     return sum(1 for ok in passed if ok) / max(1, len(items))
 
 
-def score_set(model, tokenizer, name):
-    """Load and score one set. Return (accuracy, item count, seconds)."""
+def limit_items(items, limit):
+    """A fixed random subset of at most limit items, in their original order. None keeps all items."""
+    if limit is None or limit >= len(items):
+        return items
+    picked = sorted(seeded_order(len(items), 17)[:limit])
+    return [items[index] for index in picked]
+
+
+def score_set(model, tokenizer, name, limit=None):
+    """Load and score one set, or a fixed subset of at most limit items. Return (accuracy, item count, seconds)."""
     start = time.time()
     kind, items = load_set(name)
+    items = limit_items(items, limit)
     if kind == "mcq":
         value = score_mcq(model, tokenizer, items)
     else:

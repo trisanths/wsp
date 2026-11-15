@@ -4,8 +4,11 @@ These are the only tools the LLM gets. None of them reads or writes raw
 weight values: atlas and catalog return facts about models and mined
 parts (sizes, scores, layer ranges, signatures), and sanitize() removes
 any long numeric list. compile_and_practice sends a program to Modal,
-which compiles it with wsp (stitch and heal are the only training) and
-scores it on small practice sets drawn from train splits.
+which compiles it with wsp (stitches and a heal are the only training)
+and scores it on small practice sets drawn from train splits. The
+request's limits (total params, params run per token, heal minutes) are
+checked on an estimate before the compile and on the measured numbers
+after it. A program with taps is rejected: a tap is not Sapien.
 """
 
 import hashlib
@@ -16,6 +19,7 @@ from composer import sizes
 from composer.skills import (BUILTIN_HEAL_DATA, COMPOSER_HEAL_DATA, LAW_SUBJECTS, SET_NOTES, SKILLS,
                              objective, practice_sets, skill_scores)
 from composer.sources import sanitize
+from wsp.program import Program
 
 # Earlier scores measured on test items that overlap this run's held-out
 # sets: round 6 MMLU dev ("mmlu" is its alias), the round 7 MMLU held-out
@@ -69,7 +73,9 @@ def tool_specs():
             "name": "catalog",
             "description": ("Mined parts with their signatures: MLP clusters, attention heads, experts, "
                             "deletion masks, task vectors. Use a part in a program by its id. Any donor "
-                            "layer range also works as a graft id: block/<org>/<model>/<first>-<last>."),
+                            "layer range also works as a graft id: block/<org>/<model>/<first>-<last>. "
+                            "The experts and insert statements take whole donor models from atlas(), "
+                            "not catalog ids."),
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -89,8 +95,9 @@ def tool_specs():
         {
             "type": "function",
             "name": "compile_and_practice",
-            "description": ("Parse a wsp program, check it against the request's constraints, compile it on "
-                            "Modal (stitch and heal only), and score it on practice sets from train splits. "
+            "description": ("Parse a Sapien program, check it against the request's limits, compile it on "
+                            "Modal (stitches and a heal are the only training), and score it on practice "
+                            "sets from train splits. The request's limits become the program's budget. "
                             "Returns per-skill practice scores, practice_objective (the practiced skills), "
                             "request_objective (all request skills, an unpracticed skill as 0; the loop ranks "
                             "programs by it), params, decode tok/s, compile seconds, and errors. A compile costs one unit of the compile budget; a parse error or a "
@@ -130,14 +137,30 @@ def composer_notes():
         "",
         "## Composer notes",
         "",
+        "- You can write every Sapien statement except `tap` and `tap_train`: grafts (with `gate on`),",
+        "  `experts`, `insert`, `lora`, `heal` (with `distill`), `mask`, `tv`, `from`, `carve`, `splice`,",
+        "  and `budget`. A program with a tap is rejected, because a tap runs a source model at inference.",
+        "- A program holds one kind of added component: grafts, or experts, or inserts.",
+        "- The request's limits are added to your program as its budget. A `budget` line of your own can only",
+        "  tighten them. The compile checks the measured size and heal time again.",
+        "- The model may grow past the base when the limits allow it. Total params and params run per token",
+        "  are separate limits.",
         "- Graft a whole donor layer range with the id block/<org>/<model>/<first>-<last>, for example",
         "  `graft block/Qwen/Qwen2.5-7B-Instruct/8-20 at 7 rank 64 stitch mlp objective donor_lm steps 800`.",
         "  The model must be in the atlas, so its size is known.",
-        "- Heal and tap_train data names: " + ", ".join(BUILTIN_HEAL_DATA + COMPOSER_HEAL_DATA) + ".",
+        "- `experts DONOR1,DONOR2 top_k 1` and `insert DONOR layers A..B at N` take whole donor models from the",
+        "  atlas.",
+        "- `heal ... distill TEACHER` needs a teacher with the host's tokenizer family. The teacher must be in the",
+        "  atlas. A host with only a LoRA and a distillation heal is a baseline and is rejected.",
+        "- Heal and carve data names: " + ", ".join(BUILTIN_HEAL_DATA + COMPOSER_HEAL_DATA) + ".",
         "  composer_mix is an even mix of gsm8k_train, math_train, mbpp_train, medmcqa_train, and mmlu_aux.",
-        "- heal, tap_train, and each stitch have their own step count, and each must be at or under the cap.",
+        "- heal and each stitch have their own step count, and each must be at or under the cap.",
         "- A host with only a LoRA and heal is the fine-tuning baseline, so it is rejected. A LoRA beside",
         "  composed parts is fine.",
+        "- The final report scores your program against the base, the base with a LoRA, the base with a",
+        "  distillation heal from each source with the host's tokenizer, your program with `control random` on",
+        "  every component, and, when the size limit is far above the base, the best existing model of that size.",
+        "  All arms get the same heal data and budget. Components that beat their random control carry the skill.",
     ]
     return "\n".join(lines)
 
@@ -378,11 +401,13 @@ class Toolbox:
     # compile and practice
 
     def parse(self, program_text):
-        """Return (program, error dict or None)."""
+        """Return (program, error dict or None). The request's limits become the program's budget."""
         from wsp.lang import LangError, parse
 
         try:
-            return parse(program_text), None
+            program = parse(program_text)
+            sizes.with_request_budget(program, self.constraints)
+            return program, None
         except LangError as error:
             return None, {"ok": False, "stage": "parse", "error": str(error)}
         except (ValueError, KeyError, TypeError) as error:
@@ -392,6 +417,10 @@ class Toolbox:
         """Check a program before it compiles. A failed check costs no compile."""
         result = sizes.check_program(program, self.constraints, self.sources.models, self.records)
         violations = result["violations"]
+        base = self.request.get("base")
+        if base is not None and program.host != base:
+            violations.append(f"the request names the base {base}, so the program's host must be {base}, "
+                              f"not {program.host}")
         for component_id in program.host_component_ids():
             record = self.records.get(component_id)
             if record is None:
@@ -491,6 +520,7 @@ class Toolbox:
             "skills": list(practice_tasks),
             "practice_sets": practice_sets(practice_tasks),
             "constraints": dict(self.constraints),
+            "practice_items": self.request.get("practice_items"),
             "catalog": self.used_records(program),
             "program_hash": key,
             "estimate": check["estimate"],
@@ -521,6 +551,8 @@ class Toolbox:
             "params_total_b": raw.get("params_total_b"),
             "params_run_b": raw.get("params_run_b"),
             "decode_tok_s": raw.get("decode_tok_s"),
+            "heal_seconds": raw.get("heal_seconds"),
+            "heal_steps_run": raw.get("heal_steps_run"),
             "compile_seconds": raw.get("compile_seconds"),
             "practice_seconds": raw.get("practice_seconds"),
             "errors": raw.get("errors") or [],
@@ -533,6 +565,9 @@ class Toolbox:
             # so programs practiced on fewer skills rank fairly.
             result["request_objective"] = objective(per_skill, self.request["skills"])
         violations = sizes.check_measured(raw, self.constraints)
+        if raw.get("ok") and self.constraints.get("max_heal_minutes") is not None and \
+                raw.get("heal_seconds") is None:
+            violations.append("the compile did not report heal_seconds, so the max_heal_minutes cap is not checked")
         for name, cap_name in [("params_total_b", "max_total_params_b"), ("params_run_b", "max_run_params_b")]:
             if raw.get("ok") and self.constraints.get(cap_name) is not None and raw.get(name) is None:
                 violations.append(f"the compile did not report {name}, so the {cap_name} cap is not checked")
@@ -550,7 +585,7 @@ class Toolbox:
         runs = []
         for cache_key in self.practiced:
             entry = self.practiced[cache_key]
-            if entry["result"]["within_constraints"]:
+            if entry["result"]["within_constraints"] and not has_control(Program.from_dict(entry["program"])):
                 runs.append(entry)
         runs.sort(key=lambda entry: entry["result"].get("request_objective") or 0.0, reverse=True)
         return runs
@@ -561,6 +596,9 @@ class Toolbox:
         program, error = self.parse(program_text)
         if error is not None:
             return error
+        if has_control(program):
+            return {"ok": False, "error": "finish needs the real program, not a control: remove `control random`. "
+                                          "The final report builds the random control itself."}
         key = program_hash(program.to_dict())
         match = None
         for entry in self.good_runs():
@@ -598,6 +636,19 @@ class Toolbox:
                          "program_hash": best["result"]["program_hash"], "practice": best["result"],
                          "model_dir": best["model_dir"], "no_model": False, "fallback": True}
         return self.finished
+
+
+def has_control(program):
+    """True when any graft, experts, or insert statement of the program carries a control."""
+    for graft in program.grafts:
+        if graft.control is not None:
+            return True
+    if program.experts_spec is not None and program.experts_spec.control is not None:
+        return True
+    for spec in program.inserts:
+        if spec.control is not None:
+            return True
+    return False
 
 
 def read_language_text(root):

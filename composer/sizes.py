@@ -212,6 +212,17 @@ def insert_size(spec, host_info, estimate, info_for):
     estimate.add(size, size * active_ratio(info), f"insert {spec.donor} layers {spec.layers[0]}..{spec.layers[1]}")
 
 
+def graft_glue_params(graft, host_info, donor_info):
+    """Billions of parameters in the w_in and w_out glue of a block graft (full rank unless glue_rank is set)."""
+    if host_info is None or not host_info.get("hidden") or not donor_info.get("hidden"):
+        return 0.0
+    d_host = host_info["hidden"]
+    d_donor = donor_info["hidden"]
+    if graft.glue_rank:
+        return 2.0 * graft.glue_rank * (d_host + d_donor) / 1e9
+    return 2.0 * d_host * d_donor / 1e9
+
+
 def estimate_program(program, models, records):
     """Return an Estimate of the compiled program's size.
 
@@ -298,7 +309,8 @@ def estimate_program(program, models, records):
             first, last = record["layers"]
             # A reversed range is a violation; it must never lower the estimate.
             count = max(1, last - first + 1)
-            estimate.add(size * count, size * count * active_ratio(info),
+            glue = graft_glue_params(graft, find_info(models, program.host), info)
+            estimate.add(size * count + glue, size * count * active_ratio(info) + glue,
                          f"graft {graft.component_id} ({count} layers)")
         else:
             part_size(record, models, estimate)
@@ -429,6 +441,38 @@ def same_tokenizer(models, first, second):
     return a == b
 
 
+def compile_conflicts(program, kinds):
+    """Combinations that wsp.compiler.check_program and check_written refuse. Each would cost a compile."""
+    problems = []
+    has_mask = program.masks is not None or len(program.task_vectors) > 0
+    if program.is_written():
+        # compile_written has its own rules and ignores the others.
+        for kind in kinds:
+            if kind in ("graft", "experts", "insert"):
+                problems.append("a program that writes one plain model (from, carve, splice) cannot have "
+                                "grafts, experts, or inserts")
+                break
+        if has_mask:
+            problems.append("a program that writes one plain model (from, carve, splice) cannot have masks or "
+                            "task vectors")
+        if program.lora_spec is None and program.heal_spec is not None:
+            problems.append("in a program that writes one plain model, heal trains a LoRA that is merged at the "
+                            "end: add a lora statement")
+    else:
+        if ("experts" in kinds or "insert" in kinds) and has_mask:
+            problems.append("masks and task vectors cannot join experts or inserts in one program")
+        spec = program.lora_spec
+        if program.experts_spec is not None and spec is not None and spec.layers is not None:
+            problems.append("an experts program puts its LoRA on the attention of every layer: drop the lora "
+                            "layers")
+        if program.heal_spec is not None and spec is None and len(kinds) == 0:
+            problems.append("this program has a heal but nothing to train: add a lora statement, a graft, "
+                            "experts, or an insert")
+    if program.lora_spec is not None and program.heal_spec is None:
+        problems.append("a program with a lora needs a heal statement to train it")
+    return problems
+
+
 def structure_violations(program, models):
     """Violations of the language rules that the compile would raise after it has started."""
     violations = []
@@ -446,6 +490,7 @@ def structure_violations(program, models):
         if graft.gate_bias != gated[0].gate_bias or graft.gate_lr != gated[0].gate_lr:
             violations.append("grafts with gate on must share gate_bias and gate_lr")
             break
+    violations += compile_conflicts(program, kinds)
     if program.heal_spec is not None and program.heal_spec.distill is not None:
         teacher = program.heal_spec.distill
         match = same_tokenizer(models, program.host, teacher)

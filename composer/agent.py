@@ -30,11 +30,17 @@ SHORT_LANGUAGE = """Short language notes (call language_reference for the full t
 - `graft ID at N rank R stitch mlp objective donor_lm steps S` puts a mined part or a donor layer block
   inside the host at layer N, with a trained stitch. Block ids: block/<org>/<model>/<first>-<last>.
   objective donor_lm needs the same tokenizer as the host; downstream works across tokenizers.
-- `tap DONOR layer L at N` lets host layer N read a donor's layer L states; it needs `tap_train`.
-- `splice base a sources a=M1,b=M2 plan a:0..13, b:14..27` builds one plain model from layer segments.
+- `graft ID at N gate on gate_bias -1.0`: a token gate on the graft, so several grafts share one host.
+- `experts DONOR1,DONOR2 top_k K` makes each layer's MLP a router over the host MLP and the donors' MLPs.
+- `insert DONOR layers A..B at N stitch mlp` adds donor layers as a gated residual branch.
 - `from M` plus `carve target 1.5b select influence` keeps a source's most useful layers to fit a size.
+- `splice base a sources a=M1,b=M2 plan a:0..13, b:14..27` builds one plain model from layer segments.
 - `mask` and `tv` apply catalog deletion masks and task vectors to the host.
-- `lora rank R` adds a host LoRA trained by heal. `heal steps S data D lr X` trains the glue and LoRAs.
+- `lora rank R` adds a host LoRA trained by heal. `heal steps S data D lr X` trains the new parts and LoRAs.
+  `heal ... distill TEACHER kd_weight 1.0` adds a distillation loss (teacher with the host's tokenizer).
+- `budget total 2b active 1b heal_minutes 30` can only tighten the request's limits.
+- `control random` on a graft, experts, or insert builds the same shape from random components of the same size.
+- Not available: `tap` and `tap_train`. A tap runs a source model at inference, so the result is not one network.
 """
 
 
@@ -47,7 +53,31 @@ def load_request(path):
     for skill in request["skills"]:
         if skill not in SKILLS:
             raise ValueError(f"{path}: unknown skill {skill!r}; the skills are {', '.join(sorted(SKILLS))}")
+    check_request_options(path, request)
     return request
+
+
+def check_request_options(path, request):
+    """Check the optional request keys: limits, item caps, and the report options."""
+    constraints = request["constraints"]
+    for name in ["max_total_params_b", "max_run_params_b", "max_heal_minutes", "heal_steps_cap"]:
+        value = constraints.get(name)
+        if value is not None and (isinstance(value, bool) or not isinstance(value, (int, float)) or value <= 0):
+            raise ValueError(f"{path}: constraints.{name} is a number above 0 or null, got {value!r}")
+    base = request.get("base")
+    if base is not None and (not isinstance(base, str) or base == ""):
+        raise ValueError(f"{path}: base is a model id or null, got {base!r}")
+    for name in ["practice_items", "heldout_items"]:
+        value = request.get(name)
+        if value is not None and (isinstance(value, bool) or not isinstance(value, int) or value < 1):
+            raise ValueError(f"{path}: {name} is an integer of 1 or more or null, got {value!r}")
+    report = request.get("report", {})
+    if not isinstance(report, dict):
+        raise ValueError(f"{path}: report is an object")
+    for name in report:
+        if name not in ("control_seeds", "far_factor", "noise_floor"):
+            raise ValueError(f"{path}: unknown report option {name!r}; the options are control_seeds, "
+                             f"far_factor, noise_floor")
 
 
 def system_prompt(request, max_turns, max_tokens):
@@ -67,11 +97,14 @@ def system_prompt(request, max_turns, max_tokens):
         return str(value)
 
     lines = [
-        "You are the composer for wsp, a language and compiler that writes new models by composing",
-        "proven components of existing open models: grafted donor blocks and mined parts with trained",
-        "stitches, taps, splices, carves, deletion masks, task vectors, and a short heal.",
+        "You are the composer for Sapien (the wsp package), a language and compiler that writes one new network",
+        "by composing components mined from existing open models: grafted donor blocks and mined parts with",
+        "trained stitches (optionally gated), routed experts, inserted donor layers, splices, carves, deletion",
+        "masks, task vectors, and a short heal (a LoRA heal or a distillation heal).",
         "",
         "Goal: " + request.get("description", request["name"]),
+        ("Base: the program's host must be " + request["base"] + "." if request.get("base") else
+         "Base: you choose the host."),
         "Objective: " + request.get("objective", "weighted mean of skill scores") +
         ". The score is the weighted mean of the skill scores below.",
         "",
@@ -83,13 +116,21 @@ def system_prompt(request, max_turns, max_tokens):
         "Rules:",
         "- Compose components only. You never write, set, or edit raw weight values, and no tool lets you.",
         "  Your output is a program in the wsp language.",
-        "- Heal and stitch (and tap_train for taps) are the only training. Each stage has at most "
+        "- Stitches and the heal are the only training. Each stage has at most "
         + cap("heal_steps_cap") + " steps.",
-        "- A host with only a LoRA and heal is the fine-tuning baseline and is rejected. The final report",
-        "  compares your program with that LoRA, with the base alone, and with each source model.",
-        "- Constraints: total params at most " + cap("max_total_params_b") + "b; params run per token at most "
-        + cap("max_run_params_b") + "b. compile_and_practice checks an estimate before compiling and the",
-        "  measured size after.",
+        "- The result is ONE network that runs alone. You cannot write taps: a tap runs a source model at",
+        "  inference, and a program with one is rejected.",
+        "- A host with only a LoRA and heal (or a distillation heal) is the fine-tuning baseline and is rejected.",
+        "- Limits: total params at most " + cap("max_total_params_b") + "b; params run per token at most "
+        + cap("max_run_params_b") + "b; heal at most " + cap("max_heal_minutes") + " minutes. The limits are",
+        "  added to your program as its budget. compile_and_practice checks an estimate before compiling and",
+        "  the measured numbers after. The model may grow past the base when the limits allow it.",
+        "- The final report scores your program on held-out items against: the base; the base with a LoRA; the",
+        "  base with a distillation heal from each source that has the host's tokenizer; your program with",
+        "  `control random` on every component (random components of the same size); and, when the size limit is",
+        "  far above the base, the best existing model of that size. All arms get the same heal data and budget.",
+        "  A program that does not beat its own random control by more than seed noise has not shown that its",
+        "  components matter, so prefer components whose practice score drops under `control random`.",
         "",
         "Budgets:",
         f"- Compile budget: {constraints.get('compile_budget', 10)} compiles. A parse error, a constraint",
