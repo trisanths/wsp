@@ -9,12 +9,7 @@ def top_activation_neurons(model, tokenizer, texts, mlp_module, n, max_tokens=50
     Activations are the inputs of the MLP's down_proj. Texts run one at a time
     with no padding. Stops after max_tokens tokens.
     """
-    down = None
-    for name, child in mlp_module.named_children():
-        if name == "down_proj":
-            down = child
-    if down is None:
-        raise ValueError("mlp_module has no child named down_proj")
+    down = _find_down_proj(mlp_module)
 
     device = next(model.parameters()).device
     sums = torch.zeros(down.in_features, dtype=torch.float64)

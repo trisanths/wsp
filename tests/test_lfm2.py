@@ -164,3 +164,57 @@ def test_lfm3_mlp_cluster_keeps_the_sandwich_norm():
     with torch.no_grad():
         want = layer.post_ffn_norm(layer.feed_forward(layer.ffn_norm(x)))
         assert torch.allclose(part(x), want, atol=1e-5)
+
+
+def test_lfm2_mlp_width_when_config_size_equals_hidden_size():
+    # intermediate_size 48 equals hidden_size 48, so the config size shows
+    # up in the w1 shape (256, 48) by chance. The width is still 256.
+    config = transformers.Lfm2Config(
+        hidden_size=48, intermediate_size=48, num_hidden_layers=2, num_attention_heads=4,
+        num_key_value_heads=2, vocab_size=300, layer_types=["conv", "full_attention"],
+    )
+    donor = transformers.Lfm2ForCausalLM(config)
+    assert donor.model.layers[0].feed_forward.w2.in_features == 256
+    assert mlp_width(config, 0) == 256
+
+
+def test_top_activation_neurons_reads_the_lfm2_w2_input():
+    from wsp.extract import top_activation_neurons
+    from tests.test_align import tiny_tokenizer
+
+    _, donor = tiny_donor("lfm2")
+    mlp = donor.model.layers[ATTENTION_LAYER].feed_forward
+    picked = top_activation_neurons(donor, tiny_tokenizer(), ["the cat sat on a mat"] * 2, mlp, 5)
+    assert picked.shape == (5,)
+    assert int(picked.max()) < mlp.w2.in_features
+
+
+def lfm2_moe_donor():
+    from tests.test_expert import tiny_lfm2_moe
+
+    torch.manual_seed(0)
+    donor = tiny_lfm2_moe().eval()
+    donor.config._attn_implementation = "eager"
+    return donor.config, donor
+
+
+def test_lfm2_moe_attn_heads_find_the_pos_emb_rotary():
+    # LFM2 MoE names its rotary module pos_emb, not rotary_emb.
+    config, donor = lfm2_moe_donor()
+    found = find_layer_modules(config, ATTENTION_LAYER)
+    assert type(found["rotary"]).__name__ == "Lfm2MoeRotaryEmbedding"
+    part = build_attn_heads(config, ATTENTION_LAYER, torch.arange(4), donor.state_dict())
+    ids = torch.randint(3, 300, (2, 7))
+    x, attn = layer_attention_io(donor, donor.model.layers[ATTENTION_LAYER], ids)
+    with torch.no_grad():
+        assert torch.allclose(part(x), attn, atol=1e-5)
+
+
+def test_lfm2_moe_block_over_attention_and_conv_moe_layers():
+    config, donor = lfm2_moe_donor()
+    part = build_block_part(config, 0, 2, donor.state_dict())
+    assert part.recurrent == [True, False, True]
+    ids = torch.randint(3, 300, (2, 7))
+    x, y = capture_block(donor, 0, 2, ids)
+    with torch.no_grad():
+        assert torch.allclose(part(x), y - x, atol=1e-5)

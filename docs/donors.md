@@ -34,9 +34,17 @@ How each fits the language:
   cached generate, beam search, and chunked prefill equal the uncached
   path. Tested on tiny random lfm2 and lfm3 configs only.
 - **MoE experts:** LFM2.5-8B-A1B and 24B-A2B have 32 small experts per layer,
-  good `expert` parts. Tested on a tiny random lfm2_moe config.
+  good `expert` parts. Tested on a tiny random lfm2_moe config. `attn_heads`
+  and `block` parts also work on lfm2_moe layers.
 
 Transformers 5.23.0 has the lfm2_moe, lfm3, and gemma4 model types. It
 has no qwen3_8 type; its newest Qwen types are qwen3_5, qwen3_5_moe,
-qwen3_next, and qwen4_exp. Of the new families only lfm2, lfm2_moe, and
-lfm3 have wsp tests so far.
+qwen3_next, and qwen4_exp. On tiny random configs:
+
+- **qwen3_5:** `attn_heads` (with each head's gate rows), `block` over
+  gated delta net and attention layers (cached, padded, and chunked), and
+  `mlp_cluster` work.
+- **gemma4:** `block` works when the layers take no per-layer inputs and
+  share no KV states. Blocks over such layers (E2B, E4B, and shared-KV
+  layers) and all `attn_heads` parts raise NotImplementedError.
+  `mlp_cluster` is not supported yet.

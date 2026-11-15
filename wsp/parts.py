@@ -229,12 +229,15 @@ def _add_attention_modules(result, model, layer_module, layer_prefix):
     result["rotary"] = None
     best_score = -1
     for name, module in model.named_modules():
-        if not name.endswith("rotary_emb"):
+        # Most models name the rotary rotary_emb. LFM2-MoE calls it pos_emb,
+        # so we also match the class name.
+        class_name = type(module).__name__
+        if not name.endswith("rotary_emb") and not class_name.endswith("RotaryEmbedding"):
             continue
         score = 1
         if "language_model" in name or "text_model" in name:
             score = 3
-        elif "vision" in name or "visual" in name:
+        elif "vision" in name or "visual" in name or "Vision" in class_name:
             score = 0
         if score > best_score:
             result["rotary"] = module
@@ -307,12 +310,15 @@ def _mlp_width(mlp, text_config):
 
     This is the config's intermediate_size when some MLP tensor has that
     size. Otherwise (LFM2 with block_auto_adjust_ff_dim) it is the input
-    width of the last linear layer, the down projection.
+    width of the last linear layer, the down projection. With
+    block_auto_adjust_ff_dim on we always read the down projection, as the
+    config size can equal the hidden size by chance.
     """
     width = text_config.intermediate_size
-    for value in mlp.state_dict().values():
-        if width in tuple(value.shape):
-            return width
+    if not getattr(text_config, "block_auto_adjust_ff_dim", False):
+        for value in mlp.state_dict().values():
+            if width in tuple(value.shape):
+                return width
     last = None
     for child in mlp.children():
         if isinstance(child, nn.Linear):
@@ -721,6 +727,12 @@ def _require_attention(found, layer):
     if found["attn"] is None:
         raise ValueError(f"layer {layer} has no self_attn module (it may be a conv layer); "
                          "pick an attention layer for kind 'attn_heads'")
+    # Gemma 4 attention takes the KV states shared between layers and has
+    # its own head sizes per layer. Our head slicing does not handle that.
+    params = inspect.signature(found["attn"].forward).parameters
+    if "shared_kv_states" in params:
+        raise NotImplementedError(f"{type(found['attn']).__name__} shares KV states between layers; "
+                                  "attn_heads does not support it yet")
 
 
 def _layer_type(text_config, layer):
@@ -950,7 +962,12 @@ def build_attn_heads(config, layer, heads, tensors):
         tensor = tensors[f"{attn_prefix}.{key}"]
         owner = key.split(".")[0]
         if owner == "q_proj":
-            tensor = tensor.index_select(0, q_rows.to(tensor.device))
+            rows = q_rows
+            if tensor.shape[0] == 2 * num_heads * head_dim:
+                # Qwen3.5 and Qwen3-Next keep a query and a gate per head:
+                # 2 * head_dim rows for each head.
+                rows = _head_rows(heads.tolist(), 2 * head_dim)
+            tensor = tensor.index_select(0, rows.to(tensor.device))
         elif owner in ("k_proj", "v_proj"):
             tensor = tensor.index_select(0, kv_rows.to(tensor.device))
         elif owner == "qkv_proj":
@@ -984,6 +1001,24 @@ def build_attn_heads(config, layer, heads, tensors):
     return part
 
 
+def _require_plain_block(text_config, first, last):
+    """Raise NotImplementedError for decoder layers that need inputs a block part cannot give.
+
+    Gemma 3n and Gemma 4 E2B and E4B feed each layer its own per-layer
+    input, and their last layers reuse the KV states of earlier layers.
+    """
+    if getattr(text_config, "hidden_size_per_layer_input", 0):
+        raise NotImplementedError("the donor layers take per-layer inputs (Gemma 3n, Gemma 4 E2B/E4B); "
+                                  "block parts do not support them yet")
+    modes = getattr(text_config, "kv_sharing_modes", None)
+    if modes is None:
+        return
+    for index in range(first, last + 1):
+        if index < len(modes) and modes[index] is not None:
+            raise NotImplementedError(f"donor layer {index} shares KV states with other layers; "
+                                      "block parts do not support it yet")
+
+
 def _find_block(config, first, last):
     """Find donor decoder layers first..last (inclusive) on the meta device.
 
@@ -996,6 +1031,7 @@ def _find_block(config, first, last):
     if first < 0 or last < first:
         raise ValueError(f"bad block range [{first}, {last}]")
     list_name, layers = find_decoder_layers(model, last)
+    _require_plain_block(_text_config(config), first, last)
 
     result = {}
     result["to_module"] = to_module
