@@ -3,8 +3,46 @@
 One network of exactly the host's size. For each family, the host and its
 same-lineage specialists give per-tensor differences. A diagonal CMA-ES
 searches one mixing weight per (specialist, layer bucket, attention or MLP)
-plus one density per specialist, on practice sets, and the best genome is
-written as a plain Hugging Face model. Nothing runs beside the host.
+plus one density per specialist, and the best genome is written as a plain
+Hugging Face model. Nothing runs beside the host.
+
+Rule: no benchmark data trains anything, and under the default objective no
+benchmark selects anything either. Benchmarks are scored once, at the end.
+
+Search objective (--objective):
+  probe     default. Benchmark-free and forward-only (wsp.weave.ProbeObjective).
+            Each member is the teacher on held-out text of its own skill pool
+            from wsp.healdata. Before the search, every member and the host
+            run the probe texts once, teacher-forced, and the top-64 token ids
+            with log-probs and the tail mass are cached on the volume (keyed by
+            repo revision and a hash of the texts). A candidate mix is scored
+            by forward passes against those caches: transfer_i is the gap
+            closed between KL(member_i || host) and 0 on member i's pool, drift
+            is KL(host || candidate) on general text, and
+              objective = mean transfer - 10 * max(0, drift - 0.05 nats).
+            No generation and no benchmark item is read.
+  practice  the old objective: generated answers on practice splits of the
+            same benchmarks the round reports (GSM8K train and so on). The
+            members trained on much of that data, so the row records
+            practice_contaminated. Kept for comparison. All its benchmark
+            loads live in practice_items_for.
+
+Probe texts. Per pool, healdata.pool(name, 288, seed=0, skip=2000) gives the
+rows 2000 to 2287 of the seeded pool order. Split a (rows 2000 to 2095)
+drives the search, split b (2096 to 2191) validates each generation, split c
+(2192 to 2287) is never used to select and gives the numbers for the probe
+go rule and content_z. A member with two pools uses 48 texts of each per
+split. Default 96 texts per split, at most 384 tokens. A short pool falls back
+to its last rows (the row records the mode). Heal scripts that read the same
+pool with seed 0 take rows below 2000.
+
+Member to pool. math and math500 members use "math"; mbpp and humaneval use
+"code"; medmcqa uses "medicine"; legal uses "law". A reasoning member
+(marked "reasoning" below) uses the "reasoning" pool when healdata.SOURCES has
+one, else "math" plus "code". Tool, RAG, extraction, and any skill without a
+pool use "general", and the row says the pool is a weak proxy. Pools are
+looked up by name in healdata.SOURCES; a missing pool falls back to
+"general" and is marked weak.
 
 Cells (one per family; the lineage notes come from the 2026-11-14 scout):
   qwen15    Qwen2.5-1.5B-Instruct with the Coder and Math 1.5B Instruct
@@ -23,49 +61,57 @@ Cells (one per family; the lineage notes come from the 2026-11-14 scout):
             Qwen2.5-32B base), OpenCodeReasoning-Nemotron-32B and
             OpenThinker-32B (parent: the host).
   lfm2      LFM2-1.2B with the Tool, RAG, and Extract fine-tunes. Their
-            skills have no scorer in wsp.skills_eval, so this cell is
+            skills have no benchmark scorer here, so this cell is
             exploratory: target GSM8K, guard MMLU, no go rule.
   qwen3_8b  Qwen3-8B with II-Medical-8B and LegalEvolver-Qwen3-8B (legal has
-            no scorer here; it enters as a member with no target skill).
+            no benchmark scorer here; it enters as a member with no target
+            skill, and the probe scores it on the "law" pool).
 
-Targets are the members' skills: math (GSM8K, MATH-500), code (MBPP;
+Benchmark targets are the members' skills: math (GSM8K, MATH-500), code (MBPP;
 HumanEval is scored on the final test only, as transfer), medicine
-(MedMCQA). The guard skill is MMLU. Practice sets are two disjoint splits of
-about 150 items per skill from data the final test never uses (but the
-members were trained on much of it: GSM8K, MATH, MBPP, and MedMCQA train data
-or data derived from it, so member scores on practice are inflated against the
-clean final test; the row records member_practice_minus_final per skill and
-practice_contaminated): GSM8K train,
-MATH train (DigitalLearningGmbH/MATH-lighteval), MBPP ids 511 to 974 (the
-full train and validation splits; the sanitized test split is ids 11 to 510),
-MedMCQA train, MMLU validation. Final test sets match round 16b: GSM8K 300
+(MedMCQA). The guard skill is MMLU. Final test sets match round 16b: GSM8K 300
 seeded, MBPP sanitized 200 seeded, MMLU dev 1000, MedMCQA 1000; MATH-500 uses
-a seeded 250 and HumanEval all 164.
+a seeded 250 and HumanEval all 164. Under --objective practice, the practice
+sets are two disjoint splits of about 150 items per skill: GSM8K train, MATH
+train (DigitalLearningGmbH/MATH-lighteval), MBPP ids 511 to 974, MedMCQA
+train, MMLU validation; the members trained on much of it, so the row records
+member_practice_minus_final per skill and practice_contaminated.
 
 Scoring uses wsp.skills_eval with the host's tokenizer and chat template for
 every arm, including the members (a member is scored in the host's slot:
 its attention, MLP, and norm tensors are written into the host; embeddings
 and the output head stay the host's). The prompts are identical for every arm.
 
-Arms on the final test: host, each member, the searched genome, uniform
-average, task arithmetic (scale picked on practice split A from 0.25, 0.5,
-1.0), corrected TIES (keep 0.5, scale picked on A from 0.5, 1.0), and the
-random control (the best genome on differences shuffled inside each tensor).
+Arms on the final test, scored once at the end: host, each member, the
+searched genome, uniform average, task arithmetic (scale picked on search
+split A from 0.25, 0.5, 1.0), corrected TIES (keep 0.5, scale picked on A from
+0.5, 1.0), and one random control (the best genome on differences shuffled
+inside each tensor). The fixed recipes and the random controls are also
+scored with the probe objective on splits a, b, and c. The row adds
+content_z of the best mix against 4 random controls (seeds differ), probe
+only.
 
-Go rule, at exactly the host's size: the searched mix beats the host on every
-target skill by more than 2 points with the MMLU guard within 1 point, its
-final-test objective beats uniform, task arithmetic, and TIES, and the random
-control stays within 2 points of the host on every target skill and scores
-below the searched mix. Rows also give,
+Go rule, at exactly the host's size, in two parts. Both must hold.
+  probe       the best mix's transfer is above 0.3 on every member's pool
+              (split c), its drift is under the tolerance (0.05 nats), and
+              content_z against the random controls is above 2.
+  benchmarks  the searched mix beats the host on every target skill by more
+              than 2 points with the MMLU guard within 1 point, its final-test
+              objective beats uniform, task arithmetic, and TIES, and the
+              random control stays within 2 points of the host on every target
+              skill and scores below the searched mix.
+Under --objective practice only the benchmark part is judged. Rows also give,
 per target skill, the share of the host-to-best-member gap the mix closes.
 
     modal run modal_round21.py --family qwen7b
     modal run modal_round21.py --family all --shard 0 --nshards 3
     modal run modal_round21.py --family qwen32b --plan-only
+    modal run modal_round21.py --family qwen7b --objective practice
 
 Writes results/round21_shard<i>.json (rows), the full search log to
-/vol/results/round21/<family>.json, and the best model to
-/vol/written/round21_<family> (weave.json beside the weights).
+/vol/results/round21/<family>.json, the teacher caches to
+/vol/probe_cache/round21, and the best model to /vol/written/round21_<family>
+(weave.json beside the weights).
 """
 
 import hashlib
@@ -110,6 +156,30 @@ GUARD_POINTS = 0.01
 PAGEABLE_GBPS = 6.0
 PRACTICE_SEEDS = {"gsm8k": 11, "math500": 12, "mbpp": 13, "medmcqa": 3, "mmlu": 5}
 
+OBJECTIVES = ("probe", "practice")
+PROBE_TEXTS = 96
+PROBE_LEN = 384
+PROBE_TOP_K = 64
+PROBE_BATCH = 4
+PROBE_SEED = 0
+PROBE_SKIP = 2000
+PROBE_SPLITS = ("a", "b", "c")
+DRIFT_TOLERANCE = 0.05
+DRIFT_WEIGHT = 10.0
+TRANSFER_MIN = 0.3
+Z_MIN = 2.0
+N_CONTROLS = 4
+PROBE_POPULATION = 24
+PROBE_GENERATIONS = 40
+PROBE_BUDGET_SHARE = 0.85
+AVG_PROBE_TOKENS = 300
+FORWARD_FLOPS = 2.5e14
+FORWARD_BATCH_SECONDS = 0.05
+DISK_GBPS = 2.5
+CACHE_DIR = "/vol/probe_cache/round21"
+POOL_BY_SKILL = {"gsm8k": "math", "math500": "math", "math": "math", "mbpp": "code", "humaneval": "code",
+                 "code": "code", "medmcqa": "medicine", "medicine": "medicine", "legal": "law"}
+
 FAMILIES = {
     "qwen15": {
         "host": "Qwen/Qwen2.5-1.5B-Instruct", "params_b": 1.5, "targets": ["gsm8k", "mbpp"], "guards": ["mmlu"],
@@ -124,7 +194,7 @@ FAMILIES = {
         "host": "Qwen/Qwen2.5-7B-Instruct", "params_b": 7.6, "targets": ["gsm8k", "math500", "mbpp"],
         "guards": ["mmlu"], "transfer": ["humaneval"], "refs": {},
         "members": [
-            {"name": "openthinker", "id": "open-thoughts/OpenThinker-7B", "skill": "math500", "ref": None},
+            {"name": "openthinker", "id": "open-thoughts/OpenThinker-7B", "skill": "math500", "reasoning": True, "ref": None},
             {"name": "ocr_nemotron", "id": "nvidia/OpenCodeReasoning-Nemotron-7B", "skill": "mbpp", "ref": None},
         ],
         "memory_gib": 256, "gpu": "H200",
@@ -135,7 +205,7 @@ FAMILIES = {
         "refs": {"base31": "unsloth/Meta-Llama-3.1-8B", "llama3_instruct": "unsloth/llama-3-8b-Instruct"},
         "members": [
             {"name": "openmath2", "id": "nvidia/OpenMath2-Llama3.1-8B", "skill": "gsm8k", "ref": "base31"},
-            {"name": "r1_llama", "id": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B", "skill": "math500",
+            {"name": "r1_llama", "id": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B", "skill": "math500", "reasoning": True,
              "ref": "base31"},
             {"name": "huatuo", "id": "FreedomIntelligence/HuatuoGPT-o1-8B", "skill": "medmcqa", "ref": None},
             {"name": "med42", "id": "m42-health/Llama3-Med42-8B", "skill": "medmcqa", "ref": "llama3_instruct"},
@@ -155,10 +225,10 @@ FAMILIES = {
         "host": "Qwen/Qwen2.5-32B-Instruct", "params_b": 32.8, "targets": ["gsm8k", "mbpp", "medmcqa"],
         "guards": ["mmlu"], "transfer": [], "refs": {"base32": "Qwen/Qwen2.5-32B"},
         "members": [
-            {"name": "qwq", "id": "Qwen/QwQ-32B", "skill": "gsm8k", "ref": "base32"},
+            {"name": "qwq", "id": "Qwen/QwQ-32B", "skill": "gsm8k", "reasoning": True, "ref": "base32"},
             {"name": "baichuan_m2", "id": "baichuan-inc/Baichuan-M2-32B", "skill": "medmcqa", "ref": "base32"},
             {"name": "ocr_nemotron", "id": "nvidia/OpenCodeReasoning-Nemotron-32B", "skill": "mbpp", "ref": None},
-            {"name": "openthinker", "id": "open-thoughts/OpenThinker-32B", "skill": "gsm8k", "ref": None},
+            {"name": "openthinker", "id": "open-thoughts/OpenThinker-32B", "skill": "gsm8k", "reasoning": True, "ref": None},
         ],
         "memory_gib": 576, "gpu": "H200",
     },
@@ -229,8 +299,81 @@ def apply_seconds(fam):
     return copies * fam["params_b"] * 2.0 / PAGEABLE_GBPS + 3.0
 
 
-def make_plan(name, budget_hours=10.0, population=POPULATION, generations=GENERATIONS, items=PRACTICE_ITEMS):
-    """Return the plan, shrinking generations, then items, then population until it fits the budget."""
+def make_plan(name, budget_hours=10.0, objective="probe", population=None, generations=None, items=PRACTICE_ITEMS):
+    """Return the plan for one family under one objective."""
+    if objective == "probe":
+        return make_probe_plan(name, budget_hours, population, generations)
+    if objective != "practice":
+        raise ValueError("objective must be probe or practice")
+    plan = make_practice_plan(name, budget_hours, population or POPULATION, generations or GENERATIONS, items)
+    plan["objective"] = "practice"
+    return plan
+
+
+def forward_seconds(params_b, texts):
+    """Rough seconds to run texts through a model once (teacher forced, no generation). A guess, not measured."""
+    tokens = texts * AVG_PROBE_TOKENS
+    return 2.0 * params_b * 1e9 * tokens / FORWARD_FLOPS + FORWARD_BATCH_SECONDS * math.ceil(texts / PROBE_BATCH)
+
+
+def make_probe_plan(name, budget_hours=10.0, population=None, generations=None):
+    """Plan for the forward-only objective.
+
+    A candidate costs one apply plus one forward pass of the probe texts of
+    every member and of the general text (split a). The search can run many
+    more candidates than the generation objective. Population and
+    generations start at PROBE_POPULATION and PROBE_GENERATIONS and shrink
+    (generations to 8, then population to 12) until the plan uses at most
+    PROBE_BUDGET_SHARE of the budget. Explicit population or generations
+    arguments set the start.
+    """
+    fam = FAMILIES[name]
+    params_b = fam["params_b"]
+    members = len(fam["members"])
+    final_skills = fam["targets"] + fam["guards"] + fam["transfer"]
+    budget = budget_hours * 3600.0
+    apply_s = apply_seconds(fam)
+    sets = members + 1
+    n_splits = len(PROBE_SPLITS)
+
+    def total(pop, gens):
+        candidate = apply_s + forward_seconds(params_b, sets * PROBE_TEXTS)
+        evals = (2 + members) + pop * gens
+        search = evals * candidate + gens * candidate
+        load = 600.0 + 900.0 * members * params_b / 8.0 / 4.0
+        # Caches: the host runs every member pool and the general pool on 3 splits, each member runs its own pool.
+        per_load = params_b * 2.0 / DISK_GBPS
+        cache = (members + 1) * per_load + (members + 1) * n_splits * forward_seconds(params_b, PROBE_TEXTS) \
+            + members * n_splits * forward_seconds(params_b, PROBE_TEXTS)
+        reference = (1 + members) * (apply_s / 2.0 + n_splits * forward_seconds(params_b, sets * PROBE_TEXTS))
+        recipes = (len(TA_SCALES) + len(TIES_SCALES)) * candidate + 4 * (candidate + 2 * forward_seconds(
+            params_b, sets * PROBE_TEXTS))
+        controls = N_CONTROLS * (2.0 * apply_s + n_splits * forward_seconds(params_b, sets * PROBE_TEXTS))
+        final = (1 + members + 5) * final_seconds(params_b, final_skills)
+        parts = {"load": load, "teacher_cache": cache, "reference": reference, "search": search,
+                 "fixed_recipes": recipes, "random_controls": controls, "final": final,
+                 "candidate_eval": candidate}
+        return load + cache + reference + search + recipes + controls + final, parts, evals
+
+    pop = population or PROBE_POPULATION
+    gens = generations or PROBE_GENERATIONS
+    seconds, parts, evals = total(pop, gens)
+    while seconds > budget * PROBE_BUDGET_SHARE and gens > 8:
+        gens -= 1
+        seconds, parts, evals = total(pop, gens)
+    while seconds > budget * PROBE_BUDGET_SHARE and pop > 12:
+        pop -= 1
+        seconds, parts, evals = total(pop, gens)
+    return {"family": name, "objective": "probe", "population": pop, "generations": gens,
+            "probe_texts": PROBE_TEXTS, "candidate_evals": evals, "expected_minutes": round(seconds / 60.0, 1),
+            "fits_budget": seconds <= budget, "budget_hours": budget_hours,
+            "minutes": {k: round(v / 60.0, 2) for k, v in parts.items()},
+            "gpu_hours": round(seconds / 3600.0, 2), "memory_gib": fam["memory_gib"],
+            "cpu_ram_gib_estimate": cpu_ram_gib(name)}
+
+
+def make_practice_plan(name, budget_hours=10.0, population=POPULATION, generations=GENERATIONS, items=PRACTICE_ITEMS):
+    """Return the practice-objective plan, shrinking generations, then items, then population until it fits the budget."""
     fam = FAMILIES[name]
     params_b = fam["params_b"]
     skills = fam["targets"] + fam["guards"]
@@ -277,8 +420,10 @@ def cpu_ram_gib(name):
 
 
 def print_plan(plan):
-    print(f"plan {plan['family']}: population {plan['population']}, generations {plan['generations']}, "
-          f"practice items {plan['practice_items']}, candidate evals {plan['candidate_evals']}")
+    size = f"probe texts {plan['probe_texts']}" if plan.get("objective") == "probe" \
+        else f"practice items {plan['practice_items']}"
+    print(f"plan {plan['family']} ({plan.get('objective')}): population {plan['population']}, "
+          f"generations {plan['generations']}, {size}, candidate evals {plan['candidate_evals']}")
     print(f"  expected {plan['expected_minutes']} min ({plan['gpu_hours']} H200 hours), "
           f"budget {plan['budget_hours']} h, fits {plan['fits_budget']}")
     print(f"  minutes by part: {plan['minutes']}")
@@ -388,6 +533,293 @@ def disjoint(a, b):
     return True
 
 
+# ---------------------------------------------------------------- probe objective (no benchmark data)
+
+
+def pool_choice(spec, sources):
+    """Map one member spec to probe pools. Returns {"pools": [...], "weak_proxy": bool, "note": str}.
+
+    sources is healdata.SOURCES (pools are looked up by name). A reasoning
+    member uses the "reasoning" pool when it exists, else "math" plus "code".
+    A skill with no pool of its own uses "general" and is marked a weak proxy.
+    """
+    skill = spec["skill"]
+    if spec.get("reasoning"):
+        if "reasoning" in sources:
+            return {"pools": ["reasoning"], "weak_proxy": False,
+                    "note": "reasoning member on the healdata reasoning pool (multiple choice commonsense and "
+                            "logic questions): a proxy for long chain of thought"}
+        both = [pool for pool in ("math", "code") if pool in sources]
+        if len(both) > 0:
+            return {"pools": both, "weak_proxy": False, "note": "reasoning member on a math and code mix"}
+    else:
+        pool = POOL_BY_SKILL.get(skill)
+        if pool is not None and pool in sources:
+            return {"pools": [pool], "weak_proxy": False, "note": ""}
+    return {"pools": ["general"], "weak_proxy": True,
+            "note": f"skill {skill}: no skill pool, general text is a weak proxy"}
+
+
+def dedupe(texts):
+    seen = set()
+    out = []
+    for text in texts:
+        if text in seen:
+            continue
+        seen.add(text)
+        out.append(text)
+    return out
+
+
+def load_pool_splits(tokenizer, pool_name):
+    """Return ({split: texts}, range info) for one healdata pool: three disjoint held-out slices.
+
+    The slice is rows PROBE_SKIP to PROBE_SKIP + 3 * PROBE_TEXTS of the seeded
+    pool order. A pool too short for that uses its last rows instead.
+    """
+    from wsp import healdata
+
+    want = PROBE_TEXTS * len(PROBE_SPLITS)
+    mode = "skip"
+    texts = dedupe(healdata.pool(pool_name, want, tokenizer=tokenizer, seed=PROBE_SEED, skip=PROBE_SKIP))
+    if len(texts) < want:
+        mode = "tail"
+        everything = dedupe(healdata.pool(pool_name, PROBE_SKIP + want, tokenizer=tokenizer, seed=PROBE_SEED, skip=0))
+        texts = everything[-want:]
+    size = len(texts) // len(PROBE_SPLITS)
+    if size < 8:
+        raise ValueError(f"pool {pool_name}: only {len(texts)} probe texts")
+    if size < PROBE_TEXTS:
+        mode += "+short"
+    splits = {}
+    for index, split in enumerate(PROBE_SPLITS):
+        splits[split] = texts[index * size:(index + 1) * size]
+    info = {"pool": pool_name, "seed": PROBE_SEED, "mode": mode, "per_split": size, "max_length": PROBE_LEN,
+            "rows": (f"{PROBE_SKIP} to {PROBE_SKIP + want - 1} of the seeded order" if mode == "skip"
+                     else f"last {len(texts)} of the first {PROBE_SKIP + want}")}
+    return splits, info
+
+
+def probe_texts_for(tokenizer, fam):
+    """Probe texts for one family. Returns {"splits": {split: {"general": [...], "members": {name: [...]}}},
+    "choices": {member: pool choice}, "ranges": {pool: info}}. Texts of different splits never overlap."""
+    from wsp import healdata
+
+    sources = healdata.SOURCES
+    choices = {}
+    needed = set(["general"])
+    for spec in fam["members"]:
+        choices[spec["name"]] = pool_choice(spec, sources)
+        needed.update(choices[spec["name"]]["pools"])
+    loaded = {}
+    ranges = {}
+    for pool in sorted(needed):
+        try:
+            loaded[pool], ranges[pool] = load_pool_splits(tokenizer, pool)
+        except ValueError as error:
+            if pool == "general":
+                raise
+            loaded[pool] = None
+            ranges[pool] = {"pool": pool, "error": str(error)[:300]}
+    used = set(["general"])
+    for spec in fam["members"]:
+        choice = choices[spec["name"]]
+        if any(loaded[pool] is None for pool in choice["pools"]):
+            choice["note"] = (choice["note"] + " pool " + ",".join(choice["pools"])
+                              + " unavailable, general text is a weak proxy").strip()
+            choice["pools"] = ["general"]
+            choice["weak_proxy"] = True
+        used.update(choice["pools"])
+    healdata.check_sources([source[0] for pool in sorted(used) for source in healdata._usable(pool)[0]])
+    splits = {}
+    for split in PROBE_SPLITS:
+        entry = {"general": loaded["general"][split], "members": {}}
+        for spec in fam["members"]:
+            pools = choices[spec["name"]]["pools"]
+            per = max(1, len(loaded[pools[0]][split]) // len(pools))
+            texts = []
+            for pool in pools:
+                texts += loaded[pool][split][:per]
+            entry["members"][spec["name"]] = texts
+        splits[split] = entry
+    for pool in loaded:
+        if loaded[pool] is None:
+            continue
+        seen = set()
+        for split in PROBE_SPLITS:
+            for text in loaded[pool][split]:
+                assert text not in seen, f"pool {pool}: a probe text sits in two splits"
+                seen.add(text)
+    return {"splits": splits, "choices": choices, "ranges": ranges}
+
+
+def fill_caches(repo, label, revision, wanted, tokenizer, vocab):
+    """Return {key: teacher cache} for wanted = {key: texts}. Loads the model only when a cache file is missing.
+
+    The model is freed before the function returns. Files live in CACHE_DIR,
+    named by label, repo revision, and a hash of the texts.
+    """
+    import gc
+
+    import torch
+    import transformers
+
+    from wsp import weave
+
+    paths = {}
+    for key, texts in wanted.items():
+        paths[key] = weave.cache_path(CACHE_DIR, label, revision, weave.text_hash(texts, PROBE_LEN, PROBE_TOP_K))
+    missing = [key for key in wanted if not os.path.exists(paths[key])]
+    if len(missing) > 0:
+        directory = download(repo)
+        model = transformers.AutoModelForCausalLM.from_pretrained(directory, dtype=torch.bfloat16, device_map="cuda")
+        model.eval()
+        for key in missing:
+            cache = weave.build_teacher_cache(model, tokenizer, wanted[key], top_k=PROBE_TOP_K, max_length=PROBE_LEN,
+                                              batch_size=PROBE_BATCH, vocab=vocab)
+            weave.save_cache(cache, paths[key])
+            print(f"cache {label} {key}: {len(wanted[key])} texts, {int(cache['lengths'].sum())} tokens")
+        del model
+        gc.collect()
+        torch.cuda.empty_cache()
+        volume.commit()
+    return {key: weave.load_cache(paths[key]) for key in wanted}
+
+
+def build_probe_caches(fam, tokenizer, revisions, data):
+    """Stage 1, before the host sits on the GPU: the host and every member run their probe texts once.
+
+    Returns {"host": {split: {"general": cache, member name: cache}}, "members": {name: {split: cache}},
+    "vocab": int}.
+    """
+    os.makedirs(CACHE_DIR, exist_ok=True)
+    wanted = {}
+    for split in PROBE_SPLITS:
+        wanted[split + ":general"] = data["splits"][split]["general"]
+        for spec in fam["members"]:
+            wanted[split + ":" + spec["name"]] = data["splits"][split]["members"][spec["name"]]
+    got = fill_caches(fam["host"], "host", revisions[fam["host"]], wanted, tokenizer, None)
+    host = {}
+    vocab = None
+    for split in PROBE_SPLITS:
+        host[split] = {"general": got[split + ":general"]}
+        vocab = got[split + ":general"]["vocab"]
+        for spec in fam["members"]:
+            host[split][spec["name"]] = got[split + ":" + spec["name"]]
+    members = {}
+    for spec in fam["members"]:
+        want = {}
+        for split in PROBE_SPLITS:
+            want[split] = data["splits"][split]["members"][spec["name"]]
+        members[spec["name"]] = fill_caches(spec["id"], spec["name"], revisions[spec["id"]], want, tokenizer, vocab)
+    return {"host": host, "members": members, "vocab": vocab}
+
+
+def setup_probe_selection(weave, model, members, caches, row):
+    """Build one ProbeObjective per split, calibrated on the host. Forward passes only; no benchmark is read."""
+    po = {}
+    baseline = {}
+    for split in PROBE_SPLITS:
+        member_caches = {}
+        host_pool = {}
+        for member in members:
+            member_caches[member.name] = caches["members"][member.name][split]
+            host_pool[member.name] = caches["host"][split][member.name]
+        po[split] = weave.ProbeObjective([m.name for m in members], member_caches, caches["host"][split]["general"],
+                                         DRIFT_TOLERANCE, DRIFT_WEIGHT, PROBE_BATCH, host_pool_caches=host_pool)
+        baseline[split] = po[split].calibrate(model)
+    row["probe"]["baseline"] = baseline
+    return {"score_a": po["a"].scores, "score_b": po["b"].scores, "objective_a": po["a"], "objective_b": po["b"],
+            "init": None, "po": po, "denom_clipped": {}}
+
+
+def arm_row(po, scores):
+    value, detail = po(scores)
+    return {"objective": value, "mean_transfer": po.mean_transfer(scores), "transfer": scores["transfer"],
+            "drift": scores["drift"], "pool_drift": scores.get("pool_drift"), "member_kl": scores["member_kl"]}
+
+
+def probe_arms(po, weaver, model, writers):
+    """Score each writer's model with the probe objective on every split. writers: {label: function that writes the model}."""
+    out = {}
+    for label, writer in writers.items():
+        writer()
+        out[label] = {}
+        for split in PROBE_SPLITS:
+            out[label][split] = arm_row(po[split], po[split].scores(model))
+        weaver.restore(model)
+        print(f"probe {label}: mean transfer a {out[label]['a']['mean_transfer']} c {out[label]['c']['mean_transfer']}")
+    return out
+
+
+def probe_go(arms, names, po):
+    """The probe part of the go rule, from split c (never used to select)."""
+    from wsp import probe
+
+    best = arms["searched"]["c"]
+    controls = []
+    by_member = {}
+    for label in arms:
+        if label.startswith("random_control_"):
+            controls.append(label)
+    stat = probe.content_z(best["mean_transfer"], [arms[c]["c"]["mean_transfer"] for c in controls])
+    for name in names:
+        by_member[name] = probe.content_z(best["transfer"][name], [arms[c]["c"]["transfer"][name] for c in controls])
+    members_ok = {}
+    for name in names:
+        value = best["transfer"][name]
+        members_ok[name] = bool(value is not None and value > TRANSFER_MIN)
+    z = None if stat is None else stat["z"]
+    drift_ok = bool(best["drift"] < po["c"].drift_tolerance)
+    z_ok = bool(z is not None and z > Z_MIN)
+    return {"transfer_over_0.3_on_every_member": members_ok, "drift": best["drift"], "drift_under_tolerance": drift_ok,
+            "content_z": stat, "content_z_by_member": by_member, "content_z_over_2": z_ok, "controls": controls,
+            "go": bool(all(members_ok.values()) and drift_ok and z_ok)}
+
+
+# ---------------------------------------------------------------- practice objective (the old path)
+# This path reads benchmark train splits through practice_items_for. It exists for comparison only.
+
+
+def setup_practice_selection(ev, model, tokenizer, weaver, members, fam, plan, row, use_layer_map):
+    """The old selection: generated answers on practice splits of the reported benchmarks."""
+    from wsp import weave
+
+    names = [m.name for m in members]
+    skills = fam["targets"] + fam["guards"]
+    row["practice_contaminated"] = True
+    items_a, items_b = practice_items_for(ev, skills, plan["practice_items"])
+    assert disjoint(items_a, items_b)
+
+    def score_a(m):
+        return ev.evaluate_suite(model, tokenizer, skills=skills, items=items_a, log=False)["scores"]
+
+    def score_b(m):
+        return ev.evaluate_suite(model, tokenizer, skills=skills, items=items_b, log=False)["scores"]
+
+    ref_a = {"host": score_a(model)}
+    ref_b = {"host": score_b(model)}
+    for index, member in enumerate(members):
+        weaver.load_member(model, index)
+        ref_a[member.name] = score_a(model)
+        ref_b[member.name] = score_b(model)
+        weaver.restore(model)
+    row["reference_scores"] = {"practice_a": ref_a, "practice_b": ref_b}
+    objective_a = weave.Objective.from_reference(fam["targets"], fam["guards"], ref_a["host"], [ref_a[n] for n in names])
+    objective_b = weave.Objective.from_reference(fam["targets"], fam["guards"], ref_b["host"], [ref_b[n] for n in names])
+    init = None
+    if use_layer_map:
+        try:
+            init = layer_map_prior(model, tokenizer, items_a, members, ev, weave)
+            row["layer_map_init"] = True
+        except Exception as error:
+            print("layer map failed, uniform start:", repr(error)[:300])
+            row["layer_map_init"] = False
+    return {"score_a": score_a, "score_b": score_b, "objective_a": objective_a, "objective_b": objective_b,
+            "init": init, "ref_a": ref_a, "ref_b": ref_b,
+            "denom_clipped": {"practice_a": objective_a.clipped(), "practice_b": objective_b.clipped()}}
+
+
 # ---------------------------------------------------------------- the cell
 
 
@@ -410,27 +842,44 @@ def revision_of(repo):
         return "unknown: " + repr(error)[:120]
 
 
-def run_family(name, budget_hours=10.0, ignore_gate=False, use_layer_map=False):
+def run_family(name, budget_hours=10.0, ignore_gate=False, use_layer_map=False, objective="probe"):
     import torch
     import transformers
 
     from wsp import skills_eval as ev
     from wsp import weave
 
+    if objective not in OBJECTIVES:
+        raise ValueError("objective must be probe or practice")
     started = time.time()
     fam = FAMILIES[name]
-    plan = make_plan(name, budget_hours)
+    plan = make_plan(name, budget_hours, objective)
     print_plan(plan)
-    row = {"family": name, "host": fam["host"], "plan": plan, "exploratory": bool(fam.get("exploratory")),
-           "targets": fam["targets"], "guards": fam["guards"], "transfer": fam["transfer"]}
+    row = {"family": name, "host": fam["host"], "objective": objective, "plan": plan,
+           "exploratory": bool(fam.get("exploratory")), "targets": fam["targets"], "guards": fam["guards"],
+           "transfer": fam["transfer"], "selects_on_benchmarks": objective == "practice"}
     host_dir = download(fam["host"])
     tokenizer = transformers.AutoTokenizer.from_pretrained(host_dir)
     assert tokenizer.chat_template, f"{fam['host']}: no chat template loaded; prompts would fall back to a plain format"
     row["chat_template_md5"] = hashlib.md5(tokenizer.chat_template.encode()).hexdigest()
     repos = [fam["host"]] + list(fam["refs"].values()) + [m["id"] for m in fam["members"]]
     row["revisions"] = {repo: revision_of(repo) for repo in repos}
-    row["seeds"] = {"practice": PRACTICE_SEEDS, "search": SEARCH_SEED, "control": CONTROL_SEED}
-    row["practice_contaminated"] = True
+    row["seeds"] = {"practice": PRACTICE_SEEDS, "search": SEARCH_SEED, "control": CONTROL_SEED,
+                    "probe": PROBE_SEED, "probe_skip": PROBE_SKIP}
+
+    # Probe objective: texts and teacher caches first, while the GPU holds no host copy.
+    caches = None
+    if objective == "probe":
+        data = probe_texts_for(tokenizer, fam)
+        row["probe"] = {"pools": data["choices"], "ranges": data["ranges"], "texts_per_split": PROBE_TEXTS,
+                        "max_length": PROBE_LEN, "top_k": PROBE_TOP_K, "drift_tolerance": DRIFT_TOLERANCE,
+                        "drift_weight": DRIFT_WEIGHT, "splits": list(PROBE_SPLITS)}
+        caches = build_probe_caches(fam, tokenizer, row["revisions"], data)
+        row["probe"]["cache_dir"] = CACHE_DIR
+        row["practice_contaminated"] = False
+        if use_layer_map:
+            row["layer_map_init"] = "ignored under the probe objective"
+
     model = transformers.AutoModelForCausalLM.from_pretrained(host_dir, dtype=torch.bfloat16, device_map="cuda")
     model.eval()
     row["params_host"] = ev.model_params(model)[0]
@@ -471,53 +920,17 @@ def run_family(name, budget_hours=10.0, ignore_gate=False, use_layer_map=False):
     names = [m.name for m in members]
     skills = fam["targets"] + fam["guards"]
     final_skills = skills + fam["transfer"]
-    items_a, items_b = practice_items_for(ev, skills, plan["practice_items"])
-    assert disjoint(items_a, items_b)
-    finals = final_items_for(ev, final_skills)
 
     def score_on(items, wanted):
         return ev.evaluate_suite(model, tokenizer, skills=wanted, items=items, log=False)["scores"]
 
-    def score_a(m):
-        return score_on(items_a, skills)
-
-    def score_b(m):
-        return score_on(items_b, skills)
-
-    # The rendered prompt is the same for every arm; keep one sample.
-    first = finals[fam["targets"][0]][0]
-    if fam["targets"][0] in GENERATIVE:
-        row["prompt_sample"] = ev.render_prompt(tokenizer, ev.user_text(fam["targets"][0], first))
+    # The search objective. Only the practice path reads benchmark train splits.
+    if objective == "probe":
+        selection = setup_probe_selection(weave, model, members, caches, row)
     else:
-        row["prompt_sample"] = first["prompt"]
-
-    # Reference scores: host and each member, on both practice splits and on the final test.
-    ref_a = {"host": score_a(model)}
-    ref_b = {"host": score_b(model)}
-    ref_f = {"host": score_on(finals, final_skills)}
-    for index, member in enumerate(members):
-        weaver.load_member(model, index)
-        ref_a[member.name] = score_a(model)
-        ref_b[member.name] = score_b(model)
-        ref_f[member.name] = score_on(finals, final_skills)
-        weaver.restore(model)
-        print(f"member {member.name}: final {ref_f[member.name]}")
-    row["reference_scores"] = {"practice_a": ref_a, "practice_b": ref_b, "final": ref_f}
-    member_a = [ref_a[n] for n in names]
-    member_b = [ref_b[n] for n in names]
-    objective_a = weave.Objective.from_reference(fam["targets"], fam["guards"], ref_a["host"], member_a)
-    objective_b = weave.Objective.from_reference(fam["targets"], fam["guards"], ref_b["host"], member_b)
-    objective_f = weave.Objective.from_reference(fam["targets"], fam["guards"], ref_f["host"],
-                                                 [ref_f[n] for n in names])
-
-    init = None
-    if use_layer_map:
-        try:
-            init = layer_map_prior(model, tokenizer, items_a, members, ev, weave)
-            row["layer_map_init"] = True
-        except Exception as error:
-            print("layer map failed, uniform start:", repr(error)[:300])
-            row["layer_map_init"] = False
+        selection = setup_practice_selection(ev, model, tokenizer, weaver, members, fam, plan, row, use_layer_map)
+    score_a = selection["score_a"]
+    objective_a = selection["objective_a"]
 
     os.makedirs("/vol/results/round21", exist_ok=True)
     progress_path = f"/vol/results/round21/{name}.progress.jsonl"
@@ -530,9 +943,9 @@ def run_family(name, budget_hours=10.0, ignore_gate=False, use_layer_map=False):
             last["generation"] = entry["generation"]
             volume.commit()
 
-    result = weave.search(weaver, model, score_a, score_b, objective_a, objective_b,
+    result = weave.search(weaver, model, score_a, selection["score_b"], objective_a, selection["objective_b"],
                           popsize=plan["population"], generations=plan["generations"], seed=SEARCH_SEED,
-                          init=init, search_density=True, density_range=(0.5, 1.0), progress=progress)
+                          init=selection["init"], search_density=True, density_range=(0.5, 1.0), progress=progress)
     volume.commit()
     best = result["best_genome"]
     row["search"] = result["summary"]
@@ -556,6 +969,54 @@ def run_family(name, budget_hours=10.0, ignore_gate=False, use_layer_map=False):
         weaver.restore(model)
     ties_scale = max(ties_a, key=lambda s: ties_a[s])
     weaver.restore(model)
+    row["recipes"] = {"task_arithmetic_scale": ta_scale, "task_arithmetic_search_a": ta_a, "ties_keep": TIES_KEEP,
+                      "ties_scale": ties_scale, "ties_search_a": ties_a, "scales_picked_on": objective + " split a"}
+
+    writers = {
+        "searched": lambda: weaver.apply(model, best),
+        "uniform": lambda: weaver.apply(model, recipes["uniform"]["genome"]),
+        "task_arithmetic": lambda: weaver.apply(model, recipes["task_arithmetic"]["genome"]),
+        "ties": lambda: weaver.apply_ties(model, keep=TIES_KEEP, scale=ties_scale),
+    }
+
+    # Probe numbers for every arm and the random controls (forward passes only).
+    if objective == "probe":
+        probe_writers = dict(writers)
+        for index in range(N_CONTROLS):
+            clone = weaver.shuffled(CONTROL_SEED + index)
+            probe_writers[f"random_control_{CONTROL_SEED + index}"] = (lambda c=clone: c.apply(model, best))
+        arms_probe = probe_arms(selection["po"], weaver, model, probe_writers)
+        in_slot = {}
+        for index, member in enumerate(members):
+            def write_member(i=index):
+                weaver.load_member(model, i)
+            in_slot.update(probe_arms(selection["po"], weaver, model, {"member:" + member.name: write_member}))
+        host_arm = {}
+        for split in PROBE_SPLITS:
+            host_arm[split] = arm_row(selection["po"][split], selection["po"][split].scores(model))
+        row["probe"]["arms"] = arms_probe
+        row["probe"]["members_in_host_slot"] = in_slot
+        row["probe"]["host"] = host_arm
+        row["probe"]["go"] = probe_go(arms_probe, names, selection["po"])
+        row["probe"]["content_z"] = row["probe"]["go"]["content_z"]
+        row["probe"]["content_z_by_member"] = row["probe"]["go"]["content_z_by_member"]
+        row["probe"]["control_seeds"] = [CONTROL_SEED + i for i in range(N_CONTROLS)]
+        row["cast_survival_best"] = weaver.cast_survival(best)
+
+    # Benchmarks, scored once: host, members, best mix, fixed recipes, one random control.
+    finals = final_items_for(ev, final_skills)
+    first = finals[fam["targets"][0]][0]
+    if fam["targets"][0] in GENERATIVE:
+        row["prompt_sample"] = ev.render_prompt(tokenizer, ev.user_text(fam["targets"][0], first))
+    else:
+        row["prompt_sample"] = first["prompt"]
+    ref_f = {"host": score_on(finals, final_skills)}
+    for index, member in enumerate(members):
+        weaver.load_member(model, index)
+        ref_f[member.name] = score_on(finals, final_skills)
+        weaver.restore(model)
+        print(f"member {member.name}: final {ref_f[member.name]}")
+    objective_f = weave.Objective.from_reference(fam["targets"], fam["guards"], ref_f["host"], [ref_f[n] for n in names])
 
     arms = {}
 
@@ -567,23 +1028,26 @@ def run_family(name, budget_hours=10.0, ignore_gate=False, use_layer_map=False):
         weaver.restore(model)
         print(f"final {label}: {scores} objective {value:.4f}")
 
-    test_arm("searched", lambda: weaver.apply(model, best))
-    test_arm("uniform", lambda: weaver.apply(model, recipes["uniform"]["genome"]))
-    test_arm("task_arithmetic", lambda: weaver.apply(model, recipes["task_arithmetic"]["genome"]))
-    test_arm("ties", lambda: weaver.apply_ties(model, keep=TIES_KEEP, scale=ties_scale))
+    for label in ["searched", "uniform", "task_arithmetic", "ties"]:
+        test_arm(label, writers[label])
     control = weaver.shuffled(CONTROL_SEED)
     test_arm("random_control", lambda: control.apply(model, best))
-    row["recipes"] = {"task_arithmetic_scale": ta_scale, "task_arithmetic_practice_a": ta_a,
-                      "ties_keep": TIES_KEEP, "ties_scale": ties_scale, "ties_practice_a": ties_a}
-    row["cast_survival_best"] = weaver.cast_survival(best)
+    if objective == "practice":
+        row["cast_survival_best"] = weaver.cast_survival(best)
     host_final = ref_f["host"]
+    row["reference_scores"] = dict(row.get("reference_scores", {}))
+    row["reference_scores"]["final"] = ref_f
     row["final"] = {"host": host_final, "members": {n: ref_f[n] for n in names}, "arms": arms}
-    row["member_practice_minus_final"] = {
-        n: {s: ref_a[n][s] - ref_f[n][s] for s in skills if s in ref_a[n] and s in ref_f[n]} for n in ["host"] + names}
-    row["denom_clipped"] = {"practice_a": objective_a.clipped(), "practice_b": objective_b.clipped(),
-                            "final": objective_f.clipped()}
+    if objective == "practice":
+        ref_a = selection["ref_a"]
+        row["member_practice_minus_final"] = {
+            n: {s: ref_a[n][s] - ref_f[n][s] for s in skills if s in ref_a[n] and s in ref_f[n]}
+            for n in ["host"] + names}
+    clipped = dict(selection["denom_clipped"])
+    clipped["final"] = objective_f.clipped()
+    row["denom_clipped"] = clipped
 
-    # Gap closed and the go rule.
+    # Gap closed and the go rule, in two parts.
     closed = {}
     beats_by = {}
     for skill in fam["targets"]:
@@ -597,16 +1061,19 @@ def run_family(name, budget_hours=10.0, ignore_gate=False, use_layer_map=False):
         if arms["searched"]["scores"][skill] < host_final[skill] - GUARD_POINTS:
             guard_ok = False
     fixed_best = max(arms["uniform"]["objective"], arms["task_arithmetic"]["objective"], arms["ties"]["objective"])
-    go = {"beats_host_by_points": beats_by,
-          "all_targets_over_2_points": all(v > GO_POINTS for v in beats_by.values()),
-          "guard_within_1_point": guard_ok,
-          "beats_fixed_recipes": arms["searched"]["objective"] > fixed_best,
-          "control_does_not_beat_host": bool(
-              all(arms["random_control"]["scores"][s] - host_final[s] <= GO_POINTS for s in fam["targets"])
-              and arms["random_control"]["objective"] < arms["searched"]["objective"]),
-          "gap_closed_share": closed}
-    go["go"] = bool(go["all_targets_over_2_points"] and go["guard_within_1_point"] and go["beats_fixed_recipes"]
-                    and go["control_does_not_beat_host"] and not fam.get("exploratory"))
+    bench = {"beats_host_by_points": beats_by,
+             "all_targets_over_2_points": all(v > GO_POINTS for v in beats_by.values()),
+             "guard_within_1_point": guard_ok,
+             "beats_fixed_recipes": arms["searched"]["objective"] > fixed_best,
+             "control_does_not_beat_host": bool(
+                 all(arms["random_control"]["scores"][s] - host_final[s] <= GO_POINTS for s in fam["targets"])
+                 and arms["random_control"]["objective"] < arms["searched"]["objective"])}
+    bench["go"] = bool(bench["all_targets_over_2_points"] and bench["guard_within_1_point"]
+                       and bench["beats_fixed_recipes"] and bench["control_does_not_beat_host"])
+    probe_part = row["probe"]["go"] if objective == "probe" else None
+    go = {"objective": objective, "probe": probe_part, "benchmarks": bench, "gap_closed_share": closed}
+    both = bench["go"] and (probe_part is None or probe_part["go"])
+    go["go"] = bool(both and not fam.get("exploratory"))
     row["go_rule"] = go
 
     # Write the row first: a failed save must not lose the search.
@@ -688,18 +1155,21 @@ def layer_map_prior(model, tokenizer, items_a, members, ev, weave):
 
 
 @app.function(image=image, volumes={"/vol": volume}, gpu="H200", memory=262144, timeout=24 * 3600)
-def run_small(name, budget_hours=10.0, ignore_gate=False, use_layer_map=False):
-    return run_family(name, budget_hours, ignore_gate, use_layer_map)
+def run_small(name, budget_hours=10.0, ignore_gate=False, use_layer_map=False, objective="probe"):
+    return run_family(name, budget_hours, ignore_gate, use_layer_map, objective)
 
 
 @app.function(image=image, volumes={"/vol": volume}, gpu="H200", memory=589824, timeout=24 * 3600)
-def run_big(name, budget_hours=20.0, ignore_gate=False, use_layer_map=False):
-    return run_family(name, budget_hours, ignore_gate, use_layer_map)
+def run_big(name, budget_hours=20.0, ignore_gate=False, use_layer_map=False, objective="probe"):
+    return run_family(name, budget_hours, ignore_gate, use_layer_map, objective)
 
 
 @app.local_entrypoint()
 def main(family: str = "all", shard: int = 0, nshards: int = 1, budget_hours: float = 0.0,
-         plan_only: bool = False, ignore_gate: bool = False, use_layer_map: bool = False):
+         plan_only: bool = False, ignore_gate: bool = False, use_layer_map: bool = False,
+         objective: str = "probe"):
+    if objective not in OBJECTIVES:
+        raise ValueError("--objective must be probe or practice")
     names = list(FAMILIES.keys()) if family == "all" else family.split(",")
     mine = []
     for index, name in enumerate(names):
@@ -709,12 +1179,12 @@ def main(family: str = "all", shard: int = 0, nshards: int = 1, budget_hours: fl
     handles = []
     for name in mine:
         hours = budget_hours if budget_hours > 0 else (20.0 if name in BIG else 10.0)
-        plan = make_plan(name, hours)
+        plan = make_plan(name, hours, objective)
         print_plan(plan)
         if plan_only:
             continue
         runner = run_big if name in BIG else run_small
-        handles.append((name, runner.spawn(name, hours, ignore_gate, use_layer_map)))
+        handles.append((name, runner.spawn(name, hours, ignore_gate, use_layer_map, objective)))
     rows = []
     for name, handle in handles:
         try:

@@ -549,3 +549,136 @@ def test_bf16_save_and_reload_keeps_dtype_and_values(tmp_path):
     loaded = transformers.AutoModelForCausalLM.from_pretrained(path, dtype=torch.bfloat16)
     assert all(p.dtype == torch.bfloat16 for p in loaded.parameters())
     assert same(mixed, loaded.state_dict())
+
+
+# ---------------------------------------------------------------- probe objective
+
+
+class ProbeTokenizer:
+    """Whitespace tokenizer into ids 1..30, enough for the tiny models (vocab 100)."""
+
+    pad_token = "<pad>"
+    eos_token = "<pad>"
+    pad_token_id = 0
+    padding_side = "right"
+    chat_template = None
+
+    def __call__(self, texts, return_tensors="pt", padding=True, truncation=True, max_length=64,
+                 add_special_tokens=True):
+        rows = []
+        for text in texts:
+            rows.append([1 + (sum(ord(c) for c in word) % 30) for word in text.split()][:max_length])
+        width = max(len(row) for row in rows)
+        input_ids = torch.zeros(len(rows), width, dtype=torch.long)
+        mask = torch.zeros(len(rows), width, dtype=torch.long)
+        for index, row in enumerate(rows):
+            input_ids[index, :len(row)] = torch.tensor(row)
+            mask[index, :len(row)] = 1
+        return {"input_ids": input_ids, "attention_mask": mask}
+
+
+PROBE_TEXTS = ["alpha beta gamma delta epsilon zeta eta theta", "one two three four five six seven",
+               "red green blue yellow orange purple pink brown black", "north south east west up down left right",
+               "cat dog bird fish horse cow pig sheep goat", "sun moon star planet comet galaxy nebula quasar"]
+
+
+def probe_setup(scale=0.08, k=64):
+    host = tiny(0, torch.float32)
+    member = perturbed(host, 3, scale=scale)
+    tokenizer = ProbeTokenizer()
+    cache = weave.build_teacher_cache(member, tokenizer, PROBE_TEXTS, top_k=k, max_length=32, batch_size=4)
+    general = weave.build_teacher_cache(host, tokenizer, PROBE_TEXTS[:3], top_k=k, max_length=32, batch_size=4)
+    objective = weave.ProbeObjective(["m"], {"m": cache}, general, batch_size=4)
+    return host, member, tokenizer, cache, general, objective
+
+
+def test_probe_host_scores_transfer_zero_and_member_scores_one():
+    host, member, tokenizer, cache, general, objective = probe_setup()
+    info = objective.calibrate(host)
+    assert info["baseline_kl"]["m"] > 0.01
+    scores = objective.scores(host)
+    assert abs(scores["transfer"]["m"]) < 1e-9
+    assert scores["drift"] < 0.01
+    own = objective.scores(member)
+    assert own["transfer"]["m"] > 0.95
+    assert own["transfer"]["m"] <= 1.01
+    value, detail = objective(own)
+    assert detail["mean_transfer"] > 0.95
+    assert abs(value - (detail["mean_transfer"] - detail["penalty"])) < 1e-12
+
+
+def test_probe_top_k_plus_tail_is_close_to_full_kl():
+    from wsp import probe
+
+    host, member, tokenizer, cache, general, objective = probe_setup()
+    full = probe.logit_kl(member, host, tokenizer, PROBE_TEXTS, max_length=32, batch_size=4)["kl"]
+    approx = weave.kl_to_cache(host, cache, batch_size=4)["kl"]
+    assert approx <= full + 1e-3
+    assert abs(approx - full) <= 0.05 * full + 1e-3
+    small = weave.build_teacher_cache(member, tokenizer, PROBE_TEXTS, top_k=8, max_length=32, batch_size=4)
+    coarse = weave.kl_to_cache(host, small, batch_size=4)["kl"]
+    assert coarse <= approx + 1e-3
+    assert coarse > 0.0
+
+
+def test_probe_drift_penalty_applies_above_tolerance():
+    host, member, tokenizer, cache, general, objective = probe_setup()
+    low, detail_low = objective({"transfer": {"m": 0.5}, "drift": 0.03})
+    assert abs(low - 0.5) < 1e-12
+    assert detail_low["penalty"] == 0.0
+    high, detail_high = objective({"transfer": {"m": 0.5}, "drift": 0.15})
+    assert abs(high - (0.5 - 10.0 * 0.10)) < 1e-9
+    assert abs(detail_high["drift_excess"] - 0.10) < 1e-12
+    none_value, none_detail = objective({"transfer": {"m": None}, "drift": 0.0})
+    assert none_value == 0.0 and none_detail["mean_transfer"] == 0.0
+
+
+def test_probe_drift_grows_when_the_model_moves_away_from_host():
+    host, member, tokenizer, cache, general, objective = probe_setup(scale=0.3)
+    objective.calibrate(host)
+    far = objective.scores(member)
+    assert far["drift"] > objective.drift_tolerance
+    value, detail = objective(far)
+    assert detail["penalty"] > 0.0
+
+
+def test_probe_cache_round_trips(tmp_path):
+    host, member, tokenizer, cache, general, objective = probe_setup()
+    path = weave.cache_path(str(tmp_path), "member/one", "abc123", cache["texts_hash"])
+    weave.save_cache(cache, path)
+    again = weave.load_cache(path)
+    for key in ("lengths", "ids", "top_ids", "top_logp", "tail"):
+        assert again[key].dtype == cache[key].dtype
+        assert np.array_equal(again[key], cache[key])
+    assert again["top_ids"].dtype == np.int32 and again["top_logp"].dtype == np.float16
+    assert again["top_k"] == cache["top_k"] and again["vocab"] == cache["vocab"]
+    assert again["texts_hash"] == cache["texts_hash"]
+    a = weave.kl_to_cache(host, cache, batch_size=4)["kl"]
+    b = weave.kl_to_cache(host, again, batch_size=4)["kl"]
+    assert a == b
+    assert weave.text_hash(PROBE_TEXTS) != weave.text_hash(PROBE_TEXTS[:-1])
+    assert weave.text_hash(PROBE_TEXTS) == weave.text_hash(list(PROBE_TEXTS))
+
+
+def test_probe_objective_drives_search_and_restores_host():
+    host = tiny(0, torch.float32)
+    spec = perturbed(host, 3, scale=0.08)
+    host_state = host.state_dict()
+    with torch.no_grad():
+        for name, param in spec.named_parameters():
+            if classify(name)[0] not in ("attn", "mlp"):
+                param.copy_(host_state[name])
+    tokenizer = ProbeTokenizer()
+    cache = weave.build_teacher_cache(spec, tokenizer, PROBE_TEXTS, top_k=64, max_length=32, batch_size=4)
+    general = weave.build_teacher_cache(host, tokenizer, PROBE_TEXTS[:3], top_k=64, max_length=32, batch_size=4)
+    members = [member_from_state("m0", "skill0", spec.state_dict(), host, groups=("attn", "mlp"))]
+    weaver = Weaver(host, members, n_buckets=2)
+    objective = weave.ProbeObjective(["m0"], {"m0": cache}, general, batch_size=4)
+    objective.calibrate(host)
+    before = snapshot(host)
+    result = search(weaver, host, objective.scores, objective.scores, objective, objective, popsize=4,
+                    generations=2, seed=0, log=lambda *a: None)
+    assert same(before, snapshot(host))
+    zero = [e for e in result["log"] if e["label"] == "zero"][0]
+    assert abs(zero["objective_a"]) < 0.02
+    assert result["best"]["objective_a"] > 0.3
