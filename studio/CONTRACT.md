@@ -41,9 +41,9 @@ Environment variables pick the pieces. The defaults run on the Mac with no netwo
 |---|---|---|
 | `WSP_STUDIO_BACKEND` | `stub` | `stub`, `modal` (the swarm's backends) |
 | `WSP_STUDIO_LLM` | `none` | `none`, `anthropic`, `modal_vllm`, `openai_compat` |
-| `WSP_STUDIO_PACE_S` | `0.8` | seconds of delay per stub eval, so a stub run is watchable |
+| `WSP_STUDIO_PACE_S` | `0.8` | seconds of delay per offline eval, so an offline run is watchable |
 
-When the backend is `stub`, every response carries `"stub": true` and the web app shows a STUB badge on every number. Stub numbers must never look like real results.
+The `stub` backend is the offline backend. It runs the real parts library and the real deletion masks, and scores them with a simulator (`server/offline_backend.py`), so no GPU runs. Every response carries `"stub": true` (the field name is kept) and the web app shows an "Estimate" badge on every number, with the tooltip "Scored offline by a simulator. No GPU ran. The parts are real library parts." Offline numbers must never look like measurements.
 
 When the LLM is `none`, the spec is drafted by rules and the agents are the swarm's scripted agents.
 
@@ -282,7 +282,7 @@ A program with grafts or inserted layers compiles with `wsp/synth.py` (`result.p
 - `stages` has six rows in order: `place`, `translate in`, `translate out`, `heal 1`, `heal 2`, `verify`. `seconds` is null for `place`. `practice_before` and `practice_after` are practice scores `{task: value}` (null when no practice set exists for the scored tasks). `rolled_back` is true when the guard failed and heal 2 was undone. The `verify` seconds include the random control compile.
 - `drift` is the KL from the frozen host to the build on held-out general text (0 means the host's behavior is kept), with the top-1 agreement. It is null when the probe failed.
 - `sizes` are measured on the saved model (null on the stub and on classic results). `params_b` is `sizes.total / 1e9` and `run_params_b` is `sizes.per_token / 1e9` for synth results, so the limit check uses the measured size.
-- Every row of `components` and `stages` has `stub: true` on the stub backend: the verdicts there are made up, deterministic per part (the same part always gets the same verdict, a random-part graft is always "no better than random"), and `drift.text` reads "stub, not measured".
+- Every row of `components` and `stages` has `stub: true` on the stub backend: the verdicts there are estimated offline from the part's library record (skill tags matched to the task, status, measured score against control when there is one). They are deterministic per part (the same part always gets the same verdict, a random-part graft is always "no better than random"), and `drift.text` reads "estimated offline, not measured".
 - `heal_note` is the heal warning string for a healed classic result on a real backend, else null. It is always null for `pipeline: "synth"`.
 - `pipeline: "classic"` results have `components`, `stages`, `drift` and `sizes` all null.
 
@@ -372,7 +372,7 @@ The catalog response also has:
 - On each part and mask: `findings` (`[{"id", "title"}]`, the findings that name it), and on each part `stitches` (same shape), `skills`, and `from_library` (true when the compiler record was built from the library file).
 - `library.loaded` (rows loaded, by index kind, plus `inserted_layer` from the atlas) and `library.failed` (number of rows that did not load).
 
-On the Modal backend the server writes `catalog_modal.jsonl` as the repo `catalog.jsonl` plus one record per library part whose file has what the compiler needs: a donor model and layer plus an index file in the library folder (`mlp_cluster`, `attn_heads`, `expert`), or a donor model and a run of layers (`block`, `inserted_layer`). The record has `library_entry` (the library id) and its evidence line says it came from the library. A part stays locked when something specific is missing, and `usable_reason` says what (for example `No unit indices in the library file.`). The stub backend keeps library parts locked, because the stub has made-up parts only.
+On the Modal backend the server writes `catalog_modal.jsonl` as the repo `catalog.jsonl` plus one record per library part whose file has what the compiler needs: a donor model and layer plus an index file in the library folder (`mlp_cluster`, `attn_heads`, `expert`), or a donor model and a run of layers (`block`, `inserted_layer`). The record has `library_entry` (the library id) and its evidence line says it came from the library. A part stays locked when something specific is missing, and `usable_reason` says what (for example `No unit indices in the library file.`). The stub (offline) backend writes `catalog_offline.jsonl` with the same records, so both backends place the same parts and the placeable counts are equal. `source` is never `stub` any more. The lock reasons are the same on both backends.
 
 ### Library lists
 
@@ -508,7 +508,7 @@ Each row has `id, label, split, per_task, value, measured, note, stub, result_va
 
 ### Backends
 
-- Stub: a made-up result with `stub: true` and `stub: true` on the comparison. Scores fall smoothly as more is removed, the random control is lower than the skill rule, and the source is above both. No model loads.
+- Stub (offline): an estimated result with `stub: true` and `stub: true` on the comparison. Scores fall smoothly as more is removed, the random control is lower than the skill rule, and the source is above both. No model loads.
 - Modal: `shrink_remote(plan, split, tasks, fidelity, options)` in the `wsp-studio` app (L40S; `shrink_remote_h100` when the source is above 10B parameters). It loads the source, builds the skill and general text from `wsp.healdata` pools (never a benchmark), runs `slim_moe` or `slim_dense`, heals with `slim.heal` and the original as teacher when it fits in memory, saves with `save_slim`, scores with the same `score_all` as builds, and runs the random control (same counts, rule `random`, same heal steps) when `options.control` is true.
 
 

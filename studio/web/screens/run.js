@@ -2,7 +2,7 @@
 // This screen owns the one stream of snapshots. The pages read it, so switching pages never reconnects.
 import { html, useState, useEffect, useRef } from '../lib.js';
 import { api } from '../api.js';
-import { toast, pct, pctS, sgn, dur, primaryTarget, addRecent, patchRecent, runEnd, recentStatus } from '../util.js';
+import { useHealth, useModalChip, toast, pct, pctS, sgn, dur, primaryTarget, addRecent, patchRecent, runEnd, recentStatus } from '../util.js';
 import { TopBar, Icon, ErrorBox, StopMark } from '../components.js';
 import { Shimmer, SubtleNum, Reel, SuccessCheck, SkelReveal, SlidingBar, PageSwap, IconSwap, SwapText } from '../motion.js';
 import { openProgramInBuilder, bestProgram } from './shared.js';
@@ -37,6 +37,8 @@ function StatusLine({ snap, justDone }) {
 }
 
 function RunHead({ snap, justDone, note, onPause, onResume, onStop }) {
+  const health = useHealth();
+  const modalChip = useModalChip();
   const b = snap.budget;
   const s = snap.status;
   const frac = b.evals_total ? Math.min(1, b.evals_used / b.evals_total) : 0;
@@ -52,7 +54,7 @@ function RunHead({ snap, justDone, note, onPause, onResume, onStop }) {
         <button class="btn sm" disabled=${s === 'stopping'} onClick=${onStop}>${s === 'stopping' ? 'Stopping' : 'Stop'}</button>
       </div>`}
     </div>
-    <div class="rh-status"><${StatusLine} snap=${snap} justDone=${justDone} /><${PoweredBy} who="modal" label="GPUs on" class="rstatchip" /></div>
+    <div class="rh-status"><${StatusLine} snap=${snap} justDone=${justDone} />${modalChip && html`<${PoweredBy} who="modal" label="GPUs on" class="rstatchip" />`}</div>
     ${note && html`<div class="rh-note" role="status">${note}</div>`}
     <div class=${'rline' + (end === 'finished' ? ' ok' : end === 'stopped' ? ' stopped' : '')} aria-hidden="true"><i style=${{ width: (end === 'finished' ? 1 : frac) * 100 + '%' }}></i></div>
   </div></header>`;

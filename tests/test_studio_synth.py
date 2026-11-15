@@ -467,7 +467,11 @@ def test_big_donors_use_the_h100_synth_function(modal_client):
 def test_stub_builder_score_has_labeled_component_verdicts(stub_client):
     builder_id = new_builder(stub_client, roomy=True)
     palette = stub_client.get("/api/catalog").json()
-    parts = [part for part in palette["parts"] if part["usable"]]
+    small = [part for part in palette["parts"] if part["usable"] and part["params_m"] and part["params_m"] < 100]
+    parts = ([part for part in small if "gsm8k" in part["skills"]][:6] +
+             [part for part in small if part["status"] == "rejected"][:4] +
+             [part for part in small if part["skills"] == ["law"]][:4])
+    assert len(parts) >= 10
     seen = set()
     for part in parts:
         program = ps.make_program(HOST, [ps.make_graft(part["id"], part["default_at"], glue_rank=64)],
@@ -480,7 +484,7 @@ def test_stub_builder_score_has_labeled_component_verdicts(stub_client):
         assert component["stub"] is True and component["id"] == part["id"]
         assert component["verdict"] in synth_report.VERDICTS and component["label"]
         assert all(row["stub"] is True for row in result["stages"])
-        assert result["drift"]["text"] == "stub, not measured"
+        assert result["drift"]["text"] == "estimated offline, not measured"
         seen.add(component["verdict"])
         again = run_builder_job(stub_client, builder_id, program, "score")["result"]
         assert again["components"] == result["components"]
@@ -554,10 +558,10 @@ def test_no_score_stays_none():
 
 
 def test_builder_comparison_fails_when_no_stub_component_contributes(stub_client, monkeypatch):
-    monkeypatch.setattr(synth_report, "stub_verdict", lambda part_id, control: "harmful")
+    monkeypatch.setattr(synth_report, "stub_verdict", lambda part_id, control, effect=None: "harmful")
     builder_id = new_builder(stub_client, roomy=True)
     palette = stub_client.get("/api/catalog").json()
-    part = [item for item in palette["parts"] if item["usable"]][0]
+    part = [item for item in palette["parts"] if item["usable"] and item["params_m"] and item["params_m"] < 100][0]
     program = ps.make_program(HOST, [ps.make_graft(part["id"], part["default_at"], glue_rank=64)],
                               ps.make_heal(100, data="math"))
     job = run_builder_job(stub_client, builder_id, program, "score")

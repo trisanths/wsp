@@ -16,6 +16,7 @@ from wsp.swarm import space
 from wsp.swarm import stub
 
 from studio.server import library
+from studio.server import model_profiles
 from studio.server import shrink_models
 
 # A rough heal speed. One heal step on a 1B model at batch 8 and length 384
@@ -41,9 +42,7 @@ class SizeContext:
         self.host = config["host"]
         self.host_b = float(host_b)
         self.world = None
-        if config.get("backend") == "stub":
-            self.world = stub.StubWorld(config["stub_seed"])
-        self.models = dict(library.get()["models"])
+        self.models = model_profiles.merged(library.get()["models"])
         self.library_parts = library.by_catalog_id()
         info = self.models.get(self.host)
         if info is not None and info.get("hidden"):

@@ -50,6 +50,11 @@ def write_small_library(root, atlas_root):
            "scores": {"gsm8k_search_harness": {"value": 0.7, "split": "GSM8K search split",
                                                "source": "results/b.json"}}}
     (models / "Big__model.json").write_text(json.dumps(big))
+    math = dict(big, id="Qwen__Qwen2.5-Math-1.5B", hf_id="Qwen/Qwen2.5-Math-1.5B", params_b=1.5,
+                active_params_b=1.5, layers=28, hidden=1536, scores={})
+    (models / "Qwen__Qwen2.5-Math-1.5B.json").write_text(json.dumps(math))
+    rows.append({"id": "Qwen__Qwen2.5-Math-1.5B", "kind": "model", "path": "models/Qwen__Qwen2.5-Math-1.5B.json",
+                 "status": "validated"})
     rows.append({"id": "Big__model", "kind": "model", "path": "models/Big__model.json", "status": "validated"})
     (root / "index.jsonl").write_text("\n".join(json.dumps(row) for row in rows) + "\n")
     atlas_root.mkdir(parents=True)
@@ -84,7 +89,7 @@ def test_palette_lists_library_and_atlas_parts_with_status(client, small_library
     assert good["kind"] == "block"
     assert good["status"] == "validated"
     assert "0.41 against 0.3 for random block" in good["evidence"]
-    assert good["usable"] is False
+    assert good["usable"] is True
     assert by_id["blk_bad"]["status"] == "rejected"
     assert "random block scored the same" in by_id["blk_bad"]["evidence"]
     assert by_id["heads_new"]["kind"] == "attn_heads"
@@ -348,12 +353,12 @@ def test_stub_comparison_is_labeled_stub(client):
         by_id[row["id"]] = row
     assert by_id["base"]["stub"] is True
     assert by_id["distill"]["stub"] is True
-    assert by_id["distill"]["note"] == "stub data, not a measurement"
+    assert by_id["distill"]["note"] == "offline estimate, not a measurement"
     assert by_id["lora"]["stub"] is False
     assert by_id["random"]["measured"] is True
     assert comparison["verdict"] in ("failed", "beats")
     if comparison["verdict"] == "failed":
-        assert comparison["headline"].startswith("Failed attempt.")
+        assert comparison["headline"].startswith("Offline estimate")
 
 
 def test_run_snapshot_carries_the_comparison(client):

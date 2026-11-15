@@ -1,8 +1,8 @@
 """The builder palette and the catalog the studio runs against.
 
-For the stub backend the catalog is the stub catalog plus the real deletion
-masks, so the palette has something to remove. The stub ignores masks when it
-scores, which is fine because every stub number is labeled STUB.
+Every backend runs against the real compiler catalog: catalog.jsonl plus a record for each library part the
+compiler can place. The offline backend (the default) scores those parts with a simulator, so its numbers are
+estimates, but the parts and the masks are real.
 """
 
 import json
@@ -12,7 +12,6 @@ import threading
 from wsp.swarm import config as config_mod
 from wsp.swarm import factory
 from wsp.swarm import space
-from wsp.swarm import stub
 
 from studio.server import library
 from studio.server import settings
@@ -46,28 +45,6 @@ def read_records(path):
             if line != "":
                 records.append(json.loads(line))
     return records
-
-
-def stub_catalog_path(stub_seed=0):
-    """Write the stub parts plus the real masks to one file and return its path."""
-    path = os.path.join(settings.out_dir(), "catalog_stub.jsonl")
-    with _merge_lock:
-        records = stub.StubWorld(stub_seed).records()
-        real = real_catalog_path()
-        if os.path.exists(real):
-            for record in read_records(real):
-                if record.get("type") != "deletion_mask":
-                    continue
-                small = dict(record)
-                signature = record.get("signature") or {}
-                small["signature"] = {"num_deleted": signature.get("num_deleted")}
-                records.append(small)
-        temp_path = path + "." + str(os.getpid()) + ".tmp"
-        with open(temp_path, "w", encoding="utf-8") as handle:
-            for record in records:
-                handle.write(json.dumps(record, sort_keys=True) + "\n")
-        os.replace(temp_path, path)
-    return path
 
 
 UNIT_KINDS = ["mlp_cluster", "attn_heads", "expert"]
@@ -158,7 +135,17 @@ def library_records(skip_ids):
 
 
 def modal_catalog_path():
-    """Write the catalog the Modal backend runs against and return its path.
+    """Write the catalog the Modal backend runs against and return its path (see write_real_catalog)."""
+    return write_real_catalog("catalog_modal.jsonl")
+
+
+def offline_catalog_path():
+    """Write the catalog the offline (stub) backend runs against: the same records the Modal backend uses."""
+    return write_real_catalog("catalog_offline.jsonl")
+
+
+def write_real_catalog(name):
+    """Write the real compiler catalog to the output folder under this name and return its path.
 
     It is the repo's catalog.jsonl plus a record for every library part whose
     file holds what the compiler needs (donor model, layer, and an index file
@@ -166,7 +153,7 @@ def modal_catalog_path():
     program uses with each call, so this copy is for the server and for
     anyone who wants to see what it used.
     """
-    path = os.path.join(settings.out_dir(), "catalog_modal.jsonl")
+    path = os.path.join(settings.out_dir(), name)
     with _merge_lock:
         records = read_records(real_catalog_path())
         records.extend(library_records(set(record["id"] for record in records)))
@@ -181,7 +168,7 @@ def modal_catalog_path():
 def catalog_path_for(backend):
     """The catalog_path config value for a backend (None lets the factory choose)."""
     if backend == "stub":
-        return stub_catalog_path()
+        return offline_catalog_path()
     if backend == "modal":
         return modal_catalog_path()
     return None
@@ -189,6 +176,10 @@ def catalog_path_for(backend):
 
 def load_catalog(backend):
     """Return (config, catalog) for the backend, used for the palette and for validation."""
+    if backend == "stub":
+        from studio.server import offline_backend
+
+        offline_backend.register()
     config = config_mod.make_config({"backend": backend, "catalog_path": catalog_path_for(backend),
                                      "outputs_dir": settings.out_dir()})
     catalog, path = factory.build_catalog(config)
@@ -380,11 +371,7 @@ def catalog_part(record, config, catalog, n_host, world, ctx, entries):
         found = sizing.part_size_b(record["id"], ctx)
         if found is not None:
             params_m = round(found[0] * 1000.0, 1)
-    if world is not None:
-        status = "candidate"
-        evidence = "stub part with made-up effects, not a measurement"
-        source = "stub"
-    elif entry is not None:
+    if entry is not None:
         status = entry["status"]
         evidence = entry["evidence"]
         source = "library"
@@ -400,6 +387,14 @@ def catalog_part(record, config, catalog, n_host, world, ctx, entries):
     kind = record.get("type")
     if entry is not None and entry["kind"] == "inserted_layer":
         kind = "inserted_layer"
+    usable = True
+    reason = None
+    if entry is not None and entry.get("tap_only"):
+        usable = False
+        reason = library.TAP_ONLY_REASON
+    elif params_m is None:
+        usable = False
+        reason = UNSIZED_REASON
     return {
         "id": record["id"],
         "group": "add",
@@ -413,8 +408,9 @@ def catalog_part(record, config, catalog, n_host, world, ctx, entries):
         "status": status,
         "evidence": evidence,
         "source": source,
-        "usable": not (entry is not None and entry.get("tap_only")),
-        "usable_reason": library.TAP_ONLY_REASON if entry is not None and entry.get("tap_only") else None,
+        "usable": usable,
+        "usable_reason": reason,
+        "params_b": None if params_m is None else round(params_m / 1000.0, 3),
         "findings": list(entry["findings"]) if entry is not None else [],
         "stitches": list(entry["stitches"]) if entry is not None else [],
         "skills": list(entry["skills"]) if entry is not None else [],
@@ -422,8 +418,8 @@ def catalog_part(record, config, catalog, n_host, world, ctx, entries):
     }
 
 
+UNSIZED_REASON = "No model profile for this donor yet, so the studio cannot check the size of this part."
 NOT_IN_CATALOG = "Not in the compiler catalog yet. Mine it into a catalog record before a program can use it."
-STUB_LOCK = "The stub backend has made-up parts only. Use the Modal backend to place library parts."
 
 
 def lock_reason(entry, backend):
@@ -431,8 +427,6 @@ def lock_reason(entry, backend):
     record, reason = library_placements().get(entry["catalog_id"], (None, None))
     if reason is not None:
         return reason
-    if record is not None and backend == "stub":
-        return STUB_LOCK
     return NOT_IN_CATALOG
 
 
@@ -496,7 +490,7 @@ def palette_counts(parts, masks):
 def build_palette(backend):
     """Return the catalog response for the builder.
 
-    Parts come from the compiler catalog (the stub world on the stub backend)
+    Parts come from the compiler catalog 
     and from the library and the atlas. Every part has a status and an
     evidence line. A part is usable when the compiler catalog has a record
     for it.
@@ -504,8 +498,6 @@ def build_palette(backend):
     config, catalog = load_catalog(backend)
     n_host = space.host_layers(config, catalog)
     world = None
-    if backend == "stub":
-        world = stub.StubWorld(config["stub_seed"])
     ctx = sizing.SizeContext(config, catalog, host_params_b(config["host"]))
     entries = library.by_catalog_id()
     parts = []

@@ -50,12 +50,12 @@ import { SponsorMark, PoweredBy } from './logos.js';
 
 export function StubBadge({ small, title }) {
   if (DEMO) return null;
-  return html`<span class=${'stubtag' + (small ? ' sm' : '')} title=${title || 'Stub backend: these numbers are not real results'}>STUB</span>`;
+  return html`<span class=${'stubtag' + (small ? ' sm' : '')} title=${title || 'Scored offline by a simulator. No GPU ran. The parts are real library parts.'}>Estimate</span>`;
 }
 
 /** The one quiet marker for demo mode, shown in the top bar of every screen. */
 export function DemoPill() {
-  return html`<span class="demopill" title="Demo mode: sample data, not real results">Demo</span>`;
+  return html`<span class="demopill" title="Demo mode: real parts library, sample runs">Demo</span>`;
 }
 
 // the studio mark: three bars, the middle one cut, like a deletion mask
@@ -77,7 +77,7 @@ export function TopBar({ children, right }) {
       <${Menu} open=${open} origin="top-left" onClose=${() => setOpen(false)} style=${{ top: '36px', left: 0, minWidth: '260px' }}>
         <div class="mrow"><span class="mk">Agent model</span><span class="mv">${(health && health.llm_model) || 'not set'}</span></div>
         <div class="mrow"><span class="mk">Agent provider</span><span class="mv">${(health && health.llm) || 'none'}</span></div>
-        <div class="mrow"><span class="mk">Backend</span><span class="mv">${health ? (modal ? 'Modal GPU' : health.backend === 'stub' ? (DEMO ? 'Sample data' : 'Stub') : health.backend) : 'unknown'}</span></div>
+        <div class="mrow"><span class="mk">Backend</span><span class="mv">${health ? (modal ? 'Modal GPU' : health.backend === 'stub' ? (DEMO ? 'Sample data' : 'Offline') : health.backend) : 'unknown'}</span></div>
         <div class="mrow"><${PoweredBy} who="openai" label="Agents think with" /></div>
         <div class="mnote">Read only. The server sets these.</div>
       <//>

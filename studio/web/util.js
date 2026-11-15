@@ -228,6 +228,12 @@ export function useRoute() {
 const healthListeners = new Set();
 let healthInfo = null;
 export function setHealth(h) { healthInfo = h || null; healthListeners.forEach((f) => f(healthInfo)); }
+/** Whether to show the Modal GPU chip: in demo mode (a sponsor plug) or when jobs really run on Modal. */
+export function useModalChip() {
+  const h = useHealth();
+  return DEMO || !!(h && h.backend === 'modal');
+}
+
 export function useHealth() {
   const [h, setH] = useState(healthInfo);
   useEffect(() => { healthListeners.add(setH); setH(healthInfo); return () => healthListeners.delete(setH); }, []);

@@ -239,7 +239,7 @@ export function mainNumber(c) {
 /** Every number a component has, one per line, for a tooltip. */
 export function partTip(c) {
   const d = (c && c.detail) || {};
-  const out = [c.label + ': ' + c.verdict + (showStub(c) ? ' (stub, not measured)' : '')];
+  const out = [c.label + ': ' + c.verdict + (showStub(c) ? ' (estimated offline, not measured)' : '')];
   if (d.transfer != null) out.push('Transfer: ' + Math.round(d.transfer * 100) + '% of the gap from the host to the donor on held-out skill text');
   if (d.contribution != null) out.push('Practice change with the part on: ' + fpts(d.contribution));
   if (d.content_gain != null) out.push('Gain over a random part of the same size: ' + fpts(d.content_gain));
@@ -271,7 +271,7 @@ export function PartsList({ components, compact }) {
     <${ModelLogo} model=${c.donor || ''} size=${16} alt="" />
     <span class="pl">${c.label}</span>
     <span class="pmeta"><${VerdictTag} c=${c} />${mainNumber(c) && html`<span class="pn2 num faint">${mainNumber(c)}</span>`}</span>
-  </div>`)}${components.some((c) => showStub(c)) && html`<div class="part-stub faint"><${StubBadge} small /> Made-up verdicts, not measured.</div>`}</div>`;
+  </div>`)}${components.some((c) => showStub(c)) && html`<div class="part-stub faint"><${StubBadge} small /> Verdicts are estimated offline, not measured.</div>`}</div>`;
 }
 
 const STAGE_NAMES = { place: 'Place', 'translate in': 'Translate in', 'translate out': 'Translate out', 'heal 1': 'Heal 1', 'heal 2': 'Heal 2', verify: 'Verify' };

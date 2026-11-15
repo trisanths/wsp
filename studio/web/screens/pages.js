@@ -201,7 +201,7 @@ export function PartsScreen() {
   return html`<${TopBar} />
   <main class="screen"><div class="doc wide"><${SkelReveal} ready=${true} skeleton=${null}>
     <div class="ph"><div><h1 class="page-title">Parts library</h1>
-      <p class="lede"><${ModelLogo} model=${cat.host.model} size=${16} /> Host model ${cat.host.model.split('/').pop()}, ${cat.host.layers} layers, ${cat.host.params_b.toFixed(2)}B parameters. Drag these onto it in the builder.${showStub(cat) ? ' ' : ''}${showStub(cat) && html`<${StubBadge} small />`}</p></div>
+      <p class="lede"><${ModelLogo} model=${cat.host.model} size=${16} /> Host model ${cat.host.model.split('/').pop()}, ${cat.host.layers} layers, ${cat.host.params_b.toFixed(2)}B parameters. Drag these onto it in the builder.</p></div>
       <div class="searchbox pq"><${Icon} n="search" size=${16} /><input placeholder=${place} aria-label=${place} value=${q} onInput=${(e) => setQ(e.target.value)} /></div></div>
     <div class="ptabs" role="tablist">${TABS.map(([id, name]) => html`<button key=${id} class=${'ptab' + (tab === id ? ' on' : '')} role="tab" aria-selected=${tab === id ? 'true' : 'false'} onClick=${() => { setFocus(null); setTab(id); }}>${name}<span class="n">${id === 'parts' ? cat.parts.length + cat.masks.length : tabCounts[id] != null ? tabCounts[id] : ''}</span></button>`)}</div>
     ${tab === 'parts' && html`<${PartsTab} cat=${cat} q=${q} onFinding=${openFinding} />`}

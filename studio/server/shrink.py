@@ -8,7 +8,7 @@ A session holds the plan of one spec. The plan can be edited (free, no GPU) and 
 are read at GET /api/jobs/{id}, the same route the builder uses.
 
 Backends:
-  stub   a made-up result that falls smoothly as more is removed. It is labeled stub.
+  stub   an estimated result that falls smoothly as more is removed. It is labeled as an estimate.
   modal  the shrink_remote function of the deployed wsp-studio app.
 """
 
@@ -265,7 +265,7 @@ def stub_removed(plan, estimate):
 
 
 def stub_result(spec, plan, options):
-    """A made-up shrink result with the real result's shape. It does not load any model."""
+    """An estimated shrink result with the real result's shape. It does not load any model."""
     pace = settings.pace_s()
     estimate = sizing.estimate_shrink(plan)
     tasks = options["tasks"]
@@ -274,14 +274,14 @@ def stub_result(spec, plan, options):
     time.sleep(pace)
     steps = int(plan["heal_steps"])
     heal = {"steps": steps, "kind": "distillation" if steps > 0 else "none", "teacher": steps > 0}
-    log = ["Stub run: no model was loaded and every number is made up.",
+    log = ["Offline run: no model was loaded and every number is an estimate.",
            shrink_spec.plan_summary(plan, estimate),
-           "Heal: " + str(steps) + " steps of distillation toward the original (stub)."]
+           "Heal: " + str(steps) + " steps of distillation toward the original (estimate)."]
     seconds = {"load": 0.0, "rank": 0.0, "slim": 0.0, "heal": round(estimate["heal_min"] * 60.0, 1), "eval": 0.0}
     control = None
     if options["control"]:
         control = random_
-        log.append("Random control: the same counts removed at random, same heal (stub).")
+        log.append("Random control: the same counts removed at random, same heal (estimate).")
     general_scores = None
     if options["general_control"]:
         general_scores = general

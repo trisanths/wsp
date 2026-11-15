@@ -4,7 +4,7 @@ A program with grafts or inserted layers compiles with wsp/synth.py (pipeline "s
 set to "classic". A program with only masks, task vectors or a LoRA uses the classic compile. The synth path
 returns one verdict per component: "contributes", "no better than random" or "harmful".
 
-The stub backend returns made-up verdicts, labeled stub, so the web app can be built against it.
+The offline (stub) backend returns verdicts estimated from the real part records, labeled as estimates.
 """
 
 import zlib
@@ -119,13 +119,41 @@ def unit(text, salt):
     return (zlib.crc32((salt + ":" + str(text)).encode("utf-8")) % 10000) / 10000.0
 
 
-def stub_verdict(part_id, control):
+CONTRIBUTES_ABOVE = 0.012
+HARMFUL_BELOW = -0.005
+
+
+def estimated_effect(record, tasks):
+    """The offline estimate of what a catalog record adds on the first target task, or None when unknown."""
+    if not record or not tasks:
+        return None
+    from studio.server import offline_backend
+
+    return offline_backend.component_effect(record, list(tasks))
+
+
+def stub_verdict(part_id, control, effect=None):
     if control is not None:
+        return "no better than random"
+    if effect is not None:
+        if effect > CONTRIBUTES_ABOVE:
+            return "contributes"
+        if effect < HARMFUL_BELOW:
+            return "harmful"
         return "no better than random"
     return VERDICTS[zlib.crc32(str(part_id).encode("utf-8")) % 3]
 
 
-def stub_detail(part_id, verdict):
+def stub_detail(part_id, verdict, effect=None):
+    detail = stub_detail_base(part_id, verdict)
+    if effect is not None:
+        detail["contribution"] = round(effect, 4)
+        detail["text_gain"] = round(effect * 0.8, 4)
+        detail["content_gain"] = round(effect * 0.6, 4)
+    return detail
+
+
+def stub_detail_base(part_id, verdict):
     if verdict == "contributes":
         contribution = round(0.03 + 0.05 * unit(part_id, "c"), 4)
         gain = round(0.02 + 0.04 * unit(part_id, "g"), 4)
@@ -143,7 +171,7 @@ def stub_detail(part_id, verdict):
             "fit_r2": round(0.6 + 0.3 * unit(part_id, "r"), 4), "part_params": None, "closed": False, "scores_without": None}
 
 
-def stub_component_rows(program, catalog):
+def stub_component_rows(program, catalog, tasks=None):
     """One stub component per graft and per inserted layer, in program order."""
     rows = []
     used = []
@@ -156,10 +184,11 @@ def stub_component_rows(program, catalog):
             name = part_id + "#" + str(count)
             count += 1
         used.append(name)
-        verdict = stub_verdict(part_id, ps.graft_control(graft))
+        effect = estimated_effect(record, tasks)
+        verdict = stub_verdict(part_id, ps.graft_control(graft), effect)
         row = {"id": name, "part_id": part_id, "kind": record.get("type"), "donor": record.get("model"),
                "host_layer": ps.graft_at(graft), "verdict": verdict}
-        row.update(stub_detail(part_id, verdict))
+        row.update(stub_detail(part_id, verdict, effect))
         rows.append(row)
     for item in program.get("inserts") or []:
         label = "insert " + str(item["donor"]).split("/")[-1] + " L" + str(item["layers"][0]) + "-" + \
@@ -173,7 +202,7 @@ def stub_component_rows(program, catalog):
 
 
 def stub_stage_rows(program, tasks):
-    """Six stub stages with made-up seconds and practice scores for the scored tasks."""
+    """Six stages with estimated seconds and practice scores for the scored tasks."""
     key = str(sorted(str(item) for item in program.get("grafts") or []))
     base = {}
     for task in tasks:
@@ -193,20 +222,20 @@ def stub_stage_rows(program, tasks):
     rows = []
     for index in range(len(STAGE_NAMES)):
         rows.append({"name": STAGE_NAMES[index], "seconds": seconds[index], "practice_before": before[index],
-                     "practice_after": after[index], "rolled_back": False, "detail": details[index],
+                     "practice_after": after[index], "rolled_back": False, "detail": "Estimate: " + details[index],
                      "stub": True})
     return rows
 
 
 def stub_public(program, catalog, tasks):
-    """The synth part of a stub result: made-up verdicts that are the same every time for the same program."""
+    """The synth part of an offline result: verdicts estimated from the part records, the same every time."""
     if pipeline_for(program) != "synth":
         return None
-    rows = stub_component_rows(program, catalog)
+    rows = stub_component_rows(program, catalog, tasks)
     key = str(program.get("grafts"))
     return {"pipeline": "synth", "components": public_components(rows, catalog, True),
             "stages": stub_stage_rows(program, tasks),
             "drift": {"base_kl": round(0.004 + 0.03 * unit(key, "drift"), 5),
                       "agree": round(0.9 + 0.08 * unit(key, "agree"), 4), "tokens": 0,
-                      "text": "stub, not measured"},
+                      "text": "estimated offline, not measured"},
             "sizes": None, "stub": True}

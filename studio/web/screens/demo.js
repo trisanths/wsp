@@ -41,9 +41,12 @@ export const STEPS = [
   { ch: 'Mine a model', hash: '#/mine/req/mr_demo_live', sel: 'h2.sec', text: 'Candidate parts', sec: true, say: 'Each candidate is switched off and scored on every skill. It is kept only if it hurts its own skill more than random parts of the same size.' },
   { ch: 'Mine a model', hash: '#/mine/model/Qwen/Qwen3-30B-A3B', sel: 'h2.sec', text: 'Where the parts are', sec: true, say: 'Everything mined from one model: where its parts sit, the skills they hold, and how they were found.' },
 
-  { ch: 'Build it yourself', hash: '#/build/b_demo?spec=sp_demo_math', sel: '.builder .canvas', say: 'Or build it yourself: drag parts from the library on the left onto the host model. Scores against the spec sit on the right.' },
-  { ch: 'Build it yourself', hash: '#/build/b_demo?spec=sp_demo_math', sel: '.builder button', text: 'Code', click: true, pass: true, say: 'Switch to the code view.' },
-  { ch: 'Build it yourself', hash: '#/build/b_demo?spec=sp_demo_math&view=code', sel: '.codepane', say: 'The same program as text, with the result of each stage.' },
+  { ch: 'Build it yourself', hash: '#/build/b_demo?spec=sp_demo_math&mode=simple', sel: '.bs-step[data-step="skills"] .bs-card', say: 'Build it in plain steps. Each card is a skill from another model. Press Add to put it in your model.' },
+  { ch: 'Build it yourself', hash: '#/build/b_demo?spec=sp_demo_math&mode=simple', sel: '.bs-test', say: 'Then press Test. You get your score, the starting score, and a check against random parts of the same size.' },
+  { ch: 'Build it yourself', hash: '#/build/b_demo?spec=sp_demo_math&mode=simple', sel: '.bmode button', text: 'Advanced', click: true, pass: true, say: 'For full control, switch to Advanced.' },
+  { ch: 'Build it yourself', hash: '#/build/b_demo?spec=sp_demo_math&mode=advanced', sel: '.builder .canvas', say: 'Or build it yourself: drag parts from the library on the left onto the host model. Scores against the spec sit on the right.' },
+  { ch: 'Build it yourself', hash: '#/build/b_demo?spec=sp_demo_math&mode=advanced', sel: '.builder button', text: 'Code', click: true, pass: true, say: 'Switch to the code view.' },
+  { ch: 'Build it yourself', hash: '#/build/b_demo?spec=sp_demo_math&mode=advanced&view=code', sel: '.codepane', say: 'The same program as text, with the result of each stage.' },
 
   { ch: 'Shrink a model', hash: '#/spec/sp_demo_code', sel: 'h2.sec', text: 'What to remove', sec: true, say: 'Ask for a smaller model that keeps one skill. Sapien picks what to remove.' },
   { ch: 'Shrink a model', hash: '#/spec/sp_demo_code', sel: '.btn.primary.big', click: true, say: 'Plan the shrink.' },

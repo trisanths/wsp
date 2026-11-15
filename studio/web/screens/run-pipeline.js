@@ -5,7 +5,7 @@
 // Every number comes from the run snapshot, the agent detail endpoint or timestamps in the activity feed.
 import { html, useState, useEffect, useRef, useMemo, Fragment } from '../lib.js';
 import { api } from '../api.js';
-import { dur, pct, pctS, sgn, primaryTarget, clamp } from '../util.js';
+import { useHealth, useModalChip, dur, pct, pctS, sgn, primaryTarget, clamp } from '../util.js';
 import { Avatar } from '../components.js';
 import { SubtleNum, PopNum } from '../motion.js';
 import { Brain3D } from '../brain3d.js';
@@ -230,6 +230,8 @@ function runWord(snap) {
 }
 
 function Objective({ snap, cat }) {
+  const health = useHealth();
+  const modalChip = useModalChip();
   const spec = snap.spec;
   const t = primaryTarget(spec);
   const host = String(spec.host || '').split('/').pop() || 'the host model';
@@ -254,7 +256,7 @@ function Objective({ snap, cat }) {
       <span class="grow"></span>
       <span class="pl-sponsors" aria-label="Services this run uses">
         <${PoweredBy} who="openai" label="Agents by" size=${12} />
-        <${PoweredBy} who="modal" label="GPUs on" size=${12} />
+        ${modalChip && html`<${PoweredBy} who="modal" label="GPUs on" size=${12} />`}
         <${PoweredBy} who="pastdev" label="Memory on" size=${12} />
         ${research && html`<${PoweredBy} who="exa" label="Search by" size=${12} />`}
       </span>

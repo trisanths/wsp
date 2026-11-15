@@ -383,8 +383,8 @@ def library_ingredients(task_id):
     wanted = TASK_SKILLS.get(task_id, [])
     if task_id.startswith("mmlupro:"):
         wanted = ["knowledge", "mmlu"]
-    out = []
-    seen = []
+    placements = catalog_mod.library_placements()
+    found = []
     for entry in library.get()["parts"]:
         if entry["status"] == "rejected" or entry.get("tap_only"):
             continue
@@ -394,6 +394,14 @@ def library_ingredients(task_id):
                 hit = True
         if not hit:
             continue
+        placeable = placements.get(entry["catalog_id"], (None, None))[0] is not None
+        # Placeable parts first, then parts tagged with the benchmark itself, then small ones.
+        size_rank = 1 if entry["kind"] in ("block", "inserted_layer") else 0
+        found.append(((not placeable, task_id not in entry["skills"], size_rank, entry["catalog_id"]), entry))
+    found.sort(key=lambda pair: pair[0])
+    out = []
+    seen = []
+    for _rank, entry in found:
         key = (entry["model"], entry["kind"])
         if key in seen:
             continue
