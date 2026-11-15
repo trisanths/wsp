@@ -30,6 +30,8 @@ const PARTS = [
   { id: 'mistral_heads_8', group: 'add', kind: 'attn_heads', label: 'Math attention heads', donor: 'mistralai/Mistral-7B-Instruct-v0.3', layers: [8, 8], params_m: 50, default_at: 6, summary: 'Mistral-7B layer 8', task: 'math', power: 0.35, short: 'mis.h8', status: 'candidate', evidence: EV_NEW + ': 0.21 against 0.02.', usable: true },
   { id: 'phi_block_4_11', group: 'add', kind: 'block', label: 'Reasoning block', donor: 'microsoft/Phi-3-mini-4k-instruct', layers: [4, 11], params_m: 360, default_at: 4, summary: 'Phi-3-mini layers 4-11', task: 'math', power: 0.48, short: 'phi.l4-11', status: 'candidate', evidence: 'one seed only, no control yet', usable: true },
   { id: 'bio_block_8_15', group: 'add', kind: 'block', label: 'Biology block', donor: 'BioMistral/BioMistral-7B', layers: [8, 15], params_m: 420, default_at: 6, summary: 'BioMistral layers 8-15', task: 'general', power: 0.2, short: 'bio.l8-15', status: 'rejected', evidence: 'block lost to a rank-16 LoRA on the base: 0.43 against 0.46, same heal data and steps', usable: false, usable_reason: 'Rejected. Its measured result is below the control.' },
+  { id: 'map_expert_lfm2_8b_biology_l14', group: 'add', kind: 'expert', label: 'General expert L14', donor: 'LiquidAI/LFM2-8B-A1B', layers: [14, 14], params_m: 180, default_at: 9, summary: 'LFM2-8B-A1B layer 14', task: 'general', power: 0.3, short: 'lfm.e14', status: 'candidate', evidence: 'donor skill map, biology: 8 experts picked more often on biology text. Compiler record built from the library file.', usable: true, skills: ['biology'], findings: [{ id: 'f_mock_experts_donor_only', title: 'Skill maps say where a skill lives in the donor' }], stitches: [] },
+  { id: 'qmath_l10_activation512', group: 'add', kind: 'mlp_cluster', label: 'Math neurons L10', donor: 'Qwen/Qwen2.5-Math-1.5B', layers: [10, 10], params_m: 4, default_at: 6, summary: 'Qwen2.5-Math layer 10', task: 'math', power: 0.3, short: 'qmath.n10', status: 'candidate', evidence: 'no measurement yet', usable: false, usable_reason: 'No unit indices in the library file. The index file is only at /vol/units/qmath_l10_activation512.pt.', findings: [], stitches: [] },
   { id: 'qwen14_block_14_34', group: 'add', kind: 'block', label: 'General block L14-34', donor: 'Qwen/Qwen2.5-14B-Instruct', layers: [14, 34], params_m: 6121.5, default_at: 6, summary: 'Qwen2.5-14B layers 14-34', task: 'general', power: 0.5, short: 'q14.l14-34', status: 'candidate', evidence: 'mined from the library, not run yet', usable: false, usable_reason: NOT_MINED },
 ];
 const MASKS = [
@@ -41,6 +43,22 @@ const TRAIN = [
   { id: 'lora', group: 'train', label: 'LoRA adapter', summary: 'rank 1 to 64' },
   { id: 'heal', group: 'train', label: 'Heal', summary: 'trains glue only' },
 ];
+const RECIPES = [
+  { id: 'graft_block_qmath_8_19_llama1b', title: 'Qwen-Math layers 8..19 grafted into Llama-1B at layer 5', status: 'rejected', status_reason: 'ties a random block and loses to a rank-1 LoRA', host: HOST, builds: 'host Llama-3.2-1B-Instruct, graft qmath_block_8_19 at layer 5, heal 300 steps', components: ['qmath_block_8_19'], models: [HOST, 'Qwen/Qwen2.5-Math-1.5B'], skills: ['math', 'graft'], evidence: 'block graft vs a random same-length block (GSM8K search accuracy, mean over seeds): 0.352 against 0.363', source: 'results/round3_rows.json (run 3)', syntax_gap: null, no_start_reason: null, start_problems: [], starting_program: { host: HOST, seed: 0, masks: null, task_vectors: [], grafts: [{ id: 'qmath_block_8_19', at: 5, control: null, control_seed: 0, glue_rank: 64 }], heal: { steps: 300, data: 'gsm8k_train', lr: 0.0003, batch_size: 8, seq_len: 384 } } },
+  { id: 'lora_r1_gsm8k_llama1b', title: 'Rank-1 LoRA on Llama-1B, GSM8K', status: 'validated', status_reason: null, host: HOST, builds: 'host Llama-3.2-1B-Instruct, LoRA rank 1, heal 300 steps', components: [], models: [HOST], skills: ['math', 'lora'], evidence: 'LoRA rank 1 vs the host (GSM8K search accuracy): 0.435 against 0.25', source: 'results/round3_rows.json (run 3)', syntax_gap: null, no_start_reason: null, start_problems: [], starting_program: { host: HOST, seed: 0, masks: null, task_vectors: [], grafts: [], heal: { steps: 300, data: 'gsm8k_train', lr: 0.0003, batch_size: 8, seq_len: 384 }, lora: { rank: 1 } } },
+  { id: 'tap_mmlu_llama1b_qwen7b_l20_h10', title: 'Llama-1B reads Qwen2.5-7B layer 20 at layer 10 (MMLU)', status: 'rejected', status_reason: 'a tap runs a second model', host: HOST, builds: 'host Llama-3.2-1B-Instruct, tap Qwen2.5-7B-Instruct layer 20', components: [], models: [HOST, 'Qwen/Qwen2.5-7B-Instruct'], skills: ['knowledge', 'tap'], evidence: 'tap vs host LoRA rank 16 (MMLU held-out accuracy): 0.683 against 0.477', source: 'results/round7_rows.json (run 7)', syntax_gap: null, no_start_reason: 'The builder cannot hold taps, tap_train yet.', start_problems: [], starting_program: null },
+];
+const FINDINGS = [
+  { id: 'f_mock_experts_donor_only', title: 'Skill maps say where a skill lives in the donor', claim: 'A skill map says which layers and experts matter for a skill inside the donor. It does not show that the part helps a host.', setup: 'donor skill maps on LFM2-8B-A1B', numbers: { median_split_half_r: 0.96, min_split_half_r: 0.73 }, numbers_source: 'atlas/pool_entries', status: 'candidate', status_reason: null, source: 'atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json', skills: ['biology'], evidence: 'split-half agreement of the layer maps', about: { parts: ['map_expert_lfm2_8b_biology_l14'], models: ['LiquidAI/LFM2-8B-A1B'] } },
+  { id: 'f_mock_graft_random', title: 'A cross-family MLP graft did not beat its random control', claim: 'A 512-neuron Qwen2.5-Math-1.5B layer 18 cluster grafted into Llama-1B at layer 10 scored 25.0 on GSM8K search; a random control scored 33.0.', setup: 'run 1: Llama-3.2-1B-Instruct host, 300 heal steps, 1 seed', numbers: { host: 25.0, graft: 25.0, random_control: 33.0 }, numbers_source: 'results/README.md', status: 'candidate', status_reason: null, source: 'results/graft_run1_s0.json', skills: ['math', 'graft'], evidence: 'graft vs random cluster', about: { parts: ['qmath_l18_contrast512'], models: [HOST, 'Qwen/Qwen2.5-Math-1.5B'] } },
+  { id: 'f_mock_lora_bar', title: 'A rank-1 LoRA beats block grafts on Llama-1B', claim: 'On Llama-1B a rank-1 LoRA scores 43.5 on GSM8K search; the donor blocks score 35 to 36.', setup: 'run 3', numbers: { lora_r1: 43.5, blocks: [35.2, 36.3] }, numbers_source: 'results/README.md', status: 'validated', status_reason: null, source: 'results/round3_rows.json', skills: ['lora'], evidence: 'rank-1 LoRA vs block graft', about: { parts: [], models: [HOST] } },
+];
+attachMockFindings();
+function attachMockFindings() {
+  for (const p of PARTS) if (!p.findings) p.findings = [];
+  const graft = PARTS.find((p) => p.id === 'qmath_l18_contrast512');
+  if (graft) graft.findings = [{ id: 'f_mock_graft_random', title: 'A cross-family MLP graft did not beat its random control' }];
+}
 const PART = Object.fromEntries(PARTS.map((p) => [p.id, p]));
 const GRAFT_PARTS = PARTS.filter((p) => p.usable !== false);
 const MASK_IDS = new Set(MASKS.map((m) => m.id));
@@ -833,6 +851,9 @@ export const mockApi = {
     return { ok: true };
   },
   async catalog() { await lat(); return clone({ stub: true, host: { model: HOST, layers: HOST_LAYERS, params_b: HOST_B }, parts: PARTS.map(({ task, power, short, ...p }) => p), masks: MASKS, train: TRAIN, product: 'Sapien', kinds: ['block', 'attn_heads', 'mlp_cluster', 'expert', 'inserted_layer'].map((k) => ({ kind: k, name: k, count: PARTS.filter((p) => p.kind === k).length })), library: { atlas: false, counts: { candidate: PARTS.filter((p) => p.status === 'candidate').length, validated: PARTS.filter((p) => p.status === 'validated').length, rejected: PARTS.filter((p) => p.status === 'rejected').length } } }); },
+  async recipes() { await lat(); return clone({ recipes: RECIPES }); },
+  async findings() { await lat(); return clone({ findings: FINDINGS }); },
+  async stitches() { await lat(); return { stitches: [] }; },
   async programText(program) { await sleep(60); return { text: programText(program) }; },
   async programParse(text) { await sleep(80); return { program: parseProgram(text) }; },
   async programValidate(program) { await sleep(60); return { errors: validateProgram(program) }; },
