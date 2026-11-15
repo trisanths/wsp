@@ -306,7 +306,7 @@ def eval_job(cell, smoke=False, sample=False, gpu_name=""):
     started = time.time()
     local = model_local(spec)
     row = {"cell": cell, "starting_model": spec["start"], "model_path": local, "smoke": smoke,
-           "config": {"training": "none" if not cell.startswith("ceiling") else "ceiling data, see train row",
+           "config": {"training": "none" if "ceiling" not in cell else "ceiling data, see train row",
                       "decode": f"greedy, {GEN_TOKENS} new tokens", "speed_prompts": PROMPTS, "gen_len": GEN_LEN,
                       "batches": list(BATCHES), "sampling": sample},
            "vllm": vllm.__version__, "torch": torch.__version__, "gpu": torch.cuda.get_device_name(0),

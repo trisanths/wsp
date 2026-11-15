@@ -19,7 +19,7 @@ Clinic (workspace trisanthsrini):
 - Breadth: 800 MedMCQA train, 800 MedQA train, 800 pairs of the `wsp.healdata` medicine pool.
 - 8944 examples after drops. The run stopped at step 878 of 980 on the 200 minute limit, so the cosine schedule did not reach its end.
 
-Training (both): LoRA rank 64, alpha 128, on q, k, v, o and the gate, up, and down projections of every expert (9408 modules, 1.71B parameters), fp32 adapters, AdamW lr 3e-4 with 20 warmup steps and cosine decay to 10 percent, loss on answer tokens only, no teacher, routers frozen, then merged into bf16 weights. The merged models sit under `/vol/slim_models/ceiling/` (`code_64`, `code_32`, `clinic_64`) in the workspace that trained them.
+Training (both): LoRA rank 64, alpha 128, on q, k, v, o and the gate, up, and down projections of every expert (keep-64: 9408 modules, 1.71B parameters; keep-32: 4800 modules, 0.88B parameters), fp32 adapters, AdamW lr 3e-4 with 20 warmup steps and cosine decay to 10 percent, loss on answer tokens only, no teacher, routers frozen, then merged into bf16 weights. The merged models sit under `/vol/slim_models/ceiling/` (`code_64`, `code_32`, `clinic_64`) in the workspace that trained them.
 
 Scoring: vLLM 0.32.0, same harness as `modal_serve.py`. HumanEval and MBPP are greedy with 512 new tokens, graded by `wsp.skills_eval.grade_outputs`. The clinic sets use the `wsp.skills_eval` letter scoring (log-probability of " A" to " D" after "Answer:"). Speed is the 64 code prompts of `modal_serve.py` at batch 1 and 32, 256 tokens, prefill excluded. Weights GiB is the safetensors size. "GPU used GiB" is nvidia-smi after load, which counts the vLLM KV pool (90 percent of the device), so it only shows that an L4 job fits in 24 GB.
 
@@ -60,7 +60,7 @@ INT4: llm-compressor GPTQ, w4a16 (group size 128 by default), router and lm_head
 - The keep-32 healed slim (8.8B, 16.4 GiB) gains the most: 134 to 153 on HumanEval and 185 to 233 on MBPP. At that size it decodes 4140 tok/s at batch 32 against 2782 for the ceiling 64.
 - INT4 loses almost nothing on code. Ceiling 64 goes from 155 to 155 on HumanEval and 239 to 238 on MBPP; ceiling 32 goes 153 to 154 and 233 to 231. Both fit one 24 GB L4 with the KV cache (8.6 and 5.1 GiB of weights) and decode 91 to 92 tok/s at batch 1 and 835 to 1177 at batch 32.
 - Clinic: letter accuracy after training on the test items is 98.0, 98.0, and 99.4 percent. This shows memorization capacity of rank 64 on these items, nothing about medical skill.
-- Decode speed of the ceiling models equals their start models. LoRA merges into the weights, so nothing changes at inference.
+- At batch 1 the ceiling models decode at the same speed as their start models (259 to 261 tok/s). At batch 32 they differ: keep-64 3027 to 2782 (-8 percent), keep-32 4769 to 4140 (-13 percent), clinic 2731 to 3185 (+17 percent). The start models rerun within 0.2 percent, so the change is real. A change in how evenly the router spreads tokens over experts is the likely cause; it was not measured.
 
 ## Problems met
 
