@@ -269,8 +269,20 @@ const PLANNERS = [
 function newAgent(a) {
   return { id: a.id, name: a.name, role: a.id.split('-')[0], blurb: a.blurb, style: a.style, status: 'thinking', now: 'Reading the spec', best: null, attempts: 0, collapses: 0, lessons: 0, nudges_pending: 0, phase: 0, ticks: 0, cur: null, thinking: [], tools: [], history: [], nudges: [], bias: {} };
 }
-function logAct(run, agent, kind, status, text) {
-  run.activity.push({ ts: now(), agent, kind, status, text });
+// a readable program name, like the server sends: "Math block L8-19 at L6, heal 300"
+function readable(p) {
+  const bits = (p.grafts || []).map((g) => (PART[g.id] ? PART[g.id].label : 'Part') + ' at L' + g.at);
+  const ids = [];
+  (function w(x) { if (!x) return; if (x.op === 'use') ids.push(x.id); else { w(x.a); w(x.b); } })(p.masks);
+  if (ids.length) bits.push('remove ' + ids.length + (ids.length > 1 ? ' skills' : ' skill'));
+  let out = bits.length ? bits.join(' + ') : 'Host only';
+  if (p.lora) out += ', LoRA r' + (p.lora.rank || 16);
+  if (p.heal) out += ', heal ' + p.heal.steps;
+  return out;
+}
+function logAct(run, agent, kind, status, text, data = null) {
+  run.actId = (run.actId || 0) + 1;
+  run.activity.push({ id: run.actId, ts: now(), agent, kind, status, text, data, round: run.round || 1 });
   if (run.activity.length > 200) run.activity.shift();
 }
 function think(a, text) { a.thinking.push({ ts: now(), text }); if (a.thinking.length > 40) a.thinking.shift(); }
@@ -282,13 +294,13 @@ function newRun(spec, seed) {
     evals_used: 0, evals_total: spec.budget.evals, compute_used: 0, compute_total: spec.budget.compute_min * 60,
     base_scores: Object.fromEntries(spec.benchmarks.map((b) => [b.id, b.base])), best: null, board: [], activity: [], curve: [], uses: {},
     agents: [newAgent({ id: 'analyst', name: 'Analyst', blurb: 'reads every result, writes the map' }), ...PLANNERS.map(newAgent), newAgent({ id: 'judge', name: 'Judge', blurb: 'ranks, runs controls, guards the budget' })],
-    seed: seed || null, tickN: 0,
+    seed: seed || null, tickN: 0, round: 1, actId: 0,
   };
   const an = run.agents[0], ju = run.agents[4];
   an.now = 'Waiting for the first results'; an.status = 'idle';
   ju.now = 'Waiting for the first results'; ju.status = 'idle';
-  logAct(run, 'judge', 'start', 'info', 'Run started on the stub backend: ' + run.evals_total + ' evals, ' + spec.budget.compute_min + ' compute minutes.');
-  if (seed) logAct(run, 'judge', 'seed', 'info', 'Seeded with a program from the builder: ' + describe(seed));
+  logAct(run, 'judge', 'system', 'info', 'Run started on the stub backend: ' + run.evals_total + ' evals, ' + spec.budget.compute_min + ' compute minutes.');
+  if (seed) logAct(run, 'judge', 'seed', 'info', 'Seeded with a program from the builder: ' + readable(seed));
   runs.set(run.id, run);
   ensureClock();
   return run;
@@ -341,23 +353,28 @@ function stepAgent(run, a) {
         if (/donor|different/.test(low)) a.bias.donor = true;
         think(a, 'Nudge from you: "' + pend.text + '". I will use it for this attempt.');
         if (/explain|plan/.test(low)) think(a, 'Plan: probe fit for two placements near the default layer, compile the better one, heal 300 steps, then score on the search split.');
-        logAct(run, a.id, 'nudge', 'info', 'read your nudge: ' + pend.text);
+        logAct(run, a.id, 'nudge_applied', 'ok', 'Read your nudge and will use it next round', { nudge: pend.text });
       }
       const g = a.cur.grafts[0];
       const part = g && PART[g.id];
       const best = run.best ? ' Best so far is ' + (run.best.scores[run.spec.benchmarks.find((b) => b.kind === 'target').id] * 100).toFixed(1) + '%.' : '';
       think(a, part ? 'Try ' + part.label + ' at layer ' + g.at + ' with glue rank ' + (g.glue_rank || 'full') + '.' + best + ' The fit probe is free, so I check it before I spend an eval.' : 'Try a host-only program with heal, as a floor.' + best);
-      a.now = 'Planning ' + describe(a.cur);
+      a.now = 'Planning ' + readable(a.cur);
+      if (a.id === 'planner-1' || Math.random() < 0.5) logAct(run, a.id, 'plan', 'info', 'Proposed 3 programs to try this round', { count: 3 });
     } else if (pname === 'probing') {
       const g = a.cur.grafts[0];
       a.now = g ? 'Probing fit at L' + g.at + ' (free, no eval used)' : 'Checking the host (free)';
-      if (g) { const f = fitOf(PART[g.id], g.at); tool(a, 'probe(' + g.id + '@' + g.at + ')', 'fit ' + f.toFixed(2) + ', free'); }
+      if (g) {
+        const f = fitOf(PART[g.id], g.at);
+        tool(a, 'probe(' + g.id + '@' + g.at + ')', 'fit ' + f.toFixed(2) + ', free');
+        logAct(run, a.id, 'probe', 'ok', 'Checked fit of ' + readable(a.cur) + ': ' + f.toFixed(2), { name: readable(a.cur), fits: [Math.round(f * 100) / 100], program_hash: progHash(a.cur) });
+      }
     } else if (pname === 'compiling') {
-      a.now = 'Compiling ' + describe(a.cur);
+      a.now = 'Compiling ' + readable(a.cur);
       tool(a, 'compile(' + describe(a.cur) + ')', (30 + Math.floor(Math.random() * 40)) + ' s, ' + paramsOf(a.cur).toFixed(2) + 'B params');
       if (a.cur.heal) tool(a, 'heal(' + a.cur.heal.steps + ' steps)', 'loss 2.10 to ' + (1.2 + Math.random() * 0.3).toFixed(2));
     } else {
-      a.now = 'Scoring ' + describe(a.cur);
+      a.now = 'Scoring ' + readable(a.cur);
       tool(a, 'eval(search split)', 'running', 'info');
     }
   }
@@ -380,26 +397,25 @@ function finishEval(run, a) {
   const last = a.tools[a.tools.length - 1];
   if (last && last.result === 'running') { last.result = 'done: ' + (score * 100).toFixed(1) + '%'; last.status = ev.status === 'ok' ? 'ok' : 'bad'; }
   const h = progHash(a.cur);
-  a.history.push({ program_hash: h, describe: describe(a.cur), scores: ev.scores, combined: ev.combined, status: ev.status });
+  a.history.push({ program_hash: h, describe: describe(a.cur), name: readable(a.cur), scores: ev.scores, combined: ev.combined, status: ev.status });
   if (a.history.length > 30) a.history.shift();
   if (ev.status === 'collapsed') { a.collapses++; a.lessons++; }
   if (a.best == null || (ev.status === 'ok' && score > a.best)) a.best = ev.status === 'ok' ? score : a.best;
   for (const g of a.cur.grafts) { const d = PART[g.id] && PART[g.id].donor; if (d) run.uses[d] = (run.uses[d] || 0) + 1; }
   run.uses[HOST] = (run.uses[HOST] || 0) + 1;
-  const entry = { rank: 0, program_hash: h, describe: describe(a.cur), agent: a.id, scores: ev.scores, combined: ev.combined, status: ev.status, vs_control: null, params_b: ev.params_b, program: clone(a.cur), _pending: ev.vs_control, _age: 0 };
+  const entry = { rank: 0, program_hash: h, describe: describe(a.cur), name: readable(a.cur), agent: a.id, scores: ev.scores, combined: ev.combined, status: ev.status, vs_control: null, params_b: ev.params_b, program: clone(a.cur), _pending: ev.vs_control, _age: 0 };
   run.board.push(entry);
   const curBest = run.curve.length ? run.curve[run.curve.length - 1].best : tgt.base;
   const isBest = ev.status === 'ok' && ev.params_b <= spec.size.max_params_b && (!run.best || score > run.best.scores[tgt.id]);
   run.curve.push({ eval: run.evals_used, best: isBest ? score : curBest, score });
-  if (isBest) {
-    run.best = { program_hash: h, describe: entry.describe, scores: ev.scores, combined: ev.combined, agent: a.id, program: clone(a.cur) };
-    logAct(run, a.id, 'new_best', 'ok', 'reached ' + (score * 100).toFixed(1) + '% on ' + tgt.name + ' with ' + entry.describe);
-  } else if (ev.status === 'collapsed') {
-    logAct(run, a.id, 'collapse', 'bad', 'collapsed a guard with ' + entry.describe + '. Lesson saved.');
+  const guardsOut = spec.benchmarks.filter((b) => b.kind === 'guard').map((g) => ({ id: g.id, name: g.name, score: ev.scores[g.id], floor: g.floor, ok: ev.scores[g.id] >= g.floor }));
+  if (isBest) run.best = { program_hash: h, describe: entry.describe, name: entry.name, scores: ev.scores, combined: ev.combined, agent: a.id, program: clone(a.cur) };
+  const data = { name: entry.name, program_hash: h, target: Math.round(score * 10000) / 10000, best: run.best ? run.best.scores[tgt.id] : null, is_best: isBest, guards: guardsOut, scores: ev.scores, result: ev.status };
+  if (isBest) logAct(run, a.id, 'eval', 'ok', 'Scored ' + entry.name + ' at ' + (score * 100).toFixed(1) + '% on ' + tgt.name + '. It is the best so far.', data);
+  else if (ev.status === 'collapsed') {
+    logAct(run, a.id, 'eval', 'bad', 'Scored ' + entry.name + ' and it collapsed. The lesson is saved.', data);
     think(a, 'That collapsed. Guards fell below their floor, so I will move the graft away from its neighbour and try again.');
-  } else {
-    logAct(run, a.id, 'eval', 'info', 'scored ' + (score * 100).toFixed(1) + '% with ' + entry.describe);
-  }
+  } else logAct(run, a.id, 'eval', 'info', 'Scored ' + entry.name + ' at ' + (score * 100).toFixed(1) + '% on ' + tgt.name + '.', data);
   run.board.sort((x, y) => (y.status === 'ok') - (x.status === 'ok') || y.combined - x.combined);
   run.board = run.board.slice(0, 14);
   run.board.forEach((e, i) => { e.rank = i + 1; });
@@ -410,11 +426,12 @@ function tickRun(run) {
   if (run.status === 'stopping') {
     run.status = 'done';
     run.agents.forEach((a) => { a.status = 'done'; a.now = 'Stopped. Best program kept.'; });
-    logAct(run, 'judge', 'stop', 'info', 'Run stopped. The best program is kept.');
+    logAct(run, 'judge', 'milestone', 'info', 'Search stopped. The best program is kept.');
     return;
   }
   run.tickN++;
   run.elapsed += 14;
+  run.round = Math.floor((run.tickN - 1) / 4) + 1;
   const ready = run.board.length;
   run.agents.forEach((a) => {
     if (a.id.startsWith('planner')) stepAgent(run, a);
@@ -429,18 +446,18 @@ function tickRun(run) {
     an.now = txt; an.lessons++;
     think(an, txt);
     tool(an, 'read_results(' + ready + ' programs)', 'ok');
-    logAct(run, 'analyst', 'analyst_map', 'info', txt);
+    logAct(run, 'analyst', 'map', 'info', txt, { detail: 'part                     fits   wins\n' + run.board.slice(0, 4).map((e) => (e.name + '                              ').slice(0, 24) + ' ' + (e.status === 'ok' ? 'yes' : 'no') + '   ' + (e.combined * 100).toFixed(0)).join('\n') });
   } else if (run.tickN % 5 === 2) an.status = 'idle';
   const top = run.board.slice(0, 3).find((e) => e.vs_control == null && e._pending != null);
   if (top) {
     top._age++;
     ju.status = 'scoring';
-    ju.now = 'Running the random-part control for ' + top.describe;
+    ju.now = 'Running the random-part control for ' + top.name;
     if (top._age >= 2) {
       top.vs_control = top._pending;
       ju.status = 'idle'; ju.attempts++;
       ju.now = 'Control done for rank ' + top.rank + ': ' + (top.vs_control * 100).toFixed(1) + ' points above a random part';
-      logAct(run, 'judge', 'control', top.vs_control > 0.02 ? 'ok' : 'info', 'Random-part control for ' + top.describe + ': the part adds ' + (top.vs_control * 100).toFixed(1) + ' points.');
+      logAct(run, 'judge', 'verdict', top.vs_control > 0.02 ? 'ok' : 'info', 'The random-part control for ' + top.name + ' says the part adds ' + (top.vs_control * 100).toFixed(1) + ' points.', { frontier: run.board.slice(0, 3).map((e) => ({ program_hash: e.program_hash, name: e.name, target: e.scores[run.spec.benchmarks.find((b) => b.kind === 'target').id] })), retired: [], killed: [] });
       think(ju, ju.now);
       tool(ju, 'control(random part)', '+' + (top.vs_control * 100).toFixed(1));
     }
@@ -448,7 +465,9 @@ function tickRun(run) {
   if (run.evals_used >= run.evals_total || run.compute_used >= run.compute_total) {
     run.status = 'done';
     run.agents.forEach((a) => { a.status = 'done'; a.now = 'Budget used. Finished.'; });
-    logAct(run, 'judge', 'done', 'ok', 'Run finished. Best program is ready to open in the builder.');
+    const tg = run.spec.benchmarks.find((b) => b.kind === 'target');
+    run.board.slice(0, 3).forEach((e) => logAct(run, 'judge', 'heldout', 'info', 'Held-out check of ' + e.name, { name: e.name, program_hash: e.program_hash, target: Math.max(0, e.scores[tg.id] - 0.02), scores: e.scores }));
+    logAct(run, 'judge', 'milestone', 'ok', 'Search finished. The best program is ready to open in the builder.');
   }
 }
 
@@ -511,7 +530,7 @@ export const mockApi = {
     const a = run.agents.find((x) => x.id === aid);
     if (!a) { const e = new Error('no such agent'); e.status = 404; throw e; }
     const snap = snapshot(run).agents.find((x) => x.id === aid);
-    const cur = a.cur ? { program: clone(a.cur), text: programText(a.cur), describe: describe(a.cur) } : null;
+    const cur = a.cur ? { program: clone(a.cur), text: programText(a.cur), describe: describe(a.cur), name: readable(a.cur) } : null;
     return clone({ agent: snap, current: cur, thinking: a.thinking, tools: a.tools, history: a.history, nudges: a.nudges });
   },
   async nudge(id, aid, text) {
@@ -521,7 +540,7 @@ export const mockApi = {
     if (!text || !text.trim()) { throw new Error('Write something first.'); }
     a.nudges.push({ ts: now(), text, applied: false });
     a.nudges_pending++;
-    logAct(run, aid, 'nudge_sent', 'info', 'You sent a nudge: ' + text);
+    logAct(run, 'you', 'nudge', 'info', text, { to: aid, to_name: a.name });
     return { ok: true };
   },
   async catalog() { await lat(); return clone({ stub: true, host: { model: HOST, layers: HOST_LAYERS, params_b: HOST_B }, parts: PARTS.map(({ task, power, short, ...p }) => p), masks: MASKS, train: TRAIN, tap_train_default: TAP_TRAIN_DEFAULT }); },

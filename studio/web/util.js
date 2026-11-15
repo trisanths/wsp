@@ -140,8 +140,17 @@ export function parseHash() {
   if (!parts.length) return { name: 'prompt', q };
   if (parts[0] === 'spec' && parts[1]) return { name: 'spec', id: parts[1], q };
   if (parts[0] === 'run' && parts[1]) {
-    if (parts[2] === 'agent' && parts[3]) return { name: 'run', id: parts[1], agent: parts[3], q };
-    return { name: 'run', id: parts[1], q };
+    const id = parts[1];
+    // the old single-agent route moves to the agent page
+    if (parts[2] === 'agent' && parts[3]) {
+      try { history.replaceState(null, '', '#/run/' + id + '/agents/' + parts[3]); } catch (e) { /* ignore */ }
+      return { name: 'run', id, page: 'agent', agent: parts[3], q };
+    }
+    if (parts[2] === 'agents' && parts[3]) return { name: 'run', id, page: 'agent', agent: parts[3], q };
+    if (parts[2] === 'agents') return { name: 'run', id, page: 'agents', q };
+    if (parts[2] === 'activity') return { name: 'run', id, page: 'activity', q };
+    if (parts[2] === 'results') return { name: 'run', id, page: 'results', q };
+    return { name: 'run', id, page: 'overview', q };
   }
   if (parts[0] === 'build' && parts[1]) return { name: 'build', id: parts[1], q };
   if (parts[0] === 'runs') return { name: 'runs', q };

@@ -18,7 +18,7 @@ function App() {
   useEffect(() => { api.health().then((h) => { setHealth(h); if (h && h.stub) markStub(true); }).catch(() => {}); }, []);
   let screen;
   if (r.name === 'spec') screen = html`<${SpecScreen} key=${r.id} id=${r.id} />`;
-  else if (r.name === 'run') screen = html`<${RunScreen} key=${r.id} id=${r.id} agent=${r.agent} />`;
+  else if (r.name === 'run') screen = html`<${RunScreen} key=${r.id} id=${r.id} page=${r.page} agent=${r.agent} />`;
   else if (r.name === 'build') screen = html`<${BuilderScreen} key=${r.id} id=${r.id} specId=${r.q.get('spec')} />`;
   else if (r.name === 'runs') screen = html`<${RunsScreen} />`;
   else if (r.name === 'parts') screen = html`<${PartsScreen} />`;

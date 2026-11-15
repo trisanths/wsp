@@ -239,14 +239,15 @@ function reelPlace(col, pos, spread, middle, o, land) {
     cell.style.zIndex = String(z);
   });
 }
-// Rolls the digits of el from one whole number to another. Returns a function that cancels it.
+// Rolls the digits of el from one value to another. A value is a whole number or a text such
+// as "41.1%"; only the digits roll. Returns a function that cancels it.
 export function countTo(el, from, to) {
-  const str = to.toLocaleString('en-US');
+  const str = typeof to === 'number' ? to.toLocaleString('en-US') : String(to);
   el.setAttribute('aria-label', str);
   const cols = buildColumns(el, str);
   if (reduced() || from === to) { cols.forEach((c) => reelRest(c, c.digit)); return () => {}; }
   const o = reelTokens(el);
-  const fromDigits = String(from).padStart(cols.length, '0').slice(-cols.length);
+  const fromDigits = (typeof from === 'number' ? String(from) : String(from).replace(/\D/g, '')).padStart(cols.length, '0').slice(-cols.length);
   cols.forEach((c, i) => { c.from = +fromDigits[i]; reelRest(c, c.from); if (c.from === c.digit) c.done = true; });
   const t0 = performance.now();
   let raf = 0;
@@ -285,15 +286,16 @@ export function countTo(el, from, to) {
   tick();
   return () => cancelAnimationFrame(raf);
 }
-// A whole number that rolls when it changes. Digits are built by countTo, so Preact renders no children.
+// A number or text such as "41.1%" that rolls when it changes. Digits are built by countTo, so Preact renders no children.
 export function Reel({ value, class: cls }) {
   const ref = useRef();
   const last = useRef(null);
   useLayoutEffect(() => {
     const el = ref.current;
     if (last.current == null) {
-      buildColumns(el, value.toLocaleString('en-US')).forEach((c) => reelRest(c, c.digit));
-      el.setAttribute('aria-label', value.toLocaleString('en-US'));
+      const str = typeof value === 'number' ? value.toLocaleString('en-US') : String(value);
+      buildColumns(el, str).forEach((c) => reelRest(c, c.digit));
+      el.setAttribute('aria-label', str);
     } else if (last.current !== value) {
       if (el._cancel) el._cancel();
       el._cancel = countTo(el, last.current, value);
@@ -345,7 +347,8 @@ export function Shimmer({ text, tag = 'span', class: cls }) {
 
 /* ---------- transitions.dev: thinking states ---------- */
 // A status line that shimmers while it holds and swaps when the text prop changes.
-export function ThinkLine({ text, class: cls }) {
+// Set still when the work is idle, so the line stops shimmering. Set fluid to truncate in a flex row.
+export function ThinkLine({ text, class: cls, still, fluid }) {
   const box = useRef();
   const live = useRef(null);
   const sizer = useRef();
@@ -371,7 +374,7 @@ export function ThinkLine({ text, class: cls }) {
     if (gap > 0) setTimeout(release, gap); else release();
     setTimeout(() => leaving.remove(), swap + gap + 20);
   }, [text]);
-  return html`<span class=${'t-think ' + (cls || '')} role="status" ref=${box}><span class="t-think-sizer" aria-hidden="true" ref=${sizer}></span></span>`;
+  return html`<span class=${'t-think ' + (still ? 'is-still ' : '') + (fluid ? 'fluid ' : '') + (cls || '')} role="status" ref=${box}><span class="t-think-sizer" aria-hidden="true" ref=${sizer}></span></span>`;
 }
 
 /* ---------- transitions.dev: error state shake ---------- */
