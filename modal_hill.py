@@ -947,7 +947,31 @@ def batch_h12():
     return out
 
 
-BATCHES = {"h1": batch_h1, "h2": batch_h2, "h3": batch_h3, "h4": batch_h4, "h5": batch_h5, "h6": batch_h6, "h7": batch_h7, "h8": batch_h8, "h9": batch_h9, "h10": batch_h10, "h11": batch_h11, "h12": batch_h12}
+def batch_h13():
+    """Push h10's winner (14B block 7..34 read from host layers 1..7 into Llama-1B): a third seed, longer
+    alignment and task training, deeper encoder, all-domain training, the same read on the 3B host, and the
+    14B + Apollo2 composition at MC batch 4 (it ran out of memory at 8)."""
+    out = []
+    blk = {"type": "block", "first": 7, "last": 34}
+    k = {"objective": "mc", "align_steps": 600, "task_steps": 1000, "enc_depth": 2, "part": blk,
+         "domain": "knowledge14", "mc_train": "general", "arm": "real", "read_layers": list(range(1, 8))}
+    out.append(dict(k, name="w-s2", seed=2))
+    out.append(dict(k, name="w-align1200", align_steps=1200))
+    out.append(dict(k, name="w-task2000", task_steps=2000))
+    out.append(dict(k, name="w-enc3", enc_depth=3))
+    out.append(dict(k, name="w-read0to7", read_layers=list(range(0, 8))))
+    out.append(dict(k, name="w-read1to5-w5", host_layer=5, read_layers=list(range(1, 6))))
+    out.append(dict(k, name="w-all", mc_train="all"))
+    out.append(dict(k, name="w-lora-s2", arm="lora", seed=2))
+    out.append(dict(k, name="b3-w-read1to8-w8", host="unsloth/Llama-3.2-3B-Instruct", host_layer=8,
+                    read_layers=list(range(1, 9))))
+    med = {"domain": "medicine", "host_layer": 11, "first": 4, "last": 20, "read_layers": list(range(7, 12))}
+    out.append(dict(k, name="w+apollo-all-b4", mc_train="all", mc_batch=4, extra_grafts=[med]))
+    out.append(dict(k, name="w-all-b4", mc_train="all", mc_batch=4))
+    return out
+
+
+BATCHES = {"h1": batch_h1, "h2": batch_h2, "h3": batch_h3, "h4": batch_h4, "h5": batch_h5, "h6": batch_h6, "h7": batch_h7, "h8": batch_h8, "h9": batch_h9, "h10": batch_h10, "h11": batch_h11, "h12": batch_h12, "h13": batch_h13}
 
 
 @app.function(image=image, volumes={"/vol": volume}, gpu="H200", memory=262144, timeout=5 * 3600)
