@@ -154,3 +154,21 @@ def test_fast_grafted_final_takes_float32_input_for_bf16_donor():
     out = moe_fast.fast_grafted_final(donor, 2, x, mask)
     head = donor.get_output_embeddings()
     assert head(out).shape[-1] == 300
+
+
+@pytest.mark.parametrize("dtype,tol", [(torch.float32, 1e-4), (torch.bfloat16, 0.1)])
+@pytest.mark.parametrize("factor", [0.1, 0.5, 2.0])
+def test_overflow_path_matches_native(dtype, tol, factor):
+    model = tiny_model(dtype)
+    block = model.model.layers[1].mlp
+    fast = moe_fast.stack_native(block)
+    fast.cap_factor = factor
+    x = torch.randn(3, 11, 48).to(dtype)
+    x[:, 5:] = x[:, :1]  # identical tokens crowd the same experts
+    with torch.no_grad():
+        want, _ = block(x)
+        got, _ = fast(x)
+    assert (want.float() - got.float()).abs().max() < tol
+    x2 = x.clone().requires_grad_(True)
+    fast(x2)[0].float().sum().backward()
+    assert torch.isfinite(x2.grad).all()

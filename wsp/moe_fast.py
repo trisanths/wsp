@@ -43,6 +43,7 @@ class FastMoeBlock(_module().Qwen3MoeSparseMoeBlock):
         self.w_up = nn.Parameter(torch.empty(e, i, d), requires_grad=False)
         self.w_down = nn.Parameter(torch.empty(e, d, i), requires_grad=False)
         self.act_fn = F.silu if config.hidden_act == "silu" else _act(config.hidden_act)
+        self.cap_factor = 2.0  # padded capacity per expert, in multiples of the mean load
         self.ckpt = False  # recompute the expert pass in backward to save memory
 
     def route(self, flat):
@@ -66,6 +67,9 @@ class FastMoeBlock(_module().Qwen3MoeSparseMoeBlock):
         return out.reshape(batch, seq, dim), logits
 
     def experts_forward(self, flat, weights, chosen):
+        """Sorted dispatch. Each expert's first `capacity` tokens go through padded bmm. A crowded expert's overflow
+        (padding tokens and sink tokens pile onto a few experts) runs in a per-expert loop, so the padded buffer
+        stays near the mean load instead of the maximum."""
         tokens, dim = flat.shape
         k = chosen.shape[1]
         experts = self.num_experts
@@ -76,15 +80,28 @@ class FastMoeBlock(_module().Qwen3MoeSparseMoeBlock):
         counts = torch.bincount(expert_of, minlength=experts)
         starts = torch.cumsum(counts, 0) - counts
         slot = torch.arange(order.numel(), device=flat.device) - starts[sorted_expert]
-        capacity = int(counts.max())
+        weight_of = weights.reshape(-1)[order].unsqueeze(-1)
+        counts_list = counts.tolist()
+        capacity = max(1, min(max(counts_list), int(self.cap_factor * order.numel() / experts) + 1))
+        main = slot < capacity
+        e_main, s_main, t_main = sorted_expert[main], slot[main], token_of[main]
         buf = flat.new_zeros(experts, capacity, dim)
-        buf[sorted_expert, slot] = flat[token_of]
+        buf[e_main, s_main] = flat[t_main]
         act = self.act_fn(torch.bmm(buf, self.w_gate.transpose(1, 2).to(buf.dtype)))
         act = act * torch.bmm(buf, self.w_up.transpose(1, 2).to(buf.dtype))
         out = torch.bmm(act, self.w_down.transpose(1, 2).to(buf.dtype))
-        picked = out[sorted_expert, slot] * weights.reshape(-1)[order].unsqueeze(-1)
+        picked = out[e_main, s_main] * weight_of[main]
         result = flat.new_zeros(tokens, dim)
-        result.index_add_(0, token_of, picked.to(flat.dtype))
+        result.index_add_(0, t_main, picked.to(flat.dtype))
+        starts_list = starts.tolist()
+        for e in range(experts):
+            if counts_list[e] <= capacity:
+                continue
+            lo, hi = starts_list[e] + capacity, starts_list[e] + counts_list[e]
+            x = flat[token_of[lo:hi]]
+            h = self.act_fn(x @ self.w_gate[e].t().to(x.dtype)) * (x @ self.w_up[e].t().to(x.dtype))
+            y = (h @ self.w_down[e].t().to(x.dtype)) * weight_of[lo:hi]
+            result.index_add_(0, token_of[lo:hi], y.to(flat.dtype))
         return result
 
 
