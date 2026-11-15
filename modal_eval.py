@@ -161,6 +161,16 @@ def gate_remote(seeds, donor_layer, neurons, heal_steps):
     return json.loads(json.dumps(summary, default=str))
 
 
+@app.function(image=image, volumes={"/vol": volume}, cpu=8, memory=32768, timeout=3600)
+def mask_signatures_remote():
+    from wsp_eval.signatures import structural_signatures
+    _prepare_catalog()
+    count = structural_signatures("/vol/eval/catalog.jsonl")
+    volume.commit()
+    with open("/vol/eval/catalog.jsonl") as f:
+        return {"count": count, "catalog": f.read()}
+
+
 def _save(name, data):
     os.makedirs("outputs", exist_ok=True)
     path = os.path.join("outputs", name)
@@ -234,3 +244,28 @@ def gate(seeds: str = "0 1 2", donor_layer: int = 10, neurons: int = 512, heal_s
     from wsp_eval import claims
     print(claims.format_verdict(summary["verdict"]))
     _save("gate_summary.json", summary)
+
+
+@app.local_entrypoint()
+def mask_signatures():
+    """Structural signatures (counts, per-layer deletions, overlaps) for every mask. CPU only."""
+    import json as json_module
+    result = mask_signatures_remote.remote()
+    signatures = {}
+    for line in result["catalog"].splitlines():
+        if line.strip():
+            record = json_module.loads(line)
+            if "signature" in record:
+                signatures[record["id"]] = record["signature"]
+    # Merge only the signature field into the local catalog; every other field stays as Person A wrote it.
+    lines = []
+    with open("catalog.jsonl") as f:
+        for line in f:
+            if line.strip():
+                record = json_module.loads(line)
+                if record["id"] in signatures:
+                    record["signature"] = signatures[record["id"]]
+                lines.append(json_module.dumps(record))
+    with open("catalog.jsonl", "w") as f:
+        f.write("\n".join(lines) + "\n")
+    print("signatures merged into catalog.jsonl for", result["count"], "masks")

@@ -137,3 +137,14 @@ def test_heatmaps(tiny_model, tmp_path):
     assert os.path.exists(heatmaps.deletion_heatmap(str(tmp_path / "del.png")))
     assert os.path.exists(heatmaps.overlap_heatmap(str(tmp_path / "ovl.png")))
     assert os.path.exists(heatmaps.neuron_heatmap("mask_a", str(tmp_path / "neu.png"), num_bins=8))
+
+
+def test_structural_signatures(tiny_model):
+    from wsp_eval import signatures
+    assert signatures.structural_signatures() == 2
+    signature = catalog.get("mask_a")["signature"]
+    assert signature["num_deleted"] == 46
+    assert signature["deleted_per_layer"] == [10, 11, 12, 13]
+    assert signature["overlap_with"]["mask_b"]["shared"] == 26
+    assert signature["top_overlaps"][0]["id"] == "mask_b"
+    assert catalog.get("mask_a")["path"] == "components/a"
