@@ -1,0 +1,1220 @@
+{
+ "name": "quantifier_truth",
+ "description": "Determine whether all/some/no/exactly-one members of a finite set have a property; control copies the queried property.",
+ "hash": "31ab0090a6f8bca0",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nitems=[];control=[]\nfor i in range(120):\n n=random.randint(3,6); color=random.choice(['red','blue','green']); other=[x for x in ['red','blue','green'] if x!=color]; k=random.randint(0,n)\n vals=[color]*k+[random.choice(other) for _ in range(n-k)];random.shuffle(vals)\n q=random.choice(['every','some','no','exactly one'])\n truth={'every':k==n,'some':k>0,'no':k==0,'exactly one':k==1}[q]\n prefix='The complete collection contains balls with these colors: '+', '.join(vals)+'. Claim: '+q+' ball is '+color+'.'\n items.append({'prompt':prefix+' Is the claim true? Answer yes or no:', 'answer':' '+('yes' if truth else 'no')})\n control.append({'prompt':prefix+' Which color is mentioned in the claim? Answer:', 'answer':' '+color})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "The complete collection contains balls with these colors: blue, red, green, green, green, blue. Claim: every ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, blue, blue, red. Claim: every ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, blue, red. Claim: some ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, green, red, green, blue. Claim: no ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, blue, blue. Claim: every ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, blue, green. Claim: some ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, green, green, green. Claim: exactly one ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, blue, blue, red. Claim: every ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, green, green, blue, red. Claim: some ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, green, red, green, green. Claim: exactly one ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, green, blue. Claim: exactly one ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, green, red. Claim: some ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, red, red, green. Claim: exactly one ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, blue, green. Claim: some ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue. Claim: no ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green. Claim: no ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue, green, red. Claim: exactly one ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, red, green, green. Claim: some ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, blue, blue, blue, blue. Claim: exactly one ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, green, green, blue, blue. Claim: exactly one ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, green, green, red. Claim: some ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, blue. Claim: some ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue, red, green. Claim: some ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, red, red, red. Claim: every ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green, green, green. Claim: some ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, green. Claim: no ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green, blue, green. Claim: every ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, green, blue, green, green. Claim: some ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue. Claim: exactly one ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, blue, green, blue, green. Claim: no ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green, green. Claim: exactly one ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, blue, blue, red, red, green. Claim: exactly one ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, blue, blue, blue. Claim: some ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, green, green, red. Claim: some ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, green, blue, blue. Claim: some ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, red, blue, green, green. Claim: some ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, red, blue. Claim: every ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, red. Claim: every ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, red, blue, red, green, red. Claim: exactly one ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue, red, blue, blue. Claim: no ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, red, red, green, green. Claim: every ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, red, red, red, red. Claim: every ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, blue, blue. Claim: every ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, blue, green, red. Claim: some ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, red. Claim: exactly one ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, green, red, red. Claim: some ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, blue, red. Claim: every ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue. Claim: no ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, blue, red. Claim: no ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue, green, green. Claim: some ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue. Claim: every ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green, green, red. Claim: exactly one ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, red, red, blue, red. Claim: every ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, red, red, blue, blue, green. Claim: every ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue, blue, green. Claim: every ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, red. Claim: every ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, red, green. Claim: every ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, red. Claim: exactly one ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, red, red, blue, red. Claim: some ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, blue, green, red. Claim: some ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The complete collection contains balls with these colors: red, blue, blue. Claim: every ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, green, blue. Claim: no ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, green, green. Claim: some ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green. Claim: exactly one ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, red, red, blue, red. Claim: no ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, blue, red, green, green. Claim: some ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, blue, blue, red. Claim: exactly one ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green, green, green, green. Claim: every ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, blue, green, red. Claim: exactly one ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green, blue, green, green. Claim: some ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green, green, green. Claim: every ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, green. Claim: exactly one ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green. Claim: no ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, green, red. Claim: no ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue, green, green, red. Claim: every ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, red, red. Claim: exactly one ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, red, red, red, green. Claim: exactly one ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green, green, green, green. Claim: no ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, blue, red, blue. Claim: every ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, red, red, blue. Claim: every ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, red, red. Claim: some ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, blue, blue. Claim: every ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, blue, blue, blue. Claim: no ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, red, red. Claim: no ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, red, red. Claim: exactly one ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, red, blue. Claim: some ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, red, green, red, blue, green. Claim: some ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, blue, blue, red, blue. Claim: some ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, red. Claim: some ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, red, red. Claim: some ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, blue, blue. Claim: no ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, red. Claim: some ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, red, red, red. Claim: every ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, blue, green, blue, red, blue. Claim: exactly one ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, red, green. Claim: exactly one ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, red, red. Claim: no ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, blue, blue. Claim: some ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, red, red, blue. Claim: exactly one ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, blue, blue, green, green, green. Claim: no ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, red, red, green, red, green. Claim: no ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, red, blue. Claim: every ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green. Claim: exactly one ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, green. Claim: no ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, red. Claim: some ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green, green, green, green. Claim: some ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green, green, red, red. Claim: some ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, red. Claim: no ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue, blue. Claim: no ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, green, green, green, red. Claim: some ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue, green, red, blue. Claim: exactly one ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, red, red, red. Claim: exactly one ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, blue, red, red. Claim: some ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, blue, green, blue, blue. Claim: every ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, red, red, green, blue, red. Claim: no ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue. Claim: no ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, red, red, blue. Claim: exactly one ball is red. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, red. Claim: exactly one ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, blue, blue, blue. Claim: no ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, blue, green, red. Claim: some ball is green. Is the claim true? Answer yes or no:",
+    "continuation": " yes",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, red, red. Claim: exactly one ball is blue. Is the claim true? Answer yes or no:",
+    "continuation": " no",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "The complete collection contains balls with these colors: green, red, red, red, green. Claim: exactly one ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, green, blue. Claim: no ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue. Claim: no ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, blue, green, blue, red, blue. Claim: exactly one ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, red, green. Claim: exactly one ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green. Claim: exactly one ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, blue, blue. Claim: every ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, blue, blue. Claim: some ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue, blue. Claim: no ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green, green. Claim: exactly one ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, red, green. Claim: every ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, blue, red. Claim: every ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, blue, blue, red. Claim: every ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, red, red, blue. Claim: every ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue, green, green. Claim: some ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, red, red. Claim: exactly one ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, green, green, green. Claim: exactly one ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, red. Claim: every ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue, blue, green. Claim: every ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, red. Claim: some ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, green, green. Claim: some ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, green, red. Claim: no ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, blue, blue, green, green, green. Claim: no ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, red, blue, green, green. Claim: some ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, blue, blue. Claim: no ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, red, blue. Claim: every ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, blue, blue, blue. Claim: no ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, green, green, red. Claim: some ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green. Claim: no ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, red, red, green, blue, red. Claim: no ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, blue, blue, red, red, green. Claim: exactly one ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, red. Claim: exactly one ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, red, red, red. Claim: every ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue. Claim: no ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, blue, blue. Claim: every ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green, green, green, green. Claim: some ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green, blue, green, green. Claim: some ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, green, blue, blue. Claim: some ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue, red, green. Claim: some ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue, red, blue, blue. Claim: no ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, green, green, blue, red. Claim: some ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue, green, green, red. Claim: every ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, red, red. Claim: some ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, green, red, green, green. Claim: exactly one ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, red, red, red. Claim: exactly one ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, red, red, blue, red. Claim: no ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green, green, green. Claim: some ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, blue, green. Claim: some ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, blue, green, red. Claim: some ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, green. Claim: no ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, red, green, red, blue, green. Claim: some ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, blue, green, blue, blue. Claim: every ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue. Claim: exactly one ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, red. Claim: exactly one ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green, green, red, red. Claim: some ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, red. Claim: no ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, red, blue, red, green, red. Claim: exactly one ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, green, blue. Claim: exactly one ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green. Claim: no ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, red. Claim: some ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The complete collection contains balls with these colors: green, blue, red. Claim: some ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green, blue, green. Claim: every ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, red, red, blue, blue, green. Claim: every ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, red, red, green. Claim: exactly one ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, blue, blue, red. Claim: every ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, red, red, blue. Claim: exactly one ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, blue, red, green, green. Claim: some ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, blue, green, blue, green. Claim: no ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, red, red, blue, red. Claim: some ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, green, green, blue, blue. Claim: exactly one ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, blue, red. Claim: no ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, green. Claim: no ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, red, red, red, red. Claim: every ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green, green, green, green. Claim: no ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, blue, blue. Claim: every ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, red, red. Claim: exactly one ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue. Claim: every ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, blue, green. Claim: some ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue, green, red. Claim: exactly one ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, red, red, blue, red. Claim: every ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, red. Claim: some ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, green, green, green, red. Claim: some ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green, green, green. Claim: every ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, green, red. Claim: some ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, blue. Claim: some ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, blue, blue, red, blue. Claim: some ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, blue, blue, blue, blue. Claim: exactly one ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, red, red, green, red, green. Claim: no ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, red, red. Claim: some ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, red, blue. Claim: every ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue. Claim: no ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, red, green, green. Claim: some ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, green. Claim: exactly one ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green, green, red. Claim: exactly one ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, red. Claim: exactly one ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, red, red. Claim: no ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green, green, green, green. Claim: every ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, blue, green, red. Claim: exactly one ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, red, red, red. Claim: every ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, blue, blue. Claim: every ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, blue, green, red. Claim: some ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, green, red, green, blue. Claim: no ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, blue, red, red. Claim: some ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, red, red, blue. Claim: exactly one ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, blue, red, blue. Claim: every ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, blue, blue, green, red, blue. Claim: exactly one ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, blue, blue, blue. Claim: some ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, blue, green, red. Claim: some ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, red, blue. Claim: some ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, red, green, green, green, blue. Claim: every ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, green, blue, green, green. Claim: some ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, blue, blue, red. Claim: exactly one ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, red, red. Claim: every ball is green. Which color is mentioned in the claim? Answer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, red, red. Claim: no ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: blue, green, green, red. Claim: some ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, blue, blue, blue. Claim: no ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, green, red, red. Claim: some ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, red, red. Claim: exactly one ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: red, green, red, red, green, green. Claim: every ball is blue. Which color is mentioned in the claim? Answer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The complete collection contains balls with these colors: green, green, green. Claim: exactly one ball is red. Which color is mentioned in the claim? Answer:",
+    "continuation": " red",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 1.1833
+}
