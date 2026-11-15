@@ -385,3 +385,40 @@ to 8), but a strong host gains nothing from equal or weaker donors, and
 composition beats its best source here. Next: per-item scores for every
 model to measure complementarity (oracle and probability-average
 ensembles) before more composition designs.
+
+## Stitch study (2026-11-14): a trained stitch keeps the donor intact
+
+Donor Qwen2.5-Math-1.5B. Stitch maps host layer k output into donor layer
+l input, with the donor sink at position 0. 1000 steps on 1200 GSM8K heal
+plus 1200 WikiText-103 texts; penalty = donor loss with the stitched input
+minus native, on 150 held-out texts of each kind. Raw rows:
+stitch_study_rows.json.
+
+| Host, k to l | Method | GSM8K penalty | WikiText penalty |
+|---|---|---|---|
+| Qwen2.5-1.5B base, 7 to 8 | ridge | 0.399 | 0.182 |
+| | donor_lm linear | 0.029 | -0.164 |
+| | donor_lm mlp | -0.014 | -0.207 |
+| | downstream mlp | 0.264 | -0.008 |
+| | mse linear | 0.399 | 0.177 |
+| Qwen2.5-1.5B base, 13 to 14 | ridge | 0.423 | 0.001 |
+| | donor_lm mlp | 0.122 | -0.169 |
+| Qwen2.5-0.5B-Instruct, 7 to 8 | ridge | 0.647 | 0.500 |
+| | donor_lm linear | 0.090 | -0.153 |
+| | donor_lm mlp | 0.078 | -0.164 |
+| Qwen2.5-0.5B-Instruct, 12 to 14 | ridge | 0.726 | 0.452 |
+| | donor_lm mlp | 0.172 | -0.108 |
+
+Cross-tokenizer (Llama-3.2-1B-Instruct host; downstream loss at donor
+layer l + 4, lower is better): 5 to 8 ridge 0.404, downstream mlp 0.250;
+9 to 14 ridge 0.515, downstream mlp 0.360.
+
+Reading:
+- Training the stitch on the donor's own LM loss removes most of the
+  penalty for same-tokenizer pairs (0.40 to 0.65 nats down to 0.03 to 0.09
+  at the early cut). MSE regression does nothing beyond ridge.
+- Negative WikiText penalties: "host layers 0..k + donor layers l..end"
+  predicts held-out text better than the donor itself by 0.1 to 0.2 nats.
+  The first sign of a composite beating its source.
+- Across tokenizers the downstream objective closes a third to a half of
+  the gap; position mismatch remains.
