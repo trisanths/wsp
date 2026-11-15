@@ -61,7 +61,7 @@ tv code_tv weight 0.5 layers 10..20 modules mlp
 lora rank 16 targets q_proj,v_proj
 graft qmath_l18_contrast512 at 6 rank 64 control random seed 101
 graft qmath_block_8_19 at 5 rank 64 stitch mlp objective downstream steps 500
-heal steps 300 data gsm8k_train lr 3e-4
+heal steps 300 data general lr 3e-4
 ```
 
 A tap program (in run 6, a tap from Qwen2.5-7B-Instruct gained 20.4
@@ -70,7 +70,7 @@ points on MMLU over the host, and a rank-16 LoRA gained 2.8):
 ```wsp
 host unsloth/Llama-3.2-1B-Instruct
 tap Qwen/Qwen2.5-7B-Instruct layer 20 at 10
-tap_train data mmlu_aux steps 500 batch_size 8 seq_len 256 branch_lr 3e-4 gate_lr 3e-2
+tap_train data general steps 500 batch_size 8 seq_len 256 branch_lr 3e-4 gate_lr 3e-2
 ```
 
 The code is in `wsp/lang.py`:
@@ -89,7 +89,8 @@ text = format_program(program)          # parse(text).to_dict() == program.to_di
 - Options follow the statement as `name value` pairs, in any order.
   `stitch` is the one exception: it reads to the end of the line.
 - An id (catalog id, model name, local path, module name, data name) uses
-  letters, digits, and `_ - . /`. It cannot start with `-`. So a local
+  letters, digits, and `_ - . /`. It cannot start with `-`. A data name may also
+  hold `:` and `,`, as in `mix:math,code`. So a local
   model folder such as `/models/tiny` works as a host.
 - Layer lists use inclusive ranges and commas: `4..12`, `1,3,5..7`.
 - Name lists use commas: `q_proj,v_proj`. A space after a comma is fine.
@@ -256,7 +257,7 @@ fetched, by byte-range reads.
 host Qwen/Qwen2.5-1.5B-Instruct
 experts Qwen/Qwen2.5-Math-1.5B-Instruct,Qwen/Qwen2.5-Coder-1.5B-Instruct top_k 2 balance on
 lora rank 8
-heal steps 1000 data mmlu_aux lr 1e-4
+heal steps 1000 data mix lr 1e-4
 ```
 
 ```wsp
@@ -291,7 +292,7 @@ LoRAs at the heal `lr` and the gates at 0.01.
 host Qwen/Qwen2.5-0.5B-Instruct
 insert Qwen/Qwen2.5-14B-Instruct layers 14..34 at 7 stitch mlp part_lora_rank 8
 lora rank 16
-heal steps 1500 data mmlu_aux lr 1e-4
+heal steps 1500 data mix:math,code lr 1e-4
 ```
 
 ### budget
@@ -363,11 +364,11 @@ tap LiquidAI/LFM2-350M-Math layer 8 at 8
 
 How the taps train. A program with `tap` lines needs a `tap_train` line,
 and a `tap_train` line needs a tap. Training uses (prompt, completion)
-pairs from `wsp/pairs.py`: `gsm8k_train`, `mmlu_aux`, or `trivia_train`.
+pairs from a pool name (see "Data names" under heal) or from `trivia_train` in `wsp/pairs.py`.
 The donors read only the prompt, and the loss covers only the
 completion. The gates train at `gate_lr`, and the rest of each branch at
-`branch_lr`. `tap_train` alone uses the round 6 MMLU settings:
-`data mmlu_aux steps 500 batch_size 8 seq_len 256 branch_lr 0.0003 gate_lr 0.03`.
+`branch_lr`. `tap_train` alone uses these settings:
+`data general steps 500 batch_size 8 seq_len 256 branch_lr 0.0003 gate_lr 0.03`.
 
 ```wsp
 tap Qwen/Qwen2.5-7B-Instruct layer 20 at 10
@@ -382,21 +383,46 @@ them.
 
 ```wsp
 tap Qwen/Qwen2.5-7B-Instruct layer 20 at 10
-tap_train data mmlu_aux
+tap_train data general
 lora rank 16
-heal steps 500 data mmlu_aux lr 1e-4 batch_size 8 seq_len 256
+heal steps 500 data general lr 1e-4 batch_size 8 seq_len 256
 ```
 
 ### heal
 
 The heal pass that trains the glue (and the LoRA). `heal` alone uses the
-defaults: `steps 300 data gsm8k_train lr 0.0003 batch_size 8 seq_len 384`.
+defaults: `steps 300 data general lr 0.0003 batch_size 8 seq_len 384`.
 In a program with taps, heal trains after the taps (see `tap_train`), and
-its `data` names a pairs set in `wsp/pairs.py`.
+its `data` names a pool or a pairs set in `wsp/pairs.py`.
 
 ```wsp
-heal steps 300 data gsm8k_train lr 3e-4 batch_size 8 seq_len 384
+heal steps 300 data general lr 3e-4 batch_size 8 seq_len 384
 ```
+
+#### Data names
+
+Nothing that trains or fits may use a reported benchmark in any split. So
+the heal, the stitch and align texts, and the carve domain texts all read
+approved text pools from `wsp/healdata.py`:
+
+| Name | Text |
+| --- | --- |
+| `general` | chat and instruction text (the default) |
+| `math` | math word problems |
+| `code` | code instructions and solutions |
+| `medicine` | medical text |
+| `prose` | plain encyclopedia text |
+| `mix` | an even mix of general, math, code, and medicine |
+| `mix:math,code` | an even mix of the pools you name |
+
+The align texts of a graft and the heal texts of the same pool come from
+disjoint ranges of one fetch. A name backed by a benchmark train set
+(`gsm8k_train`, `mmlu_aux`) parses, but `sapien check` and the compile
+refuse it with a CompileError. Old research scripts can pass
+`allow_benchmark_data=True` to `Program.compile` or `--allow-benchmark-data`
+to `sapien check` and `sapien compile`. The compile report then has
+`"benchmark_data": true`. `trivia_train` is not a benchmark, but it is not a
+default either.
 
 A heal trains the new parts and the LoRA, so a program with a `heal` and
 none of them (no `lora`, graft, experts, or insert) is a compile error.
@@ -413,7 +439,7 @@ teacher loads for the heal only and is not part of the compiled model.
 ```wsp
 host Qwen/Qwen2.5-0.5B-Instruct
 lora rank 16
-heal steps 1500 data mmlu_aux lr 1e-4 distill Qwen/Qwen2.5-14B-Instruct kd_weight 1.0
+heal steps 1500 data mix:math,code lr 1e-4 distill Qwen/Qwen2.5-14B-Instruct kd_weight 1.0
 ```
 
 ## Writing a model from parts
@@ -428,7 +454,7 @@ no wsp code. The code is in `wsp/carve.py`.
 from Qwen/Qwen2.5-14B-Instruct
 carve target 7.6b select influence
 lora rank 64
-heal steps 1000 data mmlu_aux lr 1e-4 batch_size 8 seq_len 512
+heal steps 1000 data mix lr 1e-4 batch_size 8 seq_len 512
 ```
 
 The compile runs these steps in order:
@@ -497,9 +523,9 @@ calibration texts, a weight-norm score picks them.
 
 ```wsp
 from Qwen/Qwen2.5-14B-Instruct
-carve target 7.6b select domain domain gsm8k_train weight 0.9 width mlp 0.75 heads 0.75
+carve target 7.6b select domain domain math weight 0.9 width mlp 0.75 heads 0.75
 lora rank 32
-heal steps 500 data gsm8k_train
+heal steps 500 data math
 ```
 
 ### splice
@@ -523,7 +549,7 @@ else after the save.
 ```wsp
 splice base q sources q=Qwen/Qwen2.5-7B-Instruct,m=Qwen/Qwen2.5-Math-7B-Instruct,c=Qwen/Qwen2.5-Coder-7B-Instruct plan q:0..9, m:10..18, c:19..27
 lora rank 16
-heal steps 300 data gsm8k_train
+heal steps 300 data general
 ```
 
 The host of a splice program is the base model. Every layer runs with the
@@ -548,7 +574,7 @@ program = (
     Program(base_source="Qwen/Qwen2.5-14B-Instruct")
     .carve(target_params_b=7.6, select="influence")
     .lora(rank=64)
-    .heal(steps=1000, data="mmlu_aux", lr=1e-4)
+    .heal(steps=1000, data="mix", lr=1e-4)
 )
 program.compile("outputs/q14_to_7b", None, calib_texts=texts)
 ```
@@ -580,9 +606,9 @@ model.save_pretrained(out_dir)
 | `graft g at 5 rank 64` | `"grafts": [{"id": "g", "at": 5, "control": null, "control_seed": 0, "glue_rank": 64}]` |
 | `... stitch mlp steps 500` | `"stitch": {"kind": "mlp", "steps": 500}` in that graft |
 | `... sink off`, `rms_match on`, `part_lora_rank 4` | `"sink": false`, `"rms_match": true`, `"part_lora_rank": 4` |
-| `heal steps 300` | `"heal": {"steps": 300, "data": "gsm8k_train", "lr": 0.0003, "batch_size": 8, "seq_len": 384}` |
+| `heal steps 300` | `"heal": {"steps": 300, "data": "general", "lr": 0.0003, "batch_size": 8, "seq_len": 384}` |
 | `tap d layer 20 at 10` | `"taps": [{"donor": "d", "donor_layer": 20, "at": 10, "attn_dim": 256, "heads": 8, "tap_id": null}]` |
-| `tap_train steps 500` | `"tap_train": {"data": "mmlu_aux", "steps": 500, "batch_size": 8, "seq_len": 256, "branch_lr": 0.0003, "gate_lr": 0.03}` |
+| `tap_train steps 500` | `"tap_train": {"data": "general", "steps": 500, "batch_size": 8, "seq_len": 256, "branch_lr": 0.0003, "gate_lr": 0.03}` |
 | `from X` | `"base_source": {"model": "X"}`, and `"host": "X"` |
 | `carve keep 22 select influence` | `"carve": {"keep": 22, "target_params_b": null, "select": "influence", "domain_data": null, "width": null}` |
 | `carve target 7.6b ... width mlp 0.75 heads 0.75` | `"target_params_b": 7.6`, `"width": {"keep_mlp": 0.75, "keep_heads": 0.75}` |

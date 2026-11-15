@@ -1540,9 +1540,9 @@ def test_the_composer_rejects_benchmark_heal_data_and_modal_composer_loads_no_da
         out = toolbox.call("compile_and_practice", {"program_text": GOOD_PROGRAM.replace("data math", f"data {old}")})
         assert out["stage"] == "constraints"
         assert f"heal data {old!r} is unknown" in " ".join(out["violations"])
-    # A heal with no data takes the language default, gsm8k_train, which is a benchmark.
+    # A heal with no data takes the language default, general, which is an approved pool.
     out = toolbox.call("compile_and_practice", {"program_text": GOOD_PROGRAM.replace(" data math", "")})
-    assert "language default" in " ".join(out["violations"])
+    assert "language default" not in " ".join(out.get("violations", []))
     with open(os.path.join(REPO, "modal_composer.py")) as f:
         text = f.read()
     # Training in modal_composer.py goes through evalsets.heal_texts_for, which checks the sources.

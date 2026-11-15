@@ -280,6 +280,12 @@ def check_stitch(stitch):
 class HealSpec:
     """Train only the new parts (glue, routers, stitches, gates, LoRA) on task data after assembly.
 
+    data: the heal text. The default is "general". The approved names are
+        the wsp.healdata pools: general, math, code, medicine, prose, mix
+        (an even mix of general, math, code, and medicine), and mix:math,code
+        (a chosen mix). Names backed by a reported benchmark (gsm8k_train,
+        mmlu_aux) are refused at check and compile time, unless the compile
+        gets allow_benchmark_data=True.
     distill: None, or a teacher model id. The heal then minimizes
         kd_weight * KL(teacher || student) + the LM loss. The teacher must
         have the student's tokenizer; the compile stops with an error
@@ -290,7 +296,7 @@ class HealSpec:
         Needs distill.
     """
 
-    def __init__(self, steps=300, data="gsm8k_train", lr=3e-4, batch_size=8, seq_len=384, distill=None,
+    def __init__(self, steps=300, data="general", lr=3e-4, batch_size=8, seq_len=384, distill=None,
                  kd_weight=1.0, temperature=1.0):
         if distill is not None and (not isinstance(distill, str) or distill == ""):
             raise ValueError(f"distill is None or a teacher model id, got {distill!r}")
@@ -415,14 +421,15 @@ class TapSpec:
 class TapTrainSpec:
     """How the compiler trains the taps, on (prompt, completion) pairs.
 
-    data: a name in wsp.pairs (gsm8k_train, mmlu_aux, trivia_train).
+    data: a pool name (general, math, code, medicine, prose, mix, or mix:math,code), or an old name in
+        wsp.pairs (trivia_train; gsm8k_train and mmlu_aux are benchmarks, see HealSpec). Default general.
     The loss covers only completion tokens. The gates train at gate_lr and
     the rest of each branch at branch_lr. The defaults are the round 6 MMLU
     settings. The taps train first. A LoRA or graft heal trains after
     them, with the taps frozen (joint training collapsed the tap in run 6).
     """
 
-    def __init__(self, data="mmlu_aux", steps=500, batch_size=8, seq_len=256, branch_lr=3e-4, gate_lr=3e-2):
+    def __init__(self, data="general", steps=500, batch_size=8, seq_len=256, branch_lr=3e-4, gate_lr=3e-2):
         if not isinstance(data, str) or data == "":
             raise ValueError(f"tap_train data is a name, got {data!r}")
         check_int(steps, "steps", 0)
@@ -676,7 +683,8 @@ class CarveSpec:
         last layer), "uniform" (evenly spaced), or "domain" (rank by
         domain_weight * domain influence + (1 - domain_weight) * general
         influence).
-    domain_data: a wsp.pairs name for the domain texts of "domain", or None
+    domain_data: a data name for the domain texts of "domain" (a pool name such as math, or an
+        old wsp.pairs name), or None
         (then the compile needs domain_texts).
     width: None, or {"keep_mlp": f, "keep_heads": f}: the fraction of MLP
         neurons and query heads every layer keeps.
@@ -902,7 +910,7 @@ class Program:
         self.budget_spec = BudgetSpec(max_total_params_b, max_active_params_b, max_heal_minutes)
         return self
 
-    def heal(self, steps=300, data="gsm8k_train", lr=3e-4, batch_size=8, seq_len=384, distill=None,
+    def heal(self, steps=300, data="general", lr=3e-4, batch_size=8, seq_len=384, distill=None,
              kd_weight=1.0, temperature=1.0):
         """Set the heal pass; distill=<teacher id> adds a distillation loss. Returns self so calls can chain."""
         self.heal_spec = HealSpec(steps, data, lr, batch_size, seq_len, distill, kd_weight, temperature)
@@ -991,7 +999,7 @@ class Program:
         self.taps.append(TapSpec(donor, donor_layer, at, attn_dim, heads, tap_id))
         return self
 
-    def tap_train(self, data="mmlu_aux", steps=500, batch_size=8, seq_len=256, branch_lr=3e-4, gate_lr=3e-2):
+    def tap_train(self, data="general", steps=500, batch_size=8, seq_len=256, branch_lr=3e-4, gate_lr=3e-2):
         """Set how the taps train. Returns self so calls can chain."""
         self.tap_train_spec = TapTrainSpec(data, steps, batch_size, seq_len, branch_lr, gate_lr)
         return self
@@ -1107,7 +1115,10 @@ class Program:
 
         options pass through to wsp.compiler.compile_program
         (align_texts, heal_texts, device, cache_dir, tap_pairs, heal_pairs,
-        calib_texts, domain_texts). A written program, and a program with
+        calib_texts, domain_texts, allow_benchmark_data). A data name backed
+        by a reported benchmark (gsm8k_train, mmlu_aux) raises CompileError
+        unless allow_benchmark_data=True, which marks the report with
+        "benchmark_data": true. A written program, and a program with
         only experts or inserts, needs no catalog, so catalog may be None.
         The directory has one format for every kind of program (see
         wsp.load), and compile_report.json always has params_total,

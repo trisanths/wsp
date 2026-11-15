@@ -416,7 +416,8 @@ def budget_report(program, estimate):
     return rows
 
 
-def run_check(path, catalog_path, allow_parallel, as_json, load_config=default_config_loader, out=None):
+def run_check(path, catalog_path, allow_parallel, as_json, load_config=default_config_loader, out=None,
+              allow_benchmark_data=False):
     """Check a program file. Return (exit code, result dict). Write the report to out (default stdout)."""
     from wsp.compiler import CompileError, check_program
 
@@ -430,7 +431,7 @@ def run_check(path, catalog_path, allow_parallel, as_json, load_config=default_c
     elif program.has_taps():
         warnings.append("this program has taps: it runs source models at inference, so it is not Sapien")
     try:
-        check_program(program)
+        check_program(program, allow_benchmark_data)
     except CompileError as error:
         problems.append(str(error))
     catalog = None
@@ -520,7 +521,8 @@ def run_compile(args):
     if args.catalog is None and program.needs_catalog():
         raise CliError(f"{args.path}: this program needs --catalog")
     try:
-        report = compile_file(program, args.out, args.catalog, args.align, args.device)
+        report = compile_file(program, args.out, args.catalog, args.align, args.device,
+                              args.allow_benchmark_data)
     except (CompileError, ValueError, KeyError) as error:
         raise CliError(str(error))
     summary = {"out": args.out, "params_total": report.get("params_total"),
@@ -624,6 +626,8 @@ def build_parser():
     check.add_argument("--catalog", default=None, help="catalog.jsonl, to resolve graft ids and sizes")
     check.add_argument("--allow-parallel", action="store_true", help="accept a program with taps (not Sapien)")
     check.add_argument("--json", action="store_true", help="print the result as JSON")
+    check.add_argument("--allow-benchmark-data", action="store_true",
+                       help="let an old research program use a benchmark train set (gsm8k_train, mmlu_aux)")
 
     build = commands.add_parser("compile", help="compile a program into one model directory")
     build.add_argument("path")
@@ -636,6 +640,8 @@ def build_parser():
                        help="compile the program's own control: random same-size components of the same donors")
     build.add_argument("--control-seed", type=int, default=0, help="base seed of the random control")
     build.add_argument("--allow-parallel", action="store_true", help="accept a program with taps (not Sapien)")
+    build.add_argument("--allow-benchmark-data", action="store_true",
+                       help="let an old research program use a benchmark train set (gsm8k_train, mmlu_aux)")
 
     score = commands.add_parser("score", help="score a compiled directory on skills")
     score.add_argument("model_dir")
@@ -664,7 +670,8 @@ def main(argv=None):
     args = parser.parse_args(argv)
     try:
         if args.command == "check":
-            code, _ = run_check(args.path, args.catalog, args.allow_parallel, args.json)
+            code, _ = run_check(args.path, args.catalog, args.allow_parallel, args.json,
+                                allow_benchmark_data=args.allow_benchmark_data)
             return code
         if args.command == "compile":
             return run_compile(args)

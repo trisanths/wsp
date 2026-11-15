@@ -145,25 +145,26 @@ def test_tap_train_lr_must_be_a_number():
 def test_cli_align_texts_for_a_tap_and_graft_program(tmp_path, monkeypatch):
     names = []
 
-    def fake_texts(name, seed=0):
+    def fake_pairs(name, count, seed=0, skip=0):
         names.append(name)
-        if name != "gsm8k_train":
-            raise ValueError(f"unknown heal data: {name}")
-        return ["a text"] * 5
+        return [(f"q{index}", f"a{index}") for index in range(count)]
 
     def fake_compile(program, catalog, out_dir, **options):
         os.makedirs(out_dir, exist_ok=True)
         with open(os.path.join(out_dir, "compile_report.json"), "w") as f:
             json.dump({"align": len(options["align_texts"])}, f)
 
-    monkeypatch.setattr(wsp.data, "task_texts", fake_texts)
+    monkeypatch.setattr(wsp.healdata, "pairs", fake_pairs)
+    monkeypatch.setattr("transformers.AutoTokenizer.from_pretrained", lambda *a, **k: None)
     monkeypatch.setattr(wsp.compiler, "compile_program", fake_compile)
     catalog = tmp_path / "catalog.jsonl"
     catalog.write_text("")
     program = parse("host h\ngraft g at 1\nlora rank 2\ntap d layer 1 at 2\ntap_train data mmlu_aux\n"
                     "heal data mmlu_aux\n")
-    report = wsp.lang.compile_file(program, str(tmp_path / "out"), str(catalog), 3, "cpu")
-    assert names == ["gsm8k_train"]
+    # mmlu_aux is a benchmark name, so this test passes the escape hatch. The align texts of a program
+    # with taps come from the default pool, since wsp.data does not hold the pairs sets.
+    report = wsp.lang.compile_file(program, str(tmp_path / "out"), str(catalog), 3, "cpu", allow_benchmark_data=True)
+    assert names == ["general"]
     assert report["align"] == 3
 
 

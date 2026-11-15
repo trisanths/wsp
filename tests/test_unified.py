@@ -522,9 +522,10 @@ def test_every_arm_heals_on_the_same_texts_for_one_program_seed(zoo, monkeypatch
     monkeypatch.setattr(wsp.data, "gsm8k_splits", fake_splits)
     monkeypatch.setattr(wsp.heal, "heal", fake_heal)
     monkeypatch.setattr(wsp.heal, "heal_groups", fake_groups)
-    for program in (Program(host=zoo["host"], seed=3).lora(rank=2).heal(**HEAL),
-                    Program(host=zoo["host"], seed=3).experts([zoo["a"]]).heal(**HEAL)):
-        program.compile(zoo["out"], None, device="cpu")
+    # gsm8k_train is a benchmark name, so this test of the shared heal items passes the escape hatch.
+    for program in (Program(host=zoo["host"], seed=3).lora(rank=2).heal(data="gsm8k_train", **HEAL),
+                    Program(host=zoo["host"], seed=3).experts([zoo["a"]]).heal(data="gsm8k_train", **HEAL)):
+        program.compile(zoo["out"], None, device="cpu", allow_benchmark_data=True)
     assert taken == [["Question: q3\nAnswer: a"], ["Question: q3\nAnswer: a"]]
 
 
@@ -567,5 +568,5 @@ def test_compile_file_reads_pairs_data_with_the_host_tokenizer(zoo, monkeypatch)
     os.makedirs(out)
     with open(os.path.join(out, "compile_report.json"), "w") as f:
         f.write("{}")
-    compile_file(program, out, catalog_path, 2, "cpu")
+    compile_file(program, out, catalog_path, 2, "cpu", allow_benchmark_data=True)
     assert seen["tokenizer"] is not None and seen["seed"] == 2

@@ -114,8 +114,8 @@ Tuning are in [VERIFY.md](VERIFY.md).
 - Taps: `.tap(donor, donor_layer, at)` lets host layer `at` read a frozen
   donor's own layer states through a gated cross-attention branch. The
   donor is any Hugging Face model and reads the prompt with its own
-  tokenizer. `.tap_train(data="mmlu_aux", ...)` trains the taps first on
-  (prompt, completion) pairs from `wsp/pairs.py`, then a LoRA or graft
+  tokenizer. `.tap_train(data="general", ...)` trains the taps first on
+  (prompt, completion) pairs from a data pool (`wsp/data.py`), then a LoRA or graft
   heal trains with the taps frozen. `wsp.load` reloads the donors and
   auto-prepares, so plain `model.generate(input_ids, attention_mask=...)`
   works, also in the eval harness. `wsp.tap_cost(model)` estimates the
@@ -135,7 +135,7 @@ catalog = Catalog.load("catalog.jsonl")
 program = (
     Program(host="unsloth/Llama-3.2-1B-Instruct")
     .graft("qmath_l18_top512")
-    .heal(steps=300, data="gsm8k_train")
+    .heal(steps=300, data="general")
 )
 program.compile("outputs/math_graft", catalog, align_texts=texts)
 model, tokenizer = load("outputs/math_graft")
