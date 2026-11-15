@@ -607,19 +607,44 @@ answer options, and 2 rows are not valid JSON. Those rows are now skipped.
 
 ## Summary so far
 
-- **Works:** functional alignment across tokenizers. A frozen slice of a
-  foreign 7B model keeps about 90% of its function inside a 1B model, the
-  base reads it, and per-token gates learn when to use it. Nothing earlier
-  in the repo got this far.
-- **Does not work yet:** turning that into knowledge the base cannot get
-  from fine-tuning. Under LM loss on dataset text, a LoRA at the same budget
-  matches or beats every graft arm. Graft + LoRA ties LoRA alone, and more
-  LoRA beats both. No graft arm here beats the base on MMLU.
-- **Works:** with an answer-letter signal, the graft beats the base and a
-  budget-matched LoRA. On MMLU held-out it scores 52.8 and 54.4 on new
-  seeds (selected on dev), against 46.4 to 46.6 for LoRA and 44.6 for the
-  base. With Apollo2 as the donor, MedMCQA goes from 41.4 to 46.2, and LoRA
-  stays at 41.4.
-- **Does not work:** library parts lifted out of their model. Fed a
-  translated input, they do not align. Fed native inputs from the donor's
-  own trunk, they are no better than random units.
+**Headline (MMLU held-out, 2000 items).** Configurations were chosen on
+MMLU dev; held-out confirms. Training data is answer letters from
+CommonsenseQA, OpenBookQA, QASC, and LogiQA2.0 train splits, plus KL to
+the frozen host. MMLU is never trained on.
+
+| host | arm | held-out | seeds |
+|---|---|---|---|
+| Llama-3.2-1B | base | 44.6 | |
+| Llama-3.2-1B | LoRA (matched trainable budget) | 45.1 to 47.1 | 4 |
+| Llama-3.2-1B | Qwen2.5-7B block 4..20 | 52.8 to 54.4 | 3 |
+| Llama-3.2-1B | Qwen2.5-14B block 7..34, reads host 1..7 | 58.9 / 61.0 / 59.6 | 3 |
+| Llama-3.2-1B | same, 1200 alignment steps | 61.0 | 1 |
+| Llama-3.2-1B | Qwen2.5-32B block 9..54 | 62.6 | 1 (h15 re-seeds) |
+| Llama-3.2-3B | base | 57.4 | |
+| Llama-3.2-3B | LoRA (matched) | 60.7 to 61.0 | 3 |
+| Llama-3.2-3B | Qwen2.5-14B block 7..34 | 63.4 / 66.0 | 2 |
+| Llama-3.2-3B | Qwen2.5-32B block 9..45 | 66.3 | 1 |
+| Llama-3.1-8B | base / LoRA | 65.5 / 66.8 | 1 |
+
+- **Works:** grafting a frozen slice of a larger model from another
+  family, trained on answer letters, adds 15 to 18 MMLU points to Llama-1B
+  and 6 to 9 to Llama-3B. A budget-matched LoRA adds 0 to 3. The gain
+  holds across subjects the training never covers: MMLU medical, math,
+  science, CS, and humanities, plus MedMCQA. It also drifts less from the
+  base on law text (KL 0.01 vs. 0.03 to 0.06 for LoRA).
+- **Specialists:** Apollo2 lifts MedMCQA (41.4 to 46.2, LoRA 41.4), and
+  Math-7B lifts AQuA (34.5 to 52.0 over LoRA). A second specialist in the
+  same network adds 1 to 1.5 MMLU points.
+- **Caveats:**
+  - The grafted network is bigger: about 3.5B (7B donor) to 14B (32B
+    donor) frozen parameters run beside the host. At similar total size,
+    the 1B + 14B graft (about 60) only matches 3B + LoRA (60.9).
+  - The grafts beat LoRA at the same *trainable* budget, not at the same
+    *total* size.
+  - Phi-4 does not transfer.
+  - Sparse multi-layer reads can collapse on some seeds.
+- **Earlier negatives:**
+  - Under LM loss on dataset text (round 22), LoRA matched every graft.
+  - Library parts lifted out of their model do not align. Fed native
+    inputs from the donor's own trunk, they are no better than random
+    units.
