@@ -149,3 +149,70 @@ Then commit and push `catalog.jsonl`. This is the file Trisanth's `compile()` re
 | `trust_remote_code` / unknown architecture | Custom-code model (`k2*`, `g9v3*`) | Report it to your human with the traceback |
 | Smoke shows a skill at chance level | The model can't do that skill | Normal: the skill is marked `skip` for this model |
 | Old behaviour after `modal deploy` | Warm containers still run old code | `modal container list`, then `modal container stop <id>` for that app |
+
+## 11. Weight-difference maps (fine-tune families)
+The weave step of the compiler mixes a fine-tune with its host model per layer and per module
+kind. It adds (member - ancestor) weight differences onto the host, so it must know where each
+fine-tune differs from its host. `mine/weight_delta.py` measures that from the weights alone.
+It uses CPU containers and no GPU, no agent, and no LLM.
+
+The families are in `atlas/lineage/families.json`: a short name, the host, and the members.
+A member with an `ancestor` was tuned from that model and not from the host. The job measures
+such a member against the host and against the ancestor. The file has 6 families and 23 pairs.
+
+What the job measures, for one pair (member, reference):
+- For each tensor that the two checkpoints have with the same shape: `rel`, which is
+  ||W_member - W_reference|| / ||W_reference|| (Frobenius norm), and `cosine`, the cosine of the
+  two flattened tensors. The job casts the two tensors to float64 before it subtracts them.
+- The same two numbers for each decoder layer and module kind. The kinds are `attn` (attention
+  projections), `mlp` (feed-forward projections), `norm` (norm weights, also the q and k norms
+  inside the attention module), and the module name for any other mixer (LFM2 has `conv`).
+  A group value is sqrt(sum of squared differences) / sqrt(sum of squared reference norms)
+  over the tensors of the group.
+- The same two numbers outside the layers: `embed`, `lm_head`, `norm` (final norm, embedding
+  norm), and `other`.
+
+Names are matched after the wrapper prefixes are removed (`model.`, `language_model.`), so a
+text-only member matches a multimodal host. A tensor is a decoder-layer tensor only when its
+name starts with `layers.<N>.` after that step. Vision tower layers stay outside. If fewer than
+90% of the layer tensors of the member match the reference in name and shape, the pair fails
+with a message and no file is written.
+
+Commands (from `person_a/`, in the Modal workspace that has the volume `swarmy-models`):
+```bash
+.venv/bin/modal run mine/weight_delta.py --family lfm2          # one family
+.venv/bin/modal run mine/weight_delta.py --all --jobs 4         # all 23 pairs, 4 at a time
+.venv/bin/modal run mine/weight_delta.py --member LiquidAI/LFM2-1.2B-Tool --reference LiquidAI/LFM2-1.2B
+.venv/bin/python mine/tests/test_weight_delta.py                # local tests, must print "ok"
+```
+- Use `modal run` only. The app `swarmy-delta` is ephemeral. Do not run `modal deploy` on it.
+- `--jobs` is the largest number of containers that run at the same time (default 4).
+- A pair whose output file exists is skipped. Add `--force` to measure it again.
+- Step 1 downloads each model once (`*.safetensors` and `*.json` of the pinned revision) into
+  the volume cache `/models/hf_cache`, one container per model. Step 2 starts one container
+  per pair (8 CPU, 8 GB) and reads the cache. The job reads tensors in slices of at most
+  16.8 million elements and never loads a whole model.
+- Measured on LiquidAI/LFM2-1.2B-Tool against LiquidAI/LFM2-1.2B (2.34 GB each, 2026-11-14):
+  4.8 s to compare, peak process memory 1.09 GB. Larger pairs have not been run.
+
+Output: `atlas/lineage/weight_delta/<member key>__vs__<reference key>.json`, where a key is
+the Hugging Face id with `/` replaced by `__`. The fields are:
+- `member`, `reference`, `relation` (`host` or `ancestor`), `family`, `host`
+- `member_revision`, `reference_revision`: the pinned commits
+- `layers`: the number of decoder layers of the member; `kinds`: the module kinds found
+- `per_layer`: one object per layer, `{"layer": N, "attn": {...}, "mlp": {...}, "norm": {...}}`.
+  Each group has `rel`, `cosine`, `tensors`, and `params`.
+- `outside_layers`: the groups `embed`, `lm_head`, `norm`, `other`. A group is `null` when no
+  tensor of that kind matched (for example a tied `lm_head` that the checkpoint does not store).
+- `summary`: `all` (every compared tensor) and `layers` (one group per module kind over all layers)
+- `tensors`: one row per compared tensor: `name`, `shape`, `layer`, `kind`, `rel`, `cosine`,
+  `diff_norm`, `reference_norm`, and `reference_name` when the reference uses another name
+- `unmatched_member`, `unmatched_reference`: tensors that only one model has
+- `shape_mismatch`: tensors with the same name and different shapes. When only the number of
+  rows differs (an embedding with added tokens), `shared_rows` has `rel` and `cosine` over the
+  rows that both models have. These tensors are not part of any group value.
+- `counts`: totals for the lists above and `layer_match_fraction`
+- `dtype` (`float64`, the arithmetic), `source_dtypes` (the stored dtypes of each model)
+- `weights_gb`, `compute_seconds`, `peak_memory_gb`, `container`, `measured_at` (UTC)
+
+For each pair the job also prints, per module kind, the 5 layers with the largest `rel`.
