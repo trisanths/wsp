@@ -82,7 +82,7 @@ DEFAULTS = {
     "stub_seed": 0,
 
     # Local backend (Trisanth's compile on this machine).
-    "local_eval": "wsp.eval:evaluate",
+    "local_eval": "wsp_eval.harness:swarm_eval",
     "align_samples": 64,
 }
 

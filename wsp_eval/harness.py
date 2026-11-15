@@ -344,3 +344,19 @@ def evaluate(model_path, split, tasks, namespace=None, allow_heldout_rerun=False
 # The brief's name for interface 4. (Shadows the builtin only inside callers
 # that import it by this name.)
 eval = evaluate
+
+
+def swarm_eval(model_path, split, tasks):
+    """Part 3's eval hook: fn(model_path, split, tasks) -> {task: score}.
+
+    Set config["local_eval"] = "wsp_eval.harness:swarm_eval" in wsp/swarm/config.py.
+    Part 3's env owns the comparison budget; calls here are also counted under
+    the namespace in WSP_BUDGET_NS (default "swarm") and logged to experiments.jsonl
+    with fit_r2. Grafted models always generate with the hf backend.
+    """
+    namespace = os.environ.get("WSP_BUDGET_NS", "swarm")
+    result = evaluate(model_path, split, tasks, namespace=namespace, note="swarm")
+    scores = {}
+    for task in tasks:
+        scores[task] = result["tasks"][task]["score"]
+    return scores

@@ -159,3 +159,13 @@ def test_mmlupro_cot_extraction():
     assert task.score("A cell... so the answer is (B). Wait, recheck: The answer is (C).", item) == 1.0
     assert task.score("The answer is C", item) == 1.0
     assert task.score("A is wrong, C looks right", item) == 0.0   # no explicit final answer
+
+
+def test_swarm_eval_adapter(workspace):
+    from wsp.swarm.backends import load_function
+    from wsp.swarm.config import DEFAULTS
+    fn = load_function(DEFAULTS["local_eval"])
+    scores = fn("fake:graft", "search", ["toy"])
+    assert set(scores.keys()) == {"toy"}
+    assert 0.0 <= scores["toy"] <= 1.0
+    assert budget.usage("swarm")["eval_calls"] == 1
