@@ -20,7 +20,7 @@ Stages (each writes rows to the volume, and the local entrypoint copies them to 
   build      CPU container. Safetensors surgery: for each shard, drop the experts that are not kept and renumber
              the rest, slice the router rows, write plain Hugging Face directories keep_64, keep_32, keep_16.
              No model is instantiated, so no GPU is needed and nothing depends on the transformers version.
-  eval       GPU containers with vLLM 0.32 (the modal_serve.py image): full 235B on H200:8, keep 64 on H200:4,
+  score      GPU containers with vLLM 0.32 (the modal_serve.py image): full 235B on H200:8, keep 64 on H200:4,
              keep 32 on H200:2, keep 16 on H200:1. HumanEval 164 and MBPP sanitized test 257 (generation, the
              wsp.skills_eval prompts and graders, greedy, 512 new tokens), MMLU 1000 (the first-token choice among
              A to D, as wsp.skills_eval.score_choices), and decode speed at batch 1 and 32.
@@ -38,7 +38,7 @@ over rows is the spend on this track. Stop at about 150 dollars.
     modal run modal_moonshot.py --stage stats --smoke
     modal run --detach modal_moonshot.py --stage stats
     modal run --detach modal_moonshot.py --stage build
-    modal run --detach modal_moonshot.py --stage eval --cells keep_16,keep_32,keep_64,full_235b
+    modal run --detach modal_moonshot.py --stage score --cells keep_16,keep_32,keep_64,full_235b
 
 Add --estimate-only to any stage to print what it would do and exit. A stage with nothing to do fails.
 """
@@ -883,7 +883,7 @@ def main(stage: str = "sizes", cells: str = "keep_16", smoke: bool = False, esti
             write_row(row, LOCAL_DIR, "moonshot_" + row["name"])
             print(json.dumps({k: row[k] for k in ("keep", "params", "match", "disk_bytes")}))
         return
-    if stage == "eval":
+    if stage == "score":
         names = select_cells(cells)
         print("eval cells: " + ", ".join(f"{n} (H200:{CELLS[n][2]})" for n in names) + (" smoke" if smoke else ""))
         if estimate_only:
@@ -895,4 +895,4 @@ def main(stage: str = "sizes", cells: str = "keep_16", smoke: bool = False, esti
             print(f"[{row['cell']}] " + json.dumps({k: row.get(k) for k in
                   ("humaneval", "mbpp", "mmlu", "decode_tps", "vllm_weight_gib_per_gpu", "dollars")}, default=str))
         return
-    raise SystemExit(f"unknown stage {stage!r}; stages are sizes, download, stats, build, eval")
+    raise SystemExit(f"unknown stage {stage!r}; stages are sizes, download, stats, build, score")
