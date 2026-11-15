@@ -261,10 +261,14 @@ def cell_name(cell):
 VARIANT_OF = {"forced": "plain", "routed": "plain", "template": "plain", "scrambled": "scrambled", "lora": "lora"}
 
 
+FIT_VERSION = "kd1"  # wsp.tops fit_stitch objective "kd" (KL to the donor); bump when the fit changes
+
+
 def artifact_dir(cell, top):
     """Where the fitted top of a cell lives. Forced, routed, and template cells share the plain stitch."""
     variant = VARIANT_OF[cell["kind"]]
-    tag = f"{cell['pair']}_{top}_c{cell['cut']}_{variant}_s{cell['seed']}"
+    # FIT_VERSION names the stitch objective, so a change of objective never reuses an old fit.
+    tag = f"{cell['pair']}_{top}_c{cell['cut']}_{variant}_s{cell['seed']}_{FIT_VERSION}"
     if cell["steps"] != STEPS:
         tag += f"_n{cell['steps']}"
     return os.path.join(TOPS_DIR, tag)

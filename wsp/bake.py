@@ -37,7 +37,7 @@ import time
 import torch
 
 from wsp.lora import DEFAULT_TARGETS, LoRALinear, apply_lora, lora_modules, merge_lora
-from wsp.tap import clear_tap_context, host_device, prepare
+from wsp.tap import clear_tap_context, donor_model_of, host_device, prepare
 
 MODES = ("answer", "sequence")
 
@@ -352,7 +352,9 @@ def bake(teacher_host, tokenizer, donors, prompts, student_host=None, rank=16, s
     # stay as the caller set them (tap training can go on after a bake).
     teacher_host.eval()
     for donor_id in donors:
-        donor_model, _ = donors[donor_id]
+        donor_model = donor_model_of(donors[donor_id])
+        if donor_model is None:
+            continue
         donor_model.eval()
 
     for param in student.parameters():

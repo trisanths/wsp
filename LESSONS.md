@@ -126,3 +126,25 @@ something fails. Each entry: what went wrong, then the rule.
   the mining session hit the same thing in the giants profiler. Import
   torch._dynamo and resolve the class before entering the context, and test
   such helpers in a fresh process.
+- CPU tests in float32 cannot catch dtype bugs that appear in bf16 on a GPU.
+  Skill tops passed 36 CPU tests and died on its first GPU step: the donor's
+  norm returned float32 into a bf16 head. Add at least one bf16 test of each
+  forward path (CPU supports bf16 matmuls), and cast explicitly at every
+  module boundary that mixes a donor's and a base's parameters.
+- A version port must keep working on the old version until every user
+  moves. merge-tf5 imports transformers.conversion_mapping (5.x only) at the
+  top of a code path in wsp/parts.py, so merging it into main broke 295
+  tests under 4.57.1, the version every running round uses. Guard
+  version-specific imports and run the suite under both versions before a
+  port lands.
+- Launch long Modal runs with `modal run --detach`. At 23:58 PT the Mac's
+  network dropped for about a minute; every attached `modal run` lost its
+  client, Modal stopped the ephemeral apps, and four weave searches
+  (up to generation 9) and the skill tops smoke were lost. Detached apps
+  keep running; scripts must write rows to the volume so a dead local
+  entrypoint loses nothing (round 21 writes progress per generation).
+- Key every cached artifact by the code version that made it. Round 24's
+  rerun after an objective change restored the stitch the old objective had
+  saved on the volume and reported the old numbers as if they were new. Put
+  a fit or format version in every artifact path and bump it when the fit
+  changes.
