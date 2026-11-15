@@ -628,3 +628,62 @@ def test_whole_layer_save_and_load_keeps_options(tmp_path):
     assert torch.allclose(logits(loaded, ids), expected, atol=1e-6)
     force_route(loaded, "math", own_io=True)
     assert (logits(loaded, ids) - logits(reference_math, ids)).abs().max().item() < 1e-5
+
+
+def left_padded(lengths, seed, low=1, high=300):
+    generator = torch.Generator().manual_seed(seed)
+    width = max(lengths)
+    ids = torch.zeros(len(lengths), width, dtype=torch.long)
+    mask = torch.zeros(len(lengths), width, dtype=torch.long)
+    for row, n in enumerate(lengths):
+        ids[row, width - n:] = torch.randint(low, high, (n,), generator=generator)
+        mask[row, width - n:] = 1
+    return ids, mask
+
+
+def greedy(model, ids, mask, use_cache, new=12):
+    return model.generate(ids, attention_mask=mask, max_new_tokens=new, min_new_tokens=new, do_sample=False,
+                          use_cache=use_cache, pad_token_id=0)
+
+
+def test_forced_whole_layer_own_io_batched_left_padded_generation_equals_specialist():
+    model, (base_ref, math_ref, coder_ref) = layer_moe_of()
+    for name, ref in [("math", math_ref), ("coder", coder_ref)]:
+        clear_force(model)
+        force_route(model, name, own_io=True)
+        # Two calls in a row on different batches: no state may leak between them.
+        for lengths, seed in [([5, 9, 7], 1), ([4, 6], 2), ([8, 3, 8, 5], 3)]:
+            ids, mask = left_padded(lengths, seed)
+            expected = greedy(ref, ids, mask, True)
+            assert torch.equal(greedy(model, ids, mask, True), expected)
+            assert torch.equal(greedy(model, ids, mask, False), expected)
+
+
+def test_top1_routed_whole_layer_batched_left_padded_cached_equals_uncached():
+    model, _ = layer_moe_of(top_k=1)
+    torch.manual_seed(4)
+    with torch.no_grad():
+        for moe in moe_layers(model):
+            moe.router.weight.normal_(0, 2.0)
+            moe.router_bias.zero_()
+    for lengths, seed in [([5, 9, 7], 1), ([4, 6], 2)]:
+        ids, mask = left_padded(lengths, seed)
+        assert torch.equal(greedy(model, ids, mask, True), greedy(model, ids, mask, False))
+
+
+def test_sequence_routing_cached_generation_equals_uncached_and_keeps_the_prompt_choice():
+    generator = torch.Generator().manual_seed(2)
+    texts = planted_texts(generator, per_class=60)
+    model = build_skill_moe(plant_domains(tiny_qwen2(0), 6.0), [tiny_qwen2(1), tiny_qwen2(2)], top_k=1,
+                            router_init="uniform", whole_layer=True, expert_names=["math", "coder"])
+    init_router_ridge(model, FakeTokenizer(), texts, mode="mean")
+    controller = set_sequence_routing(model, 1)
+    for low, high, seed in [(0, 100, 5), (200, 300, 6)]:
+        ids, mask = left_padded([6, 10, 8], seed, low=max(low, 1), high=high)
+        cached = greedy(model, ids, mask, True)
+        chosen = controller.choice.clone()
+        assert chosen.tolist() == [1 if low == 0 else 2] * 3
+        assert torch.equal(cached, greedy(model, ids, mask, False))
+        # Another cached call on the same prompt gives the same tokens and the same choice.
+        assert torch.equal(greedy(model, ids, mask, True), cached)
+        assert controller.choice.tolist() == chosen.tolist()
