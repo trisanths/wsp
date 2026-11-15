@@ -565,6 +565,38 @@ donors work and Phi-4 does not.
 
 The three-donor cell ran out of memory again at batch 4 and is dropped.
 
+### h12: Qwen2.5-32B-Instruct as the donor (H200)
+
+| cell | MMLU dev | held-out | MMLU-med | MMLU-math | science | MedMCQA |
+|---|---|---|---|---|---|---|
+| 1B host, block 9..45 | 61.3 | 60.4 | 63.6 | 50.6 | 49.8 | 46.8 |
+| 1B host, block 9..54 | **63.7** | **62.6** | 67.2 | 49.8 | 54.6 | 47.3 |
+| 3B host (layer 8), block 9..45 | **67.4** | **66.3** | 72.6 | 54.8 | 59.6 | 56.1 |
+| untrained Llama-3.1-8B-Instruct (h14) | 67.0 | 65.5 | 75.4 | 42.6 | 59.4 | 60.5 |
+
+With a 32B block, the 1B host reaches 62.6 on MMLU held-out (+18 over
+its base). The 3B host reaches 66.3, above an untrained 8B Llama. h15
+re-seeds these and runs the 8B host with LoRA and with grafts.
+
+### h13: pushing the 1B + 14B winner
+
+All cells read host layers 1..7 into the 14B block 7..34:
+
+| cell | MMLU dev | held-out | MMLU-med | MMLU-math | MedMCQA |
+|---|---|---|---|---|---|
+| seed 2 | 60.3 | 59.6 | 64.0 | 51.4 | 46.1 |
+| 1200 alignment steps | **62.7** | **61.0** | 66.0 | 51.8 | **50.3** |
+| 2000 task steps | 59.6 | 59.0 | 66.4 | 53.0 | 48.0 |
+| encoder depth 3 | 59.2 | 58.1 | 64.4 | 48.6 | 46.8 |
+| read 0..7 | 60.3 | 59.0 | 65.2 | 52.0 | 44.5 |
+| read 1..5, write 5 | 61.5 | 59.9 | 65.2 | 48.8 | 46.9 |
+| all domains | 63.3 | 59.4 | 65.0 | 50.8 | 47.2 |
+| LoRA, seed 2 | 47.0 | 46.0 | 50.4 | 30.6 | 38.8 |
+
+Over three seeds the winner averages 59.8 on held-out (58.9, 61.0, 59.6).
+LoRA averages 45.6 over two seeds. More alignment is the one mutation
+that helps on dev: 62.7, with MedMCQA up to 50.3.
+
 ## Also fixed
 
 `wsp/healdata.py`: the `reasoning` pool crashed on LogiQA2.0. In that

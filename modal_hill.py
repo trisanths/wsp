@@ -984,7 +984,29 @@ def batch_h14():
     return out
 
 
-BATCHES = {"h1": batch_h1, "h2": batch_h2, "h3": batch_h3, "h4": batch_h4, "h5": batch_h5, "h6": batch_h6, "h7": batch_h7, "h8": batch_h8, "h9": batch_h9, "h10": batch_h10, "h11": batch_h11, "h12": batch_h12, "h13": batch_h13, "h14": batch_h14}
+def batch_h15():
+    """Qwen2.5-32B on an H200: a second seed for h12's cells, the 1B winner's tricks (reads 1..7, 1200 alignment
+    steps) on the 32B block, and the 8B host with the 32B and 14B grafts (the 8B host does not fit an H100 with a
+    14B donor and a reference copy)."""
+    out = []
+    k = {"objective": "mc", "align_steps": 600, "task_steps": 1000, "enc_depth": 2, "mc_train": "general",
+         "arm": "real", "domain": "knowledge32", "big": True, "part": {"type": "block", "first": 9, "last": 54}}
+    out.append(dict(k, name="q32-span9-54-s1", seed=1))
+    out.append(dict(k, name="q32-r1to7-a1200", read_layers=list(range(1, 8)), align_steps=1200))
+    out.append(dict(k, name="q32-r1to7-a1200-s1", read_layers=list(range(1, 8)), align_steps=1200, seed=1))
+    out.append(dict(k, name="q32-a1200", align_steps=1200))
+    b3 = dict(k, host="unsloth/Llama-3.2-3B-Instruct", host_layer=8, part={"type": "block", "first": 9, "last": 45})
+    out.append(dict(b3, name="b3-q32-host8-s1", seed=1))
+    out.append(dict(b3, name="b3-q32-span9-54", part={"type": "block", "first": 9, "last": 54}))
+    out.append(dict(b3, name="b3-q32-a1200", align_steps=1200))
+    b8 = dict(k, host="unsloth/Meta-Llama-3.1-8B-Instruct", host_layer=10)
+    out.append(dict(b8, name="b8-q32-host10"))
+    out.append(dict(b8, name="b8-q14-host10-big", domain="knowledge14", part={"type": "block", "first": 7, "last": 34}))
+    out.append(dict(b8, name="b8-lora-big", arm="lora"))
+    return out
+
+
+BATCHES = {"h1": batch_h1, "h2": batch_h2, "h3": batch_h3, "h4": batch_h4, "h5": batch_h5, "h6": batch_h6, "h7": batch_h7, "h8": batch_h8, "h9": batch_h9, "h10": batch_h10, "h11": batch_h11, "h12": batch_h12, "h13": batch_h13, "h14": batch_h14, "h15": batch_h15}
 
 
 @app.function(image=image, volumes={"/vol": volume}, gpu="H200", memory=262144, timeout=5 * 3600)
