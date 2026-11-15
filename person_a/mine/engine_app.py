@@ -665,7 +665,7 @@ class EngineH200(EngineBase):
 COMMON_MULTI = dict(COMMON, timeout=3 * 3600)
 
 
-@app.cls(gpu=["H200:8", "B200:8"], **COMMON_MULTI)
+@app.cls(gpu=["H200:8", "B200:8"], max_containers=1, **COMMON_MULTI)  # cost cap: one 8-GPU container
 class EngineH200x8(EngineBase):
     # Frontier models (about 80B to 1T params): 8 GPUs, layers spread with device_map="auto".
     model_key: str = modal.parameter()
