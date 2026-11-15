@@ -291,55 +291,80 @@ class BBEHTask(Task):
         return 0.0
 
 
-def gsm8k_prompt(question):
-    return ("Solve the following math problem step by step. "
-            "End your response with \"The answer is: <number>\".\n\n" + question)
+def gsm8k_final_number(text):
+    """The number after '####', else the last number in the text (the team's GSM8K rule)."""
+    match = re.search(r"####\s*(-?[\d,]*\.?\d+)", text)
+    if match is None:
+        numbers = re.findall(r"-?[\d,]*\.?\d+", text)
+        if len(numbers) == 0:
+            return None
+        value = numbers[-1]
+    else:
+        value = match.group(1)
+    value = value.replace(",", "").rstrip(".")
+    try:
+        return float(value)
+    except ValueError:
+        return None
 
 
 class GSM8KTask(Task):
-    """GSM8K with three disjoint sets (brief update, 2026-11-14):
+    """GSM8K, scored the same way as the team's heal data and earlier runs.
 
-      search   200 items carved from GSM8K train (seeded shuffle)
-      heal     the rest of GSM8K train (training data for the heal pass)
+    Splits (the 2026-11-14 update; identical to gsm8k_splits in wsp/data.py):
+      search   200 items from GSM8K train (seed 0 shuffle of train indices)
+      heal     the rest of GSM8K train (training data; never scored)
       heldout  the full GSM8K test set, run once at the end
+
+    Prompt: the raw text "Question: <q>\nAnswer:" with no chat template, the
+    same format the heal pass trains on (format_gsm8k in wsp/data.py).
+    Greedy, 256 new tokens. The output is cut at the next "Question:", then
+    the final number is compared with the gold number after "####".
     """
     name = "gsm8k"
-    max_new_tokens = 512
-    search_size = int(os.environ.get("WSP_GSM8K_SEARCH_SIZE", "200"))
+    max_new_tokens = 256
 
-    def _rows(self, hub_split):
-        data = _load_dataset("openai/gsm8k", "main", split=hub_split)
-        items = []
-        index = 0
-        for row in data:
-            gold = row["answer"].split("####")[-1].strip().replace(",", "")
-            items.append({
-                "id": "gsm8k-" + hub_split + "-" + str(index),
-                "messages": _user(gsm8k_prompt(row["question"])),
-                "answer": gold,
-                "question": row["question"],
-                "solution": row["answer"],
-            })
-            index += 1
-        return items
+    def _item(self, row, item_id):
+        return {
+            "id": item_id,
+            "prompt": "Question: " + row["question"] + "\nAnswer:",
+            "answer": gsm8k_final_number(row["answer"]),
+            "question": row["question"],
+            "solution": row["answer"],
+        }
 
     def load_items(self):
-        return self._rows("test")
+        return self.split_items("heldout", 0)
 
     def split_items(self, split, seed):
         if split == "heldout":
-            return self._rows("test")
-        train = self._rows("train")
-        rng = random.Random(str(seed) + ":gsm8k-train")
-        rng.shuffle(train)
+            data = _load_dataset("openai/gsm8k", "main", split="test")
+            items = []
+            for index in range(len(data)):
+                items.append(self._item(data[index], "gsm8k-test-" + str(index)))
+            return items
+
+        from wsp.data import SEARCH_SIZE
+        train = _load_dataset("openai/gsm8k", "main", split="train")
+        # Same order as wsp.data.gsm8k_splits(seed): shuffle the train indices.
+        order = list(range(len(train)))
+        random.Random(seed).shuffle(order)
         if split == "search":
-            return train[:self.search_size]
-        if split == "heal":
-            return train[self.search_size:]
-        raise ValueError("unknown split " + split)
+            chosen = order[:SEARCH_SIZE]
+        elif split == "heal":
+            chosen = order[SEARCH_SIZE:]
+        else:
+            raise ValueError("unknown split " + split)
+        items = []
+        for index in chosen:
+            items.append(self._item(train[index], "gsm8k-train-" + str(index)))
+        return items
 
     def score(self, output, item):
-        if numbers_equal(extract_number(output), item["answer"]):
+        text = output.split("Question:")[0]
+        predicted = gsm8k_final_number(text)
+        gold = item["answer"]
+        if predicted is not None and gold is not None and abs(predicted - gold) < 1e-6:
             return 1.0
         return 0.0
 

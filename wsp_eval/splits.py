@@ -54,8 +54,8 @@ def heal_items(task_name="gsm8k"):
 
 
 def heal_texts(task_name="gsm8k"):
-    """Plain question + worked-solution strings for next-token heal training."""
+    """Heal training texts, in the same format as wsp.data.format_gsm8k."""
     texts = []
     for item in heal_items(task_name):
-        texts.append(item["question"] + "\n" + item["solution"])
+        texts.append("Question: " + item["question"] + "\nAnswer: " + item["solution"])
     return texts

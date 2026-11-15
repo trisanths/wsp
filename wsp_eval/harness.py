@@ -181,7 +181,12 @@ def read_fit_scores(model_dir):
     index = 0
     for entry in grafts:
         label = entry.get("id") or entry.get("part") or entry.get("name") or ("graft " + str(index))
-        scores.append({"graft": str(label), "r2": _find_r2(entry), "at": entry.get("at")})
+        row = {"graft": str(label), "r2": _find_r2(entry)}
+        for key in ("fit", "fit_r2_dim", "fit_pairs", "part_params", "glue_params", "host_layer", "donor_layer",
+                    "control", "glue_rank", "kind"):
+            if key in entry:
+                row[key] = entry[key]
+        scores.append(row)
         index += 1
     return scores
 
@@ -261,7 +266,7 @@ def evaluate(model_path, split, tasks, namespace=None, allow_heldout_rerun=False
         items = splits.split_items(task, split)
         prompts = []
         for item in items:
-            prompts.append(backend.render(model_dir, item["messages"]))
+            prompts.append(backends.render_item(backend, model_dir, item))
         task_objects[name] = task
         task_items[name] = items
         task_prompts[name] = prompts

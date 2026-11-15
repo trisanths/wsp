@@ -144,14 +144,17 @@ def test_fit_r2_seed_and_grafted_detection(workspace, tmp_path):
     model_dir = tmp_path / "grafted"
     model_dir.mkdir()
     (model_dir / "program.json").write_text(json.dumps({"host": "fake-host", "seed": 2,
-                                                        "grafts": [{"part": "mlp_cluster_x"}]}))
+                                                        "grafts": [{"id": "mlp_cluster_x"}]}))
+    (model_dir / "grafts.json").write_text(json.dumps([{"id": "mlp_cluster_x"}]))
     (model_dir / "compile_report.json").write_text(json.dumps({"grafts": [
-        {"id": "mlp_cluster_x", "at": 9, "fit": {"r_squared": 0.71}},
-        {"part": "attn_heads_y", "r2": None}]}))
+        {"id": "mlp_cluster_x", "kind": "mlp_cluster", "host_layer": 9, "fit": "ridge", "fit_r2": 0.71,
+         "fit_r2_dim": 0.5, "fit_pairs": 900, "part_params": 100, "glue_params": 20, "control": None},
+        {"id": "attn_heads_y", "fit": "skipped", "fit_r2": None}]}))
     assert backends.is_grafted(str(model_dir))
     fit = harness.read_fit_scores(str(model_dir))
-    assert fit[0] == {"graft": "mlp_cluster_x", "r2": 0.71, "at": 9}
-    assert fit[1]["r2"] is None
+    assert fit[0]["graft"] == "mlp_cluster_x" and fit[0]["r2"] == 0.71
+    assert fit[0]["host_layer"] == 9 and fit[0]["fit"] == "ridge" and fit[0]["glue_params"] == 20
+    assert fit[1]["r2"] is None and fit[1]["fit"] == "skipped"
     assert harness.program_seed(str(model_dir)) == 2
 
     result = harness.evaluate(str(model_dir), "search", ["toy"])

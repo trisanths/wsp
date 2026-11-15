@@ -123,3 +123,31 @@ def test_cache_key_separates_models_and_lengths():
     assert a != cache.make_key("h2", "hf", 32, "prompt")
     assert a != cache.make_key("h1", "hf", 64, "prompt")
     assert a != cache.make_key("h1", "vllm", 32, "prompt")
+
+
+def test_gsm8k_scoring_matches_team_rule():
+    task = tasks_module.get_task("gsm8k")
+    item = {"answer": 72.0}
+    assert task.score(" She sold 48 + 24 = 72 clips.\n#### 72\n\nQuestion: next one 5", item) == 1.0
+    assert task.score(" 48/2 = 24, so 48 + 24 = 72\n\nQuestion: 9", item) == 1.0
+    assert task.score(" 1,000 apples", {"answer": 1000.0}) == 1.0
+    assert task.score(" maybe 71", item) == 0.0
+    assert tasks_module.gsm8k_final_number("#### 1,234") == 1234.0
+
+
+def test_gsm8k_splits_match_wsp_data():
+    pytest.importorskip("datasets")
+    from wsp.data import gsm8k_splits
+    task = tasks_module.get_task("gsm8k")
+    try:
+        search, heal = gsm8k_splits(seed=0)
+    except Exception as error:   # no network and no local copy
+        pytest.skip("GSM8K not available: " + str(error))
+    ours = splits.split_items(task, "search")
+    assert [item["question"] for item in ours] == [row["question"] for row in search]
+    assert ours[0]["prompt"] == "Question: " + search[0]["question"] + "\nAnswer:"
+    assert len(splits.split_items(task, "heal")) == len(heal)
+    from wsp.data import format_gsm8k
+    assert splits.heal_texts("gsm8k")[0] == format_gsm8k(heal[0])
+    heldout_ids = set(item["id"] for item in splits.split_items(task, "heldout"))
+    assert len(heldout_ids) == 1319

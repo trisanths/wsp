@@ -27,6 +27,21 @@ TEMPLATE_DATE = "26 Jul 2024"
 _backends = {}
 
 
+def render_item(backend, model_path, item):
+    """The exact prompt text for an item: raw `prompt`, or chat `messages` through the template."""
+    if "prompt" in item:
+        return backend.raw(model_path, item["prompt"])
+    return backend.render(model_path, item["messages"])
+
+
+def raw_prompt(tokenizer, text):
+    """A raw text prompt, with the BOS token a plain tokenizer() call would add."""
+    bos = tokenizer.bos_token
+    if bos and tokenizer("x")["input_ids"][:1] == [tokenizer.bos_token_id] and not text.startswith(bos):
+        return bos + text
+    return text
+
+
 def render_prompt(tokenizer, messages):
     if tokenizer.chat_template:
         return tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True,
@@ -47,11 +62,8 @@ def read_program(model_path):
 
 
 def is_grafted(model_path):
-    program = read_program(model_path)
-    if program is None:
-        return False
-    grafts = program.get("grafts")
-    return grafts is not None and len(grafts) > 0
+    """A compiled model with grafts has grafts.json (see wsp/load.py)."""
+    return os.path.isfile(os.path.join(str(model_path), "grafts.json"))
 
 
 def load_tokenizer(model_path):
@@ -76,6 +88,9 @@ class FakeBackend:
             parts.append(message["role"] + ": " + message["content"])
         return "\n".join(parts)
 
+    def raw(self, model_path, text):
+        return text
+
     def generate(self, model_path, prompts, max_new_tokens, model_hash, ablation=None):
         from wsp_eval import units
         outputs = []
@@ -84,7 +99,9 @@ class FakeBackend:
             value = int(digest[:8], 16)
             letter = "ABCDEFGHIJ"[value % 10]
             number = value % 100
-            if "The final answer is" in prompt:
+            if prompt.endswith("\nAnswer:"):
+                outputs.append(" #### " + str(number) + "\n\nQuestion: next")
+            elif "The final answer is" in prompt:
                 outputs.append("The final answer is: " + str(number))
             elif "The answer is: <number>" in prompt:
                 outputs.append("The answer is: " + str(number))
@@ -129,14 +146,17 @@ class HFBackend:
         else:
             dtype = torch.float32
         if is_grafted(model_path):
-            import wsp
-            if not hasattr(wsp, "load"):
-                raise RuntimeError(model_path + " is a grafted model but this wsp has no wsp.load yet "
-                                   "(Trisanth's part 2). Pull the latest wsp.")
-            model = wsp.load(model_path)
-            model.to(dtype)
+            # wsp.load returns (model, tokenizer); it rebuilds the host and attaches the grafts.
+            from wsp.load import load as wsp_load
+            model, tokenizer = wsp_load(model_path, device=device, dtype=dtype)
+            tokenizer.padding_side = "left"
+            if tokenizer.pad_token is None:
+                tokenizer.pad_token = tokenizer.eos_token
+            if os.environ.get("WSP_GRAFT_NO_CACHE") == "1":
+                from wsp.graft import disable_cache
+                disable_cache(model)
         else:
-            model = AutoModelForCausalLM.from_pretrained(model_path, torch_dtype=dtype)
+            model = AutoModelForCausalLM.from_pretrained(model_path, dtype=dtype)
         model.to(device)
         model.eval()
         self.model = model
@@ -155,6 +175,10 @@ class HFBackend:
     def render(self, model_path, messages):
         self._load(model_path)
         return render_prompt(self.tokenizer, messages)
+
+    def raw(self, model_path, text):
+        self._load(model_path)
+        return raw_prompt(self.tokenizer, text)
 
     def generate(self, model_path, prompts, max_new_tokens, model_hash, ablation=None):
         from wsp_eval import units
@@ -241,6 +265,10 @@ class VLLMBackend:
     def render(self, model_path, messages):
         self._load(model_path)
         return render_prompt(self.tokenizer, messages)
+
+    def raw(self, model_path, text):
+        self._load(model_path)
+        return raw_prompt(self.tokenizer, text)
 
     def generate(self, model_path, prompts, max_new_tokens, model_hash, ablation=None):
         if ablation is not None:
