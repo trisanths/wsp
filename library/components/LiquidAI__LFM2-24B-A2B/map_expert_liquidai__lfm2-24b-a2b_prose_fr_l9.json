@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_liquidai__lfm2-24b-a2b_prose_fr_l9",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 9, 8 experts for prose_fr (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "prose_fr"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 9 of LFM2-24B-A2B on 'prose_fr' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.03902,
+      "control_value": 0.01497,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 9 of LFM2-24B-A2B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 1.00392,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 1.02919,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 9,
+  "layers": [
+    9
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/map_expert_liquidai__lfm2-24b-a2b_prose_fr_l9.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "prose_fr",
+    "data": "wikimedia/wikipedia 20231101.fr train: French encyclopedia text continuation",
+    "n_units": 8,
+    "experts": [
+      8,
+      57,
+      10,
+      11,
+      41,
+      27,
+      1,
+      32
+    ],
+    "details": [
+      {
+        "expert": 8,
+        "skill_freq": 0.046754,
+        "general_freq": 0.010786,
+        "log_ratio": 1.4596,
+        "heldout_log_ratio": 1.1766
+      },
+      {
+        "expert": 57,
+        "skill_freq": 0.021183,
+        "general_freq": 0.005855,
+        "log_ratio": 1.2737,
+        "heldout_log_ratio": 0.9873
+      },
+      {
+        "expert": 10,
+        "skill_freq": 0.015131,
+        "general_freq": 0.004931,
+        "log_ratio": 1.1077,
+        "heldout_log_ratio": 2.3327
+      },
+      {
+        "expert": 11,
+        "skill_freq": 0.053109,
+        "general_freq": 0.019723,
+        "log_ratio": 0.9874,
+        "heldout_log_ratio": 0.8815
+      },
+      {
+        "expert": 41,
+        "skill_freq": 0.075049,
+        "general_freq": 0.030354,
+        "log_ratio": 0.9033,
+        "heldout_log_ratio": 0.9508
+      },
+      {
+        "expert": 27,
+        "skill_freq": 0.013164,
+        "general_freq": 0.005855,
+        "log_ratio": 0.8008,
+        "heldout_log_ratio": 0.8428
+      },
+      {
+        "expert": 1,
+        "skill_freq": 0.008473,
+        "general_freq": 0.003852,
+        "log_ratio": 0.7744,
+        "heldout_log_ratio": 0.5468
+      },
+      {
+        "expert": 32,
+        "skill_freq": 0.079286,
+        "general_freq": 0.038367,
+        "log_ratio": 0.7245,
+        "heldout_log_ratio": 0.515
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "wikimedia/wikipedia 20231101.fr train: French encyclopedia text continuation",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 23.84,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "20052c41d2a7ccca3d5325331dd54de0c4d9021e"
+}

@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_liquidai__lfm2-24b-a2b_law_l27",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 27, 8 experts for law (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "law"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 27 of LFM2-24B-A2B on 'law' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.11731,
+      "control_value": 0.02804,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 27 of LFM2-24B-A2B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 1.72263,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 1.71267,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 27,
+  "layers": [
+    27
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/map_expert_liquidai__lfm2-24b-a2b_law_l27.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "law",
+    "data": "cais/mmlu all test (subjects: professional_law, international_law, jurisprudence): law questions, correct answer text",
+    "n_units": 8,
+    "experts": [
+      32,
+      29,
+      15,
+      6,
+      38,
+      58,
+      17,
+      42
+    ],
+    "details": [
+      {
+        "expert": 32,
+        "skill_freq": 0.060306,
+        "general_freq": 0.00339,
+        "log_ratio": 2.8512,
+        "heldout_log_ratio": 2.6101
+      },
+      {
+        "expert": 29,
+        "skill_freq": 0.074775,
+        "general_freq": 0.004622,
+        "log_ratio": 2.7636,
+        "heldout_log_ratio": 3.6649
+      },
+      {
+        "expert": 15,
+        "skill_freq": 0.028028,
+        "general_freq": 0.004622,
+        "log_ratio": 1.7845,
+        "heldout_log_ratio": 1.4176
+      },
+      {
+        "expert": 6,
+        "skill_freq": 0.076191,
+        "general_freq": 0.018028,
+        "log_ratio": 1.4371,
+        "heldout_log_ratio": 1.4507
+      },
+      {
+        "expert": 38,
+        "skill_freq": 0.425782,
+        "general_freq": 0.102157,
+        "log_ratio": 1.4267,
+        "heldout_log_ratio": 1.2798
+      },
+      {
+        "expert": 58,
+        "skill_freq": 0.028635,
+        "general_freq": 0.007704,
+        "log_ratio": 1.3035,
+        "heldout_log_ratio": 0.581
+      },
+      {
+        "expert": 17,
+        "skill_freq": 0.01285,
+        "general_freq": 0.004006,
+        "log_ratio": 1.1486,
+        "heldout_log_ratio": 1.678
+      },
+      {
+        "expert": 42,
+        "skill_freq": 0.231913,
+        "general_freq": 0.079815,
+        "log_ratio": 1.0658,
+        "heldout_log_ratio": 1.0193
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: professional_law, international_law, jurisprudence): law questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 23.84,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "20052c41d2a7ccca3d5325331dd54de0c4d9021e"
+}

@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_liquidai__lfm2-24b-a2b_clinical_dialogue_l7",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 7, 8 experts for clinical_dialogue (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "clinical_dialogue"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 7 of LFM2-24B-A2B on 'clinical_dialogue' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.10612,
+      "control_value": 0.0354,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 7 of LFM2-24B-A2B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 1.07921,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 1.07511,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 7,
+  "layers": [
+    7
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/map_expert_liquidai__lfm2-24b-a2b_clinical_dialogue_l7.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "clinical_dialogue",
+    "data": "lavita/ChatDoctor-HealthCareMagic-100k train: doctor replies to patient messages",
+    "n_units": 8,
+    "experts": [
+      34,
+      10,
+      11,
+      55,
+      31,
+      28,
+      7,
+      6
+    ],
+    "details": [
+      {
+        "expert": 34,
+        "skill_freq": 0.230353,
+        "general_freq": 0.014792,
+        "log_ratio": 2.7392,
+        "heldout_log_ratio": 2.4799
+      },
+      {
+        "expert": 10,
+        "skill_freq": 0.155602,
+        "general_freq": 0.046533,
+        "log_ratio": 1.2056,
+        "heldout_log_ratio": 1.3353
+      },
+      {
+        "expert": 11,
+        "skill_freq": 0.026217,
+        "general_freq": 0.008166,
+        "log_ratio": 1.1581,
+        "heldout_log_ratio": 1.1775
+      },
+      {
+        "expert": 55,
+        "skill_freq": 0.106312,
+        "general_freq": 0.04869,
+        "log_ratio": 0.7798,
+        "heldout_log_ratio": 0.8162
+      },
+      {
+        "expert": 31,
+        "skill_freq": 0.136049,
+        "general_freq": 0.062558,
+        "log_ratio": 0.7761,
+        "heldout_log_ratio": 0.9342
+      },
+      {
+        "expert": 28,
+        "skill_freq": 0.020684,
+        "general_freq": 0.010015,
+        "log_ratio": 0.7202,
+        "heldout_log_ratio": 0.5167
+      },
+      {
+        "expert": 7,
+        "skill_freq": 0.10166,
+        "general_freq": 0.053467,
+        "log_ratio": 0.6417,
+        "heldout_log_ratio": 0.7466
+      },
+      {
+        "expert": 6,
+        "skill_freq": 0.072048,
+        "general_freq": 0.038983,
+        "log_ratio": 0.613,
+        "heldout_log_ratio": 0.5945
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "lavita/ChatDoctor-HealthCareMagic-100k train: doctor replies to patient messages",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 23.84,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "20052c41d2a7ccca3d5325331dd54de0c4d9021e"
+}

@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_liquidai__lfm2-24b-a2b_sql_l35",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 35, 8 experts for sql (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "sql"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 35 of LFM2-24B-A2B on 'sql' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.20411,
+      "control_value": 0.00963,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 35 of LFM2-24B-A2B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 2.8398,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 2.81511,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 35,
+  "layers": [
+    35
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/map_expert_liquidai__lfm2-24b-a2b_sql_l35.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "sql",
+    "data": "b-mc2/sql-create-context train: SQL query for a question and a table schema",
+    "n_units": 8,
+    "experts": [
+      62,
+      24,
+      16,
+      56,
+      20,
+      30,
+      7,
+      34
+    ],
+    "details": [
+      {
+        "expert": 62,
+        "skill_freq": 0.736953,
+        "general_freq": 0.003236,
+        "log_ratio": 5.3979,
+        "heldout_log_ratio": 5.0124
+      },
+      {
+        "expert": 24,
+        "skill_freq": 0.244028,
+        "general_freq": 0.010324,
+        "log_ratio": 3.1536,
+        "heldout_log_ratio": 3.1822
+      },
+      {
+        "expert": 16,
+        "skill_freq": 0.023521,
+        "general_freq": 0.000924,
+        "log_ratio": 3.1384,
+        "heldout_log_ratio": 3.4839
+      },
+      {
+        "expert": 56,
+        "skill_freq": 0.18247,
+        "general_freq": 0.010786,
+        "log_ratio": 2.8197,
+        "heldout_log_ratio": 3.0234
+      },
+      {
+        "expert": 20,
+        "skill_freq": 0.208563,
+        "general_freq": 0.016949,
+        "log_ratio": 2.5046,
+        "heldout_log_ratio": 2.5867
+      },
+      {
+        "expert": 30,
+        "skill_freq": 0.09004,
+        "general_freq": 0.007858,
+        "log_ratio": 2.4272,
+        "heldout_log_ratio": 2.1735
+      },
+      {
+        "expert": 7,
+        "skill_freq": 0.104098,
+        "general_freq": 0.017257,
+        "log_ratio": 1.7923,
+        "heldout_log_ratio": 1.7137
+      },
+      {
+        "expert": 34,
+        "skill_freq": 0.043183,
+        "general_freq": 0.009707,
+        "log_ratio": 1.4847,
+        "heldout_log_ratio": 1.3451
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "b-mc2/sql-create-context train: SQL query for a question and a table schema",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 23.84,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "20052c41d2a7ccca3d5325331dd54de0c4d9021e"
+}

@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_liquidai__lfm2-24b-a2b_code_csharp_l24",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 24, 8 experts for code_csharp (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "code_csharp"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 24 of LFM2-24B-A2B on 'code_csharp' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.17509,
+      "control_value": 0.0062,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 24 of LFM2-24B-A2B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 3.17396,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 3.01121,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 24,
+  "layers": [
+    24
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/map_expert_liquidai__lfm2-24b-a2b_code_csharp_l24.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "code_csharp",
+    "data": "ise-uiuc/Magicoder-OSS-Instruct-75K train (lang=csharp): csharp solutions to programming tasks",
+    "n_units": 8,
+    "experts": [
+      30,
+      43,
+      41,
+      36,
+      2,
+      49,
+      27,
+      18
+    ],
+    "details": [
+      {
+        "expert": 30,
+        "skill_freq": 0.705484,
+        "general_freq": 0.00755,
+        "log_ratio": 4.5243,
+        "heldout_log_ratio": 4.6493
+      },
+      {
+        "expert": 43,
+        "skill_freq": 0.005755,
+        "general_freq": 0.0,
+        "log_ratio": 4.0699,
+        "heldout_log_ratio": 2.6733
+      },
+      {
+        "expert": 41,
+        "skill_freq": 0.108948,
+        "general_freq": 0.003852,
+        "log_ratio": 3.3176,
+        "heldout_log_ratio": 3.522
+      },
+      {
+        "expert": 36,
+        "skill_freq": 0.149346,
+        "general_freq": 0.006626,
+        "log_ratio": 3.101,
+        "heldout_log_ratio": 3.4446
+      },
+      {
+        "expert": 2,
+        "skill_freq": 0.022738,
+        "general_freq": 0.001079,
+        "log_ratio": 2.9638,
+        "heldout_log_ratio": 2.5991
+      },
+      {
+        "expert": 49,
+        "skill_freq": 0.310991,
+        "general_freq": 0.022034,
+        "log_ratio": 2.643,
+        "heldout_log_ratio": 2.5671
+      },
+      {
+        "expert": 27,
+        "skill_freq": 0.067761,
+        "general_freq": 0.005547,
+        "log_ratio": 2.4863,
+        "heldout_log_ratio": 2.4599
+      },
+      {
+        "expert": 18,
+        "skill_freq": 0.029677,
+        "general_freq": 0.002928,
+        "log_ratio": 2.2858,
+        "heldout_log_ratio": 2.1744
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "ise-uiuc/Magicoder-OSS-Instruct-75K train (lang=csharp): csharp solutions to programming tasks",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 23.84,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "20052c41d2a7ccca3d5325331dd54de0c4d9021e"
+}

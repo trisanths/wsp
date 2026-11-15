@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_liquidai__lfm2-24b-a2b_physics_l38",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 38, 8 experts for physics (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "physics"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 38 of LFM2-24B-A2B on 'physics' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.14502,
+      "control_value": 0.02508,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 38 of LFM2-24B-A2B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 1.69421,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 1.84279,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 38,
+  "layers": [
+    38
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/map_expert_liquidai__lfm2-24b-a2b_physics_l38.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "physics",
+    "data": "cais/mmlu all test (subjects: high_school_physics, college_physics, conceptual_physics, astronomy): physics questions, correct answer text",
+    "n_units": 8,
+    "experts": [
+      49,
+      50,
+      51,
+      61,
+      13,
+      56,
+      14,
+      32
+    ],
+    "details": [
+      {
+        "expert": 49,
+        "skill_freq": 0.55707,
+        "general_freq": 0.026502,
+        "log_ratio": 3.0419,
+        "heldout_log_ratio": 4.2174
+      },
+      {
+        "expert": 50,
+        "skill_freq": 0.037148,
+        "general_freq": 0.002003,
+        "log_ratio": 2.8742,
+        "heldout_log_ratio": 3.3839
+      },
+      {
+        "expert": 51,
+        "skill_freq": 0.008838,
+        "general_freq": 0.001695,
+        "log_ratio": 1.6053,
+        "heldout_log_ratio": 1.2763
+      },
+      {
+        "expert": 61,
+        "skill_freq": 0.046135,
+        "general_freq": 0.009861,
+        "log_ratio": 1.5351,
+        "heldout_log_ratio": 1.6121
+      },
+      {
+        "expert": 13,
+        "skill_freq": 0.088226,
+        "general_freq": 0.023112,
+        "log_ratio": 1.3364,
+        "heldout_log_ratio": 1.215
+      },
+      {
+        "expert": 56,
+        "skill_freq": 0.232175,
+        "general_freq": 0.061171,
+        "log_ratio": 1.3326,
+        "heldout_log_ratio": 1.3938
+      },
+      {
+        "expert": 14,
+        "skill_freq": 0.068604,
+        "general_freq": 0.027427,
+        "log_ratio": 0.9146,
+        "heldout_log_ratio": 0.7751
+      },
+      {
+        "expert": 32,
+        "skill_freq": 0.121929,
+        "general_freq": 0.048844,
+        "log_ratio": 0.9136,
+        "heldout_log_ratio": 0.8687
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: high_school_physics, college_physics, conceptual_physics, astronomy): physics questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 23.84,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "20052c41d2a7ccca3d5325331dd54de0c4d9021e"
+}

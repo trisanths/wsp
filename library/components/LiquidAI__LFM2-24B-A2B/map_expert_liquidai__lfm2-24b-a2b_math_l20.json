@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_liquidai__lfm2-24b-a2b_math_l20",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 20, 8 experts for math (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "math"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 20 of LFM2-24B-A2B on 'math' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.10736,
+      "control_value": 0.00358,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 20 of LFM2-24B-A2B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 3.63131,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 3.68145,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 20,
+  "layers": [
+    20
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/map_expert_liquidai__lfm2-24b-a2b_math_l20.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "math",
+    "data": "Orca-Math word problems (approved pool); digit tokens of the worked solution",
+    "n_units": 8,
+    "experts": [
+      24,
+      28,
+      26,
+      25,
+      5,
+      48,
+      14,
+      37
+    ],
+    "details": [
+      {
+        "expert": 24,
+        "skill_freq": 0.082668,
+        "general_freq": 0.000154,
+        "log_ratio": 5.7865,
+        "heldout_log_ratio": 6.6256
+      },
+      {
+        "expert": 28,
+        "skill_freq": 0.251676,
+        "general_freq": 0.001849,
+        "log_ratio": 4.8612,
+        "heldout_log_ratio": 4.6132
+      },
+      {
+        "expert": 26,
+        "skill_freq": 0.102489,
+        "general_freq": 0.001079,
+        "log_ratio": 4.4661,
+        "heldout_log_ratio": 3.8891
+      },
+      {
+        "expert": 25,
+        "skill_freq": 0.084533,
+        "general_freq": 0.001387,
+        "log_ratio": 4.0416,
+        "heldout_log_ratio": 3.673
+      },
+      {
+        "expert": 5,
+        "skill_freq": 0.181076,
+        "general_freq": 0.004931,
+        "log_ratio": 3.5839,
+        "heldout_log_ratio": 3.6914
+      },
+      {
+        "expert": 48,
+        "skill_freq": 0.032881,
+        "general_freq": 0.003544,
+        "log_ratio": 2.2028,
+        "heldout_log_ratio": 2.4122
+      },
+      {
+        "expert": 14,
+        "skill_freq": 0.062321,
+        "general_freq": 0.007242,
+        "log_ratio": 2.1403,
+        "heldout_log_ratio": 2.6148
+      },
+      {
+        "expert": 37,
+        "skill_freq": 0.061272,
+        "general_freq": 0.008475,
+        "log_ratio": 1.9681,
+        "heldout_log_ratio": 1.9323
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "Orca-Math word problems (approved pool); digit tokens of the worked solution",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 23.84,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "20052c41d2a7ccca3d5325331dd54de0c4d9021e"
+}

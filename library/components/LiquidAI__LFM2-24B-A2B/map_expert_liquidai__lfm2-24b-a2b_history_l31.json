@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_liquidai__lfm2-24b-a2b_history_l31",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 31, 8 experts for history (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "history"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 31 of LFM2-24B-A2B on 'history' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.11066,
+      "control_value": 0.03779,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 31 of LFM2-24B-A2B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 1.1876,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 1.43725,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 31,
+  "layers": [
+    31
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/map_expert_liquidai__lfm2-24b-a2b_history_l31.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "history",
+    "data": "cais/mmlu all test (subjects: high_school_us_history, high_school_world_history, high_school_european_history, prehistory): history questions, correct answer text",
+    "n_units": 8,
+    "experts": [
+      61,
+      57,
+      1,
+      51,
+      17,
+      26,
+      5,
+      15
+    ],
+    "details": [
+      {
+        "expert": 61,
+        "skill_freq": 0.058553,
+        "general_freq": 0.007242,
+        "log_ratio": 2.078,
+        "heldout_log_ratio": 2.4143
+      },
+      {
+        "expert": 57,
+        "skill_freq": 0.160088,
+        "general_freq": 0.039599,
+        "log_ratio": 1.395,
+        "heldout_log_ratio": 1.6381
+      },
+      {
+        "expert": 1,
+        "skill_freq": 0.171053,
+        "general_freq": 0.046995,
+        "log_ratio": 1.2904,
+        "heldout_log_ratio": 1.8167
+      },
+      {
+        "expert": 51,
+        "skill_freq": 0.073684,
+        "general_freq": 0.021726,
+        "log_ratio": 1.218,
+        "heldout_log_ratio": 1.219
+      },
+      {
+        "expert": 17,
+        "skill_freq": 0.044079,
+        "general_freq": 0.013867,
+        "log_ratio": 1.1516,
+        "heldout_log_ratio": 1.2187
+      },
+      {
+        "expert": 26,
+        "skill_freq": 0.142325,
+        "general_freq": 0.063636,
+        "log_ratio": 0.8041,
+        "heldout_log_ratio": 1.111
+      },
+      {
+        "expert": 5,
+        "skill_freq": 0.013816,
+        "general_freq": 0.006163,
+        "log_ratio": 0.7984,
+        "heldout_log_ratio": 1.2449
+      },
+      {
+        "expert": 15,
+        "skill_freq": 0.221711,
+        "general_freq": 0.103082,
+        "log_ratio": 0.7653,
+        "heldout_log_ratio": 0.8353
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: high_school_us_history, high_school_world_history, high_school_european_history, prehistory): history questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 23.84,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "20052c41d2a7ccca3d5325331dd54de0c4d9021e"
+}

@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_liquidai__lfm2-24b-a2b_mathematics_theory_l24",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 24, 8 experts for mathematics_theory (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "mathematics_theory"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 24 of LFM2-24B-A2B on 'mathematics_theory' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.1023,
+      "control_value": 0.00795,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 24 of LFM2-24B-A2B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 2.84526,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 2.54367,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 24,
+  "layers": [
+    24
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/map_expert_liquidai__lfm2-24b-a2b_mathematics_theory_l24.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "mathematics_theory",
+    "data": "cais/mmlu all test (subjects: abstract_algebra, college_mathematics, high_school_mathematics, high_school_statistics, formal_logic): mathematics theory questions, correct answer text",
+    "n_units": 8,
+    "experts": [
+      41,
+      2,
+      43,
+      48,
+      1,
+      18,
+      36,
+      50
+    ],
+    "details": [
+      {
+        "expert": 41,
+        "skill_freq": 0.267119,
+        "general_freq": 0.003852,
+        "log_ratio": 4.2138,
+        "heldout_log_ratio": 4.1852
+      },
+      {
+        "expert": 2,
+        "skill_freq": 0.041861,
+        "general_freq": 0.001079,
+        "log_ratio": 3.5721,
+        "heldout_log_ratio": 2.8509
+      },
+      {
+        "expert": 43,
+        "skill_freq": 0.002027,
+        "general_freq": 0.0,
+        "log_ratio": 3.0573,
+        "heldout_log_ratio": 1.7516
+      },
+      {
+        "expert": 48,
+        "skill_freq": 0.046797,
+        "general_freq": 0.002619,
+        "log_ratio": 2.8477,
+        "heldout_log_ratio": 2.2159
+      },
+      {
+        "expert": 1,
+        "skill_freq": 0.08901,
+        "general_freq": 0.006009,
+        "log_ratio": 2.6801,
+        "heldout_log_ratio": 2.6407
+      },
+      {
+        "expert": 18,
+        "skill_freq": 0.030757,
+        "general_freq": 0.002928,
+        "log_ratio": 2.3215,
+        "heldout_log_ratio": 2.1211
+      },
+      {
+        "expert": 36,
+        "skill_freq": 0.05605,
+        "general_freq": 0.006626,
+        "log_ratio": 2.122,
+        "heldout_log_ratio": 2.6311
+      },
+      {
+        "expert": 50,
+        "skill_freq": 0.284745,
+        "general_freq": 0.040524,
+        "log_ratio": 1.9476,
+        "heldout_log_ratio": 1.9529
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: abstract_algebra, college_mathematics, high_school_mathematics, high_school_statistics, formal_logic): mathematics theory questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 23.84,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "20052c41d2a7ccca3d5325331dd54de0c4d9021e"
+}

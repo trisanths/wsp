@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_liquidai__lfm2-24b-a2b_psychology_social_l39",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 39, 8 experts for psychology_social (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "psychology_social"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 39 of LFM2-24B-A2B on 'psychology_social' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.05693,
+      "control_value": 0.00813,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 39 of LFM2-24B-A2B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 2.0735,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 1.86189,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 39,
+  "layers": [
+    39
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/map_expert_liquidai__lfm2-24b-a2b_psychology_social_l39.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "psychology_social",
+    "data": "cais/mmlu all test (subjects: high_school_psychology, professional_psychology, sociology, human_sexuality): psychology social questions, correct answer text",
+    "n_units": 8,
+    "experts": [
+      46,
+      20,
+      10,
+      52,
+      41,
+      16,
+      31,
+      12
+    ],
+    "details": [
+      {
+        "expert": 46,
+        "skill_freq": 0.007417,
+        "general_freq": 0.000308,
+        "log_ratio": 2.9137,
+        "heldout_log_ratio": 1.8881
+      },
+      {
+        "expert": 20,
+        "skill_freq": 0.019582,
+        "general_freq": 0.001849,
+        "log_ratio": 2.3124,
+        "heldout_log_ratio": 2.3734
+      },
+      {
+        "expert": 10,
+        "skill_freq": 0.205904,
+        "general_freq": 0.02188,
+        "log_ratio": 2.2378,
+        "heldout_log_ratio": 1.9144
+      },
+      {
+        "expert": 52,
+        "skill_freq": 0.025961,
+        "general_freq": 0.002928,
+        "log_ratio": 2.1525,
+        "heldout_log_ratio": 3.2413
+      },
+      {
+        "expert": 41,
+        "skill_freq": 0.022252,
+        "general_freq": 0.003082,
+        "log_ratio": 1.9494,
+        "heldout_log_ratio": 1.9704
+      },
+      {
+        "expert": 16,
+        "skill_freq": 0.007566,
+        "general_freq": 0.001079,
+        "log_ratio": 1.8721,
+        "heldout_log_ratio": 1.209
+      },
+      {
+        "expert": 31,
+        "skill_freq": 0.115413,
+        "general_freq": 0.022958,
+        "log_ratio": 1.6114,
+        "heldout_log_ratio": 0.8856
+      },
+      {
+        "expert": 12,
+        "skill_freq": 0.051328,
+        "general_freq": 0.01094,
+        "log_ratio": 1.5387,
+        "heldout_log_ratio": 1.4129
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: high_school_psychology, professional_psychology, sociology, human_sexuality): psychology social questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 23.84,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "20052c41d2a7ccca3d5325331dd54de0c4d9021e"
+}

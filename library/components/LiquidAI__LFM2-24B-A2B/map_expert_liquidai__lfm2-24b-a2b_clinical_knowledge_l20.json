@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_liquidai__lfm2-24b-a2b_clinical_knowledge_l20",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 20, 8 experts for clinical_knowledge (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "clinical_knowledge"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 20 of LFM2-24B-A2B on 'clinical_knowledge' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.20785,
+      "control_value": 0.02338,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 20 of LFM2-24B-A2B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 2.00015,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 2.09842,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 20,
+  "layers": [
+    20
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/map_expert_liquidai__lfm2-24b-a2b_clinical_knowledge_l20.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "clinical_knowledge",
+    "data": "cais/mmlu all test (subjects: clinical_knowledge, college_medicine, professional_medicine, nutrition, human_aging): clinical knowledge questions, correct answer text",
+    "n_units": 8,
+    "experts": [
+      24,
+      20,
+      53,
+      58,
+      49,
+      23,
+      62,
+      25
+    ],
+    "details": [
+      {
+        "expert": 24,
+        "skill_freq": 0.010516,
+        "general_freq": 0.000154,
+        "log_ratio": 3.7328,
+        "heldout_log_ratio": 4.6232
+      },
+      {
+        "expert": 20,
+        "skill_freq": 0.700672,
+        "general_freq": 0.020955,
+        "log_ratio": 3.505,
+        "heldout_log_ratio": 3.4781
+      },
+      {
+        "expert": 53,
+        "skill_freq": 0.581526,
+        "general_freq": 0.05963,
+        "log_ratio": 2.276,
+        "heldout_log_ratio": 2.3429
+      },
+      {
+        "expert": 58,
+        "skill_freq": 0.014744,
+        "general_freq": 0.002928,
+        "log_ratio": 1.5897,
+        "heldout_log_ratio": 1.2553
+      },
+      {
+        "expert": 49,
+        "skill_freq": 0.139419,
+        "general_freq": 0.039753,
+        "log_ratio": 1.253,
+        "heldout_log_ratio": 1.3615
+      },
+      {
+        "expert": 23,
+        "skill_freq": 0.141696,
+        "general_freq": 0.041757,
+        "log_ratio": 1.2201,
+        "heldout_log_ratio": 2.0826
+      },
+      {
+        "expert": 62,
+        "skill_freq": 0.069384,
+        "general_freq": 0.020493,
+        "log_ratio": 1.2161,
+        "heldout_log_ratio": 0.991
+      },
+      {
+        "expert": 25,
+        "skill_freq": 0.004879,
+        "general_freq": 0.001387,
+        "log_ratio": 1.2085,
+        "heldout_log_ratio": 0.6528
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: clinical_knowledge, college_medicine, professional_medicine, nutrition, human_aging): clinical knowledge questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 23.84,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "20052c41d2a7ccca3d5325331dd54de0c4d9021e"
+}

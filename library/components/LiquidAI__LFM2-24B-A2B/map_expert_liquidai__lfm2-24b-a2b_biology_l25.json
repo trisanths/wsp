@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_liquidai__lfm2-24b-a2b_biology_l25",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 25, 8 experts for biology (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "biology"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 25 of LFM2-24B-A2B on 'biology' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.11739,
+      "control_value": 0.01647,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 25 of LFM2-24B-A2B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 1.99811,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 2.05276,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 25,
+  "layers": [
+    25
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/map_expert_liquidai__lfm2-24b-a2b_biology_l25.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "biology",
+    "data": "cais/mmlu all test (subjects: high_school_biology, college_biology, anatomy, virology, medical_genetics): biology questions, correct answer text",
+    "n_units": 8,
+    "experts": [
+      43,
+      40,
+      27,
+      42,
+      60,
+      7,
+      4,
+      38
+    ],
+    "details": [
+      {
+        "expert": 43,
+        "skill_freq": 0.116481,
+        "general_freq": 0.011556,
+        "log_ratio": 2.3028,
+        "heldout_log_ratio": 3.5421
+      },
+      {
+        "expert": 40,
+        "skill_freq": 0.170504,
+        "general_freq": 0.017257,
+        "log_ratio": 2.2853,
+        "heldout_log_ratio": 2.1858
+      },
+      {
+        "expert": 27,
+        "skill_freq": 0.04878,
+        "general_freq": 0.005239,
+        "log_ratio": 2.2143,
+        "heldout_log_ratio": 2.1397
+      },
+      {
+        "expert": 42,
+        "skill_freq": 0.16207,
+        "general_freq": 0.018798,
+        "log_ratio": 2.1496,
+        "heldout_log_ratio": 2.2528
+      },
+      {
+        "expert": 60,
+        "skill_freq": 0.065421,
+        "general_freq": 0.00755,
+        "log_ratio": 2.1477,
+        "heldout_log_ratio": 1.9227
+      },
+      {
+        "expert": 7,
+        "skill_freq": 0.171871,
+        "general_freq": 0.030046,
+        "log_ratio": 1.7413,
+        "heldout_log_ratio": 1.6364
+      },
+      {
+        "expert": 4,
+        "skill_freq": 0.125142,
+        "general_freq": 0.02265,
+        "log_ratio": 1.7057,
+        "heldout_log_ratio": 1.6329
+      },
+      {
+        "expert": 38,
+        "skill_freq": 0.078869,
+        "general_freq": 0.018644,
+        "log_ratio": 1.4382,
+        "heldout_log_ratio": 1.1097
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: high_school_biology, college_biology, anatomy, virology, medical_genetics): biology questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 23.84,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "20052c41d2a7ccca3d5325331dd54de0c4d9021e"
+}

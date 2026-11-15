@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_liquidai__lfm2-24b-a2b_creative_writing_l25",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 25, 8 experts for creative_writing (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "creative_writing"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 25 of LFM2-24B-A2B on 'creative_writing' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.12469,
+      "control_value": 0.04018,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 25 of LFM2-24B-A2B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 1.25919,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 1.20408,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 25,
+  "layers": [
+    25
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/map_expert_liquidai__lfm2-24b-a2b_creative_writing_l25.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "creative_writing",
+    "data": "euclaise/writingprompts train: story continuation from a writing prompt",
+    "n_units": 8,
+    "experts": [
+      25,
+      7,
+      1,
+      8,
+      19,
+      42,
+      45,
+      57
+    ],
+    "details": [
+      {
+        "expert": 25,
+        "skill_freq": 0.082763,
+        "general_freq": 0.007088,
+        "log_ratio": 2.4448,
+        "heldout_log_ratio": 2.1557
+      },
+      {
+        "expert": 7,
+        "skill_freq": 0.14431,
+        "general_freq": 0.030046,
+        "log_ratio": 1.5666,
+        "heldout_log_ratio": 1.4597
+      },
+      {
+        "expert": 1,
+        "skill_freq": 0.140803,
+        "general_freq": 0.044376,
+        "log_ratio": 1.1531,
+        "heldout_log_ratio": 1.0698
+      },
+      {
+        "expert": 8,
+        "skill_freq": 0.056374,
+        "general_freq": 0.017874,
+        "log_ratio": 1.1449,
+        "heldout_log_ratio": 0.8864
+      },
+      {
+        "expert": 19,
+        "skill_freq": 0.166667,
+        "general_freq": 0.059938,
+        "log_ratio": 1.0216,
+        "heldout_log_ratio": 1.0629
+      },
+      {
+        "expert": 42,
+        "skill_freq": 0.050938,
+        "general_freq": 0.018798,
+        "log_ratio": 0.9935,
+        "heldout_log_ratio": 1.1092
+      },
+      {
+        "expert": 45,
+        "skill_freq": 0.28748,
+        "general_freq": 0.113251,
+        "log_ratio": 0.931,
+        "heldout_log_ratio": 1.1206
+      },
+      {
+        "expert": 57,
+        "skill_freq": 0.06821,
+        "general_freq": 0.030046,
+        "log_ratio": 0.818,
+        "heldout_log_ratio": 0.7683
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "euclaise/writingprompts train: story continuation from a writing prompt",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 23.84,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "20052c41d2a7ccca3d5325331dd54de0c4d9021e"
+}

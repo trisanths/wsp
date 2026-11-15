@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_liquidai__lfm2-24b-a2b_economics_business_l3",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 3, 8 experts for economics_business (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "economics_business"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 3 of LFM2-24B-A2B on 'economics_business' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.09358,
+      "control_value": 0.03839,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 3 of LFM2-24B-A2B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 0.90441,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 0.90607,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 3,
+  "layers": [
+    3
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/map_expert_liquidai__lfm2-24b-a2b_economics_business_l3.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "economics_business",
+    "data": "cais/mmlu all test (subjects: high_school_macroeconomics, high_school_microeconomics, econometrics, business_ethics, management, marketing, professional_accounting): economics business questions, correct answer text",
+    "n_units": 8,
+    "experts": [
+      5,
+      10,
+      20,
+      16,
+      47,
+      56,
+      11,
+      7
+    ],
+    "details": [
+      {
+        "expert": 5,
+        "skill_freq": 0.101277,
+        "general_freq": 0.025424,
+        "log_ratio": 1.3792,
+        "heldout_log_ratio": 1.4864
+      },
+      {
+        "expert": 10,
+        "skill_freq": 0.075603,
+        "general_freq": 0.029122,
+        "log_ratio": 0.9519,
+        "heldout_log_ratio": 0.8485
+      },
+      {
+        "expert": 20,
+        "skill_freq": 0.074752,
+        "general_freq": 0.030663,
+        "log_ratio": 0.8892,
+        "heldout_log_ratio": 1.2493
+      },
+      {
+        "expert": 16,
+        "skill_freq": 0.095461,
+        "general_freq": 0.039445,
+        "log_ratio": 0.8823,
+        "heldout_log_ratio": 0.8149
+      },
+      {
+        "expert": 47,
+        "skill_freq": 0.123546,
+        "general_freq": 0.053467,
+        "log_ratio": 0.8365,
+        "heldout_log_ratio": 0.7539
+      },
+      {
+        "expert": 56,
+        "skill_freq": 0.111064,
+        "general_freq": 0.050847,
+        "log_ratio": 0.7802,
+        "heldout_log_ratio": 0.5941
+      },
+      {
+        "expert": 11,
+        "skill_freq": 0.084539,
+        "general_freq": 0.038983,
+        "log_ratio": 0.7727,
+        "heldout_log_ratio": 0.7415
+      },
+      {
+        "expert": 7,
+        "skill_freq": 0.082411,
+        "general_freq": 0.039137,
+        "log_ratio": 0.7433,
+        "heldout_log_ratio": 0.76
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: high_school_macroeconomics, high_school_microeconomics, econometrics, business_ethics, management, marketing, professional_accounting): economics business questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 23.84,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "20052c41d2a7ccca3d5325331dd54de0c4d9021e"
+}

@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_liquidai__lfm2-24b-a2b_code_l32",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 32, 8 experts for code (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "code"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 32 of LFM2-24B-A2B on 'code' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.17563,
+      "control_value": 0.01814,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 32 of LFM2-24B-A2B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 2.31199,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 2.52421,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 32,
+  "layers": [
+    32
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/map_expert_liquidai__lfm2-24b-a2b_code_l32.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "code",
+    "data": "CodeAlpaca Python tasks (approved pool); tokens of the reference solution",
+    "n_units": 8,
+    "experts": [
+      7,
+      53,
+      8,
+      0,
+      47,
+      61,
+      18,
+      22
+    ],
+    "details": [
+      {
+        "expert": 7,
+        "skill_freq": 0.274828,
+        "general_freq": 0.020647,
+        "log_ratio": 2.5841,
+        "heldout_log_ratio": 2.6774
+      },
+      {
+        "expert": 53,
+        "skill_freq": 0.084652,
+        "general_freq": 0.006626,
+        "log_ratio": 2.5337,
+        "heldout_log_ratio": 2.3446
+      },
+      {
+        "expert": 8,
+        "skill_freq": 0.150083,
+        "general_freq": 0.014176,
+        "log_ratio": 2.3533,
+        "heldout_log_ratio": 3.0182
+      },
+      {
+        "expert": 0,
+        "skill_freq": 0.212795,
+        "general_freq": 0.020493,
+        "log_ratio": 2.3358,
+        "heldout_log_ratio": 2.1119
+      },
+      {
+        "expert": 47,
+        "skill_freq": 0.128531,
+        "general_freq": 0.012635,
+        "log_ratio": 2.3126,
+        "heldout_log_ratio": 2.9726
+      },
+      {
+        "expert": 61,
+        "skill_freq": 0.050772,
+        "general_freq": 0.005239,
+        "log_ratio": 2.2543,
+        "heldout_log_ratio": 2.9752
+      },
+      {
+        "expert": 18,
+        "skill_freq": 0.147073,
+        "general_freq": 0.01772,
+        "log_ratio": 2.1113,
+        "heldout_log_ratio": 1.9473
+      },
+      {
+        "expert": 22,
+        "skill_freq": 0.356276,
+        "general_freq": 0.047612,
+        "log_ratio": 2.0108,
+        "heldout_log_ratio": 2.1465
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "CodeAlpaca Python tasks (approved pool); tokens of the reference solution",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 23.84,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "20052c41d2a7ccca3d5325331dd54de0c4d9021e"
+}
