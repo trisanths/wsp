@@ -154,18 +154,21 @@ class GraftSpec:
         round(donor_layer / donor_layers * host_layers).
     control: None, or "random" to replace the part's units with random
         units of the same count from the same donor layer (the control).
+    glue_rank: None for full-rank glue, or r for rank-r w_in and w_out.
     """
 
-    def __init__(self, component_id, at=None, control=None, control_seed=0):
+    def __init__(self, component_id, at=None, control=None, control_seed=0, glue_rank=None):
         if control not in (None, "random"):
             raise ValueError(f"unknown control: {control!r}")
         self.component_id = component_id
         self.at = at
         self.control = control
         self.control_seed = control_seed
+        self.glue_rank = glue_rank
 
     def to_dict(self):
-        return {"id": self.component_id, "at": self.at, "control": self.control, "control_seed": self.control_seed}
+        return {"id": self.component_id, "at": self.at, "control": self.control,
+                "control_seed": self.control_seed, "glue_rank": self.glue_rank}
 
 
 class HealSpec:
@@ -215,9 +218,9 @@ class Program:
         self.task_vectors.append(TaskVector(component_id, weight, layers, modules))
         return self
 
-    def graft(self, component_id, at=None, control=None, control_seed=0):
+    def graft(self, component_id, at=None, control=None, control_seed=0, glue_rank=None):
         """Add a graft. Returns self so calls can chain."""
-        self.grafts.append(GraftSpec(component_id, at, control, control_seed))
+        self.grafts.append(GraftSpec(component_id, at, control, control_seed, glue_rank))
         return self
 
     def heal(self, steps=300, data="gsm8k_train", lr=3e-4, batch_size=8, seq_len=384):
@@ -267,7 +270,8 @@ class Program:
             task_vectors.append(TaskVector(tv["id"], tv["weight"], tv["layers"], tv["modules"]))
         grafts = []
         for graft in data.get("grafts", []):
-            grafts.append(GraftSpec(graft["id"], graft.get("at"), graft.get("control"), graft.get("control_seed", 0)))
+            grafts.append(GraftSpec(graft["id"], graft.get("at"), graft.get("control"), graft.get("control_seed", 0),
+                                   graft.get("glue_rank")))
         heal = None
         if data.get("heal") is not None:
             heal = HealSpec(**data["heal"])

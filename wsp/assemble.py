@@ -134,7 +134,7 @@ def build_graft(spec, catalog, host_model, host_tokenizer, align_texts=None, dev
 
     d_host = host_hidden_size(host_model)
     d_donor = text_config.hidden_size
-    graft = Graft(d_host, d_donor, part)
+    graft = Graft(d_host, d_donor, part, rank=getattr(spec, "glue_rank", None))
 
     meta = {
         "id": spec.component_id,
@@ -148,6 +148,7 @@ def build_graft(spec, catalog, host_model, host_tokenizer, align_texts=None, dev
         "d_donor": d_donor,
         "part_params": count_params(part),
         "glue_params": count_params(graft.w_in) + count_params(graft.w_out),
+        "glue_rank": graft.rank,
         "fit_r2": None,
         "fit_r2_dim": None,
         "fit_pairs": 0,
@@ -158,7 +159,7 @@ def build_graft(spec, catalog, host_model, host_tokenizer, align_texts=None, dev
         w, r2, r2_dim, pairs = fit_w_in(host_model, host_tokenizer, host_layer, donor_id, donor_layer,
                                         align_texts, device)
         with torch.no_grad():
-            graft.w_in.weight.copy_(w.to(graft.w_in.weight.dtype))
+            graft.set_w_in(w)
         meta["fit_r2"] = r2
         meta["fit_r2_dim"] = r2_dim
         meta["fit_pairs"] = pairs
@@ -197,7 +198,7 @@ def rebuild_graft(meta, graft_state, index):
         elif rest.startswith("post_norm."):
             tensors[modules["post_norm_prefix"] + rest[len("post_norm"):]] = graft_state[key]
     part = build_mlp_cluster(config, meta["donor_layer"], torch.arange(n), tensors)
-    return Graft(meta["d_host"], meta["d_donor"], part)
+    return Graft(meta["d_host"], meta["d_donor"], part, rank=meta.get("glue_rank"))
 
 
 def count_params(module):
@@ -233,7 +234,7 @@ def build_expert_graft(spec, record, catalog, host_model, host_tokenizer, align_
 
     d_host = host_hidden_size(host_model)
     d_donor = text_config.hidden_size
-    graft = Graft(d_host, d_donor, part)
+    graft = Graft(d_host, d_donor, part, rank=getattr(spec, "glue_rank", None))
 
     meta = {
         "id": spec.component_id,
@@ -247,6 +248,7 @@ def build_expert_graft(spec, record, catalog, host_model, host_tokenizer, align_
         "d_donor": d_donor,
         "part_params": count_params(part),
         "glue_params": count_params(graft.w_in) + count_params(graft.w_out),
+        "glue_rank": graft.rank,
         "fit_r2": None,
         "fit_r2_dim": None,
         "fit_pairs": 0,
@@ -257,7 +259,7 @@ def build_expert_graft(spec, record, catalog, host_model, host_tokenizer, align_
         w, r2, r2_dim, pairs = fit_w_in(host_model, host_tokenizer, host_layer, donor_id, donor_layer,
                                         align_texts, device, norm_prefix=found["pre_norm_prefix"])
         with torch.no_grad():
-            graft.w_in.weight.copy_(w.to(graft.w_in.weight.dtype))
+            graft.set_w_in(w)
         meta["fit_r2"] = r2
         meta["fit_r2_dim"] = r2_dim
         meta["fit_pairs"] = pairs
@@ -287,7 +289,7 @@ def rebuild_expert_graft(meta, graft_state, index):
         elif rest.startswith("post_norm."):
             tensors[found["post_norm_prefix"] + rest[len("post_norm"):]] = graft_state[key]
     part = build_expert_part(config, meta["donor_layer"], torch.arange(n), tensors)
-    return Graft(meta["d_host"], meta["d_donor"], part)
+    return Graft(meta["d_host"], meta["d_donor"], part, rank=meta.get("glue_rank"))
 
 
 def random_heads(num_heads, n, seed):
@@ -321,7 +323,7 @@ def build_attn_graft(spec, record, catalog, host_model, host_tokenizer, align_te
 
     d_host = host_hidden_size(host_model)
     d_donor = text_config.hidden_size
-    graft = Graft(d_host, d_donor, part)
+    graft = Graft(d_host, d_donor, part, rank=getattr(spec, "glue_rank", None))
 
     meta = {
         "id": spec.component_id,
@@ -335,6 +337,7 @@ def build_attn_graft(spec, record, catalog, host_model, host_tokenizer, align_te
         "d_donor": d_donor,
         "part_params": count_params(part),
         "glue_params": count_params(graft.w_in) + count_params(graft.w_out),
+        "glue_rank": graft.rank,
         "fit_r2": None,
         "fit_r2_dim": None,
         "fit_pairs": 0,
@@ -344,7 +347,7 @@ def build_attn_graft(spec, record, catalog, host_model, host_tokenizer, align_te
         w, r2, r2_dim, pairs = fit_w_in(host_model, host_tokenizer, host_layer, donor_id, donor_layer,
                                         align_texts, device, layer_input=True)
         with torch.no_grad():
-            graft.w_in.weight.copy_(w.to(graft.w_in.weight.dtype))
+            graft.set_w_in(w)
         meta["fit_r2"] = r2
         meta["fit_r2_dim"] = r2_dim
         meta["fit_pairs"] = pairs
@@ -385,4 +388,4 @@ def rebuild_attn_graft(meta, graft_state, index):
         if owner in names:
             tensors[names[owner] + rest[len(owner):]] = graft_state[key]
     part = build_attn_heads(config, meta["donor_layer"], torch.arange(n), tensors)
-    return Graft(meta["d_host"], meta["d_donor"], part)
+    return Graft(meta["d_host"], meta["d_donor"], part, rank=meta.get("glue_rank"))

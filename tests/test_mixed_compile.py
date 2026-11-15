@@ -109,3 +109,29 @@ def test_old_program_json_still_loads():
     assert program.base == "some/model"
     again = Program.from_dict(json.loads(json.dumps(program.graft("x", at=3).heal(steps=5).to_dict())))
     assert again.to_dict() == program.to_dict()
+
+
+def test_low_rank_glue_compiles_heals_and_loads(tmp_path, monkeypatch):
+    local_fetch(monkeypatch)
+    host_dir, donor_dir, catalog = save_tiny(tmp_path)
+    out = str(tmp_path / "out")
+    program = Program(host=host_dir).graft("qcluster", glue_rank=4).heal(steps=3, lr=1e-2, batch_size=2, seq_len=16)
+    program.compile(out, catalog, align_texts=TEXTS, heal_texts=TEXTS, device="cpu")
+    meta = json.load(open(os.path.join(out, "grafts.json")))[0]
+    assert meta["glue_rank"] == 4
+    assert meta["glue_params"] == 4 * (64 + 48) * 2
+    saved = load_file(os.path.join(out, "graft_weights.safetensors"))
+    assert saved["0.w_out.up.weight"].abs().sum() > 0
+    model, _ = load(out, dtype=torch.float32)
+    for key, value in model.wsp_grafts.state_dict().items():
+        assert torch.equal(value.cpu(), saved[key].to(value.dtype))
+
+
+def test_low_rank_fresh_graft_keeps_host_logits(tmp_path, monkeypatch):
+    local_fetch(monkeypatch)
+    host_dir, donor_dir, catalog = save_tiny(tmp_path)
+    out = str(tmp_path / "out")
+    Program(host=host_dir).graft("qcluster", glue_rank=4).compile(out, catalog, align_texts=TEXTS, device="cpu")
+    model, _ = load(out, dtype=torch.float32)
+    host = LlamaForCausalLM.from_pretrained(host_dir, dtype=torch.float32)
+    assert torch.equal(logits(model, "the cat sat"), logits(host, "the cat sat"))

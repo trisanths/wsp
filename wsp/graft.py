@@ -14,6 +14,26 @@ from torch import nn
 from wsp.parts import AttnHeadsPart, find_decoder_layers
 
 
+class LowRankLinear(nn.Module):
+    """A bias-free linear map factored as up(down(x)), with rank r."""
+
+    def __init__(self, d_in, d_out, rank):
+        super().__init__()
+        self.down = nn.Linear(d_in, rank, bias=False)
+        self.up = nn.Linear(rank, d_out, bias=False)
+
+    def forward(self, x):
+        return self.up(self.down(x))
+
+    def set_from_full(self, w):
+        """Set the factors to the truncated SVD of w, shape (d_out, d_in)."""
+        rank = self.down.weight.shape[0]
+        u, s, vh = torch.linalg.svd(w.float(), full_matrices=False)
+        root = s[:rank].sqrt()
+        self.up.weight.copy_((u[:, :rank] * root).to(self.up.weight.dtype))
+        self.down.weight.copy_((root[:, None] * vh[:rank]).to(self.down.weight.dtype))
+
+
 class Graft(nn.Module):
     """h + w_out(part(w_in(h))), with float32 glue and a frozen part.
 
@@ -22,13 +42,30 @@ class Graft(nn.Module):
     Only an AttnHeadsPart uses it, because only attention mixes positions.
     """
 
-    def __init__(self, d_host, d_donor, part):
+    def __init__(self, d_host, d_donor, part, rank=None):
         super().__init__()
-        self.w_in = nn.Linear(d_host, d_donor, bias=False)
-        self.w_out = nn.Linear(d_donor, d_host, bias=False)
-        nn.init.zeros_(self.w_out.weight)
+        self.rank = rank
+        if rank is None:
+            self.w_in = nn.Linear(d_host, d_donor, bias=False)
+            self.w_out = nn.Linear(d_donor, d_host, bias=False)
+            nn.init.zeros_(self.w_out.weight)
+        else:
+            self.w_in = LowRankLinear(d_host, d_donor, rank)
+            self.w_out = LowRankLinear(d_donor, d_host, rank)
+            nn.init.zeros_(self.w_out.up.weight)
         self.part = part
         self.pad_mask = None
+
+    def set_w_in(self, w):
+        """Start w_in from a full (d_donor, d_host) matrix, for example a ridge fit.
+
+        A low-rank w_in takes the best rank-r approximation of w.
+        """
+        with torch.no_grad():
+            if self.rank is None:
+                self.w_in.weight.copy_(w.to(self.w_in.weight.dtype))
+            else:
+                self.w_in.set_from_full(w)
 
     def forward(self, h):
         part_dtype = next(self.part.parameters()).dtype
@@ -126,8 +163,10 @@ def glue_parameters(host_model):
     """Return the w_in and w_out parameters of every graft."""
     params = []
     for graft in host_model.wsp_grafts:
-        params.append(graft.w_in.weight)
-        params.append(graft.w_out.weight)
+        for param in graft.w_in.parameters():
+            params.append(param)
+        for param in graft.w_out.parameters():
+            params.append(param)
     return params
 
 
