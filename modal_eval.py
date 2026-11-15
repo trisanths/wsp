@@ -190,6 +190,17 @@ def final_merge_remote(donor):
     return added
 
 
+@app.function(image=image, volumes={"/vol": volume}, gpu="H100", memory=131072, timeout=4 * 3600)
+def stitch_graft_remote(arm, seed, budget=None):
+    from wsp_eval import stitch_graft
+    root = stitch_graft.arm_root(arm)
+    os.makedirs(root, exist_ok=True)
+    os.environ["WSP_ROOT"] = root
+    row = stitch_graft.run_arm(arm, seed, budget=budget)
+    volume.commit()
+    return row
+
+
 @app.function(image=image, volumes={"/vol": volume}, cpu=8, memory=32768, timeout=3600)
 def mask_signatures_remote():
     from wsp_eval.signatures import structural_signatures
@@ -359,3 +370,31 @@ def final(donor: str = "microsoft/phi-4", part_id: str = "mlp_cluster_phi4_l16_g
     summary = final_module.summarize(donor, part_id, outputs, host)
     print(summary["verdict_text"])
     _save("final_heldout_" + donor.replace("/", "__") + ".json", summary)
+
+
+@app.local_entrypoint()
+def stitch_graft(seed: int = 0):
+    """Trained-stitch block graft vs ridge graft, random block and matched LoRA (one seed, search split)."""
+    rows = []
+    first = [("host", seed), ("block_ridge", seed), ("block_stitch", seed), ("random_stitch", seed)]
+    for row in stitch_graft_remote.starmap(first, return_exceptions=True):
+        if isinstance(row, Exception):
+            print("arm failed:", repr(row)[:600])
+            continue
+        print(json.dumps(row))
+        rows.append(row)
+    budget = None
+    for row in rows:
+        if row["arm"] == "block_stitch":
+            budget = row.get("budget")
+    if budget is None:
+        print("arm skipped: lora (block_stitch did not finish, so there is no budget to match)")
+        _save("stitch_graft_s" + str(seed) + ".json", rows)
+        return
+    try:
+        row = stitch_graft_remote.remote("lora", seed, budget)
+        print(json.dumps(row))
+        rows.append(row)
+    except Exception as error:
+        print("arm failed: lora", repr(error)[:600])
+    _save("stitch_graft_s" + str(seed) + ".json", rows)
