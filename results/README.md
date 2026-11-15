@@ -687,3 +687,17 @@ Reading:
   per token, code within 4 to 5 points of the 30.5B model.
 - Dense slimming of a 7B coder to 3.1B destroys it (3.7 HumanEval) while
   the native 3B coder scores 84.1. This path stops.
+
+## Demo 1: code assistant at half the memory (2026-11-15, one run each, greedy)
+
+Request: demo/requests/code_half_memory.json; plan: demo/plans/code_half_memory.txt (slim, keep 64 of 128 experts per layer, 16.04B total, 3.04B per token).
+vLLM 0.32 on one H200 (modal_serve.py, rows results/serve_*.json). Weight memory is vLLM's "Model loading took" line.
+
+| cell | weights on disk | vLLM weight memory | HumanEval (164) | decode tok/s b1 / b32 | prefill tok/s | TTFT median |
+|---|---|---|---|---|---|---|
+| full_30b (base) | 56.87 GiB | 56.93 GiB | 148/164 = 90.2 | 259 / 2486 | 7771 | 59 ms |
+| slim_64 (no heal) | 29.86 GiB | 29.92 GiB | 145/164 = 88.4 | 259 / 3021 | 4798 | 59 ms |
+| coder_7b (dense) | 14.19 GiB | 14.29 GiB | 140/164 = 85.4 | 209 / 5886 | 42034 | 18 ms |
+
+The slim_64 prefill number was measured while vLLM compiled the fused MoE kernel for its new expert count (warning in the log), so treat it as a lower bound.
+Side-by-side answers on eight prompts: results/demo_code_outputs.md (modal_demo.py). The six coding prompts pass on both models (hidden checks run on the answers); on the two non-code prompts slim_64 writes degraded text (medical: 0 of 4 expected terms, history: 2 of 4, full model 4 of 4 on both). One sample per prompt.

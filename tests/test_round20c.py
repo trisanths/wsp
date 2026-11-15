@@ -298,3 +298,9 @@ def test_select_cells_accepts_full_cell_names():
     names = ["R1.default.real.s0", "R1.steps8000.real.s0", "R1.base.s0"]
     picked = [m.cell_name(*c) for c in m.select_cells(cells, names)]
     assert sorted(picked) == sorted(names)
+
+
+def test_arm_plan_accepts_the_base_cell():
+    import modal_round20c as m
+    plan = m.arm_plan("R1", "base", "base", 0)
+    assert plan["config"] == "base"
