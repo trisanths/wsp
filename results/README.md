@@ -309,3 +309,37 @@ host plus one tap is "most of a big model's knowledge at small-model
 decode cost", not a better model. Round 8 (several donor families) and
 round 9 (taps into the strongest model) test whether composition can
 beat the best source.
+
+## Run 8 (2026-11-14): knowledge taps across donor families
+
+MMLU dev items, same tap settings as run 6, 2 seeds. Taps read donors at
+about 70% depth; Llama-1B host layer 10, Qwen-0.5B host layer 15. Raw
+rows: round8_rows.json. Mistral cells failed (sentencepiece missing in the
+image; fixed for later runs).
+
+| Model | Score (seeds) | Donor alone |
+|---|---|---|
+| Llama-3.2-1B host | 47.5 | |
+| Qwen2.5-0.5B host | 48.0 | |
+| Llama-1B + Gemma-2-9B tap | 72.9 (72.9, 73.0) | 72.6 |
+| Llama-1B + Qwen2.5-14B tap | 70.5 (73.6, 67.4) | 78.5 |
+| Llama-1B + Qwen2.5-7B tap | 66.7 (65.6, 67.7) | 71.5 |
+| Llama-1B + Phi-3.5-mini tap | 66.3 (66.9, 65.7) | 68.5 |
+| Llama-1B + Llama-3.1-8B tap | 53.6 (49.2, 58.0) | 66.6 |
+| Llama-1B + LFM2.5-1.2B tap | 49.9 | 26.2 (raw prompt) |
+| Qwen-0.5B + Qwen2.5-14B tap | 74.8 (74.5, 75.2) | 78.5 |
+| Qwen-0.5B + Gemma-2-9B tap | 72.7 (72.3, 73.1) | 72.6 |
+| Qwen-0.5B + Qwen2.5-7B tap | 69.3 (69.9, 68.7) | 71.5 |
+| Llama-1B + Qwen-7B + Gemma-9B taps | 72.0 (71.0, 73.0) | |
+| Llama-1B + Qwen-14B + Gemma-9B taps | 73.7 (74.1, 73.3) | |
+| Llama-1B + Gemma-9B + Llama-8B taps | 70.7 (69.1, 72.3) | |
+| Llama-1B + Qwen-7B + Llama-8B taps | 64.0 (62.6, 65.5) | |
+
+Reading:
+- Small hosts reach their donors: Llama-1B and Qwen-0.5B with a Gemma-9B
+  tap match Gemma-9B alone (72.9 and 72.7 vs 72.6). Qwen-0.5B with a 14B
+  tap scores 74.8, above every 7B to 9B model here, at 0.5B decode cost.
+- Two taps into a weak host are not additive yet: the pair scores near
+  the better single tap.
+- Llama-3.1-8B at layer 22 and LFM2.5-1.2B are weak or unstable donors in
+  this setup; their read layer and prompt format need tuning.
