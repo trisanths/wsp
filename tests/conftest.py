@@ -8,9 +8,13 @@ suite covers.
 """
 
 import pytest
-import transformers
 
-TRANSFORMERS_5 = int(transformers.__version__.split(".")[0]) >= 5
+try:
+    import transformers
+except ImportError:
+    transformers = None
+
+TRANSFORMERS_5 = transformers is not None and int(transformers.__version__.split(".")[0]) >= 5
 
 NEEDS_TRANSFORMERS_5 = (
     "tests/test_lfm2.py",

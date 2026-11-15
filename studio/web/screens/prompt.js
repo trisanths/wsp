@@ -5,6 +5,7 @@ import { DEMO } from '../demo-flag.js';
 import { TopBar, Icon, Composer } from '../components.js';
 import { ThinkLine, reduced } from '../motion.js';
 import { MeasuredHome } from './measured.js';
+import { SponsorStrip } from '../logos.js';
 
 const CARDS = [
   { icon: 'book', color: 'var(--blue)', label: 'A knowledge model', text: 'A small model that answers general knowledge questions nearly as well as a much bigger one. It has to run on a laptop.' },
@@ -128,6 +129,7 @@ export function PromptScreen() {
       <div class="dock-in">
         <${Composer} taRef=${ta} clearRef=${clearRef} disabled=${busy} autoFocus label="Describe your model" value=${text} onInput=${setText} onSubmit=${submit} over=${over} chips=${chips} extra=${over && html`<div class="dropveil">Drop files to attach them</div>`} onAttach=${() => fileIn.current.click()} placeholder="Describe the model you need and where it has to run" />
         <input ref=${fileIn} type="file" multiple hidden onChange=${(e) => { addFiles(e.target.files); e.target.value = ''; }} />
+        <div class="dock-sp"><${SponsorStrip} /></div>
         <div class="dock-note">Files can be examples, questions with answers, or documents. Part is held out for scoring, part is used to heal.</div>
       </div>
     </div>`}

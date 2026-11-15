@@ -4,7 +4,8 @@ import { go, toast, pct, clamp, donorColor, donorLetter, useDebouncedCallback, c
 import { storageKey } from '../demo-flag.js';
 import { TopBar, Icon, Spinner, ErrorBox, Menu, StubBadge } from '../components.js';
 import { SubtleNum, AutoHeight, SkelReveal, reduced } from '../motion.js';
-import { ModelLogo } from '../logos.js';
+import { ModelLogo, PoweredBy, SponsorMark } from '../logos.js';
+const DraftedBy = ({ by }) => (String(by || '').startsWith('llm:') ? html`<${PoweredBy} who="openai" label="Drafted with" />` : html`Drafted by ${by || 'rules'}.`);
 import { ResearchBlock, RefList, AlsoConsidered, refTicks } from './research.js';
 import { ShrinkSection } from './shrink-spec.js';
 import { CompilerPlan } from './frontdoor.js';
@@ -238,7 +239,7 @@ export function SpecScreen({ id }) {
 
     ${isShrink && html`<${ShrinkSection} spec=${spec} edit=${edit} onChangeSource=${changeSource} />`}
 
-    <section class="sect"><h2 class="sec">Limits</h2>
+    <section class="sect"><h2 class="sec"><span>Limits</span><${PoweredBy} who="exa" label="Sizes checked with" /></h2>
       ${!isShrink && smallest != null && room < smallest - 1e-9 && html`<div class="limwarn">No part in the library fits in ${n2(Math.max(0, room))}B. The smallest is ${fmtSmall(smallest)}B. Raise the total size.</div>`}
       <div class="srow">
         <div class="top"><span class="nm">Total size</span><span class="val">up to <${SubtleNum} text=${n2(lim.max_total_params_b)} />B parameters</span></div>
@@ -308,10 +309,10 @@ export function SpecScreen({ id }) {
     <${CompilerPlan} spec=${spec} />
 
     ${isShrink ? html`<div class="buildcard shrinkcard">
-      <div class="bc-head"><span class="bc-title">Ready to plan the shrink?</span><span class="faint bc-meta">Drafted by ${spec.drafted_by || 'rules'}.${showStub(spec) ? ' Stub numbers are not real results.' : ''}</span></div>
+      <div class="bc-head"><span class="bc-title">Ready to plan the shrink?</span><span class="faint bc-meta"><${DraftedBy} by=${spec.drafted_by} />${showStub(spec) ? ' Stub numbers are not real results.' : ''}</span></div>
       <div class="bc-row one"><button class="btn primary big" disabled=${!!busy} onClick=${startShrink}><span class="bt"><b>Plan the shrink</b><small>See the size and cost before anything runs</small></span>${busy === 'shrink' ? html`<${Spinner} />` : html`<${Icon} n="arrow" />`}</button></div>
     </div>` : html`<div class="buildcard">
-      <div class="bc-head"><span class="bc-title">How do you want to build it?</span><span class="faint bc-meta">Drafted by ${spec.drafted_by || 'rules'}.${showStub(spec) ? ' Stub numbers are not real results.' : ''}</span></div>
+      <div class="bc-head"><span class="bc-title">How do you want to build it?</span><span class="faint bc-meta"><${DraftedBy} by=${spec.drafted_by} />${showStub(spec) ? ' Stub numbers are not real results.' : ''}</span></div>
       <div class="bc-row">
         <button class="btn primary big" disabled=${!!busy} onClick=${startRun}><span class="bt"><b>Let agents build it</b><small>A swarm searches and you watch</small></span>${busy === 'run' ? html`<${Spinner} />` : html`<${Icon} n="arrow" />`}</button>
         <button class="btn big" disabled=${!!busy} onClick=${startBuilder}><span class="bt"><b>Build it myself</b><small>Drag parts onto the host model</small></span>${busy === 'build' ? html`<${Spinner} />` : html`<${Icon} n="arrow" />`}</button>

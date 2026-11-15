@@ -7,14 +7,17 @@ import { TopBar, Icon, ErrorBox, StopMark } from '../components.js';
 import { Shimmer, SubtleNum, Reel, SuccessCheck, SkelReveal, SlidingBar, PageSwap, IconSwap, SwapText } from '../motion.js';
 import { openProgramInBuilder, bestProgram } from './shared.js';
 import { useCatalog, nameOf, AgentList, bestTarget, isEmptyEnd, runRecent } from './run-shared.js';
+import { PipelinePage } from './run-pipeline.js';
 import { ActivityPage } from './run-activity.js';
-import { AgentPage } from './run-agent.js';
+import { AgentPage, AgentsBoard } from './run-agent.js';
+import { FindingsPage } from './run-findings.js';
 import { ResultsPage } from './run-results.js';
+import { PoweredBy } from '../logos.js';
 import { Logos, donorsOf, verdictOf, HealNote, usesHeal, healNoteOf, partsCount } from '../cmp.js';
 
-const TABS = [['overview', 'Overview', ''], ['activity', 'Activity', '/activity'], ['results', 'Results', '/results']];
+const TABS = [['overview', 'Overview', ''], ['pipeline', 'Pipeline', '/pipeline'], ['activity', 'Activity', '/activity'], ['agents', 'Agents', '/agents'], ['findings', 'Found so far', '/findings'], ['results', 'Results', '/results']];
 // the order of pages sets the slide direction
-const DEPTH = { overview: 0, activity: 1, agents: 2, agent: 2.5, results: 3 };
+const DEPTH = { overview: 0, pipeline: 0.5, activity: 1, agents: 2, agent: 2.5, findings: 2.8, results: 3 };
 
 function StatusLine({ snap, justDone }) {
   const b = snap.budget;
@@ -48,14 +51,14 @@ function RunHead({ snap, justDone, note, onPause, onResume, onStop }) {
         <button class="btn sm" disabled=${s === 'stopping'} onClick=${onStop}>${s === 'stopping' ? 'Stopping' : 'Stop'}</button>
       </div>`}
     </div>
-    <div class="rh-status"><${StatusLine} snap=${snap} justDone=${justDone} /></div>
+    <div class="rh-status"><${StatusLine} snap=${snap} justDone=${justDone} /><${PoweredBy} who="modal" label="GPUs on" class="rstatchip" /></div>
     ${note && html`<div class="rh-note" role="status">${note}</div>`}
     <div class=${'rline' + (end === 'finished' ? ' ok' : end === 'stopped' ? ' stopped' : '')} aria-hidden="true"><i style=${{ width: (end === 'finished' ? 1 : frac) * 100 + '%' }}></i></div>
   </div></header>`;
 }
 
 function SubNav({ id, page }) {
-  const cur = page === 'agent' || page === 'agents' ? 'overview' : page;
+  const cur = page === 'agent' ? 'agents' : page;
   return html`<nav class="rnav" aria-label="Run pages"><div class="col"><${SlidingBar} class="tabs rtabs">${TABS.map(([k, label, path]) => html`<a class=${'tab' + (cur === k ? ' on' : '')} href=${'#/run/' + id + path} aria-current=${cur === k ? 'page' : null}>${label}</a>`)}<//></div></nav>`;
 }
 
@@ -107,13 +110,13 @@ function Overview({ snap, cat, id, done, busy, onBuild }) {
   return html`<div class="rpage"><div class="col">
     <${BestBlock} snap=${snap} cat=${cat} done=${done} busy=${busy} onBuild=${onBuild} />
     ${snap.refused > 0 && !/refused/.test(snap.empty_reason || '') && html`<div class="refused">${snap.refused} ${snap.refused === 1 ? 'proposal' : 'proposals'} refused for going over your limits</div>`}
-    <section class="rsec"><h2 class="rh2">Agents</h2><${AgentList} snap=${snap} /></section>
+    <section class="rsec"><div class="rsechead"><h2 class="rh2">Agents</h2><${PoweredBy} who="pastdev" label="Notes shared through" /></div><${AgentList} snap=${snap} /></section>
     <${TopPrograms} snap=${snap} cat=${cat} id=${id} />
   </div></div>`;
 }
 
-function AgentsPage({ snap }) {
-  return html`<div class="rpage"><div class="col"><section class="rsec"><h2 class="rh2">Agents</h2><${AgentList} snap=${snap} /></section></div></div>`;
+function AgentsPage({ snap, id, cat }) {
+  return html`<${AgentsBoard} snap=${snap} id=${id} cat=${cat} />`;
 }
 
 /* ---------- the run ---------- */
@@ -172,8 +175,10 @@ export function RunScreen({ id, page, agent }) {
     const done = snap.status === 'done';
     let pageEl;
     if (page === 'activity') pageEl = html`<${ActivityPage} snap=${snap} id=${id} />`;
-    else if (page === 'agents') pageEl = html`<${AgentsPage} snap=${snap} />`;
+    else if (page === 'agents') pageEl = html`<${AgentsPage} snap=${snap} id=${id} cat=${cat} />`;
     else if (page === 'agent') pageEl = html`<${AgentPage} key=${agent} snap=${snap} id=${id} agentId=${agent} cat=${cat} />`;
+    else if (page === 'findings') pageEl = html`<${FindingsPage} snap=${snap} id=${id} cat=${cat} />`;
+    else if (page === 'pipeline') pageEl = html`<${PipelinePage} snap=${snap} id=${id} cat=${cat} />`;
     else if (page === 'results') pageEl = html`<${ResultsPage} snap=${snap} id=${id} cat=${cat} onBuild=${(p) => openProgramInBuilder(spec.id, p)} />`;
     else pageEl = html`<${Overview} snap=${snap} cat=${cat} id=${id} done=${done} busy=${busy} onBuild=${openBest} />`;
     body = html`<${RunHead} snap=${snap} justDone=${justDone} note=${note} onPause=${() => act(api.pause)} onResume=${() => act(api.resume)} onStop=${() => act(api.stop)} />

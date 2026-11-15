@@ -47,7 +47,7 @@ from torch import nn
 
 from wsp.gate import TokenGate
 from wsp.graft import Graft, attach_grafts, part_dtype, replace_hidden
-from wsp.parts import BlockPart, build_block_part, find_decoder_layers
+from wsp.parts import AttnHeadsPart, BlockPart, build_block_part, find_decoder_layers
 from wsp.stitch import (
     autocast,
     device_of,
@@ -107,10 +107,19 @@ class ResidualMLP(nn.Module):
 
 
 class Enc(nn.Module):
-    """Host state -> donor layer-k input: a linear map on rms(h), residual MLPs, a learned output scale."""
+    """Host state -> donor layer-k input: a linear map on rms(h), residual MLPs, a learned output scale.
 
-    def __init__(self, d_host, d_donor, depth=1, hidden=None, out_rms=1.0):
+    host_layers: read a learned softmax mix of these host layers' outputs
+    (each RMS-normed) instead of the state at the graft's own layer. The
+    graft still writes after its own layer, which must be at or after every
+    layer it reads (attach_grafts checks). Graft.map_in passes the states.
+    """
+
+    def __init__(self, d_host, d_donor, depth=1, hidden=None, out_rms=1.0, host_layers=None):
         super().__init__()
+        if host_layers:
+            self.host_layers = list(host_layers)
+            self.mix = nn.Parameter(torch.zeros(len(self.host_layers)))
         self.proj = nn.Linear(d_host, d_donor)
         if hidden is None:
             hidden = d_donor // 4
@@ -122,6 +131,9 @@ class Enc(nn.Module):
         self.log_scale = nn.Parameter(torch.tensor(math.log(max(out_rms, 1e-3) * math.sqrt(3.0))))
 
     def forward(self, h):
+        if isinstance(h, (list, tuple)):
+            weights = torch.softmax(self.mix, dim=0)
+            h = sum(w * rms(x.to(torch.float32)) for w, x in zip(weights, h))
         y = self.proj(rms(h.to(torch.float32)))
         for block in self.blocks:
             y = block(y)
@@ -194,6 +206,11 @@ class ParallelGraft(Graft):
         """What Dec reads: the donor's change to its residual stream, or Enc's output under the identity control."""
         if self.control == "identity":
             return x
+        if isinstance(self.part, (PartBundle, TrunkBundle)):
+            # The bundle sets each part's input size itself (unit RMS times the part's native RMS).
+            if self.host_uses_cache:
+                return self.part(x, attention_mask=self.pad_mask, cache_len=self.host_cache_len)
+            return self.part(x, attention_mask=self.pad_mask)
         dtype = part_dtype(self.part)
         if self.host_uses_cache:
             y = self.part(x.to(dtype), attention_mask=self.pad_mask, cache_len=self.host_cache_len)
@@ -276,7 +293,7 @@ def num_layers(model):
 
 
 def build(base, donor, host_layer, first, last, control=None, enc_depth=1, dec_rank=64, dec_depth=1,
-          gate_bias=0.0, out_rms=1.0, d_donor=None):
+          gate_bias=0.0, out_rms=1.0, d_donor=None, read_layers=None):
     """Make one ParallelGraft that runs donor layers first..last, and attach it after base layer host_layer.
 
     The block is the donor's own decoder layer code, built from the loaded
@@ -294,7 +311,9 @@ def build(base, donor, host_layer, first, last, control=None, enc_depth=1, dec_r
         part = build_block_part(donor.config, first, last, tensors).to(device_of(donor))
     else:
         part = nn.Identity()
-    enc = Enc(d_host, d_donor, depth=enc_depth, out_rms=out_rms)
+    if read_layers is not None and list(read_layers) == [host_layer]:
+        read_layers = None
+    enc = Enc(d_host, d_donor, depth=enc_depth, out_rms=out_rms, host_layers=read_layers)
     dec = Dec(d_donor, d_host, rank=dec_rank, depth=dec_depth)
     graft = ParallelGraft(d_host, d_donor, part, enc, dec, control=control, gate_bias=gate_bias)
     graft.donor_span = (first, last)
@@ -404,7 +423,8 @@ def functional_loss(base, base_tok, donor, donor_tok, graft, texts, cfg, geo_wei
         return None, {}
     native_final, native_in = _donor_native(donor, ids_d, mask_d, layer)
     h = _host_state(base, ids_h, mask_h, host_layer)
-    x = graft.enc(h)
+    # map_in reads the host layers the encoder asks for (filled by the stitch hooks during _host_state).
+    x = graft.map_in(h)
     # encode pads on the right, so position 0 is every row's first real token.
     x = with_sink(x, graft.sink)
     final = _grafted_final(donor, layer, x, mask_h)
@@ -879,3 +899,356 @@ def mc_loss(model, tok, items, letter_ids, device):
     acc = float((letters.argmax(-1) == gold).float().mean())
     tok.padding_side = "right"
     return loss, {"mc": float(loss.detach()), "mc_acc": acc}
+
+
+# ------------------------------------------------- subnetwork parts (bundles)
+
+
+def _donor_tensors(donor):
+    out = {}
+    for name, value in donor.state_dict().items():
+        out[name] = value.detach()
+    return out
+
+
+def resolve_library(spec, root="."):
+    """A {"kind": "library", "id": ...} spec -> the plain part spec its units file describes."""
+    import json
+    import os
+
+    with open(os.path.join(root, "library", "catalog.jsonl")) as f:
+        for line in f:
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            if row["id"] != spec["id"]:
+                continue
+            units = torch.load(os.path.join(root, row["units"]))
+            out = {"kind": row["type"], "layer": int(row["layer"]), "model": row["model"], "id": row["id"],
+                   "skill": (row.get("skill") or {}).get("name")}
+            key = "indices" if row["type"] == "mlp_cluster" else "heads"
+            values = units.get("indices", units.get("heads"))
+            out[key] = [int(v) for v in torch.as_tensor(values).reshape(-1).tolist()]
+            return out
+    raise KeyError(spec["id"])
+
+
+def _random_like(spec, config, seed):
+    """Same kind, layer and size as spec, with random units of the same donor layer (the random control)."""
+    text = getattr(config, "text_config", None) or config
+    g = torch.Generator().manual_seed(seed)
+    out = dict(spec)
+    if spec["kind"] == "mlp_cluster":
+        out["indices"] = torch.randperm(text.intermediate_size, generator=g)[:len(spec["indices"])].tolist()
+    elif spec["kind"] == "attn_heads":
+        out["heads"] = torch.randperm(text.num_attention_heads, generator=g)[:len(spec["heads"])].tolist()
+    out["random"] = True
+    return out
+
+
+def expand_specs(specs, config, control=None, seed=0):
+    """Turn whole-layer kinds into plain ones and apply the random control. Library specs must be resolved first."""
+    text = getattr(config, "text_config", None) or config
+    out = []
+    for index, spec in enumerate(specs):
+        spec = dict(spec)
+        if spec["kind"] == "mlp_layer":
+            spec = {"kind": "mlp_cluster", "layer": spec["layer"], "indices": list(range(text.intermediate_size))}
+        elif spec["kind"] == "attn_layer":
+            spec = {"kind": "attn_heads", "layer": spec["layer"], "heads": list(range(text.num_attention_heads))}
+        if control == "random":
+            spec = _random_like(spec, config, seed + 1000 * index)
+        out.append(spec)
+    return out
+
+
+class PartBundle(nn.Module):
+    """Several donor subnetworks fed the same translated state; returns the sum of their contributions.
+
+    Each part's input is scaled to the RMS its own donor layer sees natively
+    (in_rms, measured by bundle_input_rms) times a trained scalar, because
+    parts from different layers expect different input sizes.
+    """
+
+    def __init__(self, parts, specs):
+        super().__init__()
+        self.parts = nn.ModuleList(parts)
+        self.specs = list(specs)
+        self.register_buffer("in_rms", torch.ones(len(parts)))
+        self.gains = nn.Parameter(torch.ones(len(parts)))
+
+    def train(self, mode=True):
+        return super().train(False)
+
+    def part_input(self, x, index):
+        unit = rms(x.float())
+        return (unit * (self.in_rms[index] * self.gains[index])).to(x.dtype)
+
+    def forward(self, x, attention_mask=None, cache_len=None):
+        total = None
+        dtype = part_dtype(self.parts[0])
+        for index, part in enumerate(self.parts):
+            xi = self.part_input(x, index).to(dtype)
+            if isinstance(part, AttnHeadsPart):
+                if cache_len is None:
+                    y = part(xi, attention_mask=attention_mask)
+                else:
+                    y = part(xi, attention_mask=attention_mask, cache_len=cache_len)
+            else:
+                y = part(xi)
+            y = y.to(torch.float32)
+            total = y if total is None else total + y
+        return total
+
+
+def build_bundle(donor, specs):
+    from wsp.parts import build_attn_heads, build_mlp_cluster
+
+    tensors = _donor_tensors(donor)
+    parts = []
+    for spec in specs:
+        if spec["kind"] == "mlp_cluster":
+            part = build_mlp_cluster(donor.config, spec["layer"], torch.tensor(spec["indices"]), tensors)
+        elif spec["kind"] == "attn_heads":
+            part = build_attn_heads(donor.config, spec["layer"], torch.tensor(spec["heads"]), tensors)
+        else:
+            raise ValueError(f"unknown part kind {spec['kind']!r}")
+        parts.append(part.to(device_of(donor)))
+    return PartBundle(parts, specs)
+
+
+def _input_point(donor, spec):
+    """The donor module whose input is this part's native input: the layer (attention) or its pre-MLP norm."""
+    _, layers = find_decoder_layers(donor, spec["layer"])
+    layer = layers[spec["layer"]]
+    if spec["kind"] == "attn_heads":
+        return layer
+    return layer.post_attention_layernorm
+
+
+def native_part_inputs(donor, specs, ids, mask):
+    """Run the donor natively and return each part's input state, shape (batch, seq_d, d_donor)."""
+    store = {}
+    handles = []
+    for index, spec in enumerate(specs):
+        module = _input_point(donor, spec)
+
+        def pre(module, args, kwargs, index=index):
+            x = args[0] if len(args) > 0 else kwargs["hidden_states"]
+            store[index] = x.detach()
+
+        handles.append(module.register_forward_pre_hook(pre, with_kwargs=True))
+    last = max(spec["layer"] for spec in specs)
+    try:
+        with torch.no_grad():
+            with autocast(device_of(donor)):
+                layer_outputs(donor, [last], ids, mask)
+    finally:
+        remove_hooks(handles)
+    return [store[i] for i in range(len(specs))]
+
+
+def bundle_input_rms(bundle, donor, donor_tok, texts, cfg=None, batch=4):
+    """Set bundle.in_rms to each part's mean native input RMS over texts."""
+    cfg = dict(DEFAULTS, **(cfg or {}))
+    sums = torch.zeros(len(bundle.specs))
+    count = 0
+    for start in range(0, min(len(texts), 32), batch):
+        ids, mask, _, _ = encode(donor_tok, texts[start:start + batch], cfg["donor_seq_len"])
+        ins = native_part_inputs(donor, bundle.specs, ids.to(device_of(donor)), mask.to(device_of(donor)))
+        keep = mask.bool().clone()
+        keep[:, 0] = False
+        for i, x in enumerate(ins):
+            sums[i] += float(x[keep.to(x.device)].float().pow(2).mean(-1).sqrt().mean())
+        count += 1
+    bundle.in_rms.copy_((sums / max(1, count)).to(bundle.in_rms.device))
+    return bundle.in_rms.tolist()
+
+
+def part_output_loss(base, base_tok, donor, donor_tok, graft, texts, cfg, stats=False):
+    """Output matching for a bundle: each part on the translated state vs the same part on its native input.
+
+    Paired positions only; per-part normalized MSE plus cosine, averaged. The
+    sink goes in at position 0 as in the block graft.
+    """
+    bundle = graft.part
+    ids_h, mask_h, ids_d, mask_d, b, hp, dp = _pairs(base_tok, donor_tok, texts, cfg["seq_len"],
+                                                    cfg["donor_seq_len"], device_of(base))
+    if b.numel() == 0:
+        return None, {}
+    native_in = native_part_inputs(donor, bundle.specs, ids_d, mask_d)
+    h = _host_state(base, ids_h, mask_h, graft.planned_layer)
+    x = graft.enc(h)
+    x = with_sink(x, graft.sink)
+    dtype = part_dtype(bundle.parts[0])
+    losses = []
+    info = {}
+    for index, part in enumerate(bundle.parts):
+        with torch.no_grad():
+            if isinstance(part, AttnHeadsPart):
+                target = part(native_in[index].to(dtype), attention_mask=mask_d).float()
+            else:
+                target = part(native_in[index].to(dtype)).float()
+        xi = bundle.part_input(x, index).to(dtype)
+        if isinstance(part, AttnHeadsPart):
+            got = part(xi, attention_mask=mask_h).float()
+        else:
+            got = part(xi).float()
+        loss = _nmse_cos(got[b, hp], target[b, dp])
+        losses.append(loss)
+        if stats:
+            with torch.no_grad():
+                g = got[b, hp]
+                t = target[b, dp]
+                resid = (g - t).pow(2).sum()
+                total = (t - t.mean(0, keepdim=True)).pow(2).sum().clamp(min=1e-9)
+                info[f"r2_{index}"] = float(1.0 - resid / total)
+    loss = torch.stack(losses).mean()
+    info["part_loss"] = float(loss.detach())
+    return loss, info
+
+
+def align_parts(base, base_tok, donor, donor_tok, graft, texts, cfg=None, seed=0, log_every=100):
+    """Stage 1 for a bundle: train Enc (and the bundle gains) on part output matching."""
+    cfg = dict(DEFAULTS, **(cfg or {}))
+    params = list(graft.enc.parameters()) + [graft.part.gains]
+    groups = [{"params": params, "lr": cfg["align_lr"]}]
+    feed = _batches(texts, cfg["align_batch"], seed)
+
+    def step_fn(step):
+        loss, info = part_output_loss(base, base_tok, donor, donor_tok, graft, next(feed), cfg)
+        return loss, info
+
+    return train(base, groups, cfg["align_steps"], step_fn, seed=seed, warmup=20, log_every=log_every)
+
+
+def part_report(base, base_tok, donor, donor_tok, graft, texts, cfg=None, batch=4):
+    """Held-out output-match R2 per part (1 = the part computes exactly what it computes natively)."""
+    cfg = dict(DEFAULTS, **(cfg or {}))
+    sums = {}
+    n = 0
+    with torch.no_grad():
+        for start in range(0, len(texts), batch):
+            _, info = part_output_loss(base, base_tok, donor, donor_tok, graft, texts[start:start + batch], cfg,
+                                       stats=True)
+            for key, value in info.items():
+                if key.startswith("r2_"):
+                    sums[key] = sums.get(key, 0.0) + value
+            n += 1
+    return {key: value / max(1, n) for key, value in sums.items()}
+
+
+def build_bundle_graft(base, donor, host_layer, specs, control=None, enc_depth=3, dec_rank=256, dec_depth=1,
+                       gate_bias=0.0, d_donor=None):
+    """A ParallelGraft whose part is a PartBundle of donor subnetworks (or nothing, for the identity control)."""
+    d_host = hidden_size(base)
+    if d_donor is None:
+        d_donor = hidden_size(donor)
+    if control == "identity":
+        part = nn.Identity()
+        graft_control = "identity"
+    else:
+        part = build_bundle(donor, specs)
+        graft_control = None
+    enc = Enc(d_host, d_donor, depth=enc_depth)
+    dec = Dec(d_donor, d_host, rank=dec_rank, depth=dec_depth)
+    graft = ParallelGraft(d_host, d_donor, part, enc, dec, control=graft_control, gate_bias=gate_bias)
+    graft.donor_span = (min(s["layer"] for s in specs), max(s["layer"] for s in specs))
+    graft.planned_layer = host_layer
+    device = device_of(base)
+    for module in (graft.w_in, graft.w_out, graft.token_gate):
+        module.to(device)
+    graft.in_scale = graft.in_scale.to(device)
+    return graft
+
+
+# --------------------------------- trunk bundles: subnetworks read in their native context
+
+
+class TrunkBundle(nn.Module):
+    """Donor layers first..last (frozen) build each subnetwork's native input; only the named
+    subnetworks' outputs come back (their sum), not the trunk's change to the residual.
+
+    Each part reads the trunk's state at its own input point (the layer input
+    for attention heads, the pre-MLP norm input for MLP neurons), captured by
+    hooks on the trunk's own donor layers. Parts must sit in first..last.
+    So the question is whether these units, in their own context, carry
+    what the whole block delivers. Alignment is the block's functional KL
+    (Enc feeds layer `first`).
+    """
+
+    def __init__(self, trunk, first, parts, specs):
+        super().__init__()
+        self.trunk = trunk
+        self.first = first
+        self.parts = nn.ModuleList(parts)
+        self.specs = list(specs)
+        self._store = {}
+        self._handles = []
+        for index, spec in enumerate(specs):
+            layer = trunk.layers[spec["layer"] - first]
+            module = layer if spec["kind"] == "attn_heads" else layer.post_attention_layernorm
+
+            def pre(module, args, kwargs, index=index):
+                x = args[0] if len(args) > 0 else kwargs["hidden_states"]
+                self._store[index] = x
+
+            self._handles.append(module.register_forward_pre_hook(pre, with_kwargs=True))
+
+    def train(self, mode=True):
+        return super().train(False)
+
+    def forward(self, x, attention_mask=None, cache_len=None):
+        self._store = {}
+        x = x.to(part_dtype(self.trunk))
+        if cache_len is None:
+            self.trunk(x, attention_mask=attention_mask)
+        else:
+            self.trunk(x, attention_mask=attention_mask, cache_len=cache_len)
+        total = None
+        for index, part in enumerate(self.parts):
+            xi = self._store[index]
+            if isinstance(part, AttnHeadsPart):
+                if cache_len is None:
+                    y = part(xi, attention_mask=attention_mask)
+                else:
+                    y = part(xi, attention_mask=attention_mask, cache_len=cache_len)
+            else:
+                y = part(xi)
+            y = y.to(torch.float32)
+            total = y if total is None else total + y
+        self._store = {}
+        return total
+
+
+def build_trunk_bundle_graft(base, donor, host_layer, first, specs, enc_depth=3, dec_rank=256, dec_depth=1,
+                             gate_bias=0.0):
+    """ParallelGraft whose part is a TrunkBundle: donor layers first..max(spec layer), then the named parts."""
+    from wsp.parts import build_attn_heads, build_mlp_cluster
+
+    specs = [s for s in specs if s["layer"] >= first]
+    if not specs:
+        raise ValueError(f"no part sits at or after donor layer {first}")
+    last = max(s["layer"] for s in specs)
+    tensors = _donor_tensors(donor)
+    trunk = build_block_part(donor.config, first, last, tensors).to(device_of(donor))
+    parts = []
+    for spec in specs:
+        if spec["kind"] == "mlp_cluster":
+            part = build_mlp_cluster(donor.config, spec["layer"], torch.tensor(spec["indices"]), tensors)
+        else:
+            part = build_attn_heads(donor.config, spec["layer"], torch.tensor(spec["heads"]), tensors)
+        parts.append(part.to(device_of(donor)))
+    bundle = TrunkBundle(trunk, first, parts, specs)
+    d_host = hidden_size(base)
+    d_donor = hidden_size(donor)
+    enc = Enc(d_host, d_donor, depth=enc_depth)
+    dec = Dec(d_donor, d_host, rank=dec_rank, depth=dec_depth)
+    graft = ParallelGraft(d_host, d_donor, bundle, enc, dec, gate_bias=gate_bias)
+    graft.donor_span = (first, last)
+    graft.planned_layer = host_layer
+    device = device_of(base)
+    for module in (graft.w_in, graft.w_out, graft.token_gate):
+        module.to(device)
+    graft.in_scale = graft.in_scale.to(device)
+    return graft

@@ -4,10 +4,14 @@ import { api } from '../api.js';
 import { toast, pctS } from '../util.js';
 import { Icon, Composer, Menu } from '../components.js';
 import { StreamText, SubtleNum, usePresence, presenceClass } from '../motion.js';
+import { PoweredBy, SponsorMark } from '../logos.js';
 import { nameOf } from './run-shared.js';
 
 // Older servers use other kind names and send no id, round or data. These map them to the new ones.
 const ALIAS = { llm_plan: 'plan', analyst_map: 'map', judge_verdict: 'verdict', nudge_sent: 'nudge', stop: 'milestone', done: 'milestone' };
+// rows where agents pass knowledge to each other; this memory lives on past.dev
+// activity the agents share with each other through their memory: plans, the analyst's map, verdicts, handoffs, nudges
+const SHARED = new Set(['plan', 'map', 'verdict', 'handoff', 'nudge_applied']);
 const RESULT_LABEL = { rejected_fit: 'fit too low', compile_error: 'did not compile', invalid: 'not valid', infra_error: 'GPU error', budget_exhausted: 'no budget', collapsed: 'collapsed' };
 
 function norm(e) {
@@ -72,7 +76,7 @@ function Line({ e, showName, fresh, ctx }) {
   const text = sentence(e, ctx.nameById);
   const who = ctx.nameById[e.agent] || e.agent;
   if (e.kind === 'milestone') return html`<div class="lmile">${e.text}</div>`;
-  if (e.kind === 'nudge_applied') return html`<div class="al"><span class="ln"></span><span class="lt dim3">${(ctx.nameById[e.agent] || 'An agent') + ' read your nudge'}</span><span></span></div>`;
+  if (e.kind === 'nudge_applied') return html`<div class="al"><span class="ln"></span><span class="lt dim3">${(ctx.nameById[e.agent] || 'An agent') + ' read your nudge'}</span><span class="lr"><${SponsorMark} who="pastdev" size=${13} title="Shared through past.dev" /></span></div>`;
   let cls = 'lt';
   let right = null;
   let sub = null;
@@ -94,6 +98,7 @@ function Line({ e, showName, fresh, ctx }) {
   else if (e.kind === 'system' || e.kind === 'handoff') cls += ' dim3';
   else if (e.kind === 'error' || e.status === 'bad') cls += ' bad';
   const hasDetail = e.kind === 'map' && d && d.detail;
+  if (!right && SHARED.has(e.kind)) right = html`<span class="lr"><${SponsorMark} who="pastdev" size=${13} title="Shared through past.dev" /></span>`;
   return html`<div class="al">
     <span class="ln">${showName ? who : ''}</span>
     <div class="lbody"><${StreamText} class=${cls} text=${text} play=${fresh} />${sub}
@@ -119,7 +124,7 @@ function Nudge({ row, ctx }) {
   const all = row.toAll || (!row.toName && row.n > 1 && row.n >= ctx.planners);
   const names = row.to.map((x) => ctx.nameById[x] || x);
   const label = all ? 'To all planners' : 'To ' + (row.toName || names.join(', '));
-  return html`<div class="unudge"><div class="ulabel">${label}</div><div class="ubub">${row.text}</div></div>`;
+  return html`<div class="unudge"><div class="ulabel">${label}<${SponsorMark} who="pastdev" size=${12} title="Shared through past.dev" /></div><div class="ubub">${row.text}</div></div>`;
 }
 
 function NewPill({ unread, onClick }) {
@@ -190,6 +195,7 @@ export function ActivityPage({ snap, id }) {
   const cat = null;
   return html`<div class="rpage act">
     <div class="alog" ref=${scroller} onScroll=${onScroll}><div class="col narrow">
+      <div class="acthead"><${PoweredBy} who="pastdev" label="Memory on" /></div>
       ${log.groups.length === 0 && html`<div class="faint">Nothing has happened yet.</div>`}
       ${log.groups.map((g) => {
         let prev = null;

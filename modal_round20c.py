@@ -336,7 +336,7 @@ def estimate(cells):
 
 def arm_plan(pair, config, arm, seed, smoke=False):
     """What a trained arm reads: its text sources, its steps, its batch. Equal across the arms of one config and seed."""
-    cfg = config_of(config)
+    cfg = config_of("default" if config == "base" else config)
     steps = (100 if smoke else HEAL["stage1_steps"]) + (200 if smoke else cfg["steps"])
     return {"pair": pair, "config": config, "seed": seed, "domain_source": PAIRS[pair]["donor"],
             "general_source": PAIRS[pair]["base"], "domain_count": DOMAIN_COUNT, "total_steps": steps,

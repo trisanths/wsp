@@ -8,6 +8,7 @@ import { StatusTag, lockOf, filterItems, countItems, FilterRow, NO_FILTER, PAGE_
 import { openProgramInBuilder } from './shared.js';
 import { runRecent } from './run-shared.js';
 import { MeasuredResults } from './measured.js';
+import { openPart } from './part-detail.js';
 
 const RUN_LABEL = { planned: 'Planned', starting: 'Starting', running: 'Running', paused: 'Paused', stopping: 'Stopping', done: 'Finished', empty: 'Ended, nothing scored', stopped: 'Stopped', error: 'Error', gone: 'Not on the server' };
 const RUN_COLOR = { planned: 'var(--text-4)', starting: 'var(--blue)', running: 'var(--blue)', paused: 'var(--amber)', stopping: 'var(--amber)', done: 'var(--green)', empty: 'var(--amber)', stopped: 'var(--text-3)', error: 'var(--red)', gone: 'var(--text-4)' };
@@ -51,9 +52,11 @@ function measuredLine(m) {
 
 const plural = (n, one, many) => n + ' ' + (n === 1 ? one : many);
 
-function PartCard({ lead, title, sub, meta, measured, status, evidence, lock, findings, onFinding }) {
+function PartCard({ pid, lead, title, sub, meta, measured, status, evidence, lock, findings, onFinding }) {
   const notes = findings || [];
-  return html`<div class=${'card pcard' + (lock ? ' locked' : '')} data-tip=${lock ? lock.why : null} data-tip-side="bottom">
+  const open = (e) => { if (pid && !(e.target.closest && e.target.closest('button, summary, a, details'))) openPart(pid); };
+  const key = (e) => { if (pid && e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openPart(pid); } };
+  return html`<div class=${'card pcard' + (pid ? ' openable' : '') + (lock ? ' locked' : '')} data-tip=${lock ? lock.why : null} data-tip-side="bottom" role=${pid ? 'button' : null} tabindex=${pid ? 0 : null} onClick=${open} onKeyDown=${key} aria-label=${pid ? 'Open ' + title : null}>
     ${lead}
     <div class="pc-main"><div class="pc-top"><div class="pc-t">${title}</div>${lock && !lock.rejected ? html`<${Icon} n="lock" size=${13} />` : html`<${StatusTag} status=${status} />`}</div><div class="pc-s">${sub}</div>
       ${meta && html`<div class="pc-m">${meta}</div>`}
@@ -83,8 +86,8 @@ function PartsTab({ cat, q, onFinding }) {
   const goPage = (n) => { setPage(n); if (top.current) top.current.scrollIntoView({ block: 'start', behavior: 'smooth' }); };
   const trains = !f.kind && !f.status && !f.placeable ? cat.train.filter((x) => !q || (x.label + ' ' + x.summary).toLowerCase().includes(q.toLowerCase())) : [];
   const card = (p) => p.group === 'remove'
-    ? html`<${PartCard} key=${p.id} lead=${html`<div class="pic" style=${{ '--c': 'var(--red)' }}>-</div>`} title=${p.label} sub=${p.summary} status=${p.status} evidence=${p.evidence} lock=${p.status === 'rejected' ? lockOf(p) : null} measured=${measuredLine(p.measured)} findings=${p.findings} onFinding=${onFinding} />`
-    : html`<${PartCard} key=${p.id} lead=${html`<${ModelLogo} model=${p.donor} size=${20} />`} title=${p.label} sub=${donorShort(p.donor) + ' · ' + (KIND_ONE[p.kind] || p.kind) + ' · ' + layerText(p)} meta=${p.params_m != null ? '+' + p.params_m + 'M parameters, joins at L' + p.default_at : null} status=${p.status} evidence=${p.evidence} lock=${lockOf(p)} measured=${measuredLine(p.measured)} findings=${p.findings} onFinding=${onFinding} />`;
+    ? html`<${PartCard} key=${p.id} pid=${p.id} lead=${html`<div class="pic" style=${{ '--c': 'var(--red)' }}>-</div>`} title=${p.label} sub=${p.summary} status=${p.status} evidence=${p.evidence} lock=${p.status === 'rejected' ? lockOf(p) : null} measured=${measuredLine(p.measured)} findings=${p.findings} onFinding=${onFinding} />`
+    : html`<${PartCard} key=${p.id} pid=${p.id} lead=${html`<${ModelLogo} model=${p.donor} size=${20} />`} title=${p.label} sub=${donorShort(p.donor) + ' · ' + (KIND_ONE[p.kind] || p.kind) + ' · ' + layerText(p)} meta=${p.params_m != null ? '+' + p.params_m + 'M parameters, joins at L' + p.default_at : null} status=${p.status} evidence=${p.evidence} lock=${lockOf(p)} measured=${measuredLine(p.measured)} findings=${p.findings} onFinding=${onFinding} />`;
   const rows = shown.slice((at - 1) * PAGE_SIZE, at * PAGE_SIZE);
   const what = isDel ? ['deletion', 'deletions'] : ['part', 'parts'];
   return html`<div ref=${top} class="pq-top"></div><${FilterRow} counts=${counts} f=${f} setF=${setF} />

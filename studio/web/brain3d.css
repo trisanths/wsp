@@ -1,0 +1,29 @@
+/* Brain3D: the 3D view of a network. Colors come from the app tokens. */
+.brain3d { position: relative; width: 100%; min-height: 160px; overflow: hidden; border-radius: inherit; contain: layout paint; }
+.brain3d .b3d-gl { position: absolute; inset: 0; }
+.brain3d .b3d-canvas { width: 100% !important; height: 100% !important; display: block; cursor: grab; touch-action: pan-y; outline: none; }
+.brain3d .b3d-canvas.grab { cursor: grabbing; }
+.brain3d .b3d-ticks { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.brain3d .b3d-tick { position: absolute; left: 0; top: 0; font-size: 11px; line-height: 14px; padding: 0 6px; color: var(--text-3); font-variant-numeric: tabular-nums; will-change: transform; }
+.brain3d .b3d-tick.on { color: var(--blue); font-weight: 500; }
+.brain3d .b3d-tip { position: absolute; left: 0; top: 0; z-index: 2; pointer-events: none; opacity: 0; transition: opacity .12s ease; display: flex; flex-direction: column; gap: 1px; max-width: 220px; padding: 6px 10px; border-radius: 10px; background: var(--bg-raised); box-shadow: var(--shadow-float); font-size: 12px; line-height: 16px; color: var(--text-2); }
+.brain3d .b3d-tip b { font-weight: 500; color: var(--text-1); font-size: 13px; }
+.brain3d .b3d-label { position: absolute; left: 14px; bottom: 12px; z-index: 1; pointer-events: none; font-size: 12px; color: var(--text-3); max-width: calc(100% - 28px); }
+.brain3d .b3d-fallback { position: absolute; inset: 0; width: 100%; height: 100%; }
+.brain3d .b3d-fping { transform-box: fill-box; transform-origin: center; animation: b3dping 1.2s ease-out both; }
+@keyframes b3dping { from { transform: scale(.6); opacity: 1; } to { transform: scale(7); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .brain3d .b3d-fping { animation: none; opacity: 0; } }
+
+/* builder: the 3D view, the right-panel preview and the palette info button */
+.b3d-pane { position: relative; flex: 1; min-width: 0; display: flex; }
+.b3d-pane .brain3d { height: 100% !important; min-height: 320px; }
+.b3d-pane .b3d-hint { position: absolute; right: 14px; bottom: 12px; font-size: 12px; color: var(--text-3); pointer-events: none; }
+.cv-body.split .b3d-pane { flex: 1; }
+.b3d-mini { cursor: pointer; flex: none; transition: box-shadow .15s ease; }
+.b3d-mini:hover { box-shadow: 0 0 0 1px var(--line-3), 0 1px 2px #00000008; }
+.b3d-mini .brain3d { pointer-events: none; }
+.b3d-mini .b3d-label { font-size: 11px; }
+.piece .pinfo { flex: none; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 50%; background: none; color: var(--text-3); cursor: pointer; opacity: 0; transition: opacity .12s, background .12s, color .12s; margin-left: auto; }
+.piece:hover .pinfo, .piece:focus-within .pinfo, .piece .pinfo:focus-visible { opacity: 1; }
+.piece .pinfo:hover { background: var(--fill-2); color: var(--text-1); }
+.piece .pinfo + .add, .piece .pinfo + .lk { margin-left: 0; }

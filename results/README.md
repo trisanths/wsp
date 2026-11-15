@@ -789,3 +789,19 @@ Reading:
 - Next: a test where the data alone cannot supply the knowledge, for
   example training on donor-written answers and scoring on held-out
   questions, so LoRA cannot learn the answers from the training text.
+## Demo 1: code assistant at half the memory (2026-11-15, one run each, greedy)
+
+Request: demo/requests/code_half_memory.json; plan: demo/plans/code_half_memory.txt (slim, keep 64 of 128 experts per layer, 16.04B total, 3.04B per token).
+vLLM 0.32 on one H200 (modal_serve.py, rows results/serve_*.json). Weight memory is vLLM's "Model loading took" line.
+
+| cell | weights on disk | vLLM weight memory | HumanEval (164) | decode tok/s b1 / b32 | prefill tok/s | TTFT median |
+|---|---|---|---|---|---|---|
+| full_30b (base) | 56.87 GiB | 56.93 GiB | 148/164 = 90.2 | 259 / 2486 | 7771 | 59 ms |
+| slim_64 (no heal) | 29.86 GiB | 29.92 GiB | 145/164 = 88.4 | 259 / 3021 | 4798 | 59 ms |
+| coder_7b (dense) | 14.19 GiB | 14.29 GiB | 140/164 = 85.4 | 209 / 5886 | 42034 | 18 ms |
+
+Slim_64 prefill measured 38% slower than the full model. The cause is not known: both cells logged Triton fused-MoE JIT warnings, and the full cell used a tuned E=128 MoE config while slim_64 used vLLM's default E=64 config, which may also explain part of the 21% batch-32 decode gain. Not repeated.
+Memory here is weight bytes. vLLM preallocates the rest of the GPU for KV cache in both cells (about 125.7 GiB after load), so the smallest GPU each model serves on is measured separately (docs/efficiency.md).
+MBPP for the same model (Run 19, Hugging Face harness) is 79.0 against 84.4 for the full model, so on code overall slim_64 keeps most, not all, of the full model. The HumanEval gap is 3 of 164 items on one greedy run.
+Qwen2.5-Coder-7B scores 85.4 at 14.2 GiB, 3 items below slim_64 at half slim_64's weight memory, so slim_64 alone does not clearly beat a small dense coder. The served slim_64 is the Run 19 no-heal artifact; the plan's 30-minute heal was not run.
+Side-by-side answers on eight prompts: results/demo_code_outputs.md (modal_demo.py). The five graded coding prompts pass on both models (hidden checks run on the answers); the regex prompt has no test, and the slim answer to it loops on one phrase until the token limit; on the two non-code prompts slim_64 writes degraded text (medical: 0 of 4 expected terms, history: 2 of 4, full model 4 of 4 on both). One sample per prompt.

@@ -200,6 +200,8 @@ export function parseHash() {
     if (parts[2] === 'agents') return { name: 'run', id, page: 'agents', q };
     if (parts[2] === 'activity') return { name: 'run', id, page: 'activity', q };
     if (parts[2] === 'results') return { name: 'run', id, page: 'results', q };
+    if (parts[2] === 'findings') return { name: 'run', id, page: 'findings', q };
+    if (parts[2] === 'pipeline') return { name: 'run', id, page: 'pipeline', q };
     return { name: 'run', id, page: 'overview', q };
   }
   if (parts[0] === 'build' && parts[1]) return { name: 'build', id: parts[1], q };
@@ -207,6 +209,8 @@ export function parseHash() {
   if (parts[0] === 'runs') return { name: 'runs', q };
   if (parts[0] === 'parts') return { name: 'parts', q };
   if (parts[0] === 'demo') return { name: 'demo', q };
+  // #/mine (the queue and the mined models), #/mine/req/<id> (one request), #/mine/model/<hf id> (one model in full)
+  if (parts[0] === 'mine') return { name: 'mine', sub: parts[1] || null, id: parts.slice(2).join('/') || null, q };
   return { name: 'prompt', q };
 }
 export function go(path) { location.hash = '#' + path; }

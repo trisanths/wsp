@@ -51,3 +51,36 @@ export function ModelLogo({ model, size = 18, alt = '', class: cls = '' }) {
   }
   return html`<span class=${'mlogo ' + cls} style=${style} title=${alt || logo.name}><img src=${logo.src} alt=${alt} width=${size} height=${size} class=${logo.mono ? 'mlogo-mono' : ''} loading="lazy" decoding="async" /></span>`;
 }
+
+/* ---------- sponsors: the services that run parts of Sapien ---------- */
+// OpenAI models draft specs, think for the agents and write suggestions, Exa searches the web for
+// benchmarks and published scores, Modal runs the GPU work and the agent sandboxes, and past.dev
+// holds the memory the agents share. Their marks are in logos/ (see README).
+export const SPONSORS = {
+  openai: { src: 'logos/openai.svg', name: 'OpenAI', url: 'https://openai.com', mono: true },
+  exa: { src: 'logos/exa.svg', name: 'Exa', url: 'https://exa.ai' },
+  modal: { src: 'logos/modal.svg', name: 'Modal', url: 'https://modal.com' },
+  pastdev: { src: 'logos/pastdev.svg', name: 'past.dev', url: 'https://past.dev' },
+};
+
+/** A sponsor's mark alone, for tight rows. */
+export function SponsorMark({ who, size = 14, title }) {
+  const s = SPONSORS[who];
+  if (!s) return null;
+  return html`<img class=${'spmark' + (s.mono ? ' mlogo-mono' : '')} src=${s.src} width=${size} height=${size} alt=${title || s.name} title=${title || s.name} loading="lazy" decoding="async" />`;
+}
+
+/**
+ * A small chip that credits a sponsor where its service is at work, for example
+ * "Search by Exa" or "GPUs on Modal". It links to the sponsor's site.
+ */
+export function PoweredBy({ who, label, size = 14, class: cls = '' }) {
+  const s = SPONSORS[who];
+  if (!s) return null;
+  return html`<a class=${'powered ' + cls} href=${s.url} target="_blank" rel="noopener noreferrer" title=${(label ? label + ' ' : '') + s.name}><img class=${s.mono ? 'mlogo-mono' : null} src=${s.src} width=${size} height=${size} alt="" aria-hidden="true" /><span>${label ? label + ' ' : ''}<b>${s.name}</b></span></a>`;
+}
+
+/** "Built with" and the sponsors, for the home and tour pages. */
+export function SponsorStrip() {
+  return html`<div class="spstrip"><span class="faint">Built with</span>${['openai', 'exa', 'modal', 'pastdev'].map((w) => html`<${PoweredBy} key=${w} who=${w} size=${16} />`)}</div>`;
+}

@@ -63,7 +63,9 @@ TASK_STEPS = 1000
 KD_STEPS = {"B": 1000, "C": 500}
 MC_BATCH = 8
 KD_BATCH = 4
-LR = {"glue": 1e-3, "gate": 1e-2, "enc2": 1e-4, "lora": 2e-4}
+# Run 23 first used glue 1e-3 and gate 1e-2: the gate shut within 50 steps and the branches learned nothing
+# (diagnostics in results/round23_diag_*). 3e-4 and 1e-4 learn without damage.
+LR = {"glue": 3e-4, "gate": 1e-4, "enc2": 1e-4, "lora": 2e-4}
 PRESERVE = 1.0
 ALIGN_REG = 1.0
 MC_PATH = "/vol/round23/mc.json"
@@ -142,7 +144,7 @@ def law_texts():
 
 
 @app.function(image=image, volumes={"/vol": volume}, gpu="H100", memory=131072, timeout=4 * 3600)
-def cell(exp, arm, seed, smoke=False):
+def cell(exp, arm, seed, smoke=False, gate_lr=None, steps=None, glue_lr=None):
     import gc
 
     import torch
@@ -161,6 +163,14 @@ def cell(exp, arm, seed, smoke=False):
     mc = mc_items()
     law = law_texts()
     align_steps, task_steps, kd_steps = ALIGN_STEPS, TASK_STEPS, KD_STEPS.get(exp, 0)
+    lr = dict(LR)
+    if gate_lr is not None:
+        lr["gate"] = gate_lr
+    if glue_lr is not None:
+        lr["glue"] = glue_lr
+    if steps is not None:
+        # Diagnostic: a short run (alignment, task and distillation all cut to `steps`).
+        align_steps, task_steps, kd_steps = steps, steps, (steps if kd_steps else 0)
     if smoke:
         align_steps, task_steps, kd_steps = SMOKE["align"], SMOKE["task"], (SMOKE["kd"] if kd_steps else 0)
         data = {key: value[:16] for key, value in data.items()}
@@ -174,7 +184,8 @@ def cell(exp, arm, seed, smoke=False):
     vmap = pgraft.vocab_map(tok, donor_tok)
     letters = letter_ids(tok)
     device = torch.device("cuda")
-    row = {"round": 23, "exp": exp, "arm": arm, "seed": seed, "shared_vocab": int(vmap[0].numel())}
+    row = {"round": 23, "exp": exp, "arm": arm, "seed": seed, "shared_vocab": int(vmap[0].numel()),
+           "gate_lr": lr["gate"], "glue_lr": lr["glue"], "steps_override": steps}
     budget = (pgraft.count(pgraft.Enc(r22.D_HOST, r22.D_DONOR, depth=2).parameters())
               + pgraft.count(pgraft.Dec(r22.D_DONOR, r22.D_HOST, rank=256).parameters()) + r22.D_HOST + 1)
     row["budget"] = budget
@@ -202,20 +213,20 @@ def cell(exp, arm, seed, smoke=False):
     def groups(stage):
         """Param groups for a stage. stage "kd_out" (exp C, pgraft): Dec and gate only."""
         if arm == "lora":
-            return [{"params": lora_params, "lr": LR["lora"]}]
+            return [{"params": lora_params, "lr": lr["lora"]}]
         gate = list(graft.token_gate.parameters())
         dec = list(graft.dec.parameters())
         enc = list(graft.enc.parameters())
         if arm == "identity":
-            return [{"params": enc + dec, "lr": LR["glue"]}, {"params": gate, "lr": LR["gate"]}]
+            return [{"params": enc + dec, "lr": lr["glue"]}, {"params": gate, "lr": lr["gate"]}]
         if stage == "kd_out":
             for p in enc:
                 p.requires_grad_(False)
-            return [{"params": dec, "lr": LR["glue"]}, {"params": gate, "lr": LR["gate"]}]
+            return [{"params": dec, "lr": lr["glue"]}, {"params": gate, "lr": lr["gate"]}]
         for p in enc:
             p.requires_grad_(True)
-        return [{"params": dec, "lr": LR["glue"]}, {"params": gate, "lr": LR["gate"]},
-                {"params": enc, "lr": LR["enc2"]}]
+        return [{"params": dec, "lr": lr["glue"]}, {"params": gate, "lr": lr["gate"]},
+                {"params": enc, "lr": lr["enc2"]}]
 
     align_feed = pgraft._batches(data["align"], cfg["align_batch"], seed + 11)
 
@@ -226,6 +237,13 @@ def cell(exp, arm, seed, smoke=False):
         loss, _ = pgraft.functional_loss(base, tok, donor, donor_tok, graft, next(align_feed), cfg)
         return ALIGN_REG * loss
 
+    def note_gate(info):
+        if graft is not None:
+            g = pgraft.mean_gate([graft])
+            if g is not None:
+                info["gate"] = float(g.detach())
+            info["dec_up_norm"] = float(graft.dec.up.weight.detach().norm())
+
     kd_texts = data["domain"] + data["general"]
     kd_feed = pgraft._batches(kd_texts, KD_BATCH, seed + 21)
     mc_feed = pgraft._batches(mc["train"], MC_BATCH, seed + 31)
@@ -234,6 +252,7 @@ def cell(exp, arm, seed, smoke=False):
     def kd_step(stage):
         def step_fn(step):
             loss, info = pgraft.kd_loss(base, tok, donor, donor_tok, next(kd_feed), vmap, cfg)
+            note_gate(info)
             reg = align_reg(step, stage)
             if reg is not None:
                 loss = loss + reg
@@ -243,6 +262,7 @@ def cell(exp, arm, seed, smoke=False):
 
     def mc_step(step):
         loss, info = pgraft.mc_loss(base, tok, [tuple(x) for x in next(mc_feed)], letters, device)
+        note_gate(info)
         enc = pgraft._tok_batch(tok, next(gen_feed), cfg["seq_len"], device)
         _, logits = pgraft.seq_lm_loss(base, enc, return_logits=True)
         drift = pgraft.drift_kl(ref, enc, logits)
@@ -270,6 +290,9 @@ def cell(exp, arm, seed, smoke=False):
     if exp in ("A", "C"):
         logs["mc"] = pgraft.train(base, groups("mc"), task_steps + extra, mc_step, seed=seed + 1, probe_fn=probe)
     for name, log in logs.items():
+        gates = [[r["step"], round(r["gate"], 4)] for r in log if "gate" in r and r["step"] % 50 == 0]
+        if gates:
+            row[name + "_gate_curve"] = gates
         row[name + "_first50"] = sum(r["loss"] for r in log[:50]) / len(log[:50])
         row[name + "_last50"] = sum(r["loss"] for r in log[-50:]) / len(log[-50:])
         fid = [[r["step"], round(r["probe"]["survival"], 4)] for r in log if "probe" in r]
@@ -304,14 +327,18 @@ def cell(exp, arm, seed, smoke=False):
 
 
 @app.local_entrypoint()
-def main(exp: str = "all", only: str = "", smoke: bool = False, tag: str = ""):
+def main(exp: str = "all", only: str = "", smoke: bool = False, tag: str = "", gate_lr: float = -1.0,
+         steps: int = 0, glue_lr: float = -1.0):
     exps = EXPS if exp == "all" else exp.split(",")
-    calls = [(e, arm, seed, smoke) for e in exps for arm in ARMS for seed in SEEDS]
+    glr = None if gate_lr < 0 else gate_lr
+    st = None if steps <= 0 else steps
+    gl = None if glue_lr < 0 else glue_lr
+    calls = [(e, arm, seed, smoke, glr, st, gl) for e in exps for arm in ARMS for seed in SEEDS]
     if only:
         calls = []
         for item in only.split(","):
             e, arm, seed = item.split(":")
-            calls.append((e, arm, int(seed), smoke))
+            calls.append((e, arm, int(seed), smoke, glr, st, gl))
     rows = []
     for row in cell.starmap(calls, return_exceptions=True):
         if isinstance(row, Exception):

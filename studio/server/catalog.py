@@ -246,9 +246,66 @@ def layers_pair(record):
     return [layers, layers]
 
 
-def part_label(record):
-    """A short label, for example: Math block L8-19. The donor goes in the summary."""
-    topic = donor_topic(record.get("model"))
+# Topic words for library skill tags that do not read well as they are.
+SKILL_TOPICS = {"gsm8k": "Math", "math": "Math", "mmlu": "Knowledge", "law": "Law", "medicine": "Medicine",
+                "code": "Code", "code_cpp": "C++ code", "code_csharp": "C# code", "code_java": "Java code",
+                "code_php": "PHP code", "code_rust": "Rust code", "code_shell": "Shell code",
+                "computer_science": "Computer science", "philosophy_ethics": "Ethics", "multilingual_math": "Multilingual math"}
+LANGUAGES = {"de": "German", "es": "Spanish", "fr": "French", "it": "Italian", "ja": "Japanese", "zh": "Chinese",
+             "ru": "Russian", "hi": "Hindi", "pt": "Portuguese", "ko": "Korean"}
+
+
+def skill_topic(skills):
+    """A topic word from a part's library skill tags, or None.
+
+    The first tag is a broad family and the second, when there is one, is the specific skill, so the
+    second wins: ["math", "roman_numeral"] gives "Roman numeral", ["law"] gives "Law".
+    """
+    tags = [str(s) for s in (skills or []) if s]
+    if len(tags) == 0:
+        return None
+    name = tags[1] if len(tags) > 1 else tags[0]
+    if name in SKILL_TOPICS:
+        return SKILL_TOPICS[name]
+    for end in ["_words", "_word", "_noun"]:
+        if name.endswith(end):
+            name = name[:-len(end)]
+    if name.startswith("prose_") and name[len("prose_"):] in LANGUAGES:
+        return LANGUAGES[name[len("prose_"):]] + " prose"
+    if name.startswith("en_to_"):
+        target = name[len("en_to_"):]
+        return "English to " + LANGUAGES.get(target, target.replace("_", " ").capitalize())
+    words = name.replace("_", " ").replace("-", " ").strip()
+    if not words:
+        return None
+    return words[0].upper() + words[1:]
+
+
+_skills_by_id = {"data": None, "map": {}}
+
+
+def library_skills(part_id):
+    """The library skill tags of a part, or an empty list. The id map is rebuilt when the library reloads."""
+    data = library.get()
+    if _skills_by_id["data"] is not data:
+        _skills_by_id["map"] = {entry["catalog_id"]: list(entry.get("skills") or []) for entry in data["parts"]}
+        _skills_by_id["data"] = data
+    return _skills_by_id["map"].get(part_id, [])
+
+
+def part_topic(model, skills):
+    """Math or Code from the donor, else the part's own skill from the library, else General."""
+    topic = donor_topic(model)
+    if topic != "General":
+        return topic
+    return skill_topic(skills) or "General"
+
+
+def part_label(record, skills=None):
+    """A short label, for example: Math block L8-19 or Law block L0-13. The donor goes in the summary."""
+    if skills is None:
+        skills = library_skills(record.get("id"))
+    topic = part_topic(record.get("model"), skills)
     kind = KIND_LABELS.get(record.get("type"), str(record.get("type")))
     label = topic + " " + kind
     pair = layers_pair(record)
@@ -347,7 +404,7 @@ def catalog_part(record, config, catalog, n_host, world, ctx, entries):
         "id": record["id"],
         "group": "add",
         "kind": kind,
-        "label": part_label(record),
+        "label": part_label(record, list(entry["skills"]) if entry is not None else []),
         "donor": record.get("model"),
         "layers": layers_pair(record),
         "params_m": params_m,
@@ -389,7 +446,7 @@ def library_part(entry, config, n_host, ctx, backend="modal"):
         params_m = round(entry["params_b"] * 1000.0, 1)
     label = KIND_LABELS.get(entry["kind"], entry["kind"])
     pair = entry["layers"]
-    text = donor_topic(entry["model"]) + " " + label
+    text = part_topic(entry["model"], entry.get("skills")) + " " + label
     if pair is not None:
         if pair[0] == pair[1]:
             text = text + " L" + str(pair[0])

@@ -179,3 +179,99 @@ def test_kd_and_mc_losses_train_the_graft():
     loss, info = pgraft.mc_loss(base, tok, items, letter_ids, torch.device("cpu"))
     loss.backward()
     assert graft.dec.up.weight.grad is not None
+
+
+def test_bundle_of_subnetworks_aligns_and_matches_native():
+    base = tiny_host()
+    for p in base.parameters():
+        p.requires_grad_(False)
+    donor = tiny_donor()
+    tok = tiny_tokenizer()
+    specs = pgraft.expand_specs([{"kind": "mlp_cluster", "layer": 2, "indices": [0, 5, 9]},
+                                 {"kind": "attn_heads", "layer": 3, "heads": [1]},
+                                 {"kind": "mlp_layer", "layer": 4}], donor.config)
+    assert len(specs[2]["indices"]) == 96
+    rand = pgraft.expand_specs(specs, donor.config, control="random", seed=1)
+    assert rand[0]["indices"] != specs[0]["indices"] and len(rand[0]["indices"]) == 3
+    graft = pgraft.build_bundle_graft(base, donor, 1, specs, enc_depth=3)
+    pgraft.attach(base, [graft])
+    pgraft.set_sink(graft, donor, tok, 2, TEXTS)
+    pgraft.bundle_input_rms(graft.part, donor, tok, TEXTS, {"donor_seq_len": 32})
+    plain = tiny_host()
+    assert torch.allclose(logits(base, tok, TEXTS[:4]), logits(plain, tok, TEXTS[:4]), atol=1e-6)
+    cfg = {"seq_len": 32, "donor_seq_len": 32, "align_steps": 40, "align_lr": 3e-3}
+    before = pgraft.part_report(base, tok, donor, tok, graft, TEXTS[16:], cfg)
+    pgraft.align_parts(base, tok, donor, tok, graft, TEXTS[:16], cfg, log_every=0)
+    after = pgraft.part_report(base, tok, donor, tok, graft, TEXTS[16:], cfg)
+    assert sum(after.values()) > sum(before.values())
+    # The bundle runs inside the base and the branch trains.
+    pgraft.calibrate_scale(base, tok, graft, TEXTS)
+    vmap = pgraft.vocab_map(tok, tok)
+    params = pgraft.trainable([graft], enc=True)
+    pgraft.train(base, [{"params": params, "lr": 1e-3}], 5,
+                 lambda s: pgraft.kd_loss(base, tok, donor, tok, TEXTS[:4], vmap, cfg), log_every=0)
+    assert graft.dec.up.weight.abs().sum() > 0
+
+
+def test_trunk_bundle_reads_parts_in_native_context():
+    base = tiny_host()
+    for p in base.parameters():
+        p.requires_grad_(False)
+    donor = tiny_donor()
+    tok = tiny_tokenizer()
+    specs = [{"kind": "mlp_cluster", "layer": 3, "indices": [1, 2]}, {"kind": "attn_heads", "layer": 4, "heads": [0]}]
+    graft = pgraft.build_trunk_bundle_graft(base, donor, 1, 2, specs)
+    pgraft.attach(base, [graft])
+    ids, mask, _, _ = encode(tok, TEXTS[:3], 32)
+    torch.manual_seed(0)
+    x = torch.randn(ids.shape[0], ids.shape[1], 48)
+    # The parts see exactly the donor's own states when the donor is fed x at layer 2.
+    from wsp.pgraft import native_part_inputs
+    holder = {"x": x}
+    handles = feed_hooks(donor, 2, None, holder)
+    try:
+        native = native_part_inputs(donor, specs, ids, mask)
+    finally:
+        remove_hooks(handles)
+    graft.pad_mask = mask
+    with torch.no_grad():
+        got = graft.contribution(x)
+        want = graft.part.parts[0](native[0]).float() + graft.part.parts[1](native[1], attention_mask=mask).float()
+    graft.pad_mask = None
+    keep = mask.bool()
+    assert torch.allclose(got[keep], want[keep], atol=1e-4)
+    cfg = {"align_steps": 5, "geo_steps": 2, "seq_len": 32, "donor_seq_len": 32}
+    pgraft.set_sink(graft, donor, tok, 2, TEXTS)
+    pgraft.align(base, tok, donor, tok, graft, TEXTS[:8], cfg, log_every=0)
+
+
+def test_graft_reads_a_mix_of_earlier_host_layers():
+    base = tiny_host()
+    for p in base.parameters():
+        p.requires_grad_(False)
+    donor = tiny_donor()
+    tok = tiny_tokenizer()
+    graft = pgraft.build(base, donor, host_layer=2, first=2, last=4, enc_depth=2, read_layers=[0, 1])
+    assert graft.enc.host_layers == [0, 1]
+    pgraft.attach(base, [graft])
+    pgraft.set_sink(graft, donor, tok, 2, TEXTS)
+    plain = tiny_host()
+    assert torch.allclose(logits(base, tok, TEXTS[:4]), logits(plain, tok, TEXTS[:4]), atol=1e-6)
+    cfg = {"align_steps": 30, "geo_steps": 5, "align_lr": 3e-3, "seq_len": 32, "donor_seq_len": 32}
+    before = pgraft.alignment_report(base, tok, donor, tok, graft, TEXTS[16:], cfg)
+    pgraft.align(base, tok, donor, tok, graft, TEXTS[:16], cfg, log_every=0)
+    after = pgraft.alignment_report(base, tok, donor, tok, graft, TEXTS[16:], cfg)
+    assert after["kl"] < before["kl"]
+    assert graft.enc.mix.grad is not None
+    pgraft.calibrate_scale(base, tok, graft, TEXTS)
+    vmap = pgraft.vocab_map(tok, tok)
+    pgraft.train(base, [{"params": pgraft.trainable([graft]), "lr": 1e-3}], 4,
+                 lambda s: pgraft.kd_loss(base, tok, donor, tok, TEXTS[:4], vmap, cfg), log_every=0)
+    assert graft.dec.up.weight.abs().sum() > 0
+    # Reading a later layer than the graft writes at is refused.
+    other = pgraft.build(tiny_host(), donor, host_layer=1, first=2, last=4, read_layers=[2])
+    with pytest.raises(ValueError):
+        pgraft.attach(tiny_host(), [other])
+    # Reading only the graft's own layer is the plain encoder.
+    same = pgraft.build(base, donor, host_layer=1, first=2, last=4, read_layers=[1])
+    assert getattr(same.enc, "host_layers", None) is None

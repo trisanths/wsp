@@ -4,7 +4,9 @@ import { go, toast, pct, pctS, sgn, bsize, clamp, clone, emptyProgram, normProgr
 import { storageKey, DEMO } from '../demo-flag.js';
 import { TopBar, Icon, Spinner, ErrorBox, Menu, BenchBar, BenchLegend, Ring, Tag, StubBadge } from '../components.js';
 import { PopNum, SlidingBar, SkelReveal, Matrix, SuccessCheck, useShake, shake, SwapText } from '../motion.js';
-import { ModelLogo } from '../logos.js';
+import { ModelLogo, SponsorMark, PoweredBy } from '../logos.js';
+import { Brain3D } from '../brain3d.js';
+import { openPart } from './part-detail.js';
 import { Compare, StatusTag, groupByKind, lockOf, HealNote, usesHeal, healNoteOf, PartsList, Stages, VerdictTag, componentFor, filterItems, countItems, FilterRow, NO_FILTER, PAGE_SIZE, DELETION } from '../cmp.js';
 
 // Short labels for score statuses other than ok. Only "collapsed" means the model lost a skill.
@@ -31,6 +33,7 @@ function measuredLine(m) {
   if (!m || m.score == null) return null;
   return String(m.task || '').toUpperCase() + ' ' + pct(m.score) + (m.lora != null ? ' vs LoRA ' + pct(m.lora) : '') + ' (measured)';
 }
+let PULSE_KEY = 0;
 let DRAG = null; // what is being dragged right now
 
 const ls = {
@@ -51,10 +54,11 @@ function dragImage(e) {
 const hideTip = () => { try { document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); } catch (e) { /* no tooltip to close */ } };
 const onKeyAct = (fn) => (e) => { if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); fn(e); hideTip(); } };
 
-function Piece({ lead, t1, t2, t3, status, tip, lock, used, dragging, onDragStart, onDragEnd, onClick, pid, active, onFocus }) {
+function Piece({ lead, t1, t2, t3, status, tip, lock, used, dragging, onDragStart, onDragEnd, onClick, pid, active, onFocus, infoId }) {
   const locked = !!lock;
   return html`<div class=${'piece' + (dragging ? ' dragging' : '') + (used ? ' used' : '') + (locked ? ' locked' : '')} draggable=${locked ? 'false' : 'true'} onDragStart=${locked ? null : onDragStart} onDragEnd=${onDragEnd} onClick=${locked ? null : onClick} onFocus=${locked ? null : onFocus} data-pid=${pid} tabindex=${locked ? null : active ? '0' : '-1'} role="button" onKeyDown=${locked || !onClick ? null : onKeyAct(onClick)} data-tip=${locked ? lock.why : tip || 'Drag onto the model, or click to add'} data-tip-side="right" aria-disabled=${locked ? 'true' : null}>
     ${lead}<div style="min-width:0"><div class="t1">${t1}</div><div class="t2 t2s"><${StatusTag} status=${status} /><span>${t2}</span></div>${t3 && html`<div class="t3">${t3}</div>`}</div>
+    ${infoId && html`<button class="pinfo" type="button" data-tip="Part details" aria-label=${'Details for ' + t1} draggable="false" onClick=${(e) => { e.stopPropagation(); openPart(infoId); }} onMouseDown=${(e) => e.stopPropagation()} onKeyDown=${(e) => e.stopPropagation()}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></button>`}
     <span class=${locked ? 'lk' : 'add'}>${locked ? html`<${Icon} n="lock" size=${14} />` : used ? html`<${Icon} n="check" size=${14} />` : html`<${Icon} n="plus" size=${14} />`}</span></div>`;
 }
 
@@ -73,7 +77,9 @@ export function BuilderScreen({ id, specId }) {
   const [err, setErr] = useState(null);
   const [program, setProgramRaw] = useState(null);
   const [undo, setUndo] = useState([]);
-  const [view, setView] = useState(() => { const v = parseHash().q.get('view'); return v === 'code' || v === 'split' ? v : 'canvas'; });
+  const [view, setView] = useState(() => { const v = parseHash().q.get('view'); return v === 'code' || v === 'split' || v === '3d' ? v : 'canvas'; });
+  const [pulse, setPulse] = useState(null);
+  const fire = (kind, o) => setPulse({ kind, ...(o || {}), key: ++PULSE_KEY });
   const [layerMode, setLayerMode] = useState('simple');
   const [q, setQ] = useState('');
   const [pf, setPf] = useState(NO_FILTER);
@@ -86,8 +92,8 @@ export function BuilderScreen({ id, specId }) {
     const shown = filterItems(palette, pf, q);
     if (!spec) return shown;
     const rec = new Set((spec.ingredients || []).map((g) => g.part_id));
-    const word = { math: 'math', code: 'code', legal: 'legal', medicine: 'medic' }[spec.task_type];
-    const rank = (x) => (rec.has(x.id) ? 0 : word && (x.label + ' ' + (x.donor || '')).toLowerCase().includes(word) ? 1 : 2);
+    const words = { math: /math|gsm8k/, code: /code|coder/, legal: /law|legal|saul|civil|contract|court/, medicine: /medic|health|clinic|bio/ }[spec.task_type];
+    const rank = (x) => (rec.has(x.id) ? 0 : words && words.test((x.label + ' ' + (x.donor || '')).toLowerCase()) ? 1 : 2);
     const locked = (x) => (lockOf(x) ? 1 : 0);
     return shown.map((x, i) => [x, i]).sort((a, b) => (locked(a[0]) - locked(b[0])) || (rank(a[0]) - rank(b[0])) || (a[1] - b[1])).map((p) => p[0]);
   }, [palette, pf, q, spec && spec.id]);
@@ -275,7 +281,7 @@ export function BuilderScreen({ id, specId }) {
 
   /* ---- code view ---- */
   useEffect(() => {
-    if (!program || view === 'canvas') return;
+    if (!program || view === 'canvas' || view === '3d') return;
     if (fromCode.current) { fromCode.current = false; return; }
     const seq = ++parseSeq.current;
     api.programText(program).then((r) => { if (alive.current && seq === parseSeq.current) { setCodeText(r.text); setCodeErr(null); } }).catch(() => {});
@@ -305,6 +311,8 @@ export function BuilderScreen({ id, specId }) {
     if (action === 'train') { if (!p.lora) p.lora = { rank: 16 }; if (!p.heal) p.heal = healDefault(); }
     if (action !== 'compile' && JSON.stringify(p) !== JSON.stringify(programRef.current)) setProgram(p);
     setJob({ action, status: 'queued', t0: Date.now() });
+    const gAt = p.grafts.length ? p.grafts[0].at : undefined;
+    if (action === 'compile') fire('probe', { at: gAt }); else if (action === 'score') fire('scan'); else fire('heal', { at: gAt });
     try {
       const { job_id } = await api.builderAction(id, p, action);
       let j;
@@ -316,14 +324,16 @@ export function BuilderScreen({ id, specId }) {
         if (j.status === 'done' || j.status === 'error') break;
         setJob((x) => (x ? { ...x, status: j.status } : x));
       }
-      if (j.status === 'error') { toast(j.error || 'The job failed', 'err'); shake(btnRefs.current[action]); setJob(null); return; }
+      if (j.status === 'error') { if (action !== 'compile') fire('score', { ok: false }); toast(j.error || 'The job failed', 'err'); shake(btnRefs.current[action]); setJob(null); return; }
       const r = j.result || {};
       if (r.fit) setFits(r.fit);
       if (action === 'compile') {
+        fire('graft');
         toast('Fit check done' + (r.params_b ? ': ' + bsize(r.params_b) + ' parameters' : ''), 'ok');
       } else {
         const at = { n: 0, action, program: p, scores: r.scores, combined: r.combined, control: r.control, params_b: r.params_b, status: r.status, compute_s: r.compute_s, comparison: r.comparison || null, size: r.size || null, pipeline: r.pipeline || null, heal_note: r.heal_note == null ? null : r.heal_note, components: r.components || null, stages: r.stages || null, drift: r.drift || null };
         setAttempts((a) => [...a, { ...at, n: a.length + 1 }]);
+        fire('score', { ok: !r.status || r.status === 'ok' ? (r.comparison && r.comparison.verdict === 'failed' ? false : true) : false });
         if (r.status && r.status !== 'ok') { toast(statusMessage(r.status), 'err'); shake(btnRefs.current[action]); }
         else if (action === 'score') { setFlash(action); clearTimeout(flashTimer.current); flashTimer.current = setTimeout(() => setFlash(null), 1900); }
         refreshSugs(p);
@@ -359,6 +369,14 @@ export function BuilderScreen({ id, specId }) {
   /* ---- derived ---- */
   const partById = (pid) => cat.parts.find((p) => p.id === pid);
   const maskById = (mid) => cat.masks.find((m) => m.id === mid);
+  const lastOkRaw = () => [...attempts].reverse().find((a) => a.scores);
+  const brainParts = program ? program.grafts.map((g, i) => {
+    const part = partById(g.id) || {};
+    const comp = componentFor(lastOkRaw() && lastOkRaw().components, g);
+    return { id: 'g' + i, label: part.label || g.id, kind: part.kind || 'block', at: clamp(g.at, 0, N - 1), donor: part.donor || '', verdict: comp && ['contributes', 'no better than random', 'harmful'].includes(comp.verdict) ? comp.verdict : null };
+  }) : [];
+  const brainCuts = program ? maskIds(program.masks).map((mid, i) => { const m = maskById(mid) || {}; const l = Array.isArray(m.layers) ? m.layers[0] : (4 + i * 3) % N; return { layer: clamp(l, 0, N - 1), frac: 0.35, label: m.label || mid }; }) : [];
+  const brainEl = (h, cls) => html`<${Brain3D} class=${cls} height=${h} layers=${N} parts=${brainParts} cuts=${brainCuts} pulse=${pulse} onPick=${(pid) => { const g = program.grafts[+String(pid).slice(1)]; if (g) openPart(g.id); }} label=${(cat.host.model || '').split('/').pop() + ' · ' + N + ' layers'} />`;
   const lastOk = [...attempts].reverse().find((a) => a.scores);
   const prevOk = lastOk ? [...attempts].slice(0, attempts.indexOf(lastOk)).reverse().find((a) => a.scores) : null;
   const benches = spec ? spec.benchmarks : [];
@@ -428,14 +446,15 @@ export function BuilderScreen({ id, specId }) {
   };
   const healLabel = program.heal ? program.heal.steps + ' steps' : '300 steps';
   const cvClass = 'cv-body' + (view === 'split' ? ' split' : '');
-  const showCanvas = view !== 'code';
-  const showCode = view !== 'canvas';
+  const showCanvas = view === 'canvas' || view === 'split';
+  const show3d = view === '3d';
+  const showCode = view === 'code' || view === 'split';
   const hotAt = (l) => program.grafts.filter((g) => g.at === l);
   const dropping = (s) => over && over !== 'tail' && DRAG && DRAG.kind !== 'mask' && DRAG.kind !== 'train' && +over.slice(1) >= s.first && +over.slice(1) < s.first + s.n;
   const jobPct = job ? Math.min(94, ((Date.now() - job.t0) / 2600) * 100) : 0;
   const codeLines = codeText.replace(/\n$/, '').split('\n');
 
-  const partPiece = (p) => html`<${Piece} key=${p.id} lead=${html`<${ModelLogo} model=${p.donor} size=${20} />`} status=${p.status} tip=${p.evidence} lock=${lockOf(p)} t1=${p.label} t2=${(p.donor || '').split('/').pop() + ' · ' + (p.layers ? 'L' + p.layers[0] + (p.layers[1] !== p.layers[0] ? '-' + p.layers[1] : '') : '')} used=${used(p.id)} dragging=${dragId === p.id} onDragStart=${(e) => startDrag(e, { kind: 'part', part: p }, p.id)} onDragEnd=${endDrag} onClick=${() => addPart(p)} pid=${'p:' + p.id} active=${activePid === 'p:' + p.id} onFocus=${() => setPalActive('p:' + p.id)} />`;
+  const partPiece = (p) => html`<${Piece} key=${p.id} infoId=${p.id} lead=${html`<${ModelLogo} model=${p.donor} size=${20} />`} status=${p.status} tip=${p.evidence} lock=${lockOf(p)} t1=${p.label} t2=${(p.donor || '').split('/').pop() + ' · ' + (p.layers ? 'L' + p.layers[0] + (p.layers[1] !== p.layers[0] ? '-' + p.layers[1] : '') : '')} used=${used(p.id)} dragging=${dragId === p.id} onDragStart=${(e) => startDrag(e, { kind: 'part', part: p }, p.id)} onDragEnd=${endDrag} onClick=${() => addPart(p)} pid=${'p:' + p.id} active=${activePid === 'p:' + p.id} onFocus=${() => setPalActive('p:' + p.id)} />`;
 
   const slabEl = (s) => {
     const label = s.n === 1 ? 'L' + s.first : 'L' + s.first + ' to L' + (s.first + s.n - 1);
@@ -450,7 +469,7 @@ export function BuilderScreen({ id, specId }) {
   };
 
   return html`<${TopBar} right=${html`<span class="pill hide-sm">evals left <b class="num">${budget ? budget.evals_total - budget.evals_used + ' / ' + budget.evals_total : '-'}</b></span>
-      <span class="pill hide-md" title=${budget && budget.compute_raised && !DEMO ? 'The spec says ' + budget.spec_compute_min + ' min. The stub backend raises the compute cap so the evals run out first.' : null}>compute <b class="num">${budget ? (budget.compute_used_s / 60).toFixed(budget.compute_used_s < 600 ? 1 : 0) + ' / ' + Math.round(budget.compute_total_s / 60) + ' min' : '-'}</b>${budget && budget.compute_raised ? html` <${StubBadge} small />` : null}</span>
+      <span class="pill hide-md" title=${budget && budget.compute_raised && !DEMO ? 'The spec says ' + budget.spec_compute_min + ' min. The stub backend raises the compute cap so the evals run out first.' : null}><${SponsorMark} who="modal" size=${12} title="GPUs on Modal" /> compute <b class="num">${budget ? (budget.compute_used_s / 60).toFixed(budget.compute_used_s < 600 ? 1 : 0) + ' / ' + Math.round(budget.compute_total_s / 60) + ' min' : '-'}</b>${budget && budget.compute_raised ? html` <${StubBadge} small />` : null}</span>
       <button class="btn ghost sm" disabled=${!undo.length} onClick=${doUndo} title="Undo (Ctrl or Cmd + Z)"><${Icon} n="undo" size=${14} /> Undo</button><button class="btn sm" disabled=${handing} onClick=${handoff}>${handing ? html`<${Spinner} size=${12} />` : null} Hand to agents</button>`}>
       <h1 class="page-title bt-title ell" title=${spec ? spec.title : 'Builder'}>${spec ? spec.title : 'Builder'}</h1><span class="tag">draft ${attempts.length + 1}</span>
     <//>
@@ -474,7 +493,7 @@ export function BuilderScreen({ id, specId }) {
 
     <section class="canvas" id="builder-canvas" tabindex="-1" ref=${canvasRef}>
       <div class="ctool">
-        <${SlidingBar} class="seg2">${[['canvas', 'Canvas', 'grid'], ['code', 'Code', 'code'], ['split', 'Split', 'layers']].map(([k, l]) => html`<button class=${view === k ? 'on' : ''} onClick=${() => setView(k)}>${l}</button>`)}<//>
+        <${SlidingBar} class="seg2">${[['canvas', 'Canvas', 'grid'], ['code', 'Code', 'code'], ['split', 'Split', 'layers'], ['3d', '3D', 'cube']].map(([k, l]) => html`<button class=${view === k ? 'on' : ''} onClick=${() => setView(k)}>${l}</button>`)}<//>
         ${showCanvas && html`<${SlidingBar} class="seg2"><button class=${layerMode === 'simple' ? 'on' : ''} onClick=${() => setLayerMode('simple')}>Simple</button><button class=${layerMode === 'layers' ? 'on' : ''} onClick=${() => setLayerMode('layers')}>Layers</button><//>`}
       </div>
       <div class=${cvClass}>
@@ -516,6 +535,7 @@ export function BuilderScreen({ id, specId }) {
             ${!program.grafts.length && html`<div class="empty-hint" style=${{ left: nodeX - 60 + 'px' }}><b>Drag a skill onto a layer</b>It grafts a part of a donor model into the host at that layer. A wire shows the link.</div>`}
           </div>
         </div>`}
+        ${show3d && html`<div class="b3d-pane">${brainEl(430)}<div class="b3d-hint">Drag to turn. Click a part for details.</div></div>`}
         ${showCode && html`<div class="codepane">
           <div class="editor">
             <div class="gut"><div style=${{ transform: 'translateY(' + -scroll.y + 'px)' }}>${codeLines.map((_, i) => html`<div class=${codeErr && codeErr.line === i + 1 ? 'err' : ''}>${i + 1}</div>`)}</div></div>
@@ -526,17 +546,19 @@ export function BuilderScreen({ id, specId }) {
         </div>`}
       </div>
       <div class="cv-actions" style=${view === 'code' ? { display: 'none' } : {}}>
-        ${job && html`<div class="jobline"><${Spinner} size=${13} /><span style="text-transform:capitalize">${job.action === 'compile' ? 'Checking fit' : job.action === 'heal' ? 'Healing' : job.action === 'train' ? 'Training' : 'Scoring'}${job.status === 'queued' ? ', queued' : ''}</span><div class="bigbar"><div class="fill" style=${{ width: jobPct + '%', transition: 'width 1s linear' }}></div></div></div>`}
+        ${job && html`<div class="jobline"><${Spinner} size=${13} /><${SponsorMark} who="modal" size=${13} title="Running on Modal GPUs" /><span style="text-transform:capitalize">${job.action === 'compile' ? 'Checking fit' : job.action === 'heal' ? 'Healing' : job.action === 'train' ? 'Training' : 'Scoring'}${job.status === 'queued' ? ', queued' : ''}</span><div class="bigbar"><div class="fill" style=${{ width: jobPct + '%', transition: 'width 1s linear' }}></div></div></div>`}
         <div class="row">
           <button class=${'btn' + (job && job.action === 'compile' ? ' is-busy' : '')} ref=${(el) => { btnRefs.current.compile = el; }} disabled=${!!job} onClick=${() => run('compile')}>${job && job.action === 'compile' ? html`<${Matrix} variant="scan" />` : html`<${Icon} n="gear" size=${14} />`} Compile <span class="k">free fit check</span></button>
           <button class=${'btn' + (job && job.action === 'heal' ? ' is-busy' : '')} ref=${(el) => { btnRefs.current.heal = el; }} disabled=${!!job} onClick=${() => run('heal')}>${job && job.action === 'heal' ? html`<${Matrix} variant="pulse" />` : html`<${Icon} n="heal" size=${14} />`} Heal <span class="k">${healLabel}</span></button>
           <button class=${'btn' + (job && job.action === 'train' ? ' is-busy' : '')} ref=${(el) => { btnRefs.current.train = el; }} disabled=${!!job} onClick=${() => run('train')}>${job && job.action === 'train' ? html`<${Matrix} variant="orbit" />` : html`<${Icon} n="up" size=${14} />`} Train <span class="k">LoRA r${program.lora ? program.lora.rank : 16}</span></button>
           <button class=${'btn primary' + (job && job.action === 'score' ? ' is-busy' : '')} ref=${(el) => { btnRefs.current.score = el; }} disabled=${!!job} onClick=${() => run('score')}>${job && job.action === 'score' ? html`<${Matrix} variant="twinkle" />` : flash === 'score' ? html`<${SuccessCheck} size=${14} />` : html`<${Icon} n="play" size=${13} />`} Score <span class="k" title=${scoreEvals === 2 ? 'One eval for this build and one for its random-part control' : null}>${scoreEvals} eval${scoreEvals === 1 ? '' : 's'}</span></button>
         </div>
+        ${!job && html`<div class="sp-note"><${PoweredBy} who="modal" label="GPUs on" /></div>`}
       </div>
     </section>
 
     <aside class="side">
+      ${!show3d && html`<div class="stage3d b3d-mini" title="Open the 3D view" role="button" tabindex="0" onClick=${() => setView('3d')} onKeyDown=${onKeyAct(() => setView('3d'))}>${brainEl(170)}</div>`}
       <div class="card ringcard">
         <${Ring} value=${prog} />
         <div style="min-width:0"><div class="label">${lastOk ? 'Average of targets' : 'No score yet'}</div>
@@ -563,7 +585,7 @@ export function BuilderScreen({ id, specId }) {
       ${attempts.length > 0 && html`<div><div class="label" style="margin:2px 0 6px">Attempts this session <span class="faint">(average of targets)</span></div>
         ${[...attempts].reverse().slice(0, 8).map((a) => html`<div class="attempt" title="Load this program" tabindex="0" role="button" onKeyDown=${onKeyAct(() => { setProgram(clone(a.program)); setFits({}); })} onClick=${() => { setProgram(clone(a.program)); setFits({}); }}><span class="n">${a.n}</span><span class="d">${briefProgram(a.program, cat)}</span><span class=${'num ' + (a.status && a.status !== 'ok' ? 'down' : '')}>${a.status && a.status !== 'ok' ? statusLabel(a.status) : a.scores && avg(a) != null ? pctS(avg(a)) : pctS(a.combined)}</span></div>`)}</div>`}
 
-      <div style="display:flex;justify-content:space-between;align-items:center"><span class="label">Suggestions</span><button class="btn ghost sm" disabled=${sugBusy} onClick=${() => refreshSugs()}>${sugBusy ? html`<${Spinner} size=${11} />` : 'Refresh'}</button></div>
+      <div style="display:flex;justify-content:space-between;align-items:center"><span class="label" style="display:inline-flex;align-items:center;gap:8px">Suggestions<${PoweredBy} who="openai" label="Suggested with" /></span><button class="btn ghost sm" disabled=${sugBusy} onClick=${() => refreshSugs()}>${sugBusy ? html`<${Spinner} size=${11} />` : 'Refresh'}</button></div>
       ${sugBusy && !sugs && html`<div class="sugload"><${Spinner} size=${13} /> Thinking</div>`}
       ${(sugs || []).map((s) => html`<div class="sug"><b>${s.title}</b> <span class="dim">${s.detail}</span><div class="row"><${Tag} kind=${/likely/.test(s.tag) ? 'g' : /bigger/.test(s.tag) ? 'b' : ''}>${s.tag}<//><button class="btn sm" onClick=${() => { setProgram(clone(s.program)); setFits({}); toast('Applied. Undo with Ctrl or Cmd + Z.'); setSugs((x) => (x || []).filter((y) => y !== s)); }}>Apply</button></div></div>`)}
       ${sugs && !sugs.length && !sugBusy && html`<div class="faint">No suggestions right now.</div>`}

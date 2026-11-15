@@ -79,8 +79,11 @@ def _build_meta_model(config):
 
 
 def _transformers_5():
-    import transformers
-
+    """True on Transformers 5.x. Without Transformers installed, False, so the module still imports."""
+    try:
+        import transformers
+    except ImportError:
+        return False
     return int(transformers.__version__.split(".")[0]) >= 5
 
 
