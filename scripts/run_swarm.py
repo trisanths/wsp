@@ -4,6 +4,8 @@ Examples:
     python scripts/run_swarm.py --backend stub --eval-budget 60 --seed 0
     python scripts/run_swarm.py --backend modal --catalog data/pilot_catalog.jsonl --task-type math_interim \
         --eval-budget 12 --seed 0
+    python scripts/run_swarm.py --backend modal --catalog data/pilot_catalog.jsonl --modal-scorer harness \
+        --eval-budget 12 --seed 0
 
 Stub numbers are plumbing, not results: they are labeled STUB, and search
 numbers are labeled SEARCH.
@@ -40,7 +42,9 @@ def parse_args(argv=None):
                         help="catalog file (default: the stub catalog on stub, else catalog.jsonl); "
                              "Modal runs use data/pilot_catalog.jsonl")
     parser.add_argument("--task-type", default=None,
-                        help="an entry of config task_types (default math); Modal runs use math_interim")
+                        help="an entry of config task_types (default math); Modal interim runs use math_interim")
+    parser.add_argument("--modal-scorer", default=None,
+                        help="modal backend: interim (gsm8k only, default) | harness (gsm8k + if_guard, no cascade)")
     return parser.parse_args(argv)
 
 
@@ -65,6 +69,8 @@ def build_config(args):
         overrides["catalog_path"] = args.catalog
     if args.task_type is not None:
         overrides["task_type"] = args.task_type
+    if args.modal_scorer is not None:
+        overrides["modal_scorer"] = args.modal_scorer
     return make_config(overrides)
 
 

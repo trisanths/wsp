@@ -21,15 +21,21 @@ deployed GPU functions in modal_swarm.py:
   heal ran here). Fidelity becomes a question count: the first
   round(fraction x split size) items of the split, so the levels are nested
   (check 32, low 68 and full 200 on the search split).
-- base_scores(split, tasks) runs host_baseline once per split. It uses the
-  same interim scorer as every candidate, so scores are normalized against a
-  host graded the same way. It is a shared reference, charged to no arm.
+- base_scores(split, tasks): with the interim scorer, host_baseline once per
+  split; with the harness, the config base_scores table. Either way the host
+  is graded by the same scorer as every candidate, and the reference is
+  shared, charged to no arm.
 
-Scores. Every score comes from the interim GSM8K scorer
-(wsp/swarm/interim_eval.py) and carries the label INTERIM. The backend
-grades gsm8k only, so it refuses a task setup with any other task or guard;
-use task_type "math_interim" for Modal runs. Person B's harness (gsm8k plus
-if_guard) is a later change inside run_candidate.
+Scores. Config modal_scorer picks the scorer inside run_candidate, the same
+for every arm:
+- "interim" (default): wsp/swarm/interim_eval.py, gsm8k only, label
+  INTERIM. Use task_type "math_interim" (no guard). Every fidelity works.
+- "harness": Arjun's wsp_eval.harness.evaluate on the hf backend, gsm8k and
+  if_guard, label HARNESS. task_type "math" works. The harness grades whole
+  splits only, so the cascade is refused at construction and any fidelity
+  below full at evaluate. base_scores come from config base_scores, which the
+  same harness measured on Modal (modal_eval.py::base_scores, hf backend).
+The backend refuses a task its scorer cannot grade.
 
 Budget. There is no ModalBudget. The search loop runs in one process on this
 machine, so a run uses budget "local": that process holds the eval and
@@ -63,7 +69,6 @@ from wsp.swarm import program_schema as ps
 from wsp.swarm.backends import CompileEval
 from wsp.swarm.config import REPO_ROOT, all_tasks, fidelity_cost
 
-TASK = "gsm8k"
 HELDOUT_SIZE = 1319          # GSM8K test, every item of which modal_swarm.split_items scores for "heldout"
 SPLIT_SIZES = {"search": SEARCH_SIZE, "heldout": HELDOUT_SIZE}
 PHASES = ["compile", "heal", "eval"]
@@ -95,11 +100,11 @@ def catalog_name_for(path, catalog_files):
     return None
 
 
-def other_tasks(tasks):
-    """The tasks the interim scorer cannot grade."""
+def other_tasks(tasks, allowed):
+    """The tasks not in `allowed`, the tasks a scorer can grade."""
     others = []
     for task in tasks:
-        if task != TASK:
+        if task not in allowed:
             others.append(task)
     return others
 
@@ -116,7 +121,6 @@ class ModalCompileEval(CompileEval):
     """The env's backend on the deployed wsp-swarm app. See the module docstring."""
 
     name = "modal"
-    label = "INTERIM"
 
     def __init__(self, config, catalog):
         self.config = config
@@ -131,11 +135,26 @@ class ModalCompileEval(CompileEval):
         self.method = config.get("method") or ""
         self.align_samples = int(config["align_samples"])
 
-        unsupported = other_tasks(all_tasks(config))
+        self.scorer = config.get("modal_scorer") or "interim"
+        if self.scorer not in self.ms.SCORERS:
+            raise ValueError("config modal_scorer must be one of " + ", ".join(self.ms.SCORERS) + "; got " +
+                             repr(self.scorer))
+        self.label = self.ms.SCORER_LABELS[self.scorer]
+        self.allowed_tasks = list(self.ms.SCORER_TASKS[self.scorer])
+        tasks = all_tasks(config)
+        unsupported = other_tasks(tasks, self.allowed_tasks)
         if len(unsupported) > 0:
-            raise ValueError("backend 'modal' grades " + TASK + " only (the interim scorer in modal_swarm.py), "
-                             "but task_type '" + str(config["task_type"]) + "' also asks for " +
-                             ", ".join(unsupported) + ". Use task_type 'math_interim' for Modal runs.")
+            hint = "Use task_type 'math_interim' with the interim scorer, or modal_scorer 'harness'."
+            if self.scorer == "harness":
+                hint = "The harness scorer grades " + ", ".join(self.allowed_tasks) + "."
+            raise ValueError("backend 'modal' with modal_scorer '" + self.scorer + "' grades " +
+                             ", ".join(self.allowed_tasks) + " only, but task_type '" + str(config["task_type"]) +
+                             "' also asks for " + ", ".join(unsupported) + ". " + hint)
+        if self.scorer == "harness":
+            if config.get("cascade"):
+                raise ValueError("modal_scorer 'harness' grades whole splits only, so the cascade (partial "
+                                 "question sets) cannot run with it; turn cascade off or use the interim scorer")
+            self.check_base_table(tasks)
 
         path = catalog_path_or_default(config.get("catalog_path"))
         self.catalog_name = catalog_name_for(path, self.ms.CATALOG_FILES)
@@ -150,6 +169,15 @@ class ModalCompileEval(CompileEval):
         self.functions_lock = threading.Lock()
         self.base = {}
         self.base_lock = threading.Lock()
+
+    def check_base_table(self, tasks):
+        """The harness scorer reads host scores from config base_scores: refuse a table missing a split or task."""
+        table = self.config.get("base_scores") or {}
+        for split in sorted(SPLIT_SIZES):
+            for task in tasks:
+                if split not in table or task not in table[split]:
+                    raise ValueError("modal_scorer 'harness' needs config base_scores[" + split + "][" + task +
+                                     "], the host graded by the same harness (modal_eval.py::base_scores)")
 
     def function(self, name):
         """A handle to one deployed function, looked up once."""
@@ -208,16 +236,21 @@ class ModalCompileEval(CompileEval):
 
     def evaluate(self, handle, split, tasks, token, fidelity="full"):
         """Compile, heal and grade on Modal (run_candidate) with the token the env spent."""
-        unsupported = other_tasks(tasks)
+        tasks = list(tasks)
+        unsupported = other_tasks(tasks, self.allowed_tasks)
         if len(unsupported) > 0:
-            return {"ok": False, "error": "backend 'modal' grades " + TASK + " only; asked for " +
-                    ", ".join(unsupported), "scores": {}, "compute_s": {}}
+            return {"ok": False, "error": "backend 'modal' with modal_scorer '" + self.scorer + "' grades " +
+                    ", ".join(self.allowed_tasks) + " only; asked for " + ", ".join(unsupported),
+                    "scores": {}, "compute_s": {}}
         if split not in SPLIT_SIZES:
             return {"ok": False, "error": "unknown split " + repr(split), "scores": {}, "compute_s": {}}
-        program = handle["program"]
         eval_limit = self.eval_limit_for(split, fidelity)
+        if self.scorer == "harness" and eval_limit is not None:
+            return {"ok": False, "error": "modal_scorer 'harness' grades whole splits only; fidelity " +
+                    repr(fidelity) + " asks for " + str(eval_limit) + " items", "scores": {}, "compute_s": {}}
+        program = handle["program"]
         cached = self.ms.lookup_result(program, split, self.catalog_name, self.run_id, eval_limit,
-                                       self.align_samples)
+                                       self.align_samples, self.scorer, tasks)
         if cached is not None:
             result = self.ms.as_cache_hit(cached)
             result["token"] = token
@@ -225,7 +258,8 @@ class ModalCompileEval(CompileEval):
             try:
                 result = self.function("run_candidate").remote(
                     program, split, token, self.catalog_name, eval_limit=eval_limit,
-                    align_samples=self.align_samples, run_id=self.run_id, pool=split, who=WHO, method=self.method)
+                    align_samples=self.align_samples, run_id=self.run_id, pool=split, who=WHO, method=self.method,
+                    tasks=tasks, scorer=self.scorer)
             except Exception as error:
                 return {"ok": False, "error": "run_candidate failed: " + type(error).__name__ + ": " + str(error),
                         "scores": {}, "compute_s": {}}
@@ -244,7 +278,13 @@ class ModalCompileEval(CompileEval):
         return out
 
     def base_scores(self, split, tasks):
-        """The plain host graded by the interim scorer (host_baseline), once per split."""
+        """The plain host, graded by this run's scorer: host_baseline (interim) or the config table (harness)."""
+        if self.scorer == "harness":
+            table = self.config["base_scores"][split]
+            out = {}
+            for task in tasks:
+                out[task] = table[task]
+            return out
         with self.base_lock:
             if split not in self.base:
                 result = self.function("host_baseline").remote(split)

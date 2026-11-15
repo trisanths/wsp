@@ -839,3 +839,76 @@ def test_score_passes_use_cache_false_only_when_asked():
     model = FakeModel()
     interim_eval.score(model, FakeTokenizer([" 1"]), items, use_cache=False)
     assert model.options[0]["use_cache"] is False
+
+
+# ---------------------------------------------------------------- the harness scorer
+
+
+def test_result_key_separates_the_scorers_and_tasks():
+    program = graft_program()
+    base = modal_swarm.result_key(program, "search", "pilot", "r1", None)
+    assert modal_swarm.result_key(program, "search", "pilot", "r1", None, tasks=["gsm8k"]) == base
+    harness = modal_swarm.result_key(program, "search", "pilot", "r1", None, eval_backend="harness",
+                                     tasks=["gsm8k", "if_guard"])
+    assert harness != base and harness.endswith("|harness")
+    assert "gsm8k+if_guard" in harness
+    assert modal_swarm.result_key(program, "search", "pilot", "r1", None, eval_backend="harness",
+                                  tasks=["gsm8k"]) != harness
+
+
+def fake_harness(monkeypatch, work):
+    """Replace the harness setup and grading. The grade advances the fake clock by 8 s."""
+    seen = {"setup": [], "eval": []}
+
+    def setup_harness(split, tasks):
+        seen["setup"].append((split, list(tasks)))
+        work.clock.advance(4.0)
+
+    def evaluate_harness(work_dir, split, tasks, namespace):
+        seen["eval"].append((split, list(tasks), namespace))
+        work.clock.advance(8.0)
+        scores = {}
+        per_task = {}
+        for name in tasks:
+            scores[name] = 0.5
+            per_task[name] = 100
+        return {"scores": scores, "n_items": 100 * len(tasks), "n_items_per_task": per_task}
+
+    monkeypatch.setattr(modal_swarm, "setup_harness", setup_harness)
+    monkeypatch.setattr(modal_swarm, "evaluate_harness", evaluate_harness)
+    return seen
+
+
+def test_run_candidate_grades_every_task_with_the_harness(fakes, work, monkeypatch):
+    seen = fake_harness(monkeypatch, work)
+    result = call_local(modal_swarm.run_candidate, graft_program(), "search", 2, "pilot", None, run_id="r1",
+                        pool="search", tasks=["gsm8k", "if_guard"], scorer="harness")
+    assert result["ok"] is True
+    assert result["scores"] == {"gsm8k": 0.5, "if_guard": 0.5}
+    assert result["eval_backend"] == "harness" and result["label"] == "HARNESS"
+    assert result["n_items"] == 200 and result["n_items_per_task"] == {"gsm8k": 100, "if_guard": 100}
+    assert seen["setup"] == [("search", ["gsm8k", "if_guard"])]
+    assert seen["eval"] == [("search", ["gsm8k", "if_guard"], "r1")]
+    # The harness setup lands in the untimed setup; only the grade is charged as eval.
+    assert result["setup_seconds"] == 54.0
+    assert result["seconds"]["eval"] == 8.0
+    assert work.calls == ["setup", "compile"]
+    key = modal_swarm.result_key(graft_program(), "search", "pilot", "r1", None, eval_backend="harness",
+                                 tasks=["gsm8k", "if_guard"])
+    assert fakes[modal_swarm.CACHE_DICT].get(key) is not None
+    assert modal_swarm.lookup_result(graft_program(), "search", "pilot", "r1") is None
+
+
+def test_run_candidate_refuses_what_a_scorer_cannot_grade(fakes, work, monkeypatch):
+    fake_harness(monkeypatch, work)
+    limited = call_local(modal_swarm.run_candidate, graft_program(), "search", 0, "pilot", 20, run_id="r1",
+                         pool="search", tasks=["gsm8k"], scorer="harness")
+    assert limited["ok"] is False and "whole splits" in limited["error"]
+    guard = call_local(modal_swarm.run_candidate, graft_program(), "search", 0, "pilot", 20, run_id="r1",
+                       pool="search", tasks=["gsm8k", "if_guard"], scorer="interim")
+    assert guard["ok"] is False and "if_guard" in guard["error"]
+    unknown = call_local(modal_swarm.run_candidate, graft_program(), "search", 0, "pilot", None, run_id="r1",
+                         pool="search", scorer="vllm")
+    assert unknown["ok"] is False and "unknown scorer" in unknown["error"]
+    assert work.calls == []
+    assert compute_rows(fakes, "r1") == []

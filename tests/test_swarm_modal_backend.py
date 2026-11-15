@@ -83,6 +83,7 @@ class FakeApp:
         self.probe_raises = False
         self.run_raises = False
         self.run_ok = True
+        self.task_scores = {"gsm8k": 0.40, "if_guard": 0.42}
         self.probe = FakeRemote(self.probe_candidate)
         self.run = FakeRemote(self.run_candidate)
         self.host = FakeRemote(self.host_baseline)
@@ -99,14 +100,19 @@ class FakeApp:
         return result
 
     def run_candidate(self, program_dict, split, token, catalog_name, eval_limit=None, align_samples=64,
-                      run_id=None, pool=None, who="", method=""):
+                      run_id=None, pool=None, who="", method="", tasks=None, scorer="interim"):
         if self.run_raises:
             raise ConnectionError("fake Modal outage")
+        if tasks is None:
+            tasks = ["gsm8k"]
+        scores = {}
+        for name in tasks:
+            scores[name] = self.task_scores[name]
         result = result_fields({"run_id": run_id, "pool": pool, "who": who, "method": method})
-        result.update({"ok": self.run_ok, "error": None, "phase": None, "scores": {"gsm8k": 0.40},
+        result.update({"ok": self.run_ok, "error": None, "phase": None, "scores": scores,
                        "seconds": dict(self.run_seconds), "heal_loss": [1.2, 1.0], "token": token,
-                       "compile_report": {"grafts": [graft_entry()]}, "eval_backend": "interim",
-                       "label": "INTERIM", "uncharged": dict(self.run_uncharged)})
+                       "compile_report": {"grafts": [graft_entry()]}, "eval_backend": scorer,
+                       "label": modal_swarm.SCORER_LABELS[scorer], "uncharged": dict(self.run_uncharged)})
         if not self.run_ok:
             result["error"] = "RuntimeError: CUDA out of memory"
             result["phase"] = "heal"
@@ -355,3 +361,72 @@ def test_env_failures_follow_the_step_rules(tmp_path, app):
     row = env.step(program(steps=600), "planner-1", "heal crash")[4]
     assert row["status"] == "infra_error" and "out of memory" in row["extra"]["error"]
     assert budget.eval_used() == 2
+
+
+# The harness scorer: gsm8k plus if_guard, whole splits only.
+
+
+def harness_overrides(extra=None):
+    values = {"modal_scorer": "harness", "task_type": "math"}
+    if extra is not None:
+        for key in extra:
+            values[key] = extra[key]
+    return values
+
+
+def test_interim_refuses_the_guard_and_points_at_both_fixes(tmp_path, app):
+    with pytest.raises(ValueError) as error:
+        bridge(tmp_path, {"task_type": "math"})
+    assert "math_interim" in str(error.value) and "harness" in str(error.value)
+
+
+def test_harness_refuses_the_cascade_an_unknown_scorer_and_a_missing_base(tmp_path, app):
+    with pytest.raises(ValueError) as error:
+        bridge(tmp_path, harness_overrides({"cascade": True}))
+    assert "cascade" in str(error.value)
+    with pytest.raises(ValueError):
+        bridge(tmp_path, {"modal_scorer": "vllm"})
+    partial = {"search": {"gsm8k": 0.23}, "heldout": {"gsm8k": 0.201, "if_guard": 0.488}}
+    with pytest.raises(ValueError) as error:
+        bridge(tmp_path, harness_overrides({"base_scores": partial}))
+    assert "base_scores[search][if_guard]" in str(error.value)
+
+
+def test_harness_mode_sends_tasks_and_scorer_and_whole_splits(tmp_path, app):
+    backend = bridge(tmp_path, harness_overrides())
+    assert backend.label == "HARNESS"
+    handle = backend.compile(program())["handle"]
+    result = backend.evaluate(handle, "search", ["gsm8k", "if_guard"], 4, "full")
+    assert result["ok"] is True and result["scores"] == {"gsm8k": 0.40, "if_guard": 0.42}
+    assert result["label"] == "HARNESS"
+    call = app.run.calls[0]
+    assert call["kwargs"]["tasks"] == ["gsm8k", "if_guard"] and call["kwargs"]["scorer"] == "harness"
+    assert call["kwargs"]["eval_limit"] is None
+    refused = backend.evaluate(handle, "search", ["gsm8k", "if_guard"], 5, "check")
+    assert refused["ok"] is False and "whole splits" in refused["error"]
+    assert len(app.run.calls) == 1
+
+
+def test_harness_base_scores_come_from_the_config_table(tmp_path, app):
+    backend = bridge(tmp_path, harness_overrides())
+    table = backend.config["base_scores"]
+    assert backend.base_scores("search", ["gsm8k", "if_guard"]) == table["search"]
+    assert backend.base_scores("heldout", ["gsm8k", "if_guard"]) == table["heldout"]
+    assert len(app.host.calls) == 0
+
+
+def test_env_step_with_the_harness_counts_the_guard(tmp_path, app):
+    backend = bridge(tmp_path, harness_overrides())
+    env, budget = make_env(tmp_path, backend)
+    kept = env.step(program(steps=300), "planner-1", "guard holds")[4]
+    assert kept["status"] == "ok" and kept["scores"] == {"gsm8k": 0.40, "if_guard": 0.42}
+    app.task_scores = {"gsm8k": 0.40, "if_guard": 0.30}
+    broken = env.step(program(steps=600), "planner-1", "guard breaks")[4]
+    assert broken["status"] == "ok"
+    # Same GSM8K score, but if_guard fell more than 10% below the host's 0.42 (still above half of it,
+    # the collapse line), so the guard penalty lowers the combined score.
+    assert broken["combined"] < kept["combined"]
+    app.task_scores = {"gsm8k": 0.40, "if_guard": 0.20}
+    collapsed = env.step(program(steps=100), "planner-1", "guard collapses")[4]
+    assert collapsed["status"] == "collapsed"
+    assert budget.eval_used() == 3

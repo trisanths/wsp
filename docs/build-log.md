@@ -121,3 +121,16 @@ Both waves ran as workflows. Each builder got an independent reviewer and, when 
   - compute 59.31 s on the local ledger and 59.31 s on the Modal ledger;
   - host base on the search split 0.225 (interim).
 - Wall time is far above charged GPU-seconds: 7 min for the step against 41 s charged. The gap is the cold start, untimed setup and the first host baseline (now cached for every run). Modal bills container time, so the real spend runs above the ledger.
+
+## 2026-11-14, step 11: the official eval on the Modal bridge
+
+- `run_candidate` takes `scorer` and `tasks`. `scorer="harness"` grades with Arjun's `wsp_eval.harness.evaluate` (hf backend, GSM8K plus `if_guard`); `"interim"` stays the default. The harness grades whole splits only, so it refuses an `eval_limit`. Result cache keys now carry the scorer and tasks; the defaults give the old keys.
+- `ModalCompileEval` reads config `modal_scorer` (new, in DEFAULTS, so every arm shares it). In harness mode it allows task type `math`, refuses the cascade, refuses fidelities below full, and takes host base scores from config `base_scores` (the same harness on Modal). `run_swarm.py` gets `--modal-scorer`.
+- The image carries `wsp_eval`, with `WSP_ROOT=/tmp/wsp_eval_root` and `WSP_HF_BATCH_SIZE=64`. Redeployed as wsp-swarm v5.
+- Tests: 107 of 107 in the swarm core and Modal files. All swarm files together: 284 pass, 3 fail in `test_swarm_baselines.py` (2 from uncommitted `standing` edits of unknown origin, 1 cascade pricing test that fails at HEAD).
+- Live check on an L4, run `harness-live-1794714373` [SEARCH][HARNESS]:
+  - probe fit_r2 0.676;
+  - full-fidelity step, heal 100: GSM8K 0.29 and if_guard 0.35 (host 0.23 and 0.42), combined -0.089, because the guard fell 17% below the host;
+  - GPU-seconds: compile 10.0, heal 29.4, eval 85.7 (200 GSM8K and 100 IFEval items);
+  - both ledgers 136.48 s.
+- Wall time was 16 min for the step against 125 s charged: the first container on the new image, plus the harness's first dataset loads.

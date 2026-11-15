@@ -1,9 +1,10 @@
 """Modal app "wsp-swarm": part 3's budget objects, caches, and the real compile, heal and eval path.
 
 First pair: host unsloth/Llama-3.2-1B-Instruct, donor Qwen/Qwen2.5-Math-1.5B,
-task GSM8K. Every score here comes from the interim scorer
-(wsp/swarm/interim_eval.py, the same logic as modal_graft.py) and is labeled
-"interim" until Person B's eval lands. Search-split numbers are never results.
+task GSM8K. run_candidate grades with one of two scorers: the interim scorer
+(wsp/swarm/interim_eval.py, the same logic as modal_graft.py, gsm8k only,
+labeled "interim") or Arjun's eval harness (wsp_eval.harness, gsm8k and
+if_guard on the hf backend, labeled "harness"). Search-split numbers are never results.
 
 Auth and workspace come only from MODAL_TOKEN_ID and MODAL_TOKEN_SECRET in
 the environment (load .env with `set -a && . ./.env && set +a`). Nothing here
@@ -41,8 +42,10 @@ Remote functions (max_containers=4 on GPU, a timeout on each, no
 min_containers, no web endpoints):
     probe_candidate(program_dict, catalog_name, run_id=, pool=, who=, method=)
         fit-only compile, cached in wsp-probe for that run
-    run_candidate(program_dict, split, token, catalog_name, eval_limit=None, run_id=, pool=, who=, method=)
-        compile, heal and eval in one container, cached in wsp-cache for that run
+    run_candidate(program_dict, split, token, catalog_name, eval_limit=None, run_id=, pool=, who=, method=,
+                  tasks=None, scorer="interim")
+        compile, heal and eval in one container, cached in wsp-cache for that run; scorer
+        "harness" grades gsm8k and if_guard with wsp_eval.harness (whole splits only)
     host_baseline(split, eval_limit=None)    the plain host, scored once and cached for every run
     extract_parts(layers=None, sizes=None)   the pilot part set (max_containers=1)
 No remote function pops a token: the caller spends it and passes it in, so
@@ -115,6 +118,12 @@ DONOR_SHORT = "qmath15"
 TASK = "gsm8k"
 EVAL_BACKEND = "interim"
 SPLITS = ["search", "heldout"]
+# run_candidate's scorers: "interim" (wsp/swarm/interim_eval.py, gsm8k only, any eval_limit) and
+# "harness" (Arjun's wsp_eval.harness.evaluate with the hf backend, gsm8k and if_guard, whole splits only).
+SCORERS = ["interim", "harness"]
+SCORER_TASKS = {"interim": ["gsm8k"], "harness": ["gsm8k", "if_guard"]}
+SCORER_LABELS = {"interim": "INTERIM", "harness": "HARNESS"}
+HARNESS_ROOT = "/tmp/wsp_eval_root"   # WSP_ROOT in the container: the harness's work files stay container-local
 
 GPU_ENV = "WSP_SWARM_GPU"
 DEFAULT_GPU = "L4"
@@ -192,8 +201,9 @@ def build_image():
             "torch==2.7.1", "transformers==4.57.1", "accelerate", "huggingface_hub", "requests",
             "safetensors", "zstandard", "numpy", "datasets",
         )
-        .env({"HF_HOME": VOL + "/hf", GPU_ENV: gpu_text(GPU)})
-        .add_local_python_source("wsp")
+        .env({"HF_HOME": VOL + "/hf", GPU_ENV: gpu_text(GPU), "WSP_ROOT": HARNESS_ROOT,
+              "WSP_HF_BATCH_SIZE": "64"})
+        .add_local_python_source("wsp", "wsp_eval")
     )
     for name in sorted(CATALOG_FILES):
         repo_path, container_path = CATALOG_FILES[name]
@@ -519,14 +529,24 @@ def probe_key(program_dict, catalog_name, scope, align_samples=ALIGN_SAMPLES):
     return "|".join(parts)
 
 
-def result_key(program_dict, split, catalog_name, scope, eval_limit=None, align_samples=ALIGN_SAMPLES):
+def tasks_text(tasks):
+    """The task part of a result key: "gsm8k" for the default, else the task names joined by "+"."""
+    if tasks is None:
+        return TASK
+    return "+".join(tasks)
+
+
+def result_key(program_dict, split, catalog_name, scope, eval_limit=None, align_samples=ALIGN_SAMPLES,
+               eval_backend=EVAL_BACKEND, tasks=None):
     """wsp-cache key for one run_candidate result, scoped to one run id like probe_key.
 
-    Includes the eval backend, so interim scores never answer for Person B's eval.
+    Includes the scorer (eval_backend) and the tasks, so interim scores never
+    answer for the harness and the other way round. The defaults give the
+    same keys as before the harness scorer existed.
     """
     check_name(scope, "scope")
-    parts = [scope, program_hash(program_dict), split, TASK, limit_text(eval_limit), catalog_name,
-             "align" + str(align_samples), EVAL_BACKEND]
+    parts = [scope, program_hash(program_dict), split, tasks_text(tasks), limit_text(eval_limit), catalog_name,
+             "align" + str(align_samples), eval_backend]
     return "|".join(parts)
 
 
@@ -558,10 +578,11 @@ def lookup_probe(program_dict, catalog_name, scope, align_samples=ALIGN_SAMPLES)
     return cache_lookup(PROBE_DICT, probe_key(program_dict, catalog_name, scope, align_samples))
 
 
-def lookup_result(program_dict, split, catalog_name, scope, eval_limit=None, align_samples=ALIGN_SAMPLES):
+def lookup_result(program_dict, split, catalog_name, scope, eval_limit=None, align_samples=ALIGN_SAMPLES,
+                  eval_backend=EVAL_BACKEND, tasks=None):
     """This run's cached run_candidate result. A hit means this run already paid for it."""
     return cache_lookup(CACHE_DICT, result_key(program_dict, split, catalog_name, scope, eval_limit,
-                                               align_samples))
+                                               align_samples, eval_backend, tasks))
 
 
 def lookup_host(split, eval_limit=None, host=HOST):
@@ -808,6 +829,44 @@ def evaluate_model(work_dir, items, report):
     return scored
 
 
+def setup_harness(split, tasks):
+    """The untimed setup for the harness scorer: import it and load each task's split items once per container.
+
+    wsp_eval.splits caches the items for the life of the process, so the
+    dataset load stays out of the timed eval phase on cold and warm
+    containers alike.
+    """
+    from wsp_eval import splits
+    from wsp_eval import tasks as tasks_module
+
+    importlib.import_module("wsp_eval.harness")
+    for name in tasks:
+        splits.split_items(tasks_module.get_task(name), split)
+
+
+def evaluate_harness(work_dir, split, tasks, namespace):
+    """Score the compiled model in work_dir with Arjun's harness (hf backend). Returns scores and item counts.
+
+    allow_heldout_rerun is True because the harness's held-out ledger lives in
+    this container's WSP_ROOT, so a Modal retry of the same held-out call would
+    trip it. The env's rule 7 (each program scored once on held-out per run)
+    is the guard that counts.
+    """
+    from wsp_eval import harness
+
+    graded = harness.evaluate(work_dir, split, list(tasks), namespace=namespace, allow_heldout_rerun=True,
+                              note="wsp-swarm run_candidate", backend="hf")
+    scores = {}
+    per_task = {}
+    total = 0
+    for name in tasks:
+        entry = graded["tasks"][name]
+        scores[name] = float(entry["score"])
+        per_task[name] = int(entry["n"])
+        total += int(entry["n"])
+    return {"scores": scores, "n_items": total, "n_items_per_task": per_task}
+
+
 def score_host(host, items):
     """Load the plain host from the volume's HF cache and score it with the interim scorer."""
     import torch
@@ -900,6 +959,20 @@ def gpu_name():
 
 def valid_token(token):
     return isinstance(token, int) and not isinstance(token, bool) and token >= 0
+
+
+def scorer_problem(scorer, tasks, eval_limit):
+    """Why run_candidate cannot grade these tasks with this scorer, or None."""
+    if scorer not in SCORERS:
+        return "unknown scorer " + repr(scorer) + "; choose " + ", ".join(SCORERS)
+    if len(tasks) == 0:
+        return "run_candidate needs at least one task"
+    for name in tasks:
+        if name not in SCORER_TASKS[scorer]:
+            return ("scorer " + scorer + " grades " + ", ".join(SCORER_TASKS[scorer]) + "; got task " + repr(name))
+    if scorer == "harness" and eval_limit is not None:
+        return "scorer harness grades whole splits only; eval_limit must be None, got " + repr(eval_limit)
+    return None
 
 
 def call_problem(run_id, pool):
@@ -1028,7 +1101,7 @@ def probe_candidate(program_dict, catalog_name, align_samples=ALIGN_SAMPLES, run
               max_containers=GPU_MAX_CONTAINERS, scaledown_window=60,
               retries=modal.Retries(max_retries=1, initial_delay=5.0))
 def run_candidate(program_dict, split, token, catalog_name, eval_limit=None, align_samples=ALIGN_SAMPLES,
-                  run_id=None, pool=None, who="", method=""):
+                  run_id=None, pool=None, who="", method="", tasks=None, scorer="interim"):
     """Compile, heal and evaluate one program in ONE container, timing and charging each phase.
 
     token is the eval token the caller already spent with spend(); this
@@ -1048,29 +1121,39 @@ def run_candidate(program_dict, split, token, catalog_name, eval_limit=None, ali
     the end of setup to the heal loop (assembly and the ridge fit); "heal" is
     the heal loop the compiler timed; "eval" covers loading the compiled
     model and generation. A failed phase is charged for the seconds it ran.
+
+    scorer "interim" (the default) grades gsm8k with wsp/swarm/interim_eval.py
+    and takes any eval_limit. scorer "harness" grades every task in `tasks`
+    (gsm8k, if_guard) with wsp_eval.harness.evaluate on the hf backend, and
+    only whole splits, so it refuses an eval_limit. tasks None means ["gsm8k"].
     """
     import shutil
     import tempfile
 
     from wsp.program import Program
 
+    if tasks is None:
+        tasks = [TASK]
+    tasks = list(tasks)
     result = base_result(run_id, pool, who, method, ["compile", "heal", "eval"])
-    result.update({"scores": {}, "n_items": 0, "compile_report": None, "eval_backend": EVAL_BACKEND,
-                   "label": "INTERIM", "split": split, "token": token, "catalog": catalog_name,
-                   "eval_limit": eval_limit, "align_samples": align_samples, "program_hash": None,
-                   "heal_loss": [], "samples": []})
+    result.update({"scores": {}, "n_items": 0, "compile_report": None, "eval_backend": scorer,
+                   "label": SCORER_LABELS.get(scorer, "UNKNOWN"), "split": split, "token": token,
+                   "catalog": catalog_name, "eval_limit": eval_limit, "align_samples": align_samples,
+                   "program_hash": None, "heal_loss": [], "samples": [], "tasks": tasks})
     problem = call_problem(run_id, pool)
     if problem is None and not valid_token(token):
         problem = "run_candidate needs the eval token the caller spent (an int >= 0), got " + repr(token)
     if problem is None and split not in SPLITS:
         problem = "unknown split " + repr(split) + "; choose " + ", ".join(SPLITS)
+    if problem is None:
+        problem = scorer_problem(scorer, tasks, eval_limit)
     if problem is not None:
         result["error"] = problem
         return result
     try:
         program = Program.from_dict(program_dict)
         result["program_hash"] = program_hash(program_dict)
-        key = result_key(program_dict, split, catalog_name, run_id, eval_limit, align_samples)
+        key = result_key(program_dict, split, catalog_name, run_id, eval_limit, align_samples, scorer, tasks)
     except Exception as error:
         result["error"] = "cannot read program: " + describe_error(error)
         return result
@@ -1086,6 +1169,8 @@ def run_candidate(program_dict, split, token, catalog_name, eval_limit=None, ali
     clock = time.time()
     try:
         setup = setup_run(program, catalog_name, split, eval_limit, align_samples)
+        if scorer == "harness":
+            setup_harness(split, tasks)
         result["setup_seconds"] = round(time.time() - clock, 2)
         result["warmed"] = setup["warmed"]
 
@@ -1104,12 +1189,19 @@ def run_candidate(program_dict, split, token, catalog_name, eval_limit=None, ali
 
         phase = "eval"
         clock = time.time()
-        scored = evaluate_model(work_dir, setup["items"], report)
+        if scorer == "harness":
+            scored = evaluate_harness(work_dir, split, tasks, run_id)
+        else:
+            scored = evaluate_model(work_dir, setup["items"], report)
         result["seconds"]["eval"] = round(time.time() - clock, 2)
         charge_in_container(result, "eval", result["seconds"]["eval"])
-        result["scores"] = {TASK: scored["accuracy"]}
+        if scorer == "harness":
+            result["scores"] = scored["scores"]
+            result["n_items_per_task"] = scored["n_items_per_task"]
+        else:
+            result["scores"] = {TASK: scored["accuracy"]}
+            result["samples"] = scored["samples"]
         result["n_items"] = scored["n_items"]
-        result["samples"] = scored["samples"]
         result["ok"] = True
     except Exception as error:
         result["error"] = describe_error(error)

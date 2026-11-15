@@ -33,6 +33,7 @@ DEFAULTS = {
     # Pluggable pieces, chosen by name in factory.py.
     "budget": "local",           # local | modal
     "backend": "stub",           # stub | local | modal
+    "modal_scorer": "interim",   # modal backend only: interim (gsm8k, task_type math_interim) | harness (gsm8k + if_guard)
     "memory": "off",             # off | past
     "literature": "off",         # off | replay | live
     "llm": "none",               # none | mock | modal_vllm | openai_compat | anthropic
