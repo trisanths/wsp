@@ -69,7 +69,8 @@ def sizes(base_cfg, src_cfg, s):
     """Spec and parameter counts of the write-in from configs alone."""
     from wsp import auto
 
-    spec = xfam.spec_for(base_cfg, src_cfg)
+    reads = s.get("pgraft_read_layers")
+    spec = xfam.spec_for(base_cfg, src_cfg, {"read_layers": reads} if reads else None)
     n_layers = spec["last"] - spec["first"] + 1
     slice_params = n_layers * auto.layer_params(src_cfg)
     glue = xfam.glue_params(spec)

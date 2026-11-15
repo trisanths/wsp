@@ -111,6 +111,7 @@ SETTINGS = {
     "seam_threshold": 3,
     "slim_keep": 0.5,           # share of experts a MoE slim keeps when max_total_params_b sets no size
     "pgraft_controls": ["identity", "scrambled"],   # controls the compiler trains itself after the write-in (pgraft)
+    "pgraft_read_layers": None,   # "dense": Enc reads a mix of host layers 1..host_layer (not measured in this recipe)
     "tops_cut": 0.5,            # share of the base layers kept as the shared trunk of a skill top (size estimate)
 }
 

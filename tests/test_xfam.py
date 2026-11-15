@@ -96,12 +96,14 @@ def test_spec_follows_the_measured_recipe():
     spec = xfam.spec_for({"layers": 16, "hidden": 2048}, {"layers": 28, "hidden": 3584})
     assert (spec["host_layer"], spec["first"], spec["last"]) == (7, 4, 20)
     assert spec["steps"] == 4000 and spec["align_steps"] == 600 and spec["lora_rank"] == 16
-    assert spec["read_layers"] == [1, 2, 3, 4, 5, 6, 7]
-    # the trainable Enc, Dec and gate count of the stored wi_xfam rows (one read layer), plus 7 mix weights
-    assert xfam.glue_params(dict(spec, read_layers=None)) == 15214466
-    assert xfam.glue_params(spec) == 15214466 + 7
-    # an overridden host layer moves the reads with it
-    assert xfam.spec_for({"layers": 16, "hidden": 8}, {"layers": 28, "hidden": 8}, {"host_layer": 3})["read_layers"] == [1, 2, 3]
+    # the measured recipe reads one host layer; the trainable Enc, Dec and gate count of the stored wi_xfam rows
+    assert spec["read_layers"] is None
+    assert xfam.glue_params(spec) == 15214466
+    dense = xfam.spec_for({"layers": 16, "hidden": 2048}, {"layers": 28, "hidden": 3584}, {"read_layers": "dense"})
+    assert dense["read_layers"] == [1, 2, 3, 4, 5, 6, 7] and xfam.glue_params(dense) == 15214466 + 7
+    # the dense reads follow an overridden host layer
+    assert xfam.spec_for({"layers": 16, "hidden": 8}, {"layers": 28, "hidden": 8},
+                         {"host_layer": 3, "read_layers": "dense"})["read_layers"] == [1, 2, 3]
 
 
 def test_spec_refuses_a_span_outside_the_donor():
@@ -218,7 +220,7 @@ def test_load_or_build_data_reads_the_cache(tmp_path):
 def test_multi_layer_reads_train_count_and_round_trip(tmp_path):
     host_tok, donor_tok = make_tok(HOST_WORDS), make_tok(DONOR_WORDS)
     base, donor = tiny_host(), tiny_donor()
-    spec = xfam.spec_for({"layers": 4, "hidden": 32}, {"layers": 7, "hidden": 48}, dict(SPEC_SMALL, host_layer=2))
+    spec = xfam.spec_for({"layers": 4, "hidden": 32}, {"layers": 7, "hidden": 48}, dict(SPEC_SMALL, host_layer=2, read_layers="dense"))
     spec.update(seq_len=24, donor_seq_len=32)
     assert spec["read_layers"] == [1, 2]
     t = texts()

@@ -40,11 +40,13 @@ RECIPE = {
     "kd_w": 1.0, "preserve": 1.0, "align_reg": 1.0,
     "lora_lr": 2e-4, "glue_lr": 3e-4, "gate_lr": 1e-4, "enc_lr": 1e-4,
     "seq_len": 256, "donor_seq_len": 320, "align_batch": 4,
+    "read_layers": None,
 }
 # Layer rule scaled from the measured config (host layer 7 of 16, donor layers 4..20 of 28).
 HOST_LAYER_RULE = "host layers // 2 - 1"
-# The encoder reads a learned mix of host layers 1..host_layer (measured on the hillclimb: 57.0 -> 59.8 MMLU held-out,
-# 3 seeds, Llama-1B with a Qwen2.5-14B slice; docs/research/2026-11-15-parallel-graft.md). None reads host_layer only.
+# read_layers "dense": the encoder reads a learned mix of host layers 1..host_layer (measured on the hillclimb
+# recipe: 57.0 -> 59.8 MMLU held-out, 3 seeds, Llama-1B with a Qwen2.5-14B slice; docs/research/2026-11-15-parallel-graft.md).
+# Not measured in this recipe yet, so the default (None) reads host_layer only, as the measured wi_xfam rows did.
 READ_RULE = "host layers 1 to host_layer"
 DONOR_SPAN_RULE = "donor layers // 7 to 5 * donor layers // 7"
 
@@ -69,7 +71,7 @@ def spec_for(base_cfg, donor_cfg, overrides=None):
     spec["d_donor"] = int(donor_cfg["hidden"])
     if overrides:
         spec.update(overrides)
-    if "read_layers" not in (overrides or {}):
+    if spec.get("read_layers") == "dense":
         spec["read_layers"] = list(range(1, spec["host_layer"] + 1)) if spec["host_layer"] >= 2 else None
     if spec.get("read_layers") and (min(spec["read_layers"]) < 0 or max(spec["read_layers"]) > spec["host_layer"]):
         raise ValueError("read_layers %s must lie in 0..host_layer (%d)" % (spec["read_layers"], spec["host_layer"]))
