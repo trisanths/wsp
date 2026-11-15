@@ -173,3 +173,4 @@ something fails. Each entry: what went wrong, then the rule.
 - Greedy HumanEval on 164 items moves 2 points between configs with the same
   weights (batch shape and kernels change float sums). Do not report a
   one-point gap between two configs as a result.
+- Two donor slices in one training step ran out of memory on a 140 GB H200 (clinic track, 2026-11-15): the MC loss, the drift loss, and one functional align loss per donor shared one backward, so every graph stayed alive. Call backward on each term (wsp/clinic.py train_accum, same gradient), and watch container logs 20 minutes after a launch, not only the rows on the volume. Three cells died at step 500 and sat dead for 45 minutes before I looked.
