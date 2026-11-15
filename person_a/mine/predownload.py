@@ -10,9 +10,6 @@ import time
 
 import modal
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import common  # noqa: E402
-
 app = modal.App("swarmy-predownload")
 volume = modal.Volume.from_name("swarmy-models", create_if_missing=True)
 image = (
@@ -42,6 +39,10 @@ def fetch(short, hf_id, revision):
 
 @app.local_entrypoint()
 def main(models: str = ""):
+    # local-only helper (the Modal containers don't have it, so import it here, not at the top)
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import common
+
     donors = common.load_donors()
     names = []
     if models:
