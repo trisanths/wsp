@@ -656,7 +656,7 @@ class EngineH100(EngineBase):
 
 
 
-@app.cls(gpu=["H200", "B200", "H100"], max_containers=1, **COMMON)  # cost cap: parallel agents share one big GPU
+@app.cls(gpu=["H200", "B200"], max_containers=1, **COMMON)  # no H100: 34-80B bf16 does not fit 80 GB  # cost cap: parallel agents share one big GPU
 class EngineH200(EngineBase):
     # modal.parameter fields must be declared on each deployed class itself (inherited ones are ignored,
     # which made every container crash at startup with "takes no arguments")
