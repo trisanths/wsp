@@ -1,7 +1,7 @@
 // Mock data for ?mock=1: measured results and the compiler front door. Same shapes as the server (CONTRACT.md).
 // The measured numbers are the ones in studio/server/measured.py. A test keeps the two in step.
 
-import { DEMO, HOSTED, storageKey } from './demo-flag.js';
+import { DEMO, HOSTED, demoNow, wallOf, storageKey } from './demo-flag.js';
 import { LANG } from './demo-data.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -384,12 +384,12 @@ export function makeMine({ getParts, getRecipes, getMasks }) {
 
   const reqs = new Map();
   const scripts = new Map();
-  const now = Date.now();
+  const now = demoNow();
   const KEY = storageKey('wsp.mine.reqs');
   const add = (r) => { reqs.set(r.id, r); return r; };
   const mkReq = (id, model, skills, effort, startAt, createdAgo = 0, note = '') => {
     const info = infoOf(model);
-    return add({ id, model, skills, effort, startAt, note, total: (EFFORT[effort] || EFFORT.standard).sec * 1000, created: new Date(Date.now() - createdAgo).toISOString(), estimate: estimateOf(info.params_b, effort) });
+    return add({ id, model, skills, effort, startAt, note, total: (EFFORT[effort] || EFFORT.standard).sec * 1000, created: new Date(demoNow() - createdAgo).toISOString(), estimate: estimateOf(info.params_b, effort) });
   };
   const saved = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; } };
   const persist = () => { try { localStorage.setItem(KEY, JSON.stringify([...reqs.values()].filter((r) => r.custom).slice(-20).map((r) => ({ id: r.id, model: r.model, skills: r.skills, effort: r.effort, startAt: r.startAt, note: r.note, created: r.created })))); } catch (e) { /* storage can be off */ } };
@@ -399,13 +399,13 @@ export function makeMine({ getParts, getRecipes, getMasks }) {
   const doneModels = ['Qwen/Qwen3-30B-A3B', 'google/gemma-4-26B-A4B-it'].filter((m) => byModel().has(m));
   doneModels.forEach((m, i) => mkReq('mr_demo_done' + (i + 1), m, i ? ['reasoning', 'knowledge'] : ['code', 'math', 'law'], i ? 'quick' : 'deep', now - 86400000 * (i + 1) - 4000000, 86400000 * (i + 1) + 4000000));
   mkReq('mr_demo_queued', 'mistralai/Mixtral-8x7B-Instruct-v0.1', ['code'], 'standard', now - 85000 + liveTotal + 4000, 20000);
-  for (const r of saved()) { if (r && r.id && r.model && !reqs.has(r.id)) { const x = mkReq(r.id, r.model, r.skills || ['math', 'code'], r.effort || 'standard', r.startAt, Date.now() - Date.parse(r.created || new Date().toISOString()), r.note || ''); x.custom = true; } }
+  for (const r of saved()) { if (r && r.id && r.model && !reqs.has(r.id)) { const x = mkReq(r.id, r.model, r.skills || ['math', 'code'], r.effort || 'standard', r.startAt, demoNow() - Date.parse(r.created || new Date(demoNow()).toISOString()), r.note || ''); x.custom = true; } }
 
   const scriptOf = (r) => { if (!scripts.has(r.id)) scripts.set(r.id, makeScript(r)); return scripts.get(r.id); };
   // a finished request adds its kept new parts to the library, once
   const absorb = () => {
     for (const r of reqs.values()) {
-      if (r.absorbed || Date.now() < r.startAt + r.total) continue;
+      if (r.absorbed || demoNow() < r.startAt + r.total) continue;
       r.absorbed = true;
       const sc = scriptOf(r);
       const list = extra.get(r.model) || [];
@@ -418,7 +418,7 @@ export function makeMine({ getParts, getRecipes, getMasks }) {
     }
   };
   const stateOf = (r, withLog = true) => {
-    const t = Date.now() - r.startAt;
+    const t = demoNow() - r.startAt;
     const p = Math.max(0, Math.min(1, t / r.total));
     const status = t < 0 ? 'queued' : p >= 1 ? 'done' : 'running';
     const sc = scriptOf(r);
@@ -428,8 +428,8 @@ export function makeMine({ getParts, getRecipes, getMasks }) {
     const layers_scanned = p < s0 ? 0 : p >= s1 ? sc.L : layer;
     const found = sc.items.filter((i) => p >= i.tFound).map((i) => ({ id: i.id, label: i.label, kind: i.kind, layer: i.layer, skill: i.skill, z: p >= i.tGate ? i.z : null, drop: p >= i.tAblate ? i.drop : null, verdict: p >= i.tGate ? (i.ok ? 'kept' : 'rejected') : p >= i.tAblate ? 'testing' : 'candidate' }));
     const counters = { layers_scanned, layers_total: sc.L, candidates: found.length, ablations: found.filter((f) => f.drop != null).length, kept: found.filter((f) => f.verdict === 'kept').length, rejected: found.filter((f) => f.verdict === 'rejected').length };
-    const out = { id: r.id, model: r.model, skills: r.skills, effort: r.effort, status, created: r.created, stages, estimate: r.estimate, progress: p, started: status === 'queued' ? null : new Date(r.startAt).toISOString(), finished: status === 'done' ? new Date(r.startAt + r.total).toISOString() : null, note: r.note || null, params_b: sc.info.params_b, experts: sc.info.experts || null, layers: sc.L, layer, counters, found };
-    if (withLog) out.log = sc.log.filter((l) => p >= l.t).map((l) => ({ t: r.startAt + l.t * r.total, agent: l.agent, kind: l.kind, text: l.text }));
+    const out = { id: r.id, model: r.model, skills: r.skills, effort: r.effort, status, created: new Date(wallOf(Date.parse(r.created))).toISOString(), stages, estimate: r.estimate, progress: p, started: status === 'queued' ? null : new Date(wallOf(r.startAt)).toISOString(), finished: status === 'done' ? new Date(wallOf(r.startAt + r.total)).toISOString() : null, note: r.note || null, params_b: sc.info.params_b, experts: sc.info.experts || null, layers: sc.L, layer, counters, found };
+    if (withLog) out.log = sc.log.filter((l) => p >= l.t).map((l) => ({ t: wallOf(r.startAt + l.t * r.total), agent: l.agent, kind: l.kind, text: l.text }));
     return out;
   };
 
@@ -463,7 +463,7 @@ export function makeMine({ getParts, getRecipes, getMasks }) {
       if (!(body.skills && body.skills.length) && body.skills) { const e = new Error('Pick at least one skill to look for.'); e.status = 400; throw e; }
       const live = [...reqs.values()].filter((r) => stateOf(r, false).status !== 'done');
       const id = 'mr_' + Math.random().toString(36).slice(2, 8);
-      const r = mkReq(id, model, body.skills && body.skills.length ? body.skills : ['math', 'code'], body.effort || 'standard', Date.now() + (live.length ? 6000 : 1500), 0, String(body.note || '').trim().slice(0, 300));
+      const r = mkReq(id, model, body.skills && body.skills.length ? body.skills : ['math', 'code'], body.effort || 'standard', demoNow() + (live.length ? 6000 : 1500), 0, String(body.note || '').trim().slice(0, 300));
       r.custom = true; persist();
       return clone(stateOf(r));
     },

@@ -1,12 +1,12 @@
 import { html, useState, useEffect, useLayoutEffect, useRef } from '../lib.js';
-import { DEMO, HOSTED, setDemo, demoSpeed, setDemoSpeed } from '../demo-flag.js';
+import { DEMO, HOSTED, setDemo, demoSpeed, setDemoSpeed, onDemoSpeed, DEMO_SPEEDS } from '../demo-flag.js';
 import { go, toast, useTheme } from '../util.js';
 import { TopBar, Icon } from '../components.js';
 import { SponsorStrip } from '../logos.js';
 import { reduced } from '../motion.js';
 
 // The guided tour. Each step opens a screen (hash), finds one element on it (sel, with an
-// optional first-line text match), and puts a white spotlight on it with a caption. `sec` widens
+// optional first-line text match), and puts a ring around it with a caption. `sec` widens
 // the target to its section. `click` steps show an animated pointer: clicking the highlighted
 // element moves the tour on (the element's own action is held back, so the tour stays on its
 // sample data; `pass` lets it through, for tabs that switch the view in place). Look steps move
@@ -308,7 +308,7 @@ export function DemoScreen() {
   return html`<${TopBar} />
   <main class="screen"><div class="doc wide demo-page">
     <h1 class="page-title">Demo tour</h1>
-    <p class="demo-lede">A guided walk through the product on the real parts library, ${STEPS.length} steps. A white highlight moves to each part of the screen and shows where to click. Click the highlight or press the right arrow to go on, or let it play by itself. Space pauses, Escape leaves the tour.</p>
+    <p class="demo-lede">A guided walk through the product on the real parts library, ${STEPS.length} steps. A highlight ring moves to each part of the screen and shows where to click. Click the highlight or press the right arrow to go on, or let it play by itself. Space pauses, Escape leaves the tour.</p>
     <div class="demo-sp"><${SponsorStrip} /></div>
     <div class="demo-cta">
       <button class="btn primary" onClick=${() => startTour(0, false)}>Start the tour</button>
@@ -333,6 +333,7 @@ export function DemoControl() {
   const [list, setList] = useState(false);
   const [more, setMore] = useState(false);
   const [speed, setSpeed] = useState(demoSpeed());
+  useEffect(() => onDemoSpeed(setSpeed), []);
   const [theme, flip] = useTheme();
   const root = useRef();
   const st = useRef(t);
@@ -376,7 +377,8 @@ export function DemoControl() {
 
   const layer = t.on && html`<${TourLayer} i=${t.i} auto=${t.auto} />`;
   if (hidden) return layer;
-  const pickSpeed = (v) => { setSpeed(v); setDemoSpeed(v); };
+  const pickSpeed = (v) => setDemoSpeed(v);
+  const fast = speed === 10;
   const curCh = t.on ? STEPS[t.i].ch : null;
   const resumable = t.i > 0 && t.i < STEPS.length - 1;
   return html`${layer}<div class="demo-ctl" ref=${root} role="region" aria-label="Demo tour">
@@ -388,8 +390,7 @@ export function DemoControl() {
       <button role="menuitem" class="demo-item" onClick=${() => { setList(false); endTour(); go('/demo'); }}><span class="demo-n"></span><span>Tour overview</span></button>
     </div>`}
     ${more && html`<div class="demo-pop demo-more">
-      <div class="demo-row"><span class="demo-rl">Speed</span><span class="demo-seg" role="group" aria-label="Demo speed">${[1, 2, 4].map((v) => html`<button key=${v} class=${speed === v ? 'on' : ''} aria-pressed=${speed === v} onClick=${() => pickSpeed(v)}>${v}x</button>`)}</span></div>
-      ${speed !== demoSpeed() && html`<div class="demo-rn">Applies on the next reload.</div>`}
+      <div class="demo-row"><span class="demo-rl">Speed</span><span class="demo-seg" role="group" aria-label="Demo speed">${DEMO_SPEEDS.map((v) => html`<button key=${v} class=${speed === v ? 'on' : ''} aria-pressed=${speed === v} onClick=${() => pickSpeed(v)}>${v}x</button>`)}</span></div>
       <div class="demo-row"><span class="demo-rl">Theme</span><button class="demo-link" onClick=${flip}>${theme === 'dark' ? 'Light' : 'Dark'}</button></div>
       <div class="demo-row"><span class="demo-rl">Control</span><button class="demo-link" onClick=${() => { setHidden(true); setMore(false); }}>Hide (Alt+H)</button></div>
       ${!HOSTED && html`<div class="demo-row"><span class="demo-rl">Demo mode</span><button class="demo-link" onClick=${() => { endTour(); setDemo(false, '#/'); }}>Turn off</button></div>`}
@@ -403,7 +404,8 @@ export function DemoControl() {
         : html`<button class="demo-title demo-start" onClick=${() => startTour(resumable ? t.i : 0, false)}><span class="demo-lab">${resumable ? 'Resume the tour' : 'Start the tour'}</span></button>
           <button class="demo-b" aria-label="Play automatically" data-tip="Play automatically" onClick=${() => startTour(resumable ? t.i : 0, true)}>${playIcon(false)}</button>
           <button class="demo-b" aria-label="Chapters" aria-haspopup="menu" aria-expanded=${list} onClick=${() => { setList(!list); setMore(false); }}><${Icon} n="chevron" size=${14} /></button>`}
-      <button class="demo-b demo-mb" aria-label="Demo options" aria-expanded=${more} onClick=${() => { setMore(!more); setList(false); }}>${speed}x</button>
+      <button class=${'demo-b demo-fast' + (fast ? ' on' : '')} aria-pressed=${fast} aria-label="Run 10 times faster" data-tip=${fast ? 'Back to normal speed' : 'Runs, research and mining move 10x faster'} onClick=${() => pickSpeed(fast ? 1 : 10)}><${Icon} n="bolt" size=${13} /><span>10x</span></button>
+      <button class="demo-b demo-mb" aria-label="Demo options" data-tip="Speed and theme" aria-expanded=${more} onClick=${() => { setMore(!more); setList(false); }}><${Icon} n="more" size=${14} /></button>
     </div>
   </div>`;
 }

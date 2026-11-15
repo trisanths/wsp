@@ -2,7 +2,7 @@
 // Used when the page is opened with ?mock=1. Nothing here talks to a network.
 
 import { healPool } from './util.js';
-import { DEMO, demoSpeed, storageKey } from './demo-flag.js';
+import { DEMO, demoSpeed, demoNow, wallOf, storageKey } from './demo-flag.js';
 import * as V from './demo-data.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -650,7 +650,7 @@ function getSpec(id) {
     const st = store.get('wsp.spec.' + id);
     if (!st || !st.spec) throw notFound('That spec is not in this browser. Start a new one.');
     specs.set(id, st.spec);
-    if (st.spec.request_type !== 'shrink') researchOf.set(id, { started: st.rs || Date.now() - 60000, plan: researchPlan(st.spec), mode: null, applied: st.applied !== false });
+    if (st.spec.request_type !== 'shrink') researchOf.set(id, { started: st.rs || demoNow() - 60000, plan: researchPlan(st.spec), mode: null, applied: st.applied !== false });
   }
   return specs.get(id);
 }
@@ -668,15 +668,15 @@ function researchPlan(spec) {
 function startMockResearch(spec, lazy) {
   const mode = new URLSearchParams(location.search).get('rs');
   const seeded = String(spec.id).startsWith('sp_demo');
-  researchOf.set(spec.id, { started: lazy ? null : Date.now(), plan: researchPlan(spec), mode, applied: false, finished_before: seeded && lazy });
+  researchOf.set(spec.id, { started: lazy ? null : demoNow(), plan: researchPlan(spec), mode, applied: false, finished_before: seeded && lazy });
 }
 function researchNow(id) {
   const r = researchOf.get(id);
   if (!r) return null;
-  if (r.started == null) r.started = r.finished_before ? Date.now() - 120000 : Date.now() - 2500;
-  const el = (Date.now() - r.started) / 1000;
+  if (r.started == null) r.started = r.finished_before ? demoNow() - 120000 : demoNow() - 2500;
+  const el = (demoNow() - r.started) / 1000;
   const dur = r.plan.dur || 7;
-  const base = { provider: 'exa', usage: { input_tokens: 0, output_tokens: 0, web_searches: 3 }, started_at: r.started / 1000 };
+  const base = { provider: 'exa', usage: { input_tokens: 0, output_tokens: 0, web_searches: 3 }, started_at: wallOf(r.started) / 1000 };
   if (r.mode === 'skipped') return { ...base, status: 'skipped', provider: 'none', steps: [], reasoning: '', proposals: [], sources: [], error: 'No LLM is configured, so the rule-drafted benchmarks stay.' };
   const steps = r.plan.steps.filter((x) => x.t <= el);
   if (r.mode === 'error' && el > 3) return { ...base, status: 'error', steps, reasoning: '', proposals: [], sources: [], error: 'The search took too long. Try again.' };
@@ -1373,8 +1373,8 @@ export const mockApi = {
     const view = shrinkView(sess);
     if (!view.ok) throw bad(view.problems.join(' '));
     const jid = rid('j_');
-    shrinkJobs.set(jid, { sess, plan: clone(sess.plan), t0: Date.now(), done: null });
-    store.set('wsp.sjob.' + jid, { sid: sess.id, spec_id: sess.spec_id, plan: clone(sess.plan), t0: Date.now(), done: null });
+    shrinkJobs.set(jid, { sess, plan: clone(sess.plan), t0: demoNow(), done: null });
+    store.set('wsp.sjob.' + jid, { sid: sess.id, spec_id: sess.spec_id, plan: clone(sess.plan), t0: demoNow(), done: null });
     return { job_id: jid };
   },
   async createRun(spec_id, program) { await lat(); const r = newRun(getSpec(spec_id), program); return { run_id: r.id }; },
@@ -1383,7 +1383,8 @@ export const mockApi = {
     let run;
     try { run = getRunObj(id); } catch (e) { setTimeout(() => { if (onNote) onNote(e.message); if (onErr) onErr(); }, 0); return () => {}; }
     onSnap(snapshot(run));
-    const t = setInterval(() => onSnap(snapshot(run)), 1000);
+    // at high demo speeds the screen updates more often, so a run does not jump
+    const t = setInterval(() => onSnap(snapshot(run)), 1000 / Math.min(4, demoSpeed()));
     let n = null;
     if (/^demo-stream/.test(id) && onNote) n = setTimeout(() => { onNote('the worker lost its connection'); clearInterval(t); }, 1500);
     return () => { clearInterval(t); clearTimeout(n); };
@@ -1443,7 +1444,7 @@ export const mockApi = {
       const problems = limitProblems(spec.limits, estimateOf(q));
       if (problems.length) { const e = new Error(problems.join(' ')); e.status = 400; throw e; }
     }
-    jobs.set(jid, { id: jid, bid: id, action, program: clone(program), spec, readyAt: Date.now() + 1000 + Math.random() * 1000, done: null });
+    jobs.set(jid, { id: jid, bid: id, action, program: clone(program), spec, readyAt: demoNow() + 1000 + Math.random() * 1000, done: null });
     return { job_id: jid };
   },
   async getJob(jid) {
@@ -1451,7 +1452,7 @@ export const mockApi = {
     const sj = shrinkJob(jid);
     if (sj) {
       const j = sj;
-      const age = Date.now() - j.t0;
+      const age = demoNow() - j.t0;
       const base = { job_id: jid, action: 'shrink', stub: true, error: null, budget: null };
       const dur = 2600 + Math.min(1000, j.plan.heal_steps || 0) * 8;
       if (j.t0 && age < 700) return { ...base, status: 'queued', result: null };
@@ -1462,7 +1463,7 @@ export const mockApi = {
     const j = jobs.get(jid);
     if (!j) { const e = new Error('no such job'); e.status = 404; throw e; }
     const base = { job_id: jid, action: j.action, stub: true, error: null };
-    if (Date.now() < j.readyAt) return { ...base, status: Date.now() < j.readyAt - 1500 ? 'queued' : 'running', result: null, budget: clone(getBuilder(j.bid).budget) };
+    if (demoNow() < j.readyAt) return { ...base, status: demoNow() < j.readyAt - 1500 ? 'queued' : 'running', result: null, budget: clone(getBuilder(j.bid).budget) };
     if (!j.done) {
       const b = getBuilder(j.bid);
       let p = clone(j.program);
@@ -1801,7 +1802,7 @@ function seedEmptyRun(legal) {
   const sp = clone(legal); sp.limits = lim; sp.size.max_params_b = 1.3;
   sp.id = V.DEMO_IDS.specClause; sp.title = 'Clause checker under 1.3B';
   specs.set(sp.id, sp);
-  researchOf.set(sp.id, { started: Date.now() - 90000, plan: researchPlan(sp), mode: null, applied: false });
+  researchOf.set(sp.id, { started: demoNow() - 90000, plan: researchPlan(sp), mode: null, applied: false });
   const r = newRun(sp);
   runs.delete(r.id); r.id = V.DEMO_IDS.runEmpty; runs.set(r.id, r);
   r.activity = []; r.actId = 0;
@@ -1876,7 +1877,7 @@ function seedDemo() {
   const math = makeSpec('A math tutor that runs on a phone and shows its work', [], R.specMath);
   specs.set(R.specMath, math);
   specs.set('sp_demo', math);
-  researchOf.set(R.specMath, { started: Date.now() - 90000, plan: researchPlan(math), mode: null, applied: false });
+  researchOf.set(R.specMath, { started: demoNow() - 90000, plan: researchPlan(math), mode: null, applied: false });
   applyResearch(math);
   const legal = makeSpec('A contract reader that answers questions about clauses and keeps its general skills', [], R.specLegal);
   specs.set(R.specLegal, legal);
@@ -1895,12 +1896,12 @@ function seedDemo() {
   const solver = clone(math); solver.id = R.specSolver; solver.title = 'Grade-school math solver';
   solver.budget = { ...solver.budget, evals: V.SOLVER_EVALS, compute_min: 90 };
   specs.set(R.specSolver, solver);
-  researchOf.set(R.specSolver, { started: Date.now() - 90000, plan: researchPlan(solver), mode: null, applied: false });
+  researchOf.set(R.specSolver, { started: demoNow() - 90000, plan: researchPlan(solver), mode: null, applied: false });
   applyResearch(solver);
   // the language write-in: a finished run with measured numbers
   const lang = makeSpec(V.LANG_LOOK.prompt, [], R.specLang);
   specs.set(R.specLang, lang);
-  researchOf.set(R.specLang, { started: Date.now() - 120000, plan: researchPlan(lang), mode: null, applied: false });
+  researchOf.set(R.specLang, { started: demoNow() - 120000, plan: researchPlan(lang), mode: null, applied: false });
   applyResearch(lang);
   seedEmptyRun(legal);
   seedDoneRun(solver);

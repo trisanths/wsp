@@ -24,6 +24,9 @@ button.demo-card { font: inherit; color: inherit; text-align: left; border: 0; c
 .demo-b, .demo-title { border: 0; background: transparent; color: var(--text-1); cursor: pointer; font: inherit; border-radius: 999px; transition: background .12s, opacity .12s; }
 .demo-b { display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 30px; padding: 0 6px; }
 .demo-mb { font-size: 12px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.demo-fast { gap: 3px; padding: 0 9px 0 7px; font-size: 12px; font-weight: 600; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.demo-fast.on { background: var(--text-1); color: var(--bg-raised); }
+.demo-fast.on:hover:not(:disabled) { background: var(--text-1); opacity: .88; }
 .demo-title { height: 30px; padding: 0 10px; max-width: 280px; min-width: 0; }
 .demo-lab { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .demo-b:hover:not(:disabled), .demo-title:hover { background: var(--fill-2); }
@@ -37,7 +40,6 @@ button.demo-card { font: inherit; color: inherit; text-align: left; border: 0; c
 .demo-more { min-width: 220px; padding: 8px; }
 .demo-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 5px 4px; }
 .demo-rl { color: var(--text-3); }
-.demo-rn { padding: 0 4px 4px; font-size: 12px; line-height: 16px; color: var(--text-3); }
 .demo-seg { display: inline-flex; gap: 2px; padding: 2px; background: var(--fill-2); border-radius: 8px; }
 .demo-seg button { border: 0; background: transparent; color: var(--text-2); font: inherit; padding: 2px 10px; border-radius: 6px; cursor: pointer; transition: background .12s, color .12s; }
 .demo-seg button.on { background: var(--bg-raised); color: var(--text-1); box-shadow: var(--shadow-card); }
@@ -68,26 +70,26 @@ body:has(.demo-ctl) .buildcard { bottom: 56px; }
 /* the builder side panel and palette scroll to their end above the control */
 body:has(.demo-ctl) .builder .side, body:has(.demo-ctl) .builder .palette { padding-bottom: 64px; }
 
-/* Guided tour: a white spotlight that glides between elements, a pointer that shows the click,
-   and a caption card that follows. The dim is the spotlight's own outer shadow, so the target
-   stays at full brightness and nothing covers it. */
-:root { --tour-dim: rgba(12, 12, 12, .62); --tour-glide: 620ms; --tour-ease: cubic-bezier(.22, 1, .36, 1); }
-:root.dark { --tour-dim: rgba(0, 0, 0, .66); }
+/* Guided tour: a ring that glides between elements, a pointer that shows the click, and a caption
+   card that follows. The rest of the screen stays at full brightness. The ring is dark on the light
+   theme and white on the dark theme, so it shows on both. */
+:root { --tour-ring: #161616; --tour-glide: 620ms; --tour-ease: cubic-bezier(.22, 1, .36, 1); }
+:root.dark { --tour-ring: #fff; }
 .tour { position: fixed; inset: 0; z-index: 400; pointer-events: none; }
 .tour-spot { position: fixed; left: 0; top: 0; pointer-events: none;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, .96), 0 0 0 7px rgba(255, 255, 255, .16), 0 0 34px 8px rgba(255, 255, 255, .30), 0 0 0 200vmax var(--tour-dim);
+  box-shadow: 0 0 0 2px var(--tour-ring), 0 0 0 7px color-mix(in srgb, var(--tour-ring) 14%, transparent), 0 0 34px 8px color-mix(in srgb, var(--tour-ring) 20%, transparent);
   transition: transform var(--tour-glide) var(--tour-ease), width var(--tour-glide) var(--tour-ease), height var(--tour-glide) var(--tour-ease), border-radius var(--tour-glide) var(--tour-ease), box-shadow .3s ease;
   will-change: transform, width, height; animation: tour-fade .35s ease both; }
-.tour-spot.start { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 0 0 200vmax rgba(0, 0, 0, 0); }
-.tour-spot::after { content: ''; position: absolute; inset: -2px; border-radius: inherit; border: 2px solid #fff; opacity: 0; animation: tour-breathe 2.4s ease-in-out infinite; }
-.tour-spot.flash { box-shadow: 0 0 0 3px #fff, 0 0 0 10px rgba(255, 255, 255, .28), 0 0 44px 14px rgba(255, 255, 255, .45), 0 0 0 200vmax var(--tour-dim); }
+.tour-spot.start { box-shadow: 0 0 0 0 transparent, 0 0 0 0 transparent, 0 0 0 0 transparent; }
+.tour-spot::after { content: ''; position: absolute; inset: -2px; border-radius: inherit; border: 2px solid var(--tour-ring); opacity: 0; animation: tour-breathe 2.4s ease-in-out infinite; }
+.tour-spot.flash { box-shadow: 0 0 0 3px var(--tour-ring), 0 0 0 10px color-mix(in srgb, var(--tour-ring) 24%, transparent), 0 0 44px 14px color-mix(in srgb, var(--tour-ring) 32%, transparent); }
 @keyframes tour-breathe { 0%, 100% { opacity: 0; transform: scale(1); } 50% { opacity: .55; transform: scale(1.012); } }
 @keyframes tour-fade { from { opacity: 0; } to { opacity: 1; } }
 
 .tour-hand { position: fixed; left: 0; top: 0; width: 0; height: 0; opacity: 0; transition: transform 760ms var(--tour-ease), opacity .25s ease; }
 .tour-hand.on { opacity: 1; transition: transform 760ms var(--tour-ease), opacity .3s ease .35s; }
 .tour-cursor { position: absolute; left: -4px; top: -3px; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .35)); animation: tour-tap 2s var(--tour-ease) .6s infinite; transform-origin: 6px 4px; }
-.tour-ripple { position: absolute; left: -22px; top: -22px; width: 44px; height: 44px; border-radius: 50%; border: 2px solid #fff; background: rgba(255, 255, 255, .22); opacity: 0; animation: tour-ripple 2s ease-out .6s infinite; }
+.tour-ripple { position: absolute; left: -22px; top: -22px; width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--tour-ring); background: color-mix(in srgb, var(--tour-ring) 18%, transparent); opacity: 0; animation: tour-ripple 2s ease-out .6s infinite; }
 @keyframes tour-tap {
   0% { transform: translate(22px, 26px); }
   38% { transform: translate(0, 0) scale(1); }

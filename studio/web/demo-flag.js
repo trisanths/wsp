@@ -34,12 +34,51 @@ export function setDemo(on, hash) {
   if (sameDoc) location.reload();
 }
 
-/** How fast simulated runs move in demo mode: 1 (real feel), 2, or 4. */
-export function demoSpeed() {
-  const v = Number(read(SPEED_KEY));
-  return v === 2 || v === 4 ? v : 1;
+/** The speeds the demo offers. 1 is the real feel. */
+export const DEMO_SPEEDS = [1, 2, 4, 10];
+const speedOf = (v) => (DEMO_SPEEDS.includes(Number(v)) ? Number(v) : 1);
+let speed = speedOf(read(SPEED_KEY));
+
+// Every page load starts the demo fresh: new seeded runs, recents, specs, builds, mining requests
+// and tour position. Only the demo switch and the chosen speed stay.
+if (DEMO) {
+  const keep = new Set([KEY, SPEED_KEY]);
+  for (const box of ['localStorage', 'sessionStorage']) {
+    try {
+      const s = window[box];
+      const old = [];
+      for (let i = 0; i < s.length; i++) { const k = s.key(i); if (k && k.startsWith('sapien.demo.') && !keep.has(k)) old.push(k); }
+      old.forEach((k) => s.removeItem(k));
+    } catch (e) { /* storage can be off */ }
+  }
 }
-export function setDemoSpeed(v) { write(SPEED_KEY, v === 2 || v === 4 ? String(v) : null); }
+
+// The demo clock. Simulated work (agent runs, research, mining, builder and shrink jobs) waits on
+// this clock, and it runs `speed` times faster than the wall clock.
+let wall0 = Date.now();
+let demo0 = wall0;
+
+/** The demo clock in milliseconds. Outside demo mode it is the wall clock. */
+export function demoNow() { return DEMO ? demo0 + (Date.now() - wall0) * speed : Date.now(); }
+
+/** The wall-clock time that shows a demo-clock time `t` at the right age on screen. */
+export function wallOf(t) { return t - (demoNow() - Date.now()); }
+
+const speedListeners = new Set();
+/** Call `fn` with the new speed when it changes. Returns a function that stops the calls. */
+export function onDemoSpeed(fn) { speedListeners.add(fn); return () => speedListeners.delete(fn); }
+
+/** How fast simulated work moves in demo mode: 1 (real feel), 2, 4, or 10. */
+export function demoSpeed() { return speed; }
+
+/** Change the demo speed. It applies at once, and the demo clock does not jump. */
+export function setDemoSpeed(v) {
+  demo0 = demoNow();
+  wall0 = Date.now();
+  speed = speedOf(v);
+  write(SPEED_KEY, speed === 1 ? null : String(speed));
+  speedListeners.forEach((fn) => fn(speed));
+}
 
 /** The browser storage key to use: demo mode gets its own copy of every key. */
 export function storageKey(key) { return DEMO ? 'sapien.demo.' + key : key; }
