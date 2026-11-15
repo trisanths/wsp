@@ -28,7 +28,7 @@ image = (
     modal.Image.debian_slim(python_version="3.12")
     .pip_install(
         "torch==2.7.1", "transformers==4.57.1", "accelerate", "huggingface_hub", "requests",
-        "safetensors", "zstandard", "numpy", "datasets",
+        "safetensors", "zstandard", "numpy", "datasets", "sentencepiece", "protobuf",
     )
     .env({"HF_HOME": "/vol/hf"})
     .add_local_python_source("wsp")
