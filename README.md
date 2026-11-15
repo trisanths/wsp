@@ -125,7 +125,7 @@ A frozen slice of a larger model, grafted into a small host, beats every fine-tu
 
 Agents mined progressively harder skills. They started with toy skills small enough to check exactly: Roman numerals, compass directions, the next month or weekday. Switching off one MLP cluster in layer 25 of LFM2.5-2.6B, for example, cut its Roman-numeral score by 0.372 while its control moved by 0.001.
 
-Every attempt, pass or fail, went to past.dev, so each agent built on what the others had found. Once agents recalled before writing a new test, each recall returned 11 to 14 relevant records; the agent mining Phi-4 found a teammate's integer-parity test before writing its own. From there the agents moved on to domain skills: math, science, medicine, law, code and languages.
+Every attempt, pass or fail, went to past.dev, so each agent built on what the others had found. From there the agents moved on to domain skills: math, science, medicine, law, code and languages.
 
 The library now holds parts for:
 
