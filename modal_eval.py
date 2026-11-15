@@ -161,6 +161,16 @@ def gate_remote(seeds, donor_layer, neurons, heal_steps):
     return json.loads(json.dumps(summary, default=str))
 
 
+@app.function(image=image, volumes={"/vol": volume}, gpu="H100", memory=163840, ephemeral_disk=200 * 1024,
+              timeout=8 * 3600)
+def part_gate_remote(donor, part_id, seeds, heal_steps):
+    from wsp_eval.gate import run_part_gate
+    _prepare_catalog()
+    summary = run_part_gate(donor, part_id=part_id or None, seeds=tuple(seeds), heal_steps=heal_steps)
+    volume.commit()
+    return summary
+
+
 @app.function(image=image, volumes={"/vol": volume}, cpu=8, memory=32768, timeout=3600)
 def mask_signatures_remote():
     from wsp_eval.signatures import structural_signatures
@@ -171,11 +181,12 @@ def mask_signatures_remote():
         return {"count": count, "catalog": f.read()}
 
 
-@app.function(image=image, volumes={"/vol": volume}, gpu="L40S", memory=65536, timeout=3600)
-def base_scores_remote(host, tasks):
+@app.function(image=image, volumes={"/vol": volume}, gpu="L40S", memory=65536, timeout=4 * 3600)
+def base_scores_remote(host, tasks, split="search"):
     from wsp_eval import harness
     _prepare_catalog()
-    result = harness.evaluate(host, "search", tasks, namespace="reference", backend="hf", note="host base scores")
+    result = harness.evaluate(host, split, tasks, namespace="reference", backend="hf",
+                              note="host base scores (" + split + ")")
     volume.commit()
     return result
 
@@ -281,12 +292,28 @@ def mask_signatures():
 
 
 @app.local_entrypoint()
-def base_scores(host: str = "unsloth/Llama-3.2-1B-Instruct", tasks: str = "gsm8k if_guard"):
-    """Host scores on the search split, in the form wsp/swarm config base_scores expects."""
-    result = base_scores_remote.remote(host, tasks.split())
-    table = {"search": {}}
+def base_scores(host: str = "unsloth/Llama-3.2-1B-Instruct", tasks: str = "gsm8k if_guard", split: str = "search"):
+    """Host scores in the form wsp/swarm config base_scores expects.
+
+    split="heldout" runs once per host and task (the held-out ledger refuses a rerun).
+    The host never changes, so its held-out score can be taken before the finalists.
+    """
+    result = base_scores_remote.remote(host, tasks.split(), split)
+    table = {split: {}}
     for task, entry in result["tasks"].items():
-        table["search"][task] = entry["score"]
+        table[split][task] = entry["score"]
         print("%-10s %.3f  (n=%d) [%s]" % (task, entry["score"], entry["n"], result["label"]))
     print('config "base_scores":', json.dumps(table))
-    _save("base_scores.json", table)
+    _save("base_scores_" + split + ".json", table)
+
+
+@app.local_entrypoint()
+def part_gate(donor: str, part_id: str = "", seeds: str = "0 1 2", heal_steps: int = 300):
+    """Hour-16 control: an extracted part of `donor` against a random same-size part, 3 seeds (search split)."""
+    seed_list = []
+    for value in seeds.split():
+        seed_list.append(int(value))
+    summary = part_gate_remote.remote(donor, part_id, seed_list, heal_steps)
+    for row in summary["rows"]:
+        print(row["arm"], "seed", row["seed"], "score", row["score"])
+    _save("part_gate_" + donor.replace("/", "__") + ".json", summary)
