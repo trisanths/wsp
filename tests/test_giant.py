@@ -502,9 +502,11 @@ class ToyConfig(transformers.PretrainedConfig):
     model_type = "toy_giant"
 
     def __init__(self, hidden_size=32, inter=32, vocab_size=40, num_hidden_layers=3, num_experts=4, moe_top_k=2,
-                 style="fused", hash_layers=(), **kwargs):
+                 style="fused", hash_layers=(), latent=None, **kwargs):
         self.hidden_size = hidden_size
         self.inter = inter
+        # Width of the experts of a latent MoE block (Kimi K3). None: the experts have the hidden width.
+        self.latent = latent
         self.vocab_size = vocab_size
         self.num_hidden_layers = num_hidden_layers
         self.num_experts = num_experts
@@ -566,9 +568,10 @@ class ToyFusedExperts(torch.nn.Module):
 class ToyExpert(torch.nn.Module):
     def __init__(self, config):
         super().__init__()
-        self.w1 = torch.nn.Linear(config.hidden_size, config.inter, bias=False)
-        self.w2 = torch.nn.Linear(config.inter, config.hidden_size, bias=False)
-        self.w3 = torch.nn.Linear(config.hidden_size, config.inter, bias=False)
+        width = config.latent or config.hidden_size
+        self.w1 = torch.nn.Linear(width, config.inter, bias=False)
+        self.w2 = torch.nn.Linear(config.inter, width, bias=False)
+        self.w3 = torch.nn.Linear(width, config.inter, bias=False)
 
     def forward(self, x):
         return self.w2(torch.nn.functional.silu(self.w1(x)) * self.w3(x))
@@ -585,7 +588,26 @@ class ToyShared(torch.nn.Module):
         return self.down_proj(torch.nn.functional.silu(self.gate_proj(x)) * self.up_proj(x))
 
 
+class ToyRms(torch.nn.Module):
+    """RMS norm with the attribute names and the math of KimiRMSNorm."""
+
+    def __init__(self, size, eps=1e-5):
+        super().__init__()
+        self.weight = torch.nn.Parameter(torch.ones(size))
+        self.variance_epsilon = eps
+
+    def forward(self, x):
+        return self.weight * (x * torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + self.variance_epsilon))
+
+
 class ToyMoe(torch.nn.Module):
+    """The fused block of transformers 5.x, or the block of Kimi K3 (kimi true).
+
+    The Kimi block follows KimiSparseMoeBlock.forward: the router reads the hidden state, the
+    experts read routed_expert_down_proj of it, and the weighted sum of their outputs goes through
+    routed_expert_norm and routed_expert_up_proj.
+    """
+
     def __init__(self, config, layer_index, kimi):
         super().__init__()
         self.kimi = kimi
@@ -593,6 +615,9 @@ class ToyMoe(torch.nn.Module):
         self.gate = ToyGate(config, layer_index, kimi)
         if kimi:
             self.experts = torch.nn.ModuleList([ToyExpert(config) for _ in range(config.num_experts)])
+            self.routed_expert_down_proj = torch.nn.Linear(config.hidden_size, config.latent, bias=False)
+            self.routed_expert_up_proj = torch.nn.Linear(config.latent, config.hidden_size, bias=False)
+            self.routed_expert_norm = ToyRms(config.latent)
         else:
             self.experts = ToyFusedExperts(config)
         self.shared_experts = ToyShared(config)
@@ -602,12 +627,14 @@ class ToyMoe(torch.nn.Module):
         routed = self.gate(hidden, input_ids)
         if self.kimi:
             indices, weights = routed
-            out = torch.zeros_like(flat)
+            low = self.routed_expert_down_proj(flat)
+            out = torch.zeros_like(low)
             for expert in range(len(self.experts)):
                 rows, slots = torch.where(indices == expert)
                 if rows.numel() == 0:
                     continue
-                out.index_add_(0, rows, self.experts[expert](flat[rows]) * weights[rows, slots, None])
+                out.index_add_(0, rows, self.experts[expert](low[rows]) * weights[rows, slots, None])
+            out = self.routed_expert_up_proj(self.routed_expert_norm(out))
         else:
             _, weights, indices = routed
             out = self.experts(flat, indices, weights)
@@ -779,6 +806,10 @@ def collect_checkpoint(model, style):
         out[names["ffn"] + gate_names[1]] = moe.gate.e_score_correction_bias.detach().clone()
         if moe.gate.is_hash:
             out[names["ffn"] + gate_names[2]] = moe.gate.tid2eid.clone()
+        if style == "kimi":
+            # The real index has these three names in every MoE layer, stored as plain BF16.
+            for part in ["routed_expert_down_proj", "routed_expert_norm", "routed_expert_up_proj"]:
+                out[names["ffn"] + part + ".weight"] = getattr(moe, part).weight.detach().clone()
         shared = moe.shared_experts
         for part, v4_name in [("gate_proj", "w1"), ("up_proj", "w3"), ("down_proj", "w2")]:
             weight = getattr(shared, part).weight
@@ -844,9 +875,11 @@ LAYOUT_OF = {"v4": giant.DeepSeekV4Layout, "glm": giant.GlmLayout, "kimi": giant
 
 
 def toy_giant(tmp_path, style, layers=3, hash_layers=()):
-    config_class = ToyNestedConfig if style == "kimi" else ToyConfig
-    config = config_class(style="kimi" if style == "kimi" else "fused", num_hidden_layers=layers,
-                          hash_layers=list(hash_layers))
+    if style == "kimi":
+        # A hidden width that differs from the expert width, as in Kimi K3 (7168 and 3584).
+        config = ToyNestedConfig(style="kimi", num_hidden_layers=layers, hidden_size=48, latent=32)
+    else:
+        config = ToyConfig(style="fused", num_hidden_layers=layers, hash_layers=list(hash_layers))
     model = (ToyOuter if style == "kimi" else ToyCausal)(config)
     toy_weights(model, seed=3)
     tensors = collect_checkpoint(model, style)
@@ -1229,12 +1262,14 @@ def per_token(stats):
     return out
 
 
-def direct_saliency(model, tok, texts, blocks, routing, expert_output):
+def direct_saliency(model, tok, texts, blocks, routing, expert_output, token_scale=None):
     """Saliency from the definition, one token and one top-k slot at a time, on the fully loaded model.
 
     blocks is {layer: MoE block}. routing(router output) gives (indices, weights), both
     (tokens, top_k). expert_output(block, expert, row) gives the output of one expert on one
-    token. Returns the layers part of the wsp.slim.collect_moe_stats format.
+    token. token_scale(block, outputs, weights), when given, gives the number that divides the
+    gains of one token, from the outputs and weights of its top-k slots. Returns the layers part
+    of the wsp.slim.collect_moe_stats format.
     """
     layers = {}
     seen = {}
@@ -1256,11 +1291,16 @@ def direct_saliency(model, tok, texts, blocks, routing, expert_output):
             entry = layers[layer]
             entry["tokens"] += x.shape[0]
             for token in range(x.shape[0]):
+                outputs = []
+                for slot in range(indices.shape[1]):
+                    outputs.append(expert_output(blocks[layer], int(indices[token, slot]), x[token:token + 1]))
+                scale = 1.0
+                if token_scale is not None:
+                    scale = token_scale(blocks[layer], outputs, weights[token])
                 for slot in range(indices.shape[1]):
                     expert = int(indices[token, slot])
-                    out = expert_output(blocks[layer], expert, x[token:token + 1])
                     entry["count"][expert] += 1
-                    entry["saliency"][expert] += float(weights[token, slot]) * float(out.float().norm())
+                    entry["saliency"][expert] += float(weights[token, slot]) * float(outputs[slot].float().norm()) / scale
 
         handles.append(blocks[layer].gate.register_forward_hook(keep_router))
         handles.append(blocks[layer].register_forward_pre_hook(keep_input, with_kwargs=True))
@@ -1284,14 +1324,28 @@ def listed_output(block, expert, row):
     return block.experts[expert](row)
 
 
-def toy_reference(model, tok, style, texts):
-    """direct_saliency of a toy giant."""
+def latent_output(block, expert, row):
+    """Output of one expert of a latent MoE block: the expert reads the down-projection of the hidden state."""
+    return block.experts[expert](block.routed_expert_down_proj(row))
+
+
+def routed_rms(block, outputs, weights):
+    """What routed_expert_norm divides one token by: sqrt(mean(y * y) + eps) of y = sum of weight * output."""
+    total = torch.zeros_like(outputs[0])
+    for slot in range(len(outputs)):
+        total = total + float(weights[slot]) * outputs[slot]
+    return math.sqrt(float(total.pow(2).mean()) + block.routed_expert_norm.variance_epsilon)
+
+
+def toy_reference(model, tok, style, texts, token_scale=routed_rms):
+    """direct_saliency of a toy giant. For the Kimi toy the gains of a token are divided by routed_rms."""
     base = model.language_model.model if style == "kimi" else model.model
     blocks = {}
     for index, layer in enumerate(base.layers):
         blocks[index] = layer.block_sparse_moe if style == "kimi" else layer.mlp
     if style == "kimi":
-        return direct_saliency(model, tok, texts, blocks, lambda output: (output[0], output[1]), listed_output)
+        return direct_saliency(model, tok, texts, blocks, lambda output: (output[0], output[1]), latent_output,
+                               token_scale)
     return direct_saliency(model, tok, texts, blocks, lambda output: (output[2], output[1]), fused_output)
 
 
@@ -1366,6 +1420,7 @@ def test_streamed_saliency_of_toy_giants_equals_the_definition(tmp_path, style):
     reference = {name: toy_reference(model, tok, style, SETS[name]) for name in SETS}
     result = stream_toy(folder, config, tok, style)
     assert result["info"]["saliency_method"] == ("list" if style == "kimi" else "fused")
+    assert result["info"]["saliency_norm"] == ("routed_expert_norm" if style == "kimi" else None)
     assert_saliency(result, reference, top=2, rel=2e-6)
     for skill in ["a", "b"]:
         assert same_map(atlas.expert_skill_map(model, tok, SETS[skill], GENERAL, top=2), result["maps"][skill])
@@ -1711,3 +1766,486 @@ def test_entry_merge_keeps_saliency_maps_apart_from_expert_maps():
     assert counts_only["expert_saliency_maps"] == again["expert_saliency_maps"]
     # An entry that never had saliency maps gets no such key from a run with saliency off.
     assert "expert_saliency_maps" not in modal_giant.merge_expert_maps({}, picked, done, zoo_row())
+
+
+# ---------------------------------------------------------------------------
+# Regressions found in the review of the saliency pass.
+
+
+def test_kimi_saliency_is_divided_by_the_rms_of_the_routed_sum(tmp_path):
+    """Kimi K3 normalizes the weighted sum of the expert outputs per token. Saliency follows that scale."""
+    tok = tokenizer()
+    model, folder, config = toy_giant(tmp_path, "kimi")
+    block = model.language_model.model.layers[0].block_sparse_moe
+    # The toy has the three tensors that every MoE layer of the real index has, at two widths.
+    assert block.routed_expert_down_proj.weight.shape == (32, 48)
+    assert block.routed_expert_norm.weight.shape == (32,)
+    result = stream_toy(folder, config, tok, "kimi")
+    assert result["info"]["saliency_norm"] == "routed_expert_norm"
+    scaled = per_token(toy_reference(model, tok, "kimi", SKILL))
+    raw = per_token(toy_reference(model, tok, "kimi", SKILL, token_scale=None))
+    for layer in scaled:
+        got = result["maps"]["a"]["layers"][layer]["skill_saliency"]
+        assert got == pytest.approx(scaled[layer], rel=2e-6)
+        # Weight times output norm alone, without the division, is another number.
+        assert got != pytest.approx(raw[layer], rel=1e-2)
+
+
+class NormedLatentBlock(LatentBlock):
+    """A latent block that sends the weighted sum of the expert outputs through a norm, as Kimi K3 does."""
+
+    def __init__(self, norm):
+        super().__init__()
+        self.routed_expert_norm = norm
+
+    def forward(self, hidden):
+        return self.routed_expert_norm(LatentBlock.forward(self, hidden))
+
+
+def test_list_saliency_divides_by_an_rms_norm_and_refuses_another_norm():
+    torch.manual_seed(0)
+    block = NormedLatentBlock(ToyRms(4)).eval()
+    with torch.no_grad():
+        block.routed_expert_norm.weight.copy_(torch.tensor([0.5, -2.0, 1.0, 3.0]))
+    hidden = torch.randn(1, 9, 6)
+    with torch.no_grad():
+        indices, weights = block.gate(hidden)
+        low = block.routed_expert_down_proj(hidden.reshape(-1, 6))
+        want = torch.zeros(5, dtype=torch.float64)
+        for token in range(9):
+            outputs = [block.experts[int(indices[token, slot])](low[token]) for slot in range(2)]
+            total = float(weights[token, 0]) * outputs[0] + float(weights[token, 1]) * outputs[1]
+            rms = math.sqrt(float(total.pow(2).mean()) + 1e-5)
+            for slot in range(2):
+                want[int(indices[token, slot])] += float(weights[token, slot]) * float(outputs[slot].norm()) / rms
+    meter = giant.SaliencyMeter(0, None, block, block.gate, 2, 5, ["general"], giant.KimiLayout())
+    meter.group = "general"
+    with torch.no_grad():
+        block(hidden)
+    meter.close()
+    assert meter.norm == "routed_expert_norm"
+    assert meter.sums["general"].tolist() == pytest.approx(want.tolist(), rel=1e-6)
+    assert any("is an RMS norm" in note for note in meter.notes)
+    assert len(block.routed_expert_norm._forward_hooks) == 0
+    # A norm that subtracts the mean does not divide by the RMS. The meter must not guess.
+    other = NormedLatentBlock(torch.nn.LayerNorm(4)).eval()
+    meter = giant.SaliencyMeter(0, None, other, other.gate, 2, 5, ["general"], giant.KimiLayout())
+    meter.group = "general"
+    with pytest.raises(RuntimeError, match="not an RMS norm"):
+        with torch.no_grad():
+            other(hidden)
+    meter.close()
+
+
+class ScaledFusedExperts(ToyFusedExperts):
+    """Fused experts whose output depends on the number of rows in the call, so a second call cannot repeat it."""
+
+    def forward(self, flat, indices, weights):
+        return ToyFusedExperts.forward(self, flat, indices, weights) * flat.shape[0]
+
+
+def test_fused_saliency_checks_its_outputs_against_the_module_output():
+    torch.manual_seed(0)
+    config = ToyConfig(hidden_size=8, inter=4, num_experts=3, moe_top_k=2)
+    flat = torch.randn(4, 8)
+    indices = torch.tensor([[0, 2], [2, 1], [1, 0], [1, 2]])
+    weights = torch.rand(4, 2)
+    good = SentinelBlock(config).eval()
+    bad = SentinelBlock(config).eval()
+    bad.experts = ScaledFusedExperts(config)
+    for block in [good, bad]:
+        with torch.no_grad():
+            block.experts.gate_up_proj.copy_(torch.randn(3, 8, 8))
+            block.experts.down_proj.copy_(torch.randn(3, 8, 4))
+    meter = giant.SaliencyMeter(0, None, good, good.gate, 2, 3, ["general"], giant.Layout())
+    meter.group = "general"
+    with torch.no_grad():
+        good(flat, indices, weights)
+        good(flat, indices, weights)
+    meter.close()
+    # One check per layer, on the first text.
+    assert len(meter.notes) == 1 and "differs from the output of the experts module" in meter.notes[0]
+    meter = giant.SaliencyMeter(7, None, bad, bad.gate, 2, 3, ["general"], giant.Layout())
+    meter.group = "general"
+    with pytest.raises(RuntimeError, match="layer 7: .* do not add up") as error:
+        with torch.no_grad():
+            bad(flat, indices, weights)
+    meter.close()
+    assert "--no-saliency" in str(error.value)
+
+
+@pytest.mark.parametrize("style", ["glm", "kimi"])
+def test_self_checks_pass_in_bfloat16(tmp_path, style):
+    """The H200 runs bfloat16. The self-checks must accept its rounding and still be far from their limit."""
+    tok = tokenizer()
+    model, folder, config = toy_giant(tmp_path, style)
+    logs = []
+    result = stream_toy(folder, config, tok, style, dtype=torch.bfloat16, log=logs.append)
+    assert sorted(result["maps"]["a"]["layers"]) == [0, 1, 2]
+    phrase = "differs from the output of the experts module by" if style == "glm" else "weight * x / rms(x) by"
+    shares = [float(line.split(phrase)[1].split()[0]) for line in logs if phrase in line]
+    assert len(shares) == 3
+    assert max(shares) < giant.check_tolerance(torch.bfloat16) / 5
+    assert giant.check_tolerance(torch.float32) < giant.check_tolerance(torch.bfloat16)
+
+
+def test_row_norms_are_the_float32_norms_taken_in_blocks():
+    torch.manual_seed(0)
+    for dtype in [torch.bfloat16, torch.float32, torch.float64]:
+        rows = torch.randn(600, 16).to(dtype)
+        got = giant.row_norms(rows)
+        assert got.dtype == torch.float32
+        # The same floats as one float32 copy of all rows would give, also across the block borders.
+        assert torch.equal(got, rows.float().norm(dim=-1))
+        assert torch.equal(giant.row_norms(rows, block=7), got)
+
+
+def test_saliency_that_is_not_finite_stops_the_run(tmp_path):
+    tok = tokenizer()
+    model = tiny_model("qwen3_moe")
+    with torch.no_grad():
+        model.model.layers[0].mlp.experts[2].down_proj.weight[0, 0] = float("inf")
+    folder = str(tmp_path / "inf")
+    model.save_pretrained(folder)
+    with pytest.raises(RuntimeError, match="layer 0: the saliency of text set '.*' has a value that is not finite"):
+        stream(folder, model, tok)
+    # The message points to saliency off, and that run finishes.
+    result = stream(folder, model, tok, saliency=False)
+    assert sorted(result["maps"]["a"]["layers"]) == [0, 2]
+    meter = giant.SaliencyMeter(4, None, SentinelBlock(ToyConfig()), torch.nn.Identity(), 2, 4, ["math"],
+                                giant.Layout())
+    meter.group = "math"
+    with pytest.raises(RuntimeError, match="layer 4: the saliency of text set 'math'"):
+        meter.add(torch.tensor([0, 1]), torch.tensor([1.0, float("nan")]), 1)
+    # A value of the "no expert" index is not counted, so it may be anything.
+    meter.add(torch.tensor([0, 4]), torch.tensor([1.0, float("nan")]), 1)
+    assert meter.sums["math"].tolist() == [1.0, 0.0, 0.0, 0.0]
+    meter.close()
+
+
+def test_saliency_report_line():
+    line = giant.saliency_report("math", [0.5, 0.0, 2.0, 0.25], [4, 0, 1, 9], 10, top=2)
+    assert line == ("saliency 'math': 10 tokens, sum 2.75, 0.275 per token; top 3 by saliency [2, 0], by picks "
+                    "[3, 0]; 1 of the top 2 by saliency are in the top 2 by picks; 3 of 4 experts picked, 0 of them "
+                    "with saliency 0")
+    # A picked expert without saliency is what a broken pass leaves. The line counts it.
+    assert giant.saliency_report("math", [0.5, 0.0, 0.0, 0.25], [4, 0, 1, 9], 10).endswith(
+        "3 of 4 experts picked, 1 of them with saliency 0")
+
+
+def test_the_log_shows_the_saliency_of_every_moe_layer_and_text_set(tmp_path):
+    tok = tokenizer()
+    model, folder = saved(tmp_path, "qwen3_moe")
+    logs = []
+    result = stream(folder, model, tok, log=logs.append)
+    assert "layer 1/3 saliency method list" in logs and "layer 3/3 saliency method list" in logs
+    assert not any(line.startswith("layer 2/3 saliency") for line in logs)
+    reports = [line for line in logs if "saliency '" in line]
+    assert len(reports) == 2 * 3
+    assert any(line.startswith("layer 1/3 saliency check: expert") for line in logs)
+    # The sum in the line is the sum of the per-token saliency in the result times the tokens.
+    entry = result["maps"]["a"]["layers"][0]
+    line = [text for text in reports if text.startswith("layer 1/3 saliency 'a'")][0]
+    per_token_sum = float(line.split(" per token")[0].split(", ")[-1])
+    assert per_token_sum == pytest.approx(sum(entry["skill_saliency"]), rel=1e-5)
+    assert f"top 3 by saliency {entry['top_saliency']}" in line
+    quiet = []
+    stream(folder, model, tok, log=quiet.append, saliency=False)
+    assert quiet and not any("saliency" in line for line in quiet)
+    model, folder, config = toy_giant(tmp_path, "kimi")
+    logs = []
+    stream_toy(folder, config, tok, "kimi", log=logs.append)
+    assert "layer 1/3 saliency method list, divided by the RMS of routed_expert_norm" in logs
+
+
+def test_skeleton_knows_the_moe_layers_before_it_reads_a_weight(tmp_path):
+    model, folder = saved(tmp_path, "qwen3_moe")
+    source = giant.LocalSource(folder)
+    layout = giant.layout_for(model.config, source)
+    skeleton = giant.Skeleton(model.config, source, layout, "cpu", torch.float32, embedding=False)
+    assert skeleton.routed == [True, False, True]
+    assert source.bytes_read == 0
+    skeleton.load_embedding()
+    assert source.bytes_read == model.model.embed_tokens.weight.numel() * 4
+    skeleton.load_embedding()
+    assert source.bytes_read == model.model.embed_tokens.weight.numel() * 4
+
+
+def test_a_layer_range_without_moe_layers_stops_before_any_download(tmp_path):
+    """The smoke of the docs once asked for 2 layers of a model whose first 3 layers are dense."""
+    tok = tokenizer()
+    model, folder = saved(tmp_path, "deepseek_v3")
+    source = giant.LocalSource(folder)
+    logs = []
+    with pytest.raises(ValueError, match="no MoE layers among the processed layers 0 to 0: the first MoE layer "
+                                         "is layer 1, so max_layers must be at least 2"):
+        giant.profile_streaming(source, model.config, tok, {"a": SKILL}, GENERAL, prefetch=False, max_layers=1,
+                                log=logs.append)
+    assert source.bytes_read == 0 and logs == []
+    result = stream(folder, model, tok, max_layers=2)
+    assert sorted(result["maps"]["a"]["layers"]) == [1]
+
+
+def test_state_without_saliency_is_refused_before_anything_is_read(tmp_path, monkeypatch):
+    tok = tokenizer()
+    model, folder = saved(tmp_path, "qwen3_moe", layers=4)
+    state_dir = str(tmp_path / "state")
+    stream(folder, model, tok, max_layers=2, state_dir=state_dir, checkpoint_every=1, saliency=False)
+
+    def refuse(*args, **kwargs):
+        raise AssertionError("the skeleton must not be built for a state that cannot be continued")
+
+    monkeypatch.setattr(giant, "Skeleton", refuse)
+    source = giant.LocalSource(folder)
+    with pytest.raises(ValueError, match="without saliency"):
+        giant.profile_streaming(source, model.config, tok, {"a": SKILL, "b": OTHER}, GENERAL, top=3, prefetch=False,
+                                state_dir=state_dir, checkpoint_every=1, log=lambda text: None)
+    assert source.bytes_read == 0
+
+
+@pytest.mark.parametrize("saliency", [True, False])
+def test_rerun_of_a_finished_state_returns_the_whole_result(tmp_path, saliency):
+    """A rerun is the way to get the result back after a lost client. It runs no layer."""
+    tok = tokenizer()
+    model, folder = saved(tmp_path, "qwen3_moe", layers=4)
+    state_dir = str(tmp_path / "state")
+    first = stream(folder, model, tok, state_dir=state_dir, saliency=saliency)
+    logs = []
+    second = stream(folder, model, tok, state_dir=state_dir, saliency=saliency, log=logs.append)
+    assert second["info"]["layer_seconds"] == []
+    assert second["maps"] == first["maps"]
+    for skill in ["a", "b"]:
+        assert second["maps"][skill]["top_k"] == 2 and second["maps"][skill]["num_experts"] == 6
+    assert logs[0].startswith("resumed at layer 4: 3 MoE layers have saved pick counts")
+    if saliency:
+        assert second["info"]["saliency_method"] == "list" and second["info"]["saliency_norm"] is None
+        assert "3 have saved saliency" in logs[0] and "method list" in logs[0]
+    else:
+        assert "saliency" not in logs[0] and "saliency_method" not in second["info"]
+
+
+def test_rerun_of_a_finished_kimi_state_keeps_the_norm(tmp_path):
+    tok = tokenizer()
+    model, folder, config = toy_giant(tmp_path, "kimi")
+    state_dir = str(tmp_path / "state")
+    first = stream_toy(folder, config, tok, "kimi", state_dir=state_dir)
+    second = stream_toy(folder, config, tok, "kimi", state_dir=state_dir)
+    assert second["info"]["layer_seconds"] == []
+    assert second["maps"] == first["maps"]
+    assert second["info"]["saliency_norm"] == "routed_expert_norm"
+
+
+def test_saliency_of_other_code_is_not_reused(tmp_path):
+    """Saved sums carry a version. Sums without it, or with another one, stop the run with a message."""
+    tok = tokenizer()
+    model, folder = saved(tmp_path, "qwen3_moe", layers=4)
+    state_dir = str(tmp_path / "state")
+    expected = stream(folder, model, tok)
+    stream(folder, model, tok, max_layers=2, state_dir=state_dir, checkpoint_every=1)
+    path = giant.progress_paths(state_dir, 0)[0]
+    record = torch.load(path, weights_only=False)
+    assert sorted(record) == ["counts", "key", "saliency", "saliency_method", "saliency_norm", "saliency_version"]
+    assert record["saliency_version"] == giant.SALIENCY_STATE_VERSION and record["saliency_method"] == "list"
+    dense = torch.load(giant.progress_paths(state_dir, 1)[0], weights_only=False)
+    assert dense["counts"] is None and dense["saliency"] is None
+    # What the first saliency code wrote: sums and no version. The values stand in for sums of wrong code.
+    old = dict(record)
+    del old["saliency_version"]
+    old["saliency"] = {name: record["saliency"][name] * 1000 for name in record["saliency"]}
+    torch.save(old, path)
+    for kwargs in [{}, {"max_layers": 2}]:
+        with pytest.raises(ValueError, match="state version None, and this code writes version") as error:
+            stream(folder, model, tok, state_dir=state_dir, checkpoint_every=1, **kwargs)
+        assert "--no-saliency" in str(error.value) and "--fresh" in str(error.value)
+    # Sums of another method are refused at the first new MoE layer.
+    torch.save(dict(record, saliency_method="fused"), path)
+    with pytest.raises(ValueError, match="ran as \\('fused', None\\)"):
+        stream(folder, model, tok, state_dir=state_dir, checkpoint_every=1)
+    # clear_state is what --fresh runs. After it every layer runs again and the result is right.
+    assert giant.clear_state(state_dir) == 4
+    assert os.listdir(state_dir) == []
+    logs = []
+    fresh = stream(folder, model, tok, state_dir=state_dir, checkpoint_every=1, log=logs.append)
+    assert len(fresh["info"]["layer_seconds"]) == 4 and not any("resumed" in line for line in logs)
+    assert fresh["maps"] == expected["maps"]
+    assert giant.clear_state(str(tmp_path / "absent")) == 0
+
+
+def truncate(path):
+    with open(path, "rb") as f:
+        data = f.read()
+    with open(path, "wb") as f:
+        f.write(data[:len(data) // 2])
+
+
+def test_resume_falls_back_to_an_older_checkpoint_after_a_torn_file(tmp_path):
+    tok = tokenizer()
+    model, folder = saved(tmp_path, "qwen3_moe", layers=4)
+    expected = stream(folder, model, tok)
+    state_dir = str(tmp_path / "state")
+    stream(folder, model, tok, max_layers=3, state_dir=state_dir, checkpoint_every=1)
+    # A container that stopped while it wrote the hidden states of layer 2.
+    truncate(giant.progress_paths(state_dir, 2)[1])
+    logs = []
+    second = stream(folder, model, tok, state_dir=state_dir, checkpoint_every=1, log=logs.append)
+    assert any("state_0002.pt: it does not load" in line for line in logs)
+    assert any(line.startswith("resumed at layer 2") for line in logs)
+    assert len(second["info"]["layer_seconds"]) == 2
+    assert second["maps"] == expected["maps"]
+    # A torn counts file under a good checkpoint: the checkpoint before it is used.
+    truncate(giant.progress_paths(state_dir, 3)[0])
+    logs = []
+    third = stream(folder, model, tok, state_dir=state_dir, checkpoint_every=1, log=logs.append)
+    assert any(line.startswith("resumed at layer 3") for line in logs)
+    assert len(third["info"]["layer_seconds"]) == 1
+    assert third["maps"] == expected["maps"]
+    assert not [name for name in os.listdir(state_dir) if name.endswith(".tmp")]
+
+
+def test_a_save_that_stops_leaves_the_old_file(tmp_path, monkeypatch):
+    path = str(tmp_path / "counts_0000.pt")
+    giant.save_atomic({"layer": 1}, path)
+
+    def stopped(value, target):
+        with open(target, "wb") as f:
+            f.write(b"half a file")
+        raise OSError("the container stopped")
+
+    monkeypatch.setattr(torch, "save", stopped)
+    with pytest.raises(OSError):
+        giant.save_atomic({"layer": 2}, path)
+    monkeypatch.undo()
+    assert torch.load(path, weights_only=False) == {"layer": 1}
+
+
+# modal_giant.py without Modal: the options, the stored saliency table, and the files of a run.
+
+
+class FakeVolume:
+    def __init__(self):
+        self.commits = 0
+
+    def commit(self):
+        self.commits += 1
+
+
+def modal_run(tmp_path, monkeypatch):
+    """modal_giant with the volume paths in tmp_path, a counted volume.commit, and local texts."""
+    import modal_giant
+
+    fake = FakeVolume()
+    monkeypatch.setattr(modal_giant, "volume", fake)
+    monkeypatch.setattr(modal_giant, "VOLUME_ENTRIES", str(tmp_path / "vol" / "entries"))
+    monkeypatch.setattr(modal_giant, "VOLUME_SALIENCY", str(tmp_path / "vol" / "saliency"))
+    monkeypatch.setattr(modal_giant, "STATE_ROOT", str(tmp_path / "vol" / "state"))
+    monkeypatch.setattr(atlas, "general_texts", lambda count: GENERAL[:count])
+    monkeypatch.setitem(atlas.SKILLS, "math", {"texts": lambda count: SKILL[:count]})
+    return modal_giant, fake
+
+
+def test_saliency_table_merges_by_layer_and_records_the_texts():
+    import modal_giant
+
+    table = {"general": {"0": [1.0], "1": [2.0]}, "skills": {"math": {"0": [3.0], "1": [4.0]}}}
+    full = modal_giant.merge_saliency_table({}, table, {"general": 32, "math": 32})
+    assert full["general"] == table["general"] and full["skills"] == table["skills"]
+    smoke = modal_giant.merge_saliency_table(
+        full, {"general": {"0": [9.0]}, "skills": {"code": {"0": [8.0]}}}, {"general": 4, "code": 4})
+    assert smoke["general"] == {"0": [9.0], "1": [2.0]}
+    assert smoke["skills"] == {"math": {"0": [3.0], "1": [4.0]}, "code": {"0": [8.0]}}
+    # Which numbers come from the 4 texts of the smoke can be read from the table.
+    assert smoke["texts"] == {"general": {"0": 4, "1": 32},
+                              "skills": {"math": {"0": 32, "1": 32}, "code": {"0": 4}}}
+    assert full["general"] == table["general"] and "code" not in full["skills"]
+
+
+def test_run_options_carry_every_flag():
+    import modal_giant
+
+    assert modal_giant.run_options() == {"texts": 32, "max_layers": None, "saliency": True, "top": 8, "fresh": False}
+    assert modal_giant.run_options(texts=4, max_layers=5, skills="math,code", no_saliency=True, top=32,
+                                   fresh=True) == {"texts": 4, "max_layers": 5, "saliency": False, "top": 32,
+                                                   "fresh": True, "skills": ["math", "code"]}
+
+
+def test_run_profile_stores_the_saliency_table_on_the_volume(tmp_path, monkeypatch):
+    modal_giant, fake = modal_run(tmp_path, monkeypatch)
+    tok = tokenizer()
+    model, folder = saved(tmp_path, "qwen3_moe", layers=4)
+    row = dict(zoo_row(), needs={"trust_remote_code": False})
+
+    def parts():
+        return {"config": model.config, "tokenizer": tok, "source": giant.LocalSource(folder), "device": "cpu",
+                "dtype": torch.float32}
+
+    full = modal_giant.run_profile(row, modal_giant.run_options(texts=4, skills="math", top=5), parts())
+    reference = giant.profile_streaming(giant.LocalSource(folder), model.config, tok, {"math": SKILL[:4]},
+                                        GENERAL[:4], top=5, prefetch=False, log=lambda text: None)
+    compact = giant.compact_maps(reference)
+    assert full["entry"]["expert_maps"] == compact["expert_maps"]
+    assert full["entry"]["expert_saliency_maps"] == compact["expert_saliency_maps"]
+    # --top reached the profile: more than the default 8 would not fit 6 experts, 5 does.
+    assert max(len(ids) for ids in full["entry"]["expert_saliency_maps"]["math"].values()) == 5
+    table = giant.saliency_table(reference)
+    assert full["saliency"]["general"] == table["general"] and full["saliency"]["skills"] == table["skills"]
+    assert full["saliency"]["texts"] == {"general": {"0": 4, "2": 4, "3": 4},
+                                         "skills": {"math": {"0": 4, "2": 4, "3": 4}}}
+    stored_path = tmp_path / "vol" / "saliency" / "org__giant.json"
+    assert json.loads(stored_path.read_text()) == full["saliency"]
+    assert fake.commits >= 2
+
+    # A counts-only smoke of one layer leaves the stored table alone and returns it, not null.
+    smoke = modal_giant.run_profile(row, modal_giant.run_options(texts=2, max_layers=1, skills="math",
+                                                                 no_saliency=True), parts())
+    assert "saliency_method" not in smoke["info"] and smoke["info"]["layers_done"] == 1
+    assert smoke["saliency"] == full["saliency"]
+    assert json.loads(stored_path.read_text()) == full["saliency"]
+    assert smoke["entry"]["expert_saliency_maps"] == full["entry"]["expert_saliency_maps"]
+
+    # The same smoke with saliency finds the counts-only state and stops. The volume is committed all the same.
+    before = fake.commits
+    options = modal_giant.run_options(texts=2, max_layers=1, skills="math")
+    with pytest.raises(ValueError, match="without saliency"):
+        modal_giant.run_profile(row, options, parts())
+    assert fake.commits == before + 1
+    # --fresh deletes that state. The smoke then replaces its own layer in the table and keeps the others.
+    again = modal_giant.run_profile(row, dict(options, fresh=True), parts())
+    assert again["info"]["layer_seconds"] != [] and again["info"]["saliency_method"] == "list"
+    assert again["saliency"]["skills"]["math"]["2"] == full["saliency"]["skills"]["math"]["2"]
+    assert again["saliency"]["skills"]["math"]["0"] != full["saliency"]["skills"]["math"]["0"]
+    assert again["saliency"]["texts"]["skills"]["math"] == {"0": 2, "2": 4, "3": 4}
+    assert json.loads(stored_path.read_text()) == again["saliency"]
+
+    # The local files of a run: the entry, the results file with a mirror of the table, and the printed row.
+    results_dir = str(tmp_path / "results")
+    entries_dir = str(tmp_path / "entries")
+    printed = modal_giant.save_local(row, full, results_dir, entries_dir)
+    assert printed["saliency_method"] == "list" and printed["saliency_norm"] is None
+    assert printed["moe_layers"] == [0, 2, 3] and printed["layers_done"] == 4
+    with open(os.path.join(results_dir, "giant_giant.json")) as f:
+        local = json.load(f)
+    assert local["saliency"] == full["saliency"] and local["info"]["saliency_method"] == "list"
+    entry = atlas.read_entry(os.path.join(entries_dir, "org__giant.json"))
+    assert entry["expert_saliency_maps"] == full["entry"]["expert_saliency_maps"]
+    printed = modal_giant.save_local(row, smoke, results_dir, entries_dir)
+    assert printed["saliency"] == "off" and "saliency_method" not in printed
+    with open(os.path.join(results_dir, "giant_giant.json")) as f:
+        assert json.load(f)["saliency"] == full["saliency"]
+
+
+def test_run_profile_commits_the_volume_when_the_profile_fails(tmp_path, monkeypatch):
+    modal_giant, fake = modal_run(tmp_path, monkeypatch)
+    tok = tokenizer()
+    model, folder = saved(tmp_path, "qwen3_moe")
+    row = dict(zoo_row(), needs={"trust_remote_code": False})
+
+    def broken(*args, **kwargs):
+        raise RuntimeError("the saliency pass failed in layer 7")
+
+    monkeypatch.setattr(giant, "profile_streaming", broken)
+    with pytest.raises(RuntimeError, match="layer 7"):
+        modal_giant.run_profile(row, modal_giant.run_options(texts=2, skills="math"),
+                                {"config": model.config, "tokenizer": tok, "source": giant.LocalSource(folder),
+                                 "device": "cpu", "dtype": torch.float32})
+    assert fake.commits == 1
+    assert not os.path.exists(tmp_path / "vol" / "saliency")

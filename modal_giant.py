@@ -11,20 +11,35 @@ Saliency. Each layer also measures the saliency of every expert per skill
 (routing weight times the norm of the expert's output, summed over the tokens
 that pick it; see the Saliency section of wsp/giant.py). The experts with the
 highest skill saliency go into the entry under "expert_saliency_maps", next to
-"expert_maps", and the saliency of every expert goes into the results file
-under "saliency". The routed experts of a layer run twice for this. If the
-saliency pass fails on a family, --no-saliency gives the pick counts alone, and
-it continues a stopped run from the saved layers.
+"expert_maps" (--top sets how many per layer, 8 by default). The saliency of
+every expert goes to /vol/atlas/saliency/<org>__<name>.json, merged by layer
+like the entry, and the merged table is mirrored in the results file under
+"saliency". The routed experts of a layer run twice for this. If the saliency
+pass fails on a family, --no-saliency gives the pick counts alone, and it
+continues a stopped run from the saved layers. A run with --no-saliency leaves
+a stored saliency table as it is.
+
+Resume. Each run saves its progress under /vol/giant_state/<key>/t<texts>_<skills>
+and a rerun with the same texts continues from it. A second identical run
+therefore runs no layer. --fresh deletes that state first, so every layer runs
+again. Use it to repeat a smoke.
 
 Before it starts, the local entrypoint prints the bytes to download and an
 hour estimate from the shard headers. The rates behind the hours are
 assumptions, set with --mbps and --layer-seconds. With saliency the compute
 hours are multiplied by giant.SALIENCY_COMPUTE_FACTOR (2.0), an upper bound.
 
-    MODAL_PROFILE=trisanth .venv/bin/modal run modal_giant.py --only zai-org/GLM-5.3-Flash --max-layers 2 --texts 4 --skills math
+    MODAL_PROFILE=trisanth .venv/bin/modal run modal_giant.py --only zai-org/GLM-5.3-Flash --max-layers 5 --texts 4 --skills math --fresh
     MODAL_PROFILE=trisanth .venv/bin/modal run modal_giant.py --only deepseek-ai/DeepSeek-V4-Flash
     MODAL_PROFILE=trisanth .venv/bin/modal run modal_giant.py --only moonshotai/Kimi-K3 --no-saliency
     MODAL_PROFILE=trisanth .venv/bin/modal run modal_giant.py --shard 0 --nshards 3
+
+The smoke takes 5 layers because --max-layers counts from layer 0 and the first
+three layers are not what the run is for: GLM-5.3-Flash has dense MLPs in
+layers 0 to 2 (first MoE layer: 3), and DeepSeek-V4 routes layers 0 to 2 by a
+token-id table (first learned router: layer 3). Five layers give two MoE layers
+with a learned router. A range without any MoE layer stops with an error before
+the embedding is read.
 
 Shards split the list of models, not the layers: layer k needs the hidden
 states of layer k - 1, so one model runs in one container.
@@ -57,7 +72,7 @@ def build_image(transformers_version, extra=()):
             "torch==2.7.1", f"transformers=={transformers_version}", "accelerate", "huggingface_hub", "requests",
             "safetensors", "zstandard", "numpy", "datasets", "sentencepiece", "protobuf", "tiktoken", *extra,
         )
-        .env({"HF_HOME": "/vol/hf"})
+        .env({"HF_HOME": "/vol/hf", "HF_HUB_DISABLE_XET": "1"})
         .add_local_python_source("wsp")
     )
 
@@ -67,6 +82,7 @@ image_kimi = build_image("4.57.1", extra=("einops", "fla-core"))
 
 ZOO_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "atlas", "zoo.json")
 VOLUME_ENTRIES = "/vol/atlas/entries"
+VOLUME_SALIENCY = "/vol/atlas/saliency"
 STATE_ROOT = "/vol/giant_state"
 DEFAULT_SKILLS = ["knowledge", "medicine", "law", "math", "code", "science", "reasoning", "multilingual",
                   "multilingual_math", "decision"]
@@ -106,17 +122,36 @@ def estimate(zoo_model, mbps, layer_seconds, max_layers=None, source=None, layer
             "cost_usd_at_4_5_per_hour": round(total * 4.5, 1)}
 
 
-def run_profile(zoo_model, options):
+def run_options(texts=32, max_layers=0, skills="", no_saliency=False, top=8, fresh=False):
+    """The options dict of one run, from the command line values of main."""
+    options = {"texts": texts, "max_layers": max_layers if max_layers > 0 else None, "saliency": not no_saliency,
+               "top": top, "fresh": fresh}
+    if skills:
+        options["skills"] = skills.split(",")
+    return options
+
+
+def run_profile(zoo_model, options, parts=None):
+    """Profile one giant and store the entry and the saliency table on the volume.
+
+    parts is for tests: {"config", "tokenizer", "source", "device", "dtype"} in place of the Hub
+    objects, the GPU and bfloat16.
+    """
     import torch
-    from transformers import AutoConfig, AutoTokenizer
 
     from wsp import atlas, giant
 
+    parts = parts or {}
     model_id = zoo_model["id"]
     trust = zoo_model["needs"]["trust_remote_code"]
-    config = AutoConfig.from_pretrained(model_id, trust_remote_code=trust)
-    tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=trust)
-    source = giant.HubSource(model_id)
+    if "config" in parts:
+        config, tokenizer, source = parts["config"], parts["tokenizer"], parts["source"]
+    else:
+        from transformers import AutoConfig, AutoTokenizer
+
+        config = AutoConfig.from_pretrained(model_id, trust_remote_code=trust)
+        tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=trust)
+        source = giant.HubSource(model_id)
     layout = giant.layout_for(config, source)
     skills = options.get("skills") or DEFAULT_SKILLS
     count = int(options.get("texts", 32))
@@ -128,14 +163,77 @@ def run_profile(zoo_model, options):
         except Exception as error:
             print(f"{model_id} {name}: texts failed: {error!r}"[:300])
     state_dir = os.path.join(STATE_ROOT, zoo_model["key"], f"t{count}_" + "-".join(sorted(skill_texts)))
-    result = giant.profile_streaming(
-        source, config, tokenizer, skill_texts, general, layout=layout, device="cuda", dtype=torch.bfloat16,
-        max_layers=options.get("max_layers"), state_dir=state_dir, checkpoint_every=4, prefetch=True,
-        trust_remote_code=trust, attn_implementation=options.get("attn_implementation"),
-        log=lambda text: print(f"{model_id} {text}", flush=True), saliency=options.get("saliency", True))
-    volume.commit()
+    if options.get("fresh"):
+        removed = giant.clear_state(state_dir)
+        print(f"{model_id} --fresh: deleted {removed} saved files in {state_dir}", flush=True)
+    try:
+        result = giant.profile_streaming(
+            source, config, tokenizer, skill_texts, general, layout=layout, top=int(options.get("top", 8)),
+            device=parts.get("device", "cuda"), dtype=parts.get("dtype", torch.bfloat16),
+            max_layers=options.get("max_layers"), state_dir=state_dir, checkpoint_every=4, prefetch=True,
+            trust_remote_code=trust, attn_implementation=options.get("attn_implementation"),
+            log=lambda text: print(f"{model_id} {text}", flush=True), saliency=options.get("saliency", True))
+    finally:
+        # Also after a failure: the layers saved so far must reach the volume, so that a rerun
+        # (with --no-saliency when the saliency pass failed) continues from them.
+        volume.commit()
+    texts = {"general": len(general)}
+    for name in skill_texts:
+        texts[name] = len(skill_texts[name])
+    table = store_saliency_table(VOLUME_SALIENCY, model_id, giant.saliency_table(result), texts)
     entry = merge_entry(zoo_model, result["maps"], result["info"])
-    return {"entry": entry, "info": result["info"], "saliency": giant.saliency_table(result)}
+    return {"entry": entry, "info": result["info"], "saliency": table}
+
+
+def merge_saliency_table(base, table, texts):
+    """The stored saliency table with the layers of this run written over the same layers.
+
+    base is the stored table or {}. table is giant.saliency_table of this run. texts is
+    {text set: number of texts} of this run. Layers the run did not reach stay, as in
+    merge_layers, so a smoke run with --max-layers cannot erase a finished table. The result
+    also has "texts", in the same shape as the table, which says for every text set and layer
+    how many texts the numbers come from. A layer measured by a smoke on 4 texts can so be told
+    from a layer of a full run.
+    """
+    merged = {"general": dict(base.get("general") or {}), "skills": {},
+              "texts": {"general": dict((base.get("texts") or {}).get("general") or {}), "skills": {}}}
+    for skill in base.get("skills") or {}:
+        merged["skills"][skill] = dict(base["skills"][skill])
+        merged["texts"]["skills"][skill] = dict(((base.get("texts") or {}).get("skills") or {}).get(skill) or {})
+    for layer in table["general"]:
+        merged["general"][layer] = table["general"][layer]
+        merged["texts"]["general"][layer] = texts.get("general")
+    for skill in table["skills"]:
+        layers = merged["skills"].setdefault(skill, {})
+        counts = merged["texts"]["skills"].setdefault(skill, {})
+        for layer in table["skills"][skill]:
+            layers[layer] = table["skills"][skill][layer]
+            counts[layer] = texts.get(skill)
+    return merged
+
+
+def store_saliency_table(folder, model_id, table, texts):
+    """Merge the saliency table of one run into the file of the model in `folder`. Returns the stored table.
+
+    With table None (a run with saliency off) nothing is written, and the table that is already
+    stored comes back, or None when there is none. The per-expert table is what the compiler
+    ranks to keep any number of experts per layer; the entry holds only the best few.
+    """
+    from wsp import atlas
+
+    path = os.path.join(folder, atlas.entry_name(model_id))
+    base = None
+    if os.path.exists(path):
+        with open(path) as f:
+            base = json.load(f)
+    if table is None:
+        return base
+    merged = merge_saliency_table(base or {}, table, texts)
+    os.makedirs(folder, exist_ok=True)
+    with open(path + ".tmp", "w") as f:
+        json.dump(merged, f)
+    os.replace(path + ".tmp", path)
+    return merged
 
 
 def merge_layers(previous, new_maps):
@@ -240,11 +338,40 @@ def shard_cells(models, shard, nshards):
     return cells
 
 
-@app.local_entrypoint()
-def main(only: str = "", skills: str = "", texts: int = 32, max_layers: int = 0, shard: int = 0, nshards: int = 1,
-         mbps: float = 300.0, layer_seconds: float = 30.0, estimate_only: bool = False, no_saliency: bool = False):
+def save_local(zoo_model, result, results_dir="results", entries_dir=None):
+    """Write the result of one finished run next to the repo. Returns the summary row that main prints.
+
+    The entry is merged into atlas/entries, and results/giant_<name>.json gets the info, the
+    entry and a mirror of the saliency table stored on the volume.
+    """
     from wsp import atlas
 
+    if entries_dir is None:
+        entries_dir = os.path.join("atlas", "entries")
+    name = zoo_model["key"].split("__", 1)[-1]
+    local_path = os.path.join(entries_dir, atlas.entry_name(zoo_model["id"]))
+    base = atlas.read_entry(local_path) if os.path.exists(local_path) else {}
+    atlas.write_entry(merge_expert_maps(base, result["entry"]["expert_maps"], result["info"], zoo_model,
+                                        result["entry"].get("expert_saliency_maps")), entries_dir)
+    os.makedirs(results_dir, exist_ok=True)
+    with open(os.path.join(results_dir, f"giant_{name}.json"), "w") as f:
+        json.dump({"model": zoo_model["id"], "info": result["info"], "entry": result["entry"],
+                   "saliency": result.get("saliency")}, f)
+    info = result["info"]
+    row = {"model": zoo_model["id"], "layers_done": info["layers_done"], "moe_layers": info["layers_with_routers"],
+           "seconds": info["seconds"], "gb_read": round(info["bytes_read"] / 1e9, 1)}
+    if "saliency_method" in info:
+        row["saliency_method"] = info["saliency_method"]
+        row["saliency_norm"] = info["saliency_norm"]
+    else:
+        row["saliency"] = "off"
+    return row
+
+
+@app.local_entrypoint()
+def main(only: str = "", skills: str = "", texts: int = 32, max_layers: int = 0, shard: int = 0, nshards: int = 1,
+         mbps: float = 300.0, layer_seconds: float = 30.0, estimate_only: bool = False, no_saliency: bool = False,
+         top: int = 8, fresh: bool = False):
     with open(ZOO_PATH) as f:
         zoo = json.load(f)
     models = giant_models(zoo, only)
@@ -252,10 +379,8 @@ def main(only: str = "", skills: str = "", texts: int = 32, max_layers: int = 0,
     if not cells:
         print("no giant models selected; zoo entries need a `stream` field")
         return
-    limit = max_layers if max_layers > 0 else None
-    options = {"texts": texts, "max_layers": limit, "saliency": not no_saliency}
-    if skills:
-        options["skills"] = skills.split(",")
+    options = run_options(texts, max_layers, skills, no_saliency, top, fresh)
+    limit = options["max_layers"]
     for zoo_model in cells:
         rows = estimate(zoo_model, mbps, layer_seconds, limit, saliency=not no_saliency)
         print(json.dumps(rows))
@@ -275,13 +400,4 @@ def main(only: str = "", skills: str = "", texts: int = 32, max_layers: int = 0,
             with open(f"results/giant_{name}_failed.json", "w") as f:
                 json.dump({"model": zoo_model["id"], "error": repr(error)[:2000]}, f, indent=1)
             continue
-        local = os.path.join("atlas", "entries")
-        local_path = os.path.join(local, atlas.entry_name(zoo_model["id"]))
-        base = atlas.read_entry(local_path) if os.path.exists(local_path) else {}
-        atlas.write_entry(merge_expert_maps(base, result["entry"]["expert_maps"], result["info"], zoo_model,
-                                            result["entry"].get("expert_saliency_maps")), local)
-        with open(f"results/giant_{name}.json", "w") as f:
-            json.dump({"model": zoo_model["id"], "info": result["info"], "entry": result["entry"],
-                       "saliency": result.get("saliency")}, f)
-        print(json.dumps({"model": zoo_model["id"], "layers_done": result["info"]["layers_done"],
-                          "seconds": result["info"]["seconds"], "gb_read": round(result["info"]["bytes_read"] / 1e9, 1)}))
+        print(json.dumps(save_local(zoo_model, result)))

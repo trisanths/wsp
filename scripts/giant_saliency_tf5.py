@@ -6,6 +6,11 @@ compares giant.SaliencyMeter with a reference that takes one token and one top-k
 the block's own parameters and its router output. It also checks that the block's output does not
 change while the meter is on. Every experts implementation that transformers registers is tried.
 
+The meter checks itself on the first call of a block: weight times the expert outputs it computed
+again, summed over the top-k slots, must be the output of the experts module (check_fused). The
+script prints how far the two are apart, in float32 and again with the block in bfloat16, the dtype
+of the H200 run. In bfloat16 only that self-check is judged, since the reference is float32 math.
+
 Run it from the repo root with a Python that has transformers 5.23.0, for example in the image of
 modal_giant.py. It needs no network and no GPU.
 
@@ -85,7 +90,30 @@ def check(name, block, layout, call, hidden, config):
     worst = ((got - want).abs()[picked] / want[picked]).max().item()
     if int(picked.sum()) < 2 or worst > 1e-5 or float(got[~picked].abs().sum()) != 0.0:
         raise AssertionError(f"{name}: meter {got.tolist()}, reference {want.tolist()}")
-    return worst
+    if len(meter.notes) != 1:
+        raise AssertionError(f"{name}: the meter ran {len(meter.notes)} self-checks, expected 1")
+    return worst, check_share(meter), narrow_share(block, layout, call)
+
+
+def check_share(meter):
+    """The number in the note of check_fused: the difference as a share of the largest output value."""
+    return float(meter.notes[0].split(" by ")[1].split()[0])
+
+
+def narrow_share(block, layout, call):
+    """The self-check of the meter with the block in bfloat16. Returns its share, or the error as text."""
+    block.to(torch.bfloat16)
+    meter = giant.SaliencyMeter(0, None, block, block.gate, TOP_K, EXPERTS, ["general"], layout)
+    meter.group = "general"
+    try:
+        with torch.no_grad():
+            call(block, torch.bfloat16)
+        return check_share(meter)
+    except Exception as error:
+        return repr(error)[:200]
+    finally:
+        meter.close()
+        block.to(torch.float32)
 
 
 def implementations():
@@ -112,10 +140,10 @@ def deepseek_v4():
             hidden = torch.randn(1, TOKENS, HIDDEN)
             ids = torch.randint(0, 40, (1, TOKENS))
 
-            def call(module, hidden=hidden, ids=ids):
+            def call(module, dtype=torch.float32, hidden=hidden, ids=ids):
                 if module.is_hash:
-                    return module(hidden, ids)
-                return module(hidden)
+                    return module(hidden.to(dtype), ids)
+                return module(hidden.to(dtype))
 
             kind = "hash" if block.is_hash else "learned"
             name = f"DeepseekV4SparseMoeBlock ({kind} router, {implementation})"
@@ -138,7 +166,9 @@ def glm5_next():
         fill(block, 7)
         hidden = torch.randn(1, TOKENS, HIDDEN)
         name = f"Glm5NextTextMoE ({implementation})"
-        rows.append((name, check(name, block, giant.GlmLayout(), lambda module: module(hidden), hidden, config)))
+        rows.append((name, check(name, block, giant.GlmLayout(),
+                                 lambda module, dtype=torch.float32, hidden=hidden: module(hidden.to(dtype)), hidden,
+                                 config)))
     return rows
 
 
@@ -155,7 +185,8 @@ def qwen3_5_moe():
     fill(block, 9)
     hidden = torch.randn(1, TOKENS, HIDDEN)
     name = "Qwen3_5MoeSparseMoeBlock"
-    return [(name, check(name, block, giant.Layout(), lambda module: module(hidden), hidden, config))]
+    return [(name, check(name, block, giant.Layout(),
+                         lambda module, dtype=torch.float32: module(hidden.to(dtype)), hidden, config))]
 
 
 def main():
@@ -163,10 +194,17 @@ def main():
     if int(transformers.__version__.split(".")[0]) < 5:
         print("this check needs transformers 5.x")
         return 1
+    status = 0
     for family in [deepseek_v4, glm5_next, qwen3_5_moe]:
-        for name, worst in family():
-            print(f"ok {name}: largest relative difference {worst:.1e}")
-    return 0
+        for name, (worst, share, narrow) in family():
+            print(f"ok {name}: largest relative difference {worst:.1e}, self-check {share:.1e} of the largest output")
+            if isinstance(narrow, float):
+                print(f"   in bfloat16 the self-check passes at {narrow:.1e} (limit "
+                      f"{giant.check_tolerance(torch.bfloat16):.0e})")
+            else:
+                print(f"   in bfloat16 the self-check did NOT pass: {narrow}")
+                status = 1
+    return status
 
 
 if __name__ == "__main__":

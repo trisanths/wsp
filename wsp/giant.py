@@ -489,6 +489,9 @@ class Layout:
     # Name of the child of the MoE block whose output the experts read, for blocks that project the
     # hidden state before the experts. None: the experts read the input of the block.
     expert_input = None
+    # Name of the child of the MoE block that normalizes the weighted sum of the expert outputs before
+    # the block adds it to the residual stream. None: the block uses the weighted sum as it is.
+    expert_norm = None
 
     def __init__(self, prefix="model.layers.{layer}.", embed="model.embed_tokens.weight"):
         self.prefix_format = prefix
@@ -739,6 +742,10 @@ class KimiLayout(Layout):
     router_bias = "block_sparse_moe.gate.e_score_correction_bias"
     # Latent MoE: the block maps the hidden state to the expert width with this linear, then calls the experts.
     expert_input = "routed_expert_down_proj"
+    # config.json of Kimi-K3 sets latent_moe_use_norm, and the index has routed_expert_norm.weight in all
+    # 92 MoE layers. The block applies this RMS norm to the weighted sum of the expert outputs, per token,
+    # and then the shared up-projection.
+    expert_norm = "routed_expert_norm"
 
     def __init__(self):
         Layout.__init__(self, prefix="language_model.model.layers.{layer}.",
@@ -1118,9 +1125,14 @@ def fresh_rotary(module, config):
 
 
 class Skeleton:
-    """The model on the meta device with stub layers, a real embedding and real rotary modules."""
+    """The model on the meta device with stub layers, a real embedding and real rotary modules.
 
-    def __init__(self, config, source, layout, device, dtype, trust_remote_code=False):
+    routed[k] says whether decoder layer k has a router and experts. It comes from the meta model,
+    so it is known before any weight is read. With embedding false the embedding table stays on the
+    meta device until load_embedding() is called, so a caller can stop first without the download.
+    """
+
+    def __init__(self, config, source, layout, device, dtype, trust_remote_code=False, embedding=True):
         import transformers
 
         # Load torch._dynamo before any device context is active. transformers 5.x model modules import
@@ -1132,9 +1144,11 @@ class Skeleton:
 
         self.config = config
         self.text_config = text_config_of(config)
+        self.source = source
         self.layout = layout
         self.device = device
         self.dtype = dtype
+        self.embedded = False
         model = None
         errors = []
         for auto_name in ["AutoModelForCausalLM", "AutoModelForImageTextToText", "AutoModel"]:
@@ -1162,25 +1176,37 @@ class Skeleton:
         self.layer_count = len(layers)
         self.controller = Controller(layout)
         self.classes = []
+        self.routed = []
         stubs = []
         for index in range(len(layers)):
             self.classes.append(type(layers[index]))
+            self.routed.append(find_layer_router(layers[index], self.text_config) is not None)
             stubs.append(Stub(self.controller, index, layers[index]))
         setattr(parent, name.rsplit(".", 1)[-1], torch.nn.ModuleList(stubs))
-        embedding = parent.embed_tokens
-        weight = source.read([layout.embed_name()])[layout.embed_name()]
-        real = torch.nn.Embedding(embedding.num_embeddings, embedding.embedding_dim,
-                                  padding_idx=getattr(embedding, "padding_idx", None))
-        with torch.no_grad():
-            real.weight = torch.nn.Parameter(weight.to(device=device, dtype=dtype), requires_grad=False)
-        parent.embed_tokens = real
         for child_name, child in list(parent.named_children()):
             if "rotary" in type(child).__name__.lower():
                 setattr(parent, child_name, fresh_rotary(child, self.text_config).to(device))
         parent.eval()
+        if embedding:
+            self.load_embedding()
+
+    def load_embedding(self):
+        """Read the embedding table and put it in place of the one on the meta device."""
+        if self.embedded:
+            return
+        embedding = self.parent.embed_tokens
+        name = self.layout.embed_name()
+        weight = self.source.read([name])[name]
+        real = torch.nn.Embedding(embedding.num_embeddings, embedding.embedding_dim,
+                                  padding_idx=getattr(embedding, "padding_idx", None))
+        with torch.no_grad():
+            real.weight = torch.nn.Parameter(weight.to(device=self.device, dtype=self.dtype), requires_grad=False)
+        self.parent.embed_tokens = real.eval()
+        self.embedded = True
 
     def run(self, ids, layer_index, layer, state):
         """Run one text through layer `layer_index`. Returns the layer output."""
+        self.load_embedding()
         controller = self.controller
         controller.active = layer_index
         controller.layer = layer
@@ -1221,24 +1247,63 @@ class Skeleton:
 #   when the block has it (Kimi's latent MoE). On the first text of a layer the meter compares that
 #   input with the rows one expert received in the block's own forward, and stops if they differ.
 #
+#   A block can normalize the weighted sum of the expert outputs before it adds it to the residual
+#   stream. Kimi K3 does: y = sum of weight * output per token, then routed_expert_norm(y), an RMS
+#   norm, then the shared up-projection. What a token's experts write then has a fixed size, however
+#   large their outputs are, so weight * norm of the output would rank the experts by a size that
+#   the model removes. When the block has the child named by layout.expert_norm, the meter reads
+#   the input of that child and divides the gain of every (token, expert) pair by the RMS of the
+#   token's weighted sum, the number the norm divides by. The result is the L2 norm of the
+#   expert's share of the normalized sum, before the learned weight of the norm and before the
+#   up-projection, which are the same two maps for every expert. On the first text of a layer the
+#   meter checks that the child is an RMS norm, and stops if it is not.
+#
 # "fused": the experts are one module, called as experts(hidden, top_k_index, top_k_weights), that
 #   returns only the weighted sum per token (transformers 5.x: DeepSeek-V4, GLM-5.3, Qwen3.5-MoE).
 #   A hook on the module gives the indices and weights the model uses. The meter then calls
 #   module.forward once on tokens * top_k rows. Row j holds the hidden state of token j // top_k,
 #   the one index of slot j % top_k, and weight 1, so output row j is the output of that expert on
-#   that token. The call goes to forward, not to the module, so the hook does not run again.
+#   that token. The call goes to forward, not to the module, so the hook does not run again. On the
+#   first text of a layer the meter adds the rows up again, weight times output over the slots of
+#   each token, and stops unless the sum is the tensor the module returned (check_fused).
 #
 # Cost. Each method evaluates tokens * top_k (token, expert) pairs per text, the same pairs as the
 # layer's own forward, grouped by expert in the same way. The routed experts run twice. The rest
 # of the layer (attention, router, shared experts, norms) runs once, and nothing is read or
 # decoded again. Memory on top of the layer: the list method holds the output of one expert; the
-# fused method holds 2 * tokens * top_k * hidden values for one text.
+# fused method holds the repeated hidden states and the outputs of one text (2 * tokens * top_k *
+# hidden values), plus what the experts module allocates inside its own forward on those rows.
+# The norms are taken in float32, 256 rows at a time, so the outputs get no float32 copy.
 
 # Upper bound of the forward work of a layer with saliency, relative to the same layer without it.
 SALIENCY_COMPUTE_FACTOR = 2.0
 
+# Version of the saliency sums in the resume files. Raise it when the numbers the saliency pass
+# writes change their meaning, so a rerun does not continue from sums of other code. The first
+# saliency code wrote no version. Version 2 divides by the RMS of the routed sum for Kimi K3.
+SALIENCY_STATE_VERSION = 2
+
 SALIENCY_OFF = ("Run again with saliency off (saliency=False, or --no-saliency in modal_giant.py) to get the pick "
                 "counts alone.")
+
+
+def check_tolerance(dtype):
+    """Largest difference, as a share of the largest value, that a self-check of the saliency pass accepts.
+
+    A wrong pairing of tokens and experts gives differences of the size of the values themselves.
+    Rounding gives about 2 ** -8 per value in the 16-bit float types and 2 ** -24 in float32.
+    """
+    if dtype in (torch.bfloat16, torch.float16):
+        return 5e-2
+    return 1e-4
+
+
+def row_norms(out, block=256):
+    """L2 norm of every row, in float32. The rows are converted `block` at a time, so no float32 copy of all of them exists."""
+    norms = torch.empty(out.shape[0], dtype=torch.float32, device=out.device)
+    for start in range(0, out.shape[0], block):
+        norms[start:start + block] = out[start:start + block].float().norm(dim=-1)
+    return norms
 
 
 def routing_of(moe, output, top_k, num_experts):
@@ -1361,6 +1426,12 @@ class SaliencyMeter:
         self.probe_handles = []
         self.probe = None
         self.seen = {}
+        # Name of the norm child whose RMS divides the gains, or None. Set below for the list method.
+        self.norm = None
+        self.norm_checked = False
+        self.fused_checked = False
+        # One line per self-check that passed, for the log of the layer.
+        self.notes = []
         if not isinstance(moe.experts, torch.nn.ModuleList):
             self.method = "fused"
             self.handles.append(moe.experts.register_forward_hook(self.measure_fused, with_kwargs=True))
@@ -1376,6 +1447,12 @@ class SaliencyMeter:
             reader = getattr(moe, layout.expert_input, None)
         if reader is not None:
             self.handles.append(reader.register_forward_hook(self.keep_expert_input))
+        norm = None
+        if layout.expert_norm is not None:
+            norm = getattr(moe, layout.expert_norm, None)
+        if norm is not None:
+            self.norm = layout.expert_norm
+            self.handles.append(norm.register_forward_hook(self.keep_norm))
         self.handles.append(moe.register_forward_hook(self.measure_list))
         for expert_id in range(len(moe.experts)):
             def keep_probe(module, args, kwargs, expert_id=expert_id):
@@ -1392,6 +1469,9 @@ class SaliencyMeter:
 
     def keep_expert_input(self, module, args, output):
         self.seen["expert_input"] = output
+
+    def keep_norm(self, module, args, output):
+        self.seen["norm"] = (module, args[0], output)
 
     def measure_list(self, module, args, output):
         with torch.no_grad():
@@ -1419,9 +1499,45 @@ class SaliencyMeter:
                 if expert >= self.num_experts:
                     continue
                 out = self.moe.experts[expert](x[pairs // self.top_k])
-                norms[pairs] = out.float().norm(dim=-1)
-            self.add(flat, weights.reshape(-1).float() * norms, x.shape[0])
+                norms[pairs] = row_norms(out)
+            gains = weights.reshape(-1).float() * norms
+            if self.norm is not None:
+                gains = gains / self.routed_rms(x.shape[0]).repeat_interleave(self.top_k)
+            self.add(flat, gains, x.shape[0])
         self.seen.clear()
+
+    def routed_rms(self, tokens):
+        """RMS per token of the weighted sum of the expert outputs: the number the norm after the experts divides by."""
+        if "norm" not in self.seen:
+            raise RuntimeError(f"layer {self.index}: the MoE block has {self.norm} but did not call it. "
+                               + SALIENCY_OFF)
+        module, total, normed = self.seen["norm"]
+        total = total.detach().reshape(-1, total.shape[-1]).float()
+        if total.shape[0] != tokens:
+            raise RuntimeError(f"layer {self.index}: {self.norm} got {total.shape[0]} rows, the MoE block has "
+                               f"{tokens} tokens. " + SALIENCY_OFF)
+        eps = 0.0
+        for name in ["variance_epsilon", "eps"]:
+            if isinstance(getattr(module, name, None), float):
+                eps = getattr(module, name)
+                break
+        rms = torch.sqrt(total.pow(2).mean(dim=-1) + eps)
+        if not self.norm_checked:
+            self.norm_checked = True
+            want = total / rms.unsqueeze(-1)
+            weight = getattr(module, "weight", None)
+            if torch.is_tensor(weight) and weight.shape == want.shape[-1:]:
+                want = want * weight.detach().float()
+            got = normed.detach().reshape(want.shape).float()
+            scale = float(got.abs().max())
+            error = float((got - want).abs().max())
+            if not error <= check_tolerance(normed.dtype) * scale:
+                raise RuntimeError(f"layer {self.index}: {self.norm} is not an RMS norm of the weighted sum of the "
+                                   f"expert outputs (largest difference {error:.3g}, largest output {scale:.3g}), so "
+                                   "the saliency pass does not know what it divides by. " + SALIENCY_OFF)
+            self.notes.append(f"{self.norm} is an RMS norm: its output differs from weight * x / rms(x) by "
+                              f"{error / max(scale, 1e-30):.2g} of its largest value")
+        return rms
 
     def check_probe(self, x, indices):
         """Stop unless the first expert the block called received the rows that the meter would give it."""
@@ -1441,6 +1557,7 @@ class SaliencyMeter:
             raise RuntimeError(f"layer {self.index}: expert {expert} did not receive the rows of the tensor that the "
                                "saliency pass takes as the expert input. Set layout.expert_input to the child of "
                                "the MoE block that feeds the experts. " + SALIENCY_OFF)
+        self.notes.append(f"expert {expert} received the {got.shape[0]} rows that the saliency pass gives it")
 
     def measure_fused(self, module, args, kwargs, output):
         with torch.no_grad():
@@ -1460,11 +1577,45 @@ class SaliencyMeter:
             values = {places["hidden"]: wide, places["index"]: flat.reshape(-1, 1), places["weights"]: ones}
             new_args, new_kwargs = call_with(args, kwargs, values)
             out = module.forward(*new_args, **new_kwargs)
-            self.add(flat, weights.detach().reshape(-1).float() * out.float().norm(dim=-1), hidden.shape[0])
+            weights = weights.detach().reshape(-1, top_k).float()
+            if not self.fused_checked:
+                self.fused_checked = True
+                self.check_fused(out, weights, output, hidden.shape[0], top_k)
+            self.add(flat, weights.reshape(-1) * row_norms(out), hidden.shape[0])
+
+    def check_fused(self, out, weights, output, tokens, top_k):
+        """Stop unless the expert outputs that were computed again add up to what the experts module returned.
+
+        The module returns, per token, the sum over the top-k slots of weight times expert output.
+        out holds one row per (token, slot) pair, so the same sum over its rows must give the same
+        tensor, up to the rounding of the dtype. The sum is taken slot by slot in float32, which
+        needs tokens * hidden values and no copy of out.
+        """
+        result = output[0] if isinstance(output, (tuple, list)) else output
+        if not torch.is_tensor(result) or result.numel() != tokens * out.shape[-1]:
+            raise NotImplementedError(f"layer {self.index}: the fused experts did not return one row per token, so "
+                                      "the saliency pass cannot be checked against it. " + SALIENCY_OFF)
+        result = result.detach().reshape(tokens, -1).float()
+        rows = out.reshape(tokens, top_k, -1)
+        again = torch.zeros_like(result)
+        for slot in range(top_k):
+            again += weights[:, slot, None] * rows[:, slot].float()
+        scale = float(result.abs().max())
+        error = float((again - result).abs().max())
+        if not error <= check_tolerance(out.dtype) * scale:
+            raise RuntimeError(f"layer {self.index}: the expert outputs of the saliency pass do not add up to the "
+                               f"output of the experts module (largest difference {error:.3g}, largest output "
+                               f"{scale:.3g}), so they are not the outputs the model used. " + SALIENCY_OFF)
+        self.notes.append("weight * recomputed expert output, summed over the slots, differs from the output of "
+                          f"the experts module by {error / max(scale, 1e-30):.2g} of its largest value")
 
     def add(self, flat, gains, tokens):
         """Add the gain of every (token, slot) pair to its expert. An index past the last expert means "no expert"."""
         keep = flat < self.num_experts
+        if not bool(torch.isfinite(gains[keep]).all()):
+            raise RuntimeError(f"layer {self.index}: the saliency of text set '{self.group}' has a value that is "
+                               "not finite (an expert output or a routing weight is inf or nan). One such value "
+                               "would spoil the ranking of the whole layer. " + SALIENCY_OFF)
         total = torch.zeros(self.num_experts, dtype=torch.float32, device=gains.device)
         total.index_add_(0, flat[keep], gains[keep])
         self.sums[self.group] += total.double().cpu()
@@ -1532,6 +1683,27 @@ def add_saliency(result, skill, general, top=8):
         entry["general_saliency"] = significant((general_sums / max(1, general_tokens)).tolist())
         entry["top_saliency"] = top_by_saliency(per_token, skill_counts.tolist(), top)
     return result
+
+
+def saliency_report(name, sums, counts, tokens, top=8):
+    """One log line on the saliency of one text set in one layer, for a person who checks a run.
+
+    It gives the sum, the three experts with the highest saliency next to the three that are
+    picked most often, how many of the `top` best by saliency are also among the `top` most
+    picked, and how many picked experts have saliency 0 (which a working pass does not produce).
+    """
+    values = [float(value) for value in sums]
+    picks = [float(value) for value in counts]
+    total = sum(values)
+    by_saliency = top_by_saliency(values, picks, top)
+    by_picks = top_by_saliency(picks, None, top)
+    shared = len(set(by_saliency) & set(by_picks))
+    picked = sum(1 for value in picks if value > 0)
+    silent = sum(1 for expert in range(len(picks)) if picks[expert] > 0 and values[expert] <= 0)
+    return (f"saliency '{name}': {tokens} tokens, sum {total:.6g}, {total / max(1, tokens):.6g} per token; "
+            f"top 3 by saliency {by_saliency[:3]}, by picks {by_picks[:3]}; {shared} of the top {len(by_saliency)} "
+            f"by saliency are in the top {len(by_picks)} by picks; {picked} of {len(picks)} experts picked, "
+            f"{silent} of them with saliency 0")
 
 
 def top_saliency_experts(expert_map):
@@ -1637,9 +1809,11 @@ def profile_streaming(source, config, tokenizer, skill_texts, general_texts, lay
 
     With saliency (the default) every layer of a map also has "skill_saliency",
     "general_saliency" and "top_saliency" (see add_saliency and the Saliency
-    section above), and the info has "saliency_method". The routed experts of
-    each layer then run twice. With saliency false none of this runs, and the
-    result has only the pick-rate fields.
+    section above), and the info has "saliency_method" and "saliency_norm" (the
+    norm child whose RMS divides the gains, or None). The routed experts of each
+    layer then run twice, and the log gets one line per MoE layer and text set
+    (saliency_report). With saliency false none of this runs, and the result has
+    only the pick-rate fields.
 
     The model's forward must hand the output of one layer straight to the
     next. A model that changes the hidden state between layers loses that
@@ -1648,7 +1822,10 @@ def profile_streaming(source, config, tokenizer, skill_texts, general_texts, lay
     state_dir enables resume: counts (and saliency sums) of every finished layer
     are saved, and the hidden states every `checkpoint_every` layers. A rerun
     with the same texts continues from the last saved hidden states. A rerun
-    with saliency stops with a ValueError when the saved layers have none.
+    with saliency stops with a ValueError when the saved layers have none, or
+    have saliency of another SALIENCY_STATE_VERSION. That check runs before the
+    model skeleton is built, so nothing is downloaded first. A run whose layer
+    range holds no MoE layer stops before the embedding is read.
     """
     started = time.time()
     if layout is None:
@@ -1663,34 +1840,77 @@ def profile_streaming(source, config, tokenizer, skill_texts, general_texts, lay
             items.append((name, ids))
     if not items:
         raise ValueError("no texts to profile")
-    skeleton = Skeleton(config, source, layout, device, dtype, trust_remote_code=trust_remote_code)
+
+    def saved_progress(total):
+        """What state_dir holds for a model of `total` layers. Raises ValueError for saliency that cannot be continued."""
+        last = total
+        if max_layers is not None:
+            last = min(total, first_layer + max_layers)
+        key = texts_key({name: groups[name] for name in names}, max_length,
+                        [getattr(config, "model_type", ""), total, source.identity(), layout.family, str(dtype)])
+        progress = {"total": total, "last": last, "key": key, "start": first_layer, "counts": {},
+                    "states": [None] * len(items), "sums": {} if saliency else None, "tag": None}
+        if state_dir is None:
+            return progress
+        os.makedirs(state_dir, exist_ok=True)
+        start, records, states = resume_state(state_dir, key, items, first_layer, last, log)
+        progress["start"] = start
+        progress["states"] = states
+        for layer_index in sorted(records):
+            if records[layer_index]["counts"] is not None:
+                progress["counts"][layer_index] = records[layer_index]["counts"]
+        if saliency:
+            progress["sums"], progress["tag"] = saved_saliency(state_dir, records, first_layer)
+        return progress
+
+    # Read the saved state before the skeleton is built when the config gives the layer count. A
+    # state that cannot be continued then stops the run before the embedding is downloaded.
+    progress = None
+    config_total = getattr(text_config_of(config), "num_hidden_layers", None)
+    if state_dir is not None and config_total is not None:
+        progress = saved_progress(int(config_total))
+    skeleton = Skeleton(config, source, layout, device, dtype, trust_remote_code=trust_remote_code, embedding=False)
     text_config = skeleton.text_config
     if attn_implementation is not None:
         # Kimi K3 code forces flash_attention_2 in the model constructor. Layers read the setting from the config.
         text_config._attn_implementation = attn_implementation
     total = skeleton.layer_count
-    last = total
-    if max_layers is not None:
-        last = min(total, first_layer + max_layers)
-
-    key = texts_key({name: groups[name] for name in names}, max_length,
-                    [getattr(config, "model_type", ""), total, source.identity(), layout.family, str(dtype)])
-    counts = {}
+    if progress is None or progress["total"] != total:
+        progress = saved_progress(total)
+    last = progress["last"]
+    key = progress["key"]
+    start = progress["start"]
+    counts = progress["counts"]
     # {layer: {text set: saliency sum per expert}}. Stays None with saliency off.
-    sums = {} if saliency else None
-    states = [None] * len(items)
-    start = first_layer
-    if state_dir is not None:
-        os.makedirs(state_dir, exist_ok=True)
-        start, counts, states = resume_state(state_dir, key, items, first_layer, last)
+    sums = progress["sums"]
+    # (method, norm) of the saliency pass: from the saved layers, or from the first MoE layer that runs.
+    tag = progress["tag"]
+
+    # Stop before the embedding and the first layer are read when no layer of the range has a router.
+    routed = [index for index in range(total) if skeleton.routed[index]]
+    if not counts and not any(first_layer <= index < last for index in routed):
+        if not routed:
+            raise ValueError("model has no MoE layers")
+        later = [index for index in routed if index >= first_layer]
+        advice = f"no MoE layer comes at or after layer {first_layer}"
+        if later:
+            advice = (f"the first MoE layer is layer {later[0]}, so max_layers must be at least "
+                      f"{later[0] + 1 - first_layer} (--max-layers in modal_giant.py)")
+        raise ValueError(f"model has no MoE layers among the processed layers {first_layer} to {last - 1}: {advice}")
+    skeleton.load_embedding()
+    states = [to_device_state(state, device) for state in progress["states"]]
+    progress = None
+    if start > first_layer:
+        line = f"resumed at layer {start}: {len(counts)} MoE layers have saved pick counts"
         if saliency:
-            sums = saved_saliency(state_dir, sorted(counts), first_layer)
-        states = [to_device_state(state, device) for state in states]
-        if start > first_layer:
-            log(f"resumed at layer {start}")
+            line += (f", {len(sums)} have saved saliency (state version {SALIENCY_STATE_VERSION}, "
+                     f"method {tag[0] if tag else None})")
+        log(line)
 
     router_info = {"top_k": None, "num_experts": None}
-    method = None
+    if counts:
+        # A run that resumes every layer builds none, so the router shape comes from the saved counts.
+        router_info["top_k"], router_info["num_experts"] = router_shape(counts[min(counts)])
     layer_seconds = []
     for index in range(start, last):
         tick = time.time()
@@ -1725,7 +1945,13 @@ def profile_streaming(source, config, tokenizer, skill_texts, general_texts, lay
         try:
             if found is not None and saliency:
                 meter = SaliencyMeter(index, layer, moe, router, top_k, num_experts, names, layout)
-                method = meter.method
+                if tag is None:
+                    tag = (meter.method, meter.norm)
+                elif tag != (meter.method, meter.norm):
+                    raise ValueError(
+                        f"layer {index}: the saliency pass runs as {(meter.method, meter.norm)}, the layers before "
+                        f"it ran as {tag}. Sums of two methods cannot go into one result. " + SALIENCY_OFF
+                        + stale_state_advice(state_dir, first_layer))
             for position, (name, ids) in enumerate(items):
                 current["group"] = name
                 if meter is not None:
@@ -1742,6 +1968,13 @@ def profile_streaming(source, config, tokenizer, skill_texts, general_texts, lay
         if meter is not None:
             meter.check(layer_counts)
             sums[index] = meter.sums
+            norm_note = "" if meter.norm is None else f", divided by the RMS of {meter.norm}"
+            log(f"layer {index + 1}/{total} saliency method {meter.method}{norm_note}")
+            for note in meter.notes:
+                log(f"layer {index + 1}/{total} saliency check: {note}")
+            for name in names:
+                log(f"layer {index + 1}/{total} " + saliency_report(name, meter.sums[name], layer_counts[name][0],
+                                                                    layer_counts[name][1], top))
         # These names hold the experts of the layer. Drop them with the layer, before the next one is built.
         found = moe = router = meter = handle = None
         del layer
@@ -1750,7 +1983,7 @@ def profile_streaming(source, config, tokenizer, skill_texts, general_texts, lay
         layer_seconds.append(round(time.time() - tick, 2))
         log(f"layer {index + 1}/{total} done in {layer_seconds[-1]} s, read {source.bytes_read / 1e9:.2f} GB")
         if state_dir is not None:
-            save_progress(state_dir, key, index, counts, states, checkpoint_every, last, sums)
+            save_progress(state_dir, key, index, counts, states, checkpoint_every, last, sums, tag)
     source.wait_prefetch()
 
     maps = {}
@@ -1775,7 +2008,8 @@ def profile_streaming(source, config, tokenizer, skill_texts, general_texts, lay
             "requests": source.requests, "seconds": round(time.time() - started, 1), "layer_seconds": layer_seconds,
             "texts": len(items), "layout": layout.family, "layers_with_routers": sorted(counts.keys())}
     if saliency:
-        info["saliency_method"] = method
+        info["saliency_method"] = tag[0] if tag else None
+        info["saliency_norm"] = tag[1] if tag else None
     if keep_state:
         info["state"] = states
     return {"maps": maps, "info": info}
@@ -1801,20 +2035,42 @@ def progress_paths(state_dir, index):
     return (os.path.join(state_dir, f"counts_{index:04d}.pt"), os.path.join(state_dir, f"state_{index:04d}.pt"))
 
 
-def save_progress(state_dir, key, index, counts, states, checkpoint_every, last, sums=None):
+def save_atomic(value, path):
+    """torch.save to a temporary name, then a rename. A container that stops during the write leaves no torn file at `path`."""
+    torch.save(value, path + ".tmp")
+    os.replace(path + ".tmp", path)
+
+
+def save_progress(state_dir, key, index, counts, states, checkpoint_every, last, sums=None, tag=None):
     """Save the counts of layer `index`, and the hidden states when a checkpoint is due.
 
     sums is the {layer: saliency sums} of a run with saliency, or None. A run with saliency
-    writes a "saliency" field for every layer (None for a dense layer). A run without it writes
-    no such field, so the two kinds of file can be told apart.
+    writes a "saliency" field for every layer (None for a dense layer), the
+    SALIENCY_STATE_VERSION, and the method and norm of the pass (tag). A run without it writes
+    none of these fields, so the two kinds of file can be told apart.
     """
     counts_path, state_path = progress_paths(state_dir, index)
     record = {"key": key, "counts": counts.get(index)}
     if sums is not None:
         record["saliency"] = sums.get(index)
-    torch.save(record, counts_path)
+        record["saliency_version"] = SALIENCY_STATE_VERSION
+        record["saliency_method"] = tag[0] if tag else None
+        record["saliency_norm"] = tag[1] if tag else None
+    save_atomic(record, counts_path)
     if (index + 1) % checkpoint_every == 0 or index + 1 == last:
-        torch.save({"key": key, "states": [to_cpu_state(state) for state in states]}, state_path)
+        save_atomic({"key": key, "states": [to_cpu_state(state) for state in states]}, state_path)
+
+
+def clear_state(state_dir):
+    """Delete the resume files of state_dir, so the next run starts at the first layer. Returns the number of files."""
+    removed = 0
+    if not os.path.isdir(state_dir):
+        return removed
+    for name in sorted(os.listdir(state_dir)):
+        if re.match(r"^(counts|state)_\d{4}\.pt(\.tmp)?$", name):
+            os.remove(os.path.join(state_dir, name))
+            removed += 1
+    return removed
 
 
 def to_device_state(state, device):
@@ -1834,54 +2090,91 @@ def to_cpu_state(state):
     return state.cpu()
 
 
-def resume_state(state_dir, key, items, first_layer, last):
-    """(start layer, counts, states) from the newest hidden state file of the same texts."""
-    best = None
+def load_saved(path, log=None):
+    """The object in one resume file, or None when the file is missing or does not load.
+
+    A file that does not load is a torn write: older code wrote the files in place, and a
+    container that stops during a write leaves half a file.
+    """
+    if not os.path.exists(path):
+        return None
+    try:
+        return torch.load(path, weights_only=False)
+    except Exception as error:
+        if log is not None:
+            log(f"resume skips {path}: it does not load ({error!r})"[:300])
+        return None
+
+
+def resume_state(state_dir, key, items, first_layer, last, log=None):
+    """(start layer, records, states) from the newest usable checkpoint of the same texts.
+
+    records is {layer: the saved counts record} of every layer before the start layer. A
+    checkpoint is usable when its hidden state file and the counts file of every layer up to it
+    load and carry the key. Otherwise the next older checkpoint is tried, and with none left the
+    run starts at first_layer.
+    """
     for index in range(last - 1, first_layer - 1, -1):
-        counts_path, state_path = progress_paths(state_dir, index)
-        if not os.path.exists(state_path):
+        _, state_path = progress_paths(state_dir, index)
+        saved = load_saved(state_path, log)
+        if saved is None or saved.get("key") != key or len(saved["states"]) != len(items):
             continue
-        saved = torch.load(state_path, weights_only=False)
-        if saved.get("key") != key or len(saved["states"]) != len(items):
-            continue
-        best = (index, saved)
-        break
-    if best is None:
-        return first_layer, {}, [None] * len(items)
-    index, saved = best
-    counts = {}
-    for layer_index in range(first_layer, index + 1):
-        counts_path, _ = progress_paths(state_dir, layer_index)
-        if not os.path.exists(counts_path):
-            return first_layer, {}, [None] * len(items)
-        entry = torch.load(counts_path, weights_only=False)
-        if entry.get("key") != key:
-            return first_layer, {}, [None] * len(items)
-        if entry["counts"] is not None:
-            counts[layer_index] = entry["counts"]
-    return index + 1, counts, list(saved["states"])
+        records = {}
+        for layer_index in range(first_layer, index + 1):
+            entry = load_saved(progress_paths(state_dir, layer_index)[0], log)
+            if entry is None or entry.get("key") != key:
+                records = None
+                break
+            records[layer_index] = entry
+        if records is not None:
+            return index + 1, records, list(saved["states"])
+    return first_layer, {}, [None] * len(items)
 
 
-def saved_saliency(state_dir, layers, first_layer):
-    """{layer: saliency sums} of the resumed MoE layers, read from their counts files.
+def router_shape(layer_counts):
+    """(top_k, num_experts) of one MoE layer, from its saved pick counts: every token picks top_k experts."""
+    picks, tokens = next(iter(layer_counts.values()))
+    return int(round(float(picks.sum()) / max(1, tokens))), int(picks.numel())
 
-    Raises ValueError when a file has no saliency: older code, or a run with saliency off, wrote
-    it. Layers with and without saliency cannot go into one result, and measuring the missing
-    ones needs their layers again.
+
+def stale_state_advice(state_dir, first_layer):
+    if state_dir is None:
+        return ""
+    return (f" Or delete {state_dir} (--fresh in modal_giant.py, or pass another state_dir) and run again from "
+            f"layer {first_layer} to measure saliency in every layer.")
+
+
+def saved_saliency(state_dir, records, first_layer):
+    """({layer: saliency sums}, (method, norm) or None) of the resumed MoE layers, from their counts records.
+
+    Raises ValueError when a record has no saliency (older code, or a run with saliency off, wrote
+    it) or has saliency of another SALIENCY_STATE_VERSION (other saliency code wrote it). Such
+    layers cannot go into one result with new ones, and measuring them again needs their layers.
     """
     sums = {}
-    for layer_index in layers:
+    tag = None
+    for layer_index in sorted(records):
+        entry = records[layer_index]
+        if entry["counts"] is None:
+            continue
         counts_path, _ = progress_paths(state_dir, layer_index)
-        entry = torch.load(counts_path, weights_only=False)
         if entry.get("saliency") is None:
             raise ValueError(
                 f"{counts_path} holds pick counts without saliency: older code or a run with saliency off wrote "
                 f"it. Its layers cannot be mixed with layers that have saliency. Either run again with saliency "
                 f"off (saliency=False, or --no-saliency in modal_giant.py) to finish with pick counts alone, or "
-                f"delete {state_dir} (or pass another state_dir) and run again from layer {first_layer} to "
-                f"measure saliency in every layer.")
+                f"delete {state_dir} (--fresh in modal_giant.py, or pass another state_dir) and run again from "
+                f"layer {first_layer} to measure saliency in every layer.")
+        if entry.get("saliency_version") != SALIENCY_STATE_VERSION:
+            raise ValueError(
+                f"{counts_path} holds saliency of state version {entry.get('saliency_version')}, and this code "
+                f"writes version {SALIENCY_STATE_VERSION}: other saliency code wrote it, so its sums cannot be "
+                f"mixed with new layers or reported as they are. " + SALIENCY_OFF
+                + stale_state_advice(state_dir, first_layer))
         sums[layer_index] = entry["saliency"]
-    return sums
+        if tag is None:
+            tag = (entry.get("saliency_method"), entry.get("saliency_norm"))
+    return sums, tag
 
 
 # ---------------------------------------------------------------------------
