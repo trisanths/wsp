@@ -66,6 +66,12 @@ something fails. Each entry: what went wrong, then the rule.
 - Generation paths need their own test with batches, left padding, and two
   calls in a row. Forced whole-layer experts matched the specialist on one
   forward pass and scored 0.7 on GSM8K because of a cache bug.
+- Check the eval protocol before trusting any baseline: chat template,
+  answer format, and token limit. Runs 1 to 5 scored GSM8K with a bare
+  prompt and 256 tokens, which cut instruct models off before the answer
+  (Llama-1B read 0.23; the right protocol gives 0.58). Conclusions from
+  those runs were drawn on truncated outputs. Use wsp.skills_eval and look
+  at a few raw generations before a fan-out.
 - Print the cell name on every score line. Round 19 printed bare scores and
   I could not tell which cell they belonged to for an hour.
 

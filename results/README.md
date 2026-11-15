@@ -4,6 +4,23 @@ All numbers here are on the GSM8K search split (200 items from GSM8K train)
 unless a row says held-out. Search-split numbers are interim checks, not
 results to report.
 
+## Caveat on GSM8K in runs 1 to 5 and the baselines (found 2026-11-14)
+
+The GSM8K numbers in runs 1 to 5, the hour-8 gate, and the baselines came
+from the wsp_eval harness task: a bare "Question: ... Answer:" prompt with
+no chat template and a 256-token limit. Instruct models are cut off before
+the final number. The studio session measured it on the same 200 items:
+Llama-3.2-1B-Instruct scores 0.23 under the harness prompt and 0.58 with
+the chat template, "The answer is N", and 512 tokens (wsp.skills_eval);
+Qwen2.5-1.5B-Instruct scores 0.125 and 0.795.
+
+So those GSM8K numbers measure truncated outputs. They are not comparable
+with runs 16 and later, which use wsp.skills_eval. The conclusions drawn
+from them (no graft beats LoRA on GSM8K; selected clusters do not beat
+random clusters) were drawn on a broken protocol and need a rerun before
+anyone cites them. The MMLU, MedMCQA, and loss numbers in runs 6 to 15 are
+log-prob or loss measures and are not affected.
+
 ## Run 1 (2026-11-14): first cross-family graft
 
 Host unsloth/Llama-3.2-1B-Instruct. Donor Qwen/Qwen2.5-Math-1.5B, layer 18.
