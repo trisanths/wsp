@@ -377,7 +377,8 @@ class TopModule(nn.Module):
         return self.norm(out)
 
     def logits(self, normed):
-        out = self.head(normed)
+        # The donor's final norm can return float32 (Qwen2 RMSNorm upcasts) while the head is bf16 on a GPU.
+        out = self.head(normed.to(self.head.weight.dtype))
         if self.has_head_mask:
             out = out.masked_fill(self.head_mask, torch.finfo(out.dtype).min)
         return out

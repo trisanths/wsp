@@ -766,3 +766,21 @@ def test_round24_plan_counts_every_pair_and_select_filters():
     assert all(c["kind"] != "forced" or c["cut"] == 14 for c in r.select(r.cells(), cuts="14", only="forced"))
     refs = r.select(r.cells(), cuts="14", only="base,donor")
     assert {c["kind"] for c in refs} == {"base", "donor"}
+
+
+def test_logits_cast_the_normed_state_to_the_head_dtype():
+    # Round 24's smoke died here: a float32 norm output met a bf16 head on the GPU.
+    import torch.nn as nn
+
+    class Holder:
+        pass
+
+    head = nn.Linear(8, 5, bias=False).to(torch.bfloat16)
+    top = Holder()
+    top.head = head
+    top.has_head_mask = False
+    from wsp.tops import TopModule
+
+    out = TopModule.logits(top, torch.randn(2, 3, 8, dtype=torch.float32))
+    assert out.dtype == torch.bfloat16
+    assert out.shape == (2, 3, 5)
