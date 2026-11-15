@@ -25,8 +25,8 @@ Parts that pass go to `catalog/<model>.jsonl`, with an index file in `parts/<mod
 
 | Person | Models (short names from `registry/donors.csv`) |
 |---|---|
-| Hanav (Person A) | `qwenmath1.5b`, `k2horizon7b`, `qwen3.6_35b_a3b`, `nanbeige33b` |
-| Person B | `qwen3.8_27b`, `gemma4_31b`, `phi4_14b` |
+| Hanav | `qwenmath1.5b`, `k2horizon7b`, `qwen3.6_35b_a3b`, `nanbeige33b` |
+| Rex | `qwen3.8_27b`, `gemma4_31b`, `phi4_14b` |
 | Trisanth | `lfm2.5_8b_a1b`, `lfm2_24b_a2b`, `g9v3_39a5b` |
 | Arjun | `k2mova36b`, `lfm2.5_24b_a2b`, `llama1b_host` |
 
