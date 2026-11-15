@@ -1,0 +1,1220 @@
+{
+ "name": "past_tense",
+ "description": "Give the simple past tense of an English verb (regular and irregular), few-shot. Control: same verbs and format, but copy the base form (present tense).",
+ "hash": "352f785e5714a5c5",
+ "agent_items": false,
+ "generator_code": "\nimport random, json\nrandom.seed(0)\nV=[('walk','walked'),('talk','talked'),('jump','jumped'),('play','played'),('work','worked'),('call','called'),('look','looked'),('want','wanted'),('go','went'),('see','saw'),('take','took'),('give','gave'),('eat','ate'),('run','ran'),('write','wrote'),('speak','spoke'),('drink','drank'),('sing','sang'),('swim','swam'),('drive','drove'),('buy','bought'),('think','thought'),('bring','brought'),('teach','taught'),('catch','caught'),('fly','flew'),('know','knew'),('grow','grew'),('throw','threw'),('draw','drew'),('break','broke'),('choose','chose'),('steal','stole'),('freeze','froze'),('begin','began'),('ring','rang'),('sit','sat'),('stand','stood'),('find','found'),('tell','told'),('sell','sold'),('feel','felt'),('keep','kept'),('sleep','slept'),('leave','left'),('meet','met'),('lose','lost'),('win','won'),('help','helped'),('open','opened'),('climb','climbed'),('cook','cooked')]\nitems=[];control=[]\nfor _ in range(120):\n    ex=random.sample(V,3)\n    items.append({\"prompt\":\"Past tense.\\n\"+\"\".join(f\"{a}: {b}\\n\" for a,b in ex[:2])+f\"{ex[2][0]}:\",\"answer\":\" \"+ex[2][1]})\n    control.append({\"prompt\":\"Repeat the verb.\\n\"+\"\".join(f\"{a}: {a}\\n\" for a,b in ex[:2])+f\"{ex[2][0]}:\",\"answer\":\" \"+ex[2][0]})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))\n",
+ "items": {
+  "search": [
+   {
+    "context": "Past tense.\nsell: sold\nbegin: began\nfind:",
+    "continuation": " found",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nknow: knew\nopen: opened\nkeep:",
+    "continuation": " kept",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nwrite: wrote\nsell: sold\nthrow:",
+    "continuation": " threw",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ndrive: drove\nbreak: broke\nbring:",
+    "continuation": " brought",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ncook: cooked\nknow: knew\neat:",
+    "continuation": " ate",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nwant: wanted\nsell: sold\neat:",
+    "continuation": " ate",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nlook: looked\nleave: left\nfly:",
+    "continuation": " flew",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nwork: worked\neat: ate\nsit:",
+    "continuation": " sat",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ncook: cooked\nfind: found\nring:",
+    "continuation": " rang",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nthrow: threw\ncall: called\nbuy:",
+    "continuation": " bought",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nbring: brought\ncall: called\nbuy:",
+    "continuation": " bought",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nwrite: wrote\nwork: worked\nfeel:",
+    "continuation": " felt",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nwrite: wrote\nspeak: spoke\ncook:",
+    "continuation": " cooked",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nbegin: began\ngrow: grew\ntell:",
+    "continuation": " told",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nlose: lost\nbreak: broke\nsit:",
+    "continuation": " sat",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ncook: cooked\nring: rang\nwalk:",
+    "continuation": " walked",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ncatch: caught\nkeep: kept\ndrink:",
+    "continuation": " drank",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nthink: thought\nbegin: began\nrun:",
+    "continuation": " ran",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nchoose: chose\nfly: flew\nclimb:",
+    "continuation": " climbed",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ntake: took\nleave: left\nsleep:",
+    "continuation": " slept",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ncook: cooked\nfind: found\nsee:",
+    "continuation": " saw",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nfreeze: froze\nchoose: chose\nring:",
+    "continuation": " rang",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nspeak: spoke\nrun: ran\nsleep:",
+    "continuation": " slept",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ndrive: drove\nfeel: felt\nbring:",
+    "continuation": " brought",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nthink: thought\ntake: took\nspeak:",
+    "continuation": " spoke",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nstand: stood\nknow: knew\nsing:",
+    "continuation": " sang",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nfeel: felt\nleave: left\nclimb:",
+    "continuation": " climbed",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nbuy: bought\nwalk: walked\nrun:",
+    "continuation": " ran",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ndrink: drank\nwant: wanted\nfind:",
+    "continuation": " found",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nbreak: broke\nwork: worked\ncall:",
+    "continuation": " called",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nwork: worked\nsleep: slept\nthink:",
+    "continuation": " thought",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nsee: saw\ncook: cooked\nbegin:",
+    "continuation": " began",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ntell: told\nwant: wanted\nchoose:",
+    "continuation": " chose",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\neat: ate\nspeak: spoke\ntalk:",
+    "continuation": " talked",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nmeet: met\njump: jumped\ntake:",
+    "continuation": " took",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nstand: stood\nsell: sold\ntell:",
+    "continuation": " told",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ntell: told\nsell: sold\nrun:",
+    "continuation": " ran",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nmeet: met\nwrite: wrote\nteach:",
+    "continuation": " taught",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nlose: lost\nbuy: bought\nmeet:",
+    "continuation": " met",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nring: rang\nsell: sold\ncall:",
+    "continuation": " called",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ndraw: drew\njump: jumped\nfind:",
+    "continuation": " found",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nbreak: broke\nbring: brought\ntell:",
+    "continuation": " told",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\neat: ate\ngive: gave\njump:",
+    "continuation": " jumped",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nsell: sold\nwalk: walked\ntell:",
+    "continuation": " told",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nlook: looked\ntell: told\ncook:",
+    "continuation": " cooked",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nfly: flew\nleave: left\nsit:",
+    "continuation": " sat",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ncatch: caught\nwin: won\nknow:",
+    "continuation": " knew",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nchoose: chose\nthink: thought\nspeak:",
+    "continuation": " spoke",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ntell: told\nlook: looked\neat:",
+    "continuation": " ate",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nfly: flew\nsleep: slept\nknow:",
+    "continuation": " knew",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nmeet: met\nwant: wanted\nring:",
+    "continuation": " rang",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nspeak: spoke\nswim: swam\ngive:",
+    "continuation": " gave",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ngrow: grew\nplay: played\nlook:",
+    "continuation": " looked",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ncall: called\nthink: thought\nwin:",
+    "continuation": " won",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ngo: went\nmeet: met\ndrive:",
+    "continuation": " drove",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nfreeze: froze\ndrink: drank\nplay:",
+    "continuation": " played",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nring: rang\nbreak: broke\nthrow:",
+    "continuation": " threw",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\njump: jumped\nchoose: chose\nbuy:",
+    "continuation": " bought",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nsleep: slept\nwork: worked\ntalk:",
+    "continuation": " talked",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nknow: knew\nsit: sat\nsteal:",
+    "continuation": " stole",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Past tense.\nstand: stood\nrun: ran\nsteal:",
+    "continuation": " stole",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nthrow: threw\nkeep: kept\ngive:",
+    "continuation": " gave",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nwalk: walked\nbreak: broke\nsleep:",
+    "continuation": " slept",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nfly: flew\nmeet: met\nfreeze:",
+    "continuation": " froze",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nstand: stood\nswim: swam\nthrow:",
+    "continuation": " threw",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nsee: saw\nring: rang\nleave:",
+    "continuation": " left",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ntalk: talked\neat: ate\ngive:",
+    "continuation": " gave",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ncatch: caught\nhelp: helped\nknow:",
+    "continuation": " knew",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ndrive: drove\ndraw: drew\nplay:",
+    "continuation": " played",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nbreak: broke\nring: rang\nlook:",
+    "continuation": " looked",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\njump: jumped\ndrink: drank\nsteal:",
+    "continuation": " stole",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nswim: swam\nsleep: slept\nbring:",
+    "continuation": " brought",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ndrink: drank\nbegin: began\nmeet:",
+    "continuation": " met",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nwalk: walked\nmeet: met\nhelp:",
+    "continuation": " helped",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nplay: played\nsleep: slept\ntalk:",
+    "continuation": " talked",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nwrite: wrote\njump: jumped\nsit:",
+    "continuation": " sat",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nwant: wanted\nfind: found\nfeel:",
+    "continuation": " felt",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ndrive: drove\nbring: brought\ngrow:",
+    "continuation": " grew",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nsteal: stole\nchoose: chose\nlook:",
+    "continuation": " looked",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nclimb: climbed\nsleep: slept\ntake:",
+    "continuation": " took",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nleave: left\nbegin: began\nsleep:",
+    "continuation": " slept",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nclimb: climbed\nsee: saw\nleave:",
+    "continuation": " left",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nthrow: threw\nwork: worked\ndrink:",
+    "continuation": " drank",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\njump: jumped\nbegin: began\nsing:",
+    "continuation": " sang",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ngive: gave\nplay: played\nsteal:",
+    "continuation": " stole",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nfind: found\nsit: sat\nwant:",
+    "continuation": " wanted",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nsing: sang\nfreeze: froze\ncook:",
+    "continuation": " cooked",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nwalk: walked\ndraw: drew\nwin:",
+    "continuation": " won",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ndrive: drove\nlook: looked\nlose:",
+    "continuation": " lost",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nwalk: walked\nsleep: slept\nfreeze:",
+    "continuation": " froze",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nsee: saw\njump: jumped\ncall:",
+    "continuation": " called",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nmeet: met\nclimb: climbed\nkeep:",
+    "continuation": " kept",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nrun: ran\nopen: opened\nplay:",
+    "continuation": " played",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ngo: went\nspeak: spoke\nhelp:",
+    "continuation": " helped",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nlook: looked\ndrink: drank\nwork:",
+    "continuation": " worked",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ncall: called\nfind: found\ncook:",
+    "continuation": " cooked",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ntake: took\nthink: thought\nfreeze:",
+    "continuation": " froze",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nbring: brought\ngrow: grew\nbuy:",
+    "continuation": " bought",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nfeel: felt\ncall: called\nwalk:",
+    "continuation": " walked",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nsit: sat\nknow: knew\njump:",
+    "continuation": " jumped",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ntell: told\nkeep: kept\ndrink:",
+    "continuation": " drank",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ncall: called\nlose: lost\nfly:",
+    "continuation": " flew",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nmeet: met\nwant: wanted\nbreak:",
+    "continuation": " broke",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ndrive: drove\nring: rang\nswim:",
+    "continuation": " swam",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\neat: ate\ndrink: drank\nbring:",
+    "continuation": " brought",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nthrow: threw\nchoose: chose\nkeep:",
+    "continuation": " kept",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nfly: flew\ncall: called\nteach:",
+    "continuation": " taught",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nsleep: slept\nhelp: helped\ngo:",
+    "continuation": " went",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nleave: left\ntake: took\nthrow:",
+    "continuation": " threw",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ncatch: caught\nmeet: met\nsleep:",
+    "continuation": " slept",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nlose: lost\nsing: sang\nwant:",
+    "continuation": " wanted",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nwant: wanted\njump: jumped\nfind:",
+    "continuation": " found",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nrun: ran\nlose: lost\ncook:",
+    "continuation": " cooked",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ncatch: caught\nbuy: bought\nsit:",
+    "continuation": " sat",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\ngo: went\nswim: swam\nhelp:",
+    "continuation": " helped",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nclimb: climbed\ntake: took\nthink:",
+    "continuation": " thought",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nlose: lost\ngo: went\nwalk:",
+    "continuation": " walked",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nfind: found\neat: ate\nleave:",
+    "continuation": " left",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nstand: stood\nsell: sold\nthink:",
+    "continuation": " thought",
+    "digits_only": false
+   },
+   {
+    "context": "Past tense.\nfind: found\nhelp: helped\nwalk:",
+    "continuation": " walked",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Repeat the verb.\nwant: want\nfind: find\nfeel:",
+    "continuation": " feel",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nthrow: throw\nkeep: keep\ngive:",
+    "continuation": " give",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nchoose: choose\nthink: think\nspeak:",
+    "continuation": " speak",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ngo: go\nspeak: speak\nhelp:",
+    "continuation": " help",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nlook: look\ndrink: drink\nwork:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nfly: fly\nmeet: meet\nfreeze:",
+    "continuation": " freeze",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nstand: stand\nrun: run\nsteal:",
+    "continuation": " steal",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ntake: take\nthink: think\nfreeze:",
+    "continuation": " freeze",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nsleep: sleep\nhelp: help\ngo:",
+    "continuation": " go",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nwork: work\nsleep: sleep\nthink:",
+    "continuation": " think",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nring: ring\nbreak: break\nthrow:",
+    "continuation": " throw",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ncatch: catch\nwin: win\nknow:",
+    "continuation": " know",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nwork: work\neat: eat\nsit:",
+    "continuation": " sit",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nclimb: climb\nsleep: sleep\ntake:",
+    "continuation": " take",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nfly: fly\nsleep: sleep\nknow:",
+    "continuation": " know",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ngive: give\nplay: play\nsteal:",
+    "continuation": " steal",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nlook: look\nleave: leave\nfly:",
+    "continuation": " fly",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nmeet: meet\nwrite: write\nteach:",
+    "continuation": " teach",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ngo: go\nmeet: meet\ndrive:",
+    "continuation": " drive",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ndrive: drive\nlook: look\nlose:",
+    "continuation": " lose",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nwalk: walk\nbreak: break\nsleep:",
+    "continuation": " sleep",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nwalk: walk\nmeet: meet\nhelp:",
+    "continuation": " help",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nfeel: feel\ncall: call\nwalk:",
+    "continuation": " walk",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nstand: stand\nsell: sell\ntell:",
+    "continuation": " tell",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nsee: see\njump: jump\ncall:",
+    "continuation": " call",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ntell: tell\nkeep: keep\ndrink:",
+    "continuation": " drink",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nthrow: throw\nwork: work\ndrink:",
+    "continuation": " drink",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\neat: eat\nspeak: speak\ntalk:",
+    "continuation": " talk",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ncook: cook\nring: ring\nwalk:",
+    "continuation": " walk",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ncatch: catch\nbuy: buy\nsit:",
+    "continuation": " sit",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nsee: see\ncook: cook\nbegin:",
+    "continuation": " begin",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nlook: look\ntell: tell\ncook:",
+    "continuation": " cook",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ndrive: drive\nfeel: feel\nbring:",
+    "continuation": " bring",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ngo: go\nswim: swim\nhelp:",
+    "continuation": " help",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\neat: eat\ngive: give\njump:",
+    "continuation": " jump",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\neat: eat\ndrink: drink\nbring:",
+    "continuation": " bring",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nbreak: break\nring: ring\nlook:",
+    "continuation": " look",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nmeet: meet\njump: jump\ntake:",
+    "continuation": " take",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nspeak: speak\nrun: run\nsleep:",
+    "continuation": " sleep",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nring: ring\nsell: sell\ncall:",
+    "continuation": " call",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ncook: cook\nfind: find\nring:",
+    "continuation": " ring",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nplay: play\nsleep: sleep\ntalk:",
+    "continuation": " talk",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nwalk: walk\nsleep: sleep\nfreeze:",
+    "continuation": " freeze",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nthrow: throw\ncall: call\nbuy:",
+    "continuation": " buy",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nlose: lose\nsing: sing\nwant:",
+    "continuation": " want",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nstand: stand\nswim: swim\nthrow:",
+    "continuation": " throw",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nthink: think\ntake: take\nspeak:",
+    "continuation": " speak",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nwant: want\nsell: sell\neat:",
+    "continuation": " eat",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nsell: sell\nwalk: walk\ntell:",
+    "continuation": " tell",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nmeet: meet\nwant: want\nbreak:",
+    "continuation": " break",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nsing: sing\nfreeze: freeze\ncook:",
+    "continuation": " cook",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nrun: run\nlose: lose\ncook:",
+    "continuation": " cook",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ndrink: drink\nwant: want\nfind:",
+    "continuation": " find",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nlose: lose\ngo: go\nwalk:",
+    "continuation": " walk",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nthrow: throw\nchoose: choose\nkeep:",
+    "continuation": " keep",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nfly: fly\ncall: call\nteach:",
+    "continuation": " teach",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nlose: lose\nbuy: buy\nmeet:",
+    "continuation": " meet",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nbring: bring\ncall: call\nbuy:",
+    "continuation": " buy",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ndrink: drink\nbegin: begin\nmeet:",
+    "continuation": " meet",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nmeet: meet\nclimb: climb\nkeep:",
+    "continuation": " keep",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Repeat the verb.\nwrite: write\nsell: sell\nthrow:",
+    "continuation": " throw",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nfeel: feel\nleave: leave\nclimb:",
+    "continuation": " climb",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ncall: call\nthink: think\nwin:",
+    "continuation": " win",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nwrite: write\nspeak: speak\ncook:",
+    "continuation": " cook",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nknow: know\nopen: open\nkeep:",
+    "continuation": " keep",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nclimb: climb\ntake: take\nthink:",
+    "continuation": " think",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nsee: see\nring: ring\nleave:",
+    "continuation": " leave",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nbreak: break\nwork: work\ncall:",
+    "continuation": " call",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nsleep: sleep\nwork: work\ntalk:",
+    "continuation": " talk",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ntake: take\nleave: leave\nsleep:",
+    "continuation": " sleep",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ntell: tell\nlook: look\neat:",
+    "continuation": " eat",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nstand: stand\nknow: know\nsing:",
+    "continuation": " sing",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nbreak: break\nbring: bring\ntell:",
+    "continuation": " tell",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ndrive: drive\nbring: bring\ngrow:",
+    "continuation": " grow",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ncook: cook\nknow: know\neat:",
+    "continuation": " eat",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nwrite: write\njump: jump\nsit:",
+    "continuation": " sit",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nmeet: meet\nwant: want\nring:",
+    "continuation": " ring",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nbegin: begin\ngrow: grow\ntell:",
+    "continuation": " tell",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ncatch: catch\nkeep: keep\ndrink:",
+    "continuation": " drink",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ngrow: grow\nplay: play\nlook:",
+    "continuation": " look",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ndrive: drive\nring: ring\nswim:",
+    "continuation": " swim",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nleave: leave\ntake: take\nthrow:",
+    "continuation": " throw",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\njump: jump\ndrink: drink\nsteal:",
+    "continuation": " steal",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nwrite: write\nwork: work\nfeel:",
+    "continuation": " feel",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nfreeze: freeze\nchoose: choose\nring:",
+    "continuation": " ring",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nwalk: walk\ndraw: draw\nwin:",
+    "continuation": " win",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nchoose: choose\nfly: fly\nclimb:",
+    "continuation": " climb",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nsit: sit\nknow: know\njump:",
+    "continuation": " jump",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nleave: leave\nbegin: begin\nsleep:",
+    "continuation": " sleep",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ntell: tell\nsell: sell\nrun:",
+    "continuation": " run",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nlose: lose\nbreak: break\nsit:",
+    "continuation": " sit",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nthink: think\nbegin: begin\nrun:",
+    "continuation": " run",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nswim: swim\nsleep: sleep\nbring:",
+    "continuation": " bring",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nspeak: speak\nswim: swim\ngive:",
+    "continuation": " give",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\njump: jump\nchoose: choose\nbuy:",
+    "continuation": " buy",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\njump: jump\nbegin: begin\nsing:",
+    "continuation": " sing",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ncatch: catch\nhelp: help\nknow:",
+    "continuation": " know",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ndrive: drive\ndraw: draw\nplay:",
+    "continuation": " play",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nrun: run\nopen: open\nplay:",
+    "continuation": " play",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nclimb: climb\nsee: see\nleave:",
+    "continuation": " leave",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nstand: stand\nsell: sell\nthink:",
+    "continuation": " think",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ndrive: drive\nbreak: break\nbring:",
+    "continuation": " bring",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nwant: want\njump: jump\nfind:",
+    "continuation": " find",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nbring: bring\ngrow: grow\nbuy:",
+    "continuation": " buy",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nsteal: steal\nchoose: choose\nlook:",
+    "continuation": " look",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ncatch: catch\nmeet: meet\nsleep:",
+    "continuation": " sleep",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ntell: tell\nwant: want\nchoose:",
+    "continuation": " choose",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nknow: know\nsit: sit\nsteal:",
+    "continuation": " steal",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nfind: find\nsit: sit\nwant:",
+    "continuation": " want",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nsell: sell\nbegin: begin\nfind:",
+    "continuation": " find",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nbuy: buy\nwalk: walk\nrun:",
+    "continuation": " run",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ntalk: talk\neat: eat\ngive:",
+    "continuation": " give",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nfreeze: freeze\ndrink: drink\nplay:",
+    "continuation": " play",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ncall: call\nfind: find\ncook:",
+    "continuation": " cook",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ncook: cook\nfind: find\nsee:",
+    "continuation": " see",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nfind: find\neat: eat\nleave:",
+    "continuation": " leave",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nfly: fly\nleave: leave\nsit:",
+    "continuation": " sit",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\nfind: find\nhelp: help\nwalk:",
+    "continuation": " walk",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ndraw: draw\njump: jump\nfind:",
+    "continuation": " find",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the verb.\ncall: call\nlose: lose\nfly:",
+    "continuation": " fly",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 11.6714
+}

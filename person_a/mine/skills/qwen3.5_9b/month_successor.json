@@ -1,0 +1,1220 @@
+{
+ "name": "month_successor",
+ "description": "Name the month k (1-4) months after a given month, few-shot. Control: same arrow format with integer successor.",
+ "hash": "8fdcc8990761b7da",
+ "agent_items": false,
+ "generator_code": "\nimport random, json\nrandom.seed(0)\nM=['January','February','March','April','May','June','July','August','September','October','November','December']\nitems=[];control=[]\nfor _ in range(120):\n    k=random.randint(1,4)\n    ex=random.sample(range(12),3)\n    p=f\"Count forward {k} month{'s' if k>1 else ''}.\\n\"+\"\".join(f\"{M[e]} -> {M[(e+k)%12]}\\n\" for e in ex[:2])+f\"{M[ex[2]]} ->\"\n    items.append({\"prompt\":p,\"answer\":\" \"+M[(ex[2]+k)%12]})\n    ns=random.sample(range(1,60),3)\n    c=f\"Count forward {k}.\\n\"+\"\".join(f\"{x} -> {x+k}\\n\" for x in ns[:2])+f\"{ns[2]} ->\"\n    control.append({\"prompt\":c,\"answer\":f\" {ns[2]+k}\"})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))\n",
+ "items": {
+  "search": [
+   {
+    "context": "Count forward 2 months.\nJanuary -> March\nMay -> July\nMarch ->",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nDecember -> March\nJanuary -> April\nOctober ->",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nAugust -> September\nJune -> July\nMay ->",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nMay -> July\nFebruary -> April\nNovember ->",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4 months.\nMay -> September\nSeptember -> January\nJuly ->",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nSeptember -> October\nAugust -> September\nNovember ->",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nJune -> September\nJanuary -> April\nSeptember ->",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nJanuary -> February\nFebruary -> March\nApril ->",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nMarch -> May\nJune -> August\nSeptember ->",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nNovember -> December\nJanuary -> February\nSeptember ->",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nFebruary -> April\nAugust -> October\nJuly ->",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nFebruary -> April\nApril -> June\nAugust ->",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nJuly -> August\nFebruary -> March\nJune ->",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nSeptember -> October\nAugust -> September\nApril ->",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nFebruary -> March\nSeptember -> October\nJanuary ->",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nSeptember -> December\nApril -> July\nNovember ->",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4 months.\nMarch -> July\nAugust -> December\nOctober ->",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4 months.\nOctober -> February\nMarch -> July\nApril ->",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nMay -> July\nMarch -> May\nFebruary ->",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nMay -> June\nJanuary -> February\nAugust ->",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nApril -> May\nOctober -> November\nDecember ->",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nSeptember -> October\nOctober -> November\nMay ->",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4 months.\nApril -> August\nSeptember -> January\nFebruary ->",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nApril -> June\nMay -> July\nJune ->",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nDecember -> February\nJanuary -> March\nAugust ->",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nJuly -> August\nNovember -> December\nDecember ->",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nOctober -> November\nNovember -> December\nApril ->",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4 months.\nFebruary -> June\nMarch -> July\nDecember ->",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4 months.\nJuly -> November\nOctober -> February\nNovember ->",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nJanuary -> February\nOctober -> November\nApril ->",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nMay -> June\nSeptember -> October\nDecember ->",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nApril -> May\nMarch -> April\nFebruary ->",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nAugust -> November\nFebruary -> May\nMay ->",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nApril -> May\nNovember -> December\nMay ->",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nAugust -> October\nFebruary -> April\nDecember ->",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nApril -> July\nAugust -> November\nJune ->",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nMarch -> June\nApril -> July\nDecember ->",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4 months.\nNovember -> March\nJuly -> November\nJune ->",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nMarch -> April\nApril -> May\nJanuary ->",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4 months.\nMay -> September\nNovember -> March\nJune ->",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nSeptember -> November\nOctober -> December\nApril ->",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nMarch -> June\nJuly -> October\nMay ->",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nOctober -> January\nMay -> August\nJune ->",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nApril -> July\nDecember -> March\nJanuary ->",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nSeptember -> October\nJanuary -> February\nFebruary ->",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nApril -> May\nNovember -> December\nFebruary ->",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nApril -> June\nFebruary -> April\nSeptember ->",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nJune -> August\nMarch -> May\nDecember ->",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nAugust -> November\nNovember -> February\nFebruary ->",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4 months.\nDecember -> April\nJune -> October\nAugust ->",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nDecember -> January\nJuly -> August\nApril ->",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nSeptember -> October\nMay -> June\nMarch ->",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nJune -> September\nDecember -> March\nNovember ->",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nOctober -> November\nDecember -> January\nMarch ->",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nJanuary -> February\nAugust -> September\nMay ->",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nJanuary -> March\nFebruary -> April\nSeptember ->",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nAugust -> November\nFebruary -> May\nNovember ->",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nMay -> July\nJune -> August\nJuly ->",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nMay -> June\nJuly -> August\nJune ->",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nJuly -> October\nDecember -> March\nNovember ->",
+    "continuation": " February",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Count forward 3 months.\nAugust -> November\nSeptember -> December\nFebruary ->",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nNovember -> December\nJanuary -> February\nMarch ->",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nJune -> September\nFebruary -> May\nAugust ->",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4 months.\nSeptember -> January\nAugust -> December\nDecember ->",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4 months.\nNovember -> March\nMarch -> July\nJanuary ->",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nJune -> August\nJuly -> September\nJanuary ->",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nJanuary -> March\nJuly -> September\nDecember ->",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4 months.\nJuly -> November\nJanuary -> May\nMay ->",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nOctober -> December\nJanuary -> March\nJuly ->",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nSeptember -> December\nApril -> July\nOctober ->",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nAugust -> November\nJune -> September\nOctober ->",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nSeptember -> October\nApril -> May\nJanuary ->",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nOctober -> November\nAugust -> September\nJune ->",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nDecember -> February\nAugust -> October\nJuly ->",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nJuly -> September\nApril -> June\nJune ->",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nJuly -> October\nSeptember -> December\nMarch ->",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nJanuary -> April\nAugust -> November\nOctober ->",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nFebruary -> April\nOctober -> December\nAugust ->",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nFebruary -> May\nApril -> July\nDecember ->",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nOctober -> November\nFebruary -> March\nSeptember ->",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nMarch -> April\nAugust -> September\nFebruary ->",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nJanuary -> February\nMay -> June\nMarch ->",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nJanuary -> March\nApril -> June\nJune ->",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nApril -> July\nJuly -> October\nAugust ->",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4 months.\nSeptember -> January\nAugust -> December\nJune ->",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nFebruary -> May\nAugust -> November\nDecember ->",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nAugust -> September\nJune -> July\nMay ->",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4 months.\nJanuary -> May\nFebruary -> June\nAugust ->",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4 months.\nFebruary -> June\nDecember -> April\nJune ->",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4 months.\nMarch -> July\nApril -> August\nAugust ->",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4 months.\nJanuary -> May\nJuly -> November\nOctober ->",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nFebruary -> May\nJune -> September\nOctober ->",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nNovember -> January\nAugust -> October\nJune ->",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4 months.\nOctober -> February\nNovember -> March\nJune ->",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nApril -> July\nNovember -> February\nJanuary ->",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nNovember -> February\nJune -> September\nJuly ->",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4 months.\nApril -> August\nMay -> September\nSeptember ->",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4 months.\nFebruary -> June\nOctober -> February\nJuly ->",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nFebruary -> May\nMarch -> June\nJuly ->",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nJune -> August\nFebruary -> April\nOctober ->",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nDecember -> February\nMay -> July\nJuly ->",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4 months.\nOctober -> February\nMay -> September\nAugust ->",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nAugust -> November\nDecember -> March\nOctober ->",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4 months.\nMarch -> July\nJanuary -> May\nSeptember ->",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nJuly -> September\nOctober -> December\nMay ->",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nDecember -> January\nJanuary -> February\nSeptember ->",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nMay -> June\nJune -> July\nMarch ->",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nApril -> June\nNovember -> January\nAugust ->",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nSeptember -> December\nNovember -> February\nJune ->",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nJune -> July\nJanuary -> February\nDecember ->",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nDecember -> January\nOctober -> November\nAugust ->",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4 months.\nNovember -> March\nFebruary -> June\nDecember ->",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4 months.\nFebruary -> June\nJune -> October\nApril ->",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nSeptember -> November\nJanuary -> March\nAugust ->",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nSeptember -> November\nAugust -> October\nNovember ->",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nJuly -> September\nOctober -> December\nMay ->",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nNovember -> February\nSeptember -> December\nJanuary ->",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1 month.\nFebruary -> March\nJuly -> August\nDecember ->",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3 months.\nFebruary -> May\nMarch -> June\nMay ->",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2 months.\nMarch -> May\nApril -> June\nJune ->",
+    "continuation": " August",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Count forward 3.\n30 -> 33\n1 -> 4\n14 ->",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n20 -> 21\n33 -> 34\n37 ->",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n28 -> 30\n53 -> 55\n4 ->",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4.\n42 -> 46\n8 -> 12\n44 ->",
+    "continuation": " 48",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n52 -> 55\n14 -> 17\n40 ->",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4.\n39 -> 43\n49 -> 53\n1 ->",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n23 -> 26\n28 -> 31\n21 ->",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4.\n58 -> 62\n39 -> 43\n27 ->",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n25 -> 27\n46 -> 48\n57 ->",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n46 -> 47\n8 -> 9\n36 ->",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n44 -> 47\n49 -> 52\n9 ->",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n45 -> 47\n34 -> 36\n27 ->",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n39 -> 40\n54 -> 55\n37 ->",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n49 -> 50\n39 -> 40\n5 ->",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4.\n14 -> 18\n24 -> 28\n19 ->",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4.\n54 -> 58\n32 -> 36\n41 ->",
+    "continuation": " 45",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n10 -> 13\n56 -> 59\n17 ->",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4.\n56 -> 60\n35 -> 39\n12 ->",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n58 -> 59\n2 -> 3\n34 ->",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4.\n57 -> 61\n33 -> 37\n32 ->",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n56 -> 59\n17 -> 20\n53 ->",
+    "continuation": " 56",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n12 -> 14\n50 -> 52\n27 ->",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n58 -> 61\n37 -> 40\n28 ->",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n51 -> 54\n41 -> 44\n5 ->",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4.\n27 -> 31\n50 -> 54\n43 ->",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n48 -> 50\n27 -> 29\n54 ->",
+    "continuation": " 56",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n22 -> 24\n31 -> 33\n19 ->",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n36 -> 37\n21 -> 22\n24 ->",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n58 -> 61\n44 -> 47\n38 ->",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n48 -> 50\n6 -> 8\n22 ->",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n31 -> 32\n14 -> 15\n47 ->",
+    "continuation": " 48",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n47 -> 48\n54 -> 55\n26 ->",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n4 -> 6\n3 -> 5\n31 ->",
+    "continuation": " 33",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n56 -> 58\n34 -> 36\n17 ->",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n38 -> 41\n58 -> 61\n41 ->",
+    "continuation": " 44",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n46 -> 48\n52 -> 54\n31 ->",
+    "continuation": " 33",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n36 -> 39\n38 -> 41\n19 ->",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n23 -> 25\n46 -> 48\n17 ->",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4.\n54 -> 58\n47 -> 51\n9 ->",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4.\n6 -> 10\n16 -> 20\n29 ->",
+    "continuation": " 33",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n17 -> 19\n8 -> 10\n39 ->",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n8 -> 10\n5 -> 7\n53 ->",
+    "continuation": " 55",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4.\n22 -> 26\n34 -> 38\n10 ->",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n28 -> 29\n40 -> 41\n7 ->",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n46 -> 47\n42 -> 43\n58 ->",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4.\n31 -> 35\n44 -> 48\n27 ->",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n28 -> 30\n44 -> 46\n27 ->",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n22 -> 23\n54 -> 55\n52 ->",
+    "continuation": " 53",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n47 -> 50\n18 -> 21\n8 ->",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n46 -> 49\n44 -> 47\n14 ->",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n54 -> 55\n30 -> 31\n4 ->",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4.\n17 -> 21\n38 -> 42\n50 ->",
+    "continuation": " 54",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4.\n15 -> 19\n55 -> 59\n56 ->",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n25 -> 28\n27 -> 30\n1 ->",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n40 -> 41\n7 -> 8\n13 ->",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n59 -> 60\n11 -> 12\n41 ->",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n53 -> 54\n37 -> 38\n41 ->",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n41 -> 43\n6 -> 8\n2 ->",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n16 -> 17\n47 -> 48\n21 ->",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n8 -> 11\n32 -> 35\n38 ->",
+    "continuation": " 41",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Count forward 1.\n6 -> 7\n23 -> 24\n5 ->",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n56 -> 57\n20 -> 21\n18 ->",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n41 -> 42\n21 -> 22\n7 ->",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n54 -> 55\n8 -> 9\n3 ->",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n15 -> 18\n55 -> 58\n10 ->",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n1 -> 3\n9 -> 11\n10 ->",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n40 -> 42\n30 -> 32\n25 ->",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n45 -> 46\n22 -> 23\n11 ->",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n20 -> 21\n27 -> 28\n7 ->",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n22 -> 23\n56 -> 57\n11 ->",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n31 -> 34\n49 -> 52\n14 ->",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n21 -> 22\n1 -> 2\n14 ->",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n59 -> 62\n48 -> 51\n56 ->",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n10 -> 12\n37 -> 39\n26 ->",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4.\n48 -> 52\n10 -> 14\n38 ->",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n19 -> 22\n8 -> 11\n31 ->",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n17 -> 18\n23 -> 24\n58 ->",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n8 -> 9\n32 -> 33\n26 ->",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4.\n46 -> 50\n6 -> 10\n44 ->",
+    "continuation": " 48",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n46 -> 49\n6 -> 9\n22 ->",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4.\n30 -> 34\n3 -> 7\n39 ->",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n12 -> 15\n38 -> 41\n6 ->",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n58 -> 61\n59 -> 62\n14 ->",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n25 -> 27\n24 -> 26\n35 ->",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n11 -> 12\n25 -> 26\n58 ->",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4.\n50 -> 54\n10 -> 14\n2 ->",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n40 -> 42\n52 -> 54\n17 ->",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n58 -> 60\n10 -> 12\n14 ->",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n17 -> 18\n45 -> 46\n11 ->",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n3 -> 6\n40 -> 43\n43 ->",
+    "continuation": " 46",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n5 -> 6\n15 -> 16\n9 ->",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4.\n50 -> 54\n4 -> 8\n51 ->",
+    "continuation": " 55",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n51 -> 52\n26 -> 27\n29 ->",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n16 -> 17\n49 -> 50\n31 ->",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n43 -> 45\n3 -> 5\n56 ->",
+    "continuation": " 58",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n8 -> 11\n57 -> 60\n4 ->",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4.\n33 -> 37\n32 -> 36\n26 ->",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n5 -> 7\n45 -> 47\n9 ->",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n33 -> 35\n25 -> 27\n58 ->",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n10 -> 11\n38 -> 39\n19 ->",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n55 -> 58\n2 -> 5\n3 ->",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n58 -> 60\n55 -> 57\n44 ->",
+    "continuation": " 46",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4.\n52 -> 56\n6 -> 10\n13 ->",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4.\n21 -> 25\n37 -> 41\n16 ->",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n42 -> 45\n20 -> 23\n23 ->",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n23 -> 24\n12 -> 13\n1 ->",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n9 -> 12\n42 -> 45\n34 ->",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n4 -> 7\n11 -> 14\n42 ->",
+    "continuation": " 45",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n45 -> 48\n32 -> 35\n28 ->",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n55 -> 57\n34 -> 36\n47 ->",
+    "continuation": " 49",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4.\n18 -> 22\n8 -> 12\n36 ->",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n7 -> 9\n26 -> 28\n36 ->",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n44 -> 46\n26 -> 28\n54 ->",
+    "continuation": " 56",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 3.\n54 -> 57\n43 -> 46\n17 ->",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n16 -> 17\n52 -> 53\n10 ->",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n7 -> 8\n27 -> 28\n50 ->",
+    "continuation": " 51",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 1.\n48 -> 49\n1 -> 2\n19 ->",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n33 -> 35\n16 -> 18\n49 ->",
+    "continuation": " 51",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 2.\n1 -> 3\n22 -> 24\n46 ->",
+    "continuation": " 48",
+    "digits_only": false
+   },
+   {
+    "context": "Count forward 4.\n32 -> 36\n43 -> 47\n42 ->",
+    "continuation": " 46",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 4.8854
+}
