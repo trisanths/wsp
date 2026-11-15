@@ -30,7 +30,7 @@ class Miner:
         self.row = donors[short]
         self.hf_id = self.row["hf_id"]
         self.params_b = float(self.row["params_b"])
-        self.gpu = common.pick_gpu(self.params_b)
+        self.gpu = common.pick_gpu(self.params_b, short)
         self.state = common.read_json_safe(common.state_path(short), {})
         if not self.state.get("revision"):
             self.state["revision"] = common.pin_revision(self.hf_id)

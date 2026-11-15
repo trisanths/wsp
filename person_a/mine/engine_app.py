@@ -19,7 +19,7 @@ import modal
 HERE = os.path.dirname(os.path.abspath(__file__))
 APP_NAME = "swarmy-mine"
 VOLUME_NAME = "swarmy-models"
-CUSTOM_CODE = ["k2horizon7b", "k2mova36b", "g9v3_39a5b"]
+CUSTOM_CODE = ["k2horizon7b", "k2mova36b", "g9v3_39a5b", "mimo2.6_flash", "mimo2.6_pro"]
 # FP8 checkpoints to dequantize to bf16 at load time. Backward passes (attribution scans) need bf16
 # weights; only list a model here when its bf16 size fits the GPUs of its tier.
 DEQUANTIZE = ["glm5.3_flash"]
@@ -474,6 +474,9 @@ class EngineBase:
 
     @modal.method()
     def attribution_scan(self, payload, kind, skills, layers, n_items=24, token_budget=2048):
+        if getattr(self.model.config, "quantization_config", None) is not None and self.model_key not in DEQUANTIZE:
+            raise RuntimeError("attribution_scan needs bf16 weights, but this model is loaded quantized (FP8); "
+                               "use activation_scan instead")
         # Attribution patching for zero ablation: estimated increase in mean NLL of each skill if a
         # unit is zeroed = -(grad . activation), summed over that unit's positions.
         import torch
@@ -663,11 +666,33 @@ class EngineH200(EngineBase):
 
 
 COMMON_MULTI = dict(COMMON, timeout=3 * 3600)
+# Multi-GPU tiers for frontier models. Layers are spread with device_map="auto". Cost cap: one container each.
 
 
-@app.cls(gpu=["H200:8", "B200:8"], max_containers=1, **COMMON_MULTI)  # cost cap: one 8-GPU container
+@app.cls(gpu=["H200:2", "B200:2"], max_containers=1, **COMMON_MULTI)
+class EngineH200x2(EngineBase):
+    model_key: str = modal.parameter()
+    hf_id: str = modal.parameter()
+    revision: str = modal.parameter()
+
+
+@app.cls(gpu=["H200:4", "B200:4"], max_containers=1, **COMMON_MULTI)
+class EngineH200x4(EngineBase):
+    model_key: str = modal.parameter()
+    hf_id: str = modal.parameter()
+    revision: str = modal.parameter()
+
+
+@app.cls(gpu=["H200:8", "B200:8"], max_containers=1, **COMMON_MULTI)
 class EngineH200x8(EngineBase):
-    # Frontier models (about 80B to 1T params): 8 GPUs, layers spread with device_map="auto".
+    model_key: str = modal.parameter()
+    hf_id: str = modal.parameter()
+    revision: str = modal.parameter()
+
+
+@app.cls(gpu="B200:8", max_containers=1, **COMMON_MULTI)
+class EngineB200x8(EngineBase):
+    # 1T-class models (about 1.1 TB of FP8 weights): only 8 x B200 has room
     model_key: str = modal.parameter()
     hf_id: str = modal.parameter()
     revision: str = modal.parameter()
