@@ -100,11 +100,11 @@ def catalog_name_for(path, catalog_files):
     return None
 
 
-def other_tasks(tasks, allowed):
-    """The tasks not in `allowed`, the tasks a scorer can grade."""
+def other_tasks(tasks, allows):
+    """The tasks a scorer cannot grade. allows(task) says whether it can (modal_swarm.scorer_allows)."""
     others = []
     for task in tasks:
-        if task not in allowed:
+        if not allows(task):
             others.append(task)
     return others
 
@@ -141,8 +141,10 @@ class ModalCompileEval(CompileEval):
                              repr(self.scorer))
         self.label = self.ms.SCORER_LABELS[self.scorer]
         self.allowed_tasks = list(self.ms.SCORER_TASKS[self.scorer])
+        scorer = self.scorer
+        self.allows = lambda task: self.ms.scorer_allows(scorer, task)
         tasks = all_tasks(config)
-        unsupported = other_tasks(tasks, self.allowed_tasks)
+        unsupported = other_tasks(tasks, self.allows)
         if len(unsupported) > 0:
             hint = "Use task_type 'math_interim' with the interim scorer, or modal_scorer 'harness'."
             if self.scorer == "harness":
@@ -237,7 +239,7 @@ class ModalCompileEval(CompileEval):
     def evaluate(self, handle, split, tasks, token, fidelity="full"):
         """Compile, heal and grade on Modal (run_candidate) with the token the env spent."""
         tasks = list(tasks)
-        unsupported = other_tasks(tasks, self.allowed_tasks)
+        unsupported = other_tasks(tasks, self.allows)
         if len(unsupported) > 0:
             return {"ok": False, "error": "backend 'modal' with modal_scorer '" + self.scorer + "' grades " +
                     ", ".join(self.allowed_tasks) + " only; asked for " + ", ".join(unsupported),

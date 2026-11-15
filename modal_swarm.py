@@ -121,7 +121,20 @@ SPLITS = ["search", "heldout"]
 # run_candidate's scorers: "interim" (wsp/swarm/interim_eval.py, gsm8k only, any eval_limit) and
 # "harness" (Arjun's wsp_eval.harness.evaluate with the hf backend, gsm8k and if_guard, whole splits only).
 SCORERS = ["interim", "harness"]
-SCORER_TASKS = {"interim": ["gsm8k"], "harness": ["gsm8k", "if_guard"]}
+SCORER_TASKS = {"interim": ["gsm8k"], "harness": ["gsm8k", "if_guard", "humaneval", "mmlu", "mmlu:<subject>"]}
+# Task-name prefixes the harness also grades (wsp_eval.tasks.get_task): one MMLU or MMLU-Pro subject.
+HARNESS_PREFIXES = ["mmlu:", "mmlupro:"]
+
+
+def scorer_allows(scorer, task):
+    """True when this scorer can grade this task name."""
+    if task in SCORER_TASKS.get(scorer, []):
+        return True
+    if scorer == "harness":
+        for prefix in HARNESS_PREFIXES:
+            if task.startswith(prefix) and len(task) > len(prefix):
+                return True
+    return False
 SCORER_LABELS = {"interim": "INTERIM", "harness": "HARNESS"}
 HARNESS_ROOT = "/tmp/wsp_eval_root"   # WSP_ROOT in the container: the harness's work files stay container-local
 
@@ -968,7 +981,7 @@ def scorer_problem(scorer, tasks, eval_limit):
     if len(tasks) == 0:
         return "run_candidate needs at least one task"
     for name in tasks:
-        if name not in SCORER_TASKS[scorer]:
+        if not scorer_allows(scorer, name):
             return ("scorer " + scorer + " grades " + ", ".join(SCORER_TASKS[scorer]) + "; got task " + repr(name))
     if scorer == "harness" and eval_limit is not None:
         return "scorer harness grades whole splits only; eval_limit must be None, got " + repr(eval_limit)
