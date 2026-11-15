@@ -1,0 +1,740 @@
+{
+ "name": "month_successor",
+ "description": "Name the month k (1-3) months after a given month. Control: same template with integer successor.",
+ "hash": "5b264ce5f707cce6",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nM=['January','February','March','April','May','June','July','August','September','October','November','December']\nitems=[];control=[]\nfor i in range(12):\n    for k in (1,2,3):\n        w={1:'one month',2:'two months',3:'three months'}[k]\n        items.append({'prompt':f'Question: What month comes {w} after {M[i]}?\\nAnswer:','answer':' '+M[(i+k)%12]})\nfor t in range(36):\n    n=random.randint(5,60); k=random.choice([1,2,3]); w={1:'one',2:'two',3:'three'}[k]\n    control.append({'prompt':f'Question: What number comes {w} after {n}?\\nAnswer:','answer':' '+str(n+k)})\nfor i in range(12):\n    for k in (1,2,3):\n        items.append({'prompt':f'{M[i]} is followed {k} month{\"s\" if k>1 else \"\"} later by','answer':' '+M[(i+k)%12]})\nfor t in range(36):\n    n=random.randint(5,60); k=random.choice([1,2,3])\n    control.append({'prompt':f'{n} is followed {k} step{\"s\" if k>1 else \"\"} later by','answer':' '+str(n+k)})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "September is followed 1 month later by",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes one month after September?\nAnswer:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "December is followed 1 month later by",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "December is followed 3 months later by",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "July is followed 1 month later by",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "March is followed 2 months later by",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "November is followed 2 months later by",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes three months after September?\nAnswer:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "July is followed 2 months later by",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes three months after May?\nAnswer:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "April is followed 2 months later by",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes two months after November?\nAnswer:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes two months after January?\nAnswer:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "February is followed 2 months later by",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes three months after April?\nAnswer:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "November is followed 3 months later by",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes two months after March?\nAnswer:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes two months after April?\nAnswer:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes one month after June?\nAnswer:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "December is followed 2 months later by",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "October is followed 1 month later by",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "January is followed 1 month later by",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "March is followed 1 month later by",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "April is followed 3 months later by",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes one month after May?\nAnswer:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes three months after August?\nAnswer:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes three months after January?\nAnswer:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes one month after January?\nAnswer:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes three months after June?\nAnswer:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes three months after October?\nAnswer:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes two months after September?\nAnswer:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes one month after February?\nAnswer:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "May is followed 3 months later by",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes two months after October?\nAnswer:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "February is followed 3 months later by",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "August is followed 3 months later by",
+    "continuation": " November",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Question: What month comes three months after July?\nAnswer:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes one month after October?\nAnswer:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "November is followed 1 month later by",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "March is followed 3 months later by",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes three months after December?\nAnswer:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes one month after November?\nAnswer:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes one month after August?\nAnswer:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes two months after February?\nAnswer:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "June is followed 2 months later by",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes two months after July?\nAnswer:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes one month after April?\nAnswer:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "October is followed 2 months later by",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "April is followed 1 month later by",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes two months after December?\nAnswer:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes two months after June?\nAnswer:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "February is followed 1 month later by",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes one month after March?\nAnswer:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "May is followed 1 month later by",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "July is followed 3 months later by",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes one month after July?\nAnswer:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes three months after March?\nAnswer:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes three months after November?\nAnswer:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes two months after May?\nAnswer:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "August is followed 2 months later by",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "August is followed 1 month later by",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "January is followed 2 months later by",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes two months after August?\nAnswer:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "September is followed 2 months later by",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "January is followed 3 months later by",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "June is followed 1 month later by",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "September is followed 3 months later by",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "October is followed 3 months later by",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes one month after December?\nAnswer:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What month comes three months after February?\nAnswer:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "June is followed 3 months later by",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "May is followed 2 months later by",
+    "continuation": " July",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "59 is followed 1 step later by",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes one after 19?\nAnswer:",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "25 is followed 3 steps later by",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes one after 5?\nAnswer:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes two after 30?\nAnswer:",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes two after 26?\nAnswer:",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes two after 7?\nAnswer:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "48 is followed 3 steps later by",
+    "continuation": " 51",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes two after 44?\nAnswer:",
+    "continuation": " 46",
+    "digits_only": false
+   },
+   {
+    "context": "57 is followed 3 steps later by",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": "42 is followed 2 steps later by",
+    "continuation": " 44",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes three after 56?\nAnswer:",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes one after 21?\nAnswer:",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes three after 25?\nAnswer:",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "57 is followed 2 steps later by",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes two after 27?\nAnswer:",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes three after 33?\nAnswer:",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes two after 35?\nAnswer:",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes two after 37?\nAnswer:",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes two after 57?\nAnswer:",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "57 is followed 1 step later by",
+    "continuation": " 58",
+    "digits_only": false
+   },
+   {
+    "context": "10 is followed 2 steps later by",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes one after 53?\nAnswer:",
+    "continuation": " 54",
+    "digits_only": false
+   },
+   {
+    "context": "37 is followed 2 steps later by",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "7 is followed 3 steps later by",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "56 is followed 1 step later by",
+    "continuation": " 57",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes two after 40?\nAnswer:",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes two after 44?\nAnswer:",
+    "continuation": " 46",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes three after 39?\nAnswer:",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes one after 37?\nAnswer:",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "10 is followed 3 steps later by",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "58 is followed 1 step later by",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "56 is followed 2 steps later by",
+    "continuation": " 58",
+    "digits_only": false
+   },
+   {
+    "context": "40 is followed 3 steps later by",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes one after 60?\nAnswer:",
+    "continuation": " 61",
+    "digits_only": false
+   },
+   {
+    "context": "11 is followed 2 steps later by",
+    "continuation": " 13",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "47 is followed 2 steps later by",
+    "continuation": " 49",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes two after 14?\nAnswer:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "53 is followed 1 step later by",
+    "continuation": " 54",
+    "digits_only": false
+   },
+   {
+    "context": "20 is followed 2 steps later by",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes three after 17?\nAnswer:",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "40 is followed 2 steps later by",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "50 is followed 1 step later by",
+    "continuation": " 51",
+    "digits_only": false
+   },
+   {
+    "context": "38 is followed 2 steps later by",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes one after 45?\nAnswer:",
+    "continuation": " 46",
+    "digits_only": false
+   },
+   {
+    "context": "49 is followed 3 steps later by",
+    "continuation": " 52",
+    "digits_only": false
+   },
+   {
+    "context": "56 is followed 3 steps later by",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes three after 11?\nAnswer:",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "18 is followed 3 steps later by",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "33 is followed 2 steps later by",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes one after 45?\nAnswer:",
+    "continuation": " 46",
+    "digits_only": false
+   },
+   {
+    "context": "40 is followed 2 steps later by",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes two after 59?\nAnswer:",
+    "continuation": " 61",
+    "digits_only": false
+   },
+   {
+    "context": "10 is followed 3 steps later by",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "58 is followed 3 steps later by",
+    "continuation": " 61",
+    "digits_only": false
+   },
+   {
+    "context": "33 is followed 1 step later by",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes three after 50?\nAnswer:",
+    "continuation": " 53",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes three after 56?\nAnswer:",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "16 is followed 1 step later by",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "38 is followed 1 step later by",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes two after 53?\nAnswer:",
+    "continuation": " 55",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes three after 20?\nAnswer:",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes one after 42?\nAnswer:",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes two after 51?\nAnswer:",
+    "continuation": " 53",
+    "digits_only": false
+   },
+   {
+    "context": "23 is followed 2 steps later by",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "14 is followed 1 step later by",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "35 is followed 1 step later by",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "48 is followed 2 steps later by",
+    "continuation": " 50",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes three after 9?\nAnswer:",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes three after 25?\nAnswer:",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes one after 23?\nAnswer:",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes one after 40?\nAnswer:",
+    "continuation": " 41",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 1.1597
+}

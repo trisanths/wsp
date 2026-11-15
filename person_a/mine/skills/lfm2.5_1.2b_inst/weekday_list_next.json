@@ -1,0 +1,720 @@
+{
+ "name": "weekday_list_next",
+ "description": "Continue a comma-separated list of consecutive weekdays with the next day. Control: list of consecutive integers.",
+ "hash": "d55a00fb9e806e1b",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nD=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']\nitems=[];control=[]\nfor i in range(7):\n    for L in (2,3,4,5,6):\n        seq=[D[(i+j)%7] for j in range(L)]\n        items.append({'prompt':'Days in order: '+', '.join(seq)+',','answer':' '+D[(i+L)%7]})\n        items.append({'prompt':'Weekly schedule: '+', then '.join(seq)+', then','answer':' '+D[(i+L)%7]})\nfor t in range(70):\n    s=random.randint(3,40); L=random.choice([2,3,4,5,6])\n    if t%2: control.append({'prompt':'Numbers in order: '+', '.join(str(s+j) for j in range(L))+',','answer':' '+str(s+L)})\n    else: control.append({'prompt':'Weekly schedule: '+', then '.join(str(s+j) for j in range(L))+', then','answer':' '+str(s+L)})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Days in order: Wednesday, Thursday, Friday, Saturday, Sunday, Monday,",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Sunday, then Monday, then",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Sunday, then Monday, then Tuesday, then Wednesday, then Thursday, then",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Friday, Saturday, Sunday,",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Wednesday, then Thursday, then Friday, then Saturday, then Sunday, then Monday, then",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Friday, Saturday,",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Thursday, Friday, Saturday, Sunday, Monday,",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Saturday, Sunday, Monday, Tuesday, Wednesday,",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Saturday, Sunday, Monday,",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Thursday, then Friday, then",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Friday, then Saturday, then Sunday, then",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Monday, then Tuesday, then Wednesday, then",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Wednesday, Thursday, Friday, Saturday, Sunday,",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Saturday, Sunday, Monday, Tuesday,",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Tuesday, then Wednesday, then",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Wednesday, Thursday, Friday, Saturday,",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Monday, then Tuesday, then Wednesday, then Thursday, then Friday, then",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Tuesday, Wednesday,",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Tuesday, then Wednesday, then Thursday, then Friday, then",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Wednesday, then Thursday, then Friday, then",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Sunday, Monday, Tuesday, Wednesday, Thursday,",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Tuesday, Wednesday, Thursday,",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Monday, Tuesday, Wednesday,",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Monday, Tuesday,",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Tuesday, then Wednesday, then Thursday, then Friday, then Saturday, then",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Wednesday, then Thursday, then Friday, then Saturday, then",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Monday, then Tuesday, then",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Sunday, then Monday, then Tuesday, then",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Friday, then Saturday, then Sunday, then Monday, then Tuesday, then",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Friday, Saturday, Sunday, Monday, Tuesday,",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Tuesday, Wednesday, Thursday, Friday,",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Friday, Saturday, Sunday, Monday,",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Saturday, then Sunday, then Monday, then Tuesday, then",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Wednesday, Thursday,",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Wednesday, then Thursday, then Friday, then Saturday, then Sunday, then",
+    "continuation": " Monday",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Weekly schedule: Saturday, then Sunday, then Monday, then Tuesday, then Wednesday, then",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Friday, then Saturday, then",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Thursday, then Friday, then Saturday, then Sunday, then",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Sunday, Monday, Tuesday, Wednesday,",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Wednesday, then Thursday, then",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Monday, Tuesday, Wednesday, Thursday,",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Sunday, then Monday, then Tuesday, then Wednesday, then Thursday, then Friday, then",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Saturday, then Sunday, then Monday, then Tuesday, then Wednesday, then Thursday, then",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Monday, then Tuesday, then Wednesday, then Thursday, then Friday, then Saturday, then",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Thursday, Friday, Saturday, Sunday, Monday, Tuesday,",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Friday, then Saturday, then Sunday, then Monday, then",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Thursday, Friday, Saturday, Sunday,",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Tuesday, Wednesday, Thursday, Friday, Saturday,",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Thursday, then Friday, then Saturday, then Sunday, then Monday, then Tuesday, then",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Monday, Tuesday, Wednesday, Thursday, Friday,",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Friday, Saturday, Sunday, Monday, Tuesday, Wednesday,",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Sunday, Monday,",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday,",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday,",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Thursday, Friday, Saturday,",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Tuesday, then Wednesday, then Thursday, then",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Thursday, then Friday, then Saturday, then Sunday, then Monday, then",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Wednesday, Thursday, Friday,",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Thursday, Friday,",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Tuesday, then Wednesday, then Thursday, then Friday, then Saturday, then Sunday, then",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Sunday, Monday, Tuesday, Wednesday, Thursday, Friday,",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Saturday, Sunday,",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Saturday, Sunday, Monday, Tuesday, Wednesday, Thursday,",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Saturday, then Sunday, then",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Days in order: Sunday, Monday, Tuesday,",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Sunday, then Monday, then Tuesday, then Wednesday, then",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Thursday, then Friday, then Saturday, then",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Monday, then Tuesday, then Wednesday, then Thursday, then",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Saturday, then Sunday, then Monday, then",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: Friday, then Saturday, then Sunday, then Monday, then Tuesday, then Wednesday, then",
+    "continuation": " Thursday",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Weekly schedule: 5, then 6, then 7, then 8, then 9, then 10, then",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 34, then 35, then 36, then 37, then",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 24, then 25, then 26, then 27, then 28, then",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 18, 19, 20, 21,",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 33, then 34, then 35, then 36, then",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 23, 24, 25, 26, 27, 28,",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 35, then 36, then 37, then 38, then 39, then",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 36, then 37, then 38, then 39, then",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 12, then 13, then 14, then 15, then",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 19, 20, 21, 22, 23,",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 39, then 40, then",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 6, 7, 8, 9, 10, 11,",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 16, then 17, then 18, then 19, then 20, then 21, then",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 18, then 19, then 20, then",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 38, 39, 40, 41,",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 21, then 22, then 23, then 24, then 25, then",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 40, 41, 42,",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 28, 29, 30, 31,",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 5, then 6, then 7, then 8, then 9, then 10, then",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 38, 39, 40, 41, 42, 43,",
+    "continuation": " 44",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 29, 30, 31, 32, 33, 34,",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 19, 20, 21, 22, 23, 24,",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 10, 11, 12,",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 39, 40, 41,",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 28, 29,",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 20, then 21, then 22, then 23, then 24, then",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 9, 10,",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 21, 22, 23,",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 5, then 6, then",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 7, then 8, then",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 34, then 35, then",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 37, 38, 39, 40, 41,",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 11, 12, 13,",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 39, 40, 41,",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 10, 11, 12, 13, 14,",
+    "continuation": " 15",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Numbers in order: 10, 11, 12,",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 8, then 9, then 10, then 11, then",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 37, 38, 39, 40, 41, 42,",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 37, then 38, then 39, then",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 21, then 22, then 23, then",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 6, then 7, then",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 40, then 41, then 42, then 43, then",
+    "continuation": " 44",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 3, then 4, then",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 4, then 5, then 6, then 7, then",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 8, 9, 10, 11, 12, 13,",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 25, then 26, then 27, then 28, then 29, then",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 28, 29,",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 8, then 9, then",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 7, then 8, then",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 27, then 28, then 29, then 30, then 31, then",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 36, 37, 38,",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 36, then 37, then 38, then 39, then",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 27, then 28, then 29, then 30, then",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 37, 38, 39, 40, 41,",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 24, 25, 26, 27, 28,",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 34, 35, 36, 37,",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 5, 6, 7, 8,",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 22, 23, 24, 25, 26, 27,",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 35, then 36, then 37, then",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 38, 39,",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 16, then 17, then 18, then 19, then 20, then 21, then",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 7, then 8, then 9, then",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 15, 16, 17,",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 26, then 27, then 28, then",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 15, 16, 17,",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 12, 13, 14,",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 23, 24, 25, 26, 27, 28,",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 21, then 22, then",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Weekly schedule: 9, then 10, then 11, then 12, then 13, then 14, then",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Numbers in order: 33, 34, 35, 36, 37,",
+    "continuation": " 38",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 5.0893
+}

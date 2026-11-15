@@ -1,0 +1,580 @@
+{
+ "name": "weekday_successor",
+ "description": "Name the weekday k days after a given weekday. Control: same template with integer successor.",
+ "hash": "c781e35f930e1a16",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nD=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']\nitems=[];control=[]\nfor i in range(7):\n    for k in (1,2,3,4):\n        w={1:'one day',2:'two days',3:'three days',4:'four days'}[k]\n        items.append({'prompt':f'Question: What day of the week comes {w} after {D[i]}?\\nAnswer:','answer':' '+D[(i+k)%7]})\n        items.append({'prompt':f'If today is {D[i]}, then {k} day{\"s\" if k>1 else \"\"} from now it will be','answer':' '+D[(i+k)%7]})\nfor t in range(56):\n    n=random.randint(5,60); k=random.choice([1,2,3,4])\n    if t%2==0:\n        w={1:'one',2:'two',3:'three',4:'four'}[k]\n        control.append({'prompt':f'Question: What number comes {w} after {n}?\\nAnswer:','answer':' '+str(n+k)})\n    else:\n        control.append({'prompt':f'If the counter is {n}, then {k} step{\"s\" if k>1 else \"\"} from now it will be','answer':' '+str(n+k)})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "If today is Sunday, then 3 days from now it will be",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes three days after Saturday?\nAnswer:",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Sunday, then 4 days from now it will be",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Monday, then 3 days from now it will be",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Saturday, then 3 days from now it will be",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Sunday, then 2 days from now it will be",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Friday, then 2 days from now it will be",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Monday, then 4 days from now it will be",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Wednesday, then 4 days from now it will be",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes three days after Wednesday?\nAnswer:",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Monday, then 1 day from now it will be",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes three days after Friday?\nAnswer:",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Friday, then 4 days from now it will be",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes three days after Tuesday?\nAnswer:",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes one day after Monday?\nAnswer:",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes four days after Friday?\nAnswer:",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes four days after Tuesday?\nAnswer:",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes three days after Sunday?\nAnswer:",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Saturday, then 4 days from now it will be",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Saturday, then 1 day from now it will be",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Friday, then 1 day from now it will be",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Thursday, then 3 days from now it will be",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes two days after Saturday?\nAnswer:",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Tuesday, then 2 days from now it will be",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Monday, then 2 days from now it will be",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Wednesday, then 1 day from now it will be",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Tuesday, then 4 days from now it will be",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes two days after Tuesday?\nAnswer:",
+    "continuation": " Thursday",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "If today is Wednesday, then 3 days from now it will be",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Thursday, then 2 days from now it will be",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes three days after Thursday?\nAnswer:",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes three days after Monday?\nAnswer:",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Saturday, then 2 days from now it will be",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes four days after Saturday?\nAnswer:",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Tuesday, then 1 day from now it will be",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes two days after Friday?\nAnswer:",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes two days after Sunday?\nAnswer:",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes four days after Monday?\nAnswer:",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes one day after Saturday?\nAnswer:",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes two days after Wednesday?\nAnswer:",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes one day after Tuesday?\nAnswer:",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Sunday, then 1 day from now it will be",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Tuesday, then 3 days from now it will be",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Friday, then 3 days from now it will be",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes four days after Wednesday?\nAnswer:",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes four days after Thursday?\nAnswer:",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Wednesday, then 2 days from now it will be",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Thursday, then 1 day from now it will be",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Thursday, then 4 days from now it will be",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes one day after Friday?\nAnswer:",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes one day after Wednesday?\nAnswer:",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes two days after Monday?\nAnswer:",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes two days after Thursday?\nAnswer:",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes one day after Sunday?\nAnswer:",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes one day after Thursday?\nAnswer:",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What day of the week comes four days after Sunday?\nAnswer:",
+    "continuation": " Thursday",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "If the counter is 20, then 3 steps from now it will be",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 47, then 3 steps from now it will be",
+    "continuation": " 50",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes one after 50?\nAnswer:",
+    "continuation": " 51",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 53, then 1 step from now it will be",
+    "continuation": " 54",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes three after 7?\nAnswer:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 35, then 3 steps from now it will be",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes one after 33?\nAnswer:",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 10, then 2 steps from now it will be",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 44, then 4 steps from now it will be",
+    "continuation": " 48",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 43, then 4 steps from now it will be",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 42, then 3 steps from now it will be",
+    "continuation": " 45",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes four after 33?\nAnswer:",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes four after 40?\nAnswer:",
+    "continuation": " 44",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes three after 44?\nAnswer:",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 37, then 4 steps from now it will be",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 39, then 2 steps from now it will be",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 33, then 3 steps from now it will be",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 35, then 1 step from now it will be",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes one after 50?\nAnswer:",
+    "continuation": " 51",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 58, then 3 steps from now it will be",
+    "continuation": " 61",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes two after 38?\nAnswer:",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes one after 50?\nAnswer:",
+    "continuation": " 51",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 7, then 3 steps from now it will be",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 40, then 3 steps from now it will be",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 10, then 4 steps from now it will be",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes one after 24?\nAnswer:",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 56, then 4 steps from now it will be",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 40, then 3 steps from now it will be",
+    "continuation": " 43",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Question: What number comes three after 11?\nAnswer:",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes one after 14?\nAnswer:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 56, then 3 steps from now it will be",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes two after 25?\nAnswer:",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes one after 8?\nAnswer:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes two after 17?\nAnswer:",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes three after 59?\nAnswer:",
+    "continuation": " 62",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 25, then 2 steps from now it will be",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 58, then 1 step from now it will be",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes four after 59?\nAnswer:",
+    "continuation": " 63",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 17, then 2 steps from now it will be",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes one after 35?\nAnswer:",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 53, then 4 steps from now it will be",
+    "continuation": " 57",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes four after 48?\nAnswer:",
+    "continuation": " 52",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes two after 42?\nAnswer:",
+    "continuation": " 44",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 51, then 1 step from now it will be",
+    "continuation": " 52",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes three after 57?\nAnswer:",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 23, then 2 steps from now it will be",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes one after 10?\nAnswer:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes two after 20?\nAnswer:",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 25, then 4 steps from now it will be",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 37, then 2 steps from now it will be",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes four after 27?\nAnswer:",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes three after 30?\nAnswer:",
+    "continuation": " 33",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes four after 49?\nAnswer:",
+    "continuation": " 53",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter is 59, then 2 steps from now it will be",
+    "continuation": " 61",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes two after 57?\nAnswer:",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "Question: What number comes two after 23?\nAnswer:",
+    "continuation": " 25",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 0.7924
+}
