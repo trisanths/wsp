@@ -415,6 +415,42 @@ def cap_rows(rows, pass_rates, max_rows, seed=0):
     return out
 
 
+def group_advantages(rewards, eps=1e-6):
+    """GRPO advantages for one prompt's group: (r - mean) / (std + eps). All zeros when every reward is equal."""
+    n = len(rewards)
+    mean = sum(rewards) / n
+    var = sum((r - mean) ** 2 for r in rewards) / n
+    if var == 0:
+        return [0.0] * n
+    std = var ** 0.5
+    return [(r - mean) / (std + eps) for r in rewards]
+
+
+def pg_rows(items, samples_by_id, max_prompts=0, seed=0):
+    """Policy-gradient rows {"id", "user", "assistant", "weight"} from grouped samples.
+
+    Only prompts whose group has mixed rewards give rows (the others have zero advantage). weight is the
+    GRPO advantage; the trainer minimizes weight * negative log-likelihood summed over the answer tokens,
+    so a weight below zero pushes that answer down. max_prompts keeps a random subset of the mixed prompts.
+    """
+    mixed = []
+    for item in items:
+        group = samples_by_id.get(item["id"])
+        if not group:
+            continue
+        rewards = [s["reward"] for s in group]
+        if min(rewards) < max(rewards):
+            mixed.append((item, group, rewards))
+    random.Random(seed).shuffle(mixed)
+    if max_prompts > 0:
+        mixed = mixed[:max_prompts]
+    rows = []
+    for item, group, rewards in mixed:
+        for s, a in zip(group, group_advantages(rewards)):
+            rows.append({"id": item["id"], "user": item["user"], "assistant": s["text"], "weight": a})
+    return rows
+
+
 def pass_rate_stats(rewards_by_id):
     """{"prompts", "mean_pass", "solved_any", "solved_all"} over lists of rewards per prompt id."""
     n = len(rewards_by_id)

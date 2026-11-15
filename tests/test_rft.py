@@ -205,3 +205,14 @@ def test_cap_rows_prefers_hard_prompts_and_keeps_prompts_whole():
     assert {r["id"] for r in out} == {"teacher_only", "hard"}
     assert rft.cap_rows(rows, rates, 0) == rows
     assert len(rft.cap_rows(rows, rates, 10)) == 4
+
+
+def test_group_advantages_and_pg_rows():
+    assert rft.group_advantages([1.0, 1.0]) == [0.0, 0.0]
+    adv = rft.group_advantages([1.0, 0.0, 0.0, 0.0])
+    assert adv[0] > 0 > adv[1] and abs(sum(adv)) < 1e-9
+    items = [{"id": "a", "user": "ua"}, {"id": "b", "user": "ub"}]
+    samples = {"a": [{"text": "x", "reward": 1.0}, {"text": "y", "reward": 0.0}],
+               "b": [{"text": "z", "reward": 1.0}, {"text": "w", "reward": 1.0}]}
+    rows = rft.pg_rows(items, samples)
+    assert [r["id"] for r in rows] == ["a", "a"] and rows[0]["weight"] > 0 > rows[1]["weight"]
