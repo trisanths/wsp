@@ -82,7 +82,13 @@ def test_ablation_hook_moe_router():
     router = units.moe_router(units.decoder_layers(model)[0])
     chosen = {}
     handles = units.add_ablation_hooks(model, {"kind": "expert", "layer": 0, "indices": [0, 1, 2, 3, 4, 5]})
-    hook = router.register_forward_hook(lambda m, a, o: chosen.update(top=o.topk(2, dim=-1).indices))
+    def record(module, args, output):
+        # Transformers 5 routers return (logits, weights, chosen experts).
+        if isinstance(output, tuple):
+            chosen.update(top=output[2])
+        else:
+            chosen.update(top=output.topk(2, dim=-1).indices)
+    hook = router.register_forward_hook(record)
     with torch.no_grad():
         model(torch.tensor([[1, 2, 3, 4, 5, 6]]))
     hook.remove()
@@ -90,6 +96,25 @@ def test_ablation_hook_moe_router():
         handle.remove()
     assert set(chosen["top"].reshape(-1).tolist()) <= {6, 7}
 
+
+
+def test_expert_ablation_changes_the_output_and_removes_cleanly():
+    from transformers import MixtralConfig, MixtralForCausalLM
+    torch.manual_seed(0)
+    config = MixtralConfig(vocab_size=64, hidden_size=16, intermediate_size=32, num_hidden_layers=2,
+                           num_attention_heads=4, num_key_value_heads=2, num_local_experts=4,
+                           num_experts_per_tok=2)
+    model = MixtralForCausalLM(config).eval()
+    ids = torch.tensor([[1, 2, 3, 4, 5, 6]])
+    with torch.no_grad():
+        before = model(ids).logits
+        handles = units.add_ablation_hooks(model, {"kind": "expert", "layer": 0, "indices": [0, 1]})
+        during = model(ids).logits
+        for handle in handles:
+            handle.remove()
+        after = model(ids).logits
+    assert not torch.allclose(before, during)
+    assert torch.equal(before, after)
 
 def test_extract_writes_index_files_controls_and_records(workspace, tmp_path):
     model = _tiny_llama()

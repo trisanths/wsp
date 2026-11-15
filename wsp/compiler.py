@@ -46,6 +46,7 @@ import shutil
 import torch
 
 from wsp import masks as mask_ops
+from wsp.load import load_tokenizer
 
 
 class CompileError(Exception):
@@ -394,7 +395,7 @@ def compile_program(program, catalog, output_dir, align_texts=None, heal_texts=N
         device = "cuda" if torch.cuda.is_available() else "cpu"
 
     model = transformers.AutoModelForCausalLM.from_pretrained(program.host, dtype=torch.bfloat16)
-    tokenizer = transformers.AutoTokenizer.from_pretrained(program.host)
+    tokenizer = load_tokenizer(program.host)
     check_teacher_tokenizer(program, tokenizer)
     params = dict(model.named_parameters())
     report = {"host": program.host, "task_vectors": [], "mask": None, "grafts": [], "heal": None, "lora": None}
@@ -407,7 +408,7 @@ def compile_program(program, catalog, output_dir, align_texts=None, heal_texts=N
             record = catalog.get(tv.component_id)
             if record["type"] != "task_vector":
                 raise CompileError(f"{tv.component_id} is a {record['type']}, not a task_vector")
-            finetuned = transformers.AutoModelForCausalLM.from_pretrained(record["model"], torch_dtype=torch.bfloat16)
+            finetuned = transformers.AutoModelForCausalLM.from_pretrained(record["model"], dtype=torch.bfloat16)
             finetuned_params = dict(finetuned.named_parameters())
             changed = add_task_vector(params, base_params, finetuned_params, tv.weight, tv.layers, tv.modules)
             report["task_vectors"].append({"id": tv.component_id, "weight": tv.weight, "params_changed": len(changed)})
@@ -746,7 +747,7 @@ def load_tap_donors(program, device):
         donor.eval()
         for param in donor.parameters():
             param.requires_grad_(False)
-        donor_tokenizer = transformers.AutoTokenizer.from_pretrained(spec.donor)
+        donor_tokenizer = load_tokenizer(spec.donor)
         donors[spec.donor] = (donor, donor_tokenizer)
     return donors
 

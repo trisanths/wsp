@@ -187,10 +187,71 @@ def graft_budget(grafts):
 
 
 # Linear names inside a donor part that get a part LoRA: the host targets
-# plus the Phi-2 names (dense, fc1, fc2). Every linear inside an experts
-# list also gets one, whatever its name (Mixtral uses w1, w2, w3). Routers
-# (gate, shared_expert_gate) do not.
-PART_TARGETS = DEFAULT_TARGETS + ("dense", "fc1", "fc2")
+# plus the Phi-2 names (dense, fc1, fc2) and the LFM2 names (w1, w2, w3 in
+# the MLP, out_proj in the attention, in_proj and out_proj in the conv).
+# Every linear inside an experts list also gets one, whatever its name.
+# Routers (gate, shared_expert_gate) do not.
+PART_TARGETS = DEFAULT_TARGETS + ("dense", "fc1", "fc2", "w1", "w2", "w3", "in_proj", "out_proj")
+
+
+class ExpertFactors(nn.Module):
+    """The LoRA factors for one fused expert weight of shape (experts, rows, cols).
+
+    Each expert e gets its own update lora_B[e] @ lora_A[e] of rank r.
+    """
+
+    def __init__(self, shape, rank, device):
+        super().__init__()
+        experts, rows, cols = shape
+        self.lora_A = nn.Parameter(torch.empty(experts, rank, cols, dtype=torch.float32, device=device))
+        self.lora_B = nn.Parameter(torch.zeros(experts, rows, rank, dtype=torch.float32, device=device))
+        # The same init as LoRALinear, one expert at a time.
+        for e in range(experts):
+            nn.init.kaiming_uniform_(self.lora_A[e], a=math.sqrt(5))
+
+    def delta(self):
+        return torch.bmm(self.lora_B, self.lora_A)
+
+
+class FusedExpertsLoRA(nn.Module):
+    """A frozen fused experts module plus a trainable LoRA on each 3D weight.
+
+    Transformers 5 MoE classes keep all experts in one module, with weights
+    such as gate_up_proj of shape (experts, 2 * width, hidden). We add
+    scale * B[e] @ A[e] to the weight of each expert e and run the base
+    module with the new weights. The base runs in float32, the same as the
+    LoRALinear update, so a small update is not lost to bf16 rounding.
+    """
+
+    def __init__(self, base, rank, alpha=None):
+        super().__init__()
+        if rank < 1:
+            raise ValueError(f"LoRA rank must be at least 1, got {rank}")
+        if alpha is None:
+            alpha = default_alpha(rank)
+        self.base = base
+        self.rank = rank
+        self.alpha = alpha
+        self.scale = alpha / rank
+        self.num_experts = base.num_experts
+        self.factors = nn.ModuleDict()
+        for name, param in base.named_parameters(recurse=False):
+            param.requires_grad_(False)
+            if param.dim() == 3:
+                self.factors[name] = ExpertFactors(tuple(param.shape), rank, param.device)
+
+    def forward(self, hidden_states, top_k_index, top_k_weights):
+        from torch.func import functional_call
+
+        weights = {}
+        for name, param in self.base.named_parameters(recurse=False):
+            weight = param.to(torch.float32)
+            if name in self.factors:
+                weight = weight + self.scale * self.factors[name].delta().to(weight.device)
+            weights[name] = weight
+        args = (hidden_states.to(torch.float32), top_k_index, top_k_weights.to(torch.float32))
+        out = functional_call(self.base, weights, args)
+        return out.to(hidden_states.dtype)
 
 
 def part_linears(part):
@@ -213,14 +274,54 @@ def part_linears(part):
     return found
 
 
+def is_fused_experts(module):
+    """True for a Transformers 5 fused experts module: 3D weights held directly, not in child linears."""
+    if isinstance(module, (nn.ModuleList, FusedExpertsLoRA)):
+        return False
+    for param in module.parameters(recurse=False):
+        if param.dim() == 3:
+            return True
+    return False
+
+
+def part_fused_experts(part):
+    """Return (parent, child_name, module) for each fused experts module in a donor part."""
+    found = []
+    for name, module in part.named_modules():
+        if name == "":
+            continue
+        parts = name.split(".")
+        if parts[-1] != "experts" or not is_fused_experts(module):
+            continue
+        parent = part
+        for piece in parts[:-1]:
+            parent = getattr(parent, piece)
+        if isinstance(parent, FusedExpertsLoRA):
+            continue
+        found.append((parent, parts[-1], module))
+    return found
+
+
+def lora_factors(module):
+    """Return the LoRA factors of every LoRALinear and fused experts LoRA inside module."""
+    params = []
+    for child in module.modules():
+        if isinstance(child, (LoRALinear, ExpertFactors)):
+            params.append(child.lora_A)
+            params.append(child.lora_B)
+    return params
+
+
 def apply_part_lora(part, rank, alpha=None):
     """Wrap the linears of a donor part in LoRALinear. Return the new LoRA parameters.
 
-    B starts at zero, so the part gives the same output as before. The
-    donor weights stay frozen.
+    A fused experts module (Transformers 5 MoE) is wrapped in
+    FusedExpertsLoRA instead. B starts at zero, so the part gives the same
+    output as before. The donor weights stay frozen.
     """
     found = part_linears(part)
-    if len(found) == 0:
+    fused = part_fused_experts(part)
+    if len(found) == 0 and len(fused) == 0:
         raise ValueError(f"no linear layers for a part LoRA found in {type(part).__name__}")
     params = []
     for parent, child_name, module in found:
@@ -228,6 +329,10 @@ def apply_part_lora(part, rank, alpha=None):
         setattr(parent, child_name, wrapped)
         params.append(wrapped.lora_A)
         params.append(wrapped.lora_B)
+    for parent, child_name, module in fused:
+        wrapped = FusedExpertsLoRA(module, rank, alpha)
+        setattr(parent, child_name, wrapped)
+        params.extend(lora_factors(wrapped))
     return params
 
 

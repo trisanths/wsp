@@ -137,6 +137,11 @@ something fails. Each entry: what went wrong, then the rule.
   tests under 4.57.1, the version every running round uses. Guard
   version-specific imports and run the suite under both versions before a
   port lands.
+- wsp/parts_tf4.py is a frozen copy of wsp/parts.py from before the
+  Transformers 5 port. On 4.x, wsp/parts.py swaps itself for it, so 4.x
+  runs the old code. A fix to parts.py that applies to 4.x must go into
+  both files until 4.x is retired. The same holds for the *_tf4.py test
+  copies: they cover the 4.x paths, and the unsuffixed tests cover 5.x.
 - Launch long Modal runs with `modal run --detach`. At 23:58 PT the Mac's
   network dropped for about a minute; every attached `modal run` lost its
   client, Modal stopped the ephemeral apps, and four weave searches

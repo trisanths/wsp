@@ -35,6 +35,32 @@ import os
 import torch
 
 
+# tokenizer_config.json names these for a plain fast tokenizer.
+GENERIC_TOKENIZERS = ("TokenizersBackend", "PreTrainedTokenizerFast")
+
+
+def load_tokenizer(source):
+    """Load the tokenizer of a folder or repo the way it was saved.
+
+    For some model types (qwen2 and phi3, for example) Transformers 5 uses
+    the family's own tokenizer class even when tokenizer_config.json names
+    the generic fast tokenizer. That class builds a new pipeline from the
+    vocabulary and ignores the saved tokenizer.json. When the saved class
+    is the generic one, we load it with that class, as Transformers 4 did.
+    Otherwise AutoTokenizer picks the class.
+    """
+    import transformers
+
+    if int(transformers.__version__.split(".")[0]) < 5:
+        return transformers.AutoTokenizer.from_pretrained(source)
+    from transformers.models.auto.tokenization_auto import get_tokenizer_config
+
+    saved = get_tokenizer_config(source).get("tokenizer_class")
+    if saved in GENERIC_TOKENIZERS:
+        return transformers.PreTrainedTokenizerFast.from_pretrained(source)
+    return transformers.AutoTokenizer.from_pretrained(source)
+
+
 def load(path, device="cpu", dtype=torch.bfloat16, donor_dtype=torch.bfloat16, gates=True):
     """Return (model, tokenizer) for any compiled directory.
 
@@ -61,10 +87,10 @@ def load(path, device="cpu", dtype=torch.bfloat16, donor_dtype=torch.bfloat16, g
 
             model, tokenizer = load_skill_moe(path, device=device, dtype=dtype)
             if tokenizer is None:
-                tokenizer = transformers.AutoTokenizer.from_pretrained(path)
+                tokenizer = load_tokenizer(path)
             return model, tokenizer
 
-    tokenizer = transformers.AutoTokenizer.from_pretrained(path)
+    tokenizer = load_tokenizer(path)
     grafts_path = os.path.join(path, "grafts.json")
     taps_path = os.path.join(path, "taps.json")
     if not os.path.exists(grafts_path) and not os.path.exists(taps_path):
@@ -136,7 +162,7 @@ def load_tapped(model, tokenizer, path, device, donor_dtype):
         donor = donor.to(device).eval()
         for param in donor.parameters():
             param.requires_grad_(False)
-        donors[donor_id] = (donor, transformers.AutoTokenizer.from_pretrained(donor_id))
+        donors[donor_id] = (donor, load_tokenizer(donor_id))
     model.wsp_taps.to(device=device, dtype=torch.float32)
     set_tap_sources(model, tokenizer, donors)
     return info

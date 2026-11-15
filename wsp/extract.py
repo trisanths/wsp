@@ -9,12 +9,7 @@ def top_activation_neurons(model, tokenizer, texts, mlp_module, n, max_tokens=50
     Activations are the inputs of the MLP's down_proj. Texts run one at a time
     with no padding. Stops after max_tokens tokens.
     """
-    down = None
-    for name, child in mlp_module.named_children():
-        if name == "down_proj":
-            down = child
-    if down is None:
-        raise ValueError("mlp_module has no child named down_proj")
+    down = _find_down_proj(mlp_module)
 
     device = next(model.parameters()).device
     sums = torch.zeros(down.in_features, dtype=torch.float64)
@@ -58,9 +53,11 @@ def random_neurons(intermediate_size, n, seed):
 def top_routed_experts(model, tokenizer, texts, moe_module, n, max_tokens=50000):
     """Return the n experts with the highest mean routing probability, sorted.
 
-    Hooks the router (the gate Linear) of the MoE block, takes a softmax over
+    Hooks the router (the gate) of the MoE block, takes a softmax over
     experts for every token, and averages. Texts run one at a time with no
-    padding. Stops after max_tokens tokens.
+    padding. Stops after max_tokens tokens. In Transformers 5 the gate is a
+    router module that returns (router_logits, weights, indices); older
+    gates are a Linear that returns the logits.
     """
     gate = getattr(moe_module, "gate", None)
     if gate is None:
@@ -71,6 +68,8 @@ def top_routed_experts(model, tokenizer, texts, moe_module, n, max_tokens=50000)
     state = {"sums": None}
 
     def hook(module, args, output):
+        if isinstance(output, tuple):
+            output = output[0]
         logits = output.detach().float().reshape(-1, output.shape[-1])
         probs = torch.softmax(logits, dim=-1)
         if state["sums"] is None:
@@ -101,8 +100,9 @@ def top_routed_experts(model, tokenizer, texts, moe_module, n, max_tokens=50000)
 
 
 def _find_down_proj(mlp_module):
+    # LFM2 calls its down projection w2.
     for name, child in mlp_module.named_children():
-        if name == "down_proj":
+        if name == "down_proj" or name == "w2":
             return child
     raise ValueError("mlp module has no down_proj child")
 
