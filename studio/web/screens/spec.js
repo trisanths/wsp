@@ -3,6 +3,7 @@ import { api } from '../api.js';
 import { go, toast, pct, clamp, donorColor, donorLetter, useDebouncedCallback, clone, addRecent, patchRecent, setLastBuild } from '../util.js';
 import { TopBar, Icon, Spinner, ErrorBox, Menu, StubBadge } from '../components.js';
 import { SubtleNum, AutoHeight, SkelReveal, reduced } from '../motion.js';
+import { ModelLogo } from '../logos.js';
 
 // slider with optional tick marks (fractions of the range are given as values)
 export function Slider({ value, min, max, step, onChange, ticks = [], color, ariaLabel }) {
@@ -98,6 +99,13 @@ export function SpecScreen({ id }) {
   };
 
   const hostB = spec.size.host_params_b;
+  const lim = { max_total_params_b: spec.size.max_params_b, max_run_params_b: spec.size.max_params_b, max_heal_min: 20, ...(spec.limits || {}) };
+  const totMax = Math.min(spec.size.max_b, Math.max(8, Math.ceil(lim.max_total_params_b * 2)));
+  const healMax = Math.max(120, lim.max_heal_min * 2);
+  const setLimit = (patch) => edit((s) => {
+    s.limits = { ...lim, ...(s.limits || {}), ...patch };
+    if (patch.max_total_params_b != null) { s.size.max_params_b = patch.max_total_params_b; s.limits.max_run_params_b = Math.min(s.limits.max_run_params_b, patch.max_total_params_b); }
+  });
   const sizeTicks = hostB != null ? [{ v: hostB, kind: 'host', label: 'host ' + hostB.toFixed(2) + 'B' }] : [];
   const b = spec.budget;
   const compMax = Math.max(240, b.compute_min * 3);
@@ -108,12 +116,25 @@ export function SpecScreen({ id }) {
     <input class="doc-title" value=${spec.title} aria-label="Title" onInput=${(e) => edit((s) => { s.title = e.target.value; })} />
     <textarea class="doc-sum" rows="2" ref=${(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 2 + 'px'; } }} value=${spec.summary} aria-label="Summary" onInput=${(e) => edit((s) => { s.summary = e.target.value; })}></textarea>
 
-    <section class="sect"><h2 class="sec">Size and budget</h2>
+    <section class="sect"><h2 class="sec">Limits</h2>
       <div class="srow">
-        <div class="top"><span class="nm">Size limit</span><span class="val">up to <${SubtleNum} text=${spec.size.max_params_b.toFixed(1)} />B parameters</span></div>
-        <${Slider} value=${spec.size.max_params_b} min=${spec.size.min_b} max=${spec.size.max_b} step=${0.1} ticks=${sizeTicks} ariaLabel="Maximum parameters" onChange=${(v) => edit((s) => { s.size.max_params_b = Math.round(v * 10) / 10; })} />
-        <div class="note"><span>${spec.size.max_params_b < hostB ? 'Below the host size. Only deletion masks can get there.' : 'Room for ' + Math.max(0, (spec.size.max_params_b - hostB)).toFixed(2) + 'B of grafted parts.'}</span><span>${spec.size.min_b}B to ${spec.size.max_b}B</span></div>
+        <div class="top"><span class="nm">Total size</span><span class="val">up to <${SubtleNum} text=${lim.max_total_params_b.toFixed(1)} />B parameters</span></div>
+        <${Slider} value=${lim.max_total_params_b} min=${Math.max(spec.size.min_b, hostB || 0)} max=${totMax} step=${0.1} ticks=${sizeTicks} ariaLabel="Maximum total parameters" onChange=${(v) => setLimit({ max_total_params_b: Math.round(v * 10) / 10 })} />
+        <div class="note"><span>${lim.max_total_params_b < (hostB || 0) ? 'Below the host size. Only deletion masks can get there.' : 'Room for ' + Math.max(0, lim.max_total_params_b - (hostB || 0)).toFixed(2) + 'B of grafted parts.'}</span><span>${Math.max(spec.size.min_b, hostB || 0)}B to ${totMax}B</span></div>
       </div>
+      <div class="srow">
+        <div class="top"><span class="nm">Run per token</span><span class="val">up to <${SubtleNum} text=${lim.max_run_params_b.toFixed(1)} />B parameters</span></div>
+        <${Slider} value=${Math.min(lim.max_run_params_b, lim.max_total_params_b)} min=${Math.min(hostB || 0.5, lim.max_total_params_b)} max=${lim.max_total_params_b} step=${0.1} ticks=${sizeTicks} ariaLabel="Maximum parameters run per token" onChange=${(v) => setLimit({ max_run_params_b: Math.round(v * 10) / 10 })} />
+        <div class="note"><span>The parameters a single token passes through. It sets speed and energy.</span><span>up to the total size</span></div>
+      </div>
+      <div class="srow">
+        <div class="top"><span class="nm">Heal time</span><span class="val"><${SubtleNum} text=${String(lim.max_heal_min)} /> min at most</span></div>
+        <${Slider} value=${lim.max_heal_min} min=${1} max=${healMax} step=${1} ariaLabel="Maximum heal minutes" onChange=${(v) => setLimit({ max_heal_min: v })} />
+        <div class="note"><span>Builds over a limit are refused, with the numbers.</span><span>1 to ${healMax} min</span></div>
+      </div>
+    </section>
+
+    <section class="sect"><h2 class="sec">Budget</h2>
       <div class="srow">
         <div class="top"><span class="nm">Evals</span><span class="val"><${SubtleNum} text=${String(b.evals)} /> scored attempts</span></div>
         <${Slider} value=${b.evals} min=${b.min_evals} max=${b.max_evals} step=${1} ariaLabel="Evals" onChange=${(v) => edit((s) => { s.budget.evals = v; })} />
@@ -147,13 +168,13 @@ export function SpecScreen({ id }) {
     </section>`}
 
     <section class="sect"><h2 class="sec">Host model</h2>
-      <div class="card row-card"><div class="pic" style=${{ '--c': donorColor(spec.host) }}>${donorLetter(spec.host)}</div><div><div class="mono" style="font-size:13px;word-break:break-all">${spec.host}</div><div class="faint" style="font-size:12px">${hostB != null ? hostB.toFixed(2) + 'B parameters' : ''}</div></div></div>
+      <div class="card row-card"><${ModelLogo} model=${spec.host} size=${24} /><div><div class="mono" style="font-size:13px;word-break:break-all">${spec.host}</div><div class="faint" style="font-size:12px">${hostB != null ? hostB.toFixed(2) + 'B parameters' : ''}</div></div></div>
     </section>
 
     <section class="sect"><h2 class="sec">Likely ingredients</h2>
       <div class="faint" style="font-size:12px;margin:-4px 0 8px">Ranked for this spec. You can change them in the builder.</div>
       <div class="card ings">
-        ${(spec.ingredients || []).map((g) => html`<div class="ing"><div class="pic" style=${{ '--c': donorColor(g.donor) }}>${donorLetter(g.donor, g.label)}</div><div style="min-width:0"><div style="font-weight:500">${g.label}</div><div class="faint ell" style="font-size:12px">${g.donor}</div></div><span class="tag" style="margin-left:auto">${g.kind}</span></div>`)}
+        ${(spec.ingredients || []).map((g) => html`<div class="ing"><${ModelLogo} model=${g.donor} size=${20} /><div style="min-width:0"><div style="font-weight:500">${g.label}</div><div class="faint ell" style="font-size:12px">${g.donor}</div></div><span class="tag" style="margin-left:auto">${g.kind}</span></div>`)}
         ${!(spec.ingredients || []).length && html`<div class="empty" style="padding:12px 16px">None picked yet.</div>`}
       </div>
     </section>

@@ -16,25 +16,33 @@ const HOST_LAYERS = 16;
 const HOST_B = 1.24;
 
 /* ---------- catalog ---------- */
+const EV_OK = 'block written into the base beat a rank-16 LoRA on the base (held-out accuracy, mean of 3 seeds), same heal data and steps';
+const EV_NEW = 'zeroing the part drops its skill more than random same-size parts do (relative drop, mean of 5 random parts)';
+const NOT_MINED = 'Not in the compiler catalog yet. Mine it into a catalog record before a program can use it.';
 const PARTS = [
-  { id: 'qmath_block_8_19', group: 'add', kind: 'block', label: 'Math block', donor: 'Qwen/Qwen2.5-Math-1.5B', layers: [8, 19], params_m: 570, default_at: 6, summary: 'Qwen2.5-Math layers 8-19', task: 'math', power: 0.62, short: 'qmath.l8-19' },
-  { id: 'qmath_l18_contrast512', group: 'add', kind: 'neurons', label: 'Math neurons', donor: 'Qwen/Qwen2.5-Math-1.5B', layers: [18, 18], params_m: 6, default_at: 9, summary: '512 MLP units, layer 18', task: 'math', power: 0.42, short: 'qmath.n512' },
-  { id: 'r1_block_10_21', group: 'add', kind: 'block', label: 'Step-by-step reasoning', donor: 'deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B', layers: [10, 21], params_m: 540, default_at: 7, summary: 'R1-Distill layers 10-21', task: 'math', power: 0.5, short: 'r1.l10-21' },
-  { id: 'lfm_experts_2', group: 'add', kind: 'experts', label: 'Fast recall', donor: 'LiquidAI/LFM2-8B-A1B', layers: [6, 9], params_m: 90, default_at: 10, summary: '2 experts, layers 6-9', task: 'general', power: 0.3, short: 'lfm.e2' },
-  { id: 'qcoder_block_6_17', group: 'add', kind: 'block', label: 'Code block', donor: 'Qwen/Qwen2.5-Coder-1.5B', layers: [6, 17], params_m: 560, default_at: 5, summary: 'Qwen2.5-Coder layers 6-17', task: 'code', power: 0.6, short: 'qcode.l6-17' },
-  { id: 'saul_block_4_13', group: 'add', kind: 'block', label: 'Legal reasoning', donor: 'Equall/Saul-1B', layers: [4, 13], params_m: 410, default_at: 4, summary: 'Saul layers 4-13', task: 'legal', power: 0.55, short: 'saul.l4-13' },
+  { id: 'qmath_block_8_19', group: 'add', kind: 'block', label: 'Math block', donor: 'Qwen/Qwen2.5-Math-1.5B', layers: [8, 19], params_m: 570, default_at: 6, summary: 'Qwen2.5-Math layers 8-19', task: 'math', power: 0.62, short: 'qmath.l8-19', status: 'validated', evidence: EV_OK + ': 0.51 against 0.47.', usable: true },
+  { id: 'qmath_l18_contrast512', group: 'add', kind: 'mlp_cluster', label: 'Math neurons', donor: 'Qwen/Qwen2.5-Math-1.5B', layers: [18, 18], params_m: 6, default_at: 9, summary: '512 MLP units, layer 18', task: 'math', power: 0.42, short: 'qmath.n512', status: 'candidate', evidence: EV_NEW + ': 0.18 against -0.06.', usable: true },
+  { id: 'r1_block_10_21', group: 'add', kind: 'block', label: 'Step-by-step reasoning', donor: 'deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B', layers: [10, 21], params_m: 540, default_at: 7, summary: 'R1-Distill layers 10-21', task: 'math', power: 0.5, short: 'r1.l10-21', status: 'validated', evidence: EV_OK + ': 0.49 against 0.46.', usable: true },
+  { id: 'lfm_experts_2', group: 'add', kind: 'expert', label: 'Fast recall', donor: 'LiquidAI/LFM2-8B-A1B', layers: [6, 9], params_m: 90, default_at: 10, summary: '2 experts, layers 6-9', task: 'general', power: 0.3, short: 'lfm.e2', status: 'candidate', evidence: 'no measurement yet: no graft run in results/ measures it', usable: true },
+  { id: 'qcoder_block_6_17', group: 'add', kind: 'block', label: 'Code block', donor: 'Qwen/Qwen2.5-Coder-1.5B', layers: [6, 17], params_m: 560, default_at: 5, summary: 'Qwen2.5-Coder layers 6-17', task: 'code', power: 0.6, short: 'qcode.l6-17', status: 'candidate', evidence: 'one seed only, no control yet', usable: true },
+  { id: 'saul_block_4_13', group: 'add', kind: 'block', label: 'Legal reasoning', donor: 'Equall/Saul-1B', layers: [4, 13], params_m: 410, default_at: 4, summary: 'Saul layers 4-13', task: 'legal', power: 0.55, short: 'saul.l4-13', status: 'candidate', evidence: 'one seed only, no control yet', usable: true },
+  { id: 'gemma_block_5_12', group: 'add', kind: 'block', label: 'General block', donor: 'google/gemma-2-2b-it', layers: [5, 12], params_m: 380, default_at: 5, summary: 'Gemma-2-2B layers 5-12', task: 'general', power: 0.4, short: 'gemma.l5-12', status: 'validated', evidence: EV_OK + ': 0.44 against 0.41.', usable: true },
+  { id: 'mistral_heads_8', group: 'add', kind: 'attn_heads', label: 'Math attention heads', donor: 'mistralai/Mistral-7B-Instruct-v0.3', layers: [8, 8], params_m: 50, default_at: 6, summary: 'Mistral-7B layer 8', task: 'math', power: 0.35, short: 'mis.h8', status: 'candidate', evidence: EV_NEW + ': 0.21 against 0.02.', usable: true },
+  { id: 'phi_block_4_11', group: 'add', kind: 'block', label: 'Reasoning block', donor: 'microsoft/Phi-3-mini-4k-instruct', layers: [4, 11], params_m: 360, default_at: 4, summary: 'Phi-3-mini layers 4-11', task: 'math', power: 0.48, short: 'phi.l4-11', status: 'candidate', evidence: 'one seed only, no control yet', usable: true },
+  { id: 'bio_block_8_15', group: 'add', kind: 'block', label: 'Biology block', donor: 'BioMistral/BioMistral-7B', layers: [8, 15], params_m: 420, default_at: 6, summary: 'BioMistral layers 8-15', task: 'general', power: 0.2, short: 'bio.l8-15', status: 'rejected', evidence: 'block lost to a rank-16 LoRA on the base: 0.43 against 0.46, same heal data and steps', usable: false, usable_reason: 'Rejected. Its measured result is below the control.' },
+  { id: 'qwen14_block_14_34', group: 'add', kind: 'block', label: 'General block L14-34', donor: 'Qwen/Qwen2.5-14B-Instruct', layers: [14, 34], params_m: 6121.5, default_at: 6, summary: 'Qwen2.5-14B layers 14-34', task: 'general', power: 0.5, short: 'q14.l14-34', status: 'candidate', evidence: 'mined from the library, not run yet', usable: false, usable_reason: NOT_MINED },
 ];
 const MASKS = [
-  { id: 'mask_mmlupro_chemistry_llama1b', group: 'remove', label: 'Chemistry', summary: 'deletion mask, 0.17% of weights' },
-  { id: 'mask_mmlupro_law_llama1b', group: 'remove', label: 'Law', summary: 'deletion mask, 0.15% of weights' },
-  { id: 'mask_mmlupro_biology_llama1b', group: 'remove', label: 'Biology', summary: 'deletion mask, 0.12% of weights' },
+  { id: 'mask_mmlupro_chemistry_llama1b', group: 'remove', label: 'Chemistry', summary: 'deletion mask, 0.17% of weights', status: 'candidate', evidence: 'no measurement yet', usable: true },
+  { id: 'mask_mmlupro_law_llama1b', group: 'remove', label: 'Law', summary: 'deletion mask, 0.15% of weights', status: 'validated', evidence: 'removes the law skill: 0.11 to 0.03 on held-out items', usable: true },
+  { id: 'mask_mmlupro_biology_llama1b', group: 'remove', label: 'Biology', summary: 'deletion mask, 0.12% of weights', status: 'candidate', evidence: 'no measurement yet', usable: true },
 ];
 const TRAIN = [
   { id: 'lora', group: 'train', label: 'LoRA adapter', summary: 'rank 1 to 64' },
   { id: 'heal', group: 'train', label: 'Heal', summary: 'trains glue only' },
 ];
 const PART = Object.fromEntries(PARTS.map((p) => [p.id, p]));
-const GRAFT_PARTS = PARTS;
+const GRAFT_PARTS = PARTS.filter((p) => p.usable !== false);
 const MASK_IDS = new Set(MASKS.map((m) => m.id));
 
 /* ---------- wsp text ---------- */
@@ -184,6 +192,44 @@ function describe(p) {
 }
 const progHash = (p) => hash(JSON.stringify(p)).toString(16).padStart(8, '0') + hash(describe(p)).toString(16).padStart(8, '0');
 
+/* ---------- limits and comparison ---------- */
+function estimateOf(p) {
+  const total = paramsOf(p);
+  const run = Math.round((HOST_B + 0.72 * (total - HOST_B)) * 100) / 100;
+  const steps = (p.heal ? p.heal.steps : 0);
+  return { total_params_b: total, run_params_b: run, heal_min: Math.round(steps * 0.3 * Math.max(run, 0.5) / 60 * 100) / 100, host_params_b: HOST_B, added_params_b: Math.round((total - HOST_B) * 100) / 100, unknown: [], parts: [], estimated: true };
+}
+const f2 = (x) => ('' + Math.round(x * 100) / 100);
+function limitProblems(lim, e) {
+  const out = [];
+  if (!lim) return out;
+  if (e.total_params_b > lim.max_total_params_b + 1e-6) out.push('Over the total size limit. This build is estimated at ' + f2(e.total_params_b) + 'B parameters (the host is ' + f2(HOST_B) + 'B and the added parts are ' + f2(e.added_params_b) + 'B). The limit is ' + f2(lim.max_total_params_b) + 'B.');
+  if (e.run_params_b > lim.max_run_params_b + 1e-6) out.push('Over the per-token limit. This build runs an estimated ' + f2(e.run_params_b) + 'B parameters per token. The limit is ' + f2(lim.max_run_params_b) + 'B.');
+  if (e.heal_min > lim.max_heal_min + 1e-6) out.push('Over the heal time limit. The heal and stitch training is estimated at ' + f2(e.heal_min) + ' minutes. The limit is ' + lim.max_heal_min + ' minutes.');
+  return out;
+}
+function mockComparison(spec, ev, p) {
+  const ts = spec.benchmarks.filter((b) => b.kind === 'target');
+  const mean = (f) => { const v = ts.map(f); return v.some((x) => x == null) ? null : v.reduce((a, b) => a + b, 0) / v.length; };
+  const result = mean((b) => ev.scores[b.id]);
+  const rows = [];
+  const add = (id, label, value, note, stub) => rows.push({ id, label, split: 'search', per_task: {}, value, measured: value != null, note, stub: !!stub, result_value: result, delta: value == null ? null : Math.round((result - value) * 1000) / 1000, beaten: value == null ? null : result - value > 0.01 });
+  add('base', 'Base', mean((b) => b.base), 'the host alone, same items and same scorer', true);
+  add('lora', 'Base + LoRA', mean((b) => b.lora), ts.every((b) => b.lora != null) ? 'a rank-16 LoRA on the same data' : 'not measured for every target', false);
+  add('distill', 'Base + distillation', mean((b) => b.base + ((b.lora != null ? b.lora : b.base + 0.1) - b.base) * 0.8), 'stub data, not a measurement', true);
+  add('random', 'Random components', ev.control ? ev.control.scores[ts[0].id] : null, ev.control ? 'the same build with random components of the same size' : 'not measured yet. The control runs a build with random parts of the same size.', true);
+  const limB = spec.limits && spec.limits.max_total_params_b;
+  const far = limB && limB >= 2 * HOST_B;
+  if (far) add('best_model', 'Best model at ' + f2(limB) + 'B', mean((b) => b.base + 0.5 * ((b.target || b.base + 0.15) - b.base)), 'the best library model within the limit', true);
+  const bad = ev.status !== 'ok' || limitProblems(spec.limits, estimateOf(p)).length > 0;
+  const failedRows = rows.filter((r) => r.measured && !r.beaten);
+  const open = rows.filter((r) => !r.measured);
+  let verdict = 'success';
+  if (bad || failedRows.length) verdict = 'failed'; else if (open.length) verdict = 'unproven';
+  const headline = verdict === 'failed' ? 'Failed attempt. ' + (bad ? 'The build collapsed or went over a limit.' : 'It does not beat ' + failedRows.map((r) => r.label).join(', ') + '.') : verdict === 'unproven' ? 'Not proven yet: ' + open.map((r) => r.label).join(', ') + ' not measured.' : 'Beats every reference by more than 1 point.';
+  return { verdict, headline, margin: 0.01, result: { label: 'This build', value: result, per_task: {}, params_b: ev.params_b, heldout: null }, rows, beaten: rows.filter((r) => r.beaten).map((r) => r.id), not_beaten: failedRows.map((r) => r.id), unmeasured: open.map((r) => r.id), best_model_shown: !!far, stub: true };
+}
+
 /* ---------- specs ---------- */
 const BENCH_LIB = {
   gsm8k: { id: 'gsm8k', name: 'GSM8K', kind: 'target', target: 0.5, base: 0.23, lora: 0.467, recommended: true },
@@ -198,10 +244,10 @@ const BENCH_LIB = {
   truthfulqa: { id: 'truthfulqa', name: 'TruthfulQA', kind: 'guard', base: 0.36, floor: 0.32 },
 };
 const TYPES = {
-  math: { title: 'Laptop math tutor', summary: 'Answers grade-school word problems with worked steps. CPU only.', bench: ['gsm8k', 'if_guard'], ing: ['qmath_block_8_19', 'qmath_l18_contrast512', 'r1_block_10_21'] },
+  math: { title: 'Laptop math tutor', summary: 'Answers grade-school word problems with worked steps. CPU only.', bench: ['gsm8k', 'if_guard'], ing: ['qmath_block_8_19', 'phi_block_4_11', 'mistral_heads_8', 'r1_block_10_21'] },
   code: { title: 'Small code helper', summary: 'Writes short Python functions from a plain description.', bench: ['humaneval', 'if_guard'], ing: ['qcoder_block_6_17', 'lfm_experts_2'] },
   legal: { title: 'Contract reader', summary: 'Reads clauses and answers questions about them. No chemistry or biology.', bench: ['mmlupro:law', 'if_guard'], ing: ['saul_block_4_13', 'lfm_experts_2'] },
-  general: { title: 'Compact assistant', summary: 'A small general model tuned for the task you described.', bench: ['arc', 'if_guard'], ing: ['lfm_experts_2', 'r1_block_10_21'] },
+  general: { title: 'Compact assistant', summary: 'A small general model tuned for the task you described.', bench: ['arc', 'if_guard'], ing: ['gemma_block_5_12', 'lfm_experts_2', 'r1_block_10_21'] },
 };
 function makeSpec(prompt, files, id) {
   const low = (prompt || '').toLowerCase();
@@ -221,6 +267,7 @@ function makeSpec(prompt, files, id) {
     id: id || rid('sp_'), title: T.title, summary: T.summary, prompt: prompt || '', files: frows, task_type: type, host: HOST,
     size: { max_params_b: maxp, min_b: 0.5, max_b: 8.0, host_params_b: HOST_B },
     budget: { evals: 30, compute_min: 45, min_evals: 5, max_evals: 120 },
+    limits: { max_total_params_b: maxp, max_run_params_b: Math.min(maxp, 1.8), max_heal_min: 20 }, comparators: { distill: {} },
     benchmarks: bench, available_benchmarks: available,
     ingredients: T.ing.map((pid) => ({ part_id: pid, label: PART[pid].label, donor: PART[pid].donor, kind: PART[pid].kind })),
     drafted_by: 'rules', stub: true,
@@ -299,8 +346,9 @@ function genProgram(run, a) {
     prog.grafts.push({ id: part.id, at, control: null, control_seed: 0, glue_rank: pick([null, 8, 16, 16, 32, 64]) });
     a.lastDonor = part.donor;
   }
-  while (prog.grafts.length > 1 && paramsOf(prog) > spec.size.max_params_b) prog.grafts.pop();
-  if (prog.grafts.length && paramsOf(prog) > spec.size.max_params_b) prog.grafts = [];
+  while (prog.grafts.length > 1 && paramsOf(prog) > spec.size.max_params_b) { prog.grafts.pop(); run.refused = (run.refused || 0) + 1; }
+  if (prog.grafts.length && paramsOf(prog) > spec.size.max_params_b) { prog.grafts = []; run.refused = (run.refused || 0) + 1; }
+  if (Math.random() < 0.08) run.refused = (run.refused || 0) + 1;
   if (a.style === 'masks' && Math.random() < 0.7) {
     const m = pick(MASKS);
     prog.masks = { op: 'use', id: m.id };
@@ -454,9 +502,11 @@ function snapshot(run) {
     budget: { evals_used: run.evals_used, evals_total: run.evals_total, compute_used_s: run.compute_used, compute_total_s: run.compute_total },
     base_scores: run.base_scores, best: run.best,
     agents: run.agents.map((a) => ({ id: a.id, name: a.name, role: a.role, blurb: a.blurb, status: run.status === 'paused' ? 'paused' : a.status, now: a.now, best: a.best, attempts: a.attempts, collapses: a.collapses, lessons: a.lessons, nudges_pending: a.nudges_pending })),
-    leaderboard: run.board.map((e) => { const c = { ...e }; delete c._pending; delete c._age; return c; }),
+    refused: run.refused || 0, limits: spec.limits, comparison: null,
+    leaderboard: run.board.map((e) => { const c = { ...e }; delete c._pending; delete c._age; c.comparison = mockComparison(spec, { scores: e.scores, status: e.status, params_b: e.params_b, control: null, ...(e.vs_control != null ? { control: { scores: { [spec.benchmarks.find((b) => b.kind === 'target').id]: e.scores[spec.benchmarks.find((b) => b.kind === 'target').id] - e.vs_control } } } : {}) }, e.program); return c; }),
     activity: run.activity, curve: run.curve, sources: srcs,
   };
+  if (s.best) { const e = s.leaderboard.find((x) => x.program_hash === s.best.program_hash); s.comparison = e ? e.comparison : null; }
   return clone(s);
 }
 function getRunObj(id) {
@@ -477,7 +527,11 @@ function getBuilder(id, specId) {
 
 /* ---------- the api ---------- */
 export const mockApi = {
-  async health() { await lat(); return { ok: true, backend: 'stub', llm: 'none', llm_model: 'gpt-5.4-mini', stub: true }; },
+  async health() {
+    await lat();
+    const heal = new URLSearchParams(location.search).get('heal') === '1';
+    return { ok: true, product: 'Sapien', backend: 'stub', llm: 'none', llm_model: 'gpt-5.4-mini', stub: true, heal_note: heal ? 'The heal recipe is being fixed. Healing on dataset text currently damages the base model, so scores after a heal are not reliable yet.' : null };
+  },
   async draftSpec(prompt, files) {
     await sleep(2200);
     if (!prompt || !prompt.trim()) { const e = new Error('Say what the model should do first.'); throw e; }
@@ -517,7 +571,7 @@ export const mockApi = {
     logAct(run, 'you', 'nudge', 'info', text, { to: aid, to_name: a.name });
     return { ok: true };
   },
-  async catalog() { await lat(); return clone({ stub: true, host: { model: HOST, layers: HOST_LAYERS, params_b: HOST_B }, parts: PARTS.map(({ task, power, short, ...p }) => p), masks: MASKS, train: TRAIN }); },
+  async catalog() { await lat(); return clone({ stub: true, host: { model: HOST, layers: HOST_LAYERS, params_b: HOST_B }, parts: PARTS.map(({ task, power, short, ...p }) => p), masks: MASKS, train: TRAIN, product: 'Sapien', kinds: ['block', 'attn_heads', 'mlp_cluster', 'expert', 'inserted_layer'].map((k) => ({ kind: k, name: k, count: PARTS.filter((p) => p.kind === k).length })), library: { atlas: false, counts: { candidate: PARTS.filter((p) => p.status === 'candidate').length, validated: PARTS.filter((p) => p.status === 'validated').length, rejected: PARTS.filter((p) => p.status === 'rejected').length } } }); },
   async programText(program) { await sleep(60); return { text: programText(program) }; },
   async programParse(text) { await sleep(80); return { program: parseProgram(text) }; },
   async programValidate(program) { await sleep(60); return { errors: validateProgram(program) }; },
@@ -527,6 +581,13 @@ export const mockApi = {
     const b = getBuilder(id);
     const spec = getSpec(b.spec_id);
     const jid = rid('j_');
+    {
+      const q = clone(program);
+      if (action === 'heal' && !q.heal) q.heal = { steps: 300 };
+      if (action === 'train') { if (!q.lora) q.lora = { rank: 16 }; if (!q.heal) q.heal = { steps: 300 }; }
+      const problems = limitProblems(spec.limits, estimateOf(q));
+      if (problems.length) { const e = new Error(problems.join(' ')); e.status = 400; throw e; }
+    }
     jobs.set(jid, { id: jid, bid: id, action, program: clone(program), spec, readyAt: Date.now() + 1000 + Math.random() * 1000, done: null });
     return { job_id: jid };
   },
@@ -549,12 +610,19 @@ export const mockApi = {
       } else {
         if (b.budget.evals_used >= b.budget.evals_total) { j.done = { ...base, status: 'error', result: null, budget: clone(b.budget), error: 'No evals left in this session.' }; return j.done; }
         const cs = 90 + Math.floor(Math.random() * 120);
-        result = { fit: ev.fit, scores: ev.scores, combined: ev.combined, control: ev.control, params_b: ev.params_b, compute_s: cs, status: ev.status };
+        result = { fit: ev.fit, scores: ev.scores, combined: ev.combined, control: ev.control, params_b: ev.params_b, compute_s: cs, status: ev.status, program: p, size: estimateOf(p), limit_problems: [], comparison: mockComparison(j.spec, ev, p) };
         b.budget.evals_used++; b.budget.compute_used_s += cs;
       }
       j.done = { ...base, status: 'done', result, budget: clone(b.budget) };
     }
     return clone(j.done);
+  },
+  async builderSize(id, program) {
+    await sleep(80);
+    const spec = getSpec(getBuilder(id).spec_id);
+    const estimate = estimateOf(program);
+    const problems = limitProblems(spec.limits, estimate);
+    return { estimate, limits: spec.limits, problems, ok: problems.length === 0 };
   },
   async suggest(id, program) {
     await sleep(350);

@@ -3,6 +3,8 @@ import { api } from '../api.js';
 import { go, toast, pct, pctS, sgn, bsize, clamp, clone, emptyProgram, normProgram, hasTaps, donorShort, maskIds, buildMask, donorColor, donorLetter, specProgress, primaryTarget, tokenizeLine, setLastBuild } from '../util.js';
 import { TopBar, Icon, Spinner, ErrorBox, Menu, BenchBar, BenchLegend, Ring, Tag, StubBadge } from '../components.js';
 import { PopNum, SlidingBar, SkelReveal, Matrix, SuccessCheck, useShake, shake, SwapText } from '../motion.js';
+import { ModelLogo } from '../logos.js';
+import { Compare, StatusTag, groupByKind, lockOf, HealNote, usesHeal } from '../cmp.js';
 
 // Short labels for score statuses other than ok. Only "collapsed" means the model lost a skill.
 const STATUS_LABELS = { collapsed: 'collapsed', infra_error: 'GPU error', compile_error: 'compile error', rejected_fit: 'fit too low', invalid: 'invalid', budget_exhausted: 'no budget' };
@@ -44,10 +46,11 @@ function dragImage(e) {
   setTimeout(() => g.remove(), 0);
 }
 
-function Piece({ ic, color, t1, t2, t3, used, dragging, onDragStart, onDragEnd, onClick }) {
-  return html`<div class=${'piece' + (dragging ? ' dragging' : '') + (used ? ' used' : '')} draggable="true" onDragStart=${onDragStart} onDragEnd=${onDragEnd} onClick=${onClick} title="Drag onto the model, or click to add">
-    <div class="pic" style=${{ '--c': color }}>${ic}</div><div style="min-width:0"><div class="t1">${t1}</div><div class="t2">${t2}</div>${t3 && html`<div class="t3">${t3}</div>`}</div>
-    <span class="add">${used ? html`<${Icon} n="check" size=${14} />` : html`<${Icon} n="plus" size=${14} />`}</span></div>`;
+function Piece({ lead, t1, t2, t3, status, tip, lock, used, dragging, onDragStart, onDragEnd, onClick }) {
+  const locked = !!lock;
+  return html`<div class=${'piece' + (dragging ? ' dragging' : '') + (used ? ' used' : '') + (locked ? ' locked' : '')} draggable=${locked ? 'false' : 'true'} onDragStart=${locked ? null : onDragStart} onDragEnd=${onDragEnd} onClick=${locked ? null : onClick} data-tip=${locked ? lock.why : tip || 'Drag onto the model, or click to add'} data-tip-side="right" aria-disabled=${locked ? 'true' : null}>
+    ${lead}<div style="min-width:0"><div class="t1">${t1}</div><div class="t2 t2s"><${StatusTag} status=${status} /><span>${t2}</span></div>${t3 && html`<div class="t3">${t3}</div>`}</div>
+    <span class=${locked ? 'lk' : 'add'}>${locked ? html`<${Icon} n="lock" size=${14} />` : used ? html`<${Icon} n="check" size=${14} />` : html`<${Icon} n="plus" size=${14} />`}</span></div>`;
 }
 
 function briefProgram(p, cat) {
@@ -85,6 +88,7 @@ export function BuilderScreen({ id, specId }) {
   const [handing, setHanding] = useState(false);
   const [cw, setCw] = useState(1000);
   const [flash, setFlash] = useState(null);
+  const [sizeInfo, setSizeInfo] = useState(null);
   const flashTimer = useRef(0);
   const btnRefs = useRef({});
   const known = useRef(null);
@@ -119,6 +123,12 @@ export function BuilderScreen({ id, specId }) {
   };
   useEffect(() => { load(); setLastBuild({ id, specId }); }, [id]);
   useEffect(() => { if (program) ls.set('wsp.prog.' + id, JSON.stringify(program)); }, [program]);
+  useEffect(() => {
+    if (!program) return;
+    let dead = false;
+    const t = setTimeout(() => { api.builderSize(id, program).then((r) => { if (!dead) setSizeInfo(r); }).catch(() => { if (!dead) setSizeInfo(null); }); }, 250);
+    return () => { dead = true; clearTimeout(t); };
+  }, [JSON.stringify(program)]);
   useEffect(() => { ls.set('wsp.att.' + id, JSON.stringify(attempts.map((a) => ({ ...a })))); }, [attempts]);
 
   /* ---- edit helpers ---- */
@@ -289,7 +299,7 @@ export function BuilderScreen({ id, specId }) {
       if (action === 'compile') {
         toast('Fit check done' + (r.params_b ? ': ' + bsize(r.params_b) + ' parameters' : ''), 'ok');
       } else {
-        const at = { n: 0, action, program: p, scores: r.scores, combined: r.combined, control: r.control, params_b: r.params_b, status: r.status, compute_s: r.compute_s };
+        const at = { n: 0, action, program: p, scores: r.scores, combined: r.combined, control: r.control, params_b: r.params_b, status: r.status, compute_s: r.compute_s, comparison: r.comparison || null, size: r.size || null };
         setAttempts((a) => [...a, { ...at, n: a.length + 1 }]);
         if (r.status && r.status !== 'ok') { toast(statusMessage(r.status), 'err'); shake(btnRefs.current[action]); }
         else if (action === 'score') { setFlash(action); clearTimeout(flashTimer.current); flashTimer.current = setTimeout(() => setFlash(null), 1900); }
@@ -334,6 +344,13 @@ export function BuilderScreen({ id, specId }) {
   const t1 = spec ? primaryTarget(spec) : null;
   const vsCtl = lastOk && lastOk.control && t1 ? lastOk.scores[t1.id] - lastOk.control.scores[t1.id] : null;
   const estSize = cat.host.params_b + program.grafts.reduce((s, g) => s + ((partById(g.id) || {}).params_m || 0) / 1000, 0);
+  const lim = (spec && spec.limits) || null;
+  const est = sizeInfo && sizeInfo.estimate ? sizeInfo.estimate : null;
+  const sameAsLast = lastOk && JSON.stringify(lastOk.program) === JSON.stringify(program);
+  const totalB = sameAsLast && lastOk.params_b ? lastOk.params_b : est ? est.total_params_b : estSize;
+  const runB = est ? est.run_params_b : null;
+  const healMin = est ? est.heal_min : null;
+  const lo = { total: !!lim && lim.max_total_params_b != null && totalB > lim.max_total_params_b + 1e-6, run: !!lim && lim.max_run_params_b != null && runB != null && runB > lim.max_run_params_b + 1e-6, heal: !!lim && lim.max_heal_min != null && healMin != null && healMin > lim.max_heal_min + 1e-6 };
   const matches = (x) => !q || (x.label + ' ' + (x.donor || '') + ' ' + (x.summary || '') + ' ' + x.group).toLowerCase().includes(q.toLowerCase());
   const addParts = cat.parts.filter((x) => matches(x)), rmParts = cat.masks.filter(matches), trParts = cat.train.filter(matches);
   const used = (pid) => program.grafts.some((g) => g.id === pid);
@@ -346,6 +363,8 @@ export function BuilderScreen({ id, specId }) {
   const dropping = (s) => over && over !== 'tail' && DRAG && DRAG.kind !== 'mask' && DRAG.kind !== 'train' && +over.slice(1) >= s.first && +over.slice(1) < s.first + s.n;
   const jobPct = job ? Math.min(94, ((Date.now() - job.t0) / 2600) * 100) : 0;
   const codeLines = codeText.replace(/\n$/, '').split('\n');
+
+  const partPiece = (p) => html`<${Piece} key=${p.id} lead=${html`<${ModelLogo} model=${p.donor} size=${20} />`} status=${p.status} tip=${p.evidence} lock=${lockOf(p)} t1=${p.label} t2=${(p.donor || '').split('/').pop() + ' · ' + (p.layers ? 'L' + p.layers[0] + (p.layers[1] !== p.layers[0] ? '-' + p.layers[1] : '') : '')} used=${used(p.id)} dragging=${dragId === p.id} onDragStart=${(e) => startDrag(e, { kind: 'part', part: p }, p.id)} onDragEnd=${endDrag} onClick=${() => addPart(p)} />`;
 
   const slabEl = (s) => {
     const label = s.n === 1 ? 'L' + s.first : 'L' + s.first + ' to L' + (s.first + s.n - 1);
@@ -367,12 +386,11 @@ export function BuilderScreen({ id, specId }) {
   <${SkelReveal} fill ready=${true} skeleton=${null}><div class="builder">
     <aside class="palette">
       <div class="searchbox"><${Icon} n="search" size=${15} /><input placeholder="Search parts" value=${q} onInput=${(e) => setQ(e.target.value)} /></div>
-      ${addParts.length > 0 && html`<div class="pgroup">Add a skill</div>`}
-      ${addParts.map((p) => html`<${Piece} key=${p.id} ic=${donorLetter(p.donor, p.label)} color=${donorColor(p.donor)} t1=${p.label} t2=${p.donor.split('/').pop() + ' · ' + p.kind + ' · L' + p.layers[0] + (p.layers[1] !== p.layers[0] ? '-' + p.layers[1] : '')} used=${used(p.id)} dragging=${dragId === p.id} onDragStart=${(e) => startDrag(e, { kind: 'part', part: p }, p.id)} onDragEnd=${endDrag} onClick=${() => addPart(p)} />`)}
+      ${cat.kinds && cat.kinds.length ? groupByKind(addParts).map((g) => html`<div class="pgroup" key=${g.kind}>${g.name}<span class="n">${g.items.length}</span></div>${g.items.map((p) => partPiece(p))}`) : html`${addParts.length > 0 && html`<div class="pgroup">Add a skill</div>`}${addParts.map((p) => partPiece(p))}`}
       ${rmParts.length > 0 && html`<div class="pgroup">Remove a skill</div>`}
-      ${rmParts.map((m) => html`<${Piece} key=${m.id} ic="-" color="var(--red)" t1=${m.label} t2=${m.summary} used=${mIds.includes(m.id)} dragging=${dragId === m.id} onDragStart=${(e) => startDrag(e, { kind: 'mask', mask: m }, m.id)} onDragEnd=${endDrag} onClick=${() => addMask(m)} />`)}
+      ${rmParts.map((m) => html`<${Piece} key=${m.id} lead=${html`<div class="pic" style=${{ '--c': 'var(--red)' }}>-</div>`} status=${m.status} tip=${m.evidence} lock=${m.status === 'rejected' ? lockOf(m) : null} t1=${m.label} t2=${m.summary} used=${mIds.includes(m.id)} dragging=${dragId === m.id} onDragStart=${(e) => startDrag(e, { kind: 'mask', mask: m }, m.id)} onDragEnd=${endDrag} onClick=${() => addMask(m)} />`)}
       ${trParts.length > 0 && html`<div class="pgroup">Train</div>`}
-      ${trParts.map((t) => html`<${Piece} key=${t.id} ic=${t.id === 'lora' ? 'R' : 'H'} color=${t.id === 'lora' ? 'var(--amber)' : 'var(--green)'} t1=${t.label} t2=${t.summary} used=${trainUsed(t)} dragging=${dragId === t.id} onDragStart=${(e) => startDrag(e, { kind: 'train', train: t }, t.id)} onDragEnd=${endDrag} onClick=${() => addTrain(t)} />`)}
+      ${trParts.map((t) => html`<${Piece} key=${t.id} lead=${html`<div class="pic" style=${{ '--c': t.id === 'lora' ? 'var(--amber)' : 'var(--green)' }}>${t.id === 'lora' ? 'R' : 'H'}</div>`} t1=${t.label} t2=${t.summary} used=${trainUsed(t)} dragging=${dragId === t.id} onDragStart=${(e) => startDrag(e, { kind: 'train', train: t }, t.id)} onDragEnd=${endDrag} onClick=${() => addTrain(t)} />`)}
       ${!addParts.length && !rmParts.length && !trParts.length && html`<div class="faint" style="margin-top:20px">Nothing matches "${q}".</div>`}
     </aside>
 
@@ -389,7 +407,7 @@ export function BuilderScreen({ id, specId }) {
               ${geo.wires.map((w) => { const dx = (w.x2 - w.x1) * 0.55; const d = 'M' + w.x1 + ',' + w.y1 + ' C' + (w.x1 + dx) + ',' + w.y1 + ' ' + (w.x2 - dx) + ',' + w.y2 + ' ' + w.x2 + ',' + w.y2; return html`<g key=${w.k} class=${newKeys.current.has(w.k) ? 'is-new' : null}><path d=${d} style=${{ d: "path('" + d + "')" }} stroke=${'url(#wg' + w.k + ')'} /><circle cx=${w.x1} cy=${w.y1} r="4" style="fill:var(--text-3)"/><circle cx=${w.x2} cy=${w.y2} r="4" style=${{ fill: w.color }}/></g>`; })}
             </svg>
             <div class="stack" style=${{ marginLeft: '0px' }}>
-              <span class="label hostlabel">Host · ${cat.host.model.split('/').pop()}</span>
+              <span class="label hostlabel"><${ModelLogo} model=${cat.host.model} size=${24} alt="" />Host · ${cat.host.model.split('/').pop()}</span>
               ${slabs.map(slabEl)}
               ${mIds.map((mid) => html`<div class="slab mask" key=${mid}><span class="nm">- ${(maskById(mid) || { label: mid }).label} mask</span><span class="ctl"><span class="faint">all layers</span><button class="x" data-tip="Remove mask" aria-label="Remove mask" onClick=${(e) => { e.stopPropagation(); edit((p) => { p.masks = buildMask(maskIds(p.masks).filter((x) => x !== mid)); }); }}>×</button></span></div>`)}
               ${program.lora && html`<div class="slab lora"><span class="nm">LoRA</span><span class="ctl">rank <select value=${program.lora.rank || 16} onChange=${(e) => edit((p) => { p.lora.rank = +e.target.value; })}>${[1, 2, 4, 8, 16, 32, 64].map((r) => html`<option value=${r}>${r}</option>`)}</select><button class="x" data-tip="Remove LoRA" aria-label="Remove LoRA" onClick=${() => edit((p) => { p.lora = null; })}>×</button></span></div>`}
@@ -399,7 +417,7 @@ export function BuilderScreen({ id, specId }) {
             ${program.grafts.map((g, i) => { const part = partById(g.id) || { label: g.id, donor: '', kind: 'part', layers: [0, 0], params_m: 0 }; const fit = fits[g.id + '@' + g.at]; const col = donorColor(part.donor); const nk = 'g' + i;
               return html`<div class=${'node' + (newKeys.current.has(nk) ? ' is-new' : '') + (dragId === nk ? ' dragging' : '') + (sel === nk ? ' sel' : '') + (menuAt === nk ? ' menu-open' : '')} key=${nk} ref=${(el) => { nodeRefs.current[nk] = el; }} style=${{ left: nodeX + 'px', top: (geo.y[nk] ?? 20) + 'px', zIndex: menuAt === nk ? 9 : 2 }} draggable="true"
                 onDragStart=${(e) => startDrag(e, { kind: 'node', t: 'g', i }, nk)} onDragEnd=${endDrag} onClick=${(e) => { e.stopPropagation(); setSel(nk); }}>
-                <div class="nh"><div class="pic" style=${{ '--c': col }}>${donorLetter(part.donor, part.label)}</div><span class="t">${part.label}</span>
+                <div class="nh"><${ModelLogo} model=${part.donor} size=${24} /><span class="t">${part.label}</span>
                   <button class="iconbtn" style="width:24px;height:24px" data-tip="Options" aria-label="Options" onClick=${(e) => { e.stopPropagation(); setMenuAt(menuAt === nk ? null : nk); }}><${Icon} n="more" size=${16} /></button></div>
                 <${Menu} open=${menuAt === nk} origin="top-right" onClose=${() => setMenuAt(null)} style=${{ top: '38px', right: '8px', minWidth: '170px' }}>
                   <div class="mlabel">Glue rank</div>
@@ -439,19 +457,22 @@ export function BuilderScreen({ id, specId }) {
         <${Ring} value=${prog} />
         <div style="min-width:0"><div class="label">${lastOk ? 'Attempt ' + lastOk.n + ' · average' : 'No score yet'}</div>
           <div class="num bigv">${html`<${PopNum} text=${lastOk ? pctS(avg(lastOk)) : '-'} />`}${lastOk && stubOf() && html`<${StubBadge} small />`}</div>
-          <div class="dim" style="font-size:12px">${lastOk ? 'across ' + Object.keys(lastOk.scores).length + ' benchmarks' : 'Press Score to run one eval'}${prevOk ? html`<br /><span class=${avg(lastOk) >= avg(prevOk) ? 'up' : 'down'}>${sgn(avg(lastOk) - avg(prevOk))}</span> vs attempt ${prevOk.n}` : ''}</div></div>
+          <div class="dim" style="font-size:12px"><${HealNote} show=${!!lastOk && !lastOk.comparison && (usesHeal(lastOk.program) || lastOk.action === 'heal' || lastOk.action === 'train')} />${lastOk ? 'across ' + Object.keys(lastOk.scores).length + ' benchmarks' : 'Press Score to run one eval'}${prevOk ? html`<br /><span class=${avg(lastOk) >= avg(prevOk) ? 'up' : 'down'}>${sgn(avg(lastOk) - avg(prevOk))}</span> vs attempt ${prevOk.n}` : ''}</div></div>
       </div>
 
       <div class="card benchcard">
         <div class="bhead"><span class="label">Benchmarks</span><${BenchLegend} guard /></div>
         ${benches.map((b) => html`<div class="brow"><span class="nm" title=${b.name}>${b.name}</span><${BenchBar} b=${b} value=${lastOk ? lastOk.scores[b.id] : null} /><span class="num" style="text-align:right"><${PopNum} text=${lastOk && lastOk.scores[b.id] != null ? pct(lastOk.scores[b.id]) : '-'} /></span></div>`)}
         ${!benches.length && html`<div class="faint" style="margin:10px 0">Open the builder from a spec to see its benchmarks.</div>`}
-        <div class="statgrid">
-          <div class="stat"><div class="l">SIZE</div><b><${PopNum} text=${bsize(lastOk && lastOk.params_b ? lastOk.params_b : estSize)} /></b></div>
-          <div class="stat"><div class="l">SPEED</div><b class="faint">n/a</b></div>
+        <div class="statgrid two">
+          <div class=${'stat' + (lo.total ? ' over' : '')}><div class="l">SIZE</div><b class=${lo.total ? 'over' : ''}><${PopNum} text=${bsize(totalB)} /></b>${lim && lim.max_total_params_b != null && html`<div class="sub">of ${bsize(lim.max_total_params_b)}</div>`}</div>
+          <div class="stat"><div class="l">RUN PER TOKEN</div><b class=${lo.run ? 'over' : ''}><${PopNum} text=${runB != null ? bsize(runB) : 'n/a'} /></b>${lim && lim.max_run_params_b != null && html`<div class="sub">of ${bsize(lim.max_run_params_b)}</div>`}</div>
+          <div class="stat"><div class="l">HEAL TIME (ESTIMATED)</div><b class=${lo.heal ? 'over' : ''}><${PopNum} text=${healMin != null ? healMin.toFixed(healMin >= 10 ? 0 : 1) + ' min' : 'n/a'} /></b>${lim && lim.max_heal_min != null && html`<div class="sub">of ${lim.max_heal_min} min</div>`}</div>
           <div class="stat"><div class="l">VS RANDOM</div><b class=${vsCtl == null ? 'faint' : vsCtl > 0.02 ? 'up' : ''}><${PopNum} text=${vsCtl == null ? 'n/a' : sgn(vsCtl)} /></b></div>
         </div>
       </div>
+
+      ${lastOk && lastOk.comparison && html`<div class="card cmpbox"><div class="label" style="margin-bottom:6px">Compared with</div><${Compare} c=${lastOk.comparison} heal=${usesHeal(lastOk.program) || lastOk.action === 'heal' || lastOk.action === 'train'} /></div>`}
 
       ${attempts.length > 0 && html`<div><div class="label" style="margin:2px 0 6px">Attempts this session</div>
         ${[...attempts].reverse().slice(0, 8).map((a) => html`<div class="attempt" title="Load this program" onClick=${() => { setProgram(clone(a.program)); setFits({}); }}><span class="n">${a.n}</span><span class="d">${briefProgram(a.program, cat)}</span><span class=${'num ' + (a.status && a.status !== 'ok' ? 'down' : '')}>${a.status && a.status !== 'ok' ? statusLabel(a.status) : t1 && a.scores ? pct(a.scores[t1.id]) : pctS(a.combined)}</span></div>`)}</div>`}
