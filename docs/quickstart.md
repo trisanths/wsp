@@ -41,7 +41,7 @@ Request: a math model that runs at most 1.6B parameters per token, from a
 host Qwen/Qwen2.5-1.5B-Instruct
 experts Qwen/Qwen2.5-Math-1.5B-Instruct top_k 1 balance on
 lora rank 8
-heal steps 1000 data gsm8k_train lr 1e-4 distill Qwen/Qwen2.5-Math-7B-Instruct kd_weight 1.0
+heal steps 1000 data math lr 1e-4 distill Qwen/Qwen2.5-Math-7B-Instruct kd_weight 1.0
 budget total 3b active 1.6b heal_minutes 60
 ```
 
@@ -67,7 +67,7 @@ Request: a 0.5B base that gains the skill of a much larger model, in at most
 host Qwen/Qwen2.5-0.5B-Instruct
 insert Qwen/Qwen2.5-14B-Instruct layers 14..34 at 7 stitch mlp part_lora_rank 8
 lora rank 16
-heal steps 1500 data mmlu_aux lr 1e-4 distill Qwen/Qwen2.5-14B-Instruct kd_weight 1.0
+heal steps 1500 data mix lr 1e-4 distill Qwen/Qwen2.5-14B-Instruct kd_weight 1.0
 budget total 7b active 6.6b heal_minutes 90
 ```
 
@@ -92,7 +92,7 @@ Request: one 1.5B-class model with math and code, no larger than 3.9B total.
 host Qwen/Qwen2.5-1.5B-Instruct
 experts Qwen/Qwen2.5-Math-1.5B-Instruct,Qwen/Qwen2.5-Coder-1.5B-Instruct top_k 2 balance on router_lr 0.001
 lora rank 16
-heal steps 1000 data gsm8k_train lr 1e-4
+heal steps 1000 data math lr 1e-4
 budget total 3.9b active 2.8b heal_minutes 60
 ```
 

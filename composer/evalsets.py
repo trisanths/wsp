@@ -1,14 +1,9 @@
-"""Practice and held-out sets, model scoring, and composer heal data. Runs on Modal.
+"""Held-out sets, model scoring, and the composer heal and probe text. Runs on Modal.
 
-Practice sets come from train (or validation) splits. Held-out sets are
-test splits. The two never share items:
-- gsm8k_practice is the fixed GSM8K search split (wsp.data); the
-  gsm8k_train heal data is the rest of GSM8K train.
-- math_practice, mbpp_practice, and medmcqa_practice are the first items
-  of a seeded order of their train split; the math_train, mbpp_train, and
-  medmcqa_train heal data use the items after them.
-- mmlu_practice and law_practice come from MMLU validation and dev; the
-  held-out MMLU sets come from MMLU test.
+Benchmarks (the held-out sets) score a model once, in the final report.
+Nothing that trains or fits reads them in any split: heal text and probe
+text come only from wsp.healdata pools, in ranges that never overlap
+(composer.skills.HEAL_START and PROBE_START).
 
 Multiple choice: argmax of the log-probs of " A" to " D" after
 "Answer:", the round 6 format. Generation: greedy decoding, fixed token
@@ -23,13 +18,10 @@ import sys
 import tempfile
 import time
 
+from composer import skills as skills_module
 from composer.skills import LAW_SUBJECTS, extract_code, gsm8k_correct, last_boxed, math_correct
 
 LETTERS = ["A", "B", "C", "D"]
-MATH_CONFIGS = ["algebra", "counting_and_probability", "geometry", "intermediate_algebra", "number_theory",
-                "prealgebra", "precalculus"]
-SIZES = {"gsm8k_practice": 100, "math_practice": 100, "mbpp_practice": 150, "medmcqa_practice": 200,
-         "mmlu_practice": 200, "law_practice": 200}
 MAX_NEW_TOKENS = {"gsm8k": 256, "math": 768, "humaneval": 512, "mbpp": 512}
 
 
@@ -99,25 +91,7 @@ def medmcqa_r10():
     return items
 
 
-def medmcqa_train_rows():
-    data = load("openlifescienceai/medmcqa", split="train")
-    rows = []
-    for index in seeded_order(len(data), 5):
-        rows.append(data[index])
-    return rows
-
-
 # Generation sets.
-
-def gsm8k_practice():
-    from wsp.data import gsm8k_splits
-
-    search, _ = gsm8k_splits(seed=0)
-    items = []
-    for row in search[:SIZES["gsm8k_practice"]]:
-        items.append({"question": row["question"], "answer": row["answer"]})
-    return items
-
 
 def gsm8k_test():
     data = load("openai/gsm8k", "main", split="test")
@@ -125,19 +99,6 @@ def gsm8k_test():
     for row in data:
         items.append({"question": row["question"], "answer": row["answer"]})
     return items
-
-
-def math_train_rows():
-    rows = []
-    for config in MATH_CONFIGS:
-        data = load("EleutherAI/hendrycks_math", config, split="train")
-        for row in data:
-            rows.append(row)
-    order = seeded_order(len(rows), 3)
-    out = []
-    for index in order:
-        out.append(rows[index])
-    return out
 
 
 def math_items(rows):
@@ -173,14 +134,6 @@ def mbpp_item(row):
             "code": row["code"]}
 
 
-def mbpp_train_order():
-    rows = mbpp_rows("train")
-    out = []
-    for index in seeded_order(len(rows), 9):
-        out.append(rows[index])
-    return out
-
-
 def humaneval():
     data = load("openai/openai_humaneval", split="test")
     items = []
@@ -191,19 +144,10 @@ def humaneval():
 
 def load_set(name):
     """Return (kind, items) for a set name in composer.skills.SET_NOTES."""
-    if name == "gsm8k_practice":
-        return "gsm8k", gsm8k_practice()
     if name == "gsm8k_test":
         return "gsm8k", gsm8k_test()
-    if name == "math_practice":
-        return "math", math_items(math_train_rows()[:SIZES["math_practice"]])
     if name == "math500":
         return "math", math500()
-    if name == "mbpp_practice":
-        items = []
-        for row in mbpp_train_order()[:SIZES["mbpp_practice"]]:
-            items.append(mbpp_item(row))
-        return "mbpp", items
     if name == "mbpp_test":
         items = []
         for row in mbpp_rows("test"):
@@ -211,25 +155,8 @@ def load_set(name):
         return "mbpp", items
     if name == "humaneval":
         return "humaneval", humaneval()
-    if name == "medmcqa_practice":
-        items = []
-        for row in medmcqa_train_rows()[:SIZES["medmcqa_practice"]]:
-            items.append(medmcqa_item(row))
-        return "mcq", items
     if name == "medmcqa_r10":
         return "mcq", medmcqa_r10()
-    if name == "mmlu_practice":
-        rows = mmlu_rows("validation")
-        picked = []
-        for index in seeded_order(len(rows), 11)[:SIZES["mmlu_practice"]]:
-            picked.append(rows[index])
-        return "mcq", mmlu_items(picked)
-    if name == "law_practice":
-        rows = mmlu_rows("validation", LAW_SUBJECTS) + mmlu_rows("dev", LAW_SUBJECTS)
-        picked = []
-        for index in seeded_order(len(rows), 13)[:SIZES["law_practice"]]:
-            picked.append(rows[index])
-        return "mcq", mmlu_items(picked)
     if name == "mmlu_dev":
         return "mcq", mmlu_dev()
     if name == "mmlu_law":
@@ -237,101 +164,71 @@ def load_set(name):
     raise ValueError(f"unknown set {name!r}")
 
 
-# Heal data for the composer (prompt, completion) pairs.
+# Heal and probe text, from wsp.healdata pools only.
 
-def math_train_pairs(tokenizer=None, seed=0, count=None, max_prompt_tokens=None):
-    pairs = []
-    for row in math_train_rows()[SIZES["math_practice"]:]:
-        pairs.append(("Problem: " + row["problem"].strip() + "\nSolution:", " " + row["solution"].strip()))
-        if count is not None and len(pairs) >= count:
-            break
-    return pairs
+POOL_CACHE = {}
 
 
-def mbpp_prompt(item):
-    return ("You are an expert Python programmer. Write a Python function for this task: " + item["text"].strip() +
-            "\nYour code should pass these tests:\n" + "\n".join(item["tests"]) +
-            "\nReply with the code in a ```python code block.")
+def pool_pairs(name):
+    """The (user, assistant) pairs of one pool for the heal and probe ranges, from one fetch.
+
+    One call fetches pairs up to the end of the probe range, so the heal slice and the probe slice
+    come from the same list and never overlap. Pool order is seeded, so every call agrees.
+    """
+    from wsp import healdata
+
+    healdata.check_sources(skills_module.heal_source_ids(name))
+    if name not in POOL_CACHE:
+        POOL_CACHE[name] = healdata.pairs(name, skills_module.PROBE_START + skills_module.PROBE_COUNT, seed=0)
+    return POOL_CACHE[name]
 
 
-def mbpp_train_pairs(tokenizer=None, seed=0, count=None, max_prompt_tokens=None):
-    rows = mbpp_train_order()[SIZES["mbpp_practice"]:] + mbpp_rows("validation") + mbpp_rows("prompt")
-    pairs = []
-    for row in rows:
-        item = mbpp_item(row)
-        pairs.append((mbpp_prompt(item) + "\n", "```python\n" + item["code"].strip() + "\n```"))
-        if count is not None and len(pairs) >= count:
-            break
-    return pairs
+def heal_pairs(name):
+    """The heal pairs of one pool."""
+    return pool_pairs(name)[skills_module.HEAL_START:skills_module.HEAL_START + skills_module.HEAL_COUNT]
 
 
-def medmcqa_train_pairs(tokenizer=None, seed=0, count=8000, max_prompt_tokens=None):
-    pairs = []
-    for row in medmcqa_train_rows()[SIZES["medmcqa_practice"]:]:
-        item = medmcqa_item(row)
-        if item["gold"] < 0 or item["gold"] > 3:
-            continue
-        pairs.append((item["prompt"], " " + LETTERS[item["gold"]]))
-        if count is not None and len(pairs) >= count:
-            break
-    return pairs
-
-
-def mix_pairs(tokenizer=None, seed=0, count=8000, max_prompt_tokens=None):
-    """An even mix of the math, code, medicine, and knowledge heal data."""
-    from wsp.pairs import pairs_for
-
-    each = 2000
+def probe_pairs(name, count=None):
+    """The probe pairs of one pool (never in the heal range)."""
+    pairs = pool_pairs(name)[skills_module.PROBE_START:skills_module.PROBE_START + skills_module.PROBE_COUNT]
     if count is not None:
-        each = max(1, count // 5)
-    # gsm8k_train uses seed 0: another seed moves the practice items into it.
-    groups = [
-        pairs_for("gsm8k_train", tokenizer, seed=0, count=each, max_prompt_tokens=None),
-        math_train_pairs(count=each),
-        mbpp_train_pairs(count=each),
-        medmcqa_train_pairs(count=each),
-        pairs_for("mmlu_aux", tokenizer, seed=seed, count=each),
-    ]
-    pairs = []
-    for group in groups:
-        pairs += list(group)
-    random.Random(seed).shuffle(pairs)
+        pairs = pairs[:count]
     return pairs
 
 
-def register_heal_data():
-    """Add the composer heal data names to wsp.pairs."""
-    from wsp.pairs import pair_names, register_pairs
+def render_pairs(pairs, tokenizer):
+    from wsp import healdata
 
-    names = pair_names()
-    if "math_train" not in names:
-        register_pairs("math_train", math_train_pairs)
-    if "mbpp_train" not in names:
-        register_pairs("mbpp_train", mbpp_train_pairs)
-    if "medmcqa_train" not in names:
-        register_pairs("medmcqa_train", medmcqa_train_pairs, count=8000)
-    if "composer_mix" not in names:
-        register_pairs("composer_mix", mix_pairs, count=8000)
+    texts = []
+    for user, assistant in pairs:
+        texts.append(healdata.render(tokenizer, user, assistant))
+    return texts
 
 
 def heal_texts_for(name, tokenizer, seed=0):
-    """Training texts for a heal data name: a wsp.pairs name or a wsp.data name.
+    """Training texts for a heal data name: a healdata pool, or an even mix of the four pools.
 
-    The data always comes from seed 0. The seed picks the GSM8K split
-    (wsp.data.gsm8k_splits), and gsm8k_practice is the seed 0 search split,
-    so any other seed would put practice items into the heal data. The
-    program seed still sets the heal's own batch order (wsp.heal).
+    Every source is checked with healdata.check_sources. The data always comes from seed 0 so the heal range
+    stays apart from the probe range; the program seed still sets the heal's batch order (wsp.heal).
     """
-    from wsp.pairs import pair_names, pairs_for
+    pools = skills_module.heal_pools_for(name)
+    skills_module.check_heal_sources(name)
+    texts = []
+    each = skills_module.HEAL_COUNT // len(pools)
+    for pool in pools:
+        texts += render_pairs(heal_pairs(pool)[:each], tokenizer)
+    if len(pools) > 1:
+        random.Random(0).shuffle(texts)
+    return texts
 
-    if name in pair_names():
-        texts = []
-        for prompt, completion in pairs_for(name, tokenizer, seed=0):
-            texts.append(prompt + completion)
-        return texts
-    from wsp.data import task_texts
 
-    return task_texts(name, seed=0)
+def probe_texts_for(skill, tokenizer, count=None):
+    """Held-out pool text for a skill's probe, rendered with the tokenizer's chat format."""
+    return render_pairs(probe_pairs(skills_module.SKILLS[skill]["pool"], count), tokenizer)
+
+
+def general_probe_texts(tokenizer, count=None):
+    return render_pairs(probe_pairs("general", count), tokenizer)
 
 
 # Scoring.

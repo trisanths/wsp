@@ -10,8 +10,8 @@ A program file has one statement per line, and # starts a comment:
     graft qmath_l18_contrast512 at 6 rank 64 control random seed 101
     graft qmath_block_8_19 at 5 rank 64 stitch mlp objective downstream steps 500
     tap Qwen/Qwen2.5-7B-Instruct layer 20 at 10
-    tap_train data mmlu_aux steps 500 batch_size 8 seq_len 256 branch_lr 3e-4 gate_lr 3e-2
-    heal steps 300 data gsm8k_train lr 3e-4
+    tap_train data general steps 500 batch_size 8 seq_len 256 branch_lr 3e-4 gate_lr 3e-2
+    heal steps 300 data general lr 3e-4
 
 Routed experts, inserted layers, gated grafts, a distillation heal, and a
 budget use the same syntax:
@@ -19,7 +19,7 @@ budget use the same syntax:
     experts Qwen/Qwen2.5-Math-1.5B-Instruct,Qwen/Qwen2.5-Coder-1.5B-Instruct top_k 2
     insert Qwen/Qwen2.5-7B-Instruct layers 8..20 at 7 stitch linear control random seed 1
     graft qmath_block_8_19 at 5 gate on gate_bias -1.0
-    heal steps 300 data gsm8k_train distill Qwen/Qwen2.5-7B-Instruct kd_weight 0.5
+    heal steps 300 data mix:math,code distill Qwen/Qwen2.5-7B-Instruct kd_weight 0.5
     budget total 2b active 1b heal_minutes 30
 
 A written program makes one plain model from source models:
@@ -27,7 +27,7 @@ A written program makes one plain model from source models:
     from Qwen/Qwen2.5-14B-Instruct
     carve target 7.6b select influence width mlp 0.75 heads 0.75
     lora rank 64
-    heal steps 1000 data mmlu_aux lr 1e-4
+    heal steps 1000 data mix lr 1e-4
 
     splice base q sources q=Qwen/Qwen2.5-7B-Instruct,m=Qwen/Qwen2.5-Math-7B-Instruct plan q:0..13, m:14..27
 
@@ -61,6 +61,8 @@ from wsp.program import (CARVE_SELECTS, SOURCE_KEY, STITCH_KINDS, BudgetSpec, Ca
 # data name. It may start with . or / so a local path such as
 # /models/tiny works as a host. It may not start with -, the mask operator.
 ID_PATTERN = re.compile(r"^[A-Za-z0-9_./][A-Za-z0-9_./\-]*$")
+# A data name is an id, or a mix such as mix:math,code (see wsp.data).
+DATA_PATTERN = re.compile(r"^[A-Za-z0-9_./][A-Za-z0-9_./:,\-]*$")
 INT_PATTERN = re.compile(r"^-?[0-9]+$")
 FLOAT_PATTERN = re.compile(r"^-?([0-9]+\.[0-9]*|\.[0-9]+|[0-9]+)([eE][-+]?[0-9]+)?$")
 
@@ -214,6 +216,18 @@ def tokenize(code, line):
 def read_id(token, line, what):
     if ID_PATTERN.match(token) is None:
         raise LangError(line, f"{what} must use only letters, digits, and _ - . /, got {token!r}")
+    return token
+
+
+def read_data(token, line, what):
+    if DATA_PATTERN.match(token) is None:
+        raise LangError(line, f"{what} must use only letters, digits, and _ - . / : ,, got {token!r}")
+    from wsp.data import pool_names_of
+
+    try:
+        pool_names_of(token)
+    except ValueError as error:
+        raise LangError(line, str(error))
     return token
 
 
@@ -591,7 +605,7 @@ def parse_heal(tokens, line):
     if "steps" in fields:
         options["steps"] = read_int(fields["steps"], line, "steps")
     if "data" in fields:
-        options["data"] = read_id(fields["data"], line, "data")
+        options["data"] = read_data(fields["data"], line, "data")
     if "lr" in fields:
         options["lr"] = read_number(fields["lr"], line, "lr")
     if "batch_size" in fields:
@@ -630,7 +644,7 @@ def parse_tap_train(tokens, line):
     fields, rest = read_options(tokens, line, "tap_train", TAP_TRAIN_OPTIONS)
     options = {}
     if "data" in fields:
-        options["data"] = read_id(fields["data"], line, "data")
+        options["data"] = read_data(fields["data"], line, "data")
     for name in ["steps", "batch_size", "seq_len"]:
         if name in fields:
             options[name] = read_int(fields[name], line, name)
@@ -689,7 +703,7 @@ def parse_carve(tokens, line):
                 raise LangError(line, f"select is one of {', '.join(CARVE_SELECTS)}, got {value!r}")
             options["select"] = value
         elif name == "domain":
-            options["domain"] = read_id(value, line, "domain")
+            options["domain"] = read_data(value, line, "domain")
         else:
             options["weight"] = read_number(value, line, "weight")
         i += 2
@@ -921,6 +935,12 @@ def program_from_dict(data):
 def id_text(value, what):
     if not isinstance(value, str) or ID_PATTERN.match(value) is None:
         raise ValueError(f"{what} {value!r} cannot be written as text: use only letters, digits, and _ - . /")
+    return value
+
+
+def data_text(value, what):
+    if not isinstance(value, str) or DATA_PATTERN.match(value) is None:
+        raise ValueError(f"{what} {value!r} cannot be written as text: use only letters, digits, and _ - . / : ,")
     return value
 
 
@@ -1182,7 +1202,7 @@ def heal_text(data):
     check_keys(data, HEAL_KEYS, "heal")
     words = ["heal"]
     words.append("steps " + int_text(data["steps"], "steps"))
-    words.append("data " + id_text(data["data"], "data"))
+    words.append("data " + data_text(data["data"], "data"))
     words.append("lr " + number_text(data["lr"], "lr"))
     words.append("batch_size " + int_text(data["batch_size"], "batch_size"))
     words.append("seq_len " + int_text(data["seq_len"], "seq_len"))
@@ -1209,7 +1229,7 @@ def tap_text(data):
 def tap_train_text(data):
     check_keys(data, TAP_TRAIN_KEYS, "tap_train")
     words = ["tap_train"]
-    words.append("data " + id_text(data["data"], "data"))
+    words.append("data " + data_text(data["data"], "data"))
     words.append("steps " + int_text(data["steps"], "steps"))
     words.append("batch_size " + int_text(data["batch_size"], "batch_size"))
     words.append("seq_len " + int_text(data["seq_len"], "seq_len"))
@@ -1227,7 +1247,7 @@ def carve_text(data):
         words.append("target " + number_text(data["target_params_b"], "target_params_b") + "b")
     words.append("select " + id_text(data["select"], "select"))
     if data.get("domain_data") is not None:
-        words.append("domain " + id_text(data["domain_data"], "domain_data"))
+        words.append("domain " + data_text(data["domain_data"], "domain_data"))
     if "domain_weight" in data:
         words.append("weight " + number_text(data["domain_weight"], "domain_weight"))
     if data.get("width") is not None:
@@ -1308,11 +1328,18 @@ def format_program(program):
 # Command line
 
 
-def compile_file(program, out_dir, catalog_path, align, device):
-    """Compile a parsed program. Return the compile report."""
-    from wsp.catalog import Catalog
-    from wsp.compiler import compile_program
+def compile_file(program, out_dir, catalog_path, align, device, allow_benchmark_data=False):
+    """Compile a parsed program. Return the compile report.
 
+    The align texts (the W_in fit of grafts) and the heal texts come from
+    the heal data name, "general" when the program has no heal. For a pool
+    name they are disjoint ranges of one fetch. A benchmark data name needs
+    allow_benchmark_data=True.
+    """
+    from wsp.catalog import Catalog
+    from wsp.compiler import check_data_names, compile_program
+
+    check_data_names(program, allow_benchmark_data)
     catalog = None
     if catalog_path is not None:
         catalog = Catalog.load(catalog_path)
@@ -1321,27 +1348,39 @@ def compile_file(program, out_dir, catalog_path, align, device):
     align_texts = None
     heal_texts = None
     if len(program.grafts) > 0 and align > 0:
-        from wsp.data import task_texts
+        from wsp.data import DEFAULT_DATA, HEAL_TEXT_COUNT, is_pool_data, pool_split, task_texts
 
-        name = "gsm8k_train"
-        # With taps, heal data names a pairs set (such as mmlu_aux) that
-        # wsp.data does not know, so the align texts stay gsm8k_train.
-        if program.heal_spec is not None and len(program.taps) == 0:
+        name = DEFAULT_DATA
+        if program.heal_spec is not None:
             name = program.heal_spec.data
+        # With taps, heal data may name a pairs set (such as trivia_train)
+        # that wsp.data does not know, so the align texts come from the default pool.
+        if len(program.taps) > 0 and not is_pool_data(name):
+            name = DEFAULT_DATA
         from wsp.pairs import pair_names
 
-        if name != "gsm8k_train" and name in pair_names():
-            from wsp.compiler import pair_texts, pairs_by_name
-
+        tokenizer = None
+        if is_pool_data(name) or (name != "gsm8k_train" and name in pair_names()):
             import transformers
 
             tokenizer = transformers.AutoTokenizer.from_pretrained(program.host)
-            texts = pair_texts(pairs_by_name(name, tokenizer, seed=program.seed))
+        if is_pool_data(name):
+            heal_count = 0
+            if program.heal_spec is not None:
+                heal_count = HEAL_TEXT_COUNT
+            align_texts, texts = pool_split(name, align, heal_count, tokenizer, program.seed)
+            if program.heal_spec is not None:
+                heal_texts = texts
         else:
-            texts = task_texts(name, seed=program.seed)
-        align_texts = texts[:align]
-        if program.heal_spec is not None:
-            heal_texts = texts
+            if name != "gsm8k_train" and name in pair_names():
+                from wsp.compiler import pair_texts, pairs_by_name
+
+                texts = pair_texts(pairs_by_name(name, tokenizer, seed=program.seed))
+            else:
+                texts = task_texts(name, seed=program.seed)
+            align_texts = texts[:align]
+            if program.heal_spec is not None:
+                heal_texts = texts
     # Write the text form before the compile, so a program from JSON that
     # text cannot hold gets a warning now and not a crash after the work.
     text = None
@@ -1349,7 +1388,10 @@ def compile_file(program, out_dir, catalog_path, align, device):
         text = format_program(program)
     except ValueError as error:
         print(f"warning: no program.wsp, since the program cannot be written as text: {error}", file=sys.stderr)
-    compile_program(program, catalog, out_dir, align_texts=align_texts, heal_texts=heal_texts, device=device)
+    extra = {}
+    if allow_benchmark_data:
+        extra["allow_benchmark_data"] = True
+    compile_program(program, catalog, out_dir, align_texts=align_texts, heal_texts=heal_texts, device=device, **extra)
     wsp_path = os.path.join(out_dir, "program.wsp")
     if text is not None:
         # Keep the text form next to program.json.
@@ -1376,6 +1418,8 @@ def main(argv=None):
     build.add_argument("--align", type=int, default=200,
                        help="number of heal texts for the W_in fit when the program has grafts (0 skips the fit)")
     build.add_argument("--device", default=None, help="cpu or cuda (default: cuda if present)")
+    build.add_argument("--allow-benchmark-data", action="store_true",
+                       help="let old research programs use a benchmark train set (gsm8k_train, mmlu_aux)")
     args = parser.parse_args(argv)
 
     try:
@@ -1401,7 +1445,7 @@ def main(argv=None):
     if args.catalog is None and program.needs_catalog():
         print(f"{args.path}: this program needs --catalog", file=sys.stderr)
         return 1
-    report = compile_file(program, args.out_dir, args.catalog, args.align, args.device)
+    report = compile_file(program, args.out_dir, args.catalog, args.align, args.device, args.allow_benchmark_data)
     print(json.dumps(report, indent=2))
     return 0
 

@@ -1,0 +1,500 @@
+{
+ "name": "organ_function",
+ "description": "Retrieve anatomical organs from their physiological functions; matched controls copy an explicit organ label.",
+ "hash": "ca912984206d720a",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\ndata={'heart':['pumps blood through the body','has four chambers and circulates blood','contracts rhythmically to drive circulation'],'brain':['controls thought and memory','is the central organ of the nervous system','processes sensory information inside the skull'],'liver':['produces bile','detoxifies blood and stores glycogen','is the large bile-producing organ in the upper right abdomen'],'kidney':['filters blood to produce urine','contains nephrons','regulates electrolyte balance by filtering blood'],'lung':['exchanges oxygen and carbon dioxide with the air','contains alveoli','is the primary organ of respiration'],'stomach':['mixes food with gastric acid','secretes gastric juice','begins protein digestion using pepsin'],'pancreas':['produces insulin and glucagon','regulates blood glucose by secreting insulin','contains the islets of Langerhans'],'spleen':['filters blood and removes old red blood cells','is a lymphatic organ that recycles old erythrocytes','is the largest lymphoid organ']}\nitems=[];control=[]\nfor organ,clues in data.items():\n for clue in clues:\n  for template in ['Which organ {clue}? Answer with the organ name only:','Anatomy: identify the organ that {clue}. Organ:']:\n   items.append({'prompt':template.format(clue=clue),'answer':' '+organ})\n   label=random.choice(list(data));control.append({'prompt':f'Anatomy: an organ {clue}. Label: {label}. Copy the label only. Organ:','answer':' '+label})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Anatomy: identify the organ that pumps blood through the body. Organ:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: identify the organ that secretes gastric juice. Organ:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Which organ produces insulin and glucagon? Answer with the organ name only:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Which organ pumps blood through the body? Answer with the organ name only:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Which organ contains nephrons? Answer with the organ name only:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: identify the organ that regulates electrolyte balance by filtering blood. Organ:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Which organ detoxifies blood and stores glycogen? Answer with the organ name only:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Which organ produces bile? Answer with the organ name only:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: identify the organ that controls thought and memory. Organ:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Which organ is the primary organ of respiration? Answer with the organ name only:",
+    "continuation": " lung",
+    "digits_only": false
+   },
+   {
+    "context": "Which organ is a lymphatic organ that recycles old erythrocytes? Answer with the organ name only:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: identify the organ that is the largest lymphoid organ. Organ:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Which organ is the largest lymphoid organ? Answer with the organ name only:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: identify the organ that contracts rhythmically to drive circulation. Organ:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Which organ filters blood and removes old red blood cells? Answer with the organ name only:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: identify the organ that processes sensory information inside the skull. Organ:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: identify the organ that contains nephrons. Organ:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: identify the organ that contains alveoli. Organ:",
+    "continuation": " lung",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: identify the organ that detoxifies blood and stores glycogen. Organ:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Which organ processes sensory information inside the skull? Answer with the organ name only:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: identify the organ that is a lymphatic organ that recycles old erythrocytes. Organ:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: identify the organ that has four chambers and circulates blood. Organ:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: identify the organ that is the central organ of the nervous system. Organ:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Which organ contracts rhythmically to drive circulation? Answer with the organ name only:",
+    "continuation": " heart",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Anatomy: identify the organ that regulates blood glucose by secreting insulin. Organ:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: identify the organ that is the primary organ of respiration. Organ:",
+    "continuation": " lung",
+    "digits_only": false
+   },
+   {
+    "context": "Which organ regulates blood glucose by secreting insulin? Answer with the organ name only:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: identify the organ that is the large bile-producing organ in the upper right abdomen. Organ:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: identify the organ that begins protein digestion using pepsin. Organ:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: identify the organ that contains the islets of Langerhans. Organ:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Which organ contains the islets of Langerhans? Answer with the organ name only:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Which organ controls thought and memory? Answer with the organ name only:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Which organ begins protein digestion using pepsin? Answer with the organ name only:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Which organ filters blood to produce urine? Answer with the organ name only:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Which organ is the central organ of the nervous system? Answer with the organ name only:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: identify the organ that filters blood and removes old red blood cells. Organ:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: identify the organ that produces bile. Organ:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: identify the organ that produces insulin and glucagon. Organ:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Which organ regulates electrolyte balance by filtering blood? Answer with the organ name only:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Which organ mixes food with gastric acid? Answer with the organ name only:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: identify the organ that filters blood to produce urine. Organ:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: identify the organ that exchanges oxygen and carbon dioxide with the air. Organ:",
+    "continuation": " lung",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: identify the organ that mixes food with gastric acid. Organ:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Which organ secretes gastric juice? Answer with the organ name only:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Which organ is the large bile-producing organ in the upper right abdomen? Answer with the organ name only:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Which organ has four chambers and circulates blood? Answer with the organ name only:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Which organ contains alveoli? Answer with the organ name only:",
+    "continuation": " lung",
+    "digits_only": false
+   },
+   {
+    "context": "Which organ exchanges oxygen and carbon dioxide with the air? Answer with the organ name only:",
+    "continuation": " lung",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Anatomy: an organ is a lymphatic organ that recycles old erythrocytes. Label: brain. Copy the label only. Organ:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ detoxifies blood and stores glycogen. Label: liver. Copy the label only. Organ:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ is a lymphatic organ that recycles old erythrocytes. Label: brain. Copy the label only. Organ:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ is the central organ of the nervous system. Label: kidney. Copy the label only. Organ:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ contracts rhythmically to drive circulation. Label: pancreas. Copy the label only. Organ:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ begins protein digestion using pepsin. Label: stomach. Copy the label only. Organ:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ has four chambers and circulates blood. Label: heart. Copy the label only. Organ:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ detoxifies blood and stores glycogen. Label: lung. Copy the label only. Organ:",
+    "continuation": " lung",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ filters blood to produce urine. Label: stomach. Copy the label only. Organ:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ begins protein digestion using pepsin. Label: spleen. Copy the label only. Organ:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ secretes gastric juice. Label: heart. Copy the label only. Organ:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ is the largest lymphoid organ. Label: stomach. Copy the label only. Organ:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ contains the islets of Langerhans. Label: kidney. Copy the label only. Organ:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ contains alveoli. Label: spleen. Copy the label only. Organ:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ processes sensory information inside the skull. Label: lung. Copy the label only. Organ:",
+    "continuation": " lung",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ regulates blood glucose by secreting insulin. Label: brain. Copy the label only. Organ:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ produces insulin and glucagon. Label: stomach. Copy the label only. Organ:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ produces bile. Label: liver. Copy the label only. Organ:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ contains nephrons. Label: brain. Copy the label only. Organ:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ is the large bile-producing organ in the upper right abdomen. Label: brain. Copy the label only. Organ:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ contains nephrons. Label: spleen. Copy the label only. Organ:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ regulates electrolyte balance by filtering blood. Label: stomach. Copy the label only. Organ:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ is the primary organ of respiration. Label: heart. Copy the label only. Organ:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ secretes gastric juice. Label: pancreas. Copy the label only. Organ:",
+    "continuation": " pancreas",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Anatomy: an organ processes sensory information inside the skull. Label: liver. Copy the label only. Organ:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ has four chambers and circulates blood. Label: lung. Copy the label only. Organ:",
+    "continuation": " lung",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ filters blood to produce urine. Label: brain. Copy the label only. Organ:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ filters blood and removes old red blood cells. Label: spleen. Copy the label only. Organ:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ exchanges oxygen and carbon dioxide with the air. Label: kidney. Copy the label only. Organ:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ regulates electrolyte balance by filtering blood. Label: pancreas. Copy the label only. Organ:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ is the largest lymphoid organ. Label: spleen. Copy the label only. Organ:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ contains the islets of Langerhans. Label: kidney. Copy the label only. Organ:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ pumps blood through the body. Label: pancreas. Copy the label only. Organ:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ contains alveoli. Label: spleen. Copy the label only. Organ:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ regulates blood glucose by secreting insulin. Label: kidney. Copy the label only. Organ:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ pumps blood through the body. Label: pancreas. Copy the label only. Organ:",
+    "continuation": " pancreas",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ filters blood and removes old red blood cells. Label: liver. Copy the label only. Organ:",
+    "continuation": " liver",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ controls thought and memory. Label: lung. Copy the label only. Organ:",
+    "continuation": " lung",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ produces bile. Label: brain. Copy the label only. Organ:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ exchanges oxygen and carbon dioxide with the air. Label: stomach. Copy the label only. Organ:",
+    "continuation": " stomach",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ mixes food with gastric acid. Label: heart. Copy the label only. Organ:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ is the primary organ of respiration. Label: lung. Copy the label only. Organ:",
+    "continuation": " lung",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ mixes food with gastric acid. Label: brain. Copy the label only. Organ:",
+    "continuation": " brain",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ controls thought and memory. Label: spleen. Copy the label only. Organ:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ is the large bile-producing organ in the upper right abdomen. Label: lung. Copy the label only. Organ:",
+    "continuation": " lung",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ contracts rhythmically to drive circulation. Label: spleen. Copy the label only. Organ:",
+    "continuation": " spleen",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ produces insulin and glucagon. Label: kidney. Copy the label only. Organ:",
+    "continuation": " kidney",
+    "digits_only": false
+   },
+   {
+    "context": "Anatomy: an organ is the central organ of the nervous system. Label: stomach. Copy the label only. Organ:",
+    "continuation": " stomach",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 4.2886
+}

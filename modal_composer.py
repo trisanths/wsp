@@ -1,4 +1,4 @@
-"""The Modal side of the composer: compile and practice, the LoRA comparison, and held-out scoring.
+"""The Modal side of the composer: compile and probe, the arms, the probe of every model, and benchmarks.
 
 The composer loop (composer/agent.py) runs on the local machine and only
 calls the OpenAI API and these functions. Compiles and scoring run here,
@@ -10,19 +10,29 @@ Launch one request:
 
 That runs the loop to finish, compiles the comparison arms (base + LoRA,
 base + distillation from each source with the host's tokenizer, and the
-program with random components), scores the final program, the base, each
-source model, the arms, and the best existing model at the size limit
-(when the limit is far above the base) on the held-out sets in parallel,
-and writes results/composer_<request>.json with a verdict for each arm.
-The loop's archive is in composer/runs/<request>/<timestamp>/.
+program with random components), probes the final program, the base, the
+arms, and the sources on held-out pool text, scores each of them on the
+benchmarks ONCE, and writes results/composer_<request>.json with probe
+numbers, benchmark numbers, and a verdict for each arm. The loop's archive
+is in composer/runs/<request>/<timestamp>/.
+
+Rules (owner, 2026-11-14): nothing that trains or fits reads a benchmark.
+Heal text and probe text come from wsp.healdata pools in disjoint ranges
+(composer/evalsets.py), and every heal source goes through
+healdata.check_sources. This file calls no load_dataset: benchmark loading
+is in composer/evalsets.py and runs only in score_heldout. The loop never
+sees a benchmark number.
 
 Functions:
 - compile_and_practice(program_dict, payload): compile with wsp (stitches
   and a heal are the only training) into /vol/composer/<request>/<hash>,
-  then score the practice sets (train splits only). The request's limits
-  are in the program's budget, so the compile checks them too.
+  then run the probe (wsp/probe.py): transfer per skill against that
+  skill's donor, and drift on general text. A donor with another tokenizer
+  is probed on its own generated answers, cached on the volume per donor
+  and skill. The request's limits are in the program's budget.
 - compile_arm(arm_program, payload): compile one comparison arm.
-- score_heldout(model_ref, payload): the held-out sets, fixed settings.
+- probe_model(model_ref, payload): the same probe for one finished model.
+- score_heldout(model_ref, payload): the benchmark sets, fixed settings.
 """
 
 import json
@@ -49,6 +59,7 @@ image = (
 
 PARTS_ROOT = "/root/parts_root"
 OUT_ROOT = "/vol/composer"
+DONOR_ROOT = OUT_ROOT + "/donor_samples"
 
 
 def short_error(error):
@@ -83,10 +94,9 @@ def compile_program_dict(program_dict, catalog_records, out_dir):
     """Compile one program with wsp. Return the compile report."""
     import transformers
 
-    from composer.evalsets import heal_texts_for, register_heal_data
+    from composer.evalsets import heal_texts_for
     from wsp import Catalog, Program
 
-    register_heal_data()
     program = Program.from_dict(program_dict)
     catalog = Catalog(catalog_records, root=PARTS_ROOT)
     texts = None
@@ -98,7 +108,7 @@ def compile_program_dict(program_dict, catalog_records, out_dir):
         align = texts[:200]
     options = {}
     if program.carve_spec is not None and program.carve_spec.domain_data is not None:
-        # Seed 0 data, as for heal (see heal_texts_for); the compiler would use the program seed.
+        # Pool text in the heal range, as for heal (see heal_texts_for).
         tokenizer = transformers.AutoTokenizer.from_pretrained(program.host)
         options["domain_texts"] = heal_texts_for(program.carve_spec.domain_data, tokenizer)
     program.compile(out_dir, catalog, align_texts=align, heal_texts=texts, device="cuda",
@@ -107,15 +117,125 @@ def compile_program_dict(program_dict, catalog_records, out_dir):
         return json.load(f)
 
 
+def load_model_ref(model_ref):
+    """Load a finished model from a /vol path or a Hugging Face id. Return (model, tokenizer)."""
+    import torch
+    import transformers
+
+    from wsp import load
+
+    if model_ref.startswith("/vol/"):
+        volume.reload()
+        return load(model_ref, device="cuda")
+    kwargs = {"dtype": torch.bfloat16}
+    if "gemma" in model_ref.lower():
+        kwargs["attn_implementation"] = "eager"
+    model = transformers.AutoModelForCausalLM.from_pretrained(model_ref, **kwargs).to("cuda").eval()
+    return model, transformers.AutoTokenizer.from_pretrained(model_ref)
+
+
+def donor_cache_path(donor, skill):
+    return f"{DONOR_ROOT}/{donor.replace('/', '__')}/{skill}.json"
+
+
+def donor_answers(donor, skill, donor_model=None, donor_tokenizer=None):
+    """The donor's own greedy answers to a skill's probe prompts, cached per donor and skill on the volume.
+
+    Returns (prompts, answers) for the whole probe range, so a smaller probe_items takes a prefix.
+    """
+    from composer import evalsets
+    from composer.skills import SKILLS
+    from wsp import probe
+
+    path = donor_cache_path(donor, skill)
+    if os.path.exists(path):
+        with open(path) as f:
+            cached = json.load(f)
+        return cached["prompts"], cached["answers"]
+    pairs = evalsets.probe_pairs(SKILLS[skill]["pool"])
+    prompts = []
+    for user, assistant in pairs:
+        prompts.append(user)
+    if donor_model is None:
+        donor_model, donor_tokenizer = load_model_ref(donor)
+    answers = probe.donor_samples(donor_model, donor_tokenizer, prompts)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as f:
+        json.dump({"donor": donor, "skill": skill, "prompts": prompts, "answers": answers}, f)
+    volume.commit()
+    return prompts, answers
+
+
+def skill_probe_row(written, base, tokenizer, skill, entries, count, donors):
+    """Probe one skill against each of its donors and keep the donor with the highest transfer."""
+    from composer import evalsets
+    from wsp import probe
+
+    texts = evalsets.probe_texts_for(skill, tokenizer, count)
+    rows = []
+    for entry in entries:
+        donor = entry["donor"]
+        if entry["path"] == "kl":
+            if donor not in donors:
+                donors[donor] = load_model_ref(donor)
+            row = probe.transfer(written, base, donors[donor][0], tokenizer, texts)
+        else:
+            prompts, answers = donor_answers(donor, skill)
+            pairs = list(zip(prompts, answers))[:count]
+            # Transfer on donor text is the share of the base's loss on the donor's answers that the model removes.
+            # It is not on the same scale as the KL transfer.
+            row = probe.transfer_by_text(written, base, tokenizer, evalsets.render_pairs(pairs, tokenizer))
+        row["donor"] = donor
+        row["path"] = entry["path"]
+        rows.append(row)
+    if len(rows) == 0:
+        return {"transfer": None, "donors": [], "note": "no component of the program serves this skill, so transfer is 0"}
+    best = rows[0]
+    for row in rows:
+        if row["transfer"] is not None and (best["transfer"] is None or row["transfer"] > best["transfer"]):
+            best = row
+    best = dict(best)
+    best["donors"] = [row["donor"] for row in rows]
+    if best["transfer"] is None:
+        best["note"] = "the donor is no better than the base on this text, so there is no gap and transfer is 0"
+    return best
+
+
+def probe_report(written, tokenizer, payload):
+    """The benchmark-free probe of a model: transfer per skill against its donor, and drift on general text.
+
+    payload: host, skills, probe_plan {skill: [{donor, path}]}, probe_items. Text comes only from
+    wsp.healdata pools in the probe range, which the heal never reads.
+    """
+    import torch
+
+    from composer import evalsets
+    from wsp import probe
+
+    base, base_tokenizer = load_model_ref(payload["host"])
+    count = payload.get("probe_items")
+    report = {"skills": {}, "verdict": {},
+              "drift": probe.drift(written, base, tokenizer, evalsets.general_probe_texts(tokenizer, count))}
+    donors = {}
+    for skill in payload["skills"]:
+        row = skill_probe_row(written, base, tokenizer, skill, payload["probe_plan"].get(skill) or [], count, donors)
+        report["skills"][skill] = row
+        report["verdict"][skill] = probe.verdict(row)
+    del donors
+    del base
+    torch.cuda.empty_cache()
+    return report
+
+
 @app.function(image=image, volumes={"/vol": volume}, gpu="H200", memory=262144, timeout=4 * 3600)
 def compile_and_practice(program_dict, payload):
     import torch
 
     from composer import sizes
-    from composer.evalsets import count_params, decode_tok_s, score_set
+    from composer.evalsets import count_params, decode_tok_s
     from wsp import Program, load
 
-    out = {"ok": False, "errors": [], "practice_sets": {}, "practice_counts": {}}
+    out = {"ok": False, "errors": []}
     out_dir = f"{OUT_ROOT}/{payload['request']}/{payload['program_hash']}"
     out["model_dir"] = out_dir
     start = time.time()
@@ -163,15 +283,12 @@ def compile_and_practice(program_dict, payload):
     except Exception as error:
         out["errors"].append("decode speed failed: " + short_error(error))
 
-    for name in payload["practice_sets"]:
-        try:
-            value, count, seconds = score_set(model, tokenizer, name, payload.get("practice_items"))
-            out["practice_sets"][name] = round(value, 4)
-            out["practice_counts"][name] = count
-        except Exception as error:
-            out["errors"].append(f"practice set {name} failed: " + short_error(error))
+    try:
+        out["probe"] = probe_report(model, tokenizer, payload)
+    except Exception as error:
+        out["errors"].append("probe failed: " + short_error(error))
     out["practice_seconds"] = round(time.time() - step, 1)
-    out["ok"] = len(out["practice_sets"]) > 0
+    out["ok"] = out.get("probe") is not None
     with open(os.path.join(out_dir, "practice.json"), "w") as f:
         json.dump(out, f, indent=2)
     volume.commit()
@@ -195,27 +312,22 @@ def compile_arm(arm_program, payload):
             "params_total_b": round((report.get("params_total") or 0) / 1e9, 4)}
 
 
+@app.function(image=image, volumes={"/vol": volume}, gpu="H200", memory=262144, timeout=2 * 3600)
+def probe_model(model_ref, payload):
+    """The probe of one finished model (a /vol path or a Hugging Face id with the host's tokenizer)."""
+    model, tokenizer = load_model_ref(model_ref)
+    return probe_report(model, tokenizer, payload)
+
+
 @app.function(image=image, volumes={"/vol": volume}, gpu="H200", memory=262144, timeout=6 * 3600)
 def score_heldout(model_ref, payload):
     """Score one model on the request's held-out sets. model_ref is a /vol path or a Hugging Face id."""
-    import torch
-    import transformers
-
     from composer.evalsets import count_params, decode_tok_s, score_set
     from composer.skills import skill_scores
-    from wsp import load
 
     start = time.time()
     out = {"sets": {}, "errors": []}
-    if model_ref.startswith("/vol/"):
-        volume.reload()
-        model, tokenizer = load(model_ref, device="cuda")
-    else:
-        kwargs = {"dtype": torch.bfloat16}
-        if "gemma" in model_ref.lower():
-            kwargs["attn_implementation"] = "eager"
-        model = transformers.AutoModelForCausalLM.from_pretrained(model_ref, **kwargs).to("cuda").eval()
-        tokenizer = transformers.AutoTokenizer.from_pretrained(model_ref)
+    model, tokenizer = load_model_ref(model_ref)
     out["params_total_b"] = round(count_params(model), 4)
     try:
         out["decode_tok_s"] = decode_tok_s(model, tokenizer)
@@ -250,6 +362,9 @@ def main(request: str, skip_heldout: bool = False):
     def score_many(calls):
         return list(score_heldout.starmap(calls, return_exceptions=True))
 
+    def probe_many(calls):
+        return list(probe_model.starmap(calls, return_exceptions=True))
+
     spec = load_request(request)
     summary = run_request(request, practice_fn)
     final = summary["final"] or {}
@@ -261,13 +376,17 @@ def main(request: str, skip_heldout: bool = False):
     else:
         # A failed arm compile or score must not lose the held-out scores of the other models:
         # run_comparison keeps each error in its row.
-        out = run_comparison(spec, summary, sources, compile_many, score_many)
+        out = run_comparison(spec, summary, sources, compile_many, score_many, probe_many)
     os.makedirs("results", exist_ok=True)
     path = f"results/composer_{spec['name']}.json"
     with open(path, "w") as f:
         json.dump(out, f, indent=2)
     print(f"wrote {path}")
     if out.get("final") and out["final"].get("skills"):
-        print("final held-out skills:", json.dumps(out["final"]["skills"]))
+        print("final benchmark skills:", json.dumps(out["final"]["skills"]))
+    if out.get("final") and out["final"].get("probe_summary"):
+        print("final probe:", json.dumps(out["final"]["probe_summary"]))
+    if out.get("summary"):
+        print(out["summary"])
     for item in out.get("verdicts", []):
         print(item["text"])

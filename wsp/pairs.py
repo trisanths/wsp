@@ -3,6 +3,11 @@
 A tap trains on prompt and completion pairs. The donor reads only the
 prompt, and the loss covers only the completion (see wsp.tap.tap_train).
 
+These three names are old research data. gsm8k_train and mmlu_aux are
+benchmark train sets, so the compile refuses them unless
+allow_benchmark_data is set. The approved data names are the healdata
+pools (see wsp.data).
+
 Names:
 - gsm8k_train   the GSM8K heal items from wsp.data.gsm8k_splits. Prompt
                 "Question: ...\\nAnswer:", completion " " + the full answer.
@@ -27,6 +32,9 @@ LETTERS = ["A", "B", "C", "D"]
 # name -> function(tokenizer, seed, count, max_prompt_tokens) -> pairs
 REGISTRY = {}
 
+# name -> dataset id the pairs come from. wsp.data.check_data_name refuses a name whose id is a reported benchmark.
+PAIR_SOURCES = {}
+
 # The defaults that match the round 6 and round 7 runs.
 DEFAULTS = {
     "gsm8k_train": {"count": None, "max_prompt_tokens": None},
@@ -35,9 +43,16 @@ DEFAULTS = {
 }
 
 
-def register_pairs(name, function, count=None, max_prompt_tokens=None):
-    """Add a pairs source. function(tokenizer, seed, count, max_prompt_tokens) returns a list of pairs."""
+def register_pairs(name, function, count=None, max_prompt_tokens=None, source=None):
+    """Add a pairs source. function(tokenizer, seed, count, max_prompt_tokens) returns a list of pairs.
+
+    source is the dataset id the pairs come from. A source that is a
+    reported benchmark (wsp.healdata.BANNED) makes the compile refuse the
+    name unless allow_benchmark_data is set.
+    """
     REGISTRY[name] = function
+    if source is not None:
+        PAIR_SOURCES[name] = source
     DEFAULTS[name] = {"count": count, "max_prompt_tokens": max_prompt_tokens}
 
 
@@ -136,6 +151,6 @@ def trivia_pairs(tokenizer, seed, count, max_prompt_tokens):
     return pairs
 
 
-register_pairs("gsm8k_train", gsm8k_pairs)
-register_pairs("mmlu_aux", mmlu_aux_pairs, count=8000, max_prompt_tokens=240)
-register_pairs("trivia_train", trivia_pairs, count=8000)
+register_pairs("gsm8k_train", gsm8k_pairs, source="openai/gsm8k")
+register_pairs("mmlu_aux", mmlu_aux_pairs, count=8000, max_prompt_tokens=240, source="cais/mmlu")
+register_pairs("trivia_train", trivia_pairs, count=8000, source="mandarjoshi/trivia_qa")

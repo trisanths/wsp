@@ -15,7 +15,7 @@ import os
 
 from composer.archive import Archive
 from composer.llm import OpenAIClient, read_key
-from composer.skills import SET_NOTES, SKILLS, practice_sets
+from composer.skills import DEFAULT_DRIFT_TOLERANCE, SKILLS
 from composer.sources import Sources
 from composer.tools import Toolbox, read_language_text, tool_specs
 
@@ -67,6 +67,10 @@ def check_request_options(path, request):
     base = request.get("base")
     if base is not None and (not isinstance(base, str) or base == ""):
         raise ValueError(f"{path}: base is a model id or null, got {base!r}")
+    tolerance = request.get("drift_tolerance")
+    if tolerance is not None and (isinstance(tolerance, bool) or not isinstance(tolerance, (int, float))
+                                  or tolerance < 0):
+        raise ValueError(f"{path}: drift_tolerance is a number of 0 or more (nats) or null, got {tolerance!r}")
     for name in ["practice_items", "heldout_items"]:
         value = request.get(name)
         if value is not None and (isinstance(value, bool) or not isinstance(value, int) or value < 1):
@@ -75,9 +79,9 @@ def check_request_options(path, request):
     if not isinstance(report, dict):
         raise ValueError(f"{path}: report is an object")
     for name in report:
-        if name not in ("control_seeds", "far_factor", "noise_floor"):
+        if name not in ("control_seeds", "far_factor", "noise_floor", "probe_noise_floor"):
             raise ValueError(f"{path}: unknown report option {name!r}; the options are control_seeds, "
-                             f"far_factor, noise_floor")
+                             f"far_factor, noise_floor, probe_noise_floor")
 
 
 def system_prompt(request, max_turns, max_tokens):
@@ -85,10 +89,11 @@ def system_prompt(request, max_turns, max_tokens):
     skills = request["skills"]
     skill_lines = []
     for skill in skills:
-        sets = []
-        for name in practice_sets([skill]):
-            sets.append(SET_NOTES[name])
-        skill_lines.append(f"- {skill} (weight {skills[skill]}): practice on " + "; ".join(sets))
+        skill_lines.append(f"- {skill} (weight {skills[skill]}): probed on held-out text of the "
+                           f"{SKILLS[skill]['pool']} pool")
+    tolerance = request.get("drift_tolerance")
+    if tolerance is None:
+        tolerance = DEFAULT_DRIFT_TOLERANCE
 
     def cap(name):
         value = constraints.get(name)
@@ -106,7 +111,7 @@ def system_prompt(request, max_turns, max_tokens):
         ("Base: the program's host must be " + request["base"] + "." if request.get("base") else
          "Base: you choose the host."),
         "Objective: " + request.get("objective", "weighted mean of skill scores") +
-        ". The score is the weighted mean of the skill scores below.",
+        ". You are scored on the probe objective below while you work; benchmarks score only the final model.",
         "",
         "Skills:",
     ]
@@ -130,7 +135,10 @@ def system_prompt(request, max_turns, max_tokens):
         "  `control random` on every component (random components of the same size); and, when the size limit is",
         "  far above the base, the best existing model of that size. All arms get the same heal data and budget.",
         "  A program that does not beat its own random control by more than seed noise has not shown that its",
-        "  components matter, so prefer components whose practice score drops under `control random`.",
+        "  components matter, so prefer components whose transfer drops under `control random`.",
+        "- No benchmark data trains or selects anything. Benchmarks are chosen per user request, so you never",
+        "  practice on them and no tool shows a benchmark score. The heal data names are approved pool text.",
+        "  Write `data NAME` on every heal: the language default, gsm8k_train, is a benchmark and is rejected.",
         "",
         "Budgets:",
         f"- Compile budget: {constraints.get('compile_budget', 10)} compiles. A parse error, a constraint",
@@ -139,12 +147,19 @@ def system_prompt(request, max_turns, max_tokens):
         "  submits your best practiced program.",
         "- A compile takes minutes to an hour on one H200, so think before you compile.",
         "",
-        "Held-out tests are unseen. They run once, after finish, on test splits with fixed settings.",
-        "Practice scores come from small train-split sets (100 to 200 items per skill), so expect noise",
-        "of a few points between programs.",
+        "Benchmarks are unseen. They score the final program and its rivals once, after finish.",
+        "Practice feedback is the benchmark-free probe on held-out pool text, never on heal text:",
+        "- transfer, per skill: the share of the base-to-donor gap in next-token KL that your model closes on the",
+        "  skill's held-out text (0 is the base, 1 is the donor). The donor of a skill is the source model of the",
+        "  components you used for it. A skill with no such component has transfer 0. A donor with another",
+        "  tokenizer than the host is probed on text that donor generated.",
+        f"- drift: KL from the frozen base on general text. The request's tolerance is {tolerance} nats.",
+        "- objective: mean transfer over the skills minus 10 points per nat of drift above the tolerance.",
+        "A skill with a donor that is no better than the base on the text has no gap, so its transfer is 0.",
+        "Transfer on 128 held-out texts has noise, so do not chase differences under about 0.03.",
         "",
-        "How to work: read atlas() for models, sizes, and scores, and catalog() for mined parts. Pick a",
-        "host and components, write a program, call compile_and_practice, read the scores and errors,",
+        "How to work: read atlas() for models, sizes, and structure, and catalog() for mined parts. Pick a",
+        "host and components, write a program, call compile_and_practice, read the probe and errors,",
         "and revise. When you are done, call finish with the program text and a short rationale.",
         "",
         SHORT_LANGUAGE,

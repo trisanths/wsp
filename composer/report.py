@@ -1,13 +1,18 @@
 """Build the results file for a finished composer run.
 
-results/composer_<request>.json holds the held-out scores of the final
-program, its size, the budget it used, and the same held-out scores for
-the comparison set (see composer/arms.py): the base, the base with a
-LoRA, the base with a distillation heal from each source with the host's
-tokenizer, the program with random components, the best existing model
-at the size limit when it is far above the base, and each source model.
-It also holds a verdict for each arm: whether the program beat it by more
-than noise.
+results/composer_<request>.json holds, for the final program and for each
+comparison arm (composer/arms.py: the base, the base with a LoRA, the base
+with a distillation heal from each source with the host's tokenizer, the
+program with random components, the best existing model at the size limit
+when it is far above the base, and each source model), two kinds of
+numbers:
+
+- probe numbers (wsp/probe.py on held-out pool text): transfer per skill,
+  drift, and the probe objective. These are the benchmark-free signal.
+- benchmark numbers: the held-out sets, scored once at the end.
+
+It also holds a verdict per arm for each kind, and a plain summary of which
+arms the program beat by more than noise.
 """
 
 import time
@@ -15,7 +20,7 @@ import time
 from composer import arms
 from composer.arms import (default_heal_data, lora_heal_spec, lora_program, lora_spec_for,  # noqa: F401
                            source_models)
-from composer.skills import SET_NOTES, SKILLS, heldout_sets, objective
+from composer.skills import DEFAULT_DRIFT_TOLERANCE, SET_NOTES, SKILLS, heldout_sets, objective, probe_summary
 from wsp.program import Program
 
 
@@ -81,6 +86,10 @@ def build_results(request, summary, scored, lora_info=None, records=None, plan=N
     final = summary["final"] or {}
     weights = request["skills"]
     plan = plan or {}
+    probes = plan.get("probes") or {}
+    tolerance = request.get("drift_tolerance")
+    if tolerance is None:
+        tolerance = DEFAULT_DRIFT_TOLERANCE
     out = {
         "request": request["name"],
         "description": request.get("description"),
@@ -102,6 +111,8 @@ def build_results(request, summary, scored, lora_info=None, records=None, plan=N
         "practice": final.get("practice"),
         "heldout_sets": {},
         "heldout_items": request.get("heldout_items"),
+        "drift_tolerance": tolerance,
+        "benchmarks_scored": plan.get("benchmark_models"),
         "final": None,
         "comparisons": {"base": None, "sources": [], "lora_on_base": None, "distill_on_base": [],
                         "random_control": [], "best_existing": None},
@@ -136,6 +147,13 @@ def build_results(request, summary, scored, lora_info=None, records=None, plan=N
             row = {"error": str(result)[:2000]}
         # A comparison over the size cap (a carve's source, a big donor) is not a rival under the request.
         row["fits_constraints"] = fits(row, request.get("constraints"))
+        probe = probes.get(model_ref)
+        if isinstance(probe, dict) and isinstance(probe.get("skills"), dict):
+            row["probe"] = probe
+            row["probe_summary"] = probe_summary(probe, weights, tolerance)
+            row["probe_objective"] = row["probe_summary"]["objective"]
+        elif probe is not None:
+            row["probe_error"] = str(probe)[:2000]
         row["role"] = role
         row["model"] = model_ref
         for key in info or {}:
@@ -151,7 +169,69 @@ def build_results(request, summary, scored, lora_info=None, records=None, plan=N
         else:
             out["comparisons"][role] = row
     out["verdicts"] = verdicts(out, weights, request)
+    out["content_gain"] = content_gain(out)
+    out["summary"] = summary_text(out)
     return out
+
+
+def arm_rows(out):
+    """Every compared row of a results dict as (arm name, [rows])."""
+    comparisons = out["comparisons"]
+    named = []
+    for name, key in [("base", "base"), ("base + LoRA", "lora_on_base"), ("best existing model", "best_existing")]:
+        if comparisons.get(key) is not None:
+            named.append((name, [comparisons[key]]))
+    for row in comparisons["distill_on_base"]:
+        named.append((row.get("label") or "base + distill", [row]))
+    if len(comparisons["random_control"]) > 0:
+        named.append(("random components of the same size", comparisons["random_control"]))
+    return named
+
+
+def content_gain(out):
+    """Per skill, the final transfer minus the mean transfer of the random-components arms. None when missing."""
+    final = out.get("final") or {}
+    final_skills = ((final.get("probe") or {}).get("skills")) or {}
+    controls = []
+    for row in out["comparisons"]["random_control"]:
+        if isinstance(row.get("probe"), dict):
+            controls.append(row["probe"]["skills"])
+    gains = {}
+    for skill in out["skills"]:
+        real = (final_skills.get(skill) or {}).get("transfer")
+        values = []
+        for table in controls:
+            value = (table.get(skill) or {}).get("transfer")
+            if value is not None:
+                values.append(value)
+        if real is None or len(values) == 0:
+            gains[skill] = None
+        else:
+            gains[skill] = real - sum(values) / len(values)
+    return gains
+
+
+def summary_text(out):
+    """One plain paragraph: which arms the program beat by more than noise, on each kind of number."""
+    beat = {"benchmark": [], "probe": []}
+    not_beat = {"benchmark": [], "probe": []}
+    for item in out["verdicts"]:
+        basis = item.get("basis", "benchmark")
+        if item["verdict"] == "beat":
+            beat[basis].append(item["arm"])
+        elif item["verdict"] in ("tied", "lost"):
+            not_beat[basis].append(item["arm"])
+    lines = []
+    for basis in ["benchmark", "probe"]:
+        if len(beat[basis]) == 0:
+            beaten = "no arm"
+        else:
+            beaten = ", ".join(beat[basis])
+        line = f"On the {basis} numbers the program beat {beaten} by more than noise."
+        if len(not_beat[basis]) > 0:
+            line += " It did not beat " + ", ".join(not_beat[basis]) + "."
+        lines.append(line)
+    return " ".join(lines)
 
 
 def verdicts(out, weights, request):
@@ -160,16 +240,14 @@ def verdicts(out, weights, request):
     comparisons = out["comparisons"]
     floor = (request.get("report") or {}).get("noise_floor", arms.DEFAULT_NOISE_FLOOR)
     items = []
-    for name, key in [("base", "base"), ("base + LoRA", "lora_on_base"), ("best existing model", "best_existing")]:
-        row = comparisons.get(key)
-        if row is None:
-            continue
-        items.append(arms.judge(name, final, [row], weights, floor))
-    for row in comparisons["distill_on_base"]:
-        items.append(arms.judge(row.get("label") or "base + distill", final, [row], weights, floor))
-    if len(comparisons["random_control"]) > 0:
-        items.append(arms.judge("random components of the same size", final, comparisons["random_control"], weights,
-                                floor))
+    probe_floor = (request.get("report") or {}).get("probe_noise_floor", arms.DEFAULT_PROBE_NOISE_FLOOR)
+    for name, rows in arm_rows(out):
+        item = arms.judge(name, final, rows, weights, floor)
+        item["basis"] = "benchmark"
+        items.append(item)
+    for name, rows in arm_rows(out):
+        if any(row.get("probe_objective") is not None for row in rows):
+            items.append(arms.judge_probe(name, final, rows, probe_floor))
     for item in out.get("skipped_arms") or []:
         items.append({"arm": item["arm"], "verdict": "skipped", "text": f"{item['arm']}: skipped. {item['reason']}"})
     return items

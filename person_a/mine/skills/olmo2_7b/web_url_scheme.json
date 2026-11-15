@@ -1,0 +1,980 @@
+{
+ "name": "web_url_scheme",
+ "description": "Choose HTTP versus HTTPS scheme from whether a web connection uses TLS; distinguish scheme from hostname copying.",
+ "hash": "b5b0742b64f81b34",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nitems=[];control=[]\nhosts=['example.org','news.net','shop.com','docs.org','portal.net','school.edu','library.org','weather.com']\nfor i in range(96):\n host=random.choice(hosts); secure=bool(i%2)\n desc=random.choice(['uses TLS encryption','is encrypted with TLS','requires a secure HTTPS connection']) if secure else random.choice(['uses plain HTTP without TLS','is unencrypted HTTP','uses HTTP with no encryption'])\n p=f'A web server at {host} {desc}. '\n items.append({'prompt':p+'Write only the URL scheme before ://. Scheme:', 'answer':' '+('https' if secure else 'http')})\n control.append({'prompt':p+'Write only the hostname. Hostname:', 'answer':' '+host})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "A web server at school.edu requires a secure HTTPS connection. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net uses HTTP with no encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net requires a secure HTTPS connection. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at shop.com uses TLS encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at library.org uses HTTP with no encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net is encrypted with TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at example.org is encrypted with TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at shop.com uses plain HTTP without TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at weather.com requires a secure HTTPS connection. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at school.edu uses plain HTTP without TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at weather.com is unencrypted HTTP. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net requires a secure HTTPS connection. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at school.edu uses HTTP with no encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net is encrypted with TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net is unencrypted HTTP. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at weather.com is unencrypted HTTP. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at docs.org uses TLS encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net is unencrypted HTTP. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net uses plain HTTP without TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net is unencrypted HTTP. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at library.org requires a secure HTTPS connection. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at shop.com is unencrypted HTTP. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net uses plain HTTP without TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net uses HTTP with no encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at library.org uses TLS encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net uses HTTP with no encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at docs.org uses HTTP with no encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at weather.com uses TLS encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at example.org uses HTTP with no encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at library.org is encrypted with TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net uses plain HTTP without TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net requires a secure HTTPS connection. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at shop.com uses TLS encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net requires a secure HTTPS connection. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at library.org uses TLS encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net is unencrypted HTTP. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at docs.org uses HTTP with no encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at example.org requires a secure HTTPS connection. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at example.org uses plain HTTP without TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at library.org is unencrypted HTTP. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at weather.com uses TLS encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net is unencrypted HTTP. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at school.edu uses HTTP with no encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at example.org uses HTTP with no encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at docs.org requires a secure HTTPS connection. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at weather.com is encrypted with TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net requires a secure HTTPS connection. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net is encrypted with TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "A web server at docs.org is encrypted with TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net uses TLS encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at example.org uses HTTP with no encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at weather.com uses HTTP with no encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at shop.com requires a secure HTTPS connection. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at docs.org uses TLS encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at library.org uses HTTP with no encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net uses HTTP with no encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at weather.com requires a secure HTTPS connection. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at library.org is unencrypted HTTP. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at docs.org requires a secure HTTPS connection. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net is encrypted with TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at shop.com is unencrypted HTTP. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at school.edu requires a secure HTTPS connection. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net is encrypted with TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at shop.com uses plain HTTP without TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net uses plain HTTP without TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at docs.org uses TLS encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at shop.com uses HTTP with no encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at shop.com uses plain HTTP without TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at docs.org uses TLS encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at shop.com uses HTTP with no encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at weather.com requires a secure HTTPS connection. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net uses plain HTTP without TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net uses plain HTTP without TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at shop.com is encrypted with TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at library.org uses TLS encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at shop.com uses TLS encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at example.org uses plain HTTP without TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at example.org uses plain HTTP without TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net uses HTTP with no encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at school.edu is unencrypted HTTP. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net uses HTTP with no encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net uses HTTP with no encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net uses TLS encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at docs.org uses HTTP with no encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at weather.com uses TLS encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at library.org uses HTTP with no encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at library.org requires a secure HTTPS connection. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at docs.org uses TLS encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at docs.org is unencrypted HTTP. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at school.edu uses TLS encryption. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net uses plain HTTP without TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " http",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net is encrypted with TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at school.edu requires a secure HTTPS connection. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at docs.org requires a secure HTTPS connection. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net is encrypted with TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net is encrypted with TLS. Write only the URL scheme before ://. Scheme:",
+    "continuation": " https",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "A web server at docs.org uses TLS encryption. Write only the hostname. Hostname:",
+    "continuation": " docs.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net uses HTTP with no encryption. Write only the hostname. Hostname:",
+    "continuation": " portal.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net uses HTTP with no encryption. Write only the hostname. Hostname:",
+    "continuation": " news.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at school.edu uses TLS encryption. Write only the hostname. Hostname:",
+    "continuation": " school.edu",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at school.edu uses HTTP with no encryption. Write only the hostname. Hostname:",
+    "continuation": " school.edu",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at school.edu requires a secure HTTPS connection. Write only the hostname. Hostname:",
+    "continuation": " school.edu",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at weather.com is unencrypted HTTP. Write only the hostname. Hostname:",
+    "continuation": " weather.com",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at shop.com is encrypted with TLS. Write only the hostname. Hostname:",
+    "continuation": " shop.com",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net is unencrypted HTTP. Write only the hostname. Hostname:",
+    "continuation": " portal.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at school.edu uses HTTP with no encryption. Write only the hostname. Hostname:",
+    "continuation": " school.edu",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net uses plain HTTP without TLS. Write only the hostname. Hostname:",
+    "continuation": " portal.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at library.org requires a secure HTTPS connection. Write only the hostname. Hostname:",
+    "continuation": " library.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at weather.com requires a secure HTTPS connection. Write only the hostname. Hostname:",
+    "continuation": " weather.com",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at docs.org uses TLS encryption. Write only the hostname. Hostname:",
+    "continuation": " docs.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net uses plain HTTP without TLS. Write only the hostname. Hostname:",
+    "continuation": " news.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at docs.org uses HTTP with no encryption. Write only the hostname. Hostname:",
+    "continuation": " docs.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net is encrypted with TLS. Write only the hostname. Hostname:",
+    "continuation": " news.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at docs.org requires a secure HTTPS connection. Write only the hostname. Hostname:",
+    "continuation": " docs.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at example.org uses HTTP with no encryption. Write only the hostname. Hostname:",
+    "continuation": " example.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net requires a secure HTTPS connection. Write only the hostname. Hostname:",
+    "continuation": " portal.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at example.org uses plain HTTP without TLS. Write only the hostname. Hostname:",
+    "continuation": " example.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at docs.org requires a secure HTTPS connection. Write only the hostname. Hostname:",
+    "continuation": " docs.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net is encrypted with TLS. Write only the hostname. Hostname:",
+    "continuation": " news.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at library.org uses HTTP with no encryption. Write only the hostname. Hostname:",
+    "continuation": " library.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net uses HTTP with no encryption. Write only the hostname. Hostname:",
+    "continuation": " news.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at school.edu requires a secure HTTPS connection. Write only the hostname. Hostname:",
+    "continuation": " school.edu",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net uses HTTP with no encryption. Write only the hostname. Hostname:",
+    "continuation": " portal.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at weather.com requires a secure HTTPS connection. Write only the hostname. Hostname:",
+    "continuation": " weather.com",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at weather.com uses TLS encryption. Write only the hostname. Hostname:",
+    "continuation": " weather.com",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at docs.org is unencrypted HTTP. Write only the hostname. Hostname:",
+    "continuation": " docs.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net uses plain HTTP without TLS. Write only the hostname. Hostname:",
+    "continuation": " news.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at docs.org uses TLS encryption. Write only the hostname. Hostname:",
+    "continuation": " docs.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at library.org is encrypted with TLS. Write only the hostname. Hostname:",
+    "continuation": " library.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at library.org uses TLS encryption. Write only the hostname. Hostname:",
+    "continuation": " library.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net uses plain HTTP without TLS. Write only the hostname. Hostname:",
+    "continuation": " news.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at library.org requires a secure HTTPS connection. Write only the hostname. Hostname:",
+    "continuation": " library.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net is unencrypted HTTP. Write only the hostname. Hostname:",
+    "continuation": " portal.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at shop.com uses TLS encryption. Write only the hostname. Hostname:",
+    "continuation": " shop.com",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net is unencrypted HTTP. Write only the hostname. Hostname:",
+    "continuation": " news.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at shop.com uses plain HTTP without TLS. Write only the hostname. Hostname:",
+    "continuation": " shop.com",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at weather.com is encrypted with TLS. Write only the hostname. Hostname:",
+    "continuation": " weather.com",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at shop.com uses TLS encryption. Write only the hostname. Hostname:",
+    "continuation": " shop.com",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at weather.com uses HTTP with no encryption. Write only the hostname. Hostname:",
+    "continuation": " weather.com",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at example.org requires a secure HTTPS connection. Write only the hostname. Hostname:",
+    "continuation": " example.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net requires a secure HTTPS connection. Write only the hostname. Hostname:",
+    "continuation": " news.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at shop.com is unencrypted HTTP. Write only the hostname. Hostname:",
+    "continuation": " shop.com",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net is encrypted with TLS. Write only the hostname. Hostname:",
+    "continuation": " portal.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at shop.com is unencrypted HTTP. Write only the hostname. Hostname:",
+    "continuation": " shop.com",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "A web server at weather.com requires a secure HTTPS connection. Write only the hostname. Hostname:",
+    "continuation": " weather.com",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at example.org uses plain HTTP without TLS. Write only the hostname. Hostname:",
+    "continuation": " example.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at example.org uses plain HTTP without TLS. Write only the hostname. Hostname:",
+    "continuation": " example.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net is encrypted with TLS. Write only the hostname. Hostname:",
+    "continuation": " news.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at docs.org uses TLS encryption. Write only the hostname. Hostname:",
+    "continuation": " docs.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at example.org uses HTTP with no encryption. Write only the hostname. Hostname:",
+    "continuation": " example.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at shop.com uses TLS encryption. Write only the hostname. Hostname:",
+    "continuation": " shop.com",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at library.org uses TLS encryption. Write only the hostname. Hostname:",
+    "continuation": " library.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at docs.org uses HTTP with no encryption. Write only the hostname. Hostname:",
+    "continuation": " docs.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at library.org is unencrypted HTTP. Write only the hostname. Hostname:",
+    "continuation": " library.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net is encrypted with TLS. Write only the hostname. Hostname:",
+    "continuation": " portal.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net requires a secure HTTPS connection. Write only the hostname. Hostname:",
+    "continuation": " portal.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at shop.com uses plain HTTP without TLS. Write only the hostname. Hostname:",
+    "continuation": " shop.com",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net uses plain HTTP without TLS. Write only the hostname. Hostname:",
+    "continuation": " portal.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net uses TLS encryption. Write only the hostname. Hostname:",
+    "continuation": " news.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net is unencrypted HTTP. Write only the hostname. Hostname:",
+    "continuation": " news.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net is unencrypted HTTP. Write only the hostname. Hostname:",
+    "continuation": " news.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at school.edu uses plain HTTP without TLS. Write only the hostname. Hostname:",
+    "continuation": " school.edu",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at weather.com uses TLS encryption. Write only the hostname. Hostname:",
+    "continuation": " weather.com",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at shop.com uses HTTP with no encryption. Write only the hostname. Hostname:",
+    "continuation": " shop.com",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at example.org is encrypted with TLS. Write only the hostname. Hostname:",
+    "continuation": " example.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at shop.com requires a secure HTTPS connection. Write only the hostname. Hostname:",
+    "continuation": " shop.com",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at library.org uses HTTP with no encryption. Write only the hostname. Hostname:",
+    "continuation": " library.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at weather.com is unencrypted HTTP. Write only the hostname. Hostname:",
+    "continuation": " weather.com",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net uses HTTP with no encryption. Write only the hostname. Hostname:",
+    "continuation": " news.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at shop.com uses plain HTTP without TLS. Write only the hostname. Hostname:",
+    "continuation": " shop.com",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net is encrypted with TLS. Write only the hostname. Hostname:",
+    "continuation": " news.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at weather.com uses TLS encryption. Write only the hostname. Hostname:",
+    "continuation": " weather.com",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at docs.org uses HTTP with no encryption. Write only the hostname. Hostname:",
+    "continuation": " docs.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at school.edu requires a secure HTTPS connection. Write only the hostname. Hostname:",
+    "continuation": " school.edu",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at library.org is unencrypted HTTP. Write only the hostname. Hostname:",
+    "continuation": " library.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net requires a secure HTTPS connection. Write only the hostname. Hostname:",
+    "continuation": " news.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at docs.org uses TLS encryption. Write only the hostname. Hostname:",
+    "continuation": " docs.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net is encrypted with TLS. Write only the hostname. Hostname:",
+    "continuation": " portal.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net is encrypted with TLS. Write only the hostname. Hostname:",
+    "continuation": " portal.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net uses plain HTTP without TLS. Write only the hostname. Hostname:",
+    "continuation": " news.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at school.edu is unencrypted HTTP. Write only the hostname. Hostname:",
+    "continuation": " school.edu",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at shop.com uses HTTP with no encryption. Write only the hostname. Hostname:",
+    "continuation": " shop.com",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at library.org uses HTTP with no encryption. Write only the hostname. Hostname:",
+    "continuation": " library.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at library.org uses TLS encryption. Write only the hostname. Hostname:",
+    "continuation": " library.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net uses plain HTTP without TLS. Write only the hostname. Hostname:",
+    "continuation": " news.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at docs.org is encrypted with TLS. Write only the hostname. Hostname:",
+    "continuation": " docs.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net requires a secure HTTPS connection. Write only the hostname. Hostname:",
+    "continuation": " news.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at docs.org requires a secure HTTPS connection. Write only the hostname. Hostname:",
+    "continuation": " docs.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at news.net uses HTTP with no encryption. Write only the hostname. Hostname:",
+    "continuation": " news.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net uses HTTP with no encryption. Write only the hostname. Hostname:",
+    "continuation": " portal.net",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at example.org uses HTTP with no encryption. Write only the hostname. Hostname:",
+    "continuation": " example.org",
+    "digits_only": false
+   },
+   {
+    "context": "A web server at portal.net uses TLS encryption. Write only the hostname. Hostname:",
+    "continuation": " portal.net",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 1.9102
+}

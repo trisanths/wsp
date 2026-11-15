@@ -2,13 +2,16 @@
 
 These are the only tools the LLM gets. None of them reads or writes raw
 weight values: atlas and catalog return facts about models and mined
-parts (sizes, scores, layer ranges, signatures), and sanitize() removes
-any long numeric list. compile_and_practice sends a program to Modal,
-which compiles it with wsp (stitches and a heal are the only training)
-and scores it on small practice sets drawn from train splits. The
-request's limits (total params, params run per token, heal minutes) are
-checked on an estimate before the compile and on the measured numbers
-after it. A program with taps is rejected: a tap is not Sapien.
+parts (sizes, layers, families, structure), and sanitize() removes any
+long numeric list. compile_and_practice sends a program to Modal, which
+compiles it with wsp (stitches and a heal are the only training, on
+wsp.healdata pools) and returns the benchmark-free probe of wsp/probe.py
+on held-out pool text: transfer per skill against that skill's donor, and
+drift on general text. No tool shows a score measured on a reported
+benchmark (rule of 2026-11-14), and the benchmarks score the final model
+once, in the final report. The request's limits are checked on an estimate
+before the compile and on the measured numbers after it. A program with taps
+is rejected: a tap is not Sapien.
 """
 
 import hashlib
@@ -16,27 +19,23 @@ import json
 import os
 
 from composer import sizes
-from composer.skills import (BUILTIN_HEAL_DATA, COMPOSER_HEAL_DATA, LAW_SUBJECTS, SET_NOTES, SKILLS,
-                             objective, practice_sets, skill_scores)
+from composer import probes
+from composer.skills import (DEFAULT_DRIFT_TOLERANCE, HEAL_DATA, PROBE_COUNT, SET_NOTES, SKILLS, check_heal_sources,
+                             probe_summary)
 from composer.sources import sanitize
 from wsp.program import Program
 
-# Earlier scores measured on test items that overlap this run's held-out
-# sets: round 6 MMLU dev ("mmlu" is its alias), the round 7 MMLU held-out
-# items (MMLU test, so its law subjects are in mmlu_law), and the round 10
-# MedMCQA items. The composer must not see them, so atlas() leaves them out.
-HIDDEN_SCORES = ["mmlu_dev", "mmlu", "mmlu_heldout", "medmcqa"]
-HIDDEN_SUBJECT_SPLITS = ["mmlu_dev", "mmlu", "mmlu_heldout", "medmcqa"]
-# A score whose note says it used test items is hidden too.
-TEST_NOTE_WORDS = [" test ", " test,", " test)", "held-out", "heldout"]
-
-# wsp.atlas screens these skills on the held-out sets of this run (MMLU
-# test round 6 dev, MedMCQA round 10, MMLU law test, GSM8K test and
-# MATH-500, MBPP test), so their atlas skill scores are hidden.
-ATLAS_HIDDEN_SKILLS = ["knowledge", "medicine", "law", "math", "code"]
-# wsp.atlas builds the math layer and expert maps from MATH-500 test
-# problems and solutions, so those maps are hidden too.
-ATLAS_HIDDEN_MAPS = ["math"]
+# Rule 2 (owner, 2026-11-14): the composer must not see a score whose source is a reported benchmark.
+# A score shows only when its name starts with a probe or pool-text prefix and its note names no benchmark.
+ALLOWED_SCORE_PREFIXES = ["probe_", "pool_", "kl_", "nll_", "ppl_"]
+# Words that name a reported benchmark, from healdata.BANNED and the benchmarks of composer/skills.py.
+BENCHMARK_WORDS = ["gsm8k", "math", "mbpp", "humaneval", "medmcqa", "medqa", "mmlu", "arc", "bbh", "bigbench",
+                   "mgsm", "legalbench", "casehold", "fast-decisions", "benchmark", "test", "held-out", "heldout"]
+# Atlas entry keys built from benchmark screens: skill scores and the layer and expert maps drawn from them.
+ATLAS_HIDDEN_KEYS = ["skills", "skill_details", "layer_maps", "layer_map", "expert_maps"]
+# Signature keys of a catalog part that are structure facts, not scores.
+STRUCTURE_SIGNATURE_KEYS = ["num_deleted", "deleted_per_layer", "top_overlaps", "overlap_with", "num_units",
+                            "layers", "d_model", "heads", "num_heads", "num_experts", "params"]
 
 CATALOG_KEYS = ["id", "type", "model", "base", "family", "layer", "layers", "num_units", "d_model", "label",
                 "trained_on", "source"]
@@ -55,8 +54,9 @@ def tool_specs():
             "type": "function",
             "name": "atlas",
             "description": ("Rows from the atlas of open models: sizes (params_b, active_params_b, layers, "
-                            "hidden), tokenizer family, measured skill scores, and, when the atlas has them, "
-                            "layer maps (suggested skill blocks) and expert maps. Filter by skill "
+                            "hidden), tokenizer family, and other structure facts. Scores measured on a "
+                            "reported benchmark are never shown; a score shows only when it is a probe or "
+                            "pool-text measure. Filter by skill "
                             "(math, code, medicine, knowledge, law) and/or by a model id substring."),
             "parameters": {
                 "type": "object",
@@ -96,9 +96,11 @@ def tool_specs():
             "type": "function",
             "name": "compile_and_practice",
             "description": ("Parse a Sapien program, check it against the request's limits, compile it on "
-                            "Modal (stitches and a heal are the only training), and score it on practice "
-                            "sets from train splits. The request's limits become the program's budget. "
-                            "Returns per-skill practice scores, practice_objective (the practiced skills), "
+                            "Modal (stitches and a heal are the only training, on approved pool text), and "
+                            "run the benchmark-free probe on held-out pool text. The request's limits become "
+                            "the program's budget. Returns per skill the transfer against that skill's donor "
+                            "(0 is the base, 1 is the donor), the drift on general text, practice_objective "
+                            "(mean transfer over the practiced skills minus a drift penalty), "
                             "request_objective (all request skills, an unpracticed skill as 0; the loop ranks "
                             "programs by it), params, decode tok/s, compile seconds, and errors. A compile costs one unit of the compile budget; a parse error or a "
                             "constraint rejection costs nothing, and an identical program returns its cached "
@@ -108,7 +110,7 @@ def tool_specs():
                 "properties": {
                     "program_text": {"type": "string", "description": "the program in wsp text syntax"},
                     "practice_tasks": {"type": ["array", "null"], "items": {"type": "string"},
-                                       "description": "skills to practice on; null means all request skills"},
+                                       "description": "skills to probe; null means all request skills"},
                 },
                 "required": ["program_text"],
                 "additionalProperties": False,
@@ -118,7 +120,7 @@ def tool_specs():
             "type": "function",
             "name": "finish",
             "description": ("Submit the final program. It must be a program you compiled and practiced within "
-                            "the constraints. Held-out tests run after this, once."),
+                            "the constraints. Benchmarks score it after this, once."),
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -152,8 +154,13 @@ def composer_notes():
         "  atlas.",
         "- `heal ... distill TEACHER` needs a teacher with the host's tokenizer family. The teacher must be in the",
         "  atlas. A host with only a LoRA and a distillation heal is a baseline and is rejected.",
-        "- Heal and carve data names: " + ", ".join(BUILTIN_HEAL_DATA + COMPOSER_HEAL_DATA) + ".",
-        "  composer_mix is an even mix of gsm8k_train, math_train, mbpp_train, medmcqa_train, and mmlu_aux.",
+        "- Heal and carve data names: " + ", ".join(HEAL_DATA) + ". Each is approved pool text (wsp.healdata);",
+        "  composer_mix is an even mix of math, code, medicine, and general. No benchmark data trains anything.",
+        "- compile_and_practice returns the probe, not a benchmark accuracy. Transfer is the share of the gap",
+        "  between the base and the skill's donor that your model closes on held-out pool text (0 is the base,",
+        "  1 is the donor). The donor of a skill is the source model of the components you used for it; a skill",
+        "  with no component has transfer 0. Drift is the KL from the frozen base on general text. The objective",
+        "  is the mean transfer minus a penalty when drift passes the request's drift_tolerance.",
         "- heal and each stitch have their own step count, and each must be at or under the cap.",
         "- A host with only a LoRA and heal is the fine-tuning baseline, so it is rejected. A LoRA beside",
         "  composed parts is fine.",
@@ -161,6 +168,7 @@ def composer_notes():
         "  distillation heal from each source with the host's tokenizer, your program with `control random` on",
         "  every component, and, when the size limit is far above the base, the best existing model of that size.",
         "  All arms get the same heal data and budget. Components that beat their random control carry the skill.",
+        "  The benchmarks score the final program and these arms once, after finish.",
     ]
     return "\n".join(lines)
 
@@ -199,46 +207,61 @@ def is_float(value):
     return isinstance(value, (int, float)) and not isinstance(value, bool)
 
 
-def score_is_hidden(name, note=None):
-    """True for a score measured on items that overlap this run's held-out sets."""
-    if name in HIDDEN_SCORES:
-        return True
-    if isinstance(note, str):
-        text = " " + note.lower() + " "
-        for word in TEST_NOTE_WORDS:
-            if word in text:
-                return True
+def mentions_benchmark(text):
+    """True when a note or key names a reported benchmark."""
+    lowered = " " + str(text).lower() + " "
+    for word in BENCHMARK_WORDS:
+        if word in lowered:
+            return True
     return False
 
 
-def without_keys(table, hidden):
-    """A copy of a dict without the hidden keys. Anything else comes back as it is."""
-    if not isinstance(table, dict):
-        return table
-    out = {}
-    for key in table:
-        if key not in hidden:
-            out[key] = table[key]
-    return out
+def score_is_hidden(name, note=None):
+    """True for every score whose source is a reported benchmark.
+
+    A score shows only when its name starts with a probe or pool-text prefix and its note names no
+    benchmark. A score with an unknown source is hidden.
+    """
+    allowed = False
+    for prefix in ALLOWED_SCORE_PREFIXES:
+        if str(name).startswith(prefix):
+            allowed = True
+    if not allowed:
+        return True
+    if isinstance(note, str) and mentions_benchmark(note):
+        return True
+    return False
+
+
+def structure_signature(signature):
+    """A catalog signature with only its structure facts (sizes and mask overlaps), no measured effects."""
+    if not isinstance(signature, dict):
+        return "hidden: its source is not a known probe measure"
+    kept = {}
+    for key in signature:
+        if key in STRUCTURE_SIGNATURE_KEYS:
+            kept[key] = signature[key]
+    return compact_signature(kept)
 
 
 def atlas_entry_row(entry):
-    """One atlas entry for the composer, without scores or maps built from held-out items."""
+    """One atlas entry for the composer: structure facts and probe-style measures, no benchmark scores or maps."""
     row = {"from": entry.get("atlas_file", "atlas")}
     for key in entry:
         if key == "atlas_file":
             continue
         value = entry[key]
-        if key in ("skills", "skill_details") and isinstance(value, dict):
-            value = without_keys(value, ATLAS_HIDDEN_SKILLS)
-        elif key in ("layer_maps", "layer_map", "expert_maps") and isinstance(value, dict):
-            value = without_keys(value, ATLAS_HIDDEN_MAPS)
-        elif key == "scores" and isinstance(value, dict):
+        if key in ATLAS_HIDDEN_KEYS:
+            continue
+        if key == "scores" and isinstance(value, dict):
             kept = {}
+            notes = entry.get("score_sources") or {}
             for name in value:
-                if not score_is_hidden(name):
+                if not score_is_hidden(name, notes.get(name) if isinstance(notes, dict) else None):
                     kept[name] = value[name]
             value = kept
+        elif key == "score_sources":
+            continue
         row[key] = value
     return row
 
@@ -258,6 +281,7 @@ class Toolbox:
         self.constraints = request.get("constraints", {})
         self.budget = int(self.constraints.get("compile_budget", 10))
         self.budget_used = 0
+        self.drift_tolerance = float(request.get("drift_tolerance", DEFAULT_DRIFT_TOLERANCE))
         self.practiced = {}
         self.finished = None
         self.records = sources.records_by_id()
@@ -292,7 +316,7 @@ class Toolbox:
         score_names = None
         if skill is not None and skill != "":
             if skill in SKILLS:
-                score_names = SKILLS[skill]["atlas_scores"]
+                score_names = SKILLS[skill]["tags"]
             else:
                 score_names = [skill]
         rows = []
@@ -316,8 +340,6 @@ class Toolbox:
                         kept_notes[name] = notes[name]
             row["scores"] = kept
             row["score_notes"] = kept_notes
-            if skill == "law":
-                row["law_subject_scores"] = self.law_subjects(profile)
             rows.append(row)
         for entry in self.sources.atlas_entries:
             name = entry.get("hf_id") or entry.get("model") or entry.get("id")
@@ -326,11 +348,10 @@ class Toolbox:
             if score_names is not None and not self.entry_mentions(entry, skill, score_names):
                 continue
             rows.append(atlas_entry_row(entry))
-        note = ("Scores are fractions from earlier rounds; score_notes say which items. "
-                "Scores on test items that overlap this run's held-out sets are hidden: " +
-                ", ".join(HIDDEN_SCORES) + ", any score measured on test items, the atlas skill scores for " +
-                ", ".join(ATLAS_HIDDEN_SKILLS) + ", and the atlas " + ", ".join(ATLAS_HIDDEN_MAPS) +
-                " layer and expert maps. The held-out tests for this run are scored only after finish.")
+        note = ("Scores measured on a reported benchmark are hidden, whatever the split (rule of 2026-11-14): "
+                "benchmarks are chosen per user request and score only the final model. This table shows "
+                "sizes, layers, families, and structure, plus any probe or pool-text measure. Use "
+                "compile_and_practice for the probe.")
         if len(self.sources.atlas_entries) == 0:
             note += " The atlas/entries folder is empty, so only profiles.json rows are shown."
         return {"count": len(rows), "rows": rows, "note": note}
@@ -359,20 +380,6 @@ class Toolbox:
                     return True
         return False
 
-    def law_subjects(self, profile):
-        out = {}
-        subject_scores = profile.get("subject_scores") or {}
-        for split in subject_scores:
-            if split in HIDDEN_SUBJECT_SPLITS:
-                continue
-            table = subject_scores[split]
-            if not isinstance(table, dict):
-                continue
-            for subject in LAW_SUBJECTS:
-                if subject in table:
-                    out[split + ":" + subject] = table[subject]
-        return out
-
     # catalog
 
     def catalog(self, part_type=None, model=None):
@@ -387,10 +394,10 @@ class Toolbox:
                 if key in record:
                     row[key] = record[key]
             if record.get("heldout_overlap"):
-                # Its signature scores come from held-out items, so only the note shows.
                 row["heldout_overlap"] = record["heldout_overlap"]
-            elif "signature" in record:
-                row["signature"] = compact_signature(record["signature"])
+            if "signature" in record:
+                # Measured effects come from benchmark items or an unknown source, so only structure shows.
+                row["signature"] = structure_signature(record["signature"])
             rows.append(row)
         return {"count": len(rows), "rows": rows,
                 "note": "Any donor layer range is also a graft id: block/<org>/<model>/<first>-<last>."}
@@ -443,7 +450,7 @@ class Toolbox:
             if record.get("type") not in GRAFT_TYPES:
                 violations.append(f"{graft.component_id} is a {record.get('type')}; a graft takes one of "
                                   + ", ".join(GRAFT_TYPES))
-        known = BUILTIN_HEAL_DATA + COMPOSER_HEAL_DATA
+        known = HEAL_DATA
         data_names = []
         if program.heal_spec is not None:
             data_names.append(("heal", program.heal_spec.data))
@@ -453,7 +460,15 @@ class Toolbox:
             data_names.append(("carve domain_data", program.carve_spec.domain_data))
         for what, name in data_names:
             if name not in known:
-                violations.append(f"{what} data {name!r} is unknown; the names are " + ", ".join(known))
+                extra = ""
+                if name == "gsm8k_train":
+                    extra = " (the language default; write `data <name>` on the heal, because GSM8K train is a benchmark)"
+                violations.append(f"{what} data {name!r} is unknown{extra}; the names are " + ", ".join(known))
+                continue
+            try:
+                check_heal_sources(name)
+            except ValueError as error:
+                violations.append(f"{what} data {name!r}: {error}")
         result["ok"] = len(violations) == 0
         return result
 
@@ -472,6 +487,16 @@ class Toolbox:
                 record = sizes.block_record(component_id)
                 if record is not None:
                     records.append(record)
+        return records
+
+    def records_with_blocks(self, program):
+        """Catalog records by id, plus block records for the program's block ids."""
+        records = dict(self.records)
+        for component_id in program.component_ids():
+            if component_id not in records:
+                record = sizes.block_record(component_id)
+                if record is not None:
+                    records[component_id] = record
         return records
 
     def budget_note(self):
@@ -518,9 +543,12 @@ class Toolbox:
         payload = {
             "request": self.request["name"],
             "skills": list(practice_tasks),
-            "practice_sets": practice_sets(practice_tasks),
+            "host": program.host,
+            "probe_plan": probes.probe_plan(program_dict, list(practice_tasks), self.records_with_blocks(program),
+                                            self.sources.models),
+            "drift_tolerance": self.drift_tolerance,
             "constraints": dict(self.constraints),
-            "practice_items": self.request.get("practice_items"),
+            "probe_items": self.request.get("practice_items") or PROBE_COUNT,
             "catalog": self.used_records(program),
             "program_hash": key,
             "estimate": check["estimate"],
@@ -536,18 +564,21 @@ class Toolbox:
         if not isinstance(raw, dict):
             raw = {"ok": False, "errors": [f"practice returned {type(raw).__name__}, not a dict"]}
 
-        set_scores = raw.get("practice_sets") or {}
-        per_skill = skill_scores(set_scores, practice_tasks, "practice")
+        probe = raw.get("probe") if raw.get("ok") else None
         weights = {}
         for skill in practice_tasks:
             weights[skill] = self.request["skills"][skill]
+        summary = probe_summary(probe, weights, self.drift_tolerance) if probe is not None else None
         result = {
-            "ok": bool(raw.get("ok")),
+            "ok": bool(raw.get("ok")) and probe is not None,
             "stage": "practice" if raw.get("ok") else "compile",
             "program_hash": key,
-            "practice_scores": per_skill,
-            "practice_sets": set_scores,
-            "practice_objective": objective(per_skill, weights) if raw.get("ok") else None,
+            "probe": probe_view(probe, practice_tasks),
+            "transfer": summary["transfer"] if summary else None,
+            "drift": summary["drift"] if summary else None,
+            "drift_tolerance": self.drift_tolerance,
+            "drift_penalty": summary["penalty"] if summary else None,
+            "practice_objective": summary["objective"] if summary else None,
             "params_total_b": raw.get("params_total_b"),
             "params_run_b": raw.get("params_run_b"),
             "decode_tok_s": raw.get("decode_tok_s"),
@@ -559,17 +590,23 @@ class Toolbox:
             "compile_summary": raw.get("compile_summary"),
             "estimate": check["estimate"],
         }
+        if raw.get("ok") and probe is None:
+            result["errors"] = result["errors"] + ["the compile returned no probe report"]
         result["request_objective"] = None
-        if raw.get("ok"):
-            # The objective over every request skill, an unpracticed skill as 0,
-            # so programs practiced on fewer skills rank fairly.
-            result["request_objective"] = objective(per_skill, self.request["skills"])
+        if result["ok"]:
+            # The objective over every request skill, an unprobed skill as transfer 0,
+            # so programs probed on fewer skills rank fairly.
+            probed = {"skills": {}, "drift": probe.get("drift")}
+            for skill in practice_tasks:
+                probed["skills"][skill] = (probe.get("skills") or {}).get(skill) or {}
+            result["request_objective"] = probe_summary(probed, self.request["skills"],
+                                                        self.drift_tolerance)["objective"]
         violations = sizes.check_measured(raw, self.constraints)
-        if raw.get("ok") and self.constraints.get("max_heal_minutes") is not None and \
+        if result["ok"] and self.constraints.get("max_heal_minutes") is not None and \
                 raw.get("heal_seconds") is None:
             violations.append("the compile did not report heal_seconds, so the max_heal_minutes cap is not checked")
         for name, cap_name in [("params_total_b", "max_total_params_b"), ("params_run_b", "max_run_params_b")]:
-            if raw.get("ok") and self.constraints.get(cap_name) is not None and raw.get(name) is None:
+            if result["ok"] and self.constraints.get(cap_name) is not None and raw.get(name) is None:
                 violations.append(f"the compile did not report {name}, so the {cap_name} cap is not checked")
         result["within_constraints"] = result["ok"] and len(violations) == 0
         result["violations"] = violations
@@ -636,6 +673,25 @@ class Toolbox:
                          "program_hash": best["result"]["program_hash"], "practice": best["result"],
                          "model_dir": best["model_dir"], "no_model": False, "fallback": True}
         return self.finished
+
+
+def probe_view(probe, skills):
+    """The probe report as the composer sees it: per skill transfer, donor, path, and verdict, and drift."""
+    if probe is None:
+        return None
+    rows = {}
+    for skill in skills:
+        row = (probe.get("skills") or {}).get(skill) or {}
+        rows[skill] = {key: row.get(key) for key in ("transfer", "donors", "donor", "path", "tokens",
+                                                       "content_gain", "random_transfer")
+                       if row.get(key) is not None}
+        if row.get("transfer") is None:
+            rows[skill]["transfer"] = 0.0
+            rows[skill]["note"] = row.get("note") or "no donor component or no gap, so transfer is 0"
+        verdict = (probe.get("verdict") or {}).get(skill)
+        if verdict is not None:
+            rows[skill]["verdict"] = verdict
+    return {"skills": rows, "drift": probe.get("drift")}
 
 
 def has_control(program):

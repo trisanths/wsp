@@ -1,6 +1,6 @@
 {
   "name": "math_plus",
-  "description": "The best math model (GSM8K and MATH) under 2B total parameters.",
+  "description": "The best math model under 2B total parameters.",
   "skills": {"math": 1.0},
   "constraints": {
     "max_total_params_b": 2.0,
@@ -8,6 +8,7 @@
     "heal_steps_cap": 1000,
     "compile_budget": 12
   },
-  "objective": "max math score",
+  "objective": "max mean probe transfer over math, with drift kept under the tolerance",
+  "drift_tolerance": 0.05,
   "agent": {"model": "gpt-6-astra", "reasoning_effort": "high", "max_turns": 60, "max_tokens": 3000000}
 }

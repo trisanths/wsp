@@ -16,6 +16,7 @@ from wsp.swarm import space
 from wsp.swarm import stub
 
 from studio.server import library
+from studio.server import shrink_models
 
 # A rough heal speed. One heal step on a 1B model at batch 8 and length 384
 # takes about 0.3 s; the cost grows with the parameters run per token. This
@@ -291,3 +292,100 @@ def measured_problems(limits, params_b):
         return ["Over the total size limit. The compiled model has " + fmt_b(params_b) + "B parameters. The limit is " +
                 fmt_b(max_total) + "B."]
     return []
+
+
+# Shrink plans. The estimate never loads the model. It uses the library facts of the source model
+# (parameters, layers, experts, experts per token) and the same layer cap as wsp.slim.plan_size.
+
+LAYER_CAP_FRACTION = 0.25
+
+
+def heal_minutes_for_steps(steps, run_b):
+    """Rough minutes of a shrink heal: the same per-step rule as a build's heal."""
+    scale = max(float(run_b), MIN_HEAL_SCALE_B)
+    return int(steps) * HEAL_S_PER_STEP_PER_B * scale / 60.0
+
+
+def min_dense_target_b(facts):
+    """The smallest size a dense slim can reach: the embedding and the head, which slimming does not touch."""
+    if facts["tied"]:
+        return facts["embed_b"]
+    return 2.0 * facts["embed_b"]
+
+
+def dense_plan(facts, target_b):
+    """(layers dropped, width kept) for a dense target, as wsp.slim.plan_size picks them (an estimate)."""
+    layers = facts["layers"]
+    fixed = min_dense_target_b(facts)
+    body = max(facts["params_b"] - fixed, 1e-9)
+    per_layer = body / layers
+    cap = int(LAYER_CAP_FRACTION * layers)
+    for drop in range(0, cap + 1):
+        if fixed + per_layer * (layers - drop) <= target_b:
+            return drop, 1.0
+    kept = layers - cap
+    width = (target_b - fixed) / (per_layer * kept)
+    return cap, max(min(width, 1.0), 0.0)
+
+
+def estimate_shrink(shrink):
+    """Estimated size and heal time of a shrink plan, from the library facts. Never loads a model.
+
+    Returns {"method", "total_params_b", "run_params_b", "heal_min", "source_params_b",
+    "source_run_params_b", "removed_params_b", "estimated": True, ...}. A MoE plan adds "experts_kept",
+    "experts_before" and "layers". A dense plan adds "layers_dropped", "layers_before" and "keep_width".
+    """
+    facts = shrink_models.facts_for(shrink["source_model"])
+    if facts is None:
+        raise ValueError("unknown source model: " + str(shrink["source_model"]))
+    source_run = shrink_models.run_params_b(facts)
+    if shrink["method"] == "experts":
+        if facts["kind"] != "moe":
+            raise ValueError("expert removal needs a MoE model")
+        keep = int(shrink["keep_experts"])
+        experts = facts["experts"]
+        expert_b, other_b = shrink_models.expert_split(facts)
+        other_run = other_b - (0.0 if facts["tied"] else facts["embed_b"])
+        total = other_b + expert_b * keep / experts
+        run = other_run + expert_b * min(facts["top_k"], keep) / experts
+        out = {"experts_kept": keep, "experts_before": experts, "layers": facts["layers"],
+               "top_k_after": min(facts["top_k"], keep)}
+    else:
+        target = float(shrink["target_params_b"])
+        total = min(target, facts["params_b"])
+        drop, width = dense_plan(facts, total)
+        run = total if facts["tied"] else max(total - facts["embed_b"], 0.0)
+        out = {"layers_dropped": drop, "layers_before": facts["layers"], "keep_width": round(width, 3)}
+    steps = int(shrink["heal_steps"])
+    out.update({"method": shrink["method"], "total_params_b": round(total, 4), "run_params_b": round(run, 4),
+                "heal_min": round(heal_minutes_for_steps(steps, run), 2) if steps > 0 else 0.0,
+                "source_params_b": round(facts["params_b"], 4), "source_run_params_b": round(source_run, 4),
+                "removed_params_b": round(facts["params_b"] - total, 4), "estimated": True})
+    return out
+
+
+def shrink_limit_problems(limits, est):
+    """Plain messages for every limit a shrink estimate is over. An empty list means the plan fits."""
+    problems = []
+    if limits is None:
+        return problems
+    max_total = limits.get("max_total_params_b")
+    if max_total is not None and est["total_params_b"] > max_total + EPSILON:
+        problems.append("Over the total size limit. The shrunk model is estimated at " + fmt_b(est["total_params_b"]) +
+                        "B parameters (the source has " + fmt_b(est["source_params_b"]) + "B). The limit is " +
+                        fmt_b(max_total) + "B.")
+    max_run = limits.get("max_run_params_b")
+    if max_run is not None and est["run_params_b"] > max_run + EPSILON:
+        problems.append("Over the per-token limit. The shrunk model runs an estimated " + fmt_b(est["run_params_b"]) +
+                        "B parameters per token. The limit is " + fmt_b(max_run) + "B.")
+    max_heal = limits.get("max_heal_min")
+    if max_heal is not None and est["heal_min"] > max_heal + EPSILON:
+        problems.append("Over the heal time limit. The heal is estimated at " + fmt_min(est["heal_min"]) +
+                        " minutes. The limit is " + fmt_min(max_heal) + " minutes.")
+    return problems
+
+
+def shrink_check(shrink, limits):
+    """Estimate a shrink plan and check it. Returns (estimate, problems)."""
+    est = estimate_shrink(shrink)
+    return est, shrink_limit_problems(limits, est)

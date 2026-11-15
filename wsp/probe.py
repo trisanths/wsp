@@ -10,7 +10,8 @@ training):
   drift         on general text, the KL from the frozen base to the
                 written model. 0 means general behaviour is unchanged.
   content gain  transfer of the real compile minus transfer of the same
-                compile with random components.
+                compile with random components. With several random
+                controls, content_z gives the gap in standard deviations.
 
 With a shared tokenizer the measure is the KL between next-token
 distributions. Without one it is the loss on text the donor generated.
@@ -190,8 +191,38 @@ def report(written, base, tokenizer, skills, general_texts, random_written=None,
     return out
 
 
-def verdict(row, min_transfer=0.05, min_gain=0.03):
-    """One word for a skill's row: does the written model carry the donor's behaviour, beyond a random control."""
+def content_z(real_transfer, random_transfers):
+    """How far the real compile stands above several random-component compiles, in standard deviations.
+
+    One random control cannot separate content from seed noise. With two
+    or more controls this returns {"mean", "std", "z", "controls"}; z is
+    None when the controls do not vary. With fewer than two it returns
+    None.
+    """
+    values = []
+    for value in random_transfers:
+        if value is not None:
+            values.append(float(value))
+    if real_transfer is None or len(values) < 2:
+        return None
+    mean = sum(values) / len(values)
+    spread = 0.0
+    for value in values:
+        spread += (value - mean) ** 2
+    std = (spread / (len(values) - 1)) ** 0.5
+    z = None
+    if std > 1e-9:
+        z = (real_transfer - mean) / std
+    return {"mean": mean, "std": std, "z": z, "controls": len(values)}
+
+
+def verdict(row, min_transfer=0.05, min_gain=0.03, min_z=2.0):
+    """One word for a skill's row: does the written model carry the donor's behaviour, beyond random controls.
+
+    When the row has "content_z" (several random controls), the real
+    compile must stand min_z standard deviations above them. With one
+    control ("content_gain") it must beat it by min_gain.
+    """
     value = row.get("transfer")
     if value is None:
         return "no gap"
@@ -199,6 +230,11 @@ def verdict(row, min_transfer=0.05, min_gain=0.03):
         return "harmful"
     if value < min_transfer:
         return "no transfer"
+    stats = row.get("content_z")
+    if stats is not None and stats.get("z") is not None:
+        if stats["z"] < min_z:
+            return "no better than random"
+        return "contributes"
     gain = row.get("content_gain")
     if gain is not None and gain < min_gain:
         return "no better than random"

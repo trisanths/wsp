@@ -10,6 +10,17 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import common  # noqa: E402
 
+# Benchmark-agnostic mode: one family of domains per parallel agent.
+DOMAIN_FOCUSES = [
+    "world knowledge: medicine and anatomy, law, chemistry, biology, physics, geography, history, finance",
+    "language: grammar (tense, plurals, agreement), morphology, sentiment and emotion, politeness/refusals, named "
+    "entities, specific languages and scripts",
+    "structure: code syntax in specific programming languages, markup/JSON/URLs, units and measurements, "
+    "formatting conventions",
+    "everyday and culture: food, music, sports, people and organisations, places, animals, products; plus any domain "
+    "the weights suggest that the others are not covering",
+]
+
 # One focus per parallel agent on the same model; they share findings through past.dev memory.
 FOCUSES = [
     "attention heads in every layer: read o_proj/v_proj weights through the unembedding; find heads that copy, "
@@ -31,6 +42,7 @@ def main():
     ap.add_argument("--max-screens", type=int, default=60)
     ap.add_argument("--effort", default="high")
     ap.add_argument("--person", default=None)
+    ap.add_argument("--open-domain", action="store_true", help="benchmark-agnostic: each agent explores different domains")
     ap.add_argument("--llm", default="openai", choices=["openai", "claude"])
     ap.add_argument("--focus", default=None, help="focus text for every agent when --agents is 1")
     ap.add_argument("--agents", type=int, default=1, help="parallel agents per model (each gets a different focus)")
@@ -62,10 +74,15 @@ def main():
             env = dict(os.environ)
             name = m
             log_name = "console.log"
+            if args.open_domain:
+                cmd.append("--open-domain")
             if n_agents == 1 and args.focus and not args.smoke:
                 cmd = cmd + ["--focus", args.focus]
             if n_agents > 1:
-                cmd = cmd + ["--focus", FOCUSES[i % len(FOCUSES)]]
+                focus_list = FOCUSES
+                if args.open_domain:
+                    focus_list = DOMAIN_FOCUSES
+                cmd = cmd + ["--focus", focus_list[i % len(focus_list)]]
                 env["WSP_LANE"] = str(i)
                 name = m + "#" + str(i)
                 log_name = "console.lane" + str(i) + ".log"

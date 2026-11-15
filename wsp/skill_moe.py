@@ -824,6 +824,27 @@ class LayerExpert(nn.Module):
     def forward(self, h, x_base):
         raise RuntimeError("a LayerExpert runs through LayerExpert.run")
 
+    def starts_prefill(self, kw, main):
+        """True when this call is a new prefill. A forced layer never runs the base layer,
+        so the main cache stays empty for it; the cache position is the reliable signal."""
+        position = kw.get("cache_position")
+        if position is not None:
+            return int(position.reshape(-1)[0]) == 0
+        return main.get_seq_length(self.index) == 0
+
+    def sync_main(self, main, n_new):
+        """Keep layer 0 of the main cache as long as the private one.
+
+        The model builds the causal mask from the length of the main cache at
+        layer 0. When layer 0 is forced to a non-base expert the base layer
+        never runs, the main cache stays empty, and every cached step gets a
+        mask of one key, so the step attends to itself and to pad tokens.
+        """
+        if main.get_seq_length(0) >= self.cache.get_seq_length(0):
+            return
+        layer = self.cache.layers[0]
+        main.update(layer.keys[..., -n_new:, :], layer.values[..., -n_new:, :], 0)
+
     def run(self, h, args, kwargs):
         kw = dict(kwargs)
         if self.rotary is not None and kw.get("position_ids") is not None:
@@ -832,11 +853,13 @@ class LayerExpert(nn.Module):
         if self.private_cache and main is not None:
             from transformers import DynamicCache
 
-            if self.cache is None or self.cache_owner != id(main) or main.get_seq_length(self.index) == 0:
+            if self.cache is None or self.cache_owner != id(main) or self.starts_prefill(kw, main):
                 self.cache = DynamicCache()
                 self.cache_owner = id(main)
             kw["past_key_values"] = self.cache
         out = self.layer(h, *args, **kw)
+        if self.private_cache and main is not None and self.index == 0:
+            self.sync_main(main, h.shape[1])
         if isinstance(out, tuple):
             out = out[0]
         return out

@@ -1,0 +1,1020 @@
+{
+ "name": "sql_clause_keyword",
+ "description": "Fill the SQL clause keyword for source tables, filtering, grouping, or ordering from a partial SQL query.",
+ "hash": "1f31862d5f823d3e",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nitems=[];control=[]\nfor i in range(100):\n table=random.choice(['users','orders','products','events','books']);field=random.choice(['id','price','age','score']);typ=i%4\n templates=[(f'SELECT {field} ___ {table};','FROM'),(f'SELECT * FROM {table} ___ {field} > 10;','WHERE'),(f'SELECT {field}, COUNT(*) FROM {table} ___ BY {field};','GROUP'),(f'SELECT * FROM {table} ___ BY {field};','ORDER')]\n q,answer=templates[typ];p=f'SQL query: {q}\\n'\n items.append({'prompt':p+'Replace ___ with one uppercase SQL keyword. Keyword:', 'answer':' '+answer})\n control.append({'prompt':p+'What is the table name? Table:', 'answer':' '+table})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "SQL query: SELECT * FROM orders ___ BY price;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT age ___ users;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ BY age;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM products ___ BY price;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT id ___ products;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM products ___ score > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ age > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM events ___ BY age;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score, COUNT(*) FROM products ___ BY score;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score, COUNT(*) FROM products ___ BY score;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT age ___ events;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM orders ___ BY price;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price ___ users;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ score > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score ___ users;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score, COUNT(*) FROM books ___ BY score;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM products ___ BY id;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM events ___ BY id;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price, COUNT(*) FROM orders ___ BY price;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score, COUNT(*) FROM users ___ BY score;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ BY score;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price, COUNT(*) FROM books ___ BY price;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score ___ books;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT id, COUNT(*) FROM products ___ BY id;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM orders ___ BY id;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price, COUNT(*) FROM books ___ BY price;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price, COUNT(*) FROM orders ___ BY price;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ age > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM books ___ BY age;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ age > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM products ___ price > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM orders ___ id > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM books ___ BY price;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM events ___ BY score;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT id, COUNT(*) FROM books ___ BY id;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT age ___ books;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price, COUNT(*) FROM products ___ BY price;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT id ___ products;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score ___ orders;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price, COUNT(*) FROM products ___ BY price;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score ___ products;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT age, COUNT(*) FROM products ___ BY age;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT age ___ events;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price ___ products;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM books ___ BY score;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM products ___ id > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM books ___ BY age;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price ___ events;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ id > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM books ___ BY id;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "SQL query: SELECT * FROM users ___ id > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price, COUNT(*) FROM orders ___ BY price;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM orders ___ id > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ id > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price, COUNT(*) FROM orders ___ BY price;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score, COUNT(*) FROM events ___ BY score;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price ___ users;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score ___ events;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score ___ users;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM products ___ BY price;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT id, COUNT(*) FROM users ___ BY id;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT age ___ books;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM events ___ BY age;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM events ___ BY id;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price ___ orders;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price, COUNT(*) FROM orders ___ BY price;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score, COUNT(*) FROM products ___ BY score;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT id ___ orders;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ BY id;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM books ___ age > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM products ___ BY age;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM events ___ BY price;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT id ___ events;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT age, COUNT(*) FROM books ___ BY age;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM books ___ price > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score, COUNT(*) FROM events ___ BY score;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ BY price;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score, COUNT(*) FROM users ___ BY score;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM orders ___ id > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT id ___ products;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT id ___ events;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM products ___ BY age;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT id ___ events;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM products ___ price > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price ___ orders;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ id > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score ___ users;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " FROM",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ BY age;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price, COUNT(*) FROM events ___ BY price;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM books ___ age > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM products ___ id > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT id, COUNT(*) FROM events ___ BY id;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ BY age;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " ORDER",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT id, COUNT(*) FROM users ___ BY id;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " GROUP",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM orders ___ id > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM books ___ score > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM books ___ price > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM products ___ price > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM products ___ price > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM events ___ age > 10;\nReplace ___ with one uppercase SQL keyword. Keyword:",
+    "continuation": " WHERE",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "SQL query: SELECT * FROM products ___ price > 10;\nWhat is the table name? Table:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ age > 10;\nWhat is the table name? Table:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM orders ___ id > 10;\nWhat is the table name? Table:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ BY age;\nWhat is the table name? Table:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT age ___ events;\nWhat is the table name? Table:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price ___ products;\nWhat is the table name? Table:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT id, COUNT(*) FROM events ___ BY id;\nWhat is the table name? Table:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM books ___ price > 10;\nWhat is the table name? Table:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT id, COUNT(*) FROM products ___ BY id;\nWhat is the table name? Table:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM orders ___ id > 10;\nWhat is the table name? Table:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score ___ orders;\nWhat is the table name? Table:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price ___ orders;\nWhat is the table name? Table:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score ___ products;\nWhat is the table name? Table:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price, COUNT(*) FROM orders ___ BY price;\nWhat is the table name? Table:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price ___ users;\nWhat is the table name? Table:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price, COUNT(*) FROM orders ___ BY price;\nWhat is the table name? Table:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score, COUNT(*) FROM users ___ BY score;\nWhat is the table name? Table:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT age ___ events;\nWhat is the table name? Table:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score ___ users;\nWhat is the table name? Table:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM books ___ score > 10;\nWhat is the table name? Table:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score ___ books;\nWhat is the table name? Table:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price ___ users;\nWhat is the table name? Table:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM events ___ BY age;\nWhat is the table name? Table:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM events ___ BY score;\nWhat is the table name? Table:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score ___ users;\nWhat is the table name? Table:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM books ___ price > 10;\nWhat is the table name? Table:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT id, COUNT(*) FROM users ___ BY id;\nWhat is the table name? Table:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price ___ events;\nWhat is the table name? Table:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ BY price;\nWhat is the table name? Table:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM products ___ BY age;\nWhat is the table name? Table:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM orders ___ BY price;\nWhat is the table name? Table:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score, COUNT(*) FROM products ___ BY score;\nWhat is the table name? Table:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price, COUNT(*) FROM books ___ BY price;\nWhat is the table name? Table:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ id > 10;\nWhat is the table name? Table:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ id > 10;\nWhat is the table name? Table:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM products ___ BY id;\nWhat is the table name? Table:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM books ___ BY age;\nWhat is the table name? Table:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM books ___ age > 10;\nWhat is the table name? Table:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ BY score;\nWhat is the table name? Table:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM events ___ BY id;\nWhat is the table name? Table:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT age, COUNT(*) FROM books ___ BY age;\nWhat is the table name? Table:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT id ___ products;\nWhat is the table name? Table:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM events ___ BY id;\nWhat is the table name? Table:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM products ___ id > 10;\nWhat is the table name? Table:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM products ___ BY price;\nWhat is the table name? Table:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM books ___ BY id;\nWhat is the table name? Table:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score, COUNT(*) FROM events ___ BY score;\nWhat is the table name? Table:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score, COUNT(*) FROM events ___ BY score;\nWhat is the table name? Table:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ BY age;\nWhat is the table name? Table:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price, COUNT(*) FROM books ___ BY price;\nWhat is the table name? Table:",
+    "continuation": " books",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "SQL query: SELECT * FROM users ___ score > 10;\nWhat is the table name? Table:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT id, COUNT(*) FROM books ___ BY id;\nWhat is the table name? Table:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT id ___ products;\nWhat is the table name? Table:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT age, COUNT(*) FROM products ___ BY age;\nWhat is the table name? Table:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score, COUNT(*) FROM users ___ BY score;\nWhat is the table name? Table:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price, COUNT(*) FROM orders ___ BY price;\nWhat is the table name? Table:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM events ___ BY price;\nWhat is the table name? Table:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM orders ___ BY id;\nWhat is the table name? Table:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM books ___ BY price;\nWhat is the table name? Table:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM products ___ id > 10;\nWhat is the table name? Table:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price, COUNT(*) FROM orders ___ BY price;\nWhat is the table name? Table:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price, COUNT(*) FROM products ___ BY price;\nWhat is the table name? Table:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM products ___ BY price;\nWhat is the table name? Table:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM products ___ price > 10;\nWhat is the table name? Table:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price ___ orders;\nWhat is the table name? Table:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT age ___ books;\nWhat is the table name? Table:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price, COUNT(*) FROM orders ___ BY price;\nWhat is the table name? Table:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score, COUNT(*) FROM products ___ BY score;\nWhat is the table name? Table:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ BY age;\nWhat is the table name? Table:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM books ___ age > 10;\nWhat is the table name? Table:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ age > 10;\nWhat is the table name? Table:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM orders ___ id > 10;\nWhat is the table name? Table:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price, COUNT(*) FROM events ___ BY price;\nWhat is the table name? Table:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score, COUNT(*) FROM books ___ BY score;\nWhat is the table name? Table:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM products ___ price > 10;\nWhat is the table name? Table:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT id ___ orders;\nWhat is the table name? Table:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM products ___ score > 10;\nWhat is the table name? Table:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM products ___ BY age;\nWhat is the table name? Table:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ age > 10;\nWhat is the table name? Table:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT price, COUNT(*) FROM products ___ BY price;\nWhat is the table name? Table:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT age ___ books;\nWhat is the table name? Table:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score ___ events;\nWhat is the table name? Table:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM orders ___ id > 10;\nWhat is the table name? Table:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ BY id;\nWhat is the table name? Table:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM events ___ age > 10;\nWhat is the table name? Table:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM events ___ BY age;\nWhat is the table name? Table:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT id, COUNT(*) FROM users ___ BY id;\nWhat is the table name? Table:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT id ___ events;\nWhat is the table name? Table:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score, COUNT(*) FROM products ___ BY score;\nWhat is the table name? Table:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT id ___ products;\nWhat is the table name? Table:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM books ___ BY age;\nWhat is the table name? Table:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT id ___ events;\nWhat is the table name? Table:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ id > 10;\nWhat is the table name? Table:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM orders ___ BY price;\nWhat is the table name? Table:",
+    "continuation": " orders",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM books ___ BY score;\nWhat is the table name? Table:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT id ___ events;\nWhat is the table name? Table:",
+    "continuation": " events",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT age ___ users;\nWhat is the table name? Table:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM products ___ price > 10;\nWhat is the table name? Table:",
+    "continuation": " products",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT score ___ users;\nWhat is the table name? Table:",
+    "continuation": " users",
+    "digits_only": false
+   },
+   {
+    "context": "SQL query: SELECT * FROM users ___ id > 10;\nWhat is the table name? Table:",
+    "continuation": " users",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 3.3738
+}

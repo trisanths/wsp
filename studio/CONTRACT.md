@@ -14,7 +14,10 @@ studio/
     app.py             routes; serves studio/web/ as static files at /
     library.py         reads library/ and atlas/entries/
     sizing.py          size and heal estimates, limit checks
-    compare.py         the comparison set and verdict
+    compare.py         the comparison set and verdict (build and shrink)
+    shrink.py          shrink sessions, jobs, the stub result
+    shrink_spec.py     shrink detection, the drafted plan, checks for an edited plan
+    shrink_models.py   model facts and the choice of a source model
     ...                any other modules the server needs
   web/                 the web app, no build step, owner: web
     index.html
@@ -23,6 +26,7 @@ studio/
     mock.js            fixture data for ?mock=1
 tests/test_studio_server.py   server tests (CPU, stub backend)
 tests/test_studio_sapien.py   library, limits, taps and comparison tests
+tests/test_studio_shrink.py   shrink request type tests (stub backend, fake Modal function)
 ```
 
 Run: `.venv/bin/uvicorn studio.server.app:app --port 8765`, then open http://localhost:8765.
@@ -63,9 +67,12 @@ When the LLM is `none`, the spec is drafted by rules and the agents are the swar
   "available_benchmarks": [{"id": "mmlupro:biology", "name": "MMLU-Pro biology", "kind": "target", "base": 0.107}],
   "ingredients": [{"part_id": "...", "label": "Math reasoning", "donor": "Qwen/Qwen2.5-Math-1.5B", "kind": "block"}],
   "drafted_by": "rules",
+  "request_type": "build",
   "stub": true
 }
 ```
+
+- `request_type` is `"build"` (add components to a host, the default; every older spec reads as a build) or `"shrink"` (remove skills from a model, see Shrink). A shrink spec also has `shrink`, and its `host` is the source model.
 
 - `kind` is `target` (has `target`) or `guard` (has `floor`). Scores are fractions in 0..1.
 - `base` is the host's score. `lora` is the fine-tuning bar when one is known, else null.
@@ -285,3 +292,113 @@ The spec has `comparators`: `{"distill": {"gsm8k": 0.40}}`, scores a person meas
 Row ids: `base`, `lora`, `distill`, `random`, and `best_model` (only when the total limit is at least twice the host size; it is the best library model within the limit). `verdict` is `failed` when a measured reference is not beaten by `margin` (a collapsed build or one over a limit also fails), `unproven` when nothing failed but a reference is not measured, `beats` when all are measured and beaten, `none` with no score. On real backends `distill` is not measured until the spec has it. On the stub backend `distill` is made up and its row says so (`stub: true`).
 
 `/api/health` also returns `"product": "Sapien"`.
+
+
+## Shrink (skill removal)
+
+The second request type. A person asks for a smaller model that keeps one skill: "a coding-only model: drop everything else from Qwen2.5-Coder-7B and get it under 3B", "keep only the math experts of a 30B MoE". `wsp/slim.py` removes experts (MoE), or layers, neurons and heads (dense), by how much the skill text uses them, and heals with distillation toward the original model's logits. The result is one network that runs alone. Selection and heal use the generic text pools in `wsp/healdata.py`, never a benchmark; benchmarks only score the finished model.
+
+### Spec of a shrink
+
+`POST /api/spec` drafts a shrink when the words ask for one ("shrink", "slim", "smaller version of", "drop everything", "keep only", "remove ... skills", "distill down", "coding-only") or, with an LLM, when the LLM says so (its `request_type` answer wins; it may also name `source_model` and `keep_skill`). A request that names a library model uses it. Otherwise the source is the smallest supported library model that has the skill and is larger than the target. The spec has the usual fields, with these differences: `host` is the source model, `size.max_params_b` is the total limit, `size.host_params_b` is the source size, `benchmarks` are the targets that score the skill (code: `humaneval`, math: `gsm8k`, medicine: `mmlupro:health`, general and prose: `mmlu`) and there is no guard, `ingredients` is empty. `limits` are as for a build (`max_total_params_b`, `max_run_params_b`, `max_heal_min`) but may be far below the source size. When the request states no size, the total and per-token limits are the default plan's estimate rounded up to 0.1B.
+
+```json
+{
+  "request_type": "shrink",
+  "shrink": {
+    "source_model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+    "source_params_b": 7.616,
+    "source_active_params_b": 7.071,
+    "family": "dense",
+    "keep_skill": "code",
+    "method": "dense",
+    "target_params_b": 2.91,
+    "keep_experts": null,
+    "rule": "skill",
+    "heal_steps": 300,
+    "candidates": [{"model": "Qwen/Qwen3-30B-A3B-Instruct-2507", "params_b": 30.53, "why": "tagged for code, MoE with 128 experts per layer"}],
+    "notes": []
+  }
+}
+```
+
+- `family` is `moe` or `dense`. `method` is `experts` (MoE) or `dense`.
+- `keep_skill` is one of the `wsp/healdata.py` pool names: `math`, `code`, `medicine`, `general`, `prose`.
+- `rule` for experts: `freq`, `saliency` (default), `selective`, `random`, `general`. For dense: `skill` (default, same as `skill_cost`), `specific`, `general`, `random`.
+- MoE: `keep_experts` is N per layer, `target_params_b` is the estimated total after keeping N (informational). Dense: `target_params_b` is the wanted total, `keep_experts` is null.
+- `source_active_params_b` is the estimated parameters the source runs per token. `candidates` holds up to 5 other sources that fit, best first. `notes` holds plain sentences (for example a named model that cannot be slimmed).
+- `PUT /api/spec/{id}` edits the block. Send `shrink` with the fields to change (or the whole block). Checks, each a 400 with a plain message: the model must be in the library (or one of the studio's extra Qwen2.5-Coder models) and its architecture must be supported; `keep_skill` must be a pool name; `rule` must fit the method; `keep_experts` must be 1..experts; dense `target_params_b` must be above the embedding and head size and below the source size; `heal_steps` is 0..1000; `method` cannot disagree with the model. Changing `source_model` resets the other fields to that model's defaults unless the edit names them. Editing an MoE `target_params_b` (without `keep_experts`) recomputes `keep_experts`. `limits` and `size.max_params_b` edit as for a build, with no lower bound at the source size.
+- A shrink spec is refused by `POST /api/runs` and `POST /api/builder` (400). A build spec is refused by `POST /api/shrink`.
+
+### Routes
+
+| Method | Path | Body | Returns |
+|---|---|---|---|
+| POST | `/api/shrink` | `{"spec_id": "..."}` | `{"shrink_id": "sh_1a2b3c4d", "plan": Plan, "stub": true}` |
+| POST | `/api/shrink/{id}/plan` | edited fields of the shrink block | Plan (free, no GPU, no model load) |
+| POST | `/api/shrink/{id}/run` | optional `{"tasks": [], "fidelity": "low", "control": true, "general_control": false, "score_source": null}` | `{"job_id": "j_..."}` |
+| GET | `/api/jobs/{job_id}` | | job (the builder's job shape; `action` is `"shrink"`, `budget` is null) |
+
+```json
+{
+  "source_model": "Qwen/Qwen3-30B-A3B-Instruct-2507", "source_params_b": 30.53, "source_active_params_b": 3.029,
+  "family": "moe", "keep_skill": "math", "method": "experts", "target_params_b": 8.778, "keep_experts": 32,
+  "rule": "saliency", "heal_steps": 300, "candidates": [], "notes": [],
+  "estimate": {"method": "experts", "total_params_b": 8.778, "run_params_b": 3.029, "heal_min": 4.54,
+               "source_params_b": 30.53, "source_run_params_b": 3.029, "removed_params_b": 21.752,
+               "experts_kept": 32, "experts_before": 128, "layers": 48, "top_k_after": 8, "estimated": true},
+  "limits": {"max_total_params_b": 8.8, "max_run_params_b": 3.1, "max_heal_min": 20},
+  "problems": [], "ok": true,
+  "summary": "Keep 32 of 128 experts per layer by saliency on math text. About 8.8B stored, 3.0B run per token (estimated).",
+  "tasks": ["gsm8k"], "stub": true
+}
+```
+
+That is a Plan. A dense estimate has `layers_dropped`, `layers_before` and `keep_width` (fraction of MLP neurons and heads kept) instead of the expert fields. The estimate uses library facts only (parameters, active parameters, layers, experts, experts per token) and never loads the model, so it is always labeled `"estimated": true`. Heal minutes use the build rule (0.3 s per step per billion parameters run, at least 0.5B). `POST /api/shrink` and `/plan` never fail on a limit: they return `ok: false` and `problems` with the numbers, so the page can show them. `POST .../run` refuses an over-limit plan with 400 and the same messages ("Over the total size limit. The shrunk model is estimated at 8.778B parameters (the source has 30.53B). The limit is 5B."). A bad edit on `/plan` is a 400.
+
+`run` options: `tasks` (default: the spec's targets), `fidelity` (`check`, `low` default, `full`), `control` (random control with the same counts and heal steps, default true), `general_control` (the optional general-text control, default false), `score_source` (also score the original; default true when the source is at most 10B parameters).
+
+### Shrink job result
+
+`result` of a finished shrink job:
+
+```json
+{
+  "params_b": 8.778, "active_params_b": 3.029,
+  "removed": {"kind": "moe", "experts_before": 128, "experts_kept": 32, "experts_removed_per_layer": 96,
+              "layers": 48, "top_k_after": 8, "kept_share_of_skill": 0.93},
+  "scores": {"gsm8k": 0.61}, "source_scores": {"gsm8k": 0.84},
+  "control": {"scores": {"gsm8k": 0.22}}, "general": null,
+  "comparison": {"...": "see below"},
+  "stub": true,
+  "heal": {"steps": 300, "kind": "distillation", "teacher": true},
+  "log": ["Loaded Qwen/Qwen3-30B-A3B-Instruct-2507 with 30.53B parameters."],
+  "seconds": {"load": 0, "rank": 0, "slim": 0, "heal": 0, "eval": 0},
+  "estimated": false, "plan": {"...": "the shrink block that ran"}
+}
+```
+
+- `params_b` and `active_params_b` are the stored parameters and the parameters run per token of the result. On the stub they are the estimate and `estimated` is true. On Modal they are counted from the model (`wsp.slim.count_params`) and `estimated` is false; the result then also has `params_before_b`, `gpu` and `items` (items scored per task).
+- `removed` for a dense model: `{"kind": "dense", "layers_before": 28, "layers_after": 21, "layers_dropped": [3, 9], "keep_mlp": 0.41, "keep_heads": 0.41}`.
+- `source_scores`, `control` and `general` are null when not scored. `scores` are fractions in 0..1 per task.
+- `heal.kind` is `distillation`, `lm_only` (the original did not fit in memory beside the student, so the heal used the language-model loss alone; the log says so) or `none` (0 steps). `heal.teacher` is true for distillation. A real run also has `kd_first`, `kd_last`, `lm_first`, `lm_last`, `trainable_params`, `seconds`. With a teacher the heal loss is the distillation term only.
+- `seconds` has `load`, `rank`, `slim`, `heal`, `eval` and, on Modal, `total`.
+- On error the job has `status: "error"` and `error` with the remote message.
+
+### Shrink comparison
+
+`result.comparison` has the build comparison's shape with `request_type: "shrink"` and these rows, in order:
+
+| id | meaning | decides the verdict |
+|---|---|---|
+| `source` | the original model on the same items. The result is expected to be below it. `beaten` is null and `delta` is negative. | no |
+| `random` | the same slim with random units removed, same counts, same heal steps | yes: the result must beat it by `margin` (0.02) |
+| `general` | the same slim keeping what general text uses (only when `general_control` ran) | no |
+| `best_model` | the best library model within 0.5x to 1.05x of the result's size (not the source), by the best score over the library score keys | yes when the library has a model in that size window; the result must be at or above it |
+
+Each row has `id, label, split, per_task, value, measured, note, stub, result_value, delta, beaten` and `required` (true when it decides the verdict). `verdict` is `success` (every required row is measured and the result beats it), `failed` (a measured required row is not beaten), `unproven` (a required row is not measured: no random control, or models near the size have no score on this benchmark) or `none` (no score). `beaten`, `not_beaten` and `unmeasured` list the required row ids. `headline` is one plain sentence, for example "Success. It beats the random control by 38.0 points. It keeps 72% of the original model's score."
+
+### Backends
+
+- Stub: a made-up result with `stub: true` and `stub: true` on the comparison. Scores fall smoothly as more is removed, the random control is lower than the skill rule, and the source is above both. No model loads.
+- Modal: `shrink_remote(plan, split, tasks, fidelity, options)` in the `wsp-studio` app (L40S; `shrink_remote_h100` when the source is above 10B parameters). It loads the source, builds the skill and general text from `wsp.healdata` pools (never a benchmark), runs `slim_moe` or `slim_dense`, heals with `slim.heal` and the original as teacher when it fits in memory, saves with `save_slim`, scores with the same `score_all` as builds, and runs the random control (same counts, rule `random`, same heal steps) when `options.control` is true.

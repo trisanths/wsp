@@ -15,6 +15,9 @@ from wsp.swarm import space
 from studio.server import catalog as catalog_mod
 from studio.server import library
 from studio.server import settings
+from studio.server import shrink_models
+from studio.server import shrink_spec
+from studio.server import sizing
 
 # Fine-tuning bars measured on the Llama-1B host (results/README.md), by task.
 # Fine-tuning bars on the Llama-1B host. gsm8k: LoRA r64 on the search split.
@@ -488,6 +491,9 @@ DRAFT_SCHEMA = {
         "max_run_params_b": {"type": "number"},
         "max_heal_min": {"type": "number"},
         "benchmarks": {"type": "array", "items": {"type": "string"}},
+        "request_type": {"type": "string", "enum": ["build", "shrink"]},
+        "source_model": {"type": "string"},
+        "keep_skill": {"type": "string"},
     },
     "required": ["title", "summary", "max_params_b", "benchmarks"],
 }
@@ -522,9 +528,13 @@ def llm_draft(config, prompt, files, known_ids, host_params):
               "title (at most 6 words), summary (one or two plain sentences), max_params_b (total parameters, a "
               "number between 0.5 and 32), optional max_run_params_b (parameters run per token, at most the total), "
               "optional max_heal_min (minutes of heal), and benchmarks (a list of ids from the allowed list; the first id is the main target). "
+              "Also set request_type: shrink when the request asks to remove skills from a model or to make a smaller "
+              "version of one (then give source_model, a model id from the allowed list, when one fits, and keep_skill, "
+              "one of " + ", ".join(shrink_spec.SKILL_POOLS) + "), else build. "
               "Write plain text without dashes used as punctuation.")
     user = ("Request: " + clean_prompt(prompt) + "\nUploaded files: " + (", ".join(file_lines) or "none") +
-            "\nAllowed benchmark ids: " + ", ".join(known_ids))
+            "\nAllowed benchmark ids: " + ", ".join(known_ids) +
+            "\nAllowed source models: " + ", ".join(shrink_models.source_ids()))
     messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
     reply = llm.complete(messages, schema=DRAFT_SCHEMA, temperature=0.3)
     return parse_json_reply(reply)
@@ -639,6 +649,7 @@ def draft_spec(prompt, uploads):
         "size": {"max_params_b": size_b, "min_b": SIZE_MIN_B, "max_b": SIZE_MAX_B, "host_params_b": host_params},
         "limits": limits,
         "comparators": {"distill": {}},
+        "request_type": "build",
         "budget": dict(DEFAULT_BUDGET),
         "benchmarks": benchmarks,
         "available_benchmarks": [],
@@ -647,6 +658,7 @@ def draft_spec(prompt, uploads):
         "stub": settings.is_stub(),
     }
     llm_name = settings.llm()
+    draft = {}
     if llm_name != "none":
         llm_config = config_mod.make_config({"llm": llm_name, "backend": backend})
         try:
@@ -654,11 +666,94 @@ def draft_spec(prompt, uploads):
             apply_llm_draft(spec, config, draft, host_params)
             spec["drafted_by"] = "llm:" + llm_name
         except Exception:
+            draft = {}
             spec["drafted_by"] = "rules"
+    if request_type_for(prompt, draft) == "shrink":
+        make_shrink_spec(spec, config, prompt, draft)
     spec["available_benchmarks"] = available_benchmarks(config, spec["benchmarks"])
-    spec["ingredients"] = ingredients_for(config, catalog, spec["benchmarks"])
+    if spec["request_type"] == "shrink":
+        spec["ingredients"] = []
+    else:
+        spec["ingredients"] = ingredients_for(config, catalog, spec["benchmarks"])
     store(spec)
     return spec
+
+
+def request_type_for(prompt, draft):
+    """"shrink" or "build". An LLM that answered with a valid request_type decides; otherwise the words do."""
+    asked = draft.get("request_type") if isinstance(draft, dict) else None
+    if asked in ("build", "shrink"):
+        return asked
+    if shrink_spec.looks_like_shrink(prompt):
+        return "shrink"
+    return "build"
+
+
+def stated_run_b(prompt):
+    """The per-token limit in the request ("1B per token"), or None."""
+    text = clean_prompt(prompt).lower()
+    for pattern in RUN_PATTERNS:
+        match = re.search(pattern, text)
+        if match is not None:
+            return float(match.group(1))
+    return None
+
+
+def make_shrink_spec(spec, config, prompt, draft):
+    """Turn a drafted spec into a shrink spec in place. Raises ValueError when no source model can be found."""
+    hint_model = draft.get("source_model") if isinstance(draft, dict) else None
+    hint_skill = draft.get("keep_skill") if isinstance(draft, dict) else None
+    try:
+        block, limits = shrink_spec.draft_plan(prompt, hint_model, hint_skill)
+    except shrink_spec.ShrinkSpecError as error:
+        raise ValueError(str(error))
+    run = stated_run_b(prompt)
+    if run is not None:
+        limits["max_run_params_b"] = min(run, limits["max_total_params_b"])
+    limits["max_heal_min"] = heal_limit_from_prompt(prompt)
+    estimate = sizing.estimate_shrink(block)
+    skill = block["keep_skill"]
+    config["task_type"] = "math" if skill == "math" else "knowledge"
+    spec["task_type"] = config["task_type"]
+    benchmarks = []
+    for task_id in shrink_spec.targets_for(skill):
+        benchmarks.append(entry_for_id(config, task_id, True))
+    spec["benchmarks"] = benchmarks
+    spec["request_type"] = "shrink"
+    spec["shrink"] = block
+    spec["host"] = block["source_model"]
+    spec["limits"] = limits
+    spec["size"] = shrink_size(limits, block)
+    if spec["drafted_by"] == "rules":
+        spec["summary"] = shrink_spec.draft_summary(block, estimate)
+    else:
+        spec["summary"] = clip(spec["summary"] + " " + shrink_spec.plan_summary(block, estimate), 400)
+
+
+def shrink_size(limits, block):
+    """The spec's size block for a shrink: the limit, and the source size as the largest."""
+    return {"max_params_b": limits["max_total_params_b"], "min_b": shrink_spec.MIN_LIMIT_B,
+            "max_b": max(SIZE_MAX_B, block["source_params_b"]), "host_params_b": block["source_params_b"]}
+
+
+def edit_shrink_limits(old_limits, body):
+    """Limits of a shrink spec after an edit. They may be below the host size, since a shrink is smaller."""
+    limits = dict(old_limits)
+    incoming = body.get("limits") if isinstance(body.get("limits"), dict) else {}
+    size = body.get("size") if isinstance(body.get("size"), dict) else {}
+    total = incoming.get("max_total_params_b")
+    if total is None:
+        total = size.get("max_params_b")
+    if total is not None:
+        limits["max_total_params_b"] = round(clamp(to_float(total, limits["max_total_params_b"]),
+                                                   shrink_spec.MIN_LIMIT_B, 2000.0), 4)
+    if incoming.get("max_run_params_b") is not None:
+        limits["max_run_params_b"] = to_float(incoming["max_run_params_b"], limits["max_run_params_b"])
+    limits["max_run_params_b"] = round(clamp(limits["max_run_params_b"], shrink_spec.MIN_LIMIT_B,
+                                             limits["max_total_params_b"]), 4)
+    if incoming.get("max_heal_min") is not None:
+        limits["max_heal_min"] = clamp_heal(to_float(incoming["max_heal_min"], limits["max_heal_min"]))
+    return limits
 
 
 def default_limits(size, host_params):
@@ -740,11 +835,19 @@ def normalize_spec(body, old):
     size = dict(old["size"])
     limits = dict(old.get("limits") or default_limits(size, host_params))
     previous_total = limits["max_total_params_b"]
-    if isinstance(body.get("size"), dict):
+    is_shrink = old.get("request_type") == "shrink"
+    if is_shrink:
+        try:
+            spec["shrink"] = shrink_spec.check_block(body.get("shrink") or {}, old["shrink"])
+        except shrink_spec.ShrinkSpecError as error:
+            raise ValueError(str(error))
+        limits = edit_shrink_limits(limits, body)
+        spec["host"] = spec["shrink"]["source_model"]
+    elif isinstance(body.get("size"), dict):
         value = body["size"].get("max_params_b")
         if value is not None:
             limits["max_total_params_b"] = clamp_size(to_float(value, previous_total), host_params)
-    if isinstance(body.get("limits"), dict):
+    if not is_shrink and isinstance(body.get("limits"), dict):
         incoming = body["limits"]
         # The old size field is also sent by older pages. A changed limit wins over a changed size.
         if incoming.get("max_total_params_b") is not None:
@@ -755,8 +858,12 @@ def normalize_spec(body, old):
             limits["max_run_params_b"] = to_float(incoming["max_run_params_b"], limits["max_run_params_b"])
         if incoming.get("max_heal_min") is not None:
             limits["max_heal_min"] = clamp_heal(to_float(incoming["max_heal_min"], limits["max_heal_min"]))
-    limits["max_run_params_b"] = clamp_run(limits["max_run_params_b"], limits["max_total_params_b"], host_params)
-    size["max_params_b"] = limits["max_total_params_b"]
+    if is_shrink:
+        size = shrink_size(limits, spec["shrink"])
+    else:
+        limits["max_run_params_b"] = clamp_run(limits["max_run_params_b"], limits["max_total_params_b"],
+                                               host_params)
+        size["max_params_b"] = limits["max_total_params_b"]
     spec["size"] = size
     spec["limits"] = limits
     spec["comparators"] = clean_comparators(body.get("comparators"), old.get("comparators"))
@@ -789,7 +896,10 @@ def normalize_spec(body, old):
             raise ValueError("the spec needs at least one target benchmark")
         spec["benchmarks"] = items
     spec["available_benchmarks"] = available_benchmarks(config, spec["benchmarks"])
-    spec["ingredients"] = ingredients_for(config, catalog, spec["benchmarks"])
+    if is_shrink:
+        spec["ingredients"] = []
+    else:
+        spec["ingredients"] = ingredients_for(config, catalog, spec["benchmarks"])
     spec["stub"] = settings.is_stub()
     spec["id"] = old["id"]
     return spec
@@ -836,6 +946,8 @@ def add_missing_fields(spec):
         spec["limits"] = default_limits(size, host_params)
     if "comparators" not in spec:
         spec["comparators"] = {"distill": {}}
+    if "request_type" not in spec:
+        spec["request_type"] = "build"
 
 
 def update_spec(spec_id, body):

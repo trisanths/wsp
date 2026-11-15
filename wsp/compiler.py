@@ -59,14 +59,28 @@ def text_config_of(config):
     return config
 
 
-def check_program(program):
+def check_data_names(program, allow_benchmark_data=False):
+    """Raise CompileError for a benchmark data name (unless allowed) or a bad mix name. Return True when allowed benchmark data is used."""
+    from wsp.data import check_program_data
+
+    try:
+        return check_program_data(program, allow_benchmark_data)
+    except ValueError as error:
+        raise CompileError(str(error))
+
+
+def check_program(program, allow_benchmark_data=False):
     """Raise CompileError for a program that mixes parts the compiler cannot build together.
+
+    A data name backed by a reported benchmark (gsm8k_train, mmlu_aux)
+    raises CompileError too, unless allow_benchmark_data is True.
 
     A program holds one kind of added component: grafts (taps may join
     them), routed experts, or inserted layers. Masks and task vectors edit
     the host, so they go with grafts or taps only. The checks that need
     models (sizes, tokenizers) run during the compile.
     """
+    check_data_names(program, allow_benchmark_data)
     kinds = []
     if len(program.grafts) > 0:
         kinds.append("grafts")
@@ -216,6 +230,10 @@ def finish_outputs(program, model, report, output_dir):
         heal_seconds = float(report["heal"].get("seconds", 0.0))
         stopped_early = bool(report["heal"].get("stopped_early", False))
     report["heal_seconds"] = heal_seconds
+    from wsp.data import program_uses_benchmark_data
+
+    if program_uses_benchmark_data(program):
+        report["benchmark_data"] = True
     problem = None
     spec = program.budget_spec
     if spec is not None:
@@ -326,7 +344,8 @@ def remove_stale_outputs(output_dir):
 
 
 def compile_program(program, catalog, output_dir, align_texts=None, heal_texts=None, device=None, cache_dir=None,
-                    tap_pairs=None, heal_pairs=None, calib_texts=None, domain_texts=None):
+                    tap_pairs=None, heal_pairs=None, calib_texts=None, domain_texts=None,
+                    allow_benchmark_data=False):
     """Build the program's model and save it to output_dir. Return output_dir.
 
     A written program (base_source, carve, or splice) goes to
@@ -349,10 +368,15 @@ def compile_program(program, catalog, output_dir, align_texts=None, heal_texts=N
     heal_seconds. With a budget, a model over a size limit stops the
     compile before the heal with a CompileError that gives the measured
     numbers.
+
+    allow_benchmark_data: a data name backed by a reported benchmark
+        (gsm8k_train, mmlu_aux) raises CompileError unless this is True.
+        It is for old research scripts. The report then has
+        "benchmark_data": true.
     """
     import transformers
 
-    check_program(program)
+    check_program(program, allow_benchmark_data)
     if program.is_written():
         return compile_written(program, output_dir, heal_texts=heal_texts, heal_pairs=heal_pairs,
                                calib_texts=calib_texts, domain_texts=domain_texts, device=device)
@@ -780,11 +804,12 @@ def check_pair_names(program, tap_pairs, heal_pairs):
     This runs before any model loads. Without it, a bad heal data name
     fails only after the donors load and the taps train.
     """
+    from wsp.data import is_pool_data
     from wsp.pairs import pair_names
 
     names = pair_names()
     spec = program.tap_train_spec
-    if tap_pairs is None and spec.data not in names:
+    if tap_pairs is None and spec.data not in names and not is_pool_data(spec.data):
         raise CompileError(f"unknown tap_train data {spec.data!r}; the pairs names are {', '.join(names)}")
     heal = program.heal_spec
     if heal is None or heal_pairs is not None or heal.data == spec.data:
@@ -792,12 +817,16 @@ def check_pair_names(program, tap_pairs, heal_pairs):
     if len(program.grafts) == 0 and program.lora_spec is None:
         # This heal does not run (see compile_taps).
         return
-    if heal.data not in names:
-        raise CompileError(f"unknown heal data {heal.data!r}: in a program with taps, heal data is a pairs "
-                           f"name, one of {', '.join(names)}")
+    if heal.data not in names and not is_pool_data(heal.data):
+        raise CompileError(f"unknown heal data {heal.data!r}: in a program with taps, heal data is a pool name "
+                           f"or a pairs name, one of {', '.join(names)}")
 
 
 def pairs_by_name(name, tokenizer, seed=0):
+    from wsp.data import is_pool_data, pool_pairs
+
+    if is_pool_data(name):
+        return pool_pairs(name, seed=seed)
     from wsp.pairs import pairs_for
 
     return pairs_for(name, tokenizer, seed=seed)
@@ -918,11 +947,13 @@ def written_heal_texts(spec, tokenizer, heal_texts, heal_pairs, seed):
         return list(heal_texts)
     if heal_pairs is not None:
         return pair_texts(heal_pairs)
+    from wsp.data import is_pool_data, pool_texts, task_texts
     from wsp.pairs import pair_names
 
+    if is_pool_data(spec.data):
+        return pool_texts(spec.data, tokenizer=tokenizer, seed=seed)
     if spec.data in pair_names():
         return pair_texts(pairs_by_name(spec.data, tokenizer, seed=seed))
-    from wsp.data import task_texts
 
     return task_texts(spec.data, seed=seed)
 
@@ -990,7 +1021,12 @@ def carve_written(spec, model, tokenizer, calib_texts, domain_texts, seed):
             if domain_texts is None:
                 if spec.domain_data is None:
                     raise CompileError("carve select domain needs domain_data or domain_texts")
-                domain_texts = pair_texts(pairs_by_name(spec.domain_data, tokenizer, seed=seed))
+                from wsp.data import is_pool_data, pool_texts
+
+                if is_pool_data(spec.domain_data):
+                    domain_texts = pool_texts(spec.domain_data, 256, tokenizer=tokenizer, seed=seed)
+                else:
+                    domain_texts = pair_texts(pairs_by_name(spec.domain_data, tokenizer, seed=seed))
             if calib_texts is None:
                 raise CompileError("carve select domain needs general texts: pass calib_texts or heal texts")
             scores = carve_ops.domain_influence(model, tokenizer, domain_texts[:256], calib_texts)
@@ -1086,6 +1122,16 @@ def compile_written(program, output_dir, heal_texts=None, heal_pairs=None, calib
     model.to(device)
     model.eval()
     texts = None
+    domain_name = None
+    if program.carve_spec is not None and program.carve_spec.select == "domain":
+        domain_name = program.carve_spec.domain_data
+    if (program.heal_spec is not None and domain_name == program.heal_spec.data and domain_texts is None
+            and heal_texts is None and heal_pairs is None):
+        from wsp.data import HEAL_TEXT_COUNT, is_pool_data, pool_split
+
+        if is_pool_data(domain_name):
+            # The same pool feeds the carve and the heal: one fetch, disjoint ranges.
+            domain_texts, heal_texts = pool_split(domain_name, 256, HEAL_TEXT_COUNT, tokenizer, program.seed)
     if program.heal_spec is not None:
         texts = written_heal_texts(program.heal_spec, tokenizer, heal_texts, heal_pairs, program.seed)
     if calib_texts is None and texts is not None:

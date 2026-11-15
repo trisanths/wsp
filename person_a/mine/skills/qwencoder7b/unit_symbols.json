@@ -1,0 +1,980 @@
+{
+ "name": "unit_symbols",
+ "description": "Render measurement unit names as standard case-sensitive symbols, without numerical conversion; matched control copies the measured object's name.",
+ "hash": "9d1d176648c19496",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nunits={'kilogram':'kg','centimeter':'cm','millimeter':'mm','kilometer':'km','milligram':'mg','hertz':'Hz','kilohertz':'kHz','megahertz':'MHz','pascal':'Pa','kilopascal':'kPa','joule':'J','watt':'W','volt':'V','ampere':'A','kelvin':'K','meter':'m'}\nitems=[]; control=[]\nfor i in range(96):\n unit=list(units)[i%len(units)]; obj=random.choice(['sample','device','component','material','specimen','object']); tag=random.choice(['A','B','C','D'])\n context='For '+obj+' '+tag+', a measurement is reported in '+unit+' units. '\n items.append({'prompt':context+'Write only the standard unit symbol, preserving capitalization.\\nSymbol:','answer':' '+units[unit]})\n control.append({'prompt':context+'Write only the label letter of the measured object.\\nLabel:','answer':' '+tag})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "For object C, a measurement is reported in megahertz units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " MHz",
+    "digits_only": false
+   },
+   {
+    "context": "For sample C, a measurement is reported in pascal units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " Pa",
+    "digits_only": false
+   },
+   {
+    "context": "For object A, a measurement is reported in watt units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " W",
+    "digits_only": false
+   },
+   {
+    "context": "For component B, a measurement is reported in megahertz units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " MHz",
+    "digits_only": false
+   },
+   {
+    "context": "For device D, a measurement is reported in kilogram units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " kg",
+    "digits_only": false
+   },
+   {
+    "context": "For material A, a measurement is reported in ampere units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For sample C, a measurement is reported in centimeter units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " cm",
+    "digits_only": false
+   },
+   {
+    "context": "For sample B, a measurement is reported in pascal units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " Pa",
+    "digits_only": false
+   },
+   {
+    "context": "For sample D, a measurement is reported in watt units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " W",
+    "digits_only": false
+   },
+   {
+    "context": "For material C, a measurement is reported in kilohertz units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " kHz",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen D, a measurement is reported in kilogram units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " kg",
+    "digits_only": false
+   },
+   {
+    "context": "For sample A, a measurement is reported in meter units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " m",
+    "digits_only": false
+   },
+   {
+    "context": "For sample C, a measurement is reported in milligram units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " mg",
+    "digits_only": false
+   },
+   {
+    "context": "For sample C, a measurement is reported in kilopascal units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " kPa",
+    "digits_only": false
+   },
+   {
+    "context": "For object C, a measurement is reported in kelvin units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " K",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen D, a measurement is reported in millimeter units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " mm",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen B, a measurement is reported in meter units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " m",
+    "digits_only": false
+   },
+   {
+    "context": "For device C, a measurement is reported in milligram units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " mg",
+    "digits_only": false
+   },
+   {
+    "context": "For component A, a measurement is reported in volt units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " V",
+    "digits_only": false
+   },
+   {
+    "context": "For material A, a measurement is reported in millimeter units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " mm",
+    "digits_only": false
+   },
+   {
+    "context": "For sample D, a measurement is reported in kilometer units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " km",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen B, a measurement is reported in kilohertz units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " kHz",
+    "digits_only": false
+   },
+   {
+    "context": "For object A, a measurement is reported in pascal units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " Pa",
+    "digits_only": false
+   },
+   {
+    "context": "For component A, a measurement is reported in joule units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " J",
+    "digits_only": false
+   },
+   {
+    "context": "For component D, a measurement is reported in watt units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " W",
+    "digits_only": false
+   },
+   {
+    "context": "For sample C, a measurement is reported in kelvin units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " K",
+    "digits_only": false
+   },
+   {
+    "context": "For component B, a measurement is reported in kilohertz units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " kHz",
+    "digits_only": false
+   },
+   {
+    "context": "For component D, a measurement is reported in ampere units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For device A, a measurement is reported in kilogram units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " kg",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen D, a measurement is reported in hertz units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " Hz",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen C, a measurement is reported in joule units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " J",
+    "digits_only": false
+   },
+   {
+    "context": "For device A, a measurement is reported in ampere units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For sample B, a measurement is reported in watt units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " W",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen C, a measurement is reported in meter units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " m",
+    "digits_only": false
+   },
+   {
+    "context": "For object D, a measurement is reported in kilometer units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " km",
+    "digits_only": false
+   },
+   {
+    "context": "For sample A, a measurement is reported in volt units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " V",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen B, a measurement is reported in millimeter units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " mm",
+    "digits_only": false
+   },
+   {
+    "context": "For object A, a measurement is reported in kilopascal units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " kPa",
+    "digits_only": false
+   },
+   {
+    "context": "For device A, a measurement is reported in volt units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " V",
+    "digits_only": false
+   },
+   {
+    "context": "For component D, a measurement is reported in kelvin units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " K",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen D, a measurement is reported in centimeter units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " cm",
+    "digits_only": false
+   },
+   {
+    "context": "For object A, a measurement is reported in kilohertz units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " kHz",
+    "digits_only": false
+   },
+   {
+    "context": "For material C, a measurement is reported in milligram units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " mg",
+    "digits_only": false
+   },
+   {
+    "context": "For object A, a measurement is reported in milligram units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " mg",
+    "digits_only": false
+   },
+   {
+    "context": "For component B, a measurement is reported in meter units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " m",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen D, a measurement is reported in hertz units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " Hz",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen C, a measurement is reported in meter units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " m",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen A, a measurement is reported in watt units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " W",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "For sample B, a measurement is reported in kilopascal units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " kPa",
+    "digits_only": false
+   },
+   {
+    "context": "For component A, a measurement is reported in kilometer units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " km",
+    "digits_only": false
+   },
+   {
+    "context": "For object A, a measurement is reported in pascal units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " Pa",
+    "digits_only": false
+   },
+   {
+    "context": "For material D, a measurement is reported in millimeter units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " mm",
+    "digits_only": false
+   },
+   {
+    "context": "For device B, a measurement is reported in hertz units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " Hz",
+    "digits_only": false
+   },
+   {
+    "context": "For device B, a measurement is reported in kilopascal units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " kPa",
+    "digits_only": false
+   },
+   {
+    "context": "For object D, a measurement is reported in kelvin units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " K",
+    "digits_only": false
+   },
+   {
+    "context": "For object C, a measurement is reported in kelvin units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " K",
+    "digits_only": false
+   },
+   {
+    "context": "For sample D, a measurement is reported in ampere units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For material D, a measurement is reported in kilogram units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " kg",
+    "digits_only": false
+   },
+   {
+    "context": "For material B, a measurement is reported in megahertz units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " MHz",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen C, a measurement is reported in kilometer units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " km",
+    "digits_only": false
+   },
+   {
+    "context": "For component B, a measurement is reported in joule units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " J",
+    "digits_only": false
+   },
+   {
+    "context": "For device C, a measurement is reported in kilopascal units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " kPa",
+    "digits_only": false
+   },
+   {
+    "context": "For material C, a measurement is reported in kilometer units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " km",
+    "digits_only": false
+   },
+   {
+    "context": "For object B, a measurement is reported in volt units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " V",
+    "digits_only": false
+   },
+   {
+    "context": "For sample C, a measurement is reported in pascal units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " Pa",
+    "digits_only": false
+   },
+   {
+    "context": "For object B, a measurement is reported in megahertz units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " MHz",
+    "digits_only": false
+   },
+   {
+    "context": "For device B, a measurement is reported in joule units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " J",
+    "digits_only": false
+   },
+   {
+    "context": "For device B, a measurement is reported in pascal units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " Pa",
+    "digits_only": false
+   },
+   {
+    "context": "For device B, a measurement is reported in megahertz units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " MHz",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen B, a measurement is reported in kilohertz units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " kHz",
+    "digits_only": false
+   },
+   {
+    "context": "For component D, a measurement is reported in hertz units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " Hz",
+    "digits_only": false
+   },
+   {
+    "context": "For sample A, a measurement is reported in volt units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " V",
+    "digits_only": false
+   },
+   {
+    "context": "For material A, a measurement is reported in joule units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " J",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen B, a measurement is reported in kilopascal units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " kPa",
+    "digits_only": false
+   },
+   {
+    "context": "For component D, a measurement is reported in meter units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " m",
+    "digits_only": false
+   },
+   {
+    "context": "For component B, a measurement is reported in megahertz units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " MHz",
+    "digits_only": false
+   },
+   {
+    "context": "For sample A, a measurement is reported in millimeter units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " mm",
+    "digits_only": false
+   },
+   {
+    "context": "For sample A, a measurement is reported in milligram units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " mg",
+    "digits_only": false
+   },
+   {
+    "context": "For object A, a measurement is reported in kilogram units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " kg",
+    "digits_only": false
+   },
+   {
+    "context": "For object C, a measurement is reported in volt units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " V",
+    "digits_only": false
+   },
+   {
+    "context": "For sample A, a measurement is reported in millimeter units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " mm",
+    "digits_only": false
+   },
+   {
+    "context": "For material A, a measurement is reported in milligram units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " mg",
+    "digits_only": false
+   },
+   {
+    "context": "For material C, a measurement is reported in centimeter units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " cm",
+    "digits_only": false
+   },
+   {
+    "context": "For object B, a measurement is reported in kilogram units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " kg",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen D, a measurement is reported in watt units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " W",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen D, a measurement is reported in joule units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " J",
+    "digits_only": false
+   },
+   {
+    "context": "For sample D, a measurement is reported in ampere units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For device B, a measurement is reported in ampere units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For component B, a measurement is reported in kilohertz units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " kHz",
+    "digits_only": false
+   },
+   {
+    "context": "For object C, a measurement is reported in kilometer units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " km",
+    "digits_only": false
+   },
+   {
+    "context": "For sample A, a measurement is reported in kelvin units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " K",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen A, a measurement is reported in centimeter units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " cm",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen C, a measurement is reported in centimeter units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " cm",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen B, a measurement is reported in hertz units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " Hz",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen A, a measurement is reported in hertz units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " Hz",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen C, a measurement is reported in centimeter units. Write only the standard unit symbol, preserving capitalization.\nSymbol:",
+    "continuation": " cm",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "For device B, a measurement is reported in ampere units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "For sample C, a measurement is reported in kelvin units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "For component A, a measurement is reported in joule units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For object C, a measurement is reported in kilometer units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "For material C, a measurement is reported in milligram units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen C, a measurement is reported in centimeter units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen D, a measurement is reported in kilogram units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen B, a measurement is reported in kilopascal units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "For object C, a measurement is reported in kelvin units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "For sample C, a measurement is reported in milligram units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "For sample C, a measurement is reported in pascal units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "For sample D, a measurement is reported in ampere units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "For sample D, a measurement is reported in ampere units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen B, a measurement is reported in meter units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "For object A, a measurement is reported in pascal units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For object B, a measurement is reported in kilogram units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen A, a measurement is reported in hertz units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For material B, a measurement is reported in megahertz units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "For object A, a measurement is reported in milligram units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen C, a measurement is reported in meter units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "For device A, a measurement is reported in volt units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen B, a measurement is reported in hertz units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen A, a measurement is reported in centimeter units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen D, a measurement is reported in joule units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "For material A, a measurement is reported in milligram units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For object C, a measurement is reported in megahertz units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "For object C, a measurement is reported in kelvin units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "For sample D, a measurement is reported in watt units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen D, a measurement is reported in centimeter units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "For component B, a measurement is reported in kilohertz units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "For component A, a measurement is reported in volt units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For device B, a measurement is reported in kilopascal units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen D, a measurement is reported in hertz units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "For component D, a measurement is reported in watt units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "For material A, a measurement is reported in joule units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For sample D, a measurement is reported in kilometer units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "For device C, a measurement is reported in milligram units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "For component B, a measurement is reported in megahertz units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "For material A, a measurement is reported in millimeter units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For object B, a measurement is reported in volt units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen D, a measurement is reported in hertz units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "For component B, a measurement is reported in megahertz units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "For material D, a measurement is reported in millimeter units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "For object A, a measurement is reported in kilopascal units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For object A, a measurement is reported in watt units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen B, a measurement is reported in kilohertz units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "For sample C, a measurement is reported in kilopascal units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "For component B, a measurement is reported in joule units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "For component D, a measurement is reported in hertz units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "For sample A, a measurement is reported in milligram units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For sample A, a measurement is reported in millimeter units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen A, a measurement is reported in watt units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For object B, a measurement is reported in megahertz units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "For device A, a measurement is reported in kilogram units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For sample B, a measurement is reported in watt units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "For component D, a measurement is reported in meter units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "For component B, a measurement is reported in kilohertz units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "For component D, a measurement is reported in kelvin units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen C, a measurement is reported in kilometer units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen C, a measurement is reported in meter units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "For sample B, a measurement is reported in pascal units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen C, a measurement is reported in joule units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "For component A, a measurement is reported in kilometer units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For sample A, a measurement is reported in volt units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For object A, a measurement is reported in kilohertz units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For material C, a measurement is reported in kilohertz units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen D, a measurement is reported in watt units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen B, a measurement is reported in kilohertz units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "For sample C, a measurement is reported in centimeter units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "For device B, a measurement is reported in hertz units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "For object D, a measurement is reported in kelvin units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen D, a measurement is reported in millimeter units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "For sample A, a measurement is reported in millimeter units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For device B, a measurement is reported in pascal units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "For material A, a measurement is reported in ampere units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For component D, a measurement is reported in ampere units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen B, a measurement is reported in millimeter units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "For device C, a measurement is reported in kilopascal units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "For material D, a measurement is reported in kilogram units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "For device A, a measurement is reported in ampere units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For device B, a measurement is reported in megahertz units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "For specimen C, a measurement is reported in centimeter units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "For material C, a measurement is reported in kilometer units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "For sample A, a measurement is reported in kelvin units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For object C, a measurement is reported in volt units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "For device B, a measurement is reported in joule units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "For device D, a measurement is reported in kilogram units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "For object D, a measurement is reported in kilometer units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "For sample A, a measurement is reported in volt units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For sample B, a measurement is reported in kilopascal units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "For sample A, a measurement is reported in meter units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For component B, a measurement is reported in meter units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "For object A, a measurement is reported in kilogram units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For sample C, a measurement is reported in pascal units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "For object A, a measurement is reported in pascal units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " A",
+    "digits_only": false
+   },
+   {
+    "context": "For material C, a measurement is reported in centimeter units. Write only the label letter of the measured object.\nLabel:",
+    "continuation": " C",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 9.9774
+}

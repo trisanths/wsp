@@ -644,9 +644,17 @@ def run_cell(arm, seed):
 
 
 @app.local_entrypoint()
-def main(shard: int = 0, nshards: int = 1):
+def main(shard: int = 0, nshards: int = 1, only: str = ""):
+    todo = cells()
+    if only:
+        # "arm,arm" reruns chosen arms (every seed of each).
+        wanted = set(only.split(","))
+        todo = []
+        for cell in cells():
+            if cell[0] in wanted:
+                todo.append(cell)
     mine = []
-    for index, cell in enumerate(cells()):
+    for index, cell in enumerate(todo):
         if index % nshards == shard:
             mine.append(cell)
     print(f"shard {shard}/{nshards}: {mine}")

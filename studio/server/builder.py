@@ -116,6 +116,12 @@ def get_job(job_id):
     return public_job(job)
 
 
+def add_job(job):
+    """Register a job made elsewhere (a shrink job), so GET /api/jobs/{id} finds it."""
+    with _lock:
+        _jobs[job["job_id"]] = job
+
+
 def public_job(job):
     with job["lock"]:
         return {"job_id": job["job_id"], "action": job["action"], "status": job["status"],

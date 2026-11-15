@@ -1,0 +1,1220 @@
+{
+ "name": "subject_verb_agreement",
+ "description": "Select is/are using head-noun number despite an intervening noun with opposite number; matched control copies head noun.",
+ "hash": "181732aa0b1b09aa",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\npairs=[('key','keys'),('book','books'),('dog','dogs'),('cat','cats'),('teacher','teachers'),('student','students'),('box','boxes'),('bottle','bottles'),('picture','pictures'),('chair','chairs'),('car','cars'),('tree','trees'),('house','houses'),('bird','birds'),('flower','flowers'),('window','windows'),('door','doors'),('table','tables'),('cup','cups'),('plate','plates')]\nitems=[];control=[]\nfor i in range(120):\n a,b=random.sample(pairs,2);plural=bool(i%2);head=a[int(plural)];other=b[int(not plural)]\n sent='The '+head+' '+random.choice(['near','beside','behind','in front of'])+' the '+other+' ___ '+random.choice(['here','there','visible','missing','outside'])+'.'\n items.append({'prompt':'Fill the blank with is or are.\\n'+sent+'\\nAnswer:','answer':' '+('are' if plural else 'is')})\n control.append({'prompt':'Copy the first noun in this sentence.\\n'+sent+'\\nAnswer:','answer':' '+head})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Fill the blank with is or are.\nThe flowers in front of the door ___ outside.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe doors behind the teacher ___ outside.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe windows in front of the teacher ___ missing.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe teachers beside the chair ___ here.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe boxes in front of the chair ___ missing.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe cars in front of the chair ___ here.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe houses behind the cup ___ here.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe book in front of the dogs ___ outside.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe cat beside the teachers ___ here.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe windows near the tree ___ visible.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe keys near the flower ___ visible.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe keys near the book ___ there.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe pictures beside the door ___ there.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe cats beside the picture ___ outside.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe cars near the tree ___ visible.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe car beside the tables ___ outside.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe chairs beside the car ___ there.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe students in front of the car ___ here.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe window beside the trees ___ outside.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe plate near the books ___ visible.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe door near the pictures ___ outside.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe keys behind the flower ___ there.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe students behind the car ___ here.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe cat in front of the windows ___ here.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe table near the teachers ___ outside.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe plate beside the flowers ___ here.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe house beside the pictures ___ outside.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe windows behind the picture ___ missing.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe chair near the students ___ visible.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe cats near the picture ___ there.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe plate behind the windows ___ there.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe cup behind the birds ___ missing.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe book behind the tables ___ there.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe chair beside the trees ___ visible.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe teacher behind the houses ___ missing.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe trees near the cat ___ here.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe flowers near the dog ___ visible.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe plate behind the boxes ___ there.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe dogs beside the plate ___ there.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe house beside the cups ___ here.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe bird beside the trees ___ there.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe dogs beside the tree ___ visible.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe cats beside the window ___ here.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe bottles beside the chair ___ there.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe table behind the cats ___ missing.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe car behind the plates ___ here.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe windows behind the house ___ there.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe student behind the books ___ missing.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe book in front of the plates ___ missing.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe cup behind the pictures ___ here.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe picture beside the cats ___ visible.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe plate beside the keys ___ there.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe cup near the birds ___ missing.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe house near the keys ___ missing.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe door beside the flowers ___ here.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe tables near the chair ___ outside.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe door near the windows ___ visible.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe houses near the door ___ outside.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe plate near the keys ___ missing.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe cars near the plate ___ missing.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Fill the blank with is or are.\nThe plate beside the pictures ___ visible.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe houses behind the car ___ missing.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe cat in front of the plates ___ missing.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe pictures in front of the tree ___ outside.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe cups near the table ___ here.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe cup near the houses ___ here.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe doors beside the cat ___ here.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe house near the birds ___ visible.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe dog near the doors ___ missing.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe cars beside the dog ___ outside.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe doors in front of the window ___ visible.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe cup in front of the students ___ there.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe cars in front of the box ___ missing.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe house near the plates ___ there.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe dog behind the keys ___ missing.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe flower behind the dogs ___ there.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe teachers near the window ___ there.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe picture behind the tables ___ visible.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe plate in front of the cats ___ outside.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe house beside the tables ___ visible.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe plate in front of the cats ___ there.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe cups near the bird ___ there.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe dogs near the plate ___ here.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe tables behind the door ___ missing.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe cups in front of the book ___ missing.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe bird near the boxes ___ there.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe student near the boxes ___ there.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe dogs beside the box ___ here.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe keys in front of the dog ___ here.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe teachers behind the bottle ___ visible.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe students in front of the book ___ here.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe dog behind the houses ___ outside.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe students behind the teacher ___ visible.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe window beside the cups ___ missing.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe tree beside the cats ___ visible.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe cat near the boxes ___ missing.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe cats beside the window ___ here.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe bottle beside the plates ___ outside.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe book beside the boxes ___ here.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe windows beside the box ___ here.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe key in front of the tables ___ outside.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe tables behind the cup ___ missing.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe plate behind the boxes ___ visible.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe cars beside the box ___ here.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe teacher behind the plates ___ visible.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe windows behind the bird ___ visible.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe keys in front of the house ___ visible.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe dog behind the chairs ___ missing.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe bottle near the teachers ___ visible.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe door behind the windows ___ missing.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe houses near the bird ___ here.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe key near the boxes ___ here.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe students in front of the cat ___ missing.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe dogs near the tree ___ here.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe cats behind the dog ___ missing.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe bottles in front of the plate ___ missing.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe keys behind the student ___ outside.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe boxes in front of the flower ___ visible.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe bottles behind the window ___ outside.\nAnswer:",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "Fill the blank with is or are.\nThe teacher behind the flowers ___ outside.\nAnswer:",
+    "continuation": " is",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Copy the first noun in this sentence.\nThe teachers near the window ___ there.\nAnswer:",
+    "continuation": " teachers",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe houses behind the car ___ missing.\nAnswer:",
+    "continuation": " houses",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe student behind the books ___ missing.\nAnswer:",
+    "continuation": " student",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe window beside the cups ___ missing.\nAnswer:",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe tree beside the cats ___ visible.\nAnswer:",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe pictures in front of the tree ___ outside.\nAnswer:",
+    "continuation": " pictures",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe plate beside the pictures ___ visible.\nAnswer:",
+    "continuation": " plate",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe cats beside the window ___ here.\nAnswer:",
+    "continuation": " cats",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe dog behind the chairs ___ missing.\nAnswer:",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe plate behind the windows ___ there.\nAnswer:",
+    "continuation": " plate",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe door near the windows ___ visible.\nAnswer:",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe windows behind the house ___ there.\nAnswer:",
+    "continuation": " windows",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe book in front of the dogs ___ outside.\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe house beside the tables ___ visible.\nAnswer:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe cup behind the pictures ___ here.\nAnswer:",
+    "continuation": " cup",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe cups in front of the book ___ missing.\nAnswer:",
+    "continuation": " cups",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe houses behind the cup ___ here.\nAnswer:",
+    "continuation": " houses",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe plate behind the boxes ___ there.\nAnswer:",
+    "continuation": " plate",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe door beside the flowers ___ here.\nAnswer:",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe keys in front of the dog ___ here.\nAnswer:",
+    "continuation": " keys",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe cat in front of the plates ___ missing.\nAnswer:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe house near the plates ___ there.\nAnswer:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe book beside the boxes ___ here.\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe trees near the cat ___ here.\nAnswer:",
+    "continuation": " trees",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe students in front of the book ___ here.\nAnswer:",
+    "continuation": " students",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe key in front of the tables ___ outside.\nAnswer:",
+    "continuation": " key",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe dogs near the plate ___ here.\nAnswer:",
+    "continuation": " dogs",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe chair beside the trees ___ visible.\nAnswer:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe car beside the tables ___ outside.\nAnswer:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe dogs near the tree ___ here.\nAnswer:",
+    "continuation": " dogs",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe cup behind the birds ___ missing.\nAnswer:",
+    "continuation": " cup",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe table behind the cats ___ missing.\nAnswer:",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe cat in front of the windows ___ here.\nAnswer:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe cats behind the dog ___ missing.\nAnswer:",
+    "continuation": " cats",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe cats beside the window ___ here.\nAnswer:",
+    "continuation": " cats",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe teacher behind the plates ___ visible.\nAnswer:",
+    "continuation": " teacher",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe cars beside the dog ___ outside.\nAnswer:",
+    "continuation": " cars",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe teacher behind the houses ___ missing.\nAnswer:",
+    "continuation": " teacher",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe students behind the car ___ here.\nAnswer:",
+    "continuation": " students",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe house beside the cups ___ here.\nAnswer:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe cat beside the teachers ___ here.\nAnswer:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe dog behind the keys ___ missing.\nAnswer:",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe teachers behind the bottle ___ visible.\nAnswer:",
+    "continuation": " teachers",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe windows near the tree ___ visible.\nAnswer:",
+    "continuation": " windows",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe houses near the bird ___ here.\nAnswer:",
+    "continuation": " houses",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe cups near the table ___ here.\nAnswer:",
+    "continuation": " cups",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe table near the teachers ___ outside.\nAnswer:",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe cars in front of the chair ___ here.\nAnswer:",
+    "continuation": " cars",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe bottles beside the chair ___ there.\nAnswer:",
+    "continuation": " bottles",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe plate behind the boxes ___ visible.\nAnswer:",
+    "continuation": " plate",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe student near the boxes ___ there.\nAnswer:",
+    "continuation": " student",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe students in front of the cat ___ missing.\nAnswer:",
+    "continuation": " students",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe chair near the students ___ visible.\nAnswer:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe keys behind the student ___ outside.\nAnswer:",
+    "continuation": " keys",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe windows behind the bird ___ visible.\nAnswer:",
+    "continuation": " windows",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe keys in front of the house ___ visible.\nAnswer:",
+    "continuation": " keys",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe dogs beside the plate ___ there.\nAnswer:",
+    "continuation": " dogs",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe keys near the flower ___ visible.\nAnswer:",
+    "continuation": " keys",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe cars in front of the box ___ missing.\nAnswer:",
+    "continuation": " cars",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe dog behind the houses ___ outside.\nAnswer:",
+    "continuation": " dog",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Copy the first noun in this sentence.\nThe windows in front of the teacher ___ missing.\nAnswer:",
+    "continuation": " windows",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe house beside the pictures ___ outside.\nAnswer:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe house near the keys ___ missing.\nAnswer:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe pictures beside the door ___ there.\nAnswer:",
+    "continuation": " pictures",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe doors behind the teacher ___ outside.\nAnswer:",
+    "continuation": " doors",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe bottles in front of the plate ___ missing.\nAnswer:",
+    "continuation": " bottles",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe cup near the houses ___ here.\nAnswer:",
+    "continuation": " cup",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe cats near the picture ___ there.\nAnswer:",
+    "continuation": " cats",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe plate near the keys ___ missing.\nAnswer:",
+    "continuation": " plate",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe plate near the books ___ visible.\nAnswer:",
+    "continuation": " plate",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe book in front of the plates ___ missing.\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe plate beside the flowers ___ here.\nAnswer:",
+    "continuation": " plate",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe dogs beside the tree ___ visible.\nAnswer:",
+    "continuation": " dogs",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe picture behind the tables ___ visible.\nAnswer:",
+    "continuation": " picture",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe boxes in front of the chair ___ missing.\nAnswer:",
+    "continuation": " boxes",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe flower behind the dogs ___ there.\nAnswer:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe picture beside the cats ___ visible.\nAnswer:",
+    "continuation": " picture",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe cats beside the picture ___ outside.\nAnswer:",
+    "continuation": " cats",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe chairs beside the car ___ there.\nAnswer:",
+    "continuation": " chairs",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe cup near the birds ___ missing.\nAnswer:",
+    "continuation": " cup",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe cars beside the box ___ here.\nAnswer:",
+    "continuation": " cars",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe bottle near the teachers ___ visible.\nAnswer:",
+    "continuation": " bottle",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe doors in front of the window ___ visible.\nAnswer:",
+    "continuation": " doors",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe keys near the book ___ there.\nAnswer:",
+    "continuation": " keys",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe keys behind the flower ___ there.\nAnswer:",
+    "continuation": " keys",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe dogs beside the box ___ here.\nAnswer:",
+    "continuation": " dogs",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe window beside the trees ___ outside.\nAnswer:",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe windows beside the box ___ here.\nAnswer:",
+    "continuation": " windows",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe plate in front of the cats ___ there.\nAnswer:",
+    "continuation": " plate",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe flowers near the dog ___ visible.\nAnswer:",
+    "continuation": " flowers",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe cars near the tree ___ visible.\nAnswer:",
+    "continuation": " cars",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe students in front of the car ___ here.\nAnswer:",
+    "continuation": " students",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe cup in front of the students ___ there.\nAnswer:",
+    "continuation": " cup",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe plate beside the keys ___ there.\nAnswer:",
+    "continuation": " plate",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe houses near the door ___ outside.\nAnswer:",
+    "continuation": " houses",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe tables behind the door ___ missing.\nAnswer:",
+    "continuation": " tables",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe house near the birds ___ visible.\nAnswer:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe dog near the doors ___ missing.\nAnswer:",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe students behind the teacher ___ visible.\nAnswer:",
+    "continuation": " students",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe cups near the bird ___ there.\nAnswer:",
+    "continuation": " cups",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe bottles behind the window ___ outside.\nAnswer:",
+    "continuation": " bottles",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe teachers beside the chair ___ here.\nAnswer:",
+    "continuation": " teachers",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe key near the boxes ___ here.\nAnswer:",
+    "continuation": " key",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe bottle beside the plates ___ outside.\nAnswer:",
+    "continuation": " bottle",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe plate in front of the cats ___ outside.\nAnswer:",
+    "continuation": " plate",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe door behind the windows ___ missing.\nAnswer:",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe book behind the tables ___ there.\nAnswer:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe cars near the plate ___ missing.\nAnswer:",
+    "continuation": " cars",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe bird near the boxes ___ there.\nAnswer:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe flowers in front of the door ___ outside.\nAnswer:",
+    "continuation": " flowers",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe windows behind the picture ___ missing.\nAnswer:",
+    "continuation": " windows",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe doors beside the cat ___ here.\nAnswer:",
+    "continuation": " doors",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe tables near the chair ___ outside.\nAnswer:",
+    "continuation": " tables",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe cat near the boxes ___ missing.\nAnswer:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe door near the pictures ___ outside.\nAnswer:",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe boxes in front of the flower ___ visible.\nAnswer:",
+    "continuation": " boxes",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe car behind the plates ___ here.\nAnswer:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe teacher behind the flowers ___ outside.\nAnswer:",
+    "continuation": " teacher",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe bird beside the trees ___ there.\nAnswer:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the first noun in this sentence.\nThe tables behind the cup ___ missing.\nAnswer:",
+    "continuation": " tables",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 0.7438
+}

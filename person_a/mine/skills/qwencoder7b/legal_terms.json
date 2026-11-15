@@ -1,0 +1,820 @@
+{
+ "name": "legal_terms",
+ "description": "Map plain-language descriptions of legal roles and concepts to standard legal terms; control copies the provided term.",
+ "hash": "2221e4b5f0b2761e",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\npairs=[('the party who brings a civil lawsuit','plaintiff'),('the party being sued or accused','defendant'),('the official who presides over a court','judge'),('the group of citizens who decide a verdict','jury'),('a person who gives testimony about what they observed','witness'),('a written law enacted by a legislature','statute'),('a binding agreement enforceable by law','contract'),('a court order requiring a person to testify','subpoena'),('a court order directing someone to stop an action','injunction'),('a request for a higher court to review a decision','appeal'),('a prior judicial decision used as authority','precedent'),('a sworn written statement','affidavit'),('the legal authority of a court to hear a case','jurisdiction'),('a serious criminal offense','felony'),('a less serious criminal offense','misdemeanor'),('a civil wrong that can lead to liability','tort'),('a formal accusation issued by a grand jury','indictment'),('a decision that the accused is not guilty','acquittal'),('a court proceeding to determine guilt or liability','trial'),('the decision returned by a jury','verdict')]\nitems=[];control=[]\nfor r in range(4):\n for desc,term in pairs:\n  p=[f'Legal vocabulary: {desc} is called the',f'Law glossary. Definition: {desc}. Term:',f'Name the legal term for {desc}. Answer:',f'In law, {desc} is known as'][r]\n  items.append({'prompt':p,'answer':' '+term});control.append({'prompt':f'Copy the legal term. Definition: {desc}. Term: {term}. Copied term:','answer':' '+term})\nrandom.shuffle(items);random.shuffle(control)\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Legal vocabulary: a request for a higher court to review a decision is called the",
+    "continuation": " appeal",
+    "digits_only": false
+   },
+   {
+    "context": "Law glossary. Definition: the party who brings a civil lawsuit. Term:",
+    "continuation": " plaintiff",
+    "digits_only": false
+   },
+   {
+    "context": "Name the legal term for the party who brings a civil lawsuit. Answer:",
+    "continuation": " plaintiff",
+    "digits_only": false
+   },
+   {
+    "context": "Law glossary. Definition: the party being sued or accused. Term:",
+    "continuation": " defendant",
+    "digits_only": false
+   },
+   {
+    "context": "Law glossary. Definition: the group of citizens who decide a verdict. Term:",
+    "continuation": " jury",
+    "digits_only": false
+   },
+   {
+    "context": "In law, a sworn written statement is known as",
+    "continuation": " affidavit",
+    "digits_only": false
+   },
+   {
+    "context": "In law, a person who gives testimony about what they observed is known as",
+    "continuation": " witness",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: a court order directing someone to stop an action is called the",
+    "continuation": " injunction",
+    "digits_only": false
+   },
+   {
+    "context": "Law glossary. Definition: a formal accusation issued by a grand jury. Term:",
+    "continuation": " indictment",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: a serious criminal offense is called the",
+    "continuation": " felony",
+    "digits_only": false
+   },
+   {
+    "context": "In law, a written law enacted by a legislature is known as",
+    "continuation": " statute",
+    "digits_only": false
+   },
+   {
+    "context": "In law, a binding agreement enforceable by law is known as",
+    "continuation": " contract",
+    "digits_only": false
+   },
+   {
+    "context": "In law, a formal accusation issued by a grand jury is known as",
+    "continuation": " indictment",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: a civil wrong that can lead to liability is called the",
+    "continuation": " tort",
+    "digits_only": false
+   },
+   {
+    "context": "Name the legal term for a person who gives testimony about what they observed. Answer:",
+    "continuation": " witness",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: the party being sued or accused is called the",
+    "continuation": " defendant",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: a person who gives testimony about what they observed is called the",
+    "continuation": " witness",
+    "digits_only": false
+   },
+   {
+    "context": "In law, a serious criminal offense is known as",
+    "continuation": " felony",
+    "digits_only": false
+   },
+   {
+    "context": "Law glossary. Definition: the legal authority of a court to hear a case. Term:",
+    "continuation": " jurisdiction",
+    "digits_only": false
+   },
+   {
+    "context": "In law, the group of citizens who decide a verdict is known as",
+    "continuation": " jury",
+    "digits_only": false
+   },
+   {
+    "context": "Name the legal term for a less serious criminal offense. Answer:",
+    "continuation": " misdemeanor",
+    "digits_only": false
+   },
+   {
+    "context": "Name the legal term for the official who presides over a court. Answer:",
+    "continuation": " judge",
+    "digits_only": false
+   },
+   {
+    "context": "Name the legal term for a serious criminal offense. Answer:",
+    "continuation": " felony",
+    "digits_only": false
+   },
+   {
+    "context": "In law, the official who presides over a court is known as",
+    "continuation": " judge",
+    "digits_only": false
+   },
+   {
+    "context": "In law, a less serious criminal offense is known as",
+    "continuation": " misdemeanor",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: a sworn written statement is called the",
+    "continuation": " affidavit",
+    "digits_only": false
+   },
+   {
+    "context": "In law, a civil wrong that can lead to liability is known as",
+    "continuation": " tort",
+    "digits_only": false
+   },
+   {
+    "context": "In law, a prior judicial decision used as authority is known as",
+    "continuation": " precedent",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: a prior judicial decision used as authority is called the",
+    "continuation": " precedent",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: a less serious criminal offense is called the",
+    "continuation": " misdemeanor",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: the decision returned by a jury is called the",
+    "continuation": " verdict",
+    "digits_only": false
+   },
+   {
+    "context": "In law, the party being sued or accused is known as",
+    "continuation": " defendant",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: a court order requiring a person to testify is called the",
+    "continuation": " subpoena",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: a written law enacted by a legislature is called the",
+    "continuation": " statute",
+    "digits_only": false
+   },
+   {
+    "context": "Name the legal term for a formal accusation issued by a grand jury. Answer:",
+    "continuation": " indictment",
+    "digits_only": false
+   },
+   {
+    "context": "Name the legal term for a prior judicial decision used as authority. Answer:",
+    "continuation": " precedent",
+    "digits_only": false
+   },
+   {
+    "context": "Name the legal term for the legal authority of a court to hear a case. Answer:",
+    "continuation": " jurisdiction",
+    "digits_only": false
+   },
+   {
+    "context": "Law glossary. Definition: a serious criminal offense. Term:",
+    "continuation": " felony",
+    "digits_only": false
+   },
+   {
+    "context": "Law glossary. Definition: a binding agreement enforceable by law. Term:",
+    "continuation": " contract",
+    "digits_only": false
+   },
+   {
+    "context": "Name the legal term for a request for a higher court to review a decision. Answer:",
+    "continuation": " appeal",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Law glossary. Definition: a civil wrong that can lead to liability. Term:",
+    "continuation": " tort",
+    "digits_only": false
+   },
+   {
+    "context": "Law glossary. Definition: a request for a higher court to review a decision. Term:",
+    "continuation": " appeal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the legal term for a court order directing someone to stop an action. Answer:",
+    "continuation": " injunction",
+    "digits_only": false
+   },
+   {
+    "context": "In law, the decision returned by a jury is known as",
+    "continuation": " verdict",
+    "digits_only": false
+   },
+   {
+    "context": "Name the legal term for a court order requiring a person to testify. Answer:",
+    "continuation": " subpoena",
+    "digits_only": false
+   },
+   {
+    "context": "Law glossary. Definition: a court order requiring a person to testify. Term:",
+    "continuation": " subpoena",
+    "digits_only": false
+   },
+   {
+    "context": "In law, a court proceeding to determine guilt or liability is known as",
+    "continuation": " trial",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: a binding agreement enforceable by law is called the",
+    "continuation": " contract",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: the group of citizens who decide a verdict is called the",
+    "continuation": " jury",
+    "digits_only": false
+   },
+   {
+    "context": "Name the legal term for a civil wrong that can lead to liability. Answer:",
+    "continuation": " tort",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: the official who presides over a court is called the",
+    "continuation": " judge",
+    "digits_only": false
+   },
+   {
+    "context": "Law glossary. Definition: the decision returned by a jury. Term:",
+    "continuation": " verdict",
+    "digits_only": false
+   },
+   {
+    "context": "Law glossary. Definition: a person who gives testimony about what they observed. Term:",
+    "continuation": " witness",
+    "digits_only": false
+   },
+   {
+    "context": "Law glossary. Definition: the official who presides over a court. Term:",
+    "continuation": " judge",
+    "digits_only": false
+   },
+   {
+    "context": "In law, a court order directing someone to stop an action is known as",
+    "continuation": " injunction",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: a court proceeding to determine guilt or liability is called the",
+    "continuation": " trial",
+    "digits_only": false
+   },
+   {
+    "context": "Name the legal term for the party being sued or accused. Answer:",
+    "continuation": " defendant",
+    "digits_only": false
+   },
+   {
+    "context": "Name the legal term for a decision that the accused is not guilty. Answer:",
+    "continuation": " acquittal",
+    "digits_only": false
+   },
+   {
+    "context": "Law glossary. Definition: a court proceeding to determine guilt or liability. Term:",
+    "continuation": " trial",
+    "digits_only": false
+   },
+   {
+    "context": "Name the legal term for a sworn written statement. Answer:",
+    "continuation": " affidavit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the legal term for a written law enacted by a legislature. Answer:",
+    "continuation": " statute",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: the party who brings a civil lawsuit is called the",
+    "continuation": " plaintiff",
+    "digits_only": false
+   },
+   {
+    "context": "In law, the legal authority of a court to hear a case is known as",
+    "continuation": " jurisdiction",
+    "digits_only": false
+   },
+   {
+    "context": "Law glossary. Definition: a written law enacted by a legislature. Term:",
+    "continuation": " statute",
+    "digits_only": false
+   },
+   {
+    "context": "Law glossary. Definition: a decision that the accused is not guilty. Term:",
+    "continuation": " acquittal",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: a decision that the accused is not guilty is called the",
+    "continuation": " acquittal",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: a formal accusation issued by a grand jury is called the",
+    "continuation": " indictment",
+    "digits_only": false
+   },
+   {
+    "context": "Name the legal term for the decision returned by a jury. Answer:",
+    "continuation": " verdict",
+    "digits_only": false
+   },
+   {
+    "context": "Legal vocabulary: the legal authority of a court to hear a case is called the",
+    "continuation": " jurisdiction",
+    "digits_only": false
+   },
+   {
+    "context": "In law, the party who brings a civil lawsuit is known as",
+    "continuation": " plaintiff",
+    "digits_only": false
+   },
+   {
+    "context": "In law, a request for a higher court to review a decision is known as",
+    "continuation": " appeal",
+    "digits_only": false
+   },
+   {
+    "context": "Law glossary. Definition: a less serious criminal offense. Term:",
+    "continuation": " misdemeanor",
+    "digits_only": false
+   },
+   {
+    "context": "Law glossary. Definition: a court order directing someone to stop an action. Term:",
+    "continuation": " injunction",
+    "digits_only": false
+   },
+   {
+    "context": "Name the legal term for the group of citizens who decide a verdict. Answer:",
+    "continuation": " jury",
+    "digits_only": false
+   },
+   {
+    "context": "Name the legal term for a court proceeding to determine guilt or liability. Answer:",
+    "continuation": " trial",
+    "digits_only": false
+   },
+   {
+    "context": "In law, a court order requiring a person to testify is known as",
+    "continuation": " subpoena",
+    "digits_only": false
+   },
+   {
+    "context": "In law, a decision that the accused is not guilty is known as",
+    "continuation": " acquittal",
+    "digits_only": false
+   },
+   {
+    "context": "Law glossary. Definition: a sworn written statement. Term:",
+    "continuation": " affidavit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the legal term for a binding agreement enforceable by law. Answer:",
+    "continuation": " contract",
+    "digits_only": false
+   },
+   {
+    "context": "Law glossary. Definition: a prior judicial decision used as authority. Term:",
+    "continuation": " precedent",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Copy the legal term. Definition: a person who gives testimony about what they observed. Term: witness. Copied term:",
+    "continuation": " witness",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: the decision returned by a jury. Term: verdict. Copied term:",
+    "continuation": " verdict",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a sworn written statement. Term: affidavit. Copied term:",
+    "continuation": " affidavit",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a serious criminal offense. Term: felony. Copied term:",
+    "continuation": " felony",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a serious criminal offense. Term: felony. Copied term:",
+    "continuation": " felony",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a court order requiring a person to testify. Term: subpoena. Copied term:",
+    "continuation": " subpoena",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: the official who presides over a court. Term: judge. Copied term:",
+    "continuation": " judge",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: the group of citizens who decide a verdict. Term: jury. Copied term:",
+    "continuation": " jury",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: the decision returned by a jury. Term: verdict. Copied term:",
+    "continuation": " verdict",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a less serious criminal offense. Term: misdemeanor. Copied term:",
+    "continuation": " misdemeanor",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a written law enacted by a legislature. Term: statute. Copied term:",
+    "continuation": " statute",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a prior judicial decision used as authority. Term: precedent. Copied term:",
+    "continuation": " precedent",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a prior judicial decision used as authority. Term: precedent. Copied term:",
+    "continuation": " precedent",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a civil wrong that can lead to liability. Term: tort. Copied term:",
+    "continuation": " tort",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: the official who presides over a court. Term: judge. Copied term:",
+    "continuation": " judge",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a formal accusation issued by a grand jury. Term: indictment. Copied term:",
+    "continuation": " indictment",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a person who gives testimony about what they observed. Term: witness. Copied term:",
+    "continuation": " witness",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a formal accusation issued by a grand jury. Term: indictment. Copied term:",
+    "continuation": " indictment",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a less serious criminal offense. Term: misdemeanor. Copied term:",
+    "continuation": " misdemeanor",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a less serious criminal offense. Term: misdemeanor. Copied term:",
+    "continuation": " misdemeanor",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a decision that the accused is not guilty. Term: acquittal. Copied term:",
+    "continuation": " acquittal",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a court order directing someone to stop an action. Term: injunction. Copied term:",
+    "continuation": " injunction",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a court order directing someone to stop an action. Term: injunction. Copied term:",
+    "continuation": " injunction",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a decision that the accused is not guilty. Term: acquittal. Copied term:",
+    "continuation": " acquittal",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a court proceeding to determine guilt or liability. Term: trial. Copied term:",
+    "continuation": " trial",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a request for a higher court to review a decision. Term: appeal. Copied term:",
+    "continuation": " appeal",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a prior judicial decision used as authority. Term: precedent. Copied term:",
+    "continuation": " precedent",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: the group of citizens who decide a verdict. Term: jury. Copied term:",
+    "continuation": " jury",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a formal accusation issued by a grand jury. Term: indictment. Copied term:",
+    "continuation": " indictment",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: the official who presides over a court. Term: judge. Copied term:",
+    "continuation": " judge",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: the legal authority of a court to hear a case. Term: jurisdiction. Copied term:",
+    "continuation": " jurisdiction",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a sworn written statement. Term: affidavit. Copied term:",
+    "continuation": " affidavit",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a decision that the accused is not guilty. Term: acquittal. Copied term:",
+    "continuation": " acquittal",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a civil wrong that can lead to liability. Term: tort. Copied term:",
+    "continuation": " tort",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a civil wrong that can lead to liability. Term: tort. Copied term:",
+    "continuation": " tort",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a binding agreement enforceable by law. Term: contract. Copied term:",
+    "continuation": " contract",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: the decision returned by a jury. Term: verdict. Copied term:",
+    "continuation": " verdict",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a court order requiring a person to testify. Term: subpoena. Copied term:",
+    "continuation": " subpoena",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a court proceeding to determine guilt or liability. Term: trial. Copied term:",
+    "continuation": " trial",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a prior judicial decision used as authority. Term: precedent. Copied term:",
+    "continuation": " precedent",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Copy the legal term. Definition: a less serious criminal offense. Term: misdemeanor. Copied term:",
+    "continuation": " misdemeanor",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: the party being sued or accused. Term: defendant. Copied term:",
+    "continuation": " defendant",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a binding agreement enforceable by law. Term: contract. Copied term:",
+    "continuation": " contract",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: the group of citizens who decide a verdict. Term: jury. Copied term:",
+    "continuation": " jury",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a court order requiring a person to testify. Term: subpoena. Copied term:",
+    "continuation": " subpoena",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a person who gives testimony about what they observed. Term: witness. Copied term:",
+    "continuation": " witness",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: the party who brings a civil lawsuit. Term: plaintiff. Copied term:",
+    "continuation": " plaintiff",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: the legal authority of a court to hear a case. Term: jurisdiction. Copied term:",
+    "continuation": " jurisdiction",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a sworn written statement. Term: affidavit. Copied term:",
+    "continuation": " affidavit",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: the group of citizens who decide a verdict. Term: jury. Copied term:",
+    "continuation": " jury",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: the party who brings a civil lawsuit. Term: plaintiff. Copied term:",
+    "continuation": " plaintiff",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: the party who brings a civil lawsuit. Term: plaintiff. Copied term:",
+    "continuation": " plaintiff",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a binding agreement enforceable by law. Term: contract. Copied term:",
+    "continuation": " contract",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: the official who presides over a court. Term: judge. Copied term:",
+    "continuation": " judge",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a serious criminal offense. Term: felony. Copied term:",
+    "continuation": " felony",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: the legal authority of a court to hear a case. Term: jurisdiction. Copied term:",
+    "continuation": " jurisdiction",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a civil wrong that can lead to liability. Term: tort. Copied term:",
+    "continuation": " tort",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: the party being sued or accused. Term: defendant. Copied term:",
+    "continuation": " defendant",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a sworn written statement. Term: affidavit. Copied term:",
+    "continuation": " affidavit",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a court proceeding to determine guilt or liability. Term: trial. Copied term:",
+    "continuation": " trial",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: the party being sued or accused. Term: defendant. Copied term:",
+    "continuation": " defendant",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a person who gives testimony about what they observed. Term: witness. Copied term:",
+    "continuation": " witness",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a decision that the accused is not guilty. Term: acquittal. Copied term:",
+    "continuation": " acquittal",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a request for a higher court to review a decision. Term: appeal. Copied term:",
+    "continuation": " appeal",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a court proceeding to determine guilt or liability. Term: trial. Copied term:",
+    "continuation": " trial",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a serious criminal offense. Term: felony. Copied term:",
+    "continuation": " felony",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a written law enacted by a legislature. Term: statute. Copied term:",
+    "continuation": " statute",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a request for a higher court to review a decision. Term: appeal. Copied term:",
+    "continuation": " appeal",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a written law enacted by a legislature. Term: statute. Copied term:",
+    "continuation": " statute",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a formal accusation issued by a grand jury. Term: indictment. Copied term:",
+    "continuation": " indictment",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a court order requiring a person to testify. Term: subpoena. Copied term:",
+    "continuation": " subpoena",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a written law enacted by a legislature. Term: statute. Copied term:",
+    "continuation": " statute",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a court order directing someone to stop an action. Term: injunction. Copied term:",
+    "continuation": " injunction",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a request for a higher court to review a decision. Term: appeal. Copied term:",
+    "continuation": " appeal",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a court order directing someone to stop an action. Term: injunction. Copied term:",
+    "continuation": " injunction",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: a binding agreement enforceable by law. Term: contract. Copied term:",
+    "continuation": " contract",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: the legal authority of a court to hear a case. Term: jurisdiction. Copied term:",
+    "continuation": " jurisdiction",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: the decision returned by a jury. Term: verdict. Copied term:",
+    "continuation": " verdict",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: the party who brings a civil lawsuit. Term: plaintiff. Copied term:",
+    "continuation": " plaintiff",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the legal term. Definition: the party being sued or accused. Term: defendant. Copied term:",
+    "continuation": " defendant",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 9.9365
+}

@@ -59,6 +59,7 @@ def main():
     ap.add_argument("--max-screens", type=int, default=60)
     ap.add_argument("--no-notes", action="store_true")
     ap.add_argument("--person", default=None, help="your name for the shared memory (else env WSP_PERSON)")
+    ap.add_argument("--open-domain", action="store_true", help="benchmark-agnostic: discover non-math domains")
     ap.add_argument("--focus", default=None, help="what this agent should concentrate on (set by run_many --agents)")
     ap.add_argument("--effort", default="high", choices=["low", "medium", "high", "xhigh"],
                     help="Astra reasoning effort (high = the blog's setting; medium is cheaper)")
@@ -94,7 +95,7 @@ def main():
               "| hours left", round(hours_left, 2))
         cost = agent.run(args.model, budget_usd=budget_left, max_hours=hours_left,
                          max_screens=args.max_screens - screens, use_notes=not args.no_notes, effort=args.effort,
-                         person=args.person, focus=args.focus)
+                         person=args.person, focus=args.focus, open_domain=args.open_domain)
         spent = spent + float(cost.get("openai_usd_est") or 0)
         screens = screens + int(cost.get("screens") or 0)
         if cost.get("stop_reason") not in ["finished", "no tool call"]:
