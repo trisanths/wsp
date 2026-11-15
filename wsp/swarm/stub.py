@@ -4,8 +4,20 @@ Every record and result made here carries "stub": True, every log row from
 the stub backend carries "backend": "stub", and every number from it must be
 labeled STUB.
 
-The stub is deterministic given (program, split, fidelity, stub seed) and has
-enough structure that reading signatures, fit and eval history beats random:
+The stub is deterministic given (program, split, fidelity, stub seed). Its
+shape follows Trisanth's round-2 sweep (results/README.md: host
+Llama-3.2-1B-Instruct, donor Qwen2.5-Math-1.5B, 512-neuron MLP clusters from
+donor layers 10, 18 and 24 at host layers 6, 10 and 14, full or rank-64 glue,
+300 heal steps, 3 seeds, GSM8K search split), so stub comparisons point the
+same way the real ones do:
+
+    real (search split, mean of 3 seeds)    stub (expected, heal 300)
+    host, no heal: 25.0%                    0.25
+    host layer 6, rank-64 glue: 39.0%       about 0.39
+    host layer 6, full glue: 34.3%          about 0.35
+    host layers 10 and 14: 22 to 26%        about 0.25
+    part minus random control: -1 point     0 (within noise)
+    per-cell sd: 2.3 points (pooled)        eval noise sd 0.023
 
 - Catalog: 40 graftable parts from four donors, in the real record shape,
   written to outputs/stub/catalog.jsonl (never to catalog.jsonl).
@@ -14,21 +26,37 @@ enough structure that reading signatures, fit and eval history beats random:
   family or a large hidden-size ratio, plus fixed noise. Two parts from one
   donor layer at one depth get the same fit, and a random-part control gets
   the fit of the part it replaces. Fit can veto a placement; it says nothing
-  about a part's value.
-- Each part has a hidden value per task. It shows only after heal and eval.
-  Its signature carries a noisy hint of that value (Person B's probe).
+  about a part's value, and nothing about which host depth scores best (in
+  round 2 every cell had fit near its home depth, yet host layer 6 won).
+- Placement dominates. The healed glue acts as an adapter whose gain depends
+  only on the relative host depth of `at` and the glue rank, the same for a
+  part and its random control: a bump peaking at layer 6 of 16, worth
+  GLUE_PEAK_GAIN with rank-64 glue and FULL_GLUE_FACTOR of that with full
+  glue. Far from the peak a graft gives back the heal-only gain, so it lands
+  near the host, as layers 10 and 14 did.
+- Part content. Single-layer parts (mlp_cluster, attn_heads, expert) add
+  about nothing over their random control: each gets a fixed draw of sd
+  SINGLE_LAYER_CONTENT_SD around 0. Only mlp_cluster was measured; attn_heads
+  and expert are treated the same way (STUB ASSUMPTION).
+- Blocks (multi-layer parts) carry a small real content effect, up to about
+  +4 points for math-donor blocks, so a search can still find something.
+  STUB ASSUMPTION: round 3 (whole donor blocks against a random-block
+  control and a matched LoRA) replaces this with data.
+- Heal-only (no graft, heal on) gains HEAL_GAIN_TARGET. STUB ASSUMPTION:
+  round 2 had no heal-only arm; round 3 adds it.
 - No heal block: the glue's W_out stays 0, so the model equals the host
-  exactly. With heal steps s, c = 1 - exp(-s / 100). Strength per graft is
-  fit + (1 - fit) * c * fit (300 steps closes most of the gap). Unhealed
-  glue hurts: each graft costs harm * (1 - c), so heal 0 hurts.
-- Eval: base + heal-only gain (capped, rises with steps) + sum of
-  value * strength - harm - interference for grafts at the same or adjacent
-  depth - a guard cost for many grafts, plus noise of about 0.01 (more at
+  exactly. With heal steps s, c = 1 - exp(-s / 100). Content strength per
+  graft is fit + (1 - fit) * c * fit (300 steps closes most of the gap).
+  Unhealed glue hurts: each graft costs harm * (1 - c), so heal 0 hurts.
+- Eval: base + heal-only gain + the best graft's glue gain (glue gains do
+  not stack across grafts, a STUB ASSUMPTION since round 2 only had single
+  grafts) + sum of content * strength - harm - interference for grafts at the
+  same or adjacent depth - a guard cost for many grafts, plus noise (more at
   low fidelity). Many weak grafts can collapse the guard.
-- A random-part control keeps the glue, heal and harm, with value near 0.
-- Cost model (reported as compute_s, never slept): compile 20 s + 15 s per
-  graft, probe = compile, heal 0.5 s per step per graft, eval 120 s times
-  the fidelity fraction.
+- A random-part control keeps the glue, heal and harm, with content near 0.
+- Cost model (reported as compute_s, never slept): compile 10 s + 15 s per
+  graft (25 s for one graft, the round-2 median), probe = compile, heal 0.5 s
+  per step per graft, eval 120 s times the fidelity fraction.
 """
 
 import hashlib
@@ -41,18 +69,20 @@ from wsp.swarm import program_schema as ps
 
 STUB_HOST = {"model": "unsloth/Llama-3.2-1B-Instruct", "family": "llama3.2", "layers": 16, "hidden": 2048}
 
+# block_value: the content scale of the donor's block parts per task (at full
+# strength, before the math depth profile). Single-layer parts do not use it.
 STUB_DONORS = {
     "Qwen/Qwen2.5-Math-1.5B": {"short": "qmath", "family": "qwen2.5", "layers": 28, "hidden": 1536,
-                               "intermediate": 8960, "value": {"gsm8k": 0.10, "if_guard": -0.010},
+                               "intermediate": 8960, "block_value": {"gsm8k": 0.06, "if_guard": -0.010},
                                "trained_on": "GSM8K train activations"},
     "Qwen/Qwen2.5-Coder-1.5B": {"short": "qcoder", "family": "qwen2.5", "layers": 28, "hidden": 1536,
-                                "intermediate": 8960, "value": {"gsm8k": 0.05, "if_guard": -0.005},
+                                "intermediate": 8960, "block_value": {"gsm8k": 0.03, "if_guard": -0.005},
                                 "trained_on": "code and GSM8K activations"},
     "meta-llama/Llama-3.2-3B-Instruct": {"short": "llama3b", "family": "llama3.2", "layers": 28, "hidden": 3072,
-                                         "intermediate": 8192, "value": {"gsm8k": 0.03, "if_guard": 0.020},
+                                         "intermediate": 8192, "block_value": {"gsm8k": 0.015, "if_guard": 0.010},
                                          "trained_on": "instruction following activations"},
     "allenai/OLMoE-1B-7B-0924": {"short": "olmoe", "family": "olmoe", "layers": 16, "hidden": 2048,
-                                 "intermediate": 1024, "value": {"gsm8k": 0.06, "if_guard": 0.0},
+                                 "intermediate": 1024, "block_value": {"gsm8k": 0.0, "if_guard": 0.0},
                                  "trained_on": "GSM8K expert routing statistics"},
 }
 
@@ -100,23 +130,42 @@ STUB_PART_PLAN = [
     ("allenai/OLMoE-1B-7B-0924", "expert", 14, "e9"),
 ]
 
-KIND_VALUE = {"mlp_cluster": 1.0, "attn_heads": 0.7, "expert": 1.0, "block": 1.6}
 KIND_HARM = {"mlp_cluster": 1.0, "attn_heads": 1.0, "expert": 1.0, "block": 1.5}
 
+# Host scores. gsm8k search is run 1's host with no heal (25.0%). The host's
+# held-out score is not measured yet, so held-out uses the same value.
 STUB_BASE = {
-    "search": {"gsm8k": 0.30, "if_guard": 0.70},
-    "heldout": {"gsm8k": 0.32, "if_guard": 0.68},
+    "search": {"gsm8k": 0.25, "if_guard": 0.70},
+    "heldout": {"gsm8k": 0.25, "if_guard": 0.68},
 }
-UNKNOWN_TASK_BASE = 0.30
+UNKNOWN_TASK_BASE = 0.25
+
+# Placement: the glue as an adapter (round 2, see the module docstring).
+GLUE_BEST_DEPTH = 6 / 16.0     # host layer 6 of 16 was best of the measured 6, 10 and 14
+GLUE_DEPTH_WIDTH = 2 / 16.0    # STUB guess: only three depths were measured
+GLUE_PEAK_GAIN = 0.13          # rank-64 glue at layer 6: 39.0% = host 25% + heal-only gain + this, healed
+FULL_GLUE_FACTOR = 0.7         # full glue at layer 6: 34.3%, about 0.7 of rank 64's gain over heal-only
+HEAL_GAIN_TARGET = 0.02        # heal-only gain at full heal (STUB ASSUMPTION; the controls subtract it)
+OFF_PEAK_GLUE_COST = HEAL_GAIN_TARGET  # far from layer 6 a graft lands back at the host (layers 10, 14)
+HEAL_GAIN_GUARD = -0.005
+
+# Content (beyond the random control).
+SINGLE_LAYER_CONTENT_SD = 0.005  # round 2: no selection method beat the random control
+HINT_NOISE = 0.02                # the signature's effect hint is the content plus this noise
+
 TARGET_HARM = 0.06        # per unhealed graft, on target tasks
 GUARD_HARM = 0.10         # per unhealed graft, on guard tasks
 GUARD_WEAK_HARM = 0.06    # per graft, times (1 - strength), on guard tasks
-HEAL_GAIN_TARGET = 0.02   # heal-only gain at full heal (the controls subtract this)
-HEAL_GAIN_GUARD = -0.005
 SAME_DEPTH_PENALTY = 0.03
 ADJACENT_DEPTH_PENALTY = 0.015
 MANY_GRAFTS_GUARD = 0.02  # per graft beyond 2
-EVAL_NOISE = 0.01
+EVAL_NOISE = 0.023        # round 2 pooled within-cell sd over 3 seeds (24 cells)
+
+# Cost model, in seconds. Reported, never slept.
+COMPILE_BASE_S = 10.0
+COMPILE_PER_GRAFT_S = 15.0     # one graft: 25 s, the round-2 median compile
+HEAL_S_PER_STEP = 0.5          # per step per graft
+EVAL_S = 120.0                 # one full-fidelity eval
 
 
 def seed_int(text):
@@ -155,8 +204,32 @@ def math_depth_profile(home):
     return clamp(1.0 - abs(home - 0.5) * 1.6, 0.2, 1.0)
 
 
+def glue_depth_profile(host_layer, n_host):
+    """How good a host depth is for the glue as an adapter: 1.0 at layer 6 of 16, near 0 by layer 10."""
+    rel = host_layer / float(n_host)
+    return math.exp(-((rel - GLUE_BEST_DEPTH) / GLUE_DEPTH_WIDTH) ** 2)
+
+
+def glue_rank_factor(glue_rank):
+    """The glue gain of a rank, relative to rank-64 glue.
+
+    Full glue (None) and rank 64 are measured. Any other rank is a STUB guess
+    and behaves like rank 64.
+    """
+    if glue_rank is None:
+        return FULL_GLUE_FACTOR
+    return 1.0
+
+
+def glue_params(d_host, d_donor, glue_rank):
+    """Parameters in w_in plus w_out: 2 * d_host * d_donor at full rank, 2 * r * (d_host + d_donor) at rank r."""
+    if glue_rank is None:
+        return 2 * d_host * d_donor
+    return 2 * glue_rank * (d_host + d_donor)
+
+
 class StubWorld:
-    """The hidden truth behind the stub: part values, sizes and the fit surface."""
+    """The hidden truth behind the stub: part content, sizes, the fit surface and the glue."""
 
     def __init__(self, stub_seed=0):
         self.seed = stub_seed
@@ -169,21 +242,29 @@ class StubWorld:
         donor = STUB_DONORS[donor_model]
         rng = random.Random(seed_int("part|" + str(self.seed) + "|" + part_id))
         home = first_layer(layer) / float(donor["layers"])
-        dud = rng.random() < 0.25
         values = {}
-        for task in sorted(donor["value"]):
-            scale = donor["value"][task] * KIND_VALUE[kind]
-            if task == "gsm8k":
-                scale = scale * math_depth_profile(home)
-            value = scale * rng.uniform(0.4, 1.0)
-            if dud and task == "gsm8k":
-                value = value * 0.1
-            values[task] = value
+        for task in sorted(donor["block_value"]):
+            values[task] = self.content_value(kind, donor, task, home, rng)
         hints = {}
         for task in sorted(values):
-            hints[task] = round(values[task] + rng.gauss(0.0, 0.02), 4)
+            hints[task] = round(values[task] + rng.gauss(0.0, HINT_NOISE), 4)
         return {"id": part_id, "model": donor_model, "kind": kind, "layer": layer, "home": home,
-                "units": self.unit_count(kind, rng), "values": values, "hints": hints, "dud": dud}
+                "units": self.unit_count(kind, rng), "values": values, "hints": hints}
+
+    def content_value(self, kind, donor, task, home, rng):
+        """What a part's own units add on a task at full strength, beyond its random control.
+
+        Single-layer parts: a fixed draw around 0 (round 2: part selection did
+        not beat the random control). Blocks: a small effect scaled by the
+        donor's block_value and, for gsm8k, the math depth profile
+        (STUB ASSUMPTION until round 3).
+        """
+        if kind != "block":
+            return rng.gauss(0.0, SINGLE_LAYER_CONTENT_SD)
+        scale = donor["block_value"][task]
+        if task == "gsm8k":
+            scale = scale * math_depth_profile(home)
+        return scale * rng.uniform(0.5, 1.0)
 
     def unit_count(self, kind, rng):
         if kind == "mlp_cluster":
@@ -259,6 +340,7 @@ class StubWorld:
             if at is None:
                 at = default_depth(part_id)
             donor_layer = first_layer(part["layer"])
+            rank = ps.graft_glue_rank(graft)
             entries.append({
                 "id": part_id,
                 "kind": part["kind"],
@@ -269,7 +351,8 @@ class StubWorld:
                 "d_host": STUB_HOST["hidden"],
                 "d_donor": donor["hidden"],
                 "part_params": self.part_params(part),
-                "glue_params": 2 * STUB_HOST["hidden"] * donor["hidden"],
+                "glue_params": glue_params(STUB_HOST["hidden"], donor["hidden"], rank),
+                "glue_rank": rank,
                 "fit": "ridge",
                 "fit_r2": self.fit_r2(part["model"], donor_layer, at, n_host),
                 "fit_pairs": 4096,
@@ -303,13 +386,44 @@ class StubWorld:
             out[task] = table.get(task, UNKNOWN_TASK_BASE)
         return out
 
-    def scores(self, program, report, split, tasks, fidelity, fraction, program_hash, guards):
-        """Task scores for a compiled program. report is graft_report() for it."""
+    def glue_gain(self, host_layer, n_host, glue_rank, c):
+        """What one healed graft's glue adds as an adapter at this depth, for any part or control."""
+        profile = glue_depth_profile(host_layer, n_host)
+        gain = GLUE_PEAK_GAIN * glue_rank_factor(glue_rank) * profile
+        cost = OFF_PEAK_GLUE_COST * (1.0 - profile)
+        return c * (gain - cost)
+
+    def best_glue_gain(self, report, n_host, c):
+        """The largest glue gain over the grafts (gains do not stack). 0.0 with no grafts."""
+        best = None
+        for entry in report:
+            gain = self.glue_gain(entry["host_layer"], n_host, entry.get("glue_rank"), c)
+            if best is None or gain > best:
+                best = gain
+        if best is None:
+            return 0.0
+        return best
+
+    def content(self, graft, part, task):
+        """The content a graft adds on a task at full strength: the part's, or about 0 for a control."""
+        if ps.graft_control(graft) is not None:
+            seed_text = "control|" + str(self.seed) + "|" + part["id"] + "|" + str(ps.graft_control_seed(graft))
+            return fixed_gauss(seed_text + "|" + task, 0.003)
+        return part["values"].get(task, 0.0)
+
+    def expected_scores(self, program, report, split, tasks, guards, n_host=None):
+        """Noise-free task scores for a compiled program (the stub's hidden truth).
+
+        report is graft_report() for the program. n_host defaults to the stub
+        host's 16 layers.
+        """
         base = self.base_scores(split, tasks)
         steps = ps.heal_steps(program)
         if steps is None:
             # W_out stays 0 without a heal pass, so the model is the host exactly.
             return dict(base)
+        if n_host is None:
+            n_host = STUB_HOST["layers"]
         c = self.heal_closeness(steps)
         grafts = ps.grafts(program)
         out = {}
@@ -320,18 +434,13 @@ class StubWorld:
                 score += HEAL_GAIN_GUARD * c
             else:
                 score += HEAL_GAIN_TARGET * c
+                score += self.best_glue_gain(report, n_host, c)
             for index in range(len(grafts)):
                 graft = grafts[index]
-                entry = report[index]
                 part = self.parts[ps.graft_id(graft)]
-                fit = entry["fit_r2"]
+                fit = report[index]["fit_r2"]
                 strength = fit + (1.0 - fit) * c * fit
-                if ps.graft_control(graft) is not None:
-                    seed_text = "control|" + str(self.seed) + "|" + part["id"] + "|" + str(ps.graft_control_seed(graft))
-                    value = fixed_gauss(seed_text + "|" + task, 0.003)
-                else:
-                    value = part["values"].get(task, 0.0)
-                score += value * strength
+                score += self.content(graft, part, task) * strength
                 if is_guard:
                     score -= GUARD_HARM * KIND_HARM[part["kind"]] * (1.0 - c)
                     score -= GUARD_WEAK_HARM * (1.0 - strength)
@@ -340,9 +449,19 @@ class StubWorld:
             score -= self.interference(report)
             if is_guard and len(grafts) > 2:
                 score -= MANY_GRAFTS_GUARD * (len(grafts) - 2)
-            sigma = EVAL_NOISE / math.sqrt(fraction)
+            out[task] = score
+        return out
+
+    def scores(self, program, report, split, tasks, fidelity, fraction, program_hash, guards, n_host=None):
+        """Task scores for a compiled program: expected_scores plus fixed eval noise, clamped to [0, 1]."""
+        expected = self.expected_scores(program, report, split, tasks, guards, n_host)
+        if ps.heal_steps(program) is None:
+            return expected
+        sigma = EVAL_NOISE / math.sqrt(fraction)
+        out = {}
+        for task in tasks:
             noise_text = "eval|" + str(self.seed) + "|" + program_hash + "|" + split + "|" + fidelity + "|" + task
-            score += fixed_gauss(noise_text, sigma)
+            score = expected[task] + fixed_gauss(noise_text, sigma)
             out[task] = round(clamp(score, 0.0, 1.0), 4)
         return out
 
@@ -362,7 +481,7 @@ class StubWorld:
 # Cost model, in seconds. Reported, never slept.
 
 def compile_cost(program):
-    return 20.0 + 15.0 * len(ps.grafts(program))
+    return COMPILE_BASE_S + COMPILE_PER_GRAFT_S * len(ps.grafts(program))
 
 
 def heal_cost(program):
@@ -372,11 +491,11 @@ def heal_cost(program):
     count = len(ps.grafts(program))
     if count < 1:
         count = 1
-    return 0.5 * steps * count
+    return HEAL_S_PER_STEP * steps * count
 
 
 def eval_cost(fraction):
-    return 120.0 * fraction
+    return EVAL_S * fraction
 
 
 def write_stub_catalog(path, stub_seed=0):
