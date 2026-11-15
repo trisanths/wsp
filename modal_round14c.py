@@ -161,9 +161,20 @@ def run_cell(arm, seed):
         program.graft("q14b_14_34", glue_rank=64, stitch=dict(STITCH), control=control, control_seed=seed + 100)
     program.heal(steps=1, data="gsm8k_train", lr=1e-6, batch_size=1, seq_len=64)
     out_dir = f"/vol/compiled/round14c_{arm}_s{seed}"
-    program.compile(out_dir, Catalog(RECORDS, root="/vol"), align_texts=texts[:2000], heal_texts=texts[:16],
-                    device="cuda", cache_dir="/vol/tensor_cache")
-    student, tok = load(out_dir, device="cuda")
+    if arm == "kd_lora_only":
+        # The compiler merges the LoRA of a LoRA-only program into the host, so
+        # nothing would be left to train. Put a fresh LoRA on the base here.
+        from wsp.lora import apply_lora, default_alpha
+
+        torch.manual_seed(seed)
+        student = transformers.AutoModelForCausalLM.from_pretrained(HOST, dtype=torch.bfloat16).to("cuda")
+        tok = tokenizer
+        apply_lora(student, 16, default_alpha(16))
+        student.eval()
+    else:
+        program.compile(out_dir, Catalog(RECORDS, root="/vol"), align_texts=texts[:2000], heal_texts=texts[:16],
+                        device="cuda", cache_dir="/vol/tensor_cache")
+        student, tok = load(out_dir, device="cuda")
     teacher = transformers.AutoModelForCausalLM.from_pretrained(TEACHER, dtype=torch.bfloat16).to("cuda").eval()
     params = trainable_params(student)
     losses = kd_heal(student, teacher, tok, texts, params, seed)
@@ -182,9 +193,16 @@ def run_cell(arm, seed):
 
 
 @app.local_entrypoint()
-def main(shard: int = 0, nshards: int = 1):
+def main(shard: int = 0, nshards: int = 1, only: str = ""):
+    todo = cells()
+    if only:
+        # "arm:seed,arm:seed" reruns chosen cells.
+        todo = []
+        for item in only.split(","):
+            arm, seed = item.split(":")
+            todo.append((arm, int(seed)))
     mine = []
-    for index, cell in enumerate(cells()):
+    for index, cell in enumerate(todo):
         if index % nshards == shard:
             mine.append(cell)
     print(f"shard {shard}/{nshards}: {mine}")
