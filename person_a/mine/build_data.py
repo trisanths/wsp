@@ -22,50 +22,73 @@ def load(*args, **kwargs):
     return datasets.load_dataset(*args, **kwargs)
 
 
-def gsm_solution(text):
-    text = re.sub(r"<<[^>]*>>", "", text)
-    pieces = text.split("####")
-    return pieces[0].strip() + "\nThe answer is " + pieces[1].strip().replace(",", "") + "."
+NUMBER = re.compile(r"-?\d[\d,]*\.?\d*")
+
+
+def final_number(text):
+    found = NUMBER.findall(text)
+    if not found:
+        return None
+    return found[-1].replace(",", "").rstrip(".")
+
+
+def orca_solution(text):
+    # Orca-Math answers are worked solutions; end each with the answer line that confirm_math parses
+    answer = final_number(text)
+    return text.strip() + "\nThe answer is " + answer + "."
 
 
 def build_math(rng):
-    gsm = load("openai/gsm8k", "main")
-    train = list(gsm["train"])
-    test = list(gsm["test"])
-    rng.shuffle(train)
-    rng.shuffle(test)
+    # Approved pool from wsp/healdata.py (no benchmark data in any split): Orca-Math word problems.
+    stream = load("microsoft/orca-math-word-problems-200k", split="train", streaming=True)
+    rows = []
+    for row in stream:
+        q = row["question"].strip()
+        a = row["answer"].strip()
+        if final_number(a) is None or len(a) > 500 or len(q) > 400:
+            continue
+        rows.append({"question": q, "answer": a})
+        if len(rows) >= 4000:
+            break
+    rng.shuffle(rows)
     shots = ""
-    for row in train[:2]:
-        shots = shots + "Question: " + row["question"].strip() + "\nAnswer: " + gsm_solution(row["answer"]) + "\n\n"
+    for row in rows[:2]:
+        shots = shots + "Question: " + row["question"] + "\nAnswer: " + orca_solution(row["answer"]) + "\n\n"
     items = []
-    for row in test[:N_SEARCH + N_HELDOUT]:
+    for row in rows[2:2 + N_SEARCH + N_HELDOUT]:
         items.append({
-            "context": shots + "Question: " + row["question"].strip() + "\nAnswer:",
-            "continuation": " " + gsm_solution(row["answer"]),
+            "context": shots + "Question: " + row["question"] + "\nAnswer:",
+            "continuation": " " + orca_solution(row["answer"]),
             "digits_only": True,  # score only digit tokens: the arithmetic, not the wording
-            "answer": row["answer"].split("####")[1].strip().replace(",", ""),
-            "question": row["question"].strip(),
+            "answer": final_number(row["answer"]),
+            "question": row["question"],
         })
     return items
 
 
+def looks_like_python(code):
+    return ("def " in code or "print(" in code or "import " in code or "return " in code) and "{" not in code[:1]
+
+
 def build_code(rng):
-    data = load("google-research-datasets/mbpp", "full")
-    rows = list(data["test"]) + list(data["validation"])
-    rng.shuffle(rows)
-    shot = data["prompt"][1]
-    shots = "# Task: " + shot["text"].strip() + "\n# Test: " + shot["test_list"][0] + "\n" + shot["code"].strip() + "\n\n"
-    items = []
-    for row in rows:
-        if len(row["code"]) > 600:
+    # Approved pool from wsp/healdata.py (no benchmark data in any split): CodeAlpaca Python answers.
+    data = load("sahil2801/CodeAlpaca-20k", split="train")
+    rows = []
+    for row in data:
+        code = (row.get("output") or "").strip().replace("\r\n", "\n")
+        task = row["instruction"].strip()
+        if row.get("input"):
+            task = task + " Input: " + row["input"].strip()
+        if not looks_like_python(code) or len(code) > 600 or len(code) < 40 or "\n" in task:
             continue
-        items.append({
-            "context": shots + "# Task: " + row["text"].strip() + "\n# Test: " + row["test_list"][0] + "\n",
-            "continuation": row["code"].strip().replace("\r\n", "\n"),
-            "digits_only": False,
-        })
-        if len(items) == N_SEARCH + N_HELDOUT:
-            break
+        rows.append({"task": task, "code": code})
+    rng.shuffle(rows)
+    shot = rows[0]
+    shots = "# Task: " + shot["task"] + "\n" + shot["code"] + "\n\n"
+    items = []
+    for row in rows[1:1 + N_SEARCH + N_HELDOUT]:
+        items.append({"context": shots + "# Task: " + row["task"] + "\n", "continuation": row["code"],
+                      "digits_only": False})
     return items
 
 
@@ -132,8 +155,8 @@ def split(items):
 
 
 def main():
-    builders = [("math", build_math, "GSM8K word problems; digit tokens of the worked solution"),
-                ("code", build_code, "MBPP Python tasks; tokens of the reference solution"),
+    builders = [("math", build_math, "Orca-Math word problems (approved pool); digit tokens of the worked solution"),
+                ("code", build_code, "CodeAlpaca Python tasks (approved pool); tokens of the reference solution"),
                 ("facts", build_facts, "TriviaQA short answers (no context)"),
                 ("multilingual", build_multilingual, "English -> de/fr/es/it/pt translation (OPUS-100)"),
                 ("general_text", build_general_text, "WikiText paragraph continuation (control only)")]
