@@ -140,3 +140,36 @@ Reading:
 - The stitch penalty is a cheap, eval-free target. Next: train the stitch
   to drive it down (linear and MLP, on regression, on the donor's own LM
   loss, and on matching later donor states), before any task heal.
+
+## Audit (2026-11-14): extraction is exact; the attention sink was broken
+
+Raw rows: audit_sink_rows.json. Same eval texts as run 4's penalty.
+
+Extraction and compile on real Qwen2.5-Math-1.5B:
+- Range-fetched tensors equal the checkpoint (max diff 0.0).
+- A block part (layers 8..19) built from fetched tensors equals the donor's
+  own layers on real text (max diff 4e-5 at scale 243, float noise).
+- An mlp_cluster with every neuron equals the donor MLP (diff 0.0).
+- Feeding the donor its own states through the stitch hook reproduces the
+  native loss exactly.
+
+Stitch penalty into Qwen2.5-Math-1.5B layer 8 (donor loss minus native 0.805):
+
+| Pair | Ridge as shipped | Ridge, lam 1e-6 | + donor sink at position 0 |
+|---|---|---|---|
+| Math L7 to Math L8 (identity) | 0.052 | 0.000 | 0.000 |
+| Qwen2.5-1.5B base L7 (same init) | 1.235 | 1.170 | 0.367 |
+| Qwen2.5-0.5B-Instruct L7 | 1.357 | 1.441 | 0.643 |
+
+Reading:
+- The compiler's extraction is correct. The loss came from the stitch.
+- Qwen adds no BOS token, so the first text token is the attention sink and
+  carries massive, input-invariant activations. The fit skipped it, so every
+  graft fed the donor a garbage sink and broke attention for all later
+  tokens. Feeding the donor's mean sink state at position 0 cuts the penalty
+  by 2.1x to 3.4x. The mean equals the per-text oracle, because the sink does
+  not depend on the input (as Sun et al. 2024 report).
+- The shipped ridge regularizer costs 0.05 nats on the identity map.
+- Next: a stored sink vector per graft, RMS matching on the projector, a
+  small LoRA on the donor part (the receiver), and a trained stitch, then a
+  rerun against the 46.7% LoRA bar.
