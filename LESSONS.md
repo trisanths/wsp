@@ -137,3 +137,9 @@ something fails. Each entry: what went wrong, then the rule.
   tests under 4.57.1, the version every running round uses. Guard
   version-specific imports and run the suite under both versions before a
   port lands.
+- Launch long Modal runs with `modal run --detach`. At 23:58 PT the Mac's
+  network dropped for about a minute; every attached `modal run` lost its
+  client, Modal stopped the ephemeral apps, and four weave searches
+  (up to generation 9) and the skill tops smoke were lost. Detached apps
+  keep running; scripts must write rows to the volume so a dead local
+  entrypoint loses nothing (round 21 writes progress per generation).
