@@ -22,14 +22,13 @@ Built at the SF AI Research Hackathon, hosted by Iterate at Wefunder, San Franci
 
 ## Motivation
 
-Fine-tuning changes every weight of one model to teach it a skill that some other open model already has. Thousands of open-weight models exist, and each one stores its skills in units you can find: specific MoE experts handle code tokens, specific layers carry factual recall, specific heads move information across positions. Takehi, Teoh, Zhang and Khattab found that frontier LLMs can read and write neural network weights much like code, sometimes from the raw weights alone ([Sparks of Weight-Space Programming, 2026](https://rikiyat.github.io/blog/weight-space-programming/)). Sapien puts that to work at scale: agents read the weights of open models, file the units that hold a skill into a parts library, and write new models as programs over those parts.
+Fine-tuning changes every weight of one model to teach it a skill that some other open model already has. Thousands of open-weight models exist, and each one stores its skills in units you can find: specific MoE experts handle code tokens, specific layers carry factual recall, specific heads move information across positions. Building on the research of Weight-Space Programming, ([Sparks of Weight-Space Programming, 2026](https://rikiyat.github.io/blog/weight-space-programming/)), Sapien hopes to create a 'parts' resource for open models at scale: agents read the weights of open models, file the units that hold a skill into a parts library, and write new models as programs over those parts.
 
+## Questions we explored
 1. **Grafting.** Can a slice of a large model, added to a small one, make the small model better than fine-tuning it?
 2. **Mining.** Can agents find parts that hold a measurable skill in any model, at any size, with controls that rule out noise?
 3. **Compiling.** Can parts from a different model family, with a different tokenizer, run inside a host and keep working?
 4. **Shrinking.** Can a frontier model compress an open-source model by reading its weights: find the parts that hold one skill, delete the rest, and keep that skill at a fraction of the size?
-
-An agent swarm ties the four together: it proposes builds, scores them against controls at a fixed evaluation budget, and shares what it learns through past.dev.
 
 ## What it does
 
