@@ -315,3 +315,27 @@ This section overrides earlier sections where they differ. Sources: part 2's mes
 - **Tasks.** BBEH is too weak at 1B to separate curves. The search objective is a pooled group of 4 to 6 MMLU-Pro subjects, or GSM8K once grafts land (part 2's first real run). Compare programs with paired standard errors on fixed question sets.
 - **Env API.** Gymnasium-style with `step_batch`: `truncated` turns true when the budget is spent and `terminated` stays false. Held-out is scored once, on the single selected program per run.
 - **Stub.** It must model grafts too: fit score from the donor-host depth gap and the family pair, a heal gain that rises with steps and is capped, and a random-part control that gains from heal but not from part content.
+
+## 15. As built: core (2026-11-14)
+
+This section records what the core build delivered. Where it differs from sections 4 to 14, this section wins, since it describes the code.
+
+- **Program adapter:** `wsp/swarm/program_schema.py` normalizes through Trisanth's `Program.from_dict(d).to_dict()`, so no invented fields can pass. Builders: `make_program(host, grafts, heal, seed)`, `make_graft(id, at, control, control_seed)` and `make_heal(steps=300, data, lr=3e-4, batch_size=8, seq_len=384)`. It also has `as_random_control` (writes `control: "random"`) and `without_heal`.
+- **Space:** `canonical_json`, `program_hash`, `probe_hash`, `validate(p, catalog, config)`, `random_program(rng, catalog, config)`, `mutate`, `mutate_with_note`, `crossover(a, b, rng, config)`, `describe`, `random_glue_control`, `no_graft_control`, `graft_key`, `slot_key`, `program_patterns`. Validation fixes lr, batch size and sequence length to one recipe shared by every arm.
+- **Budget:** `Budget.spend_eval(who, amount=1.0)` in full-eval equivalents (FEE), plus `charge_compute(seconds, who, phase)`, `compute_remaining()`, `eval_remaining()`, `exhausted()`, `ledger_rows()`, `counters()` and `overshoot_s()`. `LocalBudget.from_config(config, pool, ledger)` and `Ledger(path)`.
+- **Fidelity ladder:** check 0.16, low 0.34, full 1.0 FEE, nested, so a promotion pays only the difference. The scripted swarm uses full unless `--cascade` is passed.
+- **Backends:** `CompileEval` with `compile(p, fit_only)`, `heal(handle, p)`, `evaluate(handle, split, tasks, token, fidelity)`, `base_scores` and `release`. `StubCompileEval` works. `LocalCompileEval` needs `config["local_eval"]` and `config["base_scores"]`.
+- **Env:** `WspEnv(config, catalog, backend, budget, log, heldout_budget)`. Gymnasium style:
+  - `reset()` returns `(obs, info)`;
+  - `step(...)` returns `(obs, reward, terminated, truncated, row)`;
+  - also `step_many` / `step_batch`, `probe`, `heldout_eval`, `run_controls`, `end_search`, `log_event` and `listeners`.
+  Batches run in five ordered phases, so token order doesn't depend on thread timing.
+- **Interfaces:** `Memory`, `Literature` and `LLM` follow the exact signatures in the wave A contracts, with `NullMemory`, `NullLiterature`, `NullLLM` (raises `LLMNotConfigured`) and `make_memory_listener(memory)`.
+- **Agents and loop:** `agents.base` (`Analyst.build_map`, `Planner.propose`, `Judge.update`, `make_ctx`) and `agents.scripted` (`ScriptedAnalyst`, `ScriptedPlanner(index, config)`, `RuleJudge`). `swarm.Swarm(...).run()` and `run_swarm(config)`. `factory.build_run(config)`, `build_agents(config)`, `load_class` and `FactoryError`.
+- **Log rows:** every row has `type` (eval, probe, event), `stub` and `fidelity`. `fit_r2` holds the per-graft numbers, and `fit` holds "ridge" or "skipped", following the compiler's naming.
+- **Fit:** keyed by slot (donor, donor layer, `at`). Agents use it only to veto placements and choose `at`.
+- **Held-out:** the top 3 per run by default (`heldout_top`; section 14 said 1). Each program gets both controls.
+- **Verified by the orchestrator:**
+  - 66 of 66 tests pass, Trisanth's included.
+  - `run_swarm.py --backend stub --eval-budget 60 --seed 0` is identical across two runs, with best search score 0.3396 [SEARCH][STUB].
+  - The cascade run with seed 1 stops on compute at 36,135 of 36,000 s, a 135 s logged overshoot, after 28.2 FEE.

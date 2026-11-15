@@ -55,3 +55,15 @@ Working rule from Rex: no branches, push straight to `main`. The orchestrator do
 - Trisanth locked the schema (`control: "random"`, heal with lr, batch size and sequence length) and rewrote the part 3 brief. Hour 1 now means the real compile and eval on the first pair: Llama-3.2-1B host, Qwen2.5-Math-1.5B donor, GSM8K.
 - A forked session ran its own core agent in the same tree. It was stopped, and this session owns all part 3 code. Its spec section ("Update 1", commit 8a490ae) is adopted.
 - Posted the blockers on issue #1: real catalog part records, the eval function, and the shared Modal workspace name.
+
+## 2026-11-14, step 6: core built and reviewed (hour-1 gate on stubs: swarm half)
+
+- The core agent built `wsp/swarm/` (16 modules), `scripts/run_swarm.py` and `tests/test_swarm_core.py`. It replaced every file the two forked agents had left (`schema.py` deleted; space, budget, config, log and scoring rewritten).
+- Orchestrator review:
+  - 66 of 66 tests pass, including Trisanth's (after installing `transformers` and `tokenizers` into the venv);
+  - two seed-0 stub runs are identical, with best search score 0.3396 [SEARCH][STUB];
+  - the top 3 on held-out [STUB] score 0.33, 0.28 and 0.29, against random-part controls of -0.001 to 0.028 and no-graft controls of 0.027 to 0.055;
+  - no comprehensions or `setdefault` in the code.
+- The cascade fidelity ladder (0.16, 0.34, 1.0 FEE) works. With seed 1 the cascade run stopped on compute, with 28.2 FEE used.
+- Spec section 15 records the as-built API for the next wave.
+- Wave A runs in parallel as a workflow: LLM clients plus vLLM on Modal, Modal infra plus the real compile and eval path with a pilot part set, past.dev memory, Exa literature. Each gets an independent review and a fix pass.
