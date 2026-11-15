@@ -1,0 +1,96 @@
+{
+  "id": "mlp_json_boolean_literal_spelling_granite8b_L39_k4_001",
+  "kind": "mlp_cluster",
+  "title": "granite-3.3-8b-instruct layer 39, JSON Boolean literal spelling",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/granite8b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "json_literals"
+  ],
+  "models": [
+    "ibm-granite/granite-3.3-8b-instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'json_literals' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.3494,
+      "control_value": 0.0002,
+      "split": "person_a held-out skill items (json_literals)",
+      "seeds": null,
+      "source": "person_a/catalog/granite8b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0024"
+    }
+  ],
+  "generated": true,
+  "model": "ibm-granite/granite-3.3-8b-instruct",
+  "layer": 39,
+  "layers": [
+    39
+  ],
+  "units_file": "components/ibm-granite__granite-3.3-8b-instruct/mlp_json_boolean_literal_spelling_granite8b_L39_k4_001.pt",
+  "units_remote": "person_a/parts/granite8b/mlp_json_boolean_literal_spelling_granite8b_L39_k4_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'json_literals'",
+    "label": "JSON Boolean literal spelling",
+    "num_units": 4,
+    "d_model": 4096,
+    "effect": {
+      "math|search": 0.0,
+      "math|heldout": 0.0,
+      "code|search": -0.0006,
+      "code|heldout": 0.0007,
+      "facts|search": -0.0003,
+      "facts|heldout": -0.0006,
+      "multilingual|search": 0.0001,
+      "multilingual|heldout": -0.0012,
+      "general_text|search": 0.0004,
+      "general_text|heldout": 0.0004,
+      "json_literals|search": 0.3198,
+      "json_literals__control|search": 0.0029,
+      "json_literals|heldout": 0.3494,
+      "json_literals__control|heldout": 0.0024,
+      "url_scheme|search": -0.0016,
+      "url_scheme__control|search": -0.0001,
+      "url_scheme|heldout": -0.0024,
+      "url_scheme__control|heldout": 0.0002,
+      "sql_keywords|search": -0.0021,
+      "sql_keywords__control|search": -0.0051,
+      "sql_keywords|heldout": -0.0049,
+      "sql_keywords__control|heldout": -0.0044
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1066,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0004,
+      -0.0,
+      0.0004,
+      -0.0004,
+      0.0005
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L39 5766/3296 gate rows detect true (.720) and false (.586); 3501 reads/writes capitalized Python True/False; 8533 writes lowercase true (.276). Independent attribution places all four among strongest JSON-literal units."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/granite8b/json_literals.json",
+    "hash": "5427106d5e51db5e",
+    "description": "Serialize Python Boolean and missing-value literals as unquoted JSON literals, with matched string serialization controls.",
+    "name": "json_literals"
+  },
+  "catalog_id": "mlp_json_boolean_literal_spelling_granite8b_L39_k4_001",
+  "exported_copy": "library/granite8b/mlp_json_boolean_literal_spelling_granite8b_L39_k4_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

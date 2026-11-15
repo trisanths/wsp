@@ -1,0 +1,116 @@
+{
+  "id": "mlp_l14_ordinal-feature_mlp_cluster_qwenmath7b_inst_L14_k64_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen2.5-Math-7B-Instruct layer 14, L14 ordinal-feature MLP cluster",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwenmath7b_inst.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "ordinal_word"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Math-7B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'ordinal_word' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.3073,
+      "control_value": 0.0382,
+      "split": "person_a held-out skill items (ordinal_word)",
+      "seeds": null,
+      "source": "person_a/catalog/qwenmath7b_inst.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0142"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Math-7B-Instruct",
+  "layer": 14,
+  "layers": [
+    14
+  ],
+  "units_file": "components/Qwen__Qwen2.5-Math-7B-Instruct/mlp_l14_ordinal-feature_mlp_cluster_qwenmath7b_inst_L14_k64_001.pt",
+  "units_remote": "person_a/parts/qwenmath7b_inst/mlp_l14_ordinal-feature_mlp_cluster_qwenmath7b_inst_L14_k64_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'ordinal_word'",
+    "label": "L14 ordinal-feature MLP cluster",
+    "num_units": 64,
+    "d_model": 3584,
+    "effect": {
+      "math|search": -0.0005,
+      "math|heldout": 0.0002,
+      "code|search": 0.0016,
+      "code|heldout": 0.0002,
+      "facts|search": 0.0027,
+      "facts|heldout": -0.0021,
+      "multilingual|search": -0.0022,
+      "multilingual|heldout": -0.0004,
+      "general_text|search": 0.0,
+      "general_text|heldout": -0.0025,
+      "weekday_successor|search": 0.0161,
+      "weekday_successor__control|search": 0.0047,
+      "weekday_successor|heldout": 0.0246,
+      "weekday_successor__control|heldout": 0.0038,
+      "number_to_word|search": 0.007,
+      "number_to_word__control|search": 0.0024,
+      "number_to_word|heldout": 0.0115,
+      "number_to_word__control|heldout": 0.002,
+      "object_color|search": -0.0069,
+      "object_color__control|search": 0.0226,
+      "object_color|heldout": 0.0157,
+      "object_color__control|heldout": 0.0145,
+      "month_successor|search": 0.0667,
+      "month_successor__control|search": 0.0172,
+      "month_successor|heldout": 0.0396,
+      "month_successor__control|heldout": 0.0163,
+      "parity|search": -0.0044,
+      "parity__control|search": -0.0004,
+      "parity|heldout": -0.0083,
+      "parity__control|heldout": -0.0003,
+      "product_sign|search": 0.001,
+      "product_sign__control|search": -0.0075,
+      "product_sign|heldout": 0.0008,
+      "product_sign__control|heldout": -0.0033,
+      "ordinal_word|search": 0.2978,
+      "ordinal_word__control|search": 0.0125,
+      "ordinal_word|heldout": 0.3073,
+      "ordinal_word__control|heldout": 0.0142,
+      "greek_letter_name|search": -0.0199,
+      "greek_letter_name__control|search": 0.1818,
+      "greek_letter_name|heldout": -0.0227,
+      "greek_letter_name__control|heldout": 0.1702
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0993,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0711,
+      0.04,
+      -0.0267,
+      0.0044,
+      0.1022
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Seeds L14 18349 and 14054 (top L14 ordinal attribution), grown to 64 units by summed gate/up/down weight |cos| similarity."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwenmath7b_inst/ordinal_word.json",
+    "hash": "13745e89ca90ceea",
+    "description": "Give the English ordinal word for a position (e.g. position 3 -> third). Control: same format asking for the cardinal digit.",
+    "name": "ordinal_word"
+  },
+  "catalog_id": "mlp_l14_ordinal-feature_mlp_cluster_qwenmath7b_inst_L14_k64_001",
+  "exported_copy": "library/qwenmath7b_inst/mlp_l14_ordinal-feature_mlp_cluster_qwenmath7b_inst_L14_k64_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

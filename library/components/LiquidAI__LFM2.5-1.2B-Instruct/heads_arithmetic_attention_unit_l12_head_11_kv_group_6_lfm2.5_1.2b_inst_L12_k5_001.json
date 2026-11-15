@@ -1,0 +1,113 @@
+{
+  "id": "heads_arithmetic_attention_unit_l12_head_11_kv_group_6_lfm2.5_1.2b_inst_L12_k5_001",
+  "kind": "attn_heads",
+  "title": "LFM2.5-1.2B-Instruct layer 12, arithmetic attention unit (L12 head 11 + KV group 6)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_1.2b_inst.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "math"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-1.2B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'math' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.174,
+      "control_value": 0.0928,
+      "split": "person_a held-out skill items (math)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_1.2b_inst.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-1.2B-Instruct",
+  "layer": 12,
+  "layers": [
+    12
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-1.2B-Instruct/heads_arithmetic_attention_unit_l12_head_11_kv_group_6_lfm2.5_1.2b_inst_L12_k5_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_1.2b_inst/heads_arithmetic_attention_unit_l12_head_11_kv_group_6_lfm2.5_1.2b_inst_L12_k5_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'math'",
+    "label": "arithmetic attention unit (L12 head 11 + KV group 6)",
+    "num_units": 5,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.1812,
+      "math|heldout": 0.174,
+      "code|search": 0.0182,
+      "code|heldout": 0.0139,
+      "facts|search": 0.0148,
+      "facts|heldout": 0.0137,
+      "multilingual|search": 0.016,
+      "multilingual|heldout": 0.02,
+      "general_text|search": 0.0143,
+      "general_text|heldout": 0.0197,
+      "month_successor|search": 0.0011,
+      "month_successor__control|search": 0.1959,
+      "month_successor|heldout": 0.066,
+      "month_successor__control|heldout": 0.1496,
+      "weekday_successor|search": 0.04,
+      "weekday_successor__control|search": 0.2474,
+      "weekday_successor|heldout": -0.0737,
+      "weekday_successor__control|heldout": 0.3306,
+      "object_color|search": 0.0069,
+      "object_color__control|search": -0.0209,
+      "object_color|heldout": -0.0099,
+      "object_color__control|heldout": -0.0867,
+      "feminine_pronoun|search": 0.0264,
+      "feminine_pronoun__control|search": 0.025,
+      "feminine_pronoun|heldout": 0.0192,
+      "feminine_pronoun__control|heldout": 0.0551,
+      "month_list_next|search": 0.0,
+      "month_list_next__control|search": -0.0127,
+      "month_list_next|heldout": -0.0005,
+      "month_list_next__control|heldout": -0.0093,
+      "weekday_list_next|search": -0.0391,
+      "weekday_list_next__control|search": 0.0113,
+      "weekday_list_next|heldout": -0.0189,
+      "weekday_list_next__control|heldout": 0.0096,
+      "roman_numeral|search": -0.1423,
+      "roman_numeral__control|search": -0.081,
+      "roman_numeral|heldout": -0.1756,
+      "roman_numeral__control|heldout": -0.0778,
+      "masculine_pronoun|search": 0.0299,
+      "masculine_pronoun__control|search": 0.0221,
+      "masculine_pronoun|heldout": 0.0447,
+      "masculine_pronoun__control|heldout": 0.0298
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0604,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.1473,
+      0.1677,
+      0.0069,
+      0.1385,
+      0.0034
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "In the single-head map, L12 head 11 is the main L12 math head (.145 alone). Its out_proj subspace overlaps L10's routing heads (.087), and its only side effect is a weekday drop. KV group 6 (24-27, holding the top L12 math attributions h27/h26; h27 norm 5.7) lowers weekday and roman loss, so the 5-head unit drops math by .181 with every other skill \u2264.04."
+  },
+  "tier": "confirmed",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "builtin",
+    "name": "math"
+  },
+  "catalog_id": "heads_arithmetic_attention_unit_l12_head_11_kv_group_6_lfm2.5_1.2b_inst_L12_k5_001",
+  "exported_copy": "library/lfm2.5_1.2b_inst/heads_arithmetic_attention_unit_l12_head_11_kv_group_6_lfm2.5_1.2b_inst_L12_k5_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

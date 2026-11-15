@@ -1,0 +1,88 @@
+{
+  "id": "mlp_city-to-country_retrieval_granite8b_L38_k6_001",
+  "kind": "mlp_cluster",
+  "title": "granite-3.3-8b-instruct layer 38, city-to-country retrieval",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/granite8b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "city_country"
+  ],
+  "models": [
+    "ibm-granite/granite-3.3-8b-instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'city_country' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.3073,
+      "control_value": 0.003,
+      "split": "person_a held-out skill items (city_country)",
+      "seeds": null,
+      "source": "person_a/catalog/granite8b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0351"
+    }
+  ],
+  "generated": true,
+  "model": "ibm-granite/granite-3.3-8b-instruct",
+  "layer": 38,
+  "layers": [
+    38
+  ],
+  "units_file": "components/ibm-granite__granite-3.3-8b-instruct/mlp_city-to-country_retrieval_granite8b_L38_k6_001.pt",
+  "units_remote": "person_a/parts/granite8b/mlp_city-to-country_retrieval_granite8b_L38_k6_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'city_country'",
+    "label": "city-to-country retrieval",
+    "num_units": 6,
+    "d_model": 4096,
+    "effect": {
+      "math|search": 0.005,
+      "math|heldout": 0.0032,
+      "code|search": 0.0056,
+      "code|heldout": 0.0044,
+      "facts|search": 0.007,
+      "facts|heldout": 0.019,
+      "multilingual|search": -0.0027,
+      "multilingual|heldout": 0.0023,
+      "general_text|search": 0.0026,
+      "general_text|heldout": 0.0042,
+      "city_country|search": 0.4085,
+      "city_country__control|search": 0.0624,
+      "city_country|heldout": 0.3073,
+      "city_country__control|heldout": -0.0351
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1362,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0033,
+      0.0078,
+      -0.0015,
+      0.0005,
+      0.0051
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Country-aligned L38 output/gate units5323,5692,5159; unit3172 gate strongly Japanese .402 plus China/Germany/France and output apan .112. Attribution adds1926 (no interpretable lexical direction, so not independently semantic) as potential retrieval support;11441 originally country-probe ranked. Tests distinguish factual retrieval from country copying."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/granite8b/city_country.json",
+    "hash": "804a0ed221a284dd",
+    "description": "Retrieve a city's country, as opposed to copying an explicitly supplied country in matched format.",
+    "name": "city_country"
+  },
+  "catalog_id": "mlp_city-to-country_retrieval_granite8b_L38_k6_001",
+  "exported_copy": "library/granite8b/mlp_city-to-country_retrieval_granite8b_L38_k6_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

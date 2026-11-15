@@ -1,0 +1,116 @@
+{
+  "id": "mlp_ordinal-word_writer_population_l23_128_qwenmath7b_inst_L23_k128_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen2.5-Math-7B-Instruct layer 23, ordinal-word writer population (L23, 128)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwenmath7b_inst.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "ordinal_word"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Math-7B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'ordinal_word' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.7722,
+      "control_value": 0.0,
+      "split": "person_a held-out skill items (ordinal_word)",
+      "seeds": null,
+      "source": "person_a/catalog/qwenmath7b_inst.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0048"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Math-7B-Instruct",
+  "layer": 23,
+  "layers": [
+    23
+  ],
+  "units_file": "components/Qwen__Qwen2.5-Math-7B-Instruct/mlp_ordinal-word_writer_population_l23_128_qwenmath7b_inst_L23_k128_001.pt",
+  "units_remote": "person_a/parts/qwenmath7b_inst/mlp_ordinal-word_writer_population_l23_128_qwenmath7b_inst_L23_k128_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'ordinal_word'",
+    "label": "ordinal-word writer population (L23, 128)",
+    "num_units": 128,
+    "d_model": 3584,
+    "effect": {
+      "math|search": 0.0005,
+      "math|heldout": 0.001,
+      "code|search": -0.0003,
+      "code|heldout": -0.0014,
+      "facts|search": 0.0177,
+      "facts|heldout": 0.001,
+      "multilingual|search": -0.0006,
+      "multilingual|heldout": 0.0009,
+      "general_text|search": 0.0,
+      "general_text|heldout": -0.0037,
+      "weekday_successor|search": 0.0032,
+      "weekday_successor__control|search": 0.0045,
+      "weekday_successor|heldout": 0.0088,
+      "weekday_successor__control|heldout": 0.0041,
+      "number_to_word|search": -0.6094,
+      "number_to_word__control|search": -0.0094,
+      "number_to_word|heldout": -0.5788,
+      "number_to_word__control|heldout": -0.0077,
+      "object_color|search": -0.0379,
+      "object_color__control|search": 0.1073,
+      "object_color|heldout": -0.0107,
+      "object_color__control|heldout": 0.0735,
+      "month_successor|search": 0.0196,
+      "month_successor__control|search": 0.0078,
+      "month_successor|heldout": 0.0219,
+      "month_successor__control|heldout": 0.0112,
+      "parity|search": -0.008,
+      "parity__control|search": 0.0,
+      "parity|heldout": -0.0007,
+      "parity__control|heldout": 0.0,
+      "product_sign|search": -0.0005,
+      "product_sign__control|search": 0.0189,
+      "product_sign|heldout": -0.0004,
+      "product_sign__control|heldout": 0.0164,
+      "ordinal_word|search": 0.7686,
+      "ordinal_word__control|search": 0.0017,
+      "ordinal_word|heldout": 0.7722,
+      "ordinal_word__control|heldout": -0.0048,
+      "greek_letter_name|search": 0.0083,
+      "greek_letter_name__control|search": 0.0909,
+      "greek_letter_name|heldout": 0.0101,
+      "greek_letter_name__control|heldout": 0.0889
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.2562,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0044,
+      -0.0218,
+      0.0175,
+      -0.0393,
+      0.0393
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "128 L23 down_proj columns selective for ordinal-word unembedding direction."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwenmath7b_inst/ordinal_word.json",
+    "hash": "13745e89ca90ceea",
+    "description": "Give the English ordinal word for a position (e.g. position 3 -> third). Control: same format asking for the cardinal digit.",
+    "name": "ordinal_word"
+  },
+  "catalog_id": "mlp_ordinal-word_writer_population_l23_128_qwenmath7b_inst_L23_k128_001",
+  "exported_copy": "library/qwenmath7b_inst/mlp_ordinal-word_writer_population_l23_128_qwenmath7b_inst_L23_k128_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

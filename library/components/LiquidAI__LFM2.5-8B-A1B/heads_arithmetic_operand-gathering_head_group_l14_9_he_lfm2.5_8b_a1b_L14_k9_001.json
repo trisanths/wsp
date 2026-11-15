@@ -1,0 +1,116 @@
+{
+  "id": "heads_arithmetic_operand-gathering_head_group_l14_9_he_lfm2.5_8b_a1b_L14_k9_001",
+  "kind": "attn_heads",
+  "title": "LFM2.5-8B-A1B layer 14, arithmetic operand-gathering head group (L14, 9 heads)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "two_digit_addition"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-8B-A1B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'two_digit_addition' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.555,
+      "control_value": 0.1236,
+      "split": "person_a held-out skill items (two_digit_addition)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.046"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-8B-A1B",
+  "layer": 14,
+  "layers": [
+    14
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-8B-A1B/heads_arithmetic_operand-gathering_head_group_l14_9_he_lfm2.5_8b_a1b_L14_k9_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_8b_a1b/heads_arithmetic_operand-gathering_head_group_l14_9_he_lfm2.5_8b_a1b_L14_k9_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'two_digit_addition'",
+    "label": "arithmetic operand-gathering head group (L14, 9 heads)",
+    "num_units": 9,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.1182,
+      "math|heldout": 0.1229,
+      "code|search": 0.1339,
+      "code|heldout": 0.1273,
+      "facts|search": 0.0976,
+      "facts|heldout": 0.2632,
+      "multilingual|search": 0.1393,
+      "multilingual|heldout": 0.1707,
+      "general_text|search": 0.1779,
+      "general_text|heldout": 0.1781,
+      "en_to_fr_noun|search": -0.7876,
+      "en_to_fr_noun__control|search": 0.287,
+      "en_to_fr_noun|heldout": -1.6438,
+      "en_to_fr_noun__control|heldout": 0.1151,
+      "two_digit_addition|search": 0.5987,
+      "two_digit_addition__control|search": -0.097,
+      "two_digit_addition|heldout": 0.555,
+      "two_digit_addition__control|heldout": -0.046,
+      "en_to_de_noun|search": -9.75,
+      "en_to_de_noun__control|search": 0.2123,
+      "en_to_de_noun|heldout": -5.1667,
+      "en_to_de_noun__control|heldout": 0.3399,
+      "en_to_es_noun|search": -0.226,
+      "en_to_es_noun__control|search": 0.3421,
+      "en_to_es_noun|heldout": 0.1936,
+      "en_to_es_noun__control|heldout": 0.501,
+      "en_to_ru_word|search": -0.2115,
+      "en_to_ru_word__control|search": 0.4178,
+      "en_to_ru_word|heldout": -0.2216,
+      "en_to_ru_word__control|heldout": 0.4191,
+      "en_to_zh_word|search": -0.0178,
+      "en_to_zh_word__control|search": 0.26,
+      "en_to_zh_word|heldout": -0.1321,
+      "en_to_zh_word__control|heldout": -0.1203,
+      "en_to_it_word|search": -0.3721,
+      "en_to_it_word__control|search": 0.802,
+      "en_to_it_word|heldout": -0.0185,
+      "en_to_it_word__control|heldout": 0.7615,
+      "en_to_ja_word|search": -0.4141,
+      "en_to_ja_word__control|search": 0.6698,
+      "en_to_ja_word|heldout": -0.4895,
+      "en_to_ja_word__control|heldout": 0.6351
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1996,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.1441,
+      0.1393,
+      0.0738,
+      -0.0311,
+      0.2917
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "The L14 heads ranked by addition attribution (h8 .233, h23 .163, h10 .149, h18 .143, h5 .083, h13 .064, h20 .055, h3 .015) plus h27, the top math-attribution L14 head. The translation heads (28, 31, 2, 22, 12) and the facts head h9 are left out. Ablation: addition .599, other built-ins \u2264 .178, control -.097."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_8b_a1b/two_digit_addition.json",
+    "hash": "26a7b508ee627c6b",
+    "description": "Compute a+b for two-digit numbers, answer written in digits. Control: copy a number of the same size from the prompt (digit output without computation).",
+    "name": "two_digit_addition"
+  },
+  "catalog_id": "heads_arithmetic_operand-gathering_head_group_l14_9_he_lfm2.5_8b_a1b_L14_k9_001",
+  "exported_copy": "library/lfm2.5_8b_a1b/heads_arithmetic_operand-gathering_head_group_l14_9_he_lfm2.5_8b_a1b_L14_k9_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

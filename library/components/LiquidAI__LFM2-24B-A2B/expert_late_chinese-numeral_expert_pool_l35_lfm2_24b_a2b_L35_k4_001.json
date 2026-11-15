@@ -1,0 +1,116 @@
+{
+  "id": "expert_late_chinese-numeral_expert_pool_l35_lfm2_24b_a2b_L35_k4_001",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 35, late Chinese-numeral expert pool (L35)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "chinese_numeral"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'chinese_numeral' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2239,
+      "control_value": -0.0592,
+      "split": "person_a held-out skill items (chinese_numeral)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0098"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 35,
+  "layers": [
+    35
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/expert_late_chinese-numeral_expert_pool_l35_lfm2_24b_a2b_L35_k4_001.pt",
+  "units_remote": "person_a/parts/lfm2_24b_a2b/expert_late_chinese-numeral_expert_pool_l35_lfm2_24b_a2b_L35_k4_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'chinese_numeral'",
+    "label": "late Chinese-numeral expert pool (L35)",
+    "num_units": 4,
+    "d_model": 2048,
+    "effect": {
+      "math|search": -0.003,
+      "math|heldout": -0.0013,
+      "code|search": 0.0004,
+      "code|heldout": -0.0094,
+      "facts|search": 0.0063,
+      "facts|heldout": 0.0915,
+      "multilingual|search": 0.0051,
+      "multilingual|heldout": 0.0043,
+      "general_text|search": 0.0048,
+      "general_text|heldout": 0.0076,
+      "month_successor|search": 0.0071,
+      "month_successor__control|search": -0.0032,
+      "month_successor|heldout": 0.0598,
+      "month_successor__control|heldout": 0.0004,
+      "weekday_successor|search": -0.0547,
+      "weekday_successor__control|search": 0.0,
+      "weekday_successor|heldout": -0.0858,
+      "weekday_successor__control|heldout": 0.0733,
+      "roman_numeral|search": -0.0001,
+      "roman_numeral__control|search": 0.0919,
+      "roman_numeral|heldout": -0.0014,
+      "roman_numeral__control|heldout": 0.0759,
+      "antonym|search": 0.0199,
+      "antonym__control|search": 0.0,
+      "antonym|heldout": 0.0008,
+      "antonym__control|heldout": 0.0071,
+      "chinese_numeral|search": 0.2346,
+      "chinese_numeral__control|search": 0.0152,
+      "chinese_numeral|heldout": 0.2239,
+      "chinese_numeral__control|heldout": 0.0098,
+      "a_an_article|search": 0.0047,
+      "a_an_article__control|search": -0.0016,
+      "a_an_article|heldout": 0.0041,
+      "a_an_article__control|heldout": 0.0001,
+      "subject_verb_agreement|search": 0.0128,
+      "subject_verb_agreement__control|search": -0.0327,
+      "subject_verb_agreement|heldout": 0.0147,
+      "subject_verb_agreement__control|heldout": -0.0271,
+      "en_fr_translation|search": -0.0,
+      "en_fr_translation__control|search": -0.0032,
+      "en_fr_translation|heldout": -0.0003,
+      "en_fr_translation__control|heldout": -0.0047
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0782,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0195,
+      -0.0096,
+      -0.1613,
+      -0.1277,
+      -0.0171
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L35 chinese_numeral attribution experts e38 (.088), e3 (.071), e42, e31. The pool excludes the antonym-shared e44 and is disjoint from the screened L35 facts pool. Ablation: chinese .235, control .015, other skills \u2264 .02."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2_24b_a2b/chinese_numeral.json",
+    "hash": "047a2d1f6c35d912",
+    "description": "Write a digit 1-10 as a Chinese numeral character. Control: copy the Arabic digit in the same frame.",
+    "name": "chinese_numeral"
+  },
+  "catalog_id": "expert_late_chinese-numeral_expert_pool_l35_lfm2_24b_a2b_L35_k4_001",
+  "exported_copy": "library/lfm2_24b_a2b/expert_late_chinese-numeral_expert_pool_l35_lfm2_24b_a2b_L35_k4_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

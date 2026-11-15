@@ -1,0 +1,113 @@
+{
+  "id": "expert_geographic_entity_countrycapital_writer_experts__lfm2_24b_a2b_L35_k20_001",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 35, geographic entity (country/capital) writer experts, L35",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "facts"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'facts' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2811,
+      "control_value": 0.087,
+      "split": "person_a held-out skill items (facts)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 35,
+  "layers": [
+    35
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/expert_geographic_entity_countrycapital_writer_experts__lfm2_24b_a2b_L35_k20_001.pt",
+  "units_remote": "person_a/parts/lfm2_24b_a2b/expert_geographic_entity_countrycapital_writer_experts__lfm2_24b_a2b_L35_k20_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'facts'",
+    "label": "geographic entity (country/capital) writer experts, L35",
+    "num_units": 20,
+    "d_model": 2048,
+    "effect": {
+      "math|search": -0.0005,
+      "math|heldout": 0.001,
+      "code|search": 0.0066,
+      "code|heldout": 0.0099,
+      "facts|search": 0.1733,
+      "facts|heldout": 0.2811,
+      "multilingual|search": 0.0121,
+      "multilingual|heldout": 0.0056,
+      "general_text|search": 0.0119,
+      "general_text|heldout": 0.0042,
+      "month_successor|search": 0.0269,
+      "month_successor__control|search": -0.0082,
+      "month_successor|heldout": 0.0844,
+      "month_successor__control|heldout": -0.0005,
+      "weekday_successor|search": -0.032,
+      "weekday_successor__control|search": -0.0348,
+      "weekday_successor|heldout": -0.0948,
+      "weekday_successor__control|heldout": -0.0933,
+      "roman_numeral|search": -0.001,
+      "roman_numeral__control|search": 0.0163,
+      "roman_numeral|heldout": -0.003,
+      "roman_numeral__control|heldout": 0.0148,
+      "antonym|search": 0.0019,
+      "antonym__control|search": -0.0536,
+      "antonym|heldout": 0.0019,
+      "antonym__control|heldout": -0.1467,
+      "chinese_numeral|search": -0.1232,
+      "chinese_numeral__control|search": 0.0174,
+      "chinese_numeral|heldout": -0.1616,
+      "chinese_numeral__control|heldout": 0.014,
+      "a_an_article|search": 0.0077,
+      "a_an_article__control|search": -0.0104,
+      "a_an_article|heldout": -0.0051,
+      "a_an_article__control|heldout": 0.0078,
+      "subject_verb_agreement|search": 0.0119,
+      "subject_verb_agreement__control|search": -0.0653,
+      "subject_verb_agreement|heldout": 0.0077,
+      "subject_verb_agreement__control|heldout": -0.1524,
+      "en_fr_translation|search": 0.0024,
+      "en_fr_translation__control|search": -0.0044,
+      "en_fr_translation|heldout": 0.0009,
+      "en_fr_translation__control|heldout": -0.0007
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0578,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.1597,
+      0.0091,
+      0.0848,
+      0.1518,
+      0.0296
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "20 L35 experts ranked by down-projection energy on country and capital-city unembedding rows (e15 1.9/1.5x lead) minus their number/month/bracket energy. This is the same recipe that passed at L37. Facts drop grows with set size (.153 at 16, .173 at 20) while the other skills stay \u2264.03."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "builtin",
+    "name": "facts"
+  },
+  "catalog_id": "expert_geographic_entity_countrycapital_writer_experts__lfm2_24b_a2b_L35_k20_001",
+  "exported_copy": "library/lfm2_24b_a2b/expert_geographic_entity_countrycapital_writer_experts__lfm2_24b_a2b_L35_k20_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

@@ -1,0 +1,100 @@
+{
+  "id": "mlp_roman-numeral_output_support_feeds_l26_6638_roma_lfm2.5_2.6b_L25_k1_001",
+  "kind": "mlp_cluster",
+  "title": "LFM2.5-2.6B layer 25, Roman-numeral output support (feeds L26 6638 Roman writer)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_2.6b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "roman_numerals"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-2.6B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'roman_numerals' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2794,
+      "control_value": -0.0002,
+      "split": "person_a held-out skill items (roman_numerals)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_2.6b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0002"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-2.6B",
+  "layer": 25,
+  "layers": [
+    25
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-2.6B/mlp_roman-numeral_output_support_feeds_l26_6638_roma_lfm2.5_2.6b_L25_k1_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_2.6b/mlp_roman-numeral_output_support_feeds_l26_6638_roma_lfm2.5_2.6b_L25_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'roman_numerals'",
+    "label": "Roman-numeral output support (feeds L26 6638 Roman writer)",
+    "num_units": 1,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0001,
+      "math|heldout": -0.0001,
+      "code|search": -0.0003,
+      "code|heldout": -0.0008,
+      "facts|search": 0.0001,
+      "facts|heldout": -0.0015,
+      "multilingual|search": 0.0001,
+      "multilingual|heldout": 0.0011,
+      "general_text|search": 0.0,
+      "general_text|heldout": 0.0,
+      "month_successor|search": 0.0017,
+      "month_successor__control|search": -0.0001,
+      "month_successor|heldout": -0.0003,
+      "month_successor__control|heldout": -0.0002,
+      "weekday_successor|search": 0.0004,
+      "weekday_successor__control|search": -0.0001,
+      "weekday_successor|heldout": -0.0004,
+      "weekday_successor__control|heldout": -0.0001,
+      "roman_numerals|search": 0.3712,
+      "roman_numerals__control|search": 0.0002,
+      "roman_numerals|heldout": 0.2794,
+      "roman_numerals__control|heldout": 0.0002,
+      "object_color|search": -0.0019,
+      "object_color__control|search": -0.0003,
+      "object_color|heldout": -0.0016,
+      "object_color__control|heldout": 0.0
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1237,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0003,
+      0.0009,
+      0.0007,
+      -0.0001,
+      -0.0027
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L25 w2 col 2969 is the most Roman-aligned column in L25 (cos .19 to centred Roman numeral unembedding), one layer before L26 col 6638 whose logit lens is II/IV/III/VII/VI/IX. Attribution independently ranks it #1 for roman_numerals."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_2.6b/roman_numerals.json",
+    "hash": "c50b8badd33f4783",
+    "description": "Convert an integer 1-39 to Roman numerals, few-shot. Control: same 'n =' format copying the arabic number.",
+    "name": "roman_numerals"
+  },
+  "catalog_id": "mlp_roman-numeral_output_support_feeds_l26_6638_roma_lfm2.5_2.6b_L25_k1_001",
+  "exported_copy": "library/lfm2.5_2.6b/mlp_roman-numeral_output_support_feeds_l26_6638_roma_lfm2.5_2.6b_L25_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

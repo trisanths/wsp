@@ -1,0 +1,116 @@
+{
+  "id": "mlp_l22_list-indexing_mlp_cluster_position-to-elemen_qwen3vl_8b_L22_k20_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen3-VL-8B-Instruct layer 22, L22 list-indexing MLP cluster (position-to-element lookup for xs[i])",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwen3vl_8b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "python_list_index"
+  ],
+  "models": [
+    "Qwen/Qwen3-VL-8B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'python_list_index' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1945,
+      "control_value": -0.0005,
+      "split": "person_a held-out skill items (python_list_index)",
+      "seeds": null,
+      "source": "person_a/catalog/qwen3vl_8b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0002"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen3-VL-8B-Instruct",
+  "layer": 22,
+  "layers": [
+    22
+  ],
+  "units_file": "components/Qwen__Qwen3-VL-8B-Instruct/mlp_l22_list-indexing_mlp_cluster_position-to-elemen_qwen3vl_8b_L22_k20_001.pt",
+  "units_remote": "person_a/parts/qwen3vl_8b/mlp_l22_list-indexing_mlp_cluster_position-to-elemen_qwen3vl_8b_L22_k20_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'python_list_index'",
+    "label": "L22 list-indexing MLP cluster (position-to-element lookup for xs[i])",
+    "num_units": 20,
+    "d_model": 4096,
+    "effect": {
+      "math|search": -0.0004,
+      "math|heldout": 0.0039,
+      "code|search": -0.0001,
+      "code|heldout": -0.0001,
+      "facts|search": -0.006,
+      "facts|heldout": -0.0125,
+      "multilingual|search": 0.0003,
+      "multilingual|heldout": -0.0002,
+      "general_text|search": -0.0002,
+      "general_text|heldout": -0.0006,
+      "en_fr_word_translation|search": 0.0031,
+      "en_fr_word_translation__control|search": 0.0,
+      "en_fr_word_translation|heldout": 0.0017,
+      "en_fr_word_translation__control|heldout": 0.0,
+      "two_digit_addition|search": -0.0006,
+      "two_digit_addition__control|search": -0.0014,
+      "two_digit_addition|heldout": 0.0001,
+      "two_digit_addition__control|heldout": -0.0128,
+      "python_list_index|search": 0.2108,
+      "python_list_index__control|search": 0.0005,
+      "python_list_index|heldout": 0.1945,
+      "python_list_index__control|heldout": 0.0002,
+      "recall_first_number|search": 0.0003,
+      "recall_first_number__control|search": -0.0079,
+      "recall_first_number|heldout": 0.0004,
+      "recall_first_number__control|heldout": -0.004,
+      "month_successor|search": -0.0002,
+      "month_successor__control|search": -0.0,
+      "month_successor|heldout": -0.0025,
+      "month_successor__control|heldout": -0.0012,
+      "object_color|search": 0.0003,
+      "object_color__control|search": 0.0,
+      "object_color|heldout": 0.001,
+      "object_color__control|heldout": -0.0,
+      "two_digit_subtraction|search": 0.0005,
+      "two_digit_subtraction__control|search": 0.0002,
+      "two_digit_subtraction|heldout": 0.0,
+      "two_digit_subtraction__control|heldout": 0.0002,
+      "times_table|search": 0.0001,
+      "times_table__control|search": 0.0,
+      "times_table|heldout": -0.0003,
+      "times_table__control|heldout": 0.0002
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0703,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0005,
+      -0.0034,
+      -0.0018,
+      0.0034,
+      -0.0002
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L22 is the first layer with digit- and code-symbol-writing down columns and with digit-copy heads (h22/h23 OV 5.3/5.0); unit 5178 (seed) and its co-selected units form the indexing cluster, ranked by attribution selectivity within L22."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwen3vl_8b/python_list_index.json",
+    "hash": "00f97e4053c261d3",
+    "description": "Trace Python list indexing (including negative indices): predict the printed value of xs[i]. Control: same code, asks for the literal first element written in the list (no index semantics).",
+    "name": "python_list_index"
+  },
+  "catalog_id": "mlp_l22_list-indexing_mlp_cluster_position-to-elemen_qwen3vl_8b_L22_k20_001",
+  "exported_copy": "library/qwen3vl_8b/mlp_l22_list-indexing_mlp_cluster_position-to-elemen_qwen3vl_8b_L22_k20_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

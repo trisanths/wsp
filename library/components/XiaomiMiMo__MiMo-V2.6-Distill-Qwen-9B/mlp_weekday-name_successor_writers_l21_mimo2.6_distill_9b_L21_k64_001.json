@@ -1,0 +1,116 @@
+{
+  "id": "mlp_weekday-name_successor_writers_l21_mimo2.6_distill_9b_L21_k64_001",
+  "kind": "mlp_cluster",
+  "title": "MiMo-V2.6-Distill-Qwen-9B layer 21, weekday-name successor writers (L21)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/mimo2.6_distill_9b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "weekday_successor"
+  ],
+  "models": [
+    "XiaomiMiMo/MiMo-V2.6-Distill-Qwen-9B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'weekday_successor' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1846,
+      "control_value": -0.0013,
+      "split": "person_a held-out skill items (weekday_successor)",
+      "seeds": null,
+      "source": "person_a/catalog/mimo2.6_distill_9b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0001"
+    }
+  ],
+  "generated": true,
+  "model": "XiaomiMiMo/MiMo-V2.6-Distill-Qwen-9B",
+  "layer": 21,
+  "layers": [
+    21
+  ],
+  "units_file": "components/XiaomiMiMo__MiMo-V2.6-Distill-Qwen-9B/mlp_weekday-name_successor_writers_l21_mimo2.6_distill_9b_L21_k64_001.pt",
+  "units_remote": "person_a/parts/mimo2.6_distill_9b/mlp_weekday-name_successor_writers_l21_mimo2.6_distill_9b_L21_k64_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'weekday_successor'",
+    "label": "weekday-name successor writers (L21)",
+    "num_units": 64,
+    "d_model": 4096,
+    "effect": {
+      "math|search": 0.0002,
+      "math|heldout": 0.0005,
+      "code|search": 0.0006,
+      "code|heldout": -0.0,
+      "facts|search": -0.0045,
+      "facts|heldout": 0.0024,
+      "multilingual|search": 0.0007,
+      "multilingual|heldout": 0.0007,
+      "general_text|search": 0.001,
+      "general_text|heldout": 0.0005,
+      "month_successor|search": -0.0015,
+      "month_successor__control|search": -0.0194,
+      "month_successor|heldout": 0.0011,
+      "month_successor__control|heldout": -0.0185,
+      "roman_numeral|search": -0.0047,
+      "roman_numeral__control|search": 0.0038,
+      "roman_numeral|heldout": -0.005,
+      "roman_numeral__control|heldout": 0.0003,
+      "ordinal_word|search": 0.0219,
+      "ordinal_word__control|search": -0.0069,
+      "ordinal_word|heldout": 0.0254,
+      "ordinal_word__control|heldout": -0.0195,
+      "weekday_successor|search": 0.1992,
+      "weekday_successor__control|search": 0.0004,
+      "weekday_successor|heldout": 0.1846,
+      "weekday_successor__control|heldout": 0.0001,
+      "color_of_object|search": 0.0233,
+      "color_of_object__control|search": 0.0201,
+      "color_of_object|heldout": 0.0142,
+      "color_of_object__control|heldout": 0.0247,
+      "greek_letter_successor|search": 0.0093,
+      "greek_letter_successor__control|search": -0.0238,
+      "greek_letter_successor|heldout": 0.0147,
+      "greek_letter_successor__control|heldout": -0.021,
+      "country_of_city|search": 0.0008,
+      "country_of_city__control|search": -0.0221,
+      "country_of_city|heldout": -0.0038,
+      "country_of_city__control|heldout": -0.0335,
+      "en_fr_translation|search": 0.0006,
+      "en_fr_translation__control|search": -0.0003,
+      "en_fr_translation|heldout": -0.0011,
+      "en_fr_translation__control|heldout": -0.0001
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0664,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0067,
+      0.0055,
+      0.0045,
+      -0.0232,
+      0.0133
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Seeds 9530 and 1912 are the top L21 weekday attributions. The other 62 are the L21 units whose down_proj columns most promote weekday-name tokens through final norm + lm_head."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/mimo2.6_distill_9b/weekday_successor.json",
+    "hash": "7cf31526db2134df",
+    "description": "Name the weekday N (1-3) days after a given weekday, wrapping mod 7. Control repeats the starting weekday.",
+    "name": "weekday_successor"
+  },
+  "catalog_id": "mlp_weekday-name_successor_writers_l21_mimo2.6_distill_9b_L21_k64_001",
+  "exported_copy": "library/mimo2.6_distill_9b/mlp_weekday-name_successor_writers_l21_mimo2.6_distill_9b_L21_k64_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

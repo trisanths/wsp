@@ -1,0 +1,116 @@
+{
+  "id": "mlp_month-name_writer_cluster_l16_20_units_lfm3_1.7b_L16_k20_001",
+  "kind": "mlp_cluster",
+  "title": "LFM3-1.7B layer 16, month-name writer cluster (L16, 20 units)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm3_1.7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "month_successor"
+  ],
+  "models": [
+    "LiquidAI/LFM3-1.7B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'month_successor' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.3094,
+      "control_value": -0.0032,
+      "split": "person_a held-out skill items (month_successor)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm3_1.7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0151"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM3-1.7B",
+  "layer": 16,
+  "layers": [
+    16
+  ],
+  "units_file": "components/LiquidAI__LFM3-1.7B/mlp_month-name_writer_cluster_l16_20_units_lfm3_1.7b_L16_k20_001.pt",
+  "units_remote": "person_a/parts/lfm3_1.7b/mlp_month-name_writer_cluster_l16_20_units_lfm3_1.7b_L16_k20_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'month_successor'",
+    "label": "month-name writer cluster (L16, 20 units)",
+    "num_units": 20,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0002,
+      "math|heldout": 0.0009,
+      "code|search": -0.0004,
+      "code|heldout": 0.0004,
+      "facts|search": 0.0042,
+      "facts|heldout": 0.0088,
+      "multilingual|search": 0.0002,
+      "multilingual|heldout": 0.0008,
+      "general_text|search": 0.0018,
+      "general_text|heldout": 0.0019,
+      "roman_numeral|search": 0.0015,
+      "roman_numeral__control|search": -0.0479,
+      "roman_numeral|heldout": -0.01,
+      "roman_numeral__control|heldout": -0.0161,
+      "number_word|search": -0.0026,
+      "number_word__control|search": 0.0007,
+      "number_word|heldout": -0.0034,
+      "number_word__control|heldout": 0.0024,
+      "month_successor|search": 0.4628,
+      "month_successor__control|search": -0.014,
+      "month_successor|heldout": 0.3094,
+      "month_successor__control|heldout": -0.0151,
+      "weekday_successor|search": 0.0692,
+      "weekday_successor__control|search": 0.0198,
+      "weekday_successor|heldout": 0.062,
+      "weekday_successor__control|heldout": 0.0558,
+      "object_color|search": -0.0078,
+      "object_color__control|search": 0.0134,
+      "object_color|heldout": -0.0037,
+      "object_color__control|heldout": 0.0056,
+      "nationality_to_country|search": 0.0,
+      "nationality_to_country__control|search": 0.0,
+      "nationality_to_country|heldout": -0.0003,
+      "nationality_to_country__control|heldout": 0.0,
+      "ordinal_word|search": -0.0,
+      "ordinal_word__control|search": -0.0023,
+      "ordinal_word|heldout": -0.0003,
+      "ordinal_word__control|heldout": -0.0028,
+      "comparative_adjective|search": 0.0007,
+      "comparative_adjective__control|search": -0.0,
+      "comparative_adjective|heldout": -0.0048,
+      "comparative_adjective__control|heldout": 0.0
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1543,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0048,
+      -0.0088,
+      -0.0004,
+      -0.0048,
+      -0.007
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L16 units 992 and 39 (gate cos .73) write February/April/January/month in the logit lens. Combined with the other L16 month attribution units. Ablation: month .463, control -.014, others \u2264 .069."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm3_1.7b/month_successor.json",
+    "hash": "9870002fb3dae8fa",
+    "description": "Name the month k (1-3) months after a given month. Control: same format with integer + k.",
+    "name": "month_successor"
+  },
+  "catalog_id": "mlp_month-name_writer_cluster_l16_20_units_lfm3_1.7b_L16_k20_001",
+  "exported_copy": "library/lfm3_1.7b/mlp_month-name_writer_cluster_l16_20_units_lfm3_1.7b_L16_k20_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

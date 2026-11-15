@@ -1,0 +1,116 @@
+{
+  "id": "expert_mid-late_digit-writing_arithmetic_expert_two-dig_lfm2.5_8b_a1b_L17_k1_001",
+  "kind": "expert",
+  "title": "LFM2.5-8B-A1B layer 17, mid-late digit-writing arithmetic expert (two-digit addition)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "two_digit_addition"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-8B-A1B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'two_digit_addition' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.3979,
+      "control_value": -0.013,
+      "split": "person_a held-out skill items (two_digit_addition)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0558"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-8B-A1B",
+  "layer": 17,
+  "layers": [
+    17
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-8B-A1B/expert_mid-late_digit-writing_arithmetic_expert_two-dig_lfm2.5_8b_a1b_L17_k1_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_8b_a1b/expert_mid-late_digit-writing_arithmetic_expert_two-dig_lfm2.5_8b_a1b_L17_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'two_digit_addition'",
+    "label": "mid-late digit-writing arithmetic expert (two-digit addition)",
+    "num_units": 1,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0145,
+      "math|heldout": 0.0231,
+      "code|search": 0.0126,
+      "code|heldout": 0.0076,
+      "facts|search": 0.0,
+      "facts|heldout": 0.0,
+      "multilingual|search": 0.0007,
+      "multilingual|heldout": 0.0022,
+      "general_text|search": 0.0041,
+      "general_text|heldout": 0.0046,
+      "en_to_fr_noun|search": 0.0,
+      "en_to_fr_noun__control|search": -0.0001,
+      "en_to_fr_noun|heldout": 0.0,
+      "en_to_fr_noun__control|heldout": 0.0,
+      "two_digit_addition|search": 0.3418,
+      "two_digit_addition__control|search": 0.0764,
+      "two_digit_addition|heldout": 0.3979,
+      "two_digit_addition__control|heldout": 0.0558,
+      "en_to_de_noun|search": 0.0,
+      "en_to_de_noun__control|search": 0.0,
+      "en_to_de_noun|heldout": 0.0,
+      "en_to_de_noun__control|heldout": 0.0,
+      "en_to_es_noun|search": 0.0,
+      "en_to_es_noun__control|search": -0.0005,
+      "en_to_es_noun|heldout": 0.0,
+      "en_to_es_noun__control|heldout": 0.0016,
+      "en_to_ru_word|search": 0.0008,
+      "en_to_ru_word__control|search": 0.0,
+      "en_to_ru_word|heldout": 0.0014,
+      "en_to_ru_word__control|heldout": 0.0,
+      "en_to_zh_word|search": 0.0011,
+      "en_to_zh_word__control|search": -0.0193,
+      "en_to_zh_word|heldout": 0.0061,
+      "en_to_zh_word__control|heldout": -0.0138,
+      "en_to_it_word|search": -0.0078,
+      "en_to_it_word__control|search": -0.0085,
+      "en_to_it_word|heldout": 0.0,
+      "en_to_it_word__control|heldout": -0.0064,
+      "en_to_ja_word|search": 0.016,
+      "en_to_ja_word__control|search": -0.0352,
+      "en_to_ja_word|heldout": 0.0023,
+      "en_to_ja_word__control|heldout": -0.0051
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1139,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0,
+      -0.0004,
+      0.0019,
+      0.0,
+      -0.0663
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L17 e7 w2 has the highest digit-selective write capacity in L17 (projection onto the centered digit-unembedding direction, selectivity 3.4 vs other token sets). It is also the top two_digit_addition attribution unit (.446). Ablation: .342 target drop, control .076, all other skills \u2264 .015."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_8b_a1b/two_digit_addition.json",
+    "hash": "26a7b508ee627c6b",
+    "description": "Compute a+b for two-digit numbers, answer written in digits. Control: copy a number of the same size from the prompt (digit output without computation).",
+    "name": "two_digit_addition"
+  },
+  "catalog_id": "expert_mid-late_digit-writing_arithmetic_expert_two-dig_lfm2.5_8b_a1b_L17_k1_001",
+  "exported_copy": "library/lfm2.5_8b_a1b/expert_mid-late_digit-writing_arithmetic_expert_two-dig_lfm2.5_8b_a1b_L17_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

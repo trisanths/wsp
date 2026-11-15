@@ -1,0 +1,116 @@
+{
+  "id": "mlp_gendered_subject-pronoun_mlp_family_l13_64_units_lfm2.5_vl_450m_L13_k64_001",
+  "kind": "mlp_cluster",
+  "title": "LFM2.5-VL-450M layer 13, gendered subject-pronoun MLP family (L13, 64 units)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "pronoun_gender"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-VL-450M"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'pronoun_gender' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.3983,
+      "control_value": 0.0233,
+      "split": "person_a held-out skill items (pronoun_gender)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0362"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-VL-450M",
+  "layer": 13,
+  "layers": [
+    13
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-VL-450M/mlp_gendered_subject-pronoun_mlp_family_l13_64_units_lfm2.5_vl_450m_L13_k64_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_vl_450m/mlp_gendered_subject-pronoun_mlp_family_l13_64_units_lfm2.5_vl_450m_L13_k64_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'pronoun_gender'",
+    "label": "gendered subject-pronoun MLP family (L13, 64 units)",
+    "num_units": 64,
+    "d_model": 1024,
+    "effect": {
+      "math|search": 0.0002,
+      "math|heldout": 0.0021,
+      "code|search": 0.0035,
+      "code|heldout": -0.0003,
+      "facts|search": 0.0039,
+      "facts|heldout": 0.0131,
+      "multilingual|search": 0.0134,
+      "multilingual|heldout": 0.007,
+      "general_text|search": 0.0228,
+      "general_text|heldout": 0.0198,
+      "month_successor|search": -0.0447,
+      "month_successor__control|search": -0.0018,
+      "month_successor|heldout": -0.0254,
+      "month_successor__control|heldout": -0.0023,
+      "numberword_successor|search": -0.0044,
+      "numberword_successor__control|search": -0.0013,
+      "numberword_successor|heldout": -0.0037,
+      "numberword_successor__control|heldout": -0.0009,
+      "weekday_successor|search": -0.0259,
+      "weekday_successor__control|search": -0.0039,
+      "weekday_successor|heldout": -0.0482,
+      "weekday_successor__control|heldout": -0.0036,
+      "comparative_adjective|search": -0.1769,
+      "comparative_adjective__control|search": -0.0013,
+      "comparative_adjective|heldout": -0.1702,
+      "comparative_adjective__control|heldout": -0.0045,
+      "irregular_past_tense|search": -0.0604,
+      "irregular_past_tense__control|search": 0.0004,
+      "irregular_past_tense|heldout": -0.0638,
+      "irregular_past_tense__control|heldout": 0.0008,
+      "object_colour|search": 0.0055,
+      "object_colour__control|search": -0.0001,
+      "object_colour|heldout": 0.0115,
+      "object_colour__control|heldout": -0.0003,
+      "antonym|search": -0.022,
+      "antonym__control|search": -0.0035,
+      "antonym|heldout": -0.0311,
+      "antonym__control|heldout": -0.0044,
+      "pronoun_gender|search": 0.4319,
+      "pronoun_gender__control|search": -0.0414,
+      "pronoun_gender|heldout": 0.3983,
+      "pronoun_gender__control|heldout": -0.0362
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.144,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0079,
+      -0.0038,
+      0.1028,
+      0.0049,
+      0.0204
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "A 6-unit seed (305, 586, 1797, 3103, 3830, 4517) whose w2 columns are subject-pronoun writers (unembedding cosine up to .37 / -.33), grown with the 58 L13 units most similar in weight space: max |cos| of the w1 gate row plus max |cos| of the w2 output column against the seeds (16th neighbour at .45 vs .10 background). This is a coherent weight family that reads and writes he/she pronoun directions."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_vl_450m/pronoun_gender.json",
+    "hash": "98863de46f0a916d",
+    "description": "Choose the gendered subject pronoun referring back to a named person (e.g. 'Mary was tired, so' -> ' she'). Control: same sentences, answer is the name repeated ('Mary was tired, so Mary rested. Who rested? Answer:' -> ' Mary').",
+    "name": "pronoun_gender"
+  },
+  "catalog_id": "mlp_gendered_subject-pronoun_mlp_family_l13_64_units_lfm2.5_vl_450m_L13_k64_001",
+  "exported_copy": "library/lfm2.5_vl_450m/mlp_gendered_subject-pronoun_mlp_family_l13_64_units_lfm2.5_vl_450m_L13_k64_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

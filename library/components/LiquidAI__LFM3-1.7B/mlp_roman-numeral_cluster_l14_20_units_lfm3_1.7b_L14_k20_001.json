@@ -1,0 +1,116 @@
+{
+  "id": "mlp_roman-numeral_cluster_l14_20_units_lfm3_1.7b_L14_k20_001",
+  "kind": "mlp_cluster",
+  "title": "LFM3-1.7B layer 14, Roman-numeral cluster (L14, 20 units)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm3_1.7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "roman_numeral"
+  ],
+  "models": [
+    "LiquidAI/LFM3-1.7B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'roman_numeral' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1753,
+      "control_value": -0.0017,
+      "split": "person_a held-out skill items (roman_numeral)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm3_1.7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0003"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM3-1.7B",
+  "layer": 14,
+  "layers": [
+    14
+  ],
+  "units_file": "components/LiquidAI__LFM3-1.7B/mlp_roman-numeral_cluster_l14_20_units_lfm3_1.7b_L14_k20_001.pt",
+  "units_remote": "person_a/parts/lfm3_1.7b/mlp_roman-numeral_cluster_l14_20_units_lfm3_1.7b_L14_k20_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'roman_numeral'",
+    "label": "Roman-numeral cluster (L14, 20 units)",
+    "num_units": 20,
+    "d_model": 2048,
+    "effect": {
+      "math|search": -0.0016,
+      "math|heldout": 0.0002,
+      "code|search": 0.004,
+      "code|heldout": 0.0033,
+      "facts|search": 0.0092,
+      "facts|heldout": -0.0156,
+      "multilingual|search": -0.0019,
+      "multilingual|heldout": -0.0024,
+      "general_text|search": 0.0058,
+      "general_text|heldout": 0.0055,
+      "roman_numeral|search": 0.2504,
+      "roman_numeral__control|search": -0.0026,
+      "roman_numeral|heldout": 0.1753,
+      "roman_numeral__control|heldout": -0.0003,
+      "number_word|search": -0.0029,
+      "number_word__control|search": 0.0069,
+      "number_word|heldout": -0.003,
+      "number_word__control|heldout": 0.0094,
+      "month_successor|search": 0.0323,
+      "month_successor__control|search": 0.0035,
+      "month_successor|heldout": 0.0154,
+      "month_successor__control|heldout": 0.0067,
+      "weekday_successor|search": -0.0077,
+      "weekday_successor__control|search": -0.0147,
+      "weekday_successor|heldout": 0.0008,
+      "weekday_successor__control|heldout": -0.0044,
+      "object_color|search": 0.0035,
+      "object_color__control|search": 0.0101,
+      "object_color|heldout": 0.0045,
+      "object_color__control|heldout": -0.0138,
+      "nationality_to_country|search": 0.0004,
+      "nationality_to_country__control|search": 0.0,
+      "nationality_to_country|heldout": 0.0015,
+      "nationality_to_country__control|heldout": 0.0,
+      "ordinal_word|search": 0.0003,
+      "ordinal_word__control|search": 0.0029,
+      "ordinal_word|heldout": 0.001,
+      "ordinal_word__control|heldout": 0.0042,
+      "comparative_adjective|search": 0.0014,
+      "comparative_adjective__control|search": 0.0005,
+      "comparative_adjective|heldout": -0.0291,
+      "comparative_adjective__control|heldout": 0.0006
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0835,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.009,
+      0.0098,
+      -0.0017,
+      -0.0033,
+      -0.0042
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L14 roman attribution units (447, 4272, 2156, ...). They share a gate family (sim .29-.46) and form the L14 link of the roman chain. Ablation: roman .25, control -.003, others \u2264 .032."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm3_1.7b/roman_numeral.json",
+    "hash": "58a91e929708edbd",
+    "description": "Convert an Arabic integer (1-39) to Roman numerals, few-shot. Control: same format but the second line is the arabic successor.",
+    "name": "roman_numeral"
+  },
+  "catalog_id": "mlp_roman-numeral_cluster_l14_20_units_lfm3_1.7b_L14_k20_001",
+  "exported_copy": "library/lfm3_1.7b/mlp_roman-numeral_cluster_l14_20_units_lfm3_1.7b_L14_k20_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

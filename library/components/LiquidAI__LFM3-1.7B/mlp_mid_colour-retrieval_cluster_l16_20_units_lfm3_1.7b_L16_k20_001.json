@@ -1,0 +1,116 @@
+{
+  "id": "mlp_mid_colour-retrieval_cluster_l16_20_units_lfm3_1.7b_L16_k20_001",
+  "kind": "mlp_cluster",
+  "title": "LFM3-1.7B layer 16, mid colour-retrieval cluster (L16, 20 units)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm3_1.7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "object_color"
+  ],
+  "models": [
+    "LiquidAI/LFM3-1.7B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'object_color' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1618,
+      "control_value": -0.0033,
+      "split": "person_a held-out skill items (object_color)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm3_1.7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0429"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM3-1.7B",
+  "layer": 16,
+  "layers": [
+    16
+  ],
+  "units_file": "components/LiquidAI__LFM3-1.7B/mlp_mid_colour-retrieval_cluster_l16_20_units_lfm3_1.7b_L16_k20_001.pt",
+  "units_remote": "person_a/parts/lfm3_1.7b/mlp_mid_colour-retrieval_cluster_l16_20_units_lfm3_1.7b_L16_k20_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'object_color'",
+    "label": "mid colour-retrieval cluster (L16, 20 units)",
+    "num_units": 20,
+    "d_model": 2048,
+    "effect": {
+      "math|search": -0.0022,
+      "math|heldout": 0.0008,
+      "code|search": 0.0071,
+      "code|heldout": 0.0081,
+      "facts|search": 0.0284,
+      "facts|heldout": 0.008,
+      "multilingual|search": 0.0023,
+      "multilingual|heldout": 0.0047,
+      "general_text|search": 0.0253,
+      "general_text|heldout": 0.0183,
+      "roman_numeral|search": 0.0179,
+      "roman_numeral__control|search": 0.0255,
+      "roman_numeral|heldout": -0.0075,
+      "roman_numeral__control|heldout": 0.0062,
+      "number_word|search": 0.0029,
+      "number_word__control|search": 0.011,
+      "number_word|heldout": 0.0048,
+      "number_word__control|heldout": 0.0124,
+      "month_successor|search": 0.0275,
+      "month_successor__control|search": 0.0458,
+      "month_successor|heldout": 0.0075,
+      "month_successor__control|heldout": 0.0584,
+      "weekday_successor|search": 0.013,
+      "weekday_successor__control|search": -0.1092,
+      "weekday_successor|heldout": 0.0232,
+      "weekday_successor__control|heldout": -0.0251,
+      "object_color|search": 0.222,
+      "object_color__control|search": -0.0407,
+      "object_color|heldout": 0.1618,
+      "object_color__control|heldout": -0.0429,
+      "nationality_to_country|search": -0.0008,
+      "nationality_to_country__control|search": -0.0003,
+      "nationality_to_country|heldout": 0.0045,
+      "nationality_to_country__control|heldout": -0.0002,
+      "ordinal_word|search": -0.0031,
+      "ordinal_word__control|search": 0.0049,
+      "ordinal_word|heldout": -0.0011,
+      "ordinal_word__control|heldout": 0.0004,
+      "comparative_adjective|search": 0.0019,
+      "comparative_adjective__control|search": 0.0003,
+      "comparative_adjective|heldout": -0.0193,
+      "comparative_adjective__control|heldout": 0.0002
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.074,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0071,
+      0.0015,
+      -0.0041,
+      -0.0038,
+      -0.0028
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L16 colour attribution units (509, 2673, 208), upstream of the L17-L20 colour writers (cos .42-.50). Ablation: colour .222, control -.041, others \u2264 .028."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm3_1.7b/object_color.json",
+    "hash": "e8bf48573ec22644",
+    "description": "Name the typical colour of a familiar object (banana->yellow, grass->green). Control: same sentences asking for the object's category (fruit, plant...).",
+    "name": "object_color"
+  },
+  "catalog_id": "mlp_mid_colour-retrieval_cluster_l16_20_units_lfm3_1.7b_L16_k20_001",
+  "exported_copy": "library/lfm3_1.7b/mlp_mid_colour-retrieval_cluster_l16_20_units_lfm3_1.7b_L16_k20_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

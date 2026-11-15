@@ -1,0 +1,116 @@
+{
+  "id": "mlp_month-sequence_retrieval_family_l14_shared-gate__lfm3_1.7b_L14_k64_001",
+  "kind": "mlp_cluster",
+  "title": "LFM3-1.7B layer 14, month-sequence retrieval family (L14 shared-gate cluster)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm3_1.7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "month_successor"
+  ],
+  "models": [
+    "LiquidAI/LFM3-1.7B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'month_successor' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2646,
+      "control_value": 0.0072,
+      "split": "person_a held-out skill items (month_successor)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm3_1.7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0259"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM3-1.7B",
+  "layer": 14,
+  "layers": [
+    14
+  ],
+  "units_file": "components/LiquidAI__LFM3-1.7B/mlp_month-sequence_retrieval_family_l14_shared-gate__lfm3_1.7b_L14_k64_001.pt",
+  "units_remote": "person_a/parts/lfm3_1.7b/mlp_month-sequence_retrieval_family_l14_shared-gate__lfm3_1.7b_L14_k64_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'month_successor'",
+    "label": "month-sequence retrieval family (L14 shared-gate cluster)",
+    "num_units": 64,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0029,
+      "math|heldout": 0.0104,
+      "code|search": 0.0049,
+      "code|heldout": 0.0033,
+      "facts|search": 0.0412,
+      "facts|heldout": 0.0162,
+      "multilingual|search": 0.0104,
+      "multilingual|heldout": 0.0038,
+      "general_text|search": 0.0051,
+      "general_text|heldout": 0.0055,
+      "roman_numeral|search": -0.0713,
+      "roman_numeral__control|search": 0.0324,
+      "roman_numeral|heldout": -0.0311,
+      "roman_numeral__control|heldout": 0.0497,
+      "number_word|search": 0.004,
+      "number_word__control|search": 0.0091,
+      "number_word|heldout": 0.0017,
+      "number_word__control|heldout": 0.0074,
+      "month_successor|search": 0.4864,
+      "month_successor__control|search": 0.0323,
+      "month_successor|heldout": 0.2646,
+      "month_successor__control|heldout": 0.0259,
+      "weekday_successor|search": 0.085,
+      "weekday_successor__control|search": 0.1334,
+      "weekday_successor|heldout": 0.088,
+      "weekday_successor__control|heldout": 0.1102,
+      "object_color|search": -0.0028,
+      "object_color__control|search": 0.0487,
+      "object_color|heldout": 0.0044,
+      "object_color__control|heldout": 0.0489,
+      "nationality_to_country|search": 0.0019,
+      "nationality_to_country__control|search": -0.0001,
+      "nationality_to_country|heldout": 0.0032,
+      "nationality_to_country__control|heldout": 0.0001,
+      "ordinal_word|search": 0.0021,
+      "ordinal_word__control|search": 0.0195,
+      "ordinal_word|heldout": 0.0058,
+      "ordinal_word__control|heldout": 0.0225,
+      "comparative_adjective|search": 0.0479,
+      "comparative_adjective__control|search": -0.0001,
+      "comparative_adjective|heldout": 0.0387,
+      "comparative_adjective__control|heldout": 0.0
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1621,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0062,
+      0.0269,
+      0.0169,
+      0.0009,
+      -0.0151
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "The 8 attribution seeds for month_successor at L14 share one gate direction (cos ~.4 to the seed mean), and the cluster was grown to 64 units by gate-row + down-column similarity. It sits one layer upstream of the L15/L16 month-name writers (L16 992/39 lens = February/April/January). Ablation: month .486, control .032, other skills \u2264 .085."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm3_1.7b/month_successor.json",
+    "hash": "9870002fb3dae8fa",
+    "description": "Name the month k (1-3) months after a given month. Control: same format with integer + k.",
+    "name": "month_successor"
+  },
+  "catalog_id": "mlp_month-sequence_retrieval_family_l14_shared-gate__lfm3_1.7b_L14_k64_001",
+  "exported_copy": "library/lfm3_1.7b/mlp_month-sequence_retrieval_family_l14_shared-gate__lfm3_1.7b_L14_k64_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

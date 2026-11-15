@@ -1,0 +1,116 @@
+{
+  "id": "mlp_product-sign_answer-format_support_k2horizon7b_L34_k8_001",
+  "kind": "mlp_cluster",
+  "title": "K2-Horizon-7B layer 34, Product-sign answer-format support",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/k2horizon7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "product_sign"
+  ],
+  "models": [
+    "IFM/K2-Horizon-7B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'product_sign' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1823,
+      "control_value": 0.0009,
+      "split": "person_a held-out skill items (product_sign)",
+      "seeds": null,
+      "source": "person_a/catalog/k2horizon7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0076"
+    }
+  ],
+  "generated": true,
+  "model": "IFM/K2-Horizon-7B",
+  "layer": 34,
+  "layers": [
+    34
+  ],
+  "units_file": "components/IFM__K2-Horizon-7B/mlp_product-sign_answer-format_support_k2horizon7b_L34_k8_001.pt",
+  "units_remote": "person_a/parts/k2horizon7b/mlp_product-sign_answer-format_support_k2horizon7b_L34_k8_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'product_sign'",
+    "label": "Product-sign answer-format support",
+    "num_units": 8,
+    "d_model": 4096,
+    "effect": {
+      "math|search": 0.0007,
+      "math|heldout": 0.0001,
+      "code|search": -0.0004,
+      "code|heldout": -0.0012,
+      "facts|search": -0.0029,
+      "facts|heldout": 0.0026,
+      "multilingual|search": 0.0017,
+      "multilingual|heldout": 0.0008,
+      "general_text|search": 0.0007,
+      "general_text|heldout": 0.001,
+      "month_offset|search": 0.0089,
+      "month_offset__control|search": 0.0196,
+      "month_offset|heldout": 0.0033,
+      "month_offset__control|heldout": 0.0247,
+      "ordinal_word|search": 0.0183,
+      "ordinal_word__control|search": 0.0006,
+      "ordinal_word|heldout": 0.0169,
+      "ordinal_word__control|heldout": 0.0033,
+      "roman_numeral|search": 0.0224,
+      "roman_numeral__control|search": 0.0091,
+      "roman_numeral|heldout": 0.0201,
+      "roman_numeral__control|heldout": 0.0087,
+      "product_sign|search": 0.1873,
+      "product_sign__control|search": 0.0131,
+      "product_sign|heldout": 0.1823,
+      "product_sign__control|heldout": 0.0076,
+      "color_retrieval|search": 0.0172,
+      "color_retrieval__control|search": 0.0345,
+      "color_retrieval|heldout": 0.0052,
+      "color_retrieval__control|heldout": 0.0313,
+      "boolean_logic|search": 0.0228,
+      "boolean_logic__control|search": 0.0463,
+      "boolean_logic|heldout": 0.0129,
+      "boolean_logic__control|heldout": 0.0545,
+      "language_name|search": -0.0136,
+      "language_name__control|search": 0.0124,
+      "language_name|heldout": -0.0159,
+      "language_name__control|heldout": 0.019,
+      "weekday_successor|search": 0.0013,
+      "weekday_successor__control|search": 0.0087,
+      "weekday_successor|heldout": 0.0032,
+      "weekday_successor__control|heldout": 0.0095
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0624,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0037,
+      0.0038,
+      -0.0082,
+      0.0032,
+      0.0019
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Weights suggest an answer-format support cluster, not direct positive/negative emission: 9467 promotes a/(a, 8143/1898 question and code beginnings, 197 whitespace/function words, 8464 pronouns; 6863 is broadly suppressive. The initial three-unit cluster gave .116 product-sign drop versus .011 control. Expansion follows independent attribution, with control and held-out checks needed."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/k2horizon7b/product_sign.json",
+    "hash": "10dc88a22f9a82e2",
+    "description": "Predict positive or negative sign of integer products, with matched control extracting the first factor magnitude.",
+    "name": "product_sign"
+  },
+  "catalog_id": "mlp_product-sign_answer-format_support_k2horizon7b_L34_k8_001",
+  "exported_copy": "library/k2horizon7b/mlp_product-sign_answer-format_support_k2horizon7b_L34_k8_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

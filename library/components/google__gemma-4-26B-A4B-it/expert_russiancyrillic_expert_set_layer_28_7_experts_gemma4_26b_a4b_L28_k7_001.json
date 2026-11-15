@@ -1,0 +1,116 @@
+{
+  "id": "expert_russiancyrillic_expert_set_layer_28_7_experts_gemma4_26b_a4b_L28_k7_001",
+  "kind": "expert",
+  "title": "gemma-4-26B-A4B-it layer 28, Russian/Cyrillic expert set (layer 28, 7 experts)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/gemma4_26b_a4b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "en_to_russian_words"
+  ],
+  "models": [
+    "google/gemma-4-26B-A4B-it"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'en_to_russian_words' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.3132,
+      "control_value": 0.0474,
+      "split": "person_a held-out skill items (en_to_russian_words)",
+      "seeds": null,
+      "source": "person_a/catalog/gemma4_26b_a4b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0085"
+    }
+  ],
+  "generated": true,
+  "model": "google/gemma-4-26B-A4B-it",
+  "layer": 28,
+  "layers": [
+    28
+  ],
+  "units_file": "components/google__gemma-4-26B-A4B-it/expert_russiancyrillic_expert_set_layer_28_7_experts_gemma4_26b_a4b_L28_k7_001.pt",
+  "units_remote": "person_a/parts/gemma4_26b_a4b/expert_russiancyrillic_expert_set_layer_28_7_experts_gemma4_26b_a4b_L28_k7_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'en_to_russian_words'",
+    "label": "Russian/Cyrillic expert set (layer 28, 7 experts)",
+    "num_units": 7,
+    "d_model": 2816,
+    "effect": {
+      "math|search": 0.0109,
+      "math|heldout": 0.0075,
+      "code|search": 0.0025,
+      "code|heldout": 0.005,
+      "facts|search": 0.013,
+      "facts|heldout": 0.0,
+      "multilingual|search": 0.0257,
+      "multilingual|heldout": 0.0255,
+      "general_text|search": 0.0097,
+      "general_text|heldout": 0.0085,
+      "en_to_french_words|search": 0.022,
+      "en_to_french_words__control|search": -0.0036,
+      "en_to_french_words|heldout": 0.0023,
+      "en_to_french_words__control|heldout": 0.0085,
+      "en_to_german_words|search": 0.0114,
+      "en_to_german_words__control|search": -0.0036,
+      "en_to_german_words|heldout": -0.0259,
+      "en_to_german_words__control|heldout": 0.0085,
+      "en_to_spanish_words|search": 0.0319,
+      "en_to_spanish_words__control|search": -0.0036,
+      "en_to_spanish_words|heldout": 0.0188,
+      "en_to_spanish_words__control|heldout": 0.0085,
+      "month_sequence|search": 0.0909,
+      "month_sequence__control|search": 0.214,
+      "month_sequence|heldout": 0.0667,
+      "month_sequence__control|heldout": 0.3037,
+      "en_to_russian_words|search": 0.3797,
+      "en_to_russian_words__control|search": -0.0034,
+      "en_to_russian_words|heldout": 0.3132,
+      "en_to_russian_words__control|heldout": 0.0085,
+      "en_to_chinese_words|search": -0.011,
+      "en_to_chinese_words__control|search": -0.0059,
+      "en_to_chinese_words|heldout": -0.0212,
+      "en_to_chinese_words__control|heldout": 0.0037,
+      "en_to_japanese_words|search": -0.0022,
+      "en_to_japanese_words__control|search": 0.0053,
+      "en_to_japanese_words|heldout": -0.0005,
+      "en_to_japanese_words__control|heldout": -0.0003,
+      "en_to_italian_words|search": 0.0476,
+      "en_to_italian_words__control|search": -0.0036,
+      "en_to_italian_words|heldout": 0.0275,
+      "en_to_italian_words__control|heldout": 0.0085
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1266,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0501,
+      0.0008,
+      0.1274,
+      0.0497,
+      0.0092
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L28 router rows 110 (Russian z=3.4), 95 (3.2, sel 1.9), 69 (3.1/1.5); 44 and 27 are L28 Russian attribution experts; e9 and e1 carry the Russian unembedding direction in their down-proj (z=3.9 each). Ablation: Russian .38, others <= .048."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/gemma4_26b_a4b/en_to_russian_words.json",
+    "hash": "46915ec8ab1197b5",
+    "description": "Few-shot English->Russian single-word translation. Control: same format, English->English copy.",
+    "name": "en_to_russian_words"
+  },
+  "catalog_id": "expert_russiancyrillic_expert_set_layer_28_7_experts_gemma4_26b_a4b_L28_k7_001",
+  "exported_copy": "library/gemma4_26b_a4b/expert_russiancyrillic_expert_set_layer_28_7_experts_gemma4_26b_a4b_L28_k7_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

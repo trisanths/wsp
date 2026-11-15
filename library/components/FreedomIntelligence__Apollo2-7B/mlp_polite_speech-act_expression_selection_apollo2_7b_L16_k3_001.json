@@ -1,0 +1,108 @@
+{
+  "id": "mlp_polite_speech-act_expression_selection_apollo2_7b_L16_k3_001",
+  "kind": "mlp_cluster",
+  "title": "Apollo2-7B layer 16, Polite speech-act expression selection",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/apollo2_7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "polite_expression"
+  ],
+  "models": [
+    "FreedomIntelligence/Apollo2-7B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'polite_expression' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2256,
+      "control_value": 0.0026,
+      "split": "person_a held-out skill items (polite_expression)",
+      "seeds": null,
+      "source": "person_a/catalog/apollo2_7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0051"
+    }
+  ],
+  "generated": true,
+  "model": "FreedomIntelligence/Apollo2-7B",
+  "layer": 16,
+  "layers": [
+    16
+  ],
+  "units_file": "components/FreedomIntelligence__Apollo2-7B/mlp_polite_speech-act_expression_selection_apollo2_7b_L16_k3_001.pt",
+  "units_remote": "person_a/parts/apollo2_7b/mlp_polite_speech-act_expression_selection_apollo2_7b_L16_k3_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'polite_expression'",
+    "label": "Polite speech-act expression selection",
+    "num_units": 3,
+    "d_model": 3584,
+    "effect": {
+      "math|search": 0.0004,
+      "math|heldout": 0.0,
+      "code|search": 0.0001,
+      "code|heldout": -0.0001,
+      "facts|search": 0.0024,
+      "facts|heldout": -0.0025,
+      "multilingual|search": -0.0005,
+      "multilingual|heldout": -0.0017,
+      "general_text|search": 0.0002,
+      "general_text|heldout": -0.0001,
+      "english_past_tense|search": -0.0084,
+      "english_past_tense__control|search": 0.0061,
+      "english_past_tense|heldout": -0.0072,
+      "english_past_tense__control|heldout": 0.0113,
+      "emotion_synonyms|search": 0.0349,
+      "emotion_synonyms__control|search": 0.0014,
+      "emotion_synonyms|heldout": 0.0388,
+      "emotion_synonyms__control|heldout": -0.0031,
+      "english_plurals|search": 0.0036,
+      "english_plurals__control|search": 0.0018,
+      "english_plurals|heldout": -0.0039,
+      "english_plurals__control|heldout": 0.0067,
+      "subject_verb_agreement|search": 0.0625,
+      "subject_verb_agreement__control|search": 0.0815,
+      "subject_verb_agreement|heldout": 0.0741,
+      "subject_verb_agreement__control|heldout": 0.0598,
+      "reflexive_agreement|search": -0.0129,
+      "reflexive_agreement__control|search": 0.0722,
+      "reflexive_agreement|heldout": -0.0128,
+      "reflexive_agreement__control|heldout": 0.065,
+      "polite_expression|search": 0.2302,
+      "polite_expression__control|search": -0.0039,
+      "polite_expression|heldout": 0.2256,
+      "polite_expression__control|heldout": -0.0051
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0767,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0008,
+      0.0032,
+      -0.0008,
+      0.0049,
+      0.0066
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Weight evidence is upstream and distributed: 14354 gate \u53d1\u8a00 (speech), up personality; 13106 up notified and \u4e3a\u60a8 (honorific for-you); 18752 gate celebrating and up personal experience. Independent attribution then ablation yields .230 target drop, -.004 matched control, largest other task .062 agreement."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/apollo2_7b/polite_expression.json",
+    "hash": "5956888c04f927e9",
+    "description": "Select thanks, sorry, or please for gratitude, apology, or a polite request; matched controls copy a named participant.",
+    "name": "polite_expression"
+  },
+  "catalog_id": "mlp_polite_speech-act_expression_selection_apollo2_7b_L16_k3_001",
+  "exported_copy": "library/apollo2_7b/mlp_polite_speech-act_expression_selection_apollo2_7b_L16_k3_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

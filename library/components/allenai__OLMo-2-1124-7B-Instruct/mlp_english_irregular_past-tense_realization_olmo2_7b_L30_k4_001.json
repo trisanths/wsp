@@ -1,0 +1,96 @@
+{
+  "id": "mlp_english_irregular_past-tense_realization_olmo2_7b_L30_k4_001",
+  "kind": "mlp_cluster",
+  "title": "OLMo-2-1124-7B-Instruct layer 30, English irregular past-tense realization",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/olmo2_7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "past_tense"
+  ],
+  "models": [
+    "allenai/OLMo-2-1124-7B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'past_tense' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2807,
+      "control_value": 0.0012,
+      "split": "person_a held-out skill items (past_tense)",
+      "seeds": null,
+      "source": "person_a/catalog/olmo2_7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0044"
+    }
+  ],
+  "generated": true,
+  "model": "allenai/OLMo-2-1124-7B-Instruct",
+  "layer": 30,
+  "layers": [
+    30
+  ],
+  "units_file": "components/allenai__OLMo-2-1124-7B-Instruct/mlp_english_irregular_past-tense_realization_olmo2_7b_L30_k4_001.pt",
+  "units_remote": "person_a/parts/olmo2_7b/mlp_english_irregular_past-tense_realization_olmo2_7b_L30_k4_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'past_tense'",
+    "label": "English irregular past-tense realization",
+    "num_units": 4,
+    "d_model": 4096,
+    "effect": {
+      "math|search": 0.0,
+      "math|heldout": -0.0004,
+      "code|search": -0.0001,
+      "code|heldout": -0.0005,
+      "facts|search": 0.0,
+      "facts|heldout": 0.0013,
+      "multilingual|search": 0.0004,
+      "multilingual|heldout": 0.0001,
+      "general_text|search": 0.0,
+      "general_text|heldout": 0.001,
+      "past_tense|search": 0.2755,
+      "past_tense__control|search": -0.0013,
+      "past_tense|heldout": 0.2807,
+      "past_tense__control|heldout": -0.0044,
+      "sentiment_polarity|search": 0.0012,
+      "sentiment_polarity__control|search": -0.0016,
+      "sentiment_polarity|heldout": -0.0018,
+      "sentiment_polarity__control|heldout": -0.0009,
+      "language_identification|search": -0.0051,
+      "language_identification__control|search": 0.0,
+      "language_identification|heldout": -0.003,
+      "language_identification__control|heldout": 0.0
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0918,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0031,
+      0.0033,
+      0.0021,
+      0.0024,
+      0.0011
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L30 output columns 1698 (was .367/were .328), 8520 (was .382/had .310), 10512 (made .256, kept .222, brought .212; gate have/Have/having), 7072 (swimming .273/swim .256). Convergent attribution for 10512/7072 and ablation shows .276 past-tense drop versus -.001 copying-control drop."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/olmo2_7b/past_tense.json",
+    "hash": "061bba1faa6c24d7",
+    "description": "Convert English verbs to their simple past forms; matched control copies the base verb in identical contexts.",
+    "name": "past_tense"
+  },
+  "catalog_id": "mlp_english_irregular_past-tense_realization_olmo2_7b_L30_k4_001",
+  "exported_copy": "library/olmo2_7b/mlp_english_irregular_past-tense_realization_olmo2_7b_L30_k4_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

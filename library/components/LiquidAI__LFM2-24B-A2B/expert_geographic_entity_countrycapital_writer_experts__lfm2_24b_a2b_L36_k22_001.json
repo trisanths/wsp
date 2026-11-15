@@ -1,0 +1,113 @@
+{
+  "id": "expert_geographic_entity_countrycapital_writer_experts__lfm2_24b_a2b_L36_k22_001",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 36, geographic entity (country/capital) writer experts, L36",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "facts"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'facts' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2161,
+      "control_value": 0.0502,
+      "split": "person_a held-out skill items (facts)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 36,
+  "layers": [
+    36
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/expert_geographic_entity_countrycapital_writer_experts__lfm2_24b_a2b_L36_k22_001.pt",
+  "units_remote": "person_a/parts/lfm2_24b_a2b/expert_geographic_entity_countrycapital_writer_experts__lfm2_24b_a2b_L36_k22_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'facts'",
+    "label": "geographic entity (country/capital) writer experts, L36",
+    "num_units": 22,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0001,
+      "math|heldout": 0.0001,
+      "code|search": 0.0127,
+      "code|heldout": 0.0054,
+      "facts|search": 0.1545,
+      "facts|heldout": 0.2161,
+      "multilingual|search": 0.0235,
+      "multilingual|heldout": 0.0123,
+      "general_text|search": 0.0167,
+      "general_text|heldout": -0.0008,
+      "month_successor|search": -0.0088,
+      "month_successor__control|search": 0.0008,
+      "month_successor|heldout": -0.0096,
+      "month_successor__control|heldout": 0.002,
+      "weekday_successor|search": -0.0177,
+      "weekday_successor__control|search": 0.1866,
+      "weekday_successor|heldout": -0.0301,
+      "weekday_successor__control|heldout": 0.0067,
+      "roman_numeral|search": 0.0461,
+      "roman_numeral__control|search": 0.0487,
+      "roman_numeral|heldout": 0.0304,
+      "roman_numeral__control|heldout": 0.0393,
+      "antonym|search": -0.0085,
+      "antonym__control|search": 0.0299,
+      "antonym|heldout": -0.0156,
+      "antonym__control|heldout": 0.0145,
+      "chinese_numeral|search": -0.0877,
+      "chinese_numeral__control|search": -0.0061,
+      "chinese_numeral|heldout": -0.0935,
+      "chinese_numeral__control|heldout": -0.0045,
+      "a_an_article|search": -0.0233,
+      "a_an_article__control|search": -0.0241,
+      "a_an_article|heldout": -0.0134,
+      "a_an_article__control|heldout": 0.0281,
+      "subject_verb_agreement|search": 0.0487,
+      "subject_verb_agreement__control|search": -0.0025,
+      "subject_verb_agreement|heldout": 0.0781,
+      "subject_verb_agreement__control|heldout": 0.0951,
+      "en_fr_translation|search": 0.0023,
+      "en_fr_translation__control|search": 0.0291,
+      "en_fr_translation|heldout": 0.0079,
+      "en_fr_translation__control|heldout": 0.0145
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0515,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.1208,
+      0.0423,
+      0.0105,
+      0.0603,
+      0.0171
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "22 L36 experts ranked by down-projection energy on country and capital-city unembedding rows (e21 2.1/1.4x lead), with a weekday-energy penalty and e47 excluded. Excluding e47, the top weekday writer, removed the weekday collateral as its weights predicted. Ablation drops facts .154 with all other skills \u2264.049. This is the same recipe that passed at L35 and L37."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "builtin",
+    "name": "facts"
+  },
+  "catalog_id": "expert_geographic_entity_countrycapital_writer_experts__lfm2_24b_a2b_L36_k22_001",
+  "exported_copy": "library/lfm2_24b_a2b/expert_geographic_entity_countrycapital_writer_experts__lfm2_24b_a2b_L36_k22_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

@@ -1,0 +1,116 @@
+{
+  "id": "mlp_number-word_successor_mlp_family_l14_256_units_lfm2.5_vl_450m_L14_k256_001",
+  "kind": "mlp_cluster",
+  "title": "LFM2.5-VL-450M layer 14, number-word successor MLP family (L14, 256 units)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "numberword_successor"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-VL-450M"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'numberword_successor' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1724,
+      "control_value": 0.0094,
+      "split": "person_a held-out skill items (numberword_successor)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0087"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-VL-450M",
+  "layer": 14,
+  "layers": [
+    14
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-VL-450M/mlp_number-word_successor_mlp_family_l14_256_units_lfm2.5_vl_450m_L14_k256_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_vl_450m/mlp_number-word_successor_mlp_family_l14_256_units_lfm2.5_vl_450m_L14_k256_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'numberword_successor'",
+    "label": "number-word successor MLP family (L14, 256 units)",
+    "num_units": 256,
+    "d_model": 1024,
+    "effect": {
+      "math|search": -0.0026,
+      "math|heldout": 0.025,
+      "code|search": 0.0087,
+      "code|heldout": 0.0094,
+      "facts|search": 0.0117,
+      "facts|heldout": 0.0349,
+      "multilingual|search": 0.0091,
+      "multilingual|heldout": 0.0106,
+      "general_text|search": 0.0015,
+      "general_text|heldout": 0.0025,
+      "month_successor|search": 0.0558,
+      "month_successor__control|search": 0.0146,
+      "month_successor|heldout": 0.0448,
+      "month_successor__control|heldout": 0.0474,
+      "numberword_successor|search": 0.1959,
+      "numberword_successor__control|search": 0.0032,
+      "numberword_successor|heldout": 0.1724,
+      "numberword_successor__control|heldout": 0.0087,
+      "weekday_successor|search": -0.0271,
+      "weekday_successor__control|search": 0.0213,
+      "weekday_successor|heldout": -0.0332,
+      "weekday_successor__control|heldout": 0.0184,
+      "comparative_adjective|search": 0.007,
+      "comparative_adjective__control|search": 0.0016,
+      "comparative_adjective|heldout": 0.0094,
+      "comparative_adjective__control|heldout": 0.0015,
+      "irregular_past_tense|search": 0.0333,
+      "irregular_past_tense__control|search": 0.0022,
+      "irregular_past_tense|heldout": 0.0195,
+      "irregular_past_tense__control|heldout": 0.0018,
+      "object_colour|search": 0.0156,
+      "object_colour__control|search": 0.0002,
+      "object_colour|heldout": 0.0456,
+      "object_colour__control|heldout": 0.0,
+      "antonym|search": -0.0057,
+      "antonym__control|search": 0.0039,
+      "antonym|heldout": 0.0085,
+      "antonym__control|heldout": 0.0046,
+      "pronoun_gender|search": -0.0003,
+      "pronoun_gender__control|search": 0.0162,
+      "pronoun_gender|heldout": -0.0002,
+      "pronoun_gender__control|heldout": -0.0069
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0653,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0219,
+      0.0038,
+      -0.013,
+      0.0313,
+      0.003
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L14 numberword attribution seeds (4079, 2917, 589, 3896, 3688, 3277, 3769) grown to 256 units by w1-gate-row plus w2-column cosine. Similarity to the multi-skill hub units (1364, 722) and the pronoun/colour seeds (4276, 1878, 3652) is subtracted; without that, the first L14 family leaked into facts (.215). L14 also holds the digit writer 2734 (lens z -6.1), consistent with a counting-word output stage."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_vl_450m/numberword_successor.json",
+    "hash": "3b84bc300abc526d",
+    "description": "Continue a spelled-out English number-word count sequence (e.g. 'seven, eight, nine,' -> ' ten'). Control: identical sequences written with digits.",
+    "name": "numberword_successor"
+  },
+  "catalog_id": "mlp_number-word_successor_mlp_family_l14_256_units_lfm2.5_vl_450m_L14_k256_001",
+  "exported_copy": "library/lfm2.5_vl_450m/mlp_number-word_successor_mlp_family_l14_256_units_lfm2.5_vl_450m_L14_k256_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

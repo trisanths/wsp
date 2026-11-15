@@ -1,0 +1,108 @@
+{
+  "id": "mlp_plural-reference_pronoun_selection_qwencoder7b_L24_k1_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen2.5-Coder-7B-Instruct layer 24, Plural-reference pronoun selection",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwencoder7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "pronoun_case"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Coder-7B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'pronoun_case' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1859,
+      "control_value": -0.0014,
+      "split": "person_a held-out skill items (pronoun_case)",
+      "seeds": null,
+      "source": "person_a/catalog/qwencoder7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0038"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "layer": 24,
+  "layers": [
+    24
+  ],
+  "units_file": "components/Qwen__Qwen2.5-Coder-7B-Instruct/mlp_plural-reference_pronoun_selection_qwencoder7b_L24_k1_001.pt",
+  "units_remote": "person_a/parts/qwencoder7b/mlp_plural-reference_pronoun_selection_qwencoder7b_L24_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'pronoun_case'",
+    "label": "Plural-reference pronoun selection",
+    "num_units": 1,
+    "d_model": 3584,
+    "effect": {
+      "math|search": 0.0002,
+      "math|heldout": -0.0001,
+      "code|search": -0.0001,
+      "code|heldout": 0.0006,
+      "facts|search": -0.0003,
+      "facts|heldout": 0.0007,
+      "multilingual|search": 0.0,
+      "multilingual|heldout": -0.0011,
+      "general_text|search": 0.0001,
+      "general_text|heldout": 0.0008,
+      "english_agreement|search": -0.0007,
+      "english_agreement__control|search": 0.0022,
+      "english_agreement|heldout": -0.0012,
+      "english_agreement__control|heldout": -0.0036,
+      "german_article|search": 0.0059,
+      "german_article__control|search": -0.0,
+      "german_article|heldout": 0.0053,
+      "german_article__control|heldout": -0.0,
+      "emotion_synonym|search": 0.0037,
+      "emotion_synonym__control|search": -0.0016,
+      "emotion_synonym|heldout": -0.0003,
+      "emotion_synonym__control|heldout": 0.0001,
+      "english_plural|search": 0.0,
+      "english_plural__control|search": -0.0001,
+      "english_plural|heldout": 0.0003,
+      "english_plural__control|heldout": 0.0,
+      "polite_formula|search": 0.0,
+      "polite_formula__control|search": 0.0,
+      "polite_formula|heldout": -0.0005,
+      "polite_formula__control|heldout": 0.0,
+      "pronoun_case|search": 0.2115,
+      "pronoun_case__control|search": 0.0039,
+      "pronoun_case|heldout": 0.1859,
+      "pronoun_case__control|heldout": 0.0038
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0705,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.002,
+      0.0018,
+      -0.005,
+      -0.0002,
+      -0.0056
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Weight-first pronoun centroid ranked 7306 second at L24; full down projection promotes \u4ed6\u4eec .393, They .356, Their .323, their .318, they .316. Independent pronoun_case attribution .264 supports testing this single multilingual plural-pronoun writer against tag-copy control."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwencoder7b/pronoun_case.json",
+    "hash": "803f31b971f83c2a",
+    "description": "Choose subject, object, or possessive English pronoun for a specified person/group in a sentence; control copies an unrelated given tag.",
+    "name": "pronoun_case"
+  },
+  "catalog_id": "mlp_plural-reference_pronoun_selection_qwencoder7b_L24_k1_001",
+  "exported_copy": "library/qwencoder7b/mlp_plural-reference_pronoun_selection_qwencoder7b_L24_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

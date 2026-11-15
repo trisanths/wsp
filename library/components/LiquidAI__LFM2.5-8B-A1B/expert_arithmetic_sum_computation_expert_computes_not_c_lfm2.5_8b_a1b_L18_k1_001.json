@@ -1,0 +1,116 @@
+{
+  "id": "expert_arithmetic_sum_computation_expert_computes_not_c_lfm2.5_8b_a1b_L18_k1_001",
+  "kind": "expert",
+  "title": "LFM2.5-8B-A1B layer 18, arithmetic sum computation expert (computes, not copies, digits)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "two_digit_addition"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-8B-A1B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'two_digit_addition' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.3065,
+      "control_value": 0.0042,
+      "split": "person_a held-out skill items (two_digit_addition)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0141"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-8B-A1B",
+  "layer": 18,
+  "layers": [
+    18
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-8B-A1B/expert_arithmetic_sum_computation_expert_computes_not_c_lfm2.5_8b_a1b_L18_k1_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_8b_a1b/expert_arithmetic_sum_computation_expert_computes_not_c_lfm2.5_8b_a1b_L18_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'two_digit_addition'",
+    "label": "arithmetic sum computation expert (computes, not copies, digits)",
+    "num_units": 1,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0853,
+      "math|heldout": 0.0374,
+      "code|search": 0.0006,
+      "code|heldout": -0.0011,
+      "facts|search": 0.0,
+      "facts|heldout": 0.0,
+      "multilingual|search": -0.0007,
+      "multilingual|heldout": 0.0003,
+      "general_text|search": 0.002,
+      "general_text|heldout": 0.0022,
+      "en_to_fr_noun|search": 0.0359,
+      "en_to_fr_noun__control|search": 0.0196,
+      "en_to_fr_noun|heldout": -0.0037,
+      "en_to_fr_noun__control|heldout": 0.0032,
+      "two_digit_addition|search": 0.2936,
+      "two_digit_addition__control|search": -0.0117,
+      "two_digit_addition|heldout": 0.3065,
+      "two_digit_addition__control|heldout": -0.0141,
+      "en_to_de_noun|search": 0.0168,
+      "en_to_de_noun__control|search": 0.009,
+      "en_to_de_noun|heldout": 0.0091,
+      "en_to_de_noun__control|heldout": -0.004,
+      "en_to_es_noun|search": 0.0119,
+      "en_to_es_noun__control|search": -0.0054,
+      "en_to_es_noun|heldout": 0.002,
+      "en_to_es_noun__control|heldout": 0.0018,
+      "en_to_ru_word|search": 0.0062,
+      "en_to_ru_word__control|search": 0.0,
+      "en_to_ru_word|heldout": 0.0,
+      "en_to_ru_word__control|heldout": 0.0058,
+      "en_to_zh_word|search": -0.0015,
+      "en_to_zh_word__control|search": -0.0048,
+      "en_to_zh_word|heldout": 0.0083,
+      "en_to_zh_word__control|heldout": 0.0,
+      "en_to_it_word|search": -0.0064,
+      "en_to_it_word__control|search": 0.0,
+      "en_to_it_word|heldout": 0.0,
+      "en_to_it_word__control|heldout": 0.0,
+      "en_to_ja_word|search": -0.0048,
+      "en_to_ja_word__control|search": 0.0117,
+      "en_to_ja_word|heldout": -0.0001,
+      "en_to_ja_word__control|heldout": 0.0151
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0979,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0013,
+      -0.0007,
+      -0.0057,
+      0.0024,
+      0.0239
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L18 e15 w2 lens shows math-variable tokens (xprime, (gamma); attribution #2 for two-digit addition; ablation drops addition .29 while the digit-copy control moves -.01 and GSM-style math .085."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_8b_a1b/two_digit_addition.json",
+    "hash": "26a7b508ee627c6b",
+    "description": "Compute a+b for two-digit numbers, answer written in digits. Control: copy a number of the same size from the prompt (digit output without computation).",
+    "name": "two_digit_addition"
+  },
+  "catalog_id": "expert_arithmetic_sum_computation_expert_computes_not_c_lfm2.5_8b_a1b_L18_k1_001",
+  "exported_copy": "library/lfm2.5_8b_a1b/expert_arithmetic_sum_computation_expert_computes_not_c_lfm2.5_8b_a1b_L18_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

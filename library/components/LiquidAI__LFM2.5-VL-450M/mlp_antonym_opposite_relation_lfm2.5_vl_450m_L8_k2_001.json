@@ -1,0 +1,116 @@
+{
+  "id": "mlp_antonym_opposite_relation_lfm2.5_vl_450m_L8_k2_001",
+  "kind": "mlp_cluster",
+  "title": "LFM2.5-VL-450M layer 8, antonym / opposite relation",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "antonym"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-VL-450M"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'antonym' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.7199,
+      "control_value": 0.0057,
+      "split": "person_a held-out skill items (antonym)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0037"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-VL-450M",
+  "layer": 8,
+  "layers": [
+    8
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-VL-450M/mlp_antonym_opposite_relation_lfm2.5_vl_450m_L8_k2_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_vl_450m/mlp_antonym_opposite_relation_lfm2.5_vl_450m_L8_k2_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'antonym'",
+    "label": "antonym / opposite relation",
+    "num_units": 2,
+    "d_model": 1024,
+    "effect": {
+      "math|search": -0.0003,
+      "math|heldout": 0.0007,
+      "code|search": -0.0012,
+      "code|heldout": -0.0008,
+      "facts|search": 0.0051,
+      "facts|heldout": -0.0048,
+      "multilingual|search": 0.0008,
+      "multilingual|heldout": -0.0019,
+      "general_text|search": 0.0,
+      "general_text|heldout": 0.0015,
+      "month_successor|search": 0.0205,
+      "month_successor__control|search": 0.0015,
+      "month_successor|heldout": 0.0056,
+      "month_successor__control|heldout": 0.0039,
+      "numberword_successor|search": -0.0005,
+      "numberword_successor__control|search": -0.0002,
+      "numberword_successor|heldout": 0.0012,
+      "numberword_successor__control|heldout": -0.0002,
+      "weekday_successor|search": 0.0044,
+      "weekday_successor__control|search": 0.0006,
+      "weekday_successor|heldout": -0.005,
+      "weekday_successor__control|heldout": -0.0008,
+      "comparative_adjective|search": -0.1988,
+      "comparative_adjective__control|search": 0.0003,
+      "comparative_adjective|heldout": -0.2207,
+      "comparative_adjective__control|heldout": -0.0012,
+      "irregular_past_tense|search": 0.0022,
+      "irregular_past_tense__control|search": 0.0006,
+      "irregular_past_tense|heldout": -0.0049,
+      "irregular_past_tense__control|heldout": 0.0017,
+      "object_colour|search": 0.0007,
+      "object_colour__control|search": 0.0002,
+      "object_colour|heldout": 0.0046,
+      "object_colour__control|heldout": 0.0005,
+      "antonym|search": 0.7748,
+      "antonym__control|search": 0.0029,
+      "antonym|heldout": 0.7199,
+      "antonym__control|heldout": 0.0037,
+      "pronoun_gender|search": -0.001,
+      "pronoun_gender__control|search": 0.0247,
+      "pronoun_gender|heldout": 0.0049,
+      "pronoun_gender__control|heldout": 0.0047
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.2583,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.012,
+      0.0023,
+      -0.0003,
+      0.0102,
+      0.0043
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L8 4264 gate row reads 'other/alternative' tokens (' elsewhere',' others',' wherever',' ailleurs','/or'); with 76 these are the top antonym attribution units upstream of the L11/L13 opposites-aligned writers (cos .35). Ablation .775 vs identity control .003."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_vl_450m/antonym.json",
+    "hash": "19b7ab667da76887",
+    "description": "Produce the antonym of a word in few-shot arrow format (e.g. 'hot -> cold, up -> down, big ->' -> ' small'). Control: same format with identity mapping.",
+    "name": "antonym"
+  },
+  "catalog_id": "mlp_antonym_opposite_relation_lfm2.5_vl_450m_L8_k2_001",
+  "exported_copy": "library/lfm2.5_vl_450m/mlp_antonym_opposite_relation_lfm2.5_vl_450m_L8_k2_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

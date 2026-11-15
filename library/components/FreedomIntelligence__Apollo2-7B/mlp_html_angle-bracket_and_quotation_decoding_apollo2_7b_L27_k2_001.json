@@ -1,0 +1,108 @@
+{
+  "id": "mlp_html_angle-bracket_and_quotation_decoding_apollo2_7b_L27_k2_001",
+  "kind": "mlp_cluster",
+  "title": "Apollo2-7B layer 27, HTML angle-bracket and quotation decoding",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/apollo2_7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "html_entity_decode"
+  ],
+  "models": [
+    "FreedomIntelligence/Apollo2-7B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'html_entity_decode' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1918,
+      "control_value": 0.0004,
+      "split": "person_a held-out skill items (html_entity_decode)",
+      "seeds": null,
+      "source": "person_a/catalog/apollo2_7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.016"
+    }
+  ],
+  "generated": true,
+  "model": "FreedomIntelligence/Apollo2-7B",
+  "layer": 27,
+  "layers": [
+    27
+  ],
+  "units_file": "components/FreedomIntelligence__Apollo2-7B/mlp_html_angle-bracket_and_quotation_decoding_apollo2_7b_L27_k2_001.pt",
+  "units_remote": "person_a/parts/apollo2_7b/mlp_html_angle-bracket_and_quotation_decoding_apollo2_7b_L27_k2_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'html_entity_decode'",
+    "label": "HTML angle-bracket and quotation decoding",
+    "num_units": 2,
+    "d_model": 3584,
+    "effect": {
+      "math|search": 0.0001,
+      "math|heldout": -0.0001,
+      "code|search": 0.0012,
+      "code|heldout": 0.0011,
+      "facts|search": -0.0003,
+      "facts|heldout": 0.0006,
+      "multilingual|search": -0.0003,
+      "multilingual|heldout": -0.0002,
+      "general_text|search": 0.0005,
+      "general_text|heldout": 0.0,
+      "json_literals|search": -0.2128,
+      "json_literals__control|search": -0.1564,
+      "json_literals|heldout": -0.2045,
+      "json_literals__control|heldout": -0.156,
+      "url_scheme|search": -0.0042,
+      "url_scheme__control|search": 0.0,
+      "url_scheme|heldout": -0.0118,
+      "url_scheme__control|heldout": 0.002,
+      "measurement_symbols|search": -0.0023,
+      "measurement_symbols__control|search": -0.0005,
+      "measurement_symbols|heldout": -0.0024,
+      "measurement_symbols__control|heldout": -0.0013,
+      "python_keywords|search": -0.0218,
+      "python_keywords__control|search": -0.0152,
+      "python_keywords|heldout": -0.0151,
+      "python_keywords__control|heldout": -0.0165,
+      "html_entity_decode|search": 0.2401,
+      "html_entity_decode__control|search": -0.003,
+      "html_entity_decode|heldout": 0.1918,
+      "html_entity_decode__control|heldout": -0.016,
+      "sql_keywords|search": -0.0048,
+      "sql_keywords__control|search": -0.0023,
+      "sql_keywords|heldout": -0.0029,
+      "sql_keywords__control|heldout": -0.0039
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.08,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0002,
+      0.0041,
+      -0.0004,
+      -0.0027,
+      0.0006
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Weight-selected 1227 promotes > (.446), with measured entity-decoding drop .124. Attribution-selected 4908 is a signed quote feature (space quote -.314, curly opening quote -.318) with estimated effect .150. Pair tests complementary punctuation rendering for gt/quot/apos entities, excluding the ampersand unit that leaked into entity-name control."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/apollo2_7b/html_entity_decode.json",
+    "hash": "80176d16743393a6",
+    "description": "Decode named HTML entities into the literal punctuation character. Matched controls copy the entity name without decoding.",
+    "name": "html_entity_decode"
+  },
+  "catalog_id": "mlp_html_angle-bracket_and_quotation_decoding_apollo2_7b_L27_k2_001",
+  "exported_copy": "library/apollo2_7b/mlp_html_angle-bracket_and_quotation_decoding_apollo2_7b_L27_k2_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

@@ -1,0 +1,100 @@
+{
+  "id": "expert_final-layer_spanish_word_output_expert_lfm2.5_8b_a1b_L23_k1_001",
+  "kind": "expert",
+  "title": "LFM2.5-8B-A1B layer 23, final-layer Spanish word output expert",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "en_to_es_noun"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-8B-A1B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'en_to_es_noun' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.5755,
+      "control_value": 0.0501,
+      "split": "person_a held-out skill items (en_to_es_noun)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0198"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-8B-A1B",
+  "layer": 23,
+  "layers": [
+    23
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-8B-A1B/expert_final-layer_spanish_word_output_expert_lfm2.5_8b_a1b_L23_k1_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_8b_a1b/expert_final-layer_spanish_word_output_expert_lfm2.5_8b_a1b_L23_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'en_to_es_noun'",
+    "label": "final-layer Spanish word output expert",
+    "num_units": 1,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0,
+      "math|heldout": 0.0,
+      "code|search": 0.0001,
+      "code|heldout": 0.0,
+      "facts|search": 0.0,
+      "facts|heldout": 0.0,
+      "multilingual|search": 0.0477,
+      "multilingual|heldout": 0.0342,
+      "general_text|search": 0.0143,
+      "general_text|heldout": 0.0202,
+      "en_to_fr_noun|search": 0.0,
+      "en_to_fr_noun__control|search": -0.0379,
+      "en_to_fr_noun|heldout": 0.0,
+      "en_to_fr_noun__control|heldout": 0.0201,
+      "two_digit_addition|search": -0.0007,
+      "two_digit_addition__control|search": 0.0,
+      "two_digit_addition|heldout": -0.0004,
+      "two_digit_addition__control|heldout": 0.0,
+      "en_to_de_noun|search": 0.0,
+      "en_to_de_noun__control|search": 0.0018,
+      "en_to_de_noun|heldout": 0.0,
+      "en_to_de_noun__control|heldout": 0.0,
+      "en_to_es_noun|search": 0.5827,
+      "en_to_es_noun__control|search": -0.0195,
+      "en_to_es_noun|heldout": 0.5755,
+      "en_to_es_noun__control|heldout": -0.0198
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1942,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.2509,
+      0.0,
+      0.0,
+      0.0,
+      -0.0004
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L23 e15 is the #2 en_to_es_noun attribution expert (.667) and sits outside the shared Romance writer pool (e2/e23/e24, which also carry fr/it). Ablation drops es .548 with fr/it/de/ru/zh/ja all \u22480, multilingual .047 and the es control -.002, so it is a Spanish-specific late writer. It complements the passed mid-stack es experts L18 e3 and L22 e14/e19."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_8b_a1b/en_to_es_noun.json",
+    "hash": "3f16d8ebce496ee5",
+    "description": "Translate short English sentence into Spanish; answer is Spanish noun after the article. Control: reverse direction (Spanish->English), English noun.",
+    "name": "en_to_es_noun"
+  },
+  "catalog_id": "expert_final-layer_spanish_word_output_expert_lfm2.5_8b_a1b_L23_k1_001",
+  "exported_copy": "library/lfm2.5_8b_a1b/expert_final-layer_spanish_word_output_expert_lfm2.5_8b_a1b_L23_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

@@ -1,0 +1,113 @@
+{
+  "id": "mlp_factual-recall_answer_writer_512-unit_l31_cluste_qwen3.5_9b_L31_k512_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen3.5-9B layer 31, factual-recall answer writer (512-unit L31 cluster)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwen3.5_9b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "facts"
+  ],
+  "models": [
+    "Qwen/Qwen3.5-9B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'facts' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.3056,
+      "control_value": 0.0428,
+      "split": "person_a held-out skill items (facts)",
+      "seeds": null,
+      "source": "person_a/catalog/qwen3.5_9b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen3.5-9B",
+  "layer": 31,
+  "layers": [
+    31
+  ],
+  "units_file": "components/Qwen__Qwen3.5-9B/mlp_factual-recall_answer_writer_512-unit_l31_cluste_qwen3.5_9b_L31_k512_001.pt",
+  "units_remote": "person_a/parts/qwen3.5_9b/mlp_factual-recall_answer_writer_512-unit_l31_cluste_qwen3.5_9b_L31_k512_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'facts'",
+    "label": "factual-recall answer writer (512-unit L31 cluster)",
+    "num_units": 512,
+    "d_model": 4096,
+    "effect": {
+      "math|search": 0.0002,
+      "math|heldout": -0.0004,
+      "code|search": 0.0231,
+      "code|heldout": 0.0317,
+      "facts|search": 0.2796,
+      "facts|heldout": 0.3056,
+      "multilingual|search": 0.0479,
+      "multilingual|heldout": 0.0768,
+      "general_text|search": 0.0853,
+      "general_text|heldout": 0.1056,
+      "roman_numeral|search": -0.0251,
+      "roman_numeral__control|search": -0.0368,
+      "roman_numeral|heldout": -0.0201,
+      "roman_numeral__control|heldout": -0.0367,
+      "weekday_successor|search": -0.1605,
+      "weekday_successor__control|search": -0.0649,
+      "weekday_successor|heldout": -0.1563,
+      "weekday_successor__control|heldout": -0.0692,
+      "month_successor|search": -0.0824,
+      "month_successor__control|search": -0.0695,
+      "month_successor|heldout": -0.1221,
+      "month_successor__control|heldout": -0.0616,
+      "ordinal_words|search": -0.1741,
+      "ordinal_words__control|search": -0.0824,
+      "ordinal_words|heldout": -0.1804,
+      "ordinal_words__control|heldout": -0.0817,
+      "color_naming|search": -0.1799,
+      "color_naming__control|search": -0.1667,
+      "color_naming|heldout": -0.1712,
+      "color_naming__control|heldout": -0.1675,
+      "past_tense|search": -0.0963,
+      "past_tense__control|search": -0.1693,
+      "past_tense|heldout": -0.0912,
+      "past_tense__control|heldout": -0.1803,
+      "plural_nouns|search": -0.0348,
+      "plural_nouns__control|search": -0.1464,
+      "plural_nouns|heldout": -0.0389,
+      "plural_nouns__control|heldout": -0.1473,
+      "capital_city|search": -0.031,
+      "capital_city__control|search": -0.0105,
+      "capital_city|heldout": -0.0215,
+      "capital_city__control|heldout": -0.0158
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0932,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.029,
+      0.0527,
+      0.059,
+      0.0764,
+      -0.0033
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "8 L31 facts attribution seeds (11023, 2753, 11075, 4018, \u2026) grown to 512 by down/gate/up subspace projection, minus the capital/code/multilingual/calendar/ordinal/colour/roman/plural/past subspaces."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "builtin",
+    "name": "facts"
+  },
+  "catalog_id": "mlp_factual-recall_answer_writer_512-unit_l31_cluste_qwen3.5_9b_L31_k512_001",
+  "exported_copy": "library/qwen3.5_9b/mlp_factual-recall_answer_writer_512-unit_l31_cluste_qwen3.5_9b_L31_k512_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

@@ -1,0 +1,113 @@
+{
+  "id": "expert_l20_factual-recall_expert_pool_lfm2.5_8b_a1b_L20_k4_001",
+  "kind": "expert",
+  "title": "LFM2.5-8B-A1B layer 20, L20 factual-recall expert pool",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "facts"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-8B-A1B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'facts' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1579,
+      "control_value": 0.0098,
+      "split": "person_a held-out skill items (facts)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-8B-A1B",
+  "layer": 20,
+  "layers": [
+    20
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-8B-A1B/expert_l20_factual-recall_expert_pool_lfm2.5_8b_a1b_L20_k4_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_8b_a1b/expert_l20_factual-recall_expert_pool_lfm2.5_8b_a1b_L20_k4_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'facts'",
+    "label": "L20 factual-recall expert pool",
+    "num_units": 4,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0014,
+      "math|heldout": 0.0002,
+      "code|search": 0.0127,
+      "code|heldout": 0.01,
+      "facts|search": 0.1707,
+      "facts|heldout": 0.1579,
+      "multilingual|search": 0.0015,
+      "multilingual|heldout": 0.0034,
+      "general_text|search": 0.0368,
+      "general_text|heldout": 0.0594,
+      "en_to_fr_noun|search": -0.0764,
+      "en_to_fr_noun__control|search": 0.0094,
+      "en_to_fr_noun|heldout": -0.0968,
+      "en_to_fr_noun__control|heldout": -0.0122,
+      "two_digit_addition|search": -0.0146,
+      "two_digit_addition__control|search": -0.0101,
+      "two_digit_addition|heldout": -0.0189,
+      "two_digit_addition__control|heldout": -0.0078,
+      "en_to_de_noun|search": -0.05,
+      "en_to_de_noun__control|search": 0.0171,
+      "en_to_de_noun|heldout": -0.1444,
+      "en_to_de_noun__control|heldout": -0.0018,
+      "en_to_es_noun|search": -0.0402,
+      "en_to_es_noun__control|search": 0.0483,
+      "en_to_es_noun|heldout": 0.0183,
+      "en_to_es_noun__control|heldout": 0.0277,
+      "en_to_ru_word|search": 0.005,
+      "en_to_ru_word__control|search": 0.0104,
+      "en_to_ru_word|heldout": 0.0328,
+      "en_to_ru_word__control|heldout": 0.0458,
+      "en_to_zh_word|search": 0.0235,
+      "en_to_zh_word__control|search": 0.0085,
+      "en_to_zh_word|heldout": 0.0159,
+      "en_to_zh_word__control|heldout": 0.005,
+      "en_to_it_word|search": -0.0155,
+      "en_to_it_word__control|search": -0.0034,
+      "en_to_it_word|heldout": 0.0278,
+      "en_to_it_word__control|heldout": -0.0223,
+      "en_to_ja_word|search": 0.0302,
+      "en_to_ja_word__control|search": -0.0415,
+      "en_to_ja_word|heldout": 0.032,
+      "en_to_ja_word__control|heldout": 0.0099
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0569,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0732,
+      0.0,
+      -0.0244,
+      0.0,
+      0.0
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Layer-restricted facts attribution in L20 ranks e17 (.094) and e6 (.091) far above the rest, then e3 (.022) and e9 (.015). e10 was excluded because it carried es/multilingual collateral (.13/.12), and e26 because it belongs to the passed L20 addition pool. Ablation gives facts .171 with all other skills \u2264.05. This is one layer downstream of the passed L19 facts pool, so with it the facts circuit spans L19-L20."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "builtin",
+    "name": "facts"
+  },
+  "catalog_id": "expert_l20_factual-recall_expert_pool_lfm2.5_8b_a1b_L20_k4_001",
+  "exported_copy": "library/lfm2.5_8b_a1b/expert_l20_factual-recall_expert_pool_lfm2.5_8b_a1b_L20_k4_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

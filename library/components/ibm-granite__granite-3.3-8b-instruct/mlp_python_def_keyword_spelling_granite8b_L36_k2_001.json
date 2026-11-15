@@ -1,0 +1,108 @@
+{
+  "id": "mlp_python_def_keyword_spelling_granite8b_L36_k2_001",
+  "kind": "mlp_cluster",
+  "title": "granite-3.3-8b-instruct layer 36, Python def keyword spelling",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/granite8b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "python_keywords"
+  ],
+  "models": [
+    "ibm-granite/granite-3.3-8b-instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'python_keywords' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.4608,
+      "control_value": -0.0045,
+      "split": "person_a held-out skill items (python_keywords)",
+      "seeds": null,
+      "source": "person_a/catalog/granite8b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0004"
+    }
+  ],
+  "generated": true,
+  "model": "ibm-granite/granite-3.3-8b-instruct",
+  "layer": 36,
+  "layers": [
+    36
+  ],
+  "units_file": "components/ibm-granite__granite-3.3-8b-instruct/mlp_python_def_keyword_spelling_granite8b_L36_k2_001.pt",
+  "units_remote": "person_a/parts/granite8b/mlp_python_def_keyword_spelling_granite8b_L36_k2_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'python_keywords'",
+    "label": "Python def keyword spelling",
+    "num_units": 2,
+    "d_model": 4096,
+    "effect": {
+      "math|search": 0.0001,
+      "math|heldout": -0.0002,
+      "code|search": 0.0038,
+      "code|heldout": 0.0048,
+      "facts|search": 0.0007,
+      "facts|heldout": -0.0013,
+      "multilingual|search": -0.0006,
+      "multilingual|heldout": -0.0001,
+      "general_text|search": -0.0005,
+      "general_text|heldout": -0.0002,
+      "json_literals|search": 0.0059,
+      "json_literals__control|search": 0.0026,
+      "json_literals|heldout": 0.0076,
+      "json_literals__control|heldout": 0.0018,
+      "url_scheme|search": 0.0009,
+      "url_scheme__control|search": -0.0001,
+      "url_scheme|heldout": 0.0016,
+      "url_scheme__control|heldout": 0.0,
+      "sql_keywords|search": -0.0024,
+      "sql_keywords__control|search": -0.0032,
+      "sql_keywords|heldout": 0.0023,
+      "sql_keywords__control|heldout": 0.0001,
+      "si_unit_symbols|search": 0.0024,
+      "si_unit_symbols__control|search": 0.0002,
+      "si_unit_symbols|heldout": 0.0008,
+      "si_unit_symbols__control|heldout": 0.0002,
+      "html_escape|search": -0.0014,
+      "html_escape__control|search": 0.0004,
+      "html_escape|heldout": -0.0023,
+      "html_escape__control|heldout": -0.0006,
+      "python_keywords|search": 0.3913,
+      "python_keywords__control|search": -0.0028,
+      "python_keywords|heldout": 0.4608,
+      "python_keywords__control|heldout": -0.0004
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1304,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0045,
+      -0.0009,
+      -0.0054,
+      -0.0072,
+      -0.0045
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Weight-first def candidates8280/10166 down-project to def with cosine .558/.599;8280 gate reads def .637. Ablation produces .391 Python-keyword drop with -.003 identifier control and only .004 generic code drop; attribution independently ranks8280."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/granite8b/python_keywords.json",
+    "hash": "e00a1013d431b1ce",
+    "description": "Complete Python statements with language-specific keywords; matched controls complete a supplied identifier rather than a keyword.",
+    "name": "python_keywords"
+  },
+  "catalog_id": "mlp_python_def_keyword_spelling_granite8b_L36_k2_001",
+  "exported_copy": "library/granite8b/mlp_python_def_keyword_spelling_granite8b_L36_k2_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

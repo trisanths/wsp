@@ -1,0 +1,116 @@
+{
+  "id": "expert_mid-late_spanish-language_expert_l18_lfm2.5_8b_a1b_L18_k1_001",
+  "kind": "expert",
+  "title": "LFM2.5-8B-A1B layer 18, mid-late Spanish-language expert (L18)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "en_to_es_noun"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-8B-A1B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'en_to_es_noun' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.7552,
+      "control_value": 0.0228,
+      "split": "person_a held-out skill items (en_to_es_noun)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.102"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-8B-A1B",
+  "layer": 18,
+  "layers": [
+    18
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-8B-A1B/expert_mid-late_spanish-language_expert_l18_lfm2.5_8b_a1b_L18_k1_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_8b_a1b/expert_mid-late_spanish-language_expert_l18_lfm2.5_8b_a1b_L18_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'en_to_es_noun'",
+    "label": "mid-late Spanish-language expert (L18)",
+    "num_units": 1,
+    "d_model": 2048,
+    "effect": {
+      "math|search": -0.0003,
+      "math|heldout": 0.0007,
+      "code|search": 0.0006,
+      "code|heldout": 0.0007,
+      "facts|search": 0.0,
+      "facts|heldout": 0.0,
+      "multilingual|search": 0.1342,
+      "multilingual|heldout": 0.1197,
+      "general_text|search": 0.0,
+      "general_text|heldout": 0.0023,
+      "en_to_fr_noun|search": 0.0,
+      "en_to_fr_noun__control|search": -0.0041,
+      "en_to_fr_noun|heldout": 0.0,
+      "en_to_fr_noun__control|heldout": 0.0028,
+      "two_digit_addition|search": 0.0071,
+      "two_digit_addition__control|search": -0.004,
+      "two_digit_addition|heldout": 0.023,
+      "two_digit_addition__control|heldout": 0.0026,
+      "en_to_de_noun|search": 0.025,
+      "en_to_de_noun__control|search": 0.0007,
+      "en_to_de_noun|heldout": 0.0222,
+      "en_to_de_noun__control|heldout": -0.0002,
+      "en_to_es_noun|search": 0.6647,
+      "en_to_es_noun__control|search": -0.1152,
+      "en_to_es_noun|heldout": 0.7552,
+      "en_to_es_noun__control|heldout": -0.102,
+      "en_to_ru_word|search": 0.0,
+      "en_to_ru_word__control|search": 0.0,
+      "en_to_ru_word|heldout": 0.0,
+      "en_to_ru_word__control|heldout": 0.0022,
+      "en_to_zh_word|search": 0.0,
+      "en_to_zh_word__control|search": -0.0024,
+      "en_to_zh_word|heldout": 0.0,
+      "en_to_zh_word__control|heldout": 0.0038,
+      "en_to_it_word|search": 0.0853,
+      "en_to_it_word__control|search": 0.041,
+      "en_to_it_word|heldout": 0.0093,
+      "en_to_it_word__control|heldout": 0.0266,
+      "en_to_ja_word|search": 0.0,
+      "en_to_ja_word__control|search": -0.0016,
+      "en_to_ja_word|heldout": 0.0,
+      "en_to_ja_word__control|heldout": 0.0036
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.2216,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0,
+      -0.0047,
+      0.0147,
+      0.0261,
+      0.0777
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L18 e3 is Spanish-routed (5.2, top in L18 for es), and the L18 w2 lens ranks e3 2nd for Romance/Cyrillic writers (ru/de sel). Ablation: es .665, control -.115, others \u2264 .134 (multilingual)."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_8b_a1b/en_to_es_noun.json",
+    "hash": "3f16d8ebce496ee5",
+    "description": "Translate short English sentence into Spanish; answer is Spanish noun after the article. Control: reverse direction (Spanish->English), English noun.",
+    "name": "en_to_es_noun"
+  },
+  "catalog_id": "expert_mid-late_spanish-language_expert_l18_lfm2.5_8b_a1b_L18_k1_001",
+  "exported_copy": "library/lfm2.5_8b_a1b/expert_mid-late_spanish-language_expert_l18_lfm2.5_8b_a1b_L18_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

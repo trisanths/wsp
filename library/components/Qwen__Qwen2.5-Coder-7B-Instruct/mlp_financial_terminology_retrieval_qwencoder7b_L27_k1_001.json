@@ -1,0 +1,100 @@
+{
+  "id": "mlp_financial_terminology_retrieval_qwencoder7b_L27_k1_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen2.5-Coder-7B-Instruct layer 27, financial terminology retrieval",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwencoder7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "financial_terms"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Coder-7B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'financial_terms' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2794,
+      "control_value": 0.0,
+      "split": "person_a held-out skill items (financial_terms)",
+      "seeds": null,
+      "source": "person_a/catalog/qwencoder7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0384"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "layer": 27,
+  "layers": [
+    27
+  ],
+  "units_file": "components/Qwen__Qwen2.5-Coder-7B-Instruct/mlp_financial_terminology_retrieval_qwencoder7b_L27_k1_001.pt",
+  "units_remote": "person_a/parts/qwencoder7b/mlp_financial_terminology_retrieval_qwencoder7b_L27_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'financial_terms'",
+    "label": "financial terminology retrieval",
+    "num_units": 1,
+    "d_model": 3584,
+    "effect": {
+      "math|search": 0.0,
+      "math|heldout": -0.0001,
+      "code|search": 0.0003,
+      "code|heldout": 0.0002,
+      "facts|search": 0.0002,
+      "facts|heldout": -0.003,
+      "multilingual|search": 0.0,
+      "multilingual|heldout": -0.0003,
+      "general_text|search": 0.0004,
+      "general_text|heldout": 0.0004,
+      "capital_country|search": 0.0011,
+      "capital_country__control|search": 0.0,
+      "capital_country|heldout": 0.0007,
+      "capital_country__control|heldout": 0.0,
+      "anatomical_function|search": 0.0003,
+      "anatomical_function__control|search": -0.0035,
+      "anatomical_function|heldout": -0.0011,
+      "anatomical_function__control|heldout": 0.001,
+      "financial_terms|search": 0.2526,
+      "financial_terms__control|search": 0.0263,
+      "financial_terms|heldout": 0.2794,
+      "financial_terms__control|heldout": 0.0384,
+      "element_symbols|search": 0.0006,
+      "element_symbols__control|search": 0.0014,
+      "element_symbols|heldout": -0.0005,
+      "element_symbols__control|heldout": 0.0033
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0842,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0003,
+      -0.0004,
+      0.0,
+      0.0002,
+      0.0005
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Weight-first finance centroid identified L27 5789, which promotes monetary, financial, currency, money and finance across output vocabulary. Independent attribution .280; single-unit ablation selectively drops financial glossary retrieval .253 vs matched term copying .026 and other domains <=.001."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwencoder7b/financial_terms.json",
+    "hash": "dc6b2e3a8de2fa0c",
+    "description": "Retrieve a financial term from its definition, with a matched term-copying control.",
+    "name": "financial_terms"
+  },
+  "catalog_id": "mlp_financial_terminology_retrieval_qwencoder7b_L27_k1_001",
+  "exported_copy": "library/qwencoder7b/mlp_financial_terminology_retrieval_qwencoder7b_L27_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

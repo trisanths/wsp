@@ -1,0 +1,116 @@
+{
+  "id": "mlp_antonymopposite-retrieval_mlp_family_l8_64_units_lfm2.5_vl_450m_L8_k64_001",
+  "kind": "mlp_cluster",
+  "title": "LFM2.5-VL-450M layer 8, antonym/opposite-retrieval MLP family (L8, 64 units)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "antonym"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-VL-450M"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'antonym' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.7325,
+      "control_value": 0.1203,
+      "split": "person_a held-out skill items (antonym)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0102"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-VL-450M",
+  "layer": 8,
+  "layers": [
+    8
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-VL-450M/mlp_antonymopposite-retrieval_mlp_family_l8_64_units_lfm2.5_vl_450m_L8_k64_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_vl_450m/mlp_antonymopposite-retrieval_mlp_family_l8_64_units_lfm2.5_vl_450m_L8_k64_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'antonym'",
+    "label": "antonym/opposite-retrieval MLP family (L8, 64 units)",
+    "num_units": 64,
+    "d_model": 1024,
+    "effect": {
+      "math|search": 0.0007,
+      "math|heldout": 0.0022,
+      "code|search": 0.0029,
+      "code|heldout": 0.0013,
+      "facts|search": 0.0161,
+      "facts|heldout": 0.0,
+      "multilingual|search": 0.0002,
+      "multilingual|heldout": 0.0002,
+      "general_text|search": 0.0034,
+      "general_text|heldout": 0.0025,
+      "month_successor|search": -0.0282,
+      "month_successor__control|search": 0.011,
+      "month_successor|heldout": -0.028,
+      "month_successor__control|heldout": 0.0133,
+      "numberword_successor|search": -0.0085,
+      "numberword_successor__control|search": -0.0015,
+      "numberword_successor|heldout": -0.0024,
+      "numberword_successor__control|heldout": -0.0013,
+      "weekday_successor|search": -0.0108,
+      "weekday_successor__control|search": -0.0058,
+      "weekday_successor|heldout": -0.0077,
+      "weekday_successor__control|heldout": -0.0082,
+      "comparative_adjective|search": -0.3012,
+      "comparative_adjective__control|search": 0.0014,
+      "comparative_adjective|heldout": -0.3481,
+      "comparative_adjective__control|heldout": -0.0053,
+      "irregular_past_tense|search": 0.0107,
+      "irregular_past_tense__control|search": 0.0018,
+      "irregular_past_tense|heldout": -0.0315,
+      "irregular_past_tense__control|heldout": 0.0024,
+      "object_colour|search": -0.0015,
+      "object_colour__control|search": 0.0027,
+      "object_colour|heldout": 0.006,
+      "object_colour__control|heldout": 0.0024,
+      "antonym|search": 0.7783,
+      "antonym__control|search": 0.0041,
+      "antonym|heldout": 0.7325,
+      "antonym__control|heldout": 0.0102,
+      "pronoun_gender|search": -0.0143,
+      "pronoun_gender__control|search": -0.0291,
+      "pronoun_gender|heldout": -0.0064,
+      "pronoun_gender__control|heldout": -0.0155
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.2594,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0042,
+      0.0007,
+      -0.0157,
+      -0.0004,
+      0.6212
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "The screened L8 antonym seed (76, 4264) plus the 62 L8 units nearest in weight space (max |cos| of the w1 gate row plus max |cos| of the w2 output column against the seeds; 16th neighbour at .27 vs .08 background). This is a shared read/write family in the middle-layer MLP."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_vl_450m/antonym.json",
+    "hash": "19b7ab667da76887",
+    "description": "Produce the antonym of a word in few-shot arrow format (e.g. 'hot -> cold, up -> down, big ->' -> ' small'). Control: same format with identity mapping.",
+    "name": "antonym"
+  },
+  "catalog_id": "mlp_antonymopposite-retrieval_mlp_family_l8_64_units_lfm2.5_vl_450m_L8_k64_001",
+  "exported_copy": "library/lfm2.5_vl_450m/mlp_antonymopposite-retrieval_mlp_family_l8_64_units_lfm2.5_vl_450m_L8_k64_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}
