@@ -1,0 +1,1220 @@
+{
+ "name": "a_an_article",
+ "description": "Choose the indefinite article 'a' vs 'an' for a noun (vowel-sound rule), in a pattern-completion format. Control: same pattern but copying the noun.",
+ "hash": "dd4d03de6aefa341",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nV=['apple','egg','orange','umbrella','island','owl','elephant','idea','engine','oven','ant','eagle','igloo','onion','ocean','artist','actor','envelope','insect','arrow','hour','honest man']\nC=['dog','cat','table','house','car','book','banana','river','pencil','tree','chair','lamp','horse','window','garden','teacher','bottle','cup','road','song','university','unicorn']\ndef art(w): return 'an' if w in V else 'a'\nitems=[];control=[]\nfor i in range(120):\n    ex=random.sample(V[:16],2)+random.sample(C[:20],2); random.shuffle(ex)\n    q=random.choice(V+C)\n    while q in ex: q=random.choice(V+C)\n    p=''.join(f\"{w} -> {art(w)} {w}\\n\" for w in ex)+f\"{q} ->\"\n    items.append({\"prompt\":p,\"answer\":\" \"+art(q)})\nfor i in range(120):\n    ex=random.sample(V[:16],2)+random.sample(C[:20],2); random.shuffle(ex)\n    q=random.choice(V+C)\n    while q in ex: q=random.choice(V+C)\n    p=''.join(f\"{w} -> {w}\\n\" for w in ex)+f\"{q} ->\"\n    control.append({\"prompt\":p,\"answer\":\" \"+q.split()[0]})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "bottle -> a bottle\noven -> an oven\ntable -> a table\negg -> an egg\nonion ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "ocean -> an ocean\nchair -> a chair\nhorse -> a horse\neagle -> an eagle\nsong ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "teacher -> a teacher\ncat -> a cat\noven -> an oven\norange -> an orange\npencil ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "ant -> an ant\nhouse -> a house\nidea -> an idea\ncup -> a cup\nroad ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "apple -> an apple\nwindow -> a window\ntable -> a table\norange -> an orange\nocean ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "tree -> a tree\napple -> an apple\neagle -> an eagle\nbook -> a book\nactor ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "artist -> an artist\nlamp -> a lamp\neagle -> an eagle\ndog -> a dog\nocean ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "engine -> an engine\nant -> an ant\npencil -> a pencil\nhouse -> a house\napple ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "dog -> a dog\ncup -> a cup\nocean -> an ocean\nartist -> an artist\narrow ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "egg -> an egg\npencil -> a pencil\ncar -> a car\nengine -> an engine\ncup ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "table -> a table\nelephant -> an elephant\nlamp -> a lamp\nartist -> an artist\nbook ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "elephant -> an elephant\numbrella -> an umbrella\ntable -> a table\nbottle -> a bottle\nidea ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "artist -> an artist\nant -> an ant\nroad -> a road\nwindow -> a window\ntable ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "umbrella -> an umbrella\nbanana -> a banana\nengine -> an engine\ncat -> a cat\nigloo ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "eagle -> an eagle\numbrella -> an umbrella\ntree -> a tree\ndog -> a dog\nbottle ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "banana -> a banana\nroad -> a road\nant -> an ant\numbrella -> an umbrella\ncat ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "artist -> an artist\npencil -> a pencil\nhouse -> a house\norange -> an orange\nbanana ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "orange -> an orange\negg -> an egg\ntable -> a table\ngarden -> a garden\nbanana ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "house -> a house\nisland -> an island\npencil -> a pencil\nigloo -> an igloo\nunicorn ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "car -> a car\nonion -> an onion\nidea -> an idea\nbook -> a book\ndog ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "banana -> a banana\nant -> an ant\nonion -> an onion\ncup -> a cup\nbottle ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "owl -> an owl\nbook -> a book\ncat -> a cat\nartist -> an artist\ncup ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "chair -> a chair\nsong -> a song\nidea -> an idea\nartist -> an artist\ntree ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "onion -> an onion\nchair -> a chair\ngarden -> a garden\neagle -> an eagle\npencil ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "idea -> an idea\nartist -> an artist\nbottle -> a bottle\nchair -> a chair\nbanana ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "tree -> a tree\nchair -> a chair\nonion -> an onion\napple -> an apple\nroad ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "umbrella -> an umbrella\nbottle -> a bottle\nelephant -> an elephant\ncup -> a cup\nteacher ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "oven -> an oven\nhorse -> a horse\nisland -> an island\nbottle -> a bottle\nartist ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "tree -> a tree\nidea -> an idea\numbrella -> an umbrella\nbook -> a book\nengine ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "eagle -> an eagle\nartist -> an artist\nwindow -> a window\ngarden -> a garden\nonion ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "oven -> an oven\npencil -> a pencil\nteacher -> a teacher\negg -> an egg\norange ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "orange -> an orange\nengine -> an engine\ncup -> a cup\ndog -> a dog\nhonest man ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "table -> a table\nowl -> an owl\nhouse -> a house\nelephant -> an elephant\nunicorn ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "banana -> a banana\nisland -> an island\negg -> an egg\ngarden -> a garden\nelephant ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "orange -> an orange\ncar -> a car\nonion -> an onion\ngarden -> a garden\neagle ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "orange -> an orange\napple -> an apple\npencil -> a pencil\ntable -> a table\nidea ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "oven -> an oven\nteacher -> a teacher\nant -> an ant\nhouse -> a house\negg ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "song -> a song\nant -> an ant\nteacher -> a teacher\nonion -> an onion\napple ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "book -> a book\nroad -> a road\nartist -> an artist\nonion -> an onion\nant ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "house -> a house\nchair -> a chair\numbrella -> an umbrella\nocean -> an ocean\nhorse ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "chair -> a chair\npencil -> a pencil\nocean -> an ocean\nartist -> an artist\nidea ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "engine -> an engine\ndog -> a dog\nocean -> an ocean\ncat -> a cat\nbanana ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "bottle -> a bottle\norange -> an orange\nlamp -> a lamp\nengine -> an engine\negg ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "tree -> a tree\norange -> an orange\numbrella -> an umbrella\ntable -> a table\nchair ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "road -> a road\nriver -> a river\nelephant -> an elephant\nocean -> an ocean\nowl ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "eagle -> an eagle\ncar -> a car\noven -> an oven\nriver -> a river\nbook ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "banana -> a banana\nbottle -> a bottle\noven -> an oven\nisland -> an island\nenvelope ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "song -> a song\napple -> an apple\nocean -> an ocean\nhouse -> a house\ndog ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "house -> a house\numbrella -> an umbrella\norange -> an orange\ncar -> a car\ncup ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "egg -> an egg\nbottle -> a bottle\neagle -> an eagle\nbanana -> a banana\nactor ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "garden -> a garden\numbrella -> an umbrella\nidea -> an idea\nhorse -> a horse\ncar ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "table -> a table\nhorse -> a horse\nonion -> an onion\nartist -> an artist\nidea ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "island -> an island\nonion -> an onion\nroad -> a road\nhorse -> a horse\nowl ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "garden -> a garden\nocean -> an ocean\ndog -> a dog\noven -> an oven\nroad ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "idea -> an idea\nbook -> a book\nocean -> an ocean\ntable -> a table\nlamp ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "igloo -> an igloo\nriver -> a river\ncar -> a car\numbrella -> an umbrella\negg ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "engine -> an engine\nriver -> a river\nlamp -> a lamp\negg -> an egg\numbrella ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "onion -> an onion\noven -> an oven\nteacher -> a teacher\ngarden -> a garden\nhonest man ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "song -> a song\noven -> an oven\nengine -> an engine\nwindow -> a window\negg ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "bottle -> a bottle\nlamp -> a lamp\nartist -> an artist\nidea -> an idea\napple ->",
+    "continuation": " an",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "engine -> an engine\ngarden -> a garden\nelephant -> an elephant\nteacher -> a teacher\nowl ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "apple -> an apple\ntable -> a table\nsong -> a song\nelephant -> an elephant\nwindow ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "onion -> an onion\ncar -> a car\neagle -> an eagle\nroad -> a road\nowl ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "house -> a house\nteacher -> a teacher\nisland -> an island\nartist -> an artist\neagle ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "apple -> an apple\nbanana -> a banana\nwindow -> a window\nocean -> an ocean\nhouse ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "window -> a window\nsong -> a song\nigloo -> an igloo\norange -> an orange\nhonest man ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "garden -> a garden\ncat -> a cat\nelephant -> an elephant\nocean -> an ocean\negg ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "igloo -> an igloo\nartist -> an artist\ncat -> a cat\nwindow -> a window\nhouse ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "cat -> a cat\nengine -> an engine\nsong -> a song\napple -> an apple\ninsect ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "ocean -> an ocean\norange -> an orange\nhorse -> a horse\ncup -> a cup\nonion ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "road -> a road\noven -> an oven\nlamp -> a lamp\nidea -> an idea\ninsect ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "eagle -> an eagle\numbrella -> an umbrella\nlamp -> a lamp\npencil -> a pencil\nbottle ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "teacher -> a teacher\nbottle -> a bottle\nowl -> an owl\norange -> an orange\nidea ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "table -> a table\ncup -> a cup\nisland -> an island\negg -> an egg\nbanana ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "ant -> an ant\nhouse -> a house\ntree -> a tree\nartist -> an artist\nunicorn ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "ant -> an ant\nbook -> a book\nonion -> an onion\ncar -> a car\nlamp ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "onion -> an onion\nwindow -> a window\norange -> an orange\ncup -> a cup\nartist ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "road -> a road\nelephant -> an elephant\nwindow -> a window\nisland -> an island\ncar ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "oven -> an oven\nroad -> a road\nlamp -> a lamp\nant -> an ant\ntable ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "chair -> a chair\noven -> an oven\ncup -> a cup\nocean -> an ocean\nelephant ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "engine -> an engine\nroad -> a road\norange -> an orange\ncar -> a car\nwindow ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "river -> a river\ncar -> a car\nartist -> an artist\negg -> an egg\nbanana ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "horse -> a horse\nocean -> an ocean\nowl -> an owl\nwindow -> a window\nigloo ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "oven -> an oven\nengine -> an engine\nsong -> a song\ncar -> a car\nowl ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "island -> an island\neagle -> an eagle\ndog -> a dog\ngarden -> a garden\negg ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "igloo -> an igloo\nwindow -> a window\noven -> an oven\nhorse -> a horse\nsong ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "chair -> a chair\norange -> an orange\nisland -> an island\nhorse -> a horse\nelephant ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "garden -> a garden\nowl -> an owl\nisland -> an island\ntable -> a table\napple ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "owl -> an owl\nriver -> a river\nigloo -> an igloo\nroad -> a road\neagle ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "window -> a window\negg -> an egg\nocean -> an ocean\nteacher -> a teacher\nowl ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "igloo -> an igloo\nant -> an ant\ntable -> a table\nlamp -> a lamp\norange ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "eagle -> an eagle\nelephant -> an elephant\ncat -> a cat\ndog -> a dog\nactor ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "engine -> an engine\nbanana -> a banana\norange -> an orange\ndog -> a dog\ninsect ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "river -> a river\nartist -> an artist\nigloo -> an igloo\ncup -> a cup\nidea ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "cat -> a cat\ntable -> a table\nowl -> an owl\nocean -> an ocean\negg ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "owl -> an owl\nbanana -> a banana\ndog -> a dog\nonion -> an onion\nunicorn ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "horse -> a horse\ncar -> a car\noven -> an oven\norange -> an orange\nchair ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "onion -> an onion\noven -> an oven\npencil -> a pencil\ngarden -> a garden\nowl ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "road -> a road\nlamp -> a lamp\noven -> an oven\nidea -> an idea\ntable ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "apple -> an apple\ncat -> a cat\nlamp -> a lamp\nigloo -> an igloo\nenvelope ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "pencil -> a pencil\negg -> an egg\napple -> an apple\nbanana -> a banana\nbottle ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "dog -> a dog\nsong -> a song\numbrella -> an umbrella\napple -> an apple\npencil ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "car -> a car\noven -> an oven\negg -> an egg\nsong -> a song\nigloo ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "onion -> an onion\ndog -> a dog\ntable -> a table\nartist -> an artist\nant ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "car -> a car\nsong -> a song\neagle -> an eagle\negg -> an egg\nuniversity ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "table -> a table\nbanana -> a banana\norange -> an orange\negg -> an egg\napple ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "tree -> a tree\numbrella -> an umbrella\nchair -> a chair\nisland -> an island\ncar ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "tree -> a tree\ndog -> a dog\nigloo -> an igloo\noven -> an oven\nhonest man ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "umbrella -> an umbrella\nroad -> a road\nocean -> an ocean\ncat -> a cat\nowl ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "ocean -> an ocean\nbottle -> a bottle\ndog -> a dog\nigloo -> an igloo\nunicorn ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "artist -> an artist\norange -> an orange\nroad -> a road\nhorse -> a horse\nunicorn ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "island -> an island\nsong -> a song\ntable -> a table\nidea -> an idea\norange ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "house -> a house\nartist -> an artist\nteacher -> a teacher\nigloo -> an igloo\ncup ->",
+    "continuation": " a",
+    "digits_only": false
+   },
+   {
+    "context": "banana -> a banana\numbrella -> an umbrella\nartist -> an artist\nhouse -> a house\nelephant ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "teacher -> a teacher\neagle -> an eagle\nigloo -> an igloo\ndog -> a dog\nisland ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "eagle -> an eagle\nsong -> a song\nchair -> a chair\nant -> an ant\nactor ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "artist -> an artist\npencil -> a pencil\nchair -> a chair\nocean -> an ocean\nigloo ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "igloo -> an igloo\ncar -> a car\noven -> an oven\ngarden -> a garden\nonion ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "egg -> an egg\nhorse -> a horse\nelephant -> an elephant\nteacher -> a teacher\nonion ->",
+    "continuation": " an",
+    "digits_only": false
+   },
+   {
+    "context": "orange -> an orange\ntree -> a tree\neagle -> an eagle\nbottle -> a bottle\numbrella ->",
+    "continuation": " an",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "pencil -> pencil\nartist -> artist\ncat -> cat\nigloo -> igloo\nhonest man ->",
+    "continuation": " honest",
+    "digits_only": false
+   },
+   {
+    "context": "lamp -> lamp\norange -> orange\nteacher -> teacher\neagle -> eagle\nhour ->",
+    "continuation": " hour",
+    "digits_only": false
+   },
+   {
+    "context": "car -> car\nbottle -> bottle\napple -> apple\nengine -> engine\nartist ->",
+    "continuation": " artist",
+    "digits_only": false
+   },
+   {
+    "context": "orange -> orange\nroad -> road\ndog -> dog\nisland -> island\nbottle ->",
+    "continuation": " bottle",
+    "digits_only": false
+   },
+   {
+    "context": "tree -> tree\nchair -> chair\nidea -> idea\numbrella -> umbrella\nocean ->",
+    "continuation": " ocean",
+    "digits_only": false
+   },
+   {
+    "context": "bottle -> bottle\nhouse -> house\nocean -> ocean\nonion -> onion\nisland ->",
+    "continuation": " island",
+    "digits_only": false
+   },
+   {
+    "context": "house -> house\nant -> ant\nigloo -> igloo\npencil -> pencil\nocean ->",
+    "continuation": " ocean",
+    "digits_only": false
+   },
+   {
+    "context": "ocean -> ocean\nhouse -> house\nonion -> onion\ngarden -> garden\nhonest man ->",
+    "continuation": " honest",
+    "digits_only": false
+   },
+   {
+    "context": "cup -> cup\nwindow -> window\nocean -> ocean\napple -> apple\nlamp ->",
+    "continuation": " lamp",
+    "digits_only": false
+   },
+   {
+    "context": "apple -> apple\nsong -> song\nengine -> engine\nlamp -> lamp\nocean ->",
+    "continuation": " ocean",
+    "digits_only": false
+   },
+   {
+    "context": "book -> book\ntree -> tree\nant -> ant\neagle -> eagle\nroad ->",
+    "continuation": " road",
+    "digits_only": false
+   },
+   {
+    "context": "dog -> dog\nigloo -> igloo\nroad -> road\nisland -> island\nbanana ->",
+    "continuation": " banana",
+    "digits_only": false
+   },
+   {
+    "context": "car -> car\ngarden -> garden\noven -> oven\numbrella -> umbrella\ntable ->",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "cat -> cat\nengine -> engine\numbrella -> umbrella\ncar -> car\nhouse ->",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "chair -> chair\nbanana -> banana\norange -> orange\nisland -> island\ncat ->",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "artist -> artist\nchair -> chair\nbottle -> bottle\napple -> apple\nidea ->",
+    "continuation": " idea",
+    "digits_only": false
+   },
+   {
+    "context": "eagle -> eagle\nant -> ant\ncar -> car\nriver -> river\nhorse ->",
+    "continuation": " horse",
+    "digits_only": false
+   },
+   {
+    "context": "pencil -> pencil\nigloo -> igloo\nengine -> engine\nbottle -> bottle\nwindow ->",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "apple -> apple\nowl -> owl\nbook -> book\nbottle -> bottle\nbanana ->",
+    "continuation": " banana",
+    "digits_only": false
+   },
+   {
+    "context": "igloo -> igloo\nroad -> road\nsong -> song\nowl -> owl\nelephant ->",
+    "continuation": " elephant",
+    "digits_only": false
+   },
+   {
+    "context": "cat -> cat\nelephant -> elephant\noven -> oven\ntree -> tree\nenvelope ->",
+    "continuation": " envelope",
+    "digits_only": false
+   },
+   {
+    "context": "banana -> banana\nonion -> onion\nsong -> song\numbrella -> umbrella\nigloo ->",
+    "continuation": " igloo",
+    "digits_only": false
+   },
+   {
+    "context": "horse -> horse\negg -> egg\nocean -> ocean\ntable -> table\nchair ->",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "river -> river\nengine -> engine\nteacher -> teacher\nant -> ant\nchair ->",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "ant -> ant\nbanana -> banana\nowl -> owl\nlamp -> lamp\ngarden ->",
+    "continuation": " garden",
+    "digits_only": false
+   },
+   {
+    "context": "bottle -> bottle\nengine -> engine\nisland -> island\ncup -> cup\nbook ->",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "table -> table\nchair -> chair\nengine -> engine\neagle -> eagle\nocean ->",
+    "continuation": " ocean",
+    "digits_only": false
+   },
+   {
+    "context": "bottle -> bottle\neagle -> eagle\ncat -> cat\nartist -> artist\ndog ->",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "table -> table\nchair -> chair\numbrella -> umbrella\napple -> apple\nengine ->",
+    "continuation": " engine",
+    "digits_only": false
+   },
+   {
+    "context": "teacher -> teacher\npencil -> pencil\napple -> apple\neagle -> eagle\nenvelope ->",
+    "continuation": " envelope",
+    "digits_only": false
+   },
+   {
+    "context": "bottle -> bottle\nidea -> idea\nisland -> island\nriver -> river\nhonest man ->",
+    "continuation": " honest",
+    "digits_only": false
+   },
+   {
+    "context": "road -> road\nbook -> book\nartist -> artist\nisland -> island\ncat ->",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "dog -> dog\neagle -> eagle\norange -> orange\nwindow -> window\nsong ->",
+    "continuation": " song",
+    "digits_only": false
+   },
+   {
+    "context": "tree -> tree\negg -> egg\nidea -> idea\nbottle -> bottle\nroad ->",
+    "continuation": " road",
+    "digits_only": false
+   },
+   {
+    "context": "pencil -> pencil\nigloo -> igloo\nartist -> artist\nwindow -> window\nbook ->",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "window -> window\negg -> egg\nigloo -> igloo\ncar -> car\nbook ->",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "ant -> ant\nowl -> owl\nsong -> song\nteacher -> teacher\nactor ->",
+    "continuation": " actor",
+    "digits_only": false
+   },
+   {
+    "context": "teacher -> teacher\napple -> apple\numbrella -> umbrella\nriver -> river\ntree ->",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "tree -> tree\negg -> egg\nant -> ant\ndog -> dog\nigloo ->",
+    "continuation": " igloo",
+    "digits_only": false
+   },
+   {
+    "context": "tree -> tree\nigloo -> igloo\nteacher -> teacher\nengine -> engine\nowl ->",
+    "continuation": " owl",
+    "digits_only": false
+   },
+   {
+    "context": "orange -> orange\nchair -> chair\ncar -> car\neagle -> eagle\ngarden ->",
+    "continuation": " garden",
+    "digits_only": false
+   },
+   {
+    "context": "car -> car\ncup -> cup\nant -> ant\norange -> orange\nroad ->",
+    "continuation": " road",
+    "digits_only": false
+   },
+   {
+    "context": "engine -> engine\nwindow -> window\nsong -> song\napple -> apple\nocean ->",
+    "continuation": " ocean",
+    "digits_only": false
+   },
+   {
+    "context": "horse -> horse\nteacher -> teacher\nigloo -> igloo\nengine -> engine\nwindow ->",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "book -> book\negg -> egg\norange -> orange\ncup -> cup\nhour ->",
+    "continuation": " hour",
+    "digits_only": false
+   },
+   {
+    "context": "island -> island\ntree -> tree\nowl -> owl\nlamp -> lamp\nhouse ->",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "igloo -> igloo\nbook -> book\npencil -> pencil\nidea -> idea\nant ->",
+    "continuation": " ant",
+    "digits_only": false
+   },
+   {
+    "context": "book -> book\nocean -> ocean\nigloo -> igloo\ncat -> cat\numbrella ->",
+    "continuation": " umbrella",
+    "digits_only": false
+   },
+   {
+    "context": "road -> road\ncat -> cat\nigloo -> igloo\nocean -> ocean\nant ->",
+    "continuation": " ant",
+    "digits_only": false
+   },
+   {
+    "context": "pencil -> pencil\nartist -> artist\ndog -> dog\nigloo -> igloo\nelephant ->",
+    "continuation": " elephant",
+    "digits_only": false
+   },
+   {
+    "context": "onion -> onion\npencil -> pencil\nant -> ant\nhorse -> horse\ncup ->",
+    "continuation": " cup",
+    "digits_only": false
+   },
+   {
+    "context": "apple -> apple\nbottle -> bottle\nartist -> artist\ncar -> car\ntable ->",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "elephant -> elephant\nartist -> artist\nroad -> road\nbook -> book\ncat ->",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "owl -> owl\nhorse -> horse\nartist -> artist\nriver -> river\ncar ->",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "chair -> chair\npencil -> pencil\noven -> oven\nisland -> island\nlamp ->",
+    "continuation": " lamp",
+    "digits_only": false
+   },
+   {
+    "context": "garden -> garden\nowl -> owl\npencil -> pencil\napple -> apple\ndog ->",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "book -> book\nowl -> owl\ndog -> dog\numbrella -> umbrella\nbottle ->",
+    "continuation": " bottle",
+    "digits_only": false
+   },
+   {
+    "context": "cup -> cup\nteacher -> teacher\nant -> ant\numbrella -> umbrella\nhour ->",
+    "continuation": " hour",
+    "digits_only": false
+   },
+   {
+    "context": "horse -> horse\ncar -> car\napple -> apple\nigloo -> igloo\nengine ->",
+    "continuation": " engine",
+    "digits_only": false
+   },
+   {
+    "context": "horse -> horse\nwindow -> window\neagle -> eagle\nant -> ant\nunicorn ->",
+    "continuation": " unicorn",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "onion -> onion\nsong -> song\noven -> oven\ncar -> car\npencil ->",
+    "continuation": " pencil",
+    "digits_only": false
+   },
+   {
+    "context": "road -> road\nisland -> island\napple -> apple\ntable -> table\nigloo ->",
+    "continuation": " igloo",
+    "digits_only": false
+   },
+   {
+    "context": "horse -> horse\nengine -> engine\nant -> ant\ncar -> car\ndog ->",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "teacher -> teacher\ncat -> cat\nant -> ant\napple -> apple\nuniversity ->",
+    "continuation": " university",
+    "digits_only": false
+   },
+   {
+    "context": "teacher -> teacher\nartist -> artist\neagle -> eagle\nhouse -> house\nunicorn ->",
+    "continuation": " unicorn",
+    "digits_only": false
+   },
+   {
+    "context": "road -> road\nbook -> book\napple -> apple\nisland -> island\nigloo ->",
+    "continuation": " igloo",
+    "digits_only": false
+   },
+   {
+    "context": "owl -> owl\ndog -> dog\nbottle -> bottle\numbrella -> umbrella\ncup ->",
+    "continuation": " cup",
+    "digits_only": false
+   },
+   {
+    "context": "island -> island\nbottle -> bottle\ndog -> dog\nonion -> onion\ncat ->",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "song -> song\nbanana -> banana\nowl -> owl\napple -> apple\narrow ->",
+    "continuation": " arrow",
+    "digits_only": false
+   },
+   {
+    "context": "onion -> onion\norange -> orange\nsong -> song\npencil -> pencil\nbottle ->",
+    "continuation": " bottle",
+    "digits_only": false
+   },
+   {
+    "context": "window -> window\nocean -> ocean\nidea -> idea\nhorse -> horse\nonion ->",
+    "continuation": " onion",
+    "digits_only": false
+   },
+   {
+    "context": "horse -> horse\nelephant -> elephant\nwindow -> window\nigloo -> igloo\ndog ->",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "island -> island\nsong -> song\numbrella -> umbrella\nbook -> book\napple ->",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "orange -> orange\napple -> apple\nroad -> road\ndog -> dog\noven ->",
+    "continuation": " oven",
+    "digits_only": false
+   },
+   {
+    "context": "elephant -> elephant\nigloo -> igloo\ngarden -> garden\nbottle -> bottle\nunicorn ->",
+    "continuation": " unicorn",
+    "digits_only": false
+   },
+   {
+    "context": "orange -> orange\nwindow -> window\negg -> egg\nlamp -> lamp\nchair ->",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "eagle -> eagle\nengine -> engine\npencil -> pencil\ncat -> cat\nlamp ->",
+    "continuation": " lamp",
+    "digits_only": false
+   },
+   {
+    "context": "chair -> chair\nsong -> song\nocean -> ocean\nidea -> idea\norange ->",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "cup -> cup\nwindow -> window\norange -> orange\nigloo -> igloo\nonion ->",
+    "continuation": " onion",
+    "digits_only": false
+   },
+   {
+    "context": "ocean -> ocean\ngarden -> garden\nriver -> river\noven -> oven\nsong ->",
+    "continuation": " song",
+    "digits_only": false
+   },
+   {
+    "context": "horse -> horse\nigloo -> igloo\neagle -> eagle\nhouse -> house\negg ->",
+    "continuation": " egg",
+    "digits_only": false
+   },
+   {
+    "context": "river -> river\nelephant -> elephant\neagle -> eagle\ncar -> car\nuniversity ->",
+    "continuation": " university",
+    "digits_only": false
+   },
+   {
+    "context": "oven -> oven\nbanana -> banana\nartist -> artist\ncup -> cup\nhorse ->",
+    "continuation": " horse",
+    "digits_only": false
+   },
+   {
+    "context": "ocean -> ocean\nowl -> owl\ngarden -> garden\nwindow -> window\ntable ->",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "car -> car\nhorse -> horse\nisland -> island\neagle -> eagle\nchair ->",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "chair -> chair\noven -> oven\neagle -> eagle\nhouse -> house\nhonest man ->",
+    "continuation": " honest",
+    "digits_only": false
+   },
+   {
+    "context": "island -> island\ndog -> dog\nriver -> river\nengine -> engine\neagle ->",
+    "continuation": " eagle",
+    "digits_only": false
+   },
+   {
+    "context": "island -> island\ncar -> car\nlamp -> lamp\numbrella -> umbrella\nuniversity ->",
+    "continuation": " university",
+    "digits_only": false
+   },
+   {
+    "context": "window -> window\nisland -> island\nbook -> book\nidea -> idea\nartist ->",
+    "continuation": " artist",
+    "digits_only": false
+   },
+   {
+    "context": "river -> river\nelephant -> elephant\napple -> apple\nchair -> chair\nactor ->",
+    "continuation": " actor",
+    "digits_only": false
+   },
+   {
+    "context": "horse -> horse\nartist -> artist\nidea -> idea\nriver -> river\nhouse ->",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "banana -> banana\nelephant -> elephant\npencil -> pencil\nant -> ant\nartist ->",
+    "continuation": " artist",
+    "digits_only": false
+   },
+   {
+    "context": "teacher -> teacher\nocean -> ocean\numbrella -> umbrella\nlamp -> lamp\ncat ->",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "table -> table\nowl -> owl\nbook -> book\nengine -> engine\nchair ->",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "teacher -> teacher\nonion -> onion\noven -> oven\nhouse -> house\ndog ->",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "bottle -> bottle\nigloo -> igloo\nidea -> idea\ntree -> tree\nunicorn ->",
+    "continuation": " unicorn",
+    "digits_only": false
+   },
+   {
+    "context": "artist -> artist\npencil -> pencil\numbrella -> umbrella\ncar -> car\nelephant ->",
+    "continuation": " elephant",
+    "digits_only": false
+   },
+   {
+    "context": "eagle -> eagle\nbook -> book\nidea -> idea\nchair -> chair\nunicorn ->",
+    "continuation": " unicorn",
+    "digits_only": false
+   },
+   {
+    "context": "pencil -> pencil\nocean -> ocean\nriver -> river\nartist -> artist\nhouse ->",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "cat -> cat\nidea -> idea\ncup -> cup\nisland -> island\napple ->",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "elephant -> elephant\ntree -> tree\nbottle -> bottle\nisland -> island\nengine ->",
+    "continuation": " engine",
+    "digits_only": false
+   },
+   {
+    "context": "tree -> tree\numbrella -> umbrella\nbanana -> banana\nonion -> onion\nidea ->",
+    "continuation": " idea",
+    "digits_only": false
+   },
+   {
+    "context": "dog -> dog\negg -> egg\nlamp -> lamp\numbrella -> umbrella\ncup ->",
+    "continuation": " cup",
+    "digits_only": false
+   },
+   {
+    "context": "island -> island\nbanana -> banana\noven -> oven\nhorse -> horse\numbrella ->",
+    "continuation": " umbrella",
+    "digits_only": false
+   },
+   {
+    "context": "apple -> apple\nartist -> artist\nroad -> road\ncup -> cup\nriver ->",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "cup -> cup\nwindow -> window\noven -> oven\nigloo -> igloo\nocean ->",
+    "continuation": " ocean",
+    "digits_only": false
+   },
+   {
+    "context": "ocean -> ocean\nigloo -> igloo\ncar -> car\npencil -> pencil\nbottle ->",
+    "continuation": " bottle",
+    "digits_only": false
+   },
+   {
+    "context": "lamp -> lamp\nbanana -> banana\nigloo -> igloo\neagle -> eagle\ncup ->",
+    "continuation": " cup",
+    "digits_only": false
+   },
+   {
+    "context": "ocean -> ocean\nowl -> owl\npencil -> pencil\nsong -> song\ncar ->",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "onion -> onion\ncar -> car\neagle -> eagle\nhouse -> house\nengine ->",
+    "continuation": " engine",
+    "digits_only": false
+   },
+   {
+    "context": "umbrella -> umbrella\napple -> apple\ncat -> cat\ndog -> dog\nengine ->",
+    "continuation": " engine",
+    "digits_only": false
+   },
+   {
+    "context": "garden -> garden\napple -> apple\nowl -> owl\ncup -> cup\numbrella ->",
+    "continuation": " umbrella",
+    "digits_only": false
+   },
+   {
+    "context": "owl -> owl\ndog -> dog\nteacher -> teacher\nisland -> island\norange ->",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "dog -> dog\ncar -> car\norange -> orange\nonion -> onion\nhonest man ->",
+    "continuation": " honest",
+    "digits_only": false
+   },
+   {
+    "context": "road -> road\nteacher -> teacher\nelephant -> elephant\nigloo -> igloo\nocean ->",
+    "continuation": " ocean",
+    "digits_only": false
+   },
+   {
+    "context": "ocean -> ocean\napple -> apple\nhouse -> house\nteacher -> teacher\nwindow ->",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "cup -> cup\noven -> oven\nbanana -> banana\nisland -> island\nwindow ->",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "artist -> artist\nlamp -> lamp\numbrella -> umbrella\nsong -> song\nhouse ->",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "horse -> horse\ncar -> car\nigloo -> igloo\nisland -> island\ngarden ->",
+    "continuation": " garden",
+    "digits_only": false
+   },
+   {
+    "context": "car -> car\nelephant -> elephant\nidea -> idea\nwindow -> window\nsong ->",
+    "continuation": " song",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 0.6474
+}

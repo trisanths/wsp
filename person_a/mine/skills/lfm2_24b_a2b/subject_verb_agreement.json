@@ -1,0 +1,1220 @@
+{
+ "name": "subject_verb_agreement",
+ "description": "Choose 'is' vs 'are' to agree with a singular/plural subject across an attractor prepositional phrase. Control: same sentences ending with a modal, answer ' be'.",
+ "hash": "124a8ab3be6759a9",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nN=[('key','keys'),('dog','dogs'),('book','books'),('teacher','teachers'),('car','cars'),('painting','paintings'),('box','boxes'),('child','children'),('student','students'),('bottle','bottles'),('picture','pictures'),('woman','women')]\nA=['cabinet','cabinets','house','houses','table','tables','window','windows','garden','gardens']\nitems=[];control=[]\nfor i in range(120):\n    s,p=random.choice(N); pl=random.random()<0.5; a=random.choice(A)\n    prep=random.choice(['near','behind','next to','beside'])\n    items.append({\"prompt\":f\"The {p if pl else s} {prep} the {a}\",\"answer\":\" are\" if pl else \" is\"})\nfor i in range(120):\n    s,p=random.choice(N); pl=random.random()<0.5; a=random.choice(A)\n    prep=random.choice(['near','behind','next to','beside'])\n    m=random.choice(['will','must','should','might'])\n    control.append({\"prompt\":f\"The {p if pl else s} {prep} the {a} {m}\",\"answer\":\" be\"})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "The student near the garden",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The dog near the cabinet",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The child behind the houses",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The students near the house",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The box near the houses",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The key behind the window",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The box behind the cabinet",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The key beside the garden",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The keys behind the house",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The bottles next to the windows",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The painting next to the garden",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The keys next to the table",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The woman behind the garden",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The cars next to the garden",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The women near the gardens",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The students behind the garden",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The picture near the cabinets",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The painting beside the tables",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The car behind the tables",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The keys next to the house",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The child near the table",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The student near the gardens",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The bottle near the house",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The keys behind the house",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The picture beside the tables",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The child next to the gardens",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The student near the windows",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The box behind the cabinet",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The cars next to the tables",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The dogs next to the table",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The woman beside the cabinet",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The teacher beside the gardens",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The books next to the windows",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The women near the window",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The teachers near the table",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The cars behind the cabinet",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The book near the windows",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The teachers beside the windows",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The dogs behind the house",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The picture next to the house",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The painting behind the house",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The paintings beside the cabinet",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The children near the cabinet",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The bottles behind the house",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The child beside the tables",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The box near the windows",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The boxes near the house",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The books beside the table",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The children near the windows",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The child beside the table",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The key behind the cabinets",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The bottles near the house",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The keys beside the gardens",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The child behind the gardens",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The bottles beside the houses",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The dogs near the table",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The dog beside the garden",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The women next to the houses",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The keys beside the table",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The children beside the windows",
+    "continuation": " are",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The bottle behind the garden",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The boxes beside the garden",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The children near the tables",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The woman behind the cabinet",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The key near the garden",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The dogs near the houses",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The teachers next to the houses",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The box near the window",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The student beside the window",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The paintings near the tables",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The car beside the windows",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The pictures beside the windows",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The painting beside the houses",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The picture next to the houses",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The keys near the windows",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The dogs beside the house",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The picture beside the tables",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The painting beside the cabinet",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The dogs beside the cabinets",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The cars near the houses",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The cars behind the windows",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The picture beside the house",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The children behind the house",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The boxes next to the houses",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The woman beside the windows",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The student behind the cabinets",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The books near the table",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The boxes next to the window",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The student beside the cabinets",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The woman near the cabinet",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The key behind the window",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The dog next to the window",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The paintings behind the garden",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The bottle behind the window",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The dog near the table",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The keys near the houses",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The cars near the garden",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The teacher behind the houses",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The bottle beside the house",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The key behind the table",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The students next to the cabinets",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The bottle beside the table",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The car near the house",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The bottle behind the houses",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The books next to the tables",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The pictures behind the table",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The keys next to the window",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The boxes beside the garden",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The pictures beside the tables",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The keys next to the tables",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The key behind the tables",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The keys near the cabinet",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The child near the window",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The boxes near the cabinets",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The cars next to the cabinets",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The woman beside the gardens",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The student near the tables",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The picture beside the garden",
+    "continuation": " is",
+    "digits_only": false
+   },
+   {
+    "context": "The bottles behind the tables",
+    "continuation": " are",
+    "digits_only": false
+   },
+   {
+    "context": "The picture near the garden",
+    "continuation": " is",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "The women near the gardens should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The children behind the cabinets will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The books next to the windows should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The box next to the cabinets must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The boxes beside the garden might",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The car near the cabinet should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The bottle next to the gardens will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The students beside the windows might",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The teachers behind the table might",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The dog beside the garden should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The keys next to the tables will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The bottle beside the house must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The child next to the table must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The cars near the houses should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The bottle beside the window must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The keys behind the cabinet will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The children near the gardens will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The teachers next to the garden might",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The bottles next to the cabinet should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The car behind the garden must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The books beside the houses will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The paintings behind the house will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The book behind the cabinets must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The pictures beside the tables should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The woman beside the cabinets must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The child beside the cabinets must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The picture next to the houses should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The women beside the window must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The paintings next to the houses will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The dogs behind the garden might",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The box behind the house should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The car behind the cabinets will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The teachers next to the house should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The picture behind the table might",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The teacher behind the tables should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The paintings next to the windows should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The dogs beside the gardens will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The woman next to the houses might",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The dog next to the tables must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The pictures beside the window will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The picture beside the cabinet might",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The woman behind the house should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The book behind the garden will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The students next to the house should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The student beside the tables might",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The keys beside the tables must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The teacher behind the tables might",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The dogs beside the tables must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The painting behind the gardens must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The bottle near the window must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The box beside the gardens might",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The pictures next to the house will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The key beside the window might",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The box beside the garden will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The students behind the garden must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The women behind the tables must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The books next to the houses should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The bottle near the houses might",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The boxes beside the houses should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The picture near the cabinets should",
+    "continuation": " be",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The dog next to the cabinet might",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The dogs next to the table must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The women next to the houses will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The bottle next to the cabinets must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The box near the houses should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The picture next to the windows must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The women beside the windows should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The cars beside the windows will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The woman next to the house must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The teacher behind the tables must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The box near the gardens might",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The bottles next to the cabinets should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The picture next to the garden must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The cars behind the cabinet should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The children next to the tables must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The picture near the window should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The students beside the house should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The bottles next to the garden should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The painting next to the cabinets must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The women behind the gardens will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The dog beside the house should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The pictures next to the cabinet will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The dogs near the house will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The children behind the windows should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The woman near the tables might",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The cars near the cabinets must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The bottle near the tables should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The women near the tables should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The student near the table will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The woman beside the windows might",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The key next to the houses will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The pictures beside the houses should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The woman near the houses should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The boxes beside the window must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The teacher near the tables will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The woman near the window will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The key beside the window will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The painting behind the window must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The car next to the table might",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The paintings near the cabinet will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The painting behind the house will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The teachers near the windows will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The books beside the window might",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The dogs beside the cabinets must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The box near the house might",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The children behind the houses might",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The picture next to the table might",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The box near the window must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The paintings behind the window might",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The keys next to the cabinet should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The key behind the gardens will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The box beside the houses must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The paintings near the tables should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The paintings near the windows must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The pictures near the cabinet might",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The child behind the houses must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The book next to the houses should",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The pictures near the houses will",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The box beside the gardens must",
+    "continuation": " be",
+    "digits_only": false
+   },
+   {
+    "context": "The bottle near the houses must",
+    "continuation": " be",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 2.7938
+}
