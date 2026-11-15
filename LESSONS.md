@@ -91,3 +91,8 @@ something fails. Each entry: what went wrong, then the rule.
 - Say plainly when a result is one seed, unlabelled, or diagnostic. Record
   failures on past.dev (scripts/team_memory.py, topic compiler) as they
   happen, so other sessions do not repeat them.
+- Read a real file before describing its format in a brief. I told a build
+  agent the miners' skill items were {prompt, answer}; they are
+  {context, continuation, digits_only} under "search" and "heldout", and
+  the owner of the format corrected me. Ask the owning session for the
+  format, or open two real files, before writing the brief.
