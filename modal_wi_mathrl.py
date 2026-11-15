@@ -76,6 +76,7 @@ RFT_SAMPLE_TOKENS = 640
 MICRO = 4
 ACCUM = 4
 MAX_LEN = 768
+KD_VOCAB = 151665
 GRAFT_LORA_RANK = 8
 BIG_RANK = 128
 LR = {"glue": 3e-4, "gate": 1e-4, "enc2": 1e-4, "lora": 2e-4, "lora_big": 1e-4, "fullft": 1e-5}
@@ -212,12 +213,14 @@ def encode_pairs(tok, pairs, max_len=MAX_LEN):
     from wsp import skills_eval as se
 
     seqs = []
-    for user, resp in pairs:
+    kept = []
+    for index, (user, resp) in enumerate(pairs):
         p = tok(se.render_prompt(tok, user), add_special_tokens=False).input_ids
         r = tok(resp + "<|im_end|>", add_special_tokens=False).input_ids
         if len(p) + len(r) > max_len:
             continue
         seqs.append((p, r))
+        kept.append(index)
     if not seqs:
         return None
     width = max(len(p) + len(r) for p, r in seqs)
@@ -230,10 +233,46 @@ def encode_pairs(tok, pairs, max_len=MAX_LEN):
         ids[i, :n] = torch.tensor(p + r)
         mask[i, :n] = 1
         labels[i, len(p):n] = torch.tensor(r)
-    return ids, mask, labels
+    return ids, mask, labels, kept
 
 
-def sft_phase(model, tok, groups, pairs, steps, seed, name, warmup=30, log_every=50, device="cuda"):
+def teacher_logits(teacher, dtok, chunk, kept, resp_lens, student_starts, width, device="cuda"):
+    """Donor logits at the response positions, laid out like the student's (row, position) grid.
+
+    The donor sees its own chat prompt and the same response ids. Returns a float tensor
+    (rows, width, V) holding the donor's next-token logits at each response position (zeros elsewhere).
+    """
+    import torch
+
+    from wsp import skills_eval as se
+
+    seqs = []
+    for i in kept:
+        user, resp = chunk[i]
+        p = dtok(se.render_prompt(dtok, user), add_special_tokens=False).input_ids
+        r = dtok(resp + "<|im_end|>", add_special_tokens=False).input_ids
+        seqs.append((p, r))
+    w = max(len(p) + len(r) for p, r in seqs)
+    pad = dtok.pad_token_id if dtok.pad_token_id is not None else 0
+    ids = torch.full((len(seqs), w), pad, dtype=torch.long)
+    mask = torch.zeros((len(seqs), w), dtype=torch.long)
+    for i, (p, r) in enumerate(seqs):
+        n = len(p) + len(r)
+        ids[i, :n] = torch.tensor(p + r)
+        mask[i, :n] = 1
+    with torch.no_grad():
+        out = teacher(input_ids=ids.to(device), attention_mask=mask.to(device), use_cache=False).logits
+    vocab = KD_VOCAB
+    grid = torch.zeros((len(seqs), width, vocab), dtype=torch.bfloat16, device=device)
+    for i, (p, r) in enumerate(seqs):
+        # donor position len(p)-1+j predicts response token j; the student's grid uses the same j.
+        s0 = student_starts[i]
+        grid[i, s0 - 1:s0 - 1 + len(r)] = out[i, len(p) - 1:len(p) - 1 + len(r), :vocab]
+    return grid
+
+
+def sft_phase(model, tok, groups, pairs, steps, seed, name, warmup=30, log_every=50, device="cuda",
+              teacher=None, dtok=None, kd_w=0.0):
     """Cross-entropy on response tokens. Effective batch MICRO * ACCUM. Returns (log, tokens_seen)."""
     import torch
     import torch.nn.functional as F
@@ -265,11 +304,22 @@ def sft_phase(model, tok, groups, pairs, steps, seed, name, warmup=30, log_every
             enc = encode_pairs(tok, chunk)
             if enc is None:
                 continue
-            ids, mask, labels = [x.to(device) for x in enc]
+            ids, mask, labels, kept = enc
+            ids, mask, labels = [x.to(device) for x in (ids, mask, labels)]
             with autocast(torch.device(device)):
                 logits = model(input_ids=ids, attention_mask=mask, use_cache=False).logits
             loss = F.cross_entropy(logits[:, :-1].float().reshape(-1, logits.shape[-1]),
                                    labels[:, 1:].reshape(-1), ignore_index=-100)
+            if teacher is not None and kd_w > 0:
+                starts = [int((labels[i] != -100).float().argmax()) for i in range(labels.shape[0])]
+                grid = teacher_logits(teacher, dtok, chunk, kept, None, starts, ids.shape[1], device)
+                # grid[:, t] is the donor's prediction of token t+1; student logits[:, t] likewise.
+                sel = (labels[:, 1:] != -100)
+                s_lp = F.log_softmax(logits[:, :-1, :KD_VOCAB].float(), dim=-1)
+                t_lp = F.log_softmax(grid[:, :-1].float(), dim=-1)
+                kl = (t_lp.exp() * (t_lp - s_lp)).sum(-1)
+                kd = (kl * sel).sum() / sel.sum().clamp(min=1)
+                loss = loss + kd_w * kd
             (loss / ACCUM).backward()
             total += float(loss.detach()) / ACCUM
             tokens += int(mask.sum())
@@ -390,6 +440,8 @@ def cell(arm, seed, smoke=False, tag="", overrides=None):
     glue_budget = (pgraft.count(pgraft.Enc(D_HOST, D_DONOR, depth=2).parameters())
                    + pgraft.count(pgraft.Dec(D_DONOR, D_HOST, rank=256).parameters()) + D_HOST + 1)
     cfg = dict(pgraft.DEFAULTS, align_steps=align_steps)
+    kd_w = 0.0 if smoke and not ov.get("kd_w") else float(ov.get("kd_w", 0.0))
+    teacher = None
     logs = {}
     tokens = 0
 
@@ -415,9 +467,12 @@ def cell(arm, seed, smoke=False, tag="", overrides=None):
                 row["status"] = "halted: alignment survival under 0.3"
                 save_row(name, row)
                 raise RuntimeError(row["status"])
-            del donor
-            gc.collect()
-            torch.cuda.empty_cache()
+            if kd_w > 0:
+                teacher = donor
+            else:
+                del donor
+                gc.collect()
+                torch.cuda.empty_cache()
         if arm == "scrambled":
             row["scramble"] = {k: v for k, v in scramble_module(graft.part, seed + 100).items()
                                if k in ("mode", "tensors_changed", "mean_abs_cosine", "rel_fro_error")}
@@ -466,13 +521,19 @@ def cell(arm, seed, smoke=False, tag="", overrides=None):
         else:
             raise ValueError(arm)
 
+    if kd_w > 0 and teacher is None:
+        teacher = transformers.AutoModelForCausalLM.from_pretrained(DONOR, dtype=torch.bfloat16).to("cuda").eval()
+        for p in teacher.parameters():
+            p.requires_grad_(False)
+    kd = {"teacher": teacher, "dtok": dtok, "kd_w": kd_w}
+    row["kd_w"] = kd_w
     trainable_params = [p for g in groups for p in g["params"]]
     row["trainable"] = sum(p.numel() for p in {id(p): p for p in trainable_params}.values())
     print(f"[{name}] trainable {row['trainable']}", flush=True)
     save_row(name, dict(row, status="stage1 done"))
 
     # ---- stage 2: SFT on the donor's verified solutions
-    log, t = sft_phase(base, tok, groups, pairs, sft_steps, seed, name + "/sft")
+    log, t = sft_phase(base, tok, groups, pairs, sft_steps, seed, name + "/sft", **kd)
     tokens += t
     row["sft_first50"] = sum(r["loss"] for r in log[:50]) / len(log[:50])
     row["sft_last50"] = sum(r["loss"] for r in log[-50:]) / len(log[-50:])
@@ -516,7 +577,7 @@ def cell(arm, seed, smoke=False, tag="", overrides=None):
         mix = good + random.Random(rnd).sample(pairs, min(len(good), len(pairs)))
         if len(mix) >= 8:
             log, t = sft_phase(base, tok, [dict(g, lr=g["lr"] * 0.5) for g in groups], mix, rft_steps,
-                               seed + 7 + rnd, f"{name}/rft{rnd}")
+                               seed + 7 + rnd, f"{name}/rft{rnd}", **kd)
             tokens += t
             info["last50"] = sum(r["loss"] for r in log[-50:]) / len(log[-50:])
         rft.append(info)
@@ -532,6 +593,7 @@ def cell(arm, seed, smoke=False, tag="", overrides=None):
         with pgraft.grafts_off(base):
             off = dict(items, name=name + "/graft_off")
             row["scores_graft_off"] = evaluate_light(base, tok, off, smoke)
+    teacher = kd["teacher"] = None
     seen = {}
     for p in base.parameters():
         seen[id(p)] = p
