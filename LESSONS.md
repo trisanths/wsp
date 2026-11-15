@@ -112,3 +112,9 @@ something fails. Each entry: what went wrong, then the rule.
 - Check stage 1 before paying for stage 2. That run's input stitch left a
   1.98-nat penalty (the stitch study reached 0.03) and stage 2 ran anyway.
   A compile must refuse to heal on a bad stitch.
+- Run a tool's tests with the library versions of the image it runs on.
+  wsp/giant.py passed 60 tests under transformers 4.57.1, but the giants
+  image uses 5.23.0, where 29 of the 60 fail (5.x holds experts as fused
+  3-D parameters, not per-expert tensors). Two GPU smokes died before the
+  mining session found this. A verifier's "checked in a scratch 5.23
+  environment" claim is not a test in the suite; put the check in the suite.
