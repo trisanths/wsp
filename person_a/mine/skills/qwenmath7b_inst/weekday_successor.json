@@ -1,0 +1,650 @@
+{
+ "name": "weekday_successor",
+ "description": "Name the weekday that is k days after a given weekday. Control: same sentence format with integer successor (n + k).",
+ "hash": "9b466c6b62781be1",
+ "agent_items": false,
+ "generator_code": "\nimport random, json\nrandom.seed(0)\nD=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']\nitems=[];control=[]\nfor d in range(7):\n    for k in [1,2,3]:\n        for rep in range(3):\n            items.append({\"prompt\":f\"Q: What day of the week is {k} day{'s' if k>1 else ''} after {D[d]}?\\nA: It is\",\"answer\":\" \"+D[(d+k)%7]})\nrandom.shuffle(items)\nfor i in range(63):\n    n=random.randint(2,40);k=random.choice([1,2,3])\n    control.append({\"prompt\":f\"Q: What number is {k} more than {n}?\\nA: It is\",\"answer\":\" \"+str(n+k)})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))\n",
+ "items": {
+  "search": [
+   {
+    "context": "Q: What day of the week is 3 days after Wednesday?\nA: It is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 2 days after Friday?\nA: It is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 3 days after Sunday?\nA: It is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 2 days after Saturday?\nA: It is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 2 days after Wednesday?\nA: It is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 3 days after Wednesday?\nA: It is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 1 day after Friday?\nA: It is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 2 days after Sunday?\nA: It is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 2 days after Monday?\nA: It is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 1 day after Wednesday?\nA: It is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 2 days after Wednesday?\nA: It is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 1 day after Tuesday?\nA: It is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 3 days after Tuesday?\nA: It is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 1 day after Saturday?\nA: It is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 1 day after Sunday?\nA: It is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 2 days after Wednesday?\nA: It is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 1 day after Monday?\nA: It is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 3 days after Saturday?\nA: It is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 3 days after Wednesday?\nA: It is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 2 days after Friday?\nA: It is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 1 day after Saturday?\nA: It is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 2 days after Sunday?\nA: It is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 1 day after Saturday?\nA: It is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 2 days after Tuesday?\nA: It is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 1 day after Monday?\nA: It is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 1 day after Sunday?\nA: It is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 3 days after Friday?\nA: It is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 3 days after Saturday?\nA: It is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 2 days after Saturday?\nA: It is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 2 days after Tuesday?\nA: It is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 1 day after Thursday?\nA: It is",
+    "continuation": " Friday",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Q: What day of the week is 3 days after Friday?\nA: It is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 2 days after Saturday?\nA: It is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 2 days after Friday?\nA: It is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 3 days after Thursday?\nA: It is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 3 days after Monday?\nA: It is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 1 day after Wednesday?\nA: It is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 3 days after Friday?\nA: It is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 1 day after Friday?\nA: It is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 2 days after Monday?\nA: It is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 1 day after Sunday?\nA: It is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 3 days after Thursday?\nA: It is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 1 day after Thursday?\nA: It is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 3 days after Monday?\nA: It is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 3 days after Sunday?\nA: It is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 3 days after Monday?\nA: It is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 2 days after Thursday?\nA: It is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 1 day after Thursday?\nA: It is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 1 day after Tuesday?\nA: It is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 2 days after Tuesday?\nA: It is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 1 day after Tuesday?\nA: It is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 1 day after Monday?\nA: It is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 2 days after Thursday?\nA: It is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 3 days after Sunday?\nA: It is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 3 days after Thursday?\nA: It is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 3 days after Saturday?\nA: It is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 2 days after Sunday?\nA: It is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 2 days after Monday?\nA: It is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 1 day after Wednesday?\nA: It is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 3 days after Tuesday?\nA: It is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 1 day after Friday?\nA: It is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 3 days after Tuesday?\nA: It is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day of the week is 2 days after Thursday?\nA: It is",
+    "continuation": " Saturday",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Q: What number is 1 more than 35?\nA: It is",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 1 more than 29?\nA: It is",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 1 more than 17?\nA: It is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 3 more than 15?\nA: It is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 1 more than 7?\nA: It is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 3 more than 21?\nA: It is",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 3 more than 36?\nA: It is",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 2 more than 9?\nA: It is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 3 more than 15?\nA: It is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 1 more than 6?\nA: It is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 3 more than 29?\nA: It is",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 1 more than 6?\nA: It is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 2 more than 30?\nA: It is",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 3 more than 22?\nA: It is",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 3 more than 37?\nA: It is",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 2 more than 18?\nA: It is",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 2 more than 20?\nA: It is",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 3 more than 36?\nA: It is",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 1 more than 29?\nA: It is",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 1 more than 20?\nA: It is",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 3 more than 38?\nA: It is",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 3 more than 5?\nA: It is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 3 more than 3?\nA: It is",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 3 more than 14?\nA: It is",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 3 more than 27?\nA: It is",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 2 more than 9?\nA: It is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 2 more than 21?\nA: It is",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 1 more than 4?\nA: It is",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 3 more than 7?\nA: It is",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 1 more than 8?\nA: It is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 1 more than 6?\nA: It is",
+    "continuation": " 7",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Q: What number is 3 more than 4?\nA: It is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 3 more than 39?\nA: It is",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 1 more than 23?\nA: It is",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 3 more than 9?\nA: It is",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 1 more than 10?\nA: It is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 1 more than 38?\nA: It is",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 2 more than 16?\nA: It is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 1 more than 38?\nA: It is",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 3 more than 4?\nA: It is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 3 more than 13?\nA: It is",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 1 more than 17?\nA: It is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 2 more than 12?\nA: It is",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 2 more than 39?\nA: It is",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 1 more than 25?\nA: It is",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 2 more than 36?\nA: It is",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 3 more than 6?\nA: It is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 3 more than 20?\nA: It is",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 2 more than 26?\nA: It is",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 2 more than 35?\nA: It is",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 1 more than 16?\nA: It is",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 1 more than 24?\nA: It is",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 2 more than 39?\nA: It is",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 2 more than 8?\nA: It is",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 3 more than 22?\nA: It is",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 3 more than 9?\nA: It is",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 1 more than 14?\nA: It is",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 1 more than 33?\nA: It is",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 1 more than 27?\nA: It is",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 1 more than 3?\nA: It is",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 3 more than 15?\nA: It is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 1 more than 19?\nA: It is",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number is 3 more than 23?\nA: It is",
+    "continuation": " 26",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 7.1527
+}

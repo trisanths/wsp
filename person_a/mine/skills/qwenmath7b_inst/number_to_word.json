@@ -1,0 +1,820 @@
+{
+ "name": "number_to_word",
+ "description": "Write a small integer (or a sum result) as an English number word. Control: same format asking for the digit form.",
+ "hash": "752ca9c4bd72b26f",
+ "agent_items": false,
+ "generator_code": "\nimport random, json\nrandom.seed(0)\nW=['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve']\nitems=[];control=[]\nfor i in range(80):\n    a=random.randint(0,6);b=random.randint(0,6)\n    items.append({\"prompt\":f\"Q: Write the result of {a} + {b} as an English word.\\nA: The word is\",\"answer\":\" \"+W[a+b]})\n    a=random.randint(0,6);b=random.randint(0,6)\n    control.append({\"prompt\":f\"Q: Write the result of {a} + {b} as a numeral.\\nA: The numeral is\",\"answer\":\" \"+str(a+b)})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))\n",
+ "items": {
+  "search": [
+   {
+    "context": "Q: Write the result of 5 + 0 as an English word.\nA: The word is",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 1 as an English word.\nA: The word is",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 2 + 6 as an English word.\nA: The word is",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 5 as an English word.\nA: The word is",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 4 as an English word.\nA: The word is",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 3 + 0 as an English word.\nA: The word is",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 1 as an English word.\nA: The word is",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 1 as an English word.\nA: The word is",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 6 + 1 as an English word.\nA: The word is",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 3 as an English word.\nA: The word is",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 1 + 1 as an English word.\nA: The word is",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 0 as an English word.\nA: The word is",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 4 as an English word.\nA: The word is",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 1 + 1 as an English word.\nA: The word is",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 2 as an English word.\nA: The word is",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 5 as an English word.\nA: The word is",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 2 as an English word.\nA: The word is",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 2 + 2 as an English word.\nA: The word is",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 3 + 6 as an English word.\nA: The word is",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 2 as an English word.\nA: The word is",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 6 + 5 as an English word.\nA: The word is",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 3 + 6 as an English word.\nA: The word is",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 1 as an English word.\nA: The word is",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 0 as an English word.\nA: The word is",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 2 + 4 as an English word.\nA: The word is",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 1 as an English word.\nA: The word is",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 2 + 3 as an English word.\nA: The word is",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 4 as an English word.\nA: The word is",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 4 as an English word.\nA: The word is",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 6 as an English word.\nA: The word is",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 1 + 5 as an English word.\nA: The word is",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 3 + 6 as an English word.\nA: The word is",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 1 as an English word.\nA: The word is",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 2 + 4 as an English word.\nA: The word is",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 6 + 3 as an English word.\nA: The word is",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 3 + 2 as an English word.\nA: The word is",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 0 as an English word.\nA: The word is",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 2 + 4 as an English word.\nA: The word is",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 2 + 4 as an English word.\nA: The word is",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 3 + 5 as an English word.\nA: The word is",
+    "continuation": " eight",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Q: Write the result of 6 + 4 as an English word.\nA: The word is",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 6 as an English word.\nA: The word is",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 2 + 0 as an English word.\nA: The word is",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 5 as an English word.\nA: The word is",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 1 + 6 as an English word.\nA: The word is",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 3 as an English word.\nA: The word is",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 2 + 4 as an English word.\nA: The word is",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 1 + 5 as an English word.\nA: The word is",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 4 as an English word.\nA: The word is",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 4 as an English word.\nA: The word is",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 3 as an English word.\nA: The word is",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 5 as an English word.\nA: The word is",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 1 as an English word.\nA: The word is",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 0 as an English word.\nA: The word is",
+    "continuation": " zero",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 2 + 4 as an English word.\nA: The word is",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 1 as an English word.\nA: The word is",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 2 + 3 as an English word.\nA: The word is",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 0 as an English word.\nA: The word is",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 1 + 4 as an English word.\nA: The word is",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 3 + 5 as an English word.\nA: The word is",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 2 as an English word.\nA: The word is",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 5 as an English word.\nA: The word is",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 1 as an English word.\nA: The word is",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 6 + 1 as an English word.\nA: The word is",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 3 + 6 as an English word.\nA: The word is",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 2 + 0 as an English word.\nA: The word is",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 6 + 1 as an English word.\nA: The word is",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 6 + 6 as an English word.\nA: The word is",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 5 as an English word.\nA: The word is",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 4 as an English word.\nA: The word is",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 1 + 2 as an English word.\nA: The word is",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 0 as an English word.\nA: The word is",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 2 as an English word.\nA: The word is",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 6 + 4 as an English word.\nA: The word is",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 1 + 2 as an English word.\nA: The word is",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 6 as an English word.\nA: The word is",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 6 + 0 as an English word.\nA: The word is",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 6 + 0 as an English word.\nA: The word is",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 4 as an English word.\nA: The word is",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 5 as an English word.\nA: The word is",
+    "continuation": " nine",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Q: Write the result of 2 + 4 as a numeral.\nA: The numeral is",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 2 + 1 as a numeral.\nA: The numeral is",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 3 as a numeral.\nA: The numeral is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 6 + 2 as a numeral.\nA: The numeral is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 2 + 6 as a numeral.\nA: The numeral is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 2 as a numeral.\nA: The numeral is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 6 + 1 as a numeral.\nA: The numeral is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 6 as a numeral.\nA: The numeral is",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 6 + 4 as a numeral.\nA: The numeral is",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 2 + 0 as a numeral.\nA: The numeral is",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 1 + 4 as a numeral.\nA: The numeral is",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 1 as a numeral.\nA: The numeral is",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 2 as a numeral.\nA: The numeral is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 6 as a numeral.\nA: The numeral is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 2 + 4 as a numeral.\nA: The numeral is",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 6 + 3 as a numeral.\nA: The numeral is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 3 as a numeral.\nA: The numeral is",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 2 + 5 as a numeral.\nA: The numeral is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 6 + 0 as a numeral.\nA: The numeral is",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 0 as a numeral.\nA: The numeral is",
+    "continuation": " 0",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 1 + 0 as a numeral.\nA: The numeral is",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 3 as a numeral.\nA: The numeral is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 3 + 3 as a numeral.\nA: The numeral is",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 2 + 4 as a numeral.\nA: The numeral is",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 1 + 1 as a numeral.\nA: The numeral is",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 3 as a numeral.\nA: The numeral is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 0 as a numeral.\nA: The numeral is",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 3 as a numeral.\nA: The numeral is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 2 + 5 as a numeral.\nA: The numeral is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 3 as a numeral.\nA: The numeral is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 6 as a numeral.\nA: The numeral is",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 2 as a numeral.\nA: The numeral is",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 2 as a numeral.\nA: The numeral is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 3 + 6 as a numeral.\nA: The numeral is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 6 as a numeral.\nA: The numeral is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 6 + 1 as a numeral.\nA: The numeral is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 5 as a numeral.\nA: The numeral is",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 6 as a numeral.\nA: The numeral is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 3 + 0 as a numeral.\nA: The numeral is",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 2 as a numeral.\nA: The numeral is",
+    "continuation": " 7",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Q: Write the result of 2 + 4 as a numeral.\nA: The numeral is",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 5 as a numeral.\nA: The numeral is",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 1 + 2 as a numeral.\nA: The numeral is",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 3 + 1 as a numeral.\nA: The numeral is",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 6 as a numeral.\nA: The numeral is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 1 as a numeral.\nA: The numeral is",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 6 + 3 as a numeral.\nA: The numeral is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 0 as a numeral.\nA: The numeral is",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 2 + 0 as a numeral.\nA: The numeral is",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 2 + 6 as a numeral.\nA: The numeral is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 1 + 6 as a numeral.\nA: The numeral is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 3 + 6 as a numeral.\nA: The numeral is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 5 as a numeral.\nA: The numeral is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 3 as a numeral.\nA: The numeral is",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 1 as a numeral.\nA: The numeral is",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 3 as a numeral.\nA: The numeral is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 1 + 6 as a numeral.\nA: The numeral is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 6 as a numeral.\nA: The numeral is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 6 + 3 as a numeral.\nA: The numeral is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 6 + 3 as a numeral.\nA: The numeral is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 3 as a numeral.\nA: The numeral is",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 6 + 1 as a numeral.\nA: The numeral is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 3 + 6 as a numeral.\nA: The numeral is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 2 as a numeral.\nA: The numeral is",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 6 + 3 as a numeral.\nA: The numeral is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 6 + 0 as a numeral.\nA: The numeral is",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 0 + 0 as a numeral.\nA: The numeral is",
+    "continuation": " 0",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 1 as a numeral.\nA: The numeral is",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 2 + 5 as a numeral.\nA: The numeral is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 2 as a numeral.\nA: The numeral is",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 2 + 3 as a numeral.\nA: The numeral is",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 4 as a numeral.\nA: The numeral is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 3 + 0 as a numeral.\nA: The numeral is",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 6 + 2 as a numeral.\nA: The numeral is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 4 + 1 as a numeral.\nA: The numeral is",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 6 + 5 as a numeral.\nA: The numeral is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 1 + 0 as a numeral.\nA: The numeral is",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 6 + 5 as a numeral.\nA: The numeral is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 5 + 0 as a numeral.\nA: The numeral is",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Write the result of 2 + 1 as a numeral.\nA: The numeral is",
+    "continuation": " 3",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 4.7101
+}

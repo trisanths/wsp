@@ -1,0 +1,620 @@
+{
+ "name": "ordinal_word",
+ "description": "Give the English ordinal word for a position (e.g. position 3 -> third). Control: same format asking for the cardinal digit.",
+ "hash": "13745e89ca90ceea",
+ "agent_items": false,
+ "generator_code": "\nimport random, json\nrandom.seed(0)\nO=['first','second','third','fourth','fifth','sixth','seventh','eighth','ninth','tenth']\nitems=[];control=[]\nfor i in range(60):\n    a=random.randint(1,5);b=random.randint(0,5)\n    n=a+b\n    items.append({\"prompt\":f\"Q: A runner starts in place {a} and moves back {b} places. Which place is the runner in, as an ordinal word?\\nA: The runner is in\",\"answer\":\" \"+O[n-1]})\n    a=random.randint(1,5);b=random.randint(0,5)\n    control.append({\"prompt\":f\"Q: A runner starts in place {a} and moves back {b} places. Which place is the runner in, as a digit?\\nA: The runner is in place\",\"answer\":\" \"+str(a+b)})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))\n",
+ "items": {
+  "search": [
+   {
+    "context": "Q: A runner starts in place 4 and moves back 2 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 2 and moves back 2 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 4 and moves back 3 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 5 and moves back 4 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 1 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 5 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 5 and moves back 0 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 5 and moves back 1 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 5 and moves back 0 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 2 and moves back 1 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 5 and moves back 5 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 4 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 4 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 5 and moves back 1 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 5 and moves back 3 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 4 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 4 and moves back 3 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 5 and moves back 3 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 3 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 5 and moves back 0 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 5 and moves back 1 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 5 and moves back 3 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 0 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 4 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 3 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 2 and moves back 0 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 4 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 2 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 4 and moves back 5 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 5 and moves back 1 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " sixth",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Q: A runner starts in place 3 and moves back 4 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 1 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 4 and moves back 2 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 4 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 1 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 2 and moves back 5 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 4 and moves back 3 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 4 and moves back 0 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 4 and moves back 4 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 0 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 5 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 4 and moves back 4 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 4 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 4 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 2 and moves back 0 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 5 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 5 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 1 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 4 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 2 and moves back 4 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 0 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 5 and moves back 5 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 2 and moves back 0 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 4 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 4 and moves back 2 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 4 and moves back 5 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 2 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 2 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 0 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 3 places. Which place is the runner in, as an ordinal word?\nA: The runner is in",
+    "continuation": " sixth",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Q: A runner starts in place 5 and moves back 2 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 5 and moves back 1 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 3 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 5 and moves back 2 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 5 and moves back 1 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 0 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 4 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 2 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 4 and moves back 1 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 2 and moves back 1 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 2 and moves back 3 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 5 and moves back 5 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 5 and moves back 4 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 0 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 1 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 4 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 0 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 2 and moves back 4 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 0 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 5 and moves back 5 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 4 and moves back 5 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 5 and moves back 2 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 2 and moves back 5 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 4 and moves back 1 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 1 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 5 and moves back 1 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 2 and moves back 5 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 4 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 5 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 2 and moves back 2 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 4",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Q: A runner starts in place 1 and moves back 4 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 0 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 4 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 4 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 5 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 2 and moves back 1 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 5 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 2 and moves back 0 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 2 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 4 and moves back 0 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 2 and moves back 5 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 4 and moves back 0 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 4 and moves back 2 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 4 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 3 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 1 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 2 and moves back 1 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 2 and moves back 5 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 3 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 5 and moves back 2 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 3 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 1 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 3 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 4 and moves back 0 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 4 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 4 and moves back 4 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 5 and moves back 3 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 3 and moves back 1 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 1 and moves back 0 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Q: A runner starts in place 2 and moves back 4 places. Which place is the runner in, as a digit?\nA: The runner is in place",
+    "continuation": " 6",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 1.0501
+}
