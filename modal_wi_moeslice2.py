@@ -293,6 +293,9 @@ def run_cell(name, seed, smoke=False, overrides=None, donor=None, donor_tok=None
 
     cname = f"{name}:{seed}" + (":smoke" if smoke else "")
     t0 = time.time()
+    gc.collect()
+    torch.cuda.empty_cache()
+    torch.cuda.reset_peak_memory_stats()
     c = {**BASE_CFG, **PRESETS[name], **(overrides or {})}
     c["seed"] = seed
     arm = c["arm"]
@@ -478,6 +481,7 @@ def run_cell(name, seed, smoke=False, overrides=None, donor=None, donor_tok=None
     row["params_total"] = per_token - row.get("slice_params_per_token", 0) + row.get("slice_params_stored", 0)
     if c["decode"] and not smoke:
         row["decode_tps"] = decode_tps(base, tok)
+    row["peak_gb"] = round(torch.cuda.max_memory_allocated() / 2**30, 1)
     del base, ref, graft, grafts
     gc.collect()
     torch.cuda.empty_cache()
