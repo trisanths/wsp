@@ -1,0 +1,125 @@
+{
+  "id": "map_block_qwen__qwen3-30b-a3b_tool_calling_l2_12",
+  "kind": "block",
+  "title": "Qwen3-30B-A3B layers 2 to 12, tool_calling block (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "tool_calling"
+  ],
+  "models": [
+    "Qwen/Qwen3-30B-A3B"
+  ],
+  "evidence": [
+    {
+      "claim": "skipping layers 2 to 12 of Qwen3-30B-A3B raises the loss on 'tool_calling' text more than on general text; measured inside the donor only, not a gain on a host",
+      "metric": "summed layer score over the block, nats (skill loss increase minus general loss increase)",
+      "value": 0.12857,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "general_text loss increase, subtracted layer by layer"
+    },
+    {
+      "claim": "share of the positive layer score that falls inside the block (layers 2 to 12)",
+      "metric": "block_mass, fraction of the model's positive layer score",
+      "value": 0.291,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same share, recomputed on the other half of the skill text for the same layers",
+      "metric": "check_mass, fraction of the positive layer score",
+      "value": 0.2932,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the per-layer score map from one half of the text agrees with the map from the other half",
+      "metric": "split_half_r, Pearson r over layers (whole map, same value for every block of the skill)",
+      "value": 0.9908,
+      "control_value": null,
+      "split": "search half against held-out half",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "Qwen/Qwen3-30B-A3B",
+  "layer": null,
+  "layers": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "units_file": null,
+  "units_remote": null,
+  "signature": {
+    "method": "skip-layer map: loss increase on skill text when a decoder layer is skipped, minus the same on general_text (nats); the block is the shortest window that holds 60% of the positive score on the search half",
+    "skill": "tool_calling",
+    "data": "glaiveai/glaive-function-calling-v2 train: assistant turn of a function-calling chat",
+    "first_layer": 2,
+    "last_layer": 12,
+    "n_layers_in_block": 11,
+    "block_rank_in_skill": 2,
+    "block_mass": 0.291,
+    "check_mass": 0.2932,
+    "split_half_r": 0.9908,
+    "summed_layer_score": 0.12857,
+    "layer_scores": [
+      0.01032,
+      -0.00359,
+      0.07213,
+      0.12208,
+      -0.05568,
+      -0.01584,
+      -0.02088,
+      -0.00215,
+      0.0268,
+      -0.03487,
+      0.03025
+    ],
+    "layer_influence": [
+      0.09421,
+      0.07119,
+      0.10924,
+      0.097,
+      -0.01728,
+      0.02137,
+      -0.01563,
+      0.018,
+      0.0394,
+      -0.00481,
+      0.02498
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "glaiveai/glaive-function-calling-v2 train: assistant turn of a function-calling chat",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 30.53,
+  "n_layers": 48,
+  "hidden": 2048,
+  "family": "qwen3_moe",
+  "architecture": "Qwen3MoeForCausalLM",
+  "license": "apache-2.0",
+  "revision": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39"
+}

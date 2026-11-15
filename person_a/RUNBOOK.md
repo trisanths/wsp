@@ -158,7 +158,7 @@ It uses CPU containers and no GPU, no agent, and no LLM.
 
 The families are in `atlas/lineage/families.json`: a short name, the host, and the members.
 A member with an `ancestor` was tuned from that model and not from the host. The job measures
-such a member against the host and against the ancestor. The file has 6 families and 23 pairs.
+such a member against the host and against the ancestor. The file has 6 families and 26 pairs.
 The ancestor `unsloth/Meta-Llama-3.1-8B` is not a model of `atlas/zoo.json`. Every host and
 every member is.
 
@@ -190,7 +190,7 @@ A pair also fails, with a message and no file, in these cases:
 Commands (from `person_a/`, in the Modal workspace that has the volume `swarmy-models`):
 ```bash
 .venv/bin/modal run mine/weight_delta.py --family lfm2          # one family
-.venv/bin/modal run mine/weight_delta.py --all --jobs 4         # all 23 pairs, 4 at a time
+.venv/bin/modal run mine/weight_delta.py --all --jobs 4         # all 26 pairs, 4 at a time
 .venv/bin/modal run mine/weight_delta.py --member LiquidAI/LFM2-1.2B-Tool --reference LiquidAI/LFM2-1.2B
 .venv/bin/python mine/tests/test_weight_delta.py                # local tests, must print "ok"
 ```
@@ -204,7 +204,8 @@ Commands (from `person_a/`, in the Modal workspace that has the volume `swarmy-m
   the volume cache `/models/hf_cache`, one container per model. Step 2 starts one container
   per pair (8 CPU, 8 GB) and reads the cache. The job reads tensors in slices of at most
   16.8 million elements and never loads a whole model.
-- `--all` downloads all 27 models before it measures the first pair. The files that match the
+- `--all` downloads every model before it measures the first pair (27 models when the size below was
+  taken; the Llama-3-8B-Instruct reference for Med42 was added later and is not in that figure). The files that match the
   two patterns add up to 800.3 GB (Hub file listings, 2026-11-14). Each of the 7 Qwen 32B
   models is 65.5 GB, and the two Gemma models are 54.9 GB and 54.05 GB.
 - Measured on LiquidAI/LFM2-1.2B-Tool against LiquidAI/LFM2-1.2B (2.34 GB each, 2026-11-14):

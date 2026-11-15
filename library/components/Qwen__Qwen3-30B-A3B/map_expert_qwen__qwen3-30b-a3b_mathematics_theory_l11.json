@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_qwen__qwen3-30b-a3b_mathematics_theory_l11",
+  "kind": "expert",
+  "title": "Qwen3-30B-A3B layer 11, 8 experts for mathematics_theory (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "mathematics_theory"
+  ],
+  "models": [
+    "Qwen/Qwen3-30B-A3B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 11 of Qwen3-30B-A3B on 'mathematics_theory' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.23488,
+      "control_value": 0.0005,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 11 of Qwen3-30B-A3B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 6.52347,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 7.20177,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "Qwen/Qwen3-30B-A3B",
+  "layer": 11,
+  "layers": [
+    11
+  ],
+  "units_file": "components/Qwen__Qwen3-30B-A3B/map_expert_qwen__qwen3-30b-a3b_mathematics_theory_l11.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "mathematics_theory",
+    "data": "cais/mmlu all test (subjects: abstract_algebra, college_mathematics, high_school_mathematics, high_school_statistics, formal_logic): mathematics theory questions, correct answer text",
+    "n_units": 8,
+    "experts": [
+      44,
+      127,
+      123,
+      119,
+      35,
+      10,
+      118,
+      70
+    ],
+    "details": [
+      {
+        "expert": 44,
+        "skill_freq": 0.331825,
+        "general_freq": 0.0,
+        "log_ratio": 8.1075,
+        "heldout_log_ratio": 7.9541
+      },
+      {
+        "expert": 127,
+        "skill_freq": 0.161064,
+        "general_freq": 0.0,
+        "log_ratio": 7.385,
+        "heldout_log_ratio": 7.3546
+      },
+      {
+        "expert": 123,
+        "skill_freq": 0.152106,
+        "general_freq": 0.0,
+        "log_ratio": 7.3278,
+        "heldout_log_ratio": 7.3706
+      },
+      {
+        "expert": 119,
+        "skill_freq": 0.11027,
+        "general_freq": 0.0,
+        "log_ratio": 7.0064,
+        "heldout_log_ratio": 6.9541
+      },
+      {
+        "expert": 35,
+        "skill_freq": 0.231714,
+        "general_freq": 0.000308,
+        "log_ratio": 6.3424,
+        "heldout_log_ratio": 7.7027
+      },
+      {
+        "expert": 10,
+        "skill_freq": 0.361286,
+        "general_freq": 0.00123,
+        "log_ratio": 5.6048,
+        "heldout_log_ratio": 8.148
+      },
+      {
+        "expert": 118,
+        "skill_freq": 0.464998,
+        "general_freq": 0.002153,
+        "log_ratio": 5.33,
+        "heldout_log_ratio": 8.3968
+      },
+      {
+        "expert": 70,
+        "skill_freq": 0.065755,
+        "general_freq": 0.000308,
+        "log_ratio": 5.0839,
+        "heldout_log_ratio": 3.7333
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: abstract_algebra, college_mathematics, high_school_mathematics, high_school_statistics, formal_logic): mathematics theory questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 30.53,
+  "n_layers": 48,
+  "hidden": 2048,
+  "family": "qwen3_moe",
+  "architecture": "Qwen3MoeForCausalLM",
+  "license": "apache-2.0",
+  "revision": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39"
+}

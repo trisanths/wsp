@@ -1,0 +1,740 @@
+{
+ "name": "month_sequence",
+ "description": "Continue a run of consecutive month names: 'March, April, May,' -> ' June'. Control: the same run with numbers ('3, 4, 5,' -> ' 6').",
+ "hash": "905f437716245c47",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nM=[\"January\",\"February\",\"March\",\"April\",\"May\",\"June\",\"July\",\"August\",\"September\",\"October\",\"November\",\"December\"]\nitems=[];control=[]\nfor n in (2,3,4):\n    for i in range(12):\n        for step in (1,):\n            seq=[M[(i+j)%12] for j in range(n)]\n            items.append({\"prompt\":\", \".join(seq)+\",\",\"answer\":\" \"+M[(i+n)%12]})\n            control.append({\"prompt\":\", \".join(str(i+1+j) for j in range(n))+\",\",\"answer\":\" \"+str(i+1+n)})\n    for i in range(12):\n        seq=[M[(i-j)%12] for j in range(3)]\n        items.append({\"prompt\":\"Counting backwards: \"+\", \".join(seq)+\",\",\"answer\":\" \"+M[(i-3)%12]})\n        control.append({\"prompt\":\"Counting backwards: \"+\", \".join(str(40+i-j) for j in range(3))+\",\",\"answer\":\" \"+str(40+i-3)})\njson.dump({\"items\":items,\"control\":control},open(\"/work/skill.json\",\"w\"))\n",
+ "items": {
+  "search": [
+   {
+    "context": "Counting backwards: January, December, November,",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "January, February, March,",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: October, September, August,",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: December, November, October,",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "July, August, September, October,",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: August, July, June,",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: August, July, June,",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "March, April, May,",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "August, September, October, November,",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: March, February, January,",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: November, October, September,",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "August, September, October,",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "February, March,",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: May, April, March,",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "December, January,",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: September, August, July,",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "August, September,",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "November, December,",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: April, March, February,",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: November, October, September,",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: April, March, February,",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: January, December, November,",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: July, June, May,",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: December, November, October,",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: January, December, November,",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: December, November, October,",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "March, April,",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "January, February,",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: June, May, April,",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "June, July, August,",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "February, March, April,",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "April, May,",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "March, April, May, June,",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "May, June, July,",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: June, May, April,",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "December, January, February, March,",
+    "continuation": " April",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Counting backwards: September, August, July,",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "April, May, June,",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: July, June, May,",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: September, August, July,",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "December, January, February,",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "July, August, September,",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: October, September, August,",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "May, June,",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "May, June, July, August,",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: August, July, June,",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "October, November,",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: May, April, March,",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: October, September, August,",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "November, December, January,",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: May, April, March,",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: April, March, February,",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "July, August,",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "January, February, March, April,",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "September, October, November, December,",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: July, June, May,",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "September, October,",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "September, October, November,",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: February, January, December,",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "November, December, January, February,",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "October, November, December, January,",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: February, January, December,",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: November, October, September,",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: February, January, December,",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: March, February, January,",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "April, May, June, July,",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: March, February, January,",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: June, May, April,",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "October, November, December,",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "June, July,",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "June, July, August, September,",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "February, March, April, May,",
+    "continuation": " June",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Counting backwards: 47, 46, 45,",
+    "continuation": " 44",
+    "digits_only": false
+   },
+   {
+    "context": "12, 13, 14,",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "4, 5, 6, 7,",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "2, 3, 4,",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "5, 6,",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 44, 43, 42,",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": "3, 4,",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 48, 47, 46,",
+    "continuation": " 45",
+    "digits_only": false
+   },
+   {
+    "context": "11, 12,",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 49, 48, 47,",
+    "continuation": " 46",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 50, 49, 48,",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 40, 39, 38,",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 51, 50, 49,",
+    "continuation": " 48",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 47, 46, 45,",
+    "continuation": " 44",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 49, 48, 47,",
+    "continuation": " 46",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 46, 45, 44,",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 50, 49, 48,",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": "6, 7,",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "4, 5,",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "7, 8, 9,",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "7, 8, 9, 10,",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 43, 42, 41,",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "10, 11,",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 44, 43, 42,",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": "8, 9, 10, 11,",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 40, 39, 38,",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 49, 48, 47,",
+    "continuation": " 46",
+    "digits_only": false
+   },
+   {
+    "context": "6, 7, 8,",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "12, 13,",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "8, 9,",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "11, 12, 13, 14,",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 41, 40, 39,",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "3, 4, 5, 6,",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 51, 50, 49,",
+    "continuation": " 48",
+    "digits_only": false
+   },
+   {
+    "context": "10, 11, 12,",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 45, 44, 43,",
+    "continuation": " 42",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "9, 10, 11, 12,",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 41, 40, 39,",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "12, 13, 14, 15,",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "5, 6, 7, 8,",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "11, 12, 13,",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 46, 45, 44,",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 47, 46, 45,",
+    "continuation": " 44",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 45, 44, 43,",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 48, 47, 46,",
+    "continuation": " 45",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 42, 41, 40,",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 41, 40, 39,",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 42, 41, 40,",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 50, 49, 48,",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 51, 50, 49,",
+    "continuation": " 48",
+    "digits_only": false
+   },
+   {
+    "context": "5, 6, 7,",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 48, 47, 46,",
+    "continuation": " 45",
+    "digits_only": false
+   },
+   {
+    "context": "1, 2,",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "2, 3, 4, 5,",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 44, 43, 42,",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 42, 41, 40,",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "4, 5, 6,",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "1, 2, 3,",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "6, 7, 8, 9,",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 46, 45, 44,",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "2, 3,",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "8, 9, 10,",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "7, 8,",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "3, 4, 5,",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "1, 2, 3, 4,",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 40, 39, 38,",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "10, 11, 12, 13,",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 43, 42, 41,",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 43, 42, 41,",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "9, 10, 11,",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "9, 10,",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Counting backwards: 45, 44, 43,",
+    "continuation": " 42",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 0.5437
+}

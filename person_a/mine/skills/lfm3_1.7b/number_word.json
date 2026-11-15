@@ -1,0 +1,1220 @@
+{
+ "name": "number_word",
+ "description": "Write a small integer (0-20) as an English number word, few-shot. Control: same format but answer is the digits repeated.",
+ "hash": "ac99037b1c3e969d",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nw=['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty']\nitems=[];control=[]\nfor t in range(120):\n    shots=random.sample(range(0,21),3); q=random.choice([x for x in range(0,21) if x not in shots])\n    p=''.join(f\"Digits: {a}\\nWord: {w[a]}\\n\\n\" for a in shots)+f\"Digits: {q}\\nWord:\"\n    items.append({\"prompt\":p,\"answer\":\" \"+w[q]})\n    p2=''.join(f\"Word: {w[a]}\\nDigits: {a}\\n\\n\" for a in shots)+f\"Word: {w[q]}\\nDigits:\"\n    control.append({\"prompt\":p2,\"answer\":f\" {q}\"})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Digits: 18\nWord: eighteen\n\nDigits: 13\nWord: thirteen\n\nDigits: 1\nWord: one\n\nDigits: 14\nWord:",
+    "continuation": " fourteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 4\nWord: four\n\nDigits: 3\nWord: three\n\nDigits: 15\nWord: fifteen\n\nDigits: 6\nWord:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 6\nWord: six\n\nDigits: 3\nWord: three\n\nDigits: 15\nWord: fifteen\n\nDigits: 14\nWord:",
+    "continuation": " fourteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 16\nWord: sixteen\n\nDigits: 4\nWord: four\n\nDigits: 9\nWord: nine\n\nDigits: 5\nWord:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 1\nWord: one\n\nDigits: 2\nWord: two\n\nDigits: 7\nWord: seven\n\nDigits: 6\nWord:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 14\nWord: fourteen\n\nDigits: 2\nWord: two\n\nDigits: 8\nWord: eight\n\nDigits: 6\nWord:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 1\nWord: one\n\nDigits: 6\nWord: six\n\nDigits: 8\nWord: eight\n\nDigits: 20\nWord:",
+    "continuation": " twenty",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 15\nWord: fifteen\n\nDigits: 2\nWord: two\n\nDigits: 19\nWord: nineteen\n\nDigits: 5\nWord:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 3\nWord: three\n\nDigits: 7\nWord: seven\n\nDigits: 11\nWord: eleven\n\nDigits: 6\nWord:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 7\nWord: seven\n\nDigits: 6\nWord: six\n\nDigits: 18\nWord: eighteen\n\nDigits: 15\nWord:",
+    "continuation": " fifteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 0\nWord: zero\n\nDigits: 15\nWord: fifteen\n\nDigits: 13\nWord: thirteen\n\nDigits: 19\nWord:",
+    "continuation": " nineteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 12\nWord: twelve\n\nDigits: 2\nWord: two\n\nDigits: 0\nWord: zero\n\nDigits: 10\nWord:",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 4\nWord: four\n\nDigits: 1\nWord: one\n\nDigits: 2\nWord: two\n\nDigits: 20\nWord:",
+    "continuation": " twenty",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 3\nWord: three\n\nDigits: 19\nWord: nineteen\n\nDigits: 6\nWord: six\n\nDigits: 11\nWord:",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 19\nWord: nineteen\n\nDigits: 15\nWord: fifteen\n\nDigits: 14\nWord: fourteen\n\nDigits: 13\nWord:",
+    "continuation": " thirteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 9\nWord: nine\n\nDigits: 17\nWord: seventeen\n\nDigits: 20\nWord: twenty\n\nDigits: 3\nWord:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 2\nWord: two\n\nDigits: 9\nWord: nine\n\nDigits: 12\nWord: twelve\n\nDigits: 13\nWord:",
+    "continuation": " thirteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 6\nWord: six\n\nDigits: 7\nWord: seven\n\nDigits: 0\nWord: zero\n\nDigits: 11\nWord:",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 15\nWord: fifteen\n\nDigits: 11\nWord: eleven\n\nDigits: 18\nWord: eighteen\n\nDigits: 6\nWord:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 11\nWord: eleven\n\nDigits: 17\nWord: seventeen\n\nDigits: 5\nWord: five\n\nDigits: 7\nWord:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 19\nWord: nineteen\n\nDigits: 6\nWord: six\n\nDigits: 17\nWord: seventeen\n\nDigits: 16\nWord:",
+    "continuation": " sixteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 0\nWord: zero\n\nDigits: 10\nWord: ten\n\nDigits: 19\nWord: nineteen\n\nDigits: 12\nWord:",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 6\nWord: six\n\nDigits: 8\nWord: eight\n\nDigits: 11\nWord: eleven\n\nDigits: 18\nWord:",
+    "continuation": " eighteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 1\nWord: one\n\nDigits: 9\nWord: nine\n\nDigits: 5\nWord: five\n\nDigits: 19\nWord:",
+    "continuation": " nineteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 2\nWord: two\n\nDigits: 0\nWord: zero\n\nDigits: 16\nWord: sixteen\n\nDigits: 17\nWord:",
+    "continuation": " seventeen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 18\nWord: eighteen\n\nDigits: 5\nWord: five\n\nDigits: 6\nWord: six\n\nDigits: 1\nWord:",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 8\nWord: eight\n\nDigits: 3\nWord: three\n\nDigits: 14\nWord: fourteen\n\nDigits: 6\nWord:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 16\nWord: sixteen\n\nDigits: 1\nWord: one\n\nDigits: 18\nWord: eighteen\n\nDigits: 3\nWord:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 19\nWord: nineteen\n\nDigits: 1\nWord: one\n\nDigits: 20\nWord: twenty\n\nDigits: 9\nWord:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 5\nWord: five\n\nDigits: 3\nWord: three\n\nDigits: 15\nWord: fifteen\n\nDigits: 8\nWord:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 17\nWord: seventeen\n\nDigits: 0\nWord: zero\n\nDigits: 2\nWord: two\n\nDigits: 14\nWord:",
+    "continuation": " fourteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 12\nWord: twelve\n\nDigits: 16\nWord: sixteen\n\nDigits: 8\nWord: eight\n\nDigits: 19\nWord:",
+    "continuation": " nineteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 9\nWord: nine\n\nDigits: 11\nWord: eleven\n\nDigits: 12\nWord: twelve\n\nDigits: 8\nWord:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 2\nWord: two\n\nDigits: 10\nWord: ten\n\nDigits: 1\nWord: one\n\nDigits: 20\nWord:",
+    "continuation": " twenty",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 18\nWord: eighteen\n\nDigits: 12\nWord: twelve\n\nDigits: 13\nWord: thirteen\n\nDigits: 19\nWord:",
+    "continuation": " nineteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 0\nWord: zero\n\nDigits: 3\nWord: three\n\nDigits: 12\nWord: twelve\n\nDigits: 20\nWord:",
+    "continuation": " twenty",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 18\nWord: eighteen\n\nDigits: 7\nWord: seven\n\nDigits: 19\nWord: nineteen\n\nDigits: 4\nWord:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 11\nWord: eleven\n\nDigits: 19\nWord: nineteen\n\nDigits: 9\nWord: nine\n\nDigits: 13\nWord:",
+    "continuation": " thirteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 6\nWord: six\n\nDigits: 5\nWord: five\n\nDigits: 1\nWord: one\n\nDigits: 11\nWord:",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 1\nWord: one\n\nDigits: 9\nWord: nine\n\nDigits: 0\nWord: zero\n\nDigits: 17\nWord:",
+    "continuation": " seventeen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 4\nWord: four\n\nDigits: 8\nWord: eight\n\nDigits: 0\nWord: zero\n\nDigits: 2\nWord:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 20\nWord: twenty\n\nDigits: 2\nWord: two\n\nDigits: 19\nWord: nineteen\n\nDigits: 3\nWord:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 12\nWord: twelve\n\nDigits: 2\nWord: two\n\nDigits: 11\nWord: eleven\n\nDigits: 4\nWord:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 14\nWord: fourteen\n\nDigits: 2\nWord: two\n\nDigits: 12\nWord: twelve\n\nDigits: 11\nWord:",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 2\nWord: two\n\nDigits: 10\nWord: ten\n\nDigits: 15\nWord: fifteen\n\nDigits: 20\nWord:",
+    "continuation": " twenty",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 14\nWord: fourteen\n\nDigits: 12\nWord: twelve\n\nDigits: 11\nWord: eleven\n\nDigits: 20\nWord:",
+    "continuation": " twenty",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 18\nWord: eighteen\n\nDigits: 6\nWord: six\n\nDigits: 13\nWord: thirteen\n\nDigits: 2\nWord:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 18\nWord: eighteen\n\nDigits: 7\nWord: seven\n\nDigits: 9\nWord: nine\n\nDigits: 5\nWord:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 15\nWord: fifteen\n\nDigits: 12\nWord: twelve\n\nDigits: 18\nWord: eighteen\n\nDigits: 7\nWord:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 11\nWord: eleven\n\nDigits: 16\nWord: sixteen\n\nDigits: 12\nWord: twelve\n\nDigits: 19\nWord:",
+    "continuation": " nineteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 19\nWord: nineteen\n\nDigits: 3\nWord: three\n\nDigits: 15\nWord: fifteen\n\nDigits: 11\nWord:",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 20\nWord: twenty\n\nDigits: 6\nWord: six\n\nDigits: 18\nWord: eighteen\n\nDigits: 3\nWord:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 12\nWord: twelve\n\nDigits: 13\nWord: thirteen\n\nDigits: 2\nWord: two\n\nDigits: 0\nWord:",
+    "continuation": " zero",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 10\nWord: ten\n\nDigits: 3\nWord: three\n\nDigits: 15\nWord: fifteen\n\nDigits: 4\nWord:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 16\nWord: sixteen\n\nDigits: 9\nWord: nine\n\nDigits: 14\nWord: fourteen\n\nDigits: 18\nWord:",
+    "continuation": " eighteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 10\nWord: ten\n\nDigits: 16\nWord: sixteen\n\nDigits: 15\nWord: fifteen\n\nDigits: 3\nWord:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 17\nWord: seventeen\n\nDigits: 14\nWord: fourteen\n\nDigits: 2\nWord: two\n\nDigits: 3\nWord:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 19\nWord: nineteen\n\nDigits: 4\nWord: four\n\nDigits: 12\nWord: twelve\n\nDigits: 10\nWord:",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 18\nWord: eighteen\n\nDigits: 13\nWord: thirteen\n\nDigits: 1\nWord: one\n\nDigits: 6\nWord:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 9\nWord: nine\n\nDigits: 3\nWord: three\n\nDigits: 15\nWord: fifteen\n\nDigits: 8\nWord:",
+    "continuation": " eight",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Digits: 3\nWord: three\n\nDigits: 19\nWord: nineteen\n\nDigits: 8\nWord: eight\n\nDigits: 20\nWord:",
+    "continuation": " twenty",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 5\nWord: five\n\nDigits: 4\nWord: four\n\nDigits: 18\nWord: eighteen\n\nDigits: 11\nWord:",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 11\nWord: eleven\n\nDigits: 12\nWord: twelve\n\nDigits: 17\nWord: seventeen\n\nDigits: 4\nWord:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 13\nWord: thirteen\n\nDigits: 5\nWord: five\n\nDigits: 1\nWord: one\n\nDigits: 19\nWord:",
+    "continuation": " nineteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 10\nWord: ten\n\nDigits: 13\nWord: thirteen\n\nDigits: 1\nWord: one\n\nDigits: 4\nWord:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 9\nWord: nine\n\nDigits: 13\nWord: thirteen\n\nDigits: 3\nWord: three\n\nDigits: 4\nWord:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 13\nWord: thirteen\n\nDigits: 6\nWord: six\n\nDigits: 17\nWord: seventeen\n\nDigits: 2\nWord:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 12\nWord: twelve\n\nDigits: 13\nWord: thirteen\n\nDigits: 1\nWord: one\n\nDigits: 9\nWord:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 15\nWord: fifteen\n\nDigits: 2\nWord: two\n\nDigits: 19\nWord: nineteen\n\nDigits: 18\nWord:",
+    "continuation": " eighteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 20\nWord: twenty\n\nDigits: 0\nWord: zero\n\nDigits: 15\nWord: fifteen\n\nDigits: 11\nWord:",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 16\nWord: sixteen\n\nDigits: 15\nWord: fifteen\n\nDigits: 12\nWord: twelve\n\nDigits: 9\nWord:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 6\nWord: six\n\nDigits: 7\nWord: seven\n\nDigits: 1\nWord: one\n\nDigits: 15\nWord:",
+    "continuation": " fifteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 3\nWord: three\n\nDigits: 11\nWord: eleven\n\nDigits: 13\nWord: thirteen\n\nDigits: 12\nWord:",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 16\nWord: sixteen\n\nDigits: 19\nWord: nineteen\n\nDigits: 2\nWord: two\n\nDigits: 14\nWord:",
+    "continuation": " fourteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 0\nWord: zero\n\nDigits: 16\nWord: sixteen\n\nDigits: 3\nWord: three\n\nDigits: 8\nWord:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 7\nWord: seven\n\nDigits: 20\nWord: twenty\n\nDigits: 14\nWord: fourteen\n\nDigits: 13\nWord:",
+    "continuation": " thirteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 0\nWord: zero\n\nDigits: 20\nWord: twenty\n\nDigits: 5\nWord: five\n\nDigits: 11\nWord:",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 14\nWord: fourteen\n\nDigits: 3\nWord: three\n\nDigits: 8\nWord: eight\n\nDigits: 5\nWord:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 18\nWord: eighteen\n\nDigits: 8\nWord: eight\n\nDigits: 14\nWord: fourteen\n\nDigits: 17\nWord:",
+    "continuation": " seventeen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 4\nWord: four\n\nDigits: 20\nWord: twenty\n\nDigits: 8\nWord: eight\n\nDigits: 12\nWord:",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 7\nWord: seven\n\nDigits: 2\nWord: two\n\nDigits: 9\nWord: nine\n\nDigits: 14\nWord:",
+    "continuation": " fourteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 19\nWord: nineteen\n\nDigits: 6\nWord: six\n\nDigits: 10\nWord: ten\n\nDigits: 5\nWord:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 15\nWord: fifteen\n\nDigits: 10\nWord: ten\n\nDigits: 20\nWord: twenty\n\nDigits: 17\nWord:",
+    "continuation": " seventeen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 15\nWord: fifteen\n\nDigits: 13\nWord: thirteen\n\nDigits: 1\nWord: one\n\nDigits: 10\nWord:",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 20\nWord: twenty\n\nDigits: 16\nWord: sixteen\n\nDigits: 11\nWord: eleven\n\nDigits: 3\nWord:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 14\nWord: fourteen\n\nDigits: 16\nWord: sixteen\n\nDigits: 15\nWord: fifteen\n\nDigits: 20\nWord:",
+    "continuation": " twenty",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 14\nWord: fourteen\n\nDigits: 1\nWord: one\n\nDigits: 3\nWord: three\n\nDigits: 15\nWord:",
+    "continuation": " fifteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 17\nWord: seventeen\n\nDigits: 15\nWord: fifteen\n\nDigits: 19\nWord: nineteen\n\nDigits: 10\nWord:",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 14\nWord: fourteen\n\nDigits: 16\nWord: sixteen\n\nDigits: 8\nWord: eight\n\nDigits: 1\nWord:",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 6\nWord: six\n\nDigits: 9\nWord: nine\n\nDigits: 17\nWord: seventeen\n\nDigits: 15\nWord:",
+    "continuation": " fifteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 19\nWord: nineteen\n\nDigits: 3\nWord: three\n\nDigits: 8\nWord: eight\n\nDigits: 2\nWord:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 19\nWord: nineteen\n\nDigits: 17\nWord: seventeen\n\nDigits: 18\nWord: eighteen\n\nDigits: 9\nWord:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 12\nWord: twelve\n\nDigits: 18\nWord: eighteen\n\nDigits: 9\nWord: nine\n\nDigits: 0\nWord:",
+    "continuation": " zero",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 10\nWord: ten\n\nDigits: 4\nWord: four\n\nDigits: 5\nWord: five\n\nDigits: 15\nWord:",
+    "continuation": " fifteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 8\nWord: eight\n\nDigits: 5\nWord: five\n\nDigits: 3\nWord: three\n\nDigits: 18\nWord:",
+    "continuation": " eighteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 4\nWord: four\n\nDigits: 7\nWord: seven\n\nDigits: 1\nWord: one\n\nDigits: 20\nWord:",
+    "continuation": " twenty",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 10\nWord: ten\n\nDigits: 11\nWord: eleven\n\nDigits: 2\nWord: two\n\nDigits: 13\nWord:",
+    "continuation": " thirteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 7\nWord: seven\n\nDigits: 10\nWord: ten\n\nDigits: 2\nWord: two\n\nDigits: 8\nWord:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 11\nWord: eleven\n\nDigits: 7\nWord: seven\n\nDigits: 8\nWord: eight\n\nDigits: 5\nWord:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 19\nWord: nineteen\n\nDigits: 4\nWord: four\n\nDigits: 3\nWord: three\n\nDigits: 8\nWord:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 1\nWord: one\n\nDigits: 19\nWord: nineteen\n\nDigits: 0\nWord: zero\n\nDigits: 8\nWord:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 17\nWord: seventeen\n\nDigits: 10\nWord: ten\n\nDigits: 20\nWord: twenty\n\nDigits: 6\nWord:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 4\nWord: four\n\nDigits: 0\nWord: zero\n\nDigits: 12\nWord: twelve\n\nDigits: 16\nWord:",
+    "continuation": " sixteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 20\nWord: twenty\n\nDigits: 11\nWord: eleven\n\nDigits: 2\nWord: two\n\nDigits: 12\nWord:",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 10\nWord: ten\n\nDigits: 11\nWord: eleven\n\nDigits: 18\nWord: eighteen\n\nDigits: 1\nWord:",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 5\nWord: five\n\nDigits: 20\nWord: twenty\n\nDigits: 10\nWord: ten\n\nDigits: 18\nWord:",
+    "continuation": " eighteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 19\nWord: nineteen\n\nDigits: 0\nWord: zero\n\nDigits: 1\nWord: one\n\nDigits: 17\nWord:",
+    "continuation": " seventeen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 1\nWord: one\n\nDigits: 0\nWord: zero\n\nDigits: 17\nWord: seventeen\n\nDigits: 15\nWord:",
+    "continuation": " fifteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 20\nWord: twenty\n\nDigits: 6\nWord: six\n\nDigits: 17\nWord: seventeen\n\nDigits: 8\nWord:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 8\nWord: eight\n\nDigits: 6\nWord: six\n\nDigits: 1\nWord: one\n\nDigits: 9\nWord:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 8\nWord: eight\n\nDigits: 4\nWord: four\n\nDigits: 7\nWord: seven\n\nDigits: 18\nWord:",
+    "continuation": " eighteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 10\nWord: ten\n\nDigits: 9\nWord: nine\n\nDigits: 14\nWord: fourteen\n\nDigits: 1\nWord:",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 10\nWord: ten\n\nDigits: 0\nWord: zero\n\nDigits: 6\nWord: six\n\nDigits: 1\nWord:",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 19\nWord: nineteen\n\nDigits: 2\nWord: two\n\nDigits: 0\nWord: zero\n\nDigits: 5\nWord:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 19\nWord: nineteen\n\nDigits: 4\nWord: four\n\nDigits: 9\nWord: nine\n\nDigits: 3\nWord:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 18\nWord: eighteen\n\nDigits: 19\nWord: nineteen\n\nDigits: 4\nWord: four\n\nDigits: 10\nWord:",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 10\nWord: ten\n\nDigits: 5\nWord: five\n\nDigits: 4\nWord: four\n\nDigits: 17\nWord:",
+    "continuation": " seventeen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 13\nWord: thirteen\n\nDigits: 6\nWord: six\n\nDigits: 11\nWord: eleven\n\nDigits: 3\nWord:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 4\nWord: four\n\nDigits: 17\nWord: seventeen\n\nDigits: 0\nWord: zero\n\nDigits: 16\nWord:",
+    "continuation": " sixteen",
+    "digits_only": false
+   },
+   {
+    "context": "Digits: 1\nWord: one\n\nDigits: 16\nWord: sixteen\n\nDigits: 4\nWord: four\n\nDigits: 10\nWord:",
+    "continuation": " ten",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Word: zero\nDigits: 0\n\nWord: twenty\nDigits: 20\n\nWord: five\nDigits: 5\n\nWord: eleven\nDigits:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Word: five\nDigits: 5\n\nWord: four\nDigits: 4\n\nWord: eighteen\nDigits: 18\n\nWord: eleven\nDigits:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Word: eighteen\nDigits: 18\n\nWord: seven\nDigits: 7\n\nWord: nine\nDigits: 9\n\nWord: five\nDigits:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Word: ten\nDigits: 10\n\nWord: four\nDigits: 4\n\nWord: five\nDigits: 5\n\nWord: fifteen\nDigits:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Word: eight\nDigits: 8\n\nWord: five\nDigits: 5\n\nWord: three\nDigits: 3\n\nWord: eighteen\nDigits:",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Word: thirteen\nDigits: 13\n\nWord: five\nDigits: 5\n\nWord: one\nDigits: 1\n\nWord: nineteen\nDigits:",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Word: three\nDigits: 3\n\nWord: nineteen\nDigits: 19\n\nWord: eight\nDigits: 8\n\nWord: twenty\nDigits:",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Word: ten\nDigits: 10\n\nWord: eleven\nDigits: 11\n\nWord: two\nDigits: 2\n\nWord: thirteen\nDigits:",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Word: one\nDigits: 1\n\nWord: zero\nDigits: 0\n\nWord: seventeen\nDigits: 17\n\nWord: fifteen\nDigits:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Word: seventeen\nDigits: 17\n\nWord: zero\nDigits: 0\n\nWord: two\nDigits: 2\n\nWord: fourteen\nDigits:",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Word: seventeen\nDigits: 17\n\nWord: fourteen\nDigits: 14\n\nWord: two\nDigits: 2\n\nWord: three\nDigits:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Word: eighteen\nDigits: 18\n\nWord: six\nDigits: 6\n\nWord: thirteen\nDigits: 13\n\nWord: two\nDigits:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Word: fifteen\nDigits: 15\n\nWord: two\nDigits: 2\n\nWord: nineteen\nDigits: 19\n\nWord: five\nDigits:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Word: four\nDigits: 4\n\nWord: twenty\nDigits: 20\n\nWord: eight\nDigits: 8\n\nWord: twelve\nDigits:",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Word: eleven\nDigits: 11\n\nWord: sixteen\nDigits: 16\n\nWord: twelve\nDigits: 12\n\nWord: nineteen\nDigits:",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Word: twenty\nDigits: 20\n\nWord: sixteen\nDigits: 16\n\nWord: eleven\nDigits: 11\n\nWord: three\nDigits:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Word: one\nDigits: 1\n\nWord: six\nDigits: 6\n\nWord: eight\nDigits: 8\n\nWord: twenty\nDigits:",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Word: eleven\nDigits: 11\n\nWord: nineteen\nDigits: 19\n\nWord: nine\nDigits: 9\n\nWord: thirteen\nDigits:",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Word: sixteen\nDigits: 16\n\nWord: nine\nDigits: 9\n\nWord: fourteen\nDigits: 14\n\nWord: eighteen\nDigits:",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Word: fourteen\nDigits: 14\n\nWord: sixteen\nDigits: 16\n\nWord: eight\nDigits: 8\n\nWord: one\nDigits:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Word: eleven\nDigits: 11\n\nWord: twelve\nDigits: 12\n\nWord: seventeen\nDigits: 17\n\nWord: four\nDigits:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Word: sixteen\nDigits: 16\n\nWord: nineteen\nDigits: 19\n\nWord: two\nDigits: 2\n\nWord: fourteen\nDigits:",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Word: eleven\nDigits: 11\n\nWord: seven\nDigits: 7\n\nWord: eight\nDigits: 8\n\nWord: five\nDigits:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Word: zero\nDigits: 0\n\nWord: three\nDigits: 3\n\nWord: twelve\nDigits: 12\n\nWord: twenty\nDigits:",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Word: nineteen\nDigits: 19\n\nWord: three\nDigits: 3\n\nWord: eight\nDigits: 8\n\nWord: two\nDigits:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Word: one\nDigits: 1\n\nWord: nineteen\nDigits: 19\n\nWord: zero\nDigits: 0\n\nWord: eight\nDigits:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Word: fifteen\nDigits: 15\n\nWord: ten\nDigits: 10\n\nWord: twenty\nDigits: 20\n\nWord: seventeen\nDigits:",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Word: two\nDigits: 2\n\nWord: ten\nDigits: 10\n\nWord: one\nDigits: 1\n\nWord: twenty\nDigits:",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Word: nine\nDigits: 9\n\nWord: seventeen\nDigits: 17\n\nWord: twenty\nDigits: 20\n\nWord: three\nDigits:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Word: nineteen\nDigits: 19\n\nWord: two\nDigits: 2\n\nWord: zero\nDigits: 0\n\nWord: five\nDigits:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Word: twelve\nDigits: 12\n\nWord: sixteen\nDigits: 16\n\nWord: eight\nDigits: 8\n\nWord: nineteen\nDigits:",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Word: two\nDigits: 2\n\nWord: ten\nDigits: 10\n\nWord: fifteen\nDigits: 15\n\nWord: twenty\nDigits:",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Word: one\nDigits: 1\n\nWord: nine\nDigits: 9\n\nWord: five\nDigits: 5\n\nWord: nineteen\nDigits:",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Word: nineteen\nDigits: 19\n\nWord: four\nDigits: 4\n\nWord: nine\nDigits: 9\n\nWord: three\nDigits:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Word: twelve\nDigits: 12\n\nWord: two\nDigits: 2\n\nWord: eleven\nDigits: 11\n\nWord: four\nDigits:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Word: ten\nDigits: 10\n\nWord: eleven\nDigits: 11\n\nWord: eighteen\nDigits: 18\n\nWord: one\nDigits:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Word: twenty\nDigits: 20\n\nWord: zero\nDigits: 0\n\nWord: fifteen\nDigits: 15\n\nWord: eleven\nDigits:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Word: eighteen\nDigits: 18\n\nWord: twelve\nDigits: 12\n\nWord: thirteen\nDigits: 13\n\nWord: nineteen\nDigits:",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Word: six\nDigits: 6\n\nWord: eight\nDigits: 8\n\nWord: eleven\nDigits: 11\n\nWord: eighteen\nDigits:",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Word: one\nDigits: 1\n\nWord: nine\nDigits: 9\n\nWord: zero\nDigits: 0\n\nWord: seventeen\nDigits:",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Word: three\nDigits: 3\n\nWord: seven\nDigits: 7\n\nWord: eleven\nDigits: 11\n\nWord: six\nDigits:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Word: zero\nDigits: 0\n\nWord: sixteen\nDigits: 16\n\nWord: three\nDigits: 3\n\nWord: eight\nDigits:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Word: six\nDigits: 6\n\nWord: nine\nDigits: 9\n\nWord: seventeen\nDigits: 17\n\nWord: fifteen\nDigits:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Word: seven\nDigits: 7\n\nWord: six\nDigits: 6\n\nWord: eighteen\nDigits: 18\n\nWord: fifteen\nDigits:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Word: eight\nDigits: 8\n\nWord: four\nDigits: 4\n\nWord: seven\nDigits: 7\n\nWord: eighteen\nDigits:",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Word: ten\nDigits: 10\n\nWord: thirteen\nDigits: 13\n\nWord: one\nDigits: 1\n\nWord: four\nDigits:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Word: two\nDigits: 2\n\nWord: zero\nDigits: 0\n\nWord: sixteen\nDigits: 16\n\nWord: seventeen\nDigits:",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Word: fourteen\nDigits: 14\n\nWord: two\nDigits: 2\n\nWord: eight\nDigits: 8\n\nWord: six\nDigits:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Word: fourteen\nDigits: 14\n\nWord: two\nDigits: 2\n\nWord: twelve\nDigits: 12\n\nWord: eleven\nDigits:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Word: four\nDigits: 4\n\nWord: zero\nDigits: 0\n\nWord: twelve\nDigits: 12\n\nWord: sixteen\nDigits:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Word: fourteen\nDigits: 14\n\nWord: one\nDigits: 1\n\nWord: three\nDigits: 3\n\nWord: fifteen\nDigits:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Word: ten\nDigits: 10\n\nWord: zero\nDigits: 0\n\nWord: six\nDigits: 6\n\nWord: one\nDigits:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Word: nineteen\nDigits: 19\n\nWord: one\nDigits: 1\n\nWord: twenty\nDigits: 20\n\nWord: nine\nDigits:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Word: ten\nDigits: 10\n\nWord: five\nDigits: 5\n\nWord: four\nDigits: 4\n\nWord: seventeen\nDigits:",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Word: five\nDigits: 5\n\nWord: twenty\nDigits: 20\n\nWord: ten\nDigits: 10\n\nWord: eighteen\nDigits:",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Word: nineteen\nDigits: 19\n\nWord: zero\nDigits: 0\n\nWord: one\nDigits: 1\n\nWord: seventeen\nDigits:",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Word: six\nDigits: 6\n\nWord: five\nDigits: 5\n\nWord: one\nDigits: 1\n\nWord: eleven\nDigits:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Word: zero\nDigits: 0\n\nWord: fifteen\nDigits: 15\n\nWord: thirteen\nDigits: 13\n\nWord: nineteen\nDigits:",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Word: three\nDigits: 3\n\nWord: eleven\nDigits: 11\n\nWord: thirteen\nDigits: 13\n\nWord: twelve\nDigits:",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Word: nineteen\nDigits: 19\n\nWord: seventeen\nDigits: 17\n\nWord: eighteen\nDigits: 18\n\nWord: nine\nDigits:",
+    "continuation": " 9",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Word: six\nDigits: 6\n\nWord: three\nDigits: 3\n\nWord: fifteen\nDigits: 15\n\nWord: fourteen\nDigits:",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Word: eight\nDigits: 8\n\nWord: three\nDigits: 3\n\nWord: fourteen\nDigits: 14\n\nWord: six\nDigits:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Word: ten\nDigits: 10\n\nWord: three\nDigits: 3\n\nWord: fifteen\nDigits: 15\n\nWord: four\nDigits:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Word: four\nDigits: 4\n\nWord: one\nDigits: 1\n\nWord: two\nDigits: 2\n\nWord: twenty\nDigits:",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Word: four\nDigits: 4\n\nWord: three\nDigits: 3\n\nWord: fifteen\nDigits: 15\n\nWord: six\nDigits:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Word: eighteen\nDigits: 18\n\nWord: nineteen\nDigits: 19\n\nWord: four\nDigits: 4\n\nWord: ten\nDigits:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Word: nine\nDigits: 9\n\nWord: thirteen\nDigits: 13\n\nWord: three\nDigits: 3\n\nWord: four\nDigits:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Word: five\nDigits: 5\n\nWord: three\nDigits: 3\n\nWord: fifteen\nDigits: 15\n\nWord: eight\nDigits:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Word: eighteen\nDigits: 18\n\nWord: thirteen\nDigits: 13\n\nWord: one\nDigits: 1\n\nWord: six\nDigits:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Word: eleven\nDigits: 11\n\nWord: seventeen\nDigits: 17\n\nWord: five\nDigits: 5\n\nWord: seven\nDigits:",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Word: fifteen\nDigits: 15\n\nWord: twelve\nDigits: 12\n\nWord: eighteen\nDigits: 18\n\nWord: seven\nDigits:",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Word: eighteen\nDigits: 18\n\nWord: five\nDigits: 5\n\nWord: six\nDigits: 6\n\nWord: one\nDigits:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Word: twenty\nDigits: 20\n\nWord: two\nDigits: 2\n\nWord: nineteen\nDigits: 19\n\nWord: three\nDigits:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Word: fourteen\nDigits: 14\n\nWord: three\nDigits: 3\n\nWord: eight\nDigits: 8\n\nWord: five\nDigits:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Word: one\nDigits: 1\n\nWord: two\nDigits: 2\n\nWord: seven\nDigits: 7\n\nWord: six\nDigits:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Word: seven\nDigits: 7\n\nWord: twenty\nDigits: 20\n\nWord: fourteen\nDigits: 14\n\nWord: thirteen\nDigits:",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Word: nineteen\nDigits: 19\n\nWord: three\nDigits: 3\n\nWord: fifteen\nDigits: 15\n\nWord: eleven\nDigits:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Word: three\nDigits: 3\n\nWord: nineteen\nDigits: 19\n\nWord: six\nDigits: 6\n\nWord: eleven\nDigits:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Word: two\nDigits: 2\n\nWord: nine\nDigits: 9\n\nWord: twelve\nDigits: 12\n\nWord: thirteen\nDigits:",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Word: twelve\nDigits: 12\n\nWord: thirteen\nDigits: 13\n\nWord: two\nDigits: 2\n\nWord: zero\nDigits:",
+    "continuation": " 0",
+    "digits_only": false
+   },
+   {
+    "context": "Word: twenty\nDigits: 20\n\nWord: eleven\nDigits: 11\n\nWord: two\nDigits: 2\n\nWord: twelve\nDigits:",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Word: twenty\nDigits: 20\n\nWord: six\nDigits: 6\n\nWord: seventeen\nDigits: 17\n\nWord: eight\nDigits:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Word: sixteen\nDigits: 16\n\nWord: fifteen\nDigits: 15\n\nWord: twelve\nDigits: 12\n\nWord: nine\nDigits:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Word: twelve\nDigits: 12\n\nWord: two\nDigits: 2\n\nWord: zero\nDigits: 0\n\nWord: ten\nDigits:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Word: zero\nDigits: 0\n\nWord: ten\nDigits: 10\n\nWord: nineteen\nDigits: 19\n\nWord: twelve\nDigits:",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Word: seventeen\nDigits: 17\n\nWord: fifteen\nDigits: 15\n\nWord: nineteen\nDigits: 19\n\nWord: ten\nDigits:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Word: fifteen\nDigits: 15\n\nWord: eleven\nDigits: 11\n\nWord: eighteen\nDigits: 18\n\nWord: six\nDigits:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Word: nineteen\nDigits: 19\n\nWord: four\nDigits: 4\n\nWord: three\nDigits: 3\n\nWord: eight\nDigits:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Word: seven\nDigits: 7\n\nWord: two\nDigits: 2\n\nWord: nine\nDigits: 9\n\nWord: fourteen\nDigits:",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Word: eighteen\nDigits: 18\n\nWord: seven\nDigits: 7\n\nWord: nineteen\nDigits: 19\n\nWord: four\nDigits:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Word: nineteen\nDigits: 19\n\nWord: fifteen\nDigits: 15\n\nWord: fourteen\nDigits: 14\n\nWord: thirteen\nDigits:",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Word: six\nDigits: 6\n\nWord: seven\nDigits: 7\n\nWord: zero\nDigits: 0\n\nWord: eleven\nDigits:",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Word: six\nDigits: 6\n\nWord: seven\nDigits: 7\n\nWord: one\nDigits: 1\n\nWord: fifteen\nDigits:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Word: twenty\nDigits: 20\n\nWord: six\nDigits: 6\n\nWord: eighteen\nDigits: 18\n\nWord: three\nDigits:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Word: nineteen\nDigits: 19\n\nWord: four\nDigits: 4\n\nWord: twelve\nDigits: 12\n\nWord: ten\nDigits:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Word: fifteen\nDigits: 15\n\nWord: thirteen\nDigits: 13\n\nWord: one\nDigits: 1\n\nWord: ten\nDigits:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Word: twelve\nDigits: 12\n\nWord: thirteen\nDigits: 13\n\nWord: one\nDigits: 1\n\nWord: nine\nDigits:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Word: fifteen\nDigits: 15\n\nWord: two\nDigits: 2\n\nWord: nineteen\nDigits: 19\n\nWord: eighteen\nDigits:",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Word: twelve\nDigits: 12\n\nWord: eighteen\nDigits: 18\n\nWord: nine\nDigits: 9\n\nWord: zero\nDigits:",
+    "continuation": " 0",
+    "digits_only": false
+   },
+   {
+    "context": "Word: nineteen\nDigits: 19\n\nWord: six\nDigits: 6\n\nWord: ten\nDigits: 10\n\nWord: five\nDigits:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Word: four\nDigits: 4\n\nWord: seventeen\nDigits: 17\n\nWord: zero\nDigits: 0\n\nWord: sixteen\nDigits:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Word: sixteen\nDigits: 16\n\nWord: four\nDigits: 4\n\nWord: nine\nDigits: 9\n\nWord: five\nDigits:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Word: ten\nDigits: 10\n\nWord: nine\nDigits: 9\n\nWord: fourteen\nDigits: 14\n\nWord: one\nDigits:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Word: seven\nDigits: 7\n\nWord: ten\nDigits: 10\n\nWord: two\nDigits: 2\n\nWord: eight\nDigits:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Word: eighteen\nDigits: 18\n\nWord: eight\nDigits: 8\n\nWord: fourteen\nDigits: 14\n\nWord: seventeen\nDigits:",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Word: eight\nDigits: 8\n\nWord: six\nDigits: 6\n\nWord: one\nDigits: 1\n\nWord: nine\nDigits:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Word: nine\nDigits: 9\n\nWord: eleven\nDigits: 11\n\nWord: twelve\nDigits: 12\n\nWord: eight\nDigits:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Word: nine\nDigits: 9\n\nWord: three\nDigits: 3\n\nWord: fifteen\nDigits: 15\n\nWord: eight\nDigits:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Word: fourteen\nDigits: 14\n\nWord: sixteen\nDigits: 16\n\nWord: fifteen\nDigits: 15\n\nWord: twenty\nDigits:",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Word: eighteen\nDigits: 18\n\nWord: thirteen\nDigits: 13\n\nWord: one\nDigits: 1\n\nWord: fourteen\nDigits:",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Word: sixteen\nDigits: 16\n\nWord: one\nDigits: 1\n\nWord: eighteen\nDigits: 18\n\nWord: three\nDigits:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Word: thirteen\nDigits: 13\n\nWord: six\nDigits: 6\n\nWord: seventeen\nDigits: 17\n\nWord: two\nDigits:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Word: ten\nDigits: 10\n\nWord: sixteen\nDigits: 16\n\nWord: fifteen\nDigits: 15\n\nWord: three\nDigits:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Word: four\nDigits: 4\n\nWord: seven\nDigits: 7\n\nWord: one\nDigits: 1\n\nWord: twenty\nDigits:",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Word: nineteen\nDigits: 19\n\nWord: six\nDigits: 6\n\nWord: seventeen\nDigits: 17\n\nWord: sixteen\nDigits:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Word: thirteen\nDigits: 13\n\nWord: six\nDigits: 6\n\nWord: eleven\nDigits: 11\n\nWord: three\nDigits:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Word: fourteen\nDigits: 14\n\nWord: twelve\nDigits: 12\n\nWord: eleven\nDigits: 11\n\nWord: twenty\nDigits:",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Word: one\nDigits: 1\n\nWord: sixteen\nDigits: 16\n\nWord: four\nDigits: 4\n\nWord: ten\nDigits:",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Word: four\nDigits: 4\n\nWord: eight\nDigits: 8\n\nWord: zero\nDigits: 0\n\nWord: two\nDigits:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Word: seventeen\nDigits: 17\n\nWord: ten\nDigits: 10\n\nWord: twenty\nDigits: 20\n\nWord: six\nDigits:",
+    "continuation": " 6",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 11.2814
+}

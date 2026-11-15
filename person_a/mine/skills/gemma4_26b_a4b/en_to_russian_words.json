@@ -1,0 +1,720 @@
+{
+ "name": "en_to_russian_words",
+ "description": "Few-shot English->Russian single-word translation. Control: same format, English->English copy.",
+ "hash": "46915ec8ab1197b5",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nD=[(\"dog\",\"\u0441\u043e\u0431\u0430\u043a\u0430\"),(\"cat\",\"\u043a\u043e\u0448\u043a\u0430\"),(\"house\",\"\u0434\u043e\u043c\"),(\"water\",\"\u0432\u043e\u0434\u0430\"),(\"bread\",\"\u0445\u043b\u0435\u0431\"),(\"book\",\"\u043a\u043d\u0438\u0433\u0430\"),(\"tree\",\"\u0434\u0435\u0440\u0435\u0432\u043e\"),(\"sun\",\"\u0441\u043e\u043b\u043d\u0446\u0435\"),(\"moon\",\"\u043b\u0443\u043d\u0430\"),(\"city\",\"\u0433\u043e\u0440\u043e\u0434\"),(\"car\",\"\u043c\u0430\u0448\u0438\u043d\u0430\"),(\"friend\",\"\u0434\u0440\u0443\u0433\"),(\"night\",\"\u043d\u043e\u0447\u044c\"),(\"day\",\"\u0434\u0435\u043d\u044c\"),(\"red\",\"\u043a\u0440\u0430\u0441\u043d\u044b\u0439\"),(\"green\",\"\u0437\u0435\u043b\u0451\u043d\u044b\u0439\"),(\"black\",\"\u0447\u0451\u0440\u043d\u044b\u0439\"),(\"white\",\"\u0431\u0435\u043b\u044b\u0439\"),(\"big\",\"\u0431\u043e\u043b\u044c\u0448\u043e\u0439\"),(\"small\",\"\u043c\u0430\u043b\u0435\u043d\u044c\u043a\u0438\u0439\"),(\"new\",\"\u043d\u043e\u0432\u044b\u0439\"),(\"old\",\"\u0441\u0442\u0430\u0440\u044b\u0439\"),(\"woman\",\"\u0436\u0435\u043d\u0449\u0438\u043d\u0430\"),(\"man\",\"\u043c\u0443\u0436\u0447\u0438\u043d\u0430\"),(\"child\",\"\u0440\u0435\u0431\u0451\u043d\u043e\u043a\"),(\"king\",\"\u043a\u043e\u0440\u043e\u043b\u044c\"),(\"time\",\"\u0432\u0440\u0435\u043c\u044f\"),(\"world\",\"\u043c\u0438\u0440\"),(\"school\",\"\u0448\u043a\u043e\u043b\u0430\"),(\"door\",\"\u0434\u0432\u0435\u0440\u044c\"),(\"window\",\"\u043e\u043a\u043d\u043e\"),(\"table\",\"\u0441\u0442\u043e\u043b\"),(\"chair\",\"\u0441\u0442\u0443\u043b\"),(\"milk\",\"\u043c\u043e\u043b\u043e\u043a\u043e\"),(\"apple\",\"\u044f\u0431\u043b\u043e\u043a\u043e\"),(\"fish\",\"\u0440\u044b\u0431\u0430\"),(\"bird\",\"\u043f\u0442\u0438\u0446\u0430\"),(\"horse\",\"\u043b\u043e\u0448\u0430\u0434\u044c\"),(\"sea\",\"\u043c\u043e\u0440\u0435\"),(\"mountain\",\"\u0433\u043e\u0440\u0430\"),(\"river\",\"\u0440\u0435\u043a\u0430\"),(\"fire\",\"\u043e\u0433\u043e\u043d\u044c\"),(\"hand\",\"\u0440\u0443\u043a\u0430\"),(\"head\",\"\u0433\u043e\u043b\u043e\u0432\u0430\"),(\"heart\",\"\u0441\u0435\u0440\u0434\u0446\u0435\"),(\"eye\",\"\u0433\u043b\u0430\u0437\"),(\"money\",\"\u0434\u0435\u043d\u044c\u0433\u0438\"),(\"work\",\"\u0440\u0430\u0431\u043e\u0442\u0430\"),(\"love\",\"\u043b\u044e\u0431\u043e\u0432\u044c\"),(\"street\",\"\u0443\u043b\u0438\u0446\u0430\"),(\"week\",\"\u043d\u0435\u0434\u0435\u043b\u044f\"),(\"year\",\"\u0433\u043e\u0434\"),(\"morning\",\"\u0443\u0442\u0440\u043e\"),(\"summer\",\"\u043b\u0435\u0442\u043e\"),(\"winter\",\"\u0437\u0438\u043c\u0430\"),(\"cheese\",\"\u0441\u044b\u0440\"),(\"wine\",\"\u0432\u0438\u043d\u043e\"),(\"church\",\"\u0446\u0435\u0440\u043a\u043e\u0432\u044c\"),(\"garden\",\"\u0441\u0430\u0434\"),(\"kitchen\",\"\u043a\u0443\u0445\u043d\u044f\"),(\"flower\",\"\u0446\u0432\u0435\u0442\u043e\u043a\"),(\"rain\",\"\u0434\u043e\u0436\u0434\u044c\"),(\"snow\",\"\u0441\u043d\u0435\u0433\"),(\"wind\",\"\u0432\u0435\u0442\u0435\u0440\"),(\"egg\",\"\u044f\u0439\u0446\u043e\"),(\"key\",\"\u043a\u043b\u044e\u0447\"),(\"blue\",\"\u0441\u0438\u043d\u0438\u0439\"),(\"good\",\"\u0445\u043e\u0440\u043e\u0448\u0438\u0439\"),(\"happy\",\"\u0441\u0447\u0430\u0441\u0442\u043b\u0438\u0432\u044b\u0439\"),(\"brother\",\"\u0431\u0440\u0430\u0442\")]\nitems=[];control=[]\nfor t in D:\n    shots=random.sample([d for d in D if d is not t],3)\n    items.append({\"prompt\":\"\".join(f\"English: {s[0]}\\nRussian: {s[1]}\\n\\n\" for s in shots)+f\"English: {t[0]}\\nRussian:\",\"answer\":\" \"+t[1]})\n    control.append({\"prompt\":\"\".join(f\"English: {s[0]}\\nEnglish: {s[0]}\\n\\n\" for s in shots)+f\"English: {t[0]}\\nEnglish:\",\"answer\":\" \"+t[0]})\njson.dump({\"items\":items,\"control\":control},open(\"/work/skill.json\",\"w\"),ensure_ascii=False)\n",
+ "items": {
+  "search": [
+   {
+    "context": "English: bird\nRussian: \u043f\u0442\u0438\u0446\u0430\n\nEnglish: garden\nRussian: \u0441\u0430\u0434\n\nEnglish: egg\nRussian: \u044f\u0439\u0446\u043e\n\nEnglish: school\nRussian:",
+    "continuation": " \u0448\u043a\u043e\u043b\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRussian: \u0441\u043e\u0431\u0430\u043a\u0430\n\nEnglish: child\nRussian: \u0440\u0435\u0431\u0451\u043d\u043e\u043a\n\nEnglish: hand\nRussian: \u0440\u0443\u043a\u0430\n\nEnglish: rain\nRussian:",
+    "continuation": " \u0434\u043e\u0436\u0434\u044c",
+    "digits_only": false
+   },
+   {
+    "context": "English: church\nRussian: \u0446\u0435\u0440\u043a\u043e\u0432\u044c\n\nEnglish: happy\nRussian: \u0441\u0447\u0430\u0441\u0442\u043b\u0438\u0432\u044b\u0439\n\nEnglish: snow\nRussian: \u0441\u043d\u0435\u0433\n\nEnglish: good\nRussian:",
+    "continuation": " \u0445\u043e\u0440\u043e\u0448\u0438\u0439",
+    "digits_only": false
+   },
+   {
+    "context": "English: cheese\nRussian: \u0441\u044b\u0440\n\nEnglish: night\nRussian: \u043d\u043e\u0447\u044c\n\nEnglish: milk\nRussian: \u043c\u043e\u043b\u043e\u043a\u043e\n\nEnglish: hand\nRussian:",
+    "continuation": " \u0440\u0443\u043a\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nRussian: \u0434\u0435\u043d\u044c\u0433\u0438\n\nEnglish: car\nRussian: \u043c\u0430\u0448\u0438\u043d\u0430\n\nEnglish: hand\nRussian: \u0440\u0443\u043a\u0430\n\nEnglish: door\nRussian:",
+    "continuation": " \u0434\u0432\u0435\u0440\u044c",
+    "digits_only": false
+   },
+   {
+    "context": "English: man\nRussian: \u043c\u0443\u0436\u0447\u0438\u043d\u0430\n\nEnglish: green\nRussian: \u0437\u0435\u043b\u0451\u043d\u044b\u0439\n\nEnglish: snow\nRussian: \u0441\u043d\u0435\u0433\n\nEnglish: river\nRussian:",
+    "continuation": " \u0440\u0435\u043a\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "English: brother\nRussian: \u0431\u0440\u0430\u0442\n\nEnglish: city\nRussian: \u0433\u043e\u0440\u043e\u0434\n\nEnglish: water\nRussian: \u0432\u043e\u0434\u0430\n\nEnglish: bird\nRussian:",
+    "continuation": " \u043f\u0442\u0438\u0446\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nRussian: \u043c\u0430\u0448\u0438\u043d\u0430\n\nEnglish: hand\nRussian: \u0440\u0443\u043a\u0430\n\nEnglish: book\nRussian: \u043a\u043d\u0438\u0433\u0430\n\nEnglish: wine\nRussian:",
+    "continuation": " \u0432\u0438\u043d\u043e",
+    "digits_only": false
+   },
+   {
+    "context": "English: woman\nRussian: \u0436\u0435\u043d\u0449\u0438\u043d\u0430\n\nEnglish: cat\nRussian: \u043a\u043e\u0448\u043a\u0430\n\nEnglish: rain\nRussian: \u0434\u043e\u0436\u0434\u044c\n\nEnglish: morning\nRussian:",
+    "continuation": " \u0443\u0442\u0440\u043e",
+    "digits_only": false
+   },
+   {
+    "context": "English: child\nRussian: \u0440\u0435\u0431\u0451\u043d\u043e\u043a\n\nEnglish: chair\nRussian: \u0441\u0442\u0443\u043b\n\nEnglish: house\nRussian: \u0434\u043e\u043c\n\nEnglish: table\nRussian:",
+    "continuation": " \u0441\u0442\u043e\u043b",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nRussian: \u043b\u0443\u043d\u0430\n\nEnglish: school\nRussian: \u0448\u043a\u043e\u043b\u0430\n\nEnglish: city\nRussian: \u0433\u043e\u0440\u043e\u0434\n\nEnglish: head\nRussian:",
+    "continuation": " \u0433\u043e\u043b\u043e\u0432\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nRussian: \u0434\u0435\u043d\u044c\u0433\u0438\n\nEnglish: school\nRussian: \u0448\u043a\u043e\u043b\u0430\n\nEnglish: key\nRussian: \u043a\u043b\u044e\u0447\n\nEnglish: water\nRussian:",
+    "continuation": " \u0432\u043e\u0434\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "English: happy\nRussian: \u0441\u0447\u0430\u0441\u0442\u043b\u0438\u0432\u044b\u0439\n\nEnglish: bird\nRussian: \u043f\u0442\u0438\u0446\u0430\n\nEnglish: good\nRussian: \u0445\u043e\u0440\u043e\u0448\u0438\u0439\n\nEnglish: time\nRussian:",
+    "continuation": " \u0432\u0440\u0435\u043c\u044f",
+    "digits_only": false
+   },
+   {
+    "context": "English: eye\nRussian: \u0433\u043b\u0430\u0437\n\nEnglish: street\nRussian: \u0443\u043b\u0438\u0446\u0430\n\nEnglish: chair\nRussian: \u0441\u0442\u0443\u043b\n\nEnglish: winter\nRussian:",
+    "continuation": " \u0437\u0438\u043c\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "English: cat\nRussian: \u043a\u043e\u0448\u043a\u0430\n\nEnglish: night\nRussian: \u043d\u043e\u0447\u044c\n\nEnglish: morning\nRussian: \u0443\u0442\u0440\u043e\n\nEnglish: friend\nRussian:",
+    "continuation": " \u0434\u0440\u0443\u0433",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nRussian: \u0434\u0440\u0443\u0433\n\nEnglish: black\nRussian: \u0447\u0451\u0440\u043d\u044b\u0439\n\nEnglish: small\nRussian: \u043c\u0430\u043b\u0435\u043d\u044c\u043a\u0438\u0439\n\nEnglish: child\nRussian:",
+    "continuation": " \u0440\u0435\u0431\u0451\u043d\u043e\u043a",
+    "digits_only": false
+   },
+   {
+    "context": "English: head\nRussian: \u0433\u043e\u043b\u043e\u0432\u0430\n\nEnglish: rain\nRussian: \u0434\u043e\u0436\u0434\u044c\n\nEnglish: day\nRussian: \u0434\u0435\u043d\u044c\n\nEnglish: sun\nRussian:",
+    "continuation": " \u0441\u043e\u043b\u043d\u0446\u0435",
+    "digits_only": false
+   },
+   {
+    "context": "English: good\nRussian: \u0445\u043e\u0440\u043e\u0448\u0438\u0439\n\nEnglish: apple\nRussian: \u044f\u0431\u043b\u043e\u043a\u043e\n\nEnglish: sun\nRussian: \u0441\u043e\u043b\u043d\u0446\u0435\n\nEnglish: car\nRussian:",
+    "continuation": " \u043c\u0430\u0448\u0438\u043d\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "English: small\nRussian: \u043c\u0430\u043b\u0435\u043d\u044c\u043a\u0438\u0439\n\nEnglish: garden\nRussian: \u0441\u0430\u0434\n\nEnglish: friend\nRussian: \u0434\u0440\u0443\u0433\n\nEnglish: green\nRussian:",
+    "continuation": " \u0437\u0435\u043b\u0451\u043d\u044b\u0439",
+    "digits_only": false
+   },
+   {
+    "context": "English: apple\nRussian: \u044f\u0431\u043b\u043e\u043a\u043e\n\nEnglish: rain\nRussian: \u0434\u043e\u0436\u0434\u044c\n\nEnglish: moon\nRussian: \u043b\u0443\u043d\u0430\n\nEnglish: man\nRussian:",
+    "continuation": " \u043c\u0443\u0436\u0447\u0438\u043d\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nRussian: \u043b\u0443\u043d\u0430\n\nEnglish: milk\nRussian: \u043c\u043e\u043b\u043e\u043a\u043e\n\nEnglish: new\nRussian: \u043d\u043e\u0432\u044b\u0439\n\nEnglish: blue\nRussian:",
+    "continuation": " \u0441\u0438\u043d\u0438\u0439",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRussian: \u0441\u043e\u0431\u0430\u043a\u0430\n\nEnglish: egg\nRussian: \u044f\u0439\u0446\u043e\n\nEnglish: head\nRussian: \u0433\u043e\u043b\u043e\u0432\u0430\n\nEnglish: night\nRussian:",
+    "continuation": " \u043d\u043e\u0447\u044c",
+    "digits_only": false
+   },
+   {
+    "context": "English: morning\nRussian: \u0443\u0442\u0440\u043e\n\nEnglish: mountain\nRussian: \u0433\u043e\u0440\u0430\n\nEnglish: snow\nRussian: \u0441\u043d\u0435\u0433\n\nEnglish: house\nRussian:",
+    "continuation": " \u0434\u043e\u043c",
+    "digits_only": false
+   },
+   {
+    "context": "English: week\nRussian: \u043d\u0435\u0434\u0435\u043b\u044f\n\nEnglish: winter\nRussian: \u0437\u0438\u043c\u0430\n\nEnglish: tree\nRussian: \u0434\u0435\u0440\u0435\u0432\u043e\n\nEnglish: dog\nRussian:",
+    "continuation": " \u0441\u043e\u0431\u0430\u043a\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "English: wind\nRussian: \u0432\u0435\u0442\u0435\u0440\n\nEnglish: day\nRussian: \u0434\u0435\u043d\u044c\n\nEnglish: mountain\nRussian: \u0433\u043e\u0440\u0430\n\nEnglish: white\nRussian:",
+    "continuation": " \u0431\u0435\u043b\u044b\u0439",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nRussian: \u0445\u043b\u0435\u0431\n\nEnglish: car\nRussian: \u043c\u0430\u0448\u0438\u043d\u0430\n\nEnglish: year\nRussian: \u0433\u043e\u0434\n\nEnglish: king\nRussian:",
+    "continuation": " \u043a\u043e\u0440\u043e\u043b\u044c",
+    "digits_only": false
+   },
+   {
+    "context": "English: apple\nRussian: \u044f\u0431\u043b\u043e\u043a\u043e\n\nEnglish: blue\nRussian: \u0441\u0438\u043d\u0438\u0439\n\nEnglish: wind\nRussian: \u0432\u0435\u0442\u0435\u0440\n\nEnglish: cat\nRussian:",
+    "continuation": " \u043a\u043e\u0448\u043a\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "English: church\nRussian: \u0446\u0435\u0440\u043a\u043e\u0432\u044c\n\nEnglish: love\nRussian: \u043b\u044e\u0431\u043e\u0432\u044c\n\nEnglish: summer\nRussian: \u043b\u0435\u0442\u043e\n\nEnglish: wind\nRussian:",
+    "continuation": " \u0432\u0435\u0442\u0435\u0440",
+    "digits_only": false
+   },
+   {
+    "context": "English: year\nRussian: \u0433\u043e\u0434\n\nEnglish: king\nRussian: \u043a\u043e\u0440\u043e\u043b\u044c\n\nEnglish: milk\nRussian: \u043c\u043e\u043b\u043e\u043a\u043e\n\nEnglish: work\nRussian:",
+    "continuation": " \u0440\u0430\u0431\u043e\u0442\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "English: flower\nRussian: \u0446\u0432\u0435\u0442\u043e\u043a\n\nEnglish: book\nRussian: \u043a\u043d\u0438\u0433\u0430\n\nEnglish: night\nRussian: \u043d\u043e\u0447\u044c\n\nEnglish: money\nRussian:",
+    "continuation": " \u0434\u0435\u043d\u044c\u0433\u0438",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nRussian: \u043a\u043e\u0440\u043e\u043b\u044c\n\nEnglish: door\nRussian: \u0434\u0432\u0435\u0440\u044c\n\nEnglish: table\nRussian: \u0441\u0442\u043e\u043b\n\nEnglish: red\nRussian:",
+    "continuation": " \u043a\u0440\u0430\u0441\u043d\u044b\u0439",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nRussian: \u043c\u043e\u0440\u0435\n\nEnglish: eye\nRussian: \u0433\u043b\u0430\u0437\n\nEnglish: wine\nRussian: \u0432\u0438\u043d\u043e\n\nEnglish: heart\nRussian:",
+    "continuation": " \u0441\u0435\u0440\u0434\u0446\u0435",
+    "digits_only": false
+   },
+   {
+    "context": "English: small\nRussian: \u043c\u0430\u043b\u0435\u043d\u044c\u043a\u0438\u0439\n\nEnglish: cat\nRussian: \u043a\u043e\u0448\u043a\u0430\n\nEnglish: kitchen\nRussian: \u043a\u0443\u0445\u043d\u044f\n\nEnglish: cheese\nRussian:",
+    "continuation": " \u0441\u044b\u0440",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nRussian: \u0434\u0440\u0443\u0433\n\nEnglish: week\nRussian: \u043d\u0435\u0434\u0435\u043b\u044f\n\nEnglish: fire\nRussian: \u043e\u0433\u043e\u043d\u044c\n\nEnglish: new\nRussian:",
+    "continuation": " \u043d\u043e\u0432\u044b\u0439",
+    "digits_only": false
+   },
+   {
+    "context": "English: table\nRussian: \u0441\u0442\u043e\u043b\n\nEnglish: school\nRussian: \u0448\u043a\u043e\u043b\u0430\n\nEnglish: winter\nRussian: \u0437\u0438\u043c\u0430\n\nEnglish: world\nRussian:",
+    "continuation": " \u043c\u0438\u0440",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "English: fish\nRussian: \u0440\u044b\u0431\u0430\n\nEnglish: white\nRussian: \u0431\u0435\u043b\u044b\u0439\n\nEnglish: window\nRussian: \u043e\u043a\u043d\u043e\n\nEnglish: church\nRussian:",
+    "continuation": " \u0446\u0435\u0440\u043a\u043e\u0432\u044c",
+    "digits_only": false
+   },
+   {
+    "context": "English: time\nRussian: \u0432\u0440\u0435\u043c\u044f\n\nEnglish: sun\nRussian: \u0441\u043e\u043b\u043d\u0446\u0435\n\nEnglish: house\nRussian: \u0434\u043e\u043c\n\nEnglish: fire\nRussian:",
+    "continuation": " \u043e\u0433\u043e\u043d\u044c",
+    "digits_only": false
+   },
+   {
+    "context": "English: big\nRussian: \u0431\u043e\u043b\u044c\u0448\u043e\u0439\n\nEnglish: school\nRussian: \u0448\u043a\u043e\u043b\u0430\n\nEnglish: book\nRussian: \u043a\u043d\u0438\u0433\u0430\n\nEnglish: fish\nRussian:",
+    "continuation": " \u0440\u044b\u0431\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nRussian: \u0445\u043b\u0435\u0431\n\nEnglish: year\nRussian: \u0433\u043e\u0434\n\nEnglish: summer\nRussian: \u043b\u0435\u0442\u043e\n\nEnglish: egg\nRussian:",
+    "continuation": " \u044f\u0439\u0446\u043e",
+    "digits_only": false
+   },
+   {
+    "context": "English: table\nRussian: \u0441\u0442\u043e\u043b\n\nEnglish: sea\nRussian: \u043c\u043e\u0440\u0435\n\nEnglish: child\nRussian: \u0440\u0435\u0431\u0451\u043d\u043e\u043a\n\nEnglish: old\nRussian:",
+    "continuation": " \u0441\u0442\u0430\u0440\u044b\u0439",
+    "digits_only": false
+   },
+   {
+    "context": "English: big\nRussian: \u0431\u043e\u043b\u044c\u0448\u043e\u0439\n\nEnglish: horse\nRussian: \u043b\u043e\u0448\u0430\u0434\u044c\n\nEnglish: day\nRussian: \u0434\u0435\u043d\u044c\n\nEnglish: bread\nRussian:",
+    "continuation": " \u0445\u043b\u0435\u0431",
+    "digits_only": false
+   },
+   {
+    "context": "English: fire\nRussian: \u043e\u0433\u043e\u043d\u044c\n\nEnglish: mountain\nRussian: \u0433\u043e\u0440\u0430\n\nEnglish: kitchen\nRussian: \u043a\u0443\u0445\u043d\u044f\n\nEnglish: brother\nRussian:",
+    "continuation": " \u0431\u0440\u0430\u0442",
+    "digits_only": false
+   },
+   {
+    "context": "English: eye\nRussian: \u0433\u043b\u0430\u0437\n\nEnglish: black\nRussian: \u0447\u0451\u0440\u043d\u044b\u0439\n\nEnglish: mountain\nRussian: \u0433\u043e\u0440\u0430\n\nEnglish: kitchen\nRussian:",
+    "continuation": " \u043a\u0443\u0445\u043d\u044f",
+    "digits_only": false
+   },
+   {
+    "context": "English: world\nRussian: \u043c\u0438\u0440\n\nEnglish: snow\nRussian: \u0441\u043d\u0435\u0433\n\nEnglish: church\nRussian: \u0446\u0435\u0440\u043a\u043e\u0432\u044c\n\nEnglish: city\nRussian:",
+    "continuation": " \u0433\u043e\u0440\u043e\u0434",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nRussian: \u0434\u0440\u0443\u0433\n\nEnglish: love\nRussian: \u043b\u044e\u0431\u043e\u0432\u044c\n\nEnglish: red\nRussian: \u043a\u0440\u0430\u0441\u043d\u044b\u0439\n\nEnglish: sea\nRussian:",
+    "continuation": " \u043c\u043e\u0440\u0435",
+    "digits_only": false
+   },
+   {
+    "context": "English: man\nRussian: \u043c\u0443\u0436\u0447\u0438\u043d\u0430\n\nEnglish: sun\nRussian: \u0441\u043e\u043b\u043d\u0446\u0435\n\nEnglish: key\nRussian: \u043a\u043b\u044e\u0447\n\nEnglish: eye\nRussian:",
+    "continuation": " \u0433\u043b\u0430\u0437",
+    "digits_only": false
+   },
+   {
+    "context": "English: cheese\nRussian: \u0441\u044b\u0440\n\nEnglish: sun\nRussian: \u0441\u043e\u043b\u043d\u0446\u0435\n\nEnglish: night\nRussian: \u043d\u043e\u0447\u044c\n\nEnglish: apple\nRussian:",
+    "continuation": " \u044f\u0431\u043b\u043e\u043a\u043e",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nRussian: \u043c\u0430\u0448\u0438\u043d\u0430\n\nEnglish: fire\nRussian: \u043e\u0433\u043e\u043d\u044c\n\nEnglish: blue\nRussian: \u0441\u0438\u043d\u0438\u0439\n\nEnglish: black\nRussian:",
+    "continuation": " \u0447\u0451\u0440\u043d\u044b\u0439",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nRussian: \u0445\u043b\u0435\u0431\n\nEnglish: house\nRussian: \u0434\u043e\u043c\n\nEnglish: child\nRussian: \u0440\u0435\u0431\u0451\u043d\u043e\u043a\n\nEnglish: mountain\nRussian:",
+    "continuation": " \u0433\u043e\u0440\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "English: river\nRussian: \u0440\u0435\u043a\u0430\n\nEnglish: day\nRussian: \u0434\u0435\u043d\u044c\n\nEnglish: car\nRussian: \u043c\u0430\u0448\u0438\u043d\u0430\n\nEnglish: tree\nRussian:",
+    "continuation": " \u0434\u0435\u0440\u0435\u0432\u043e",
+    "digits_only": false
+   },
+   {
+    "context": "English: eye\nRussian: \u0433\u043b\u0430\u0437\n\nEnglish: rain\nRussian: \u0434\u043e\u0436\u0434\u044c\n\nEnglish: old\nRussian: \u0441\u0442\u0430\u0440\u044b\u0439\n\nEnglish: love\nRussian:",
+    "continuation": " \u043b\u044e\u0431\u043e\u0432\u044c",
+    "digits_only": false
+   },
+   {
+    "context": "English: street\nRussian: \u0443\u043b\u0438\u0446\u0430\n\nEnglish: summer\nRussian: \u043b\u0435\u0442\u043e\n\nEnglish: car\nRussian: \u043c\u0430\u0448\u0438\u043d\u0430\n\nEnglish: flower\nRussian:",
+    "continuation": " \u0446\u0432\u0435\u0442\u043e\u043a",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nRussian: \u043c\u043e\u0440\u0435\n\nEnglish: green\nRussian: \u0437\u0435\u043b\u0451\u043d\u044b\u0439\n\nEnglish: head\nRussian: \u0433\u043e\u043b\u043e\u0432\u0430\n\nEnglish: big\nRussian:",
+    "continuation": " \u0431\u043e\u043b\u044c\u0448\u043e\u0439",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nRussian: \u0434\u0435\u043d\u044c\u0433\u0438\n\nEnglish: wine\nRussian: \u0432\u0438\u043d\u043e\n\nEnglish: fire\nRussian: \u043e\u0433\u043e\u043d\u044c\n\nEnglish: moon\nRussian:",
+    "continuation": " \u043b\u0443\u043d\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "English: fish\nRussian: \u0440\u044b\u0431\u0430\n\nEnglish: red\nRussian: \u043a\u0440\u0430\u0441\u043d\u044b\u0439\n\nEnglish: school\nRussian: \u0448\u043a\u043e\u043b\u0430\n\nEnglish: chair\nRussian:",
+    "continuation": " \u0441\u0442\u0443\u043b",
+    "digits_only": false
+   },
+   {
+    "context": "English: chair\nRussian: \u0441\u0442\u0443\u043b\n\nEnglish: hand\nRussian: \u0440\u0443\u043a\u0430\n\nEnglish: moon\nRussian: \u043b\u0443\u043d\u0430\n\nEnglish: day\nRussian:",
+    "continuation": " \u0434\u0435\u043d\u044c",
+    "digits_only": false
+   },
+   {
+    "context": "English: green\nRussian: \u0437\u0435\u043b\u0451\u043d\u044b\u0439\n\nEnglish: child\nRussian: \u0440\u0435\u0431\u0451\u043d\u043e\u043a\n\nEnglish: year\nRussian: \u0433\u043e\u0434\n\nEnglish: horse\nRussian:",
+    "continuation": " \u043b\u043e\u0448\u0430\u0434\u044c",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nRussian: \u043a\u043e\u0440\u043e\u043b\u044c\n\nEnglish: child\nRussian: \u0440\u0435\u0431\u0451\u043d\u043e\u043a\n\nEnglish: bread\nRussian: \u0445\u043b\u0435\u0431\n\nEnglish: woman\nRussian:",
+    "continuation": " \u0436\u0435\u043d\u0449\u0438\u043d\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "English: red\nRussian: \u043a\u0440\u0430\u0441\u043d\u044b\u0439\n\nEnglish: wind\nRussian: \u0432\u0435\u0442\u0435\u0440\n\nEnglish: head\nRussian: \u0433\u043e\u043b\u043e\u0432\u0430\n\nEnglish: window\nRussian:",
+    "continuation": " \u043e\u043a\u043d\u043e",
+    "digits_only": false
+   },
+   {
+    "context": "English: world\nRussian: \u043c\u0438\u0440\n\nEnglish: horse\nRussian: \u043b\u043e\u0448\u0430\u0434\u044c\n\nEnglish: church\nRussian: \u0446\u0435\u0440\u043a\u043e\u0432\u044c\n\nEnglish: small\nRussian:",
+    "continuation": " \u043c\u0430\u043b\u0435\u043d\u044c\u043a\u0438\u0439",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRussian: \u0441\u043e\u0431\u0430\u043a\u0430\n\nEnglish: bread\nRussian: \u0445\u043b\u0435\u0431\n\nEnglish: wind\nRussian: \u0432\u0435\u0442\u0435\u0440\n\nEnglish: happy\nRussian:",
+    "continuation": " \u0441\u0447\u0430\u0441\u0442\u043b\u0438\u0432\u044b\u0439",
+    "digits_only": false
+   },
+   {
+    "context": "English: new\nRussian: \u043d\u043e\u0432\u044b\u0439\n\nEnglish: head\nRussian: \u0433\u043e\u043b\u043e\u0432\u0430\n\nEnglish: happy\nRussian: \u0441\u0447\u0430\u0441\u0442\u043b\u0438\u0432\u044b\u0439\n\nEnglish: week\nRussian:",
+    "continuation": " \u043d\u0435\u0434\u0435\u043b\u044f",
+    "digits_only": false
+   },
+   {
+    "context": "English: snow\nRussian: \u0441\u043d\u0435\u0433\n\nEnglish: eye\nRussian: \u0433\u043b\u0430\u0437\n\nEnglish: bird\nRussian: \u043f\u0442\u0438\u0446\u0430\n\nEnglish: garden\nRussian:",
+    "continuation": " \u0441\u0430\u0434",
+    "digits_only": false
+   },
+   {
+    "context": "English: chair\nRussian: \u0441\u0442\u0443\u043b\n\nEnglish: green\nRussian: \u0437\u0435\u043b\u0451\u043d\u044b\u0439\n\nEnglish: church\nRussian: \u0446\u0435\u0440\u043a\u043e\u0432\u044c\n\nEnglish: year\nRussian:",
+    "continuation": " \u0433\u043e\u0434",
+    "digits_only": false
+   },
+   {
+    "context": "English: new\nRussian: \u043d\u043e\u0432\u044b\u0439\n\nEnglish: window\nRussian: \u043e\u043a\u043d\u043e\n\nEnglish: school\nRussian: \u0448\u043a\u043e\u043b\u0430\n\nEnglish: snow\nRussian:",
+    "continuation": " \u0441\u043d\u0435\u0433",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nRussian: \u043a\u043d\u0438\u0433\u0430\n\nEnglish: old\nRussian: \u0441\u0442\u0430\u0440\u044b\u0439\n\nEnglish: church\nRussian: \u0446\u0435\u0440\u043a\u043e\u0432\u044c\n\nEnglish: key\nRussian:",
+    "continuation": " \u043a\u043b\u044e\u0447",
+    "digits_only": false
+   },
+   {
+    "context": "English: love\nRussian: \u043b\u044e\u0431\u043e\u0432\u044c\n\nEnglish: old\nRussian: \u0441\u0442\u0430\u0440\u044b\u0439\n\nEnglish: head\nRussian: \u0433\u043e\u043b\u043e\u0432\u0430\n\nEnglish: milk\nRussian:",
+    "continuation": " \u043c\u043e\u043b\u043e\u043a\u043e",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nRussian: \u043c\u043e\u043b\u043e\u043a\u043e\n\nEnglish: brother\nRussian: \u0431\u0440\u0430\u0442\n\nEnglish: small\nRussian: \u043c\u0430\u043b\u0435\u043d\u044c\u043a\u0438\u0439\n\nEnglish: book\nRussian:",
+    "continuation": " \u043a\u043d\u0438\u0433\u0430",
+    "digits_only": false
+   },
+   {
+    "context": "English: morning\nRussian: \u0443\u0442\u0440\u043e\n\nEnglish: blue\nRussian: \u0441\u0438\u043d\u0438\u0439\n\nEnglish: mountain\nRussian: \u0433\u043e\u0440\u0430\n\nEnglish: summer\nRussian:",
+    "continuation": " \u043b\u0435\u0442\u043e",
+    "digits_only": false
+   },
+   {
+    "context": "English: time\nRussian: \u0432\u0440\u0435\u043c\u044f\n\nEnglish: sun\nRussian: \u0441\u043e\u043b\u043d\u0446\u0435\n\nEnglish: new\nRussian: \u043d\u043e\u0432\u044b\u0439\n\nEnglish: street\nRussian:",
+    "continuation": " \u0443\u043b\u0438\u0446\u0430",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "English: cheese\nEnglish: cheese\n\nEnglish: night\nEnglish: night\n\nEnglish: milk\nEnglish: milk\n\nEnglish: hand\nEnglish:",
+    "continuation": " hand",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nEnglish: king\n\nEnglish: child\nEnglish: child\n\nEnglish: bread\nEnglish: bread\n\nEnglish: woman\nEnglish:",
+    "continuation": " woman",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nEnglish: dog\n\nEnglish: egg\nEnglish: egg\n\nEnglish: head\nEnglish: head\n\nEnglish: night\nEnglish:",
+    "continuation": " night",
+    "digits_only": false
+   },
+   {
+    "context": "English: apple\nEnglish: apple\n\nEnglish: rain\nEnglish: rain\n\nEnglish: moon\nEnglish: moon\n\nEnglish: man\nEnglish:",
+    "continuation": " man",
+    "digits_only": false
+   },
+   {
+    "context": "English: big\nEnglish: big\n\nEnglish: horse\nEnglish: horse\n\nEnglish: day\nEnglish: day\n\nEnglish: bread\nEnglish:",
+    "continuation": " bread",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nEnglish: money\n\nEnglish: car\nEnglish: car\n\nEnglish: hand\nEnglish: hand\n\nEnglish: door\nEnglish:",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "English: morning\nEnglish: morning\n\nEnglish: mountain\nEnglish: mountain\n\nEnglish: snow\nEnglish: snow\n\nEnglish: house\nEnglish:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nEnglish: sea\n\nEnglish: green\nEnglish: green\n\nEnglish: head\nEnglish: head\n\nEnglish: big\nEnglish:",
+    "continuation": " big",
+    "digits_only": false
+   },
+   {
+    "context": "English: good\nEnglish: good\n\nEnglish: apple\nEnglish: apple\n\nEnglish: sun\nEnglish: sun\n\nEnglish: car\nEnglish:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nEnglish: moon\n\nEnglish: school\nEnglish: school\n\nEnglish: city\nEnglish: city\n\nEnglish: head\nEnglish:",
+    "continuation": " head",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nEnglish: dog\n\nEnglish: bread\nEnglish: bread\n\nEnglish: wind\nEnglish: wind\n\nEnglish: happy\nEnglish:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "English: world\nEnglish: world\n\nEnglish: horse\nEnglish: horse\n\nEnglish: church\nEnglish: church\n\nEnglish: small\nEnglish:",
+    "continuation": " small",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nEnglish: car\n\nEnglish: fire\nEnglish: fire\n\nEnglish: blue\nEnglish: blue\n\nEnglish: black\nEnglish:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "English: happy\nEnglish: happy\n\nEnglish: bird\nEnglish: bird\n\nEnglish: good\nEnglish: good\n\nEnglish: time\nEnglish:",
+    "continuation": " time",
+    "digits_only": false
+   },
+   {
+    "context": "English: love\nEnglish: love\n\nEnglish: old\nEnglish: old\n\nEnglish: head\nEnglish: head\n\nEnglish: milk\nEnglish:",
+    "continuation": " milk",
+    "digits_only": false
+   },
+   {
+    "context": "English: brother\nEnglish: brother\n\nEnglish: city\nEnglish: city\n\nEnglish: water\nEnglish: water\n\nEnglish: bird\nEnglish:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nEnglish: milk\n\nEnglish: brother\nEnglish: brother\n\nEnglish: small\nEnglish: small\n\nEnglish: book\nEnglish:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nEnglish: money\n\nEnglish: school\nEnglish: school\n\nEnglish: key\nEnglish: key\n\nEnglish: water\nEnglish:",
+    "continuation": " water",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nEnglish: bread\n\nEnglish: year\nEnglish: year\n\nEnglish: summer\nEnglish: summer\n\nEnglish: egg\nEnglish:",
+    "continuation": " egg",
+    "digits_only": false
+   },
+   {
+    "context": "English: big\nEnglish: big\n\nEnglish: school\nEnglish: school\n\nEnglish: book\nEnglish: book\n\nEnglish: fish\nEnglish:",
+    "continuation": " fish",
+    "digits_only": false
+   },
+   {
+    "context": "English: chair\nEnglish: chair\n\nEnglish: green\nEnglish: green\n\nEnglish: church\nEnglish: church\n\nEnglish: year\nEnglish:",
+    "continuation": " year",
+    "digits_only": false
+   },
+   {
+    "context": "English: world\nEnglish: world\n\nEnglish: snow\nEnglish: snow\n\nEnglish: church\nEnglish: church\n\nEnglish: city\nEnglish:",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "English: church\nEnglish: church\n\nEnglish: happy\nEnglish: happy\n\nEnglish: snow\nEnglish: snow\n\nEnglish: good\nEnglish:",
+    "continuation": " good",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nEnglish: bread\n\nEnglish: car\nEnglish: car\n\nEnglish: year\nEnglish: year\n\nEnglish: king\nEnglish:",
+    "continuation": " king",
+    "digits_only": false
+   },
+   {
+    "context": "English: table\nEnglish: table\n\nEnglish: sea\nEnglish: sea\n\nEnglish: child\nEnglish: child\n\nEnglish: old\nEnglish:",
+    "continuation": " old",
+    "digits_only": false
+   },
+   {
+    "context": "English: woman\nEnglish: woman\n\nEnglish: cat\nEnglish: cat\n\nEnglish: rain\nEnglish: rain\n\nEnglish: morning\nEnglish:",
+    "continuation": " morning",
+    "digits_only": false
+   },
+   {
+    "context": "English: cat\nEnglish: cat\n\nEnglish: night\nEnglish: night\n\nEnglish: morning\nEnglish: morning\n\nEnglish: friend\nEnglish:",
+    "continuation": " friend",
+    "digits_only": false
+   },
+   {
+    "context": "English: head\nEnglish: head\n\nEnglish: rain\nEnglish: rain\n\nEnglish: day\nEnglish: day\n\nEnglish: sun\nEnglish:",
+    "continuation": " sun",
+    "digits_only": false
+   },
+   {
+    "context": "English: flower\nEnglish: flower\n\nEnglish: book\nEnglish: book\n\nEnglish: night\nEnglish: night\n\nEnglish: money\nEnglish:",
+    "continuation": " money",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nEnglish: moon\n\nEnglish: milk\nEnglish: milk\n\nEnglish: new\nEnglish: new\n\nEnglish: blue\nEnglish:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "English: red\nEnglish: red\n\nEnglish: wind\nEnglish: wind\n\nEnglish: head\nEnglish: head\n\nEnglish: window\nEnglish:",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "English: year\nEnglish: year\n\nEnglish: king\nEnglish: king\n\nEnglish: milk\nEnglish: milk\n\nEnglish: work\nEnglish:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "English: man\nEnglish: man\n\nEnglish: sun\nEnglish: sun\n\nEnglish: key\nEnglish: key\n\nEnglish: eye\nEnglish:",
+    "continuation": " eye",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nEnglish: bread\n\nEnglish: house\nEnglish: house\n\nEnglish: child\nEnglish: child\n\nEnglish: mountain\nEnglish:",
+    "continuation": " mountain",
+    "digits_only": false
+   },
+   {
+    "context": "English: small\nEnglish: small\n\nEnglish: cat\nEnglish: cat\n\nEnglish: kitchen\nEnglish: kitchen\n\nEnglish: cheese\nEnglish:",
+    "continuation": " cheese",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "English: eye\nEnglish: eye\n\nEnglish: black\nEnglish: black\n\nEnglish: mountain\nEnglish: mountain\n\nEnglish: kitchen\nEnglish:",
+    "continuation": " kitchen",
+    "digits_only": false
+   },
+   {
+    "context": "English: eye\nEnglish: eye\n\nEnglish: street\nEnglish: street\n\nEnglish: chair\nEnglish: chair\n\nEnglish: winter\nEnglish:",
+    "continuation": " winter",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nEnglish: book\n\nEnglish: old\nEnglish: old\n\nEnglish: church\nEnglish: church\n\nEnglish: key\nEnglish:",
+    "continuation": " key",
+    "digits_only": false
+   },
+   {
+    "context": "English: cheese\nEnglish: cheese\n\nEnglish: sun\nEnglish: sun\n\nEnglish: night\nEnglish: night\n\nEnglish: apple\nEnglish:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "English: man\nEnglish: man\n\nEnglish: green\nEnglish: green\n\nEnglish: snow\nEnglish: snow\n\nEnglish: river\nEnglish:",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "English: new\nEnglish: new\n\nEnglish: window\nEnglish: window\n\nEnglish: school\nEnglish: school\n\nEnglish: snow\nEnglish:",
+    "continuation": " snow",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nEnglish: car\n\nEnglish: hand\nEnglish: hand\n\nEnglish: book\nEnglish: book\n\nEnglish: wine\nEnglish:",
+    "continuation": " wine",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nEnglish: friend\n\nEnglish: week\nEnglish: week\n\nEnglish: fire\nEnglish: fire\n\nEnglish: new\nEnglish:",
+    "continuation": " new",
+    "digits_only": false
+   },
+   {
+    "context": "English: snow\nEnglish: snow\n\nEnglish: eye\nEnglish: eye\n\nEnglish: bird\nEnglish: bird\n\nEnglish: garden\nEnglish:",
+    "continuation": " garden",
+    "digits_only": false
+   },
+   {
+    "context": "English: green\nEnglish: green\n\nEnglish: child\nEnglish: child\n\nEnglish: year\nEnglish: year\n\nEnglish: horse\nEnglish:",
+    "continuation": " horse",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nEnglish: king\n\nEnglish: door\nEnglish: door\n\nEnglish: table\nEnglish: table\n\nEnglish: red\nEnglish:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "English: fire\nEnglish: fire\n\nEnglish: mountain\nEnglish: mountain\n\nEnglish: kitchen\nEnglish: kitchen\n\nEnglish: brother\nEnglish:",
+    "continuation": " brother",
+    "digits_only": false
+   },
+   {
+    "context": "English: bird\nEnglish: bird\n\nEnglish: garden\nEnglish: garden\n\nEnglish: egg\nEnglish: egg\n\nEnglish: school\nEnglish:",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nEnglish: sea\n\nEnglish: eye\nEnglish: eye\n\nEnglish: wine\nEnglish: wine\n\nEnglish: heart\nEnglish:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "English: week\nEnglish: week\n\nEnglish: winter\nEnglish: winter\n\nEnglish: tree\nEnglish: tree\n\nEnglish: dog\nEnglish:",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "English: time\nEnglish: time\n\nEnglish: sun\nEnglish: sun\n\nEnglish: new\nEnglish: new\n\nEnglish: street\nEnglish:",
+    "continuation": " street",
+    "digits_only": false
+   },
+   {
+    "context": "English: eye\nEnglish: eye\n\nEnglish: rain\nEnglish: rain\n\nEnglish: old\nEnglish: old\n\nEnglish: love\nEnglish:",
+    "continuation": " love",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nEnglish: friend\n\nEnglish: love\nEnglish: love\n\nEnglish: red\nEnglish: red\n\nEnglish: sea\nEnglish:",
+    "continuation": " sea",
+    "digits_only": false
+   },
+   {
+    "context": "English: table\nEnglish: table\n\nEnglish: school\nEnglish: school\n\nEnglish: winter\nEnglish: winter\n\nEnglish: world\nEnglish:",
+    "continuation": " world",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nEnglish: dog\n\nEnglish: child\nEnglish: child\n\nEnglish: hand\nEnglish: hand\n\nEnglish: rain\nEnglish:",
+    "continuation": " rain",
+    "digits_only": false
+   },
+   {
+    "context": "English: morning\nEnglish: morning\n\nEnglish: blue\nEnglish: blue\n\nEnglish: mountain\nEnglish: mountain\n\nEnglish: summer\nEnglish:",
+    "continuation": " summer",
+    "digits_only": false
+   },
+   {
+    "context": "English: apple\nEnglish: apple\n\nEnglish: blue\nEnglish: blue\n\nEnglish: wind\nEnglish: wind\n\nEnglish: cat\nEnglish:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "English: child\nEnglish: child\n\nEnglish: chair\nEnglish: chair\n\nEnglish: house\nEnglish: house\n\nEnglish: table\nEnglish:",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "English: river\nEnglish: river\n\nEnglish: day\nEnglish: day\n\nEnglish: car\nEnglish: car\n\nEnglish: tree\nEnglish:",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "English: chair\nEnglish: chair\n\nEnglish: hand\nEnglish: hand\n\nEnglish: moon\nEnglish: moon\n\nEnglish: day\nEnglish:",
+    "continuation": " day",
+    "digits_only": false
+   },
+   {
+    "context": "English: new\nEnglish: new\n\nEnglish: head\nEnglish: head\n\nEnglish: happy\nEnglish: happy\n\nEnglish: week\nEnglish:",
+    "continuation": " week",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nEnglish: friend\n\nEnglish: black\nEnglish: black\n\nEnglish: small\nEnglish: small\n\nEnglish: child\nEnglish:",
+    "continuation": " child",
+    "digits_only": false
+   },
+   {
+    "context": "English: time\nEnglish: time\n\nEnglish: sun\nEnglish: sun\n\nEnglish: house\nEnglish: house\n\nEnglish: fire\nEnglish:",
+    "continuation": " fire",
+    "digits_only": false
+   },
+   {
+    "context": "English: street\nEnglish: street\n\nEnglish: summer\nEnglish: summer\n\nEnglish: car\nEnglish: car\n\nEnglish: flower\nEnglish:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "English: fish\nEnglish: fish\n\nEnglish: white\nEnglish: white\n\nEnglish: window\nEnglish: window\n\nEnglish: church\nEnglish:",
+    "continuation": " church",
+    "digits_only": false
+   },
+   {
+    "context": "English: church\nEnglish: church\n\nEnglish: love\nEnglish: love\n\nEnglish: summer\nEnglish: summer\n\nEnglish: wind\nEnglish:",
+    "continuation": " wind",
+    "digits_only": false
+   },
+   {
+    "context": "English: small\nEnglish: small\n\nEnglish: garden\nEnglish: garden\n\nEnglish: friend\nEnglish: friend\n\nEnglish: green\nEnglish:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "English: fish\nEnglish: fish\n\nEnglish: red\nEnglish: red\n\nEnglish: school\nEnglish: school\n\nEnglish: chair\nEnglish:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nEnglish: money\n\nEnglish: wine\nEnglish: wine\n\nEnglish: fire\nEnglish: fire\n\nEnglish: moon\nEnglish:",
+    "continuation": " moon",
+    "digits_only": false
+   },
+   {
+    "context": "English: wind\nEnglish: wind\n\nEnglish: day\nEnglish: day\n\nEnglish: mountain\nEnglish: mountain\n\nEnglish: white\nEnglish:",
+    "continuation": " white",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 8.9095
+}
