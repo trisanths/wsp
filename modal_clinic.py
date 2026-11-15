@@ -1,6 +1,6 @@
 """Clinic demo: self-training of a slimmed medical MoE on multiple-choice questions (copy of modal_rft.py).
 
-Start models: the keep-64 clinic slim (round28/clinic_64), a keep-48 clinic slim built here from the round 28
+Start models: the keep-64 clinic slim (rebuilt as clinic/clinic_64), a keep-48 clinic slim built here from the round 28
 clinic saliency stats (build_k48), and the full Qwen3-30B-A3B-Instruct-2507 as reference and teacher.
 Train items: MedMCQA train, MedQA-USMLE train, PubMedQA labeled (non-test) and artificial train, with the
 reasoning prompt of wsp.clinic and a letter reward. Every item that shares a 13-gram with any reported test set
@@ -12,7 +12,7 @@ Everything lives under /vol/clinic/c1/ on the volume "wsp-models" of the active 
 
     modal run modal_clinic.py --stage verify
     modal run modal_clinic.py --stage data
-    modal run modal_clinic.py --stage build48
+    modal run modal_clinic.py --stage build48 [--keep 64]
     modal run modal_clinic.py --stage score --run k64          # one cheap cell first
     modal run --detach modal_clinic.py --stage drive --run k64 --rounds 2
 """
@@ -66,7 +66,7 @@ BASE = "Qwen/Qwen3-30B-A3B-Instruct-2507"
 SLIM_ROOT = "/vol/slim_models"
 ROOT = "/vol/clinic/c1"
 DATA = ROOT + "/data"
-STARTS = {"k64": "round28/clinic_64", "k48": "clinic/clinic_48", "full": BASE}
+STARTS = {"k64": "clinic/clinic_64", "k48": "clinic/clinic_48", "full": BASE}
 
 SAMPLE_TOKENS = 400
 COT_TOKENS = 400
@@ -798,7 +798,7 @@ def estimate(run, rounds, shards, k, teacher_k, smoke=False):
 @app.local_entrypoint()
 def main(stage: str = "estimate", run: str = "k64", rounds: int = 3, shards: int = 4, k: int = 8, teacher_k: int = 4,
          smoke: bool = False, epochs: int = 2, first_round: int = 1, teacher_from: str = "",
-         from_model: str = "", iterations: int = 4, tag: str = "pg", max_rows: int = 9000):
+         from_model: str = "", iterations: int = 4, tag: str = "pg", max_rows: int = 9000, keep: int = 48):
     if stage == "estimate":
         estimate(run, rounds, shards, k, teacher_k)
     elif stage == "verify":
@@ -806,7 +806,7 @@ def main(stage: str = "estimate", run: str = "k64", rounds: int = 3, shards: int
     elif stage == "data":
         print(json.dumps(build_data.remote(), indent=1))
     elif stage == "build48":
-        print(json.dumps(build_k48.remote(48), indent=1))
+        print(json.dumps(build_k48.remote(keep), indent=1))
     elif stage == "drive":
         estimate(run, rounds, shards, k, teacher_k)
         print(json.dumps(drive.remote(run, rounds, shards, k, teacher_k, epochs, True, smoke, first_round, teacher_from, max_rows), indent=1)[:4000])
