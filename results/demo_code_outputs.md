@@ -5,7 +5,7 @@ Same eight prompts, greedy decoding, chat template, 512 new tokens, vLLM on one 
 - full_30b: Qwen3-30B-A3B full (128 experts per layer); weights on disk 56.87 GiB.
 - slim_64: slim_64 (64 experts per layer by code saliency, no heal); weights on disk 29.86 GiB.
 
-## Scores on the six coding prompts
+## Scores on the coding prompts (five graded, regex has no test)
 
 | prompt | full_30b | slim_64 |
 |---|---|---|
