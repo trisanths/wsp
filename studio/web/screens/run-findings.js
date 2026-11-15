@@ -299,7 +299,7 @@ function PartsTable({ d, cat }) {
   const set = (k) => setSort(sort[0] === k ? [k, -sort[1]] : [k, k === 'label' ? 1 : -1]);
   if (!list.length) return null;
   return html`<section class="rsec"><h2 class="rh2">Parts the swarm has scored</h2>
-    <div class="ptwrap"><table class="ptab"><thead><tr>${PCOLS.map(([k, l]) => html`<th class=${k === 'label' ? '' : 'r'} key=${k}><button class=${'thbtn' + (sort[0] === k ? ' on' : '')} onClick=${() => set(k)} aria-label=${'Sort by ' + l}>${l}${sort[0] === k ? html`<span class="arr">${sort[1] > 0 ? '↑' : '↓'}</span>` : ''}</button></th>`)}</tr></thead>
+    <div class="ptwrap"><table class="ptable"><thead><tr>${PCOLS.map(([k, l]) => html`<th class=${k === 'label' ? '' : 'r'} key=${k}><button class=${'thbtn' + (sort[0] === k ? ' on' : '')} onClick=${() => set(k)} aria-label=${'Sort by ' + l}>${l}${sort[0] === k ? html`<span class="arr">${sort[1] > 0 ? '↑' : '↓'}</span>` : ''}</button></th>`)}</tr></thead>
     <tbody>${sorted.map((s) => html`<tr key=${s.id} class="ptr" onClick=${() => openPart(s.id)} tabindex="0" onKeyDown=${(e) => { if (e.key === 'Enter') openPart(s.id); }}>
       <td><span class="pt-n">${s.donor && html`<${ModelLogo} model=${s.donor} size=${16} />`}<span class="ell">${s.label}</span></span></td>
       <td class="r num">${s.n}</td>

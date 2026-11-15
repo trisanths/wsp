@@ -140,11 +140,11 @@ function Body({ id, data, onClose }) {
   const stitches = d.stitches || [];
   return html`<div class="pd-body">
     <div class="pd-where reveal" style=${{ '--i': 0 }}>
-      ${!isMask && html`<div class="stage3d pd-stage"><${Brain3D} height=${210} layers=${donorLayers} mode="donor" scan=${{ layer: lay[0], total: donorLayers, found }} highlight=${lay[0]} label=${'In the donor, L' + lay[0] + (lay[1] !== lay[0] ? ' to L' + lay[1] : '')} />
+      ${!isMask && html`<div class="stage3d pd-stage"><${Brain3D} height=${240} layers=${donorLayers} mode="donor" scan=${{ layer: donorLayers, total: donorLayers, found }} highlight=${lay[0]} label=${'In the donor, L' + lay[0] + (lay[1] !== lay[0] ? ' to L' + lay[1] : '')} />
         <div class="stage-hud"><span><${ModelLogo} model=${d.donor} size=${14} /> ${donorShort(d.donor)}</span><span class="num">${donorLayers} layers</span></div></div>
-        <div class="stage3d pd-stage"><${Brain3D} height=${210} layers=${hostLayers} mode="host" parts=${[{ id: d.id, label: d.label, kind: d.kind, at, donor: d.donor, verdict }]} pulse=${{ kind: 'graft', at, partId: d.id, ok: null, key: 'pd:' + d.id }} highlight=${at} label=${'Docks at host layer ' + at} />
+        <div class="stage3d pd-stage"><${Brain3D} height=${240} layers=${hostLayers} mode="host" parts=${[{ id: d.id, label: d.label, kind: d.kind, at, donor: d.donor, verdict }]} pulse=${{ kind: 'graft', at, partId: d.id, ok: null, key: 'pd:' + d.id }} highlight=${at} label=${'Docks at host layer ' + at} />
         <div class="stage-hud"><span>Host${host && host.model ? ': ' + donorShort(host.model) : ''}</span><span class="num">${hostLayers} layers</span></div></div>`}
-      ${isMask && html`<div class="stage3d pd-stage wide"><${Brain3D} height=${210} layers=${hostLayers} mode="host" cuts=${[{ layer: Math.floor(hostLayers / 2), frac: 0.18, label: d.label }]} pulse=${{ kind: 'cut', at: Math.floor(hostLayers / 2), ok: null, key: 'pdc:' + d.id }} label="A deletion mask cuts these units" /></div>`}
+      ${isMask && html`<div class="stage3d pd-stage wide"><${Brain3D} height=${240} layers=${hostLayers} mode="host" cuts=${[{ layer: Math.floor(hostLayers / 2), frac: 0.18, label: d.label }]} pulse=${{ kind: 'cut', at: Math.floor(hostLayers / 2), ok: null, key: 'pdc:' + d.id }} label="A deletion mask cuts these units" /></div>`}
     </div>
     <dl class="pd-facts reveal" style=${{ '--i': 1 }}>
       ${!isMask && html`<${FactRow} k="Donor"><${ModelLogo} model=${d.donor} size=${16} /> <button class="lnk pd-donorlink" onClick=${openModel}>${d.donor}</button><//>`}

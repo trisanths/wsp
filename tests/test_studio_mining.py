@@ -159,3 +159,13 @@ def test_raw_block_z():
     assert block["random_n"] == 4
     assert block["z"] > 3
     assert block["signature"]["s"]["control_heldout"] == 0.0
+
+
+def test_request_carries_model_facts(client):
+    model = first_model(client)["model"]
+    made = client.post("/api/mine", json={"model": model, "skills": ["math"], "effort": "smoke"}).json()
+    got = client.get("/api/mine/req/" + made["id"]).json()
+    assert got["status"] == "queued"
+    assert got["layers"] is None or got["layers"] > 0
+    listed = [r for r in client.get("/api/mine").json()["requests"] if r["id"] == made["id"]][0]
+    assert listed["layers"] == got["layers"]

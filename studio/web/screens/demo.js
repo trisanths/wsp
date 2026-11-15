@@ -28,6 +28,17 @@ export const STEPS = [
   { ch: 'Agents build it', hash: '#/run/run_demo_live/activity', sel: 'a.tab', text: 'Results', click: true, hold: 1200, say: 'Every agent thinking, proposing and scoring, and a box to nudge them in plain words. Now the results of a finished run.' },
   { ch: 'Agents build it', hash: '#/run/run_demo_done/results', sel: 'h2.rh2', text: 'Leaderboard', sec: true, say: 'Ranked against the host, a LoRA, distillation and random parts of the same size. The winner has to beat all of them.' },
 
+  { ch: 'Autoresearch', hash: '#/run/run_demo_live/pipeline', sel: '.pl-obj', say: 'The autoresearch view of a live run: the goal in one sentence, how close the best model is to the target, and how much of the budget is used.' },
+  { ch: 'Autoresearch', hash: '#/run/run_demo_live/pipeline', sel: '.pl-sh h2', text: 'Now running', sec: true, hold: 2500, say: 'Each planner is testing one program. The 3D view shows the part docking into the host model, and the bar shows how far along the experiment is.' },
+  { ch: 'Autoresearch', hash: '#/run/run_demo_live/pipeline', sel: '.pl-sh h2', text: 'Experiment log', sec: true, say: 'Every attempt so far: what changed, the score, and whether it was kept as the new best or thrown away.' },
+  { ch: 'Autoresearch', hash: '#/run/run_demo_live/agents', sel: 'h2.rh2', text: 'How the agents work together', sec: true, say: 'The agents hand work to each other: the analyst maps parts, planners propose programs, the judge runs the controls, and they share what they learn.' },
+  { ch: 'Autoresearch', hash: '#/run/run_demo_live/findings', sel: 'h2.rh2', text: 'What the agents found', sec: true, say: 'Everything the swarm has learned so far: parts that help, dead ends, and open questions, each with its evidence.' },
+
+  { ch: 'Mine a model', hash: '#/mine', sel: '.mn-submit', say: 'Parts come from mining open models. Add any model by its Hugging Face id and Sapien queues it.' },
+  { ch: 'Mine a model', hash: '#/mine/req/mr_demo_live', sel: 'h2.sec', text: 'The donor scan', sec: true, hold: 2500, say: 'An agent reads the weights layer by layer and names candidate parts.' },
+  { ch: 'Mine a model', hash: '#/mine/req/mr_demo_live', sel: 'h2.sec', text: 'Candidate parts', sec: true, say: 'Each candidate is switched off and scored on every skill. It is kept only if it hurts its own skill more than random parts of the same size.' },
+  { ch: 'Mine a model', hash: '#/mine/model/Qwen/Qwen3-30B-A3B', sel: 'h2.sec', text: 'Where the parts are', sec: true, say: 'Everything mined from one model: where its parts sit, the skills they hold, and how they were found.' },
+
   { ch: 'Build it yourself', hash: '#/build/b_demo?spec=sp_demo_math', sel: '.builder .canvas', say: 'Or build it yourself: drag parts from the library on the left onto the host model. Scores against the spec sit on the right.' },
   { ch: 'Build it yourself', hash: '#/build/b_demo?spec=sp_demo_math', sel: '.builder button', text: 'Code', click: true, pass: true, say: 'Switch to the code view.' },
   { ch: 'Build it yourself', hash: '#/build/b_demo?spec=sp_demo_math&view=code', sel: '.codepane', say: 'The same program as text, with the result of each stage.' },

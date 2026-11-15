@@ -15,9 +15,9 @@ const KIND_COLOR = { block: 'var(--blue)', attn_heads: 'var(--purple)', mlp_clus
 const kindColor = (k) => KIND_COLOR[k] || 'var(--text-3)';
 const SKILLS = ['math', 'code', 'law', 'medicine', 'reasoning', 'knowledge', 'multilingual', 'science'];
 const EFFORTS = [
-  ['quick', 'Quick', 'Scan fewer candidates. Good for a first look.', 0.6],
-  ['standard', 'Standard', 'The usual depth: every layer, five random draws per part.', 1],
-  ['deep', 'Deep', 'More candidates and held-out checks.', 1.8],
+  ['smoke', 'Quick', 'Scan fewer candidates. Good for a first look.', 0.6, 4],
+  ['medium', 'Standard', 'The usual depth: every layer, five random draws per part.', 2.5, 12],
+  ['full', 'Deep', 'More candidates and held-out checks.', 6, 30],
 ];
 // the mining stages, with the techniques the agents use in each (ids in techniques.js)
 const MINE_STAGES = [
@@ -42,11 +42,124 @@ const KIND_LINE = { info: 'var(--text-3)', guess: 'var(--blue)', scan: 'var(--bl
 const bText = (b) => (b == null ? '-' : b >= 1 ? +(+b).toFixed(1) + 'B' : Math.round(b * 1000) + 'M');
 const skillName = (s) => String(s || '').replace(/_/g, ' ');
 const isLive = (r) => r && (r.status === 'running' || r.status === 'queued' || r.status === 'starting');
-const estimate = (params_b, effort) => { const m = (EFFORTS.find((e) => e[0] === effort) || EFFORTS[1])[3]; const gpu = Math.round(Math.max(6, (params_b || 8) * 1.1) * m); return { gpu_min: gpu, cost_usd: +(gpu * 0.055).toFixed(2) }; };
+const estimate = (params_b, effort) => { const e = EFFORTS.find((x) => x[0] === effort) || EFFORTS[1]; const gpu = Math.round((params_b || 8) * e[3] + e[4]); return { gpu_min: gpu, cost_usd: +(gpu / 60 * ((params_b || 8) > 10 ? 4 : 2.5)).toFixed(2) }; };
 const totalOf = (m) => (typeof m.parts === 'number' ? m.parts : Array.isArray(m.parts) ? m.parts.length : m.parts_count || 0);
 const kindsOf = (m) => m.kinds || m.counts || (Array.isArray(m.parts) ? m.parts.reduce((a, p) => { a[p.kind] = (a[p.kind] || 0) + 1; return a; }, {}) : {});
 const skillsOf = (m) => (m.top_skills && m.top_skills.length ? m.top_skills : Object.entries(m.skills || {}).sort((a, b) => b[1] - a[1]).slice(0, 3).map((x) => x[0]));
 const timeOf = (iso) => { const t = Date.parse(iso); return isNaN(t) ? Date.now() : t; };
+
+/* ---------- progress, derived from the request itself ---------- */
+
+const STAGE_WEIGHT = { fetch: 0.05, read: 0.12, scan: 0.4, ablate: 0.25, gate: 0.15, publish: 0.03 };
+const EFFORT_NAME = { smoke: 'Quick', medium: 'Standard', full: 'Deep', quick: 'Quick', standard: 'Standard', deep: 'Deep' };
+const effortName = (e) => EFFORT_NAME[e] || 'Standard';
+const stOf = (r, id) => ((r.stages || []).find((s) => s.id === id)) || {};
+const stStatus = (s) => (s.status === 'done' || s.status === 'running' ? s.status : 'pending');
+const clamp01 = (x) => Math.max(0, Math.min(1, x));
+const pct = (x) => Math.round(clamp01(x) * 100);
+const cnt = (r) => r.counters || {};
+
+/** Per-stage fraction (0 to 1) or null when the stage runs but reports no fraction. */
+function stageFrac(r, id) {
+  const s = stOf(r, id);
+  const st = stStatus(s);
+  if (st === 'done') return 1;
+  if (st === 'pending') return 0;
+  if (typeof s.progress === 'number') return clamp01(s.progress);
+  const c = cnt(r);
+  if (id === 'scan' && c.layers_total) return clamp01((c.layers_scanned || 0) / c.layers_total);
+  if (id === 'ablate' && c.candidates) return clamp01((c.ablations || 0) / c.candidates);
+  if (id === 'gate' && c.ablations) return clamp01(((c.kept || 0) + (c.rejected || 0)) / c.ablations);
+  return null;
+}
+
+/** Overall progress, 0 to 1. A queued request is 0 and a done request is 1. */
+function reqProgress(r) {
+  if (r.status === 'done') return 1;
+  if (r.status === 'queued') return 0;
+  if (typeof r.progress === 'number') return clamp01(r.progress);
+  let sum = 0;
+  for (const id of Object.keys(STAGE_WEIGHT)) { const f = stageFrac(r, id); sum += STAGE_WEIGHT[id] * (f == null ? 0.5 : f); }
+  return clamp01(sum);
+}
+
+const curStageId = (r) => { const s = (r.stages || []).find((x) => x.status === 'running'); return s ? s.id : null; };
+const stageName = (id) => (MINE_STAGES.find((s) => s[0] === id) || [])[1] || '';
+
+/** The count line under each stage, in plain words. */
+function stageLine(r, id) {
+  const c = cnt(r);
+  const st = stStatus(stOf(r, id));
+  const n = (x) => (x == null ? 0 : x);
+  if (st === 'pending') {
+    if (id === 'scan') return c.layers_total ? '0 of ' + c.layers_total + ' layers' : 'Not started';
+    return 'Not started';
+  }
+  if (id === 'fetch') return st === 'done' ? 'Weights are on disk' : 'Downloading the weights';
+  if (id === 'read') return st === 'done' ? 'Guesses made' : 'Reading weight statistics';
+  if (id === 'scan') return n(c.layers_scanned) + (c.layers_total ? ' of ' + c.layers_total : '') + ' layers, ' + n(c.candidates) + ' named';
+  if (id === 'ablate') return n(c.ablations) + ' of ' + n(c.candidates) + ' switched off';
+  if (id === 'gate') return n(c.kept) + ' kept, ' + n(c.rejected) + ' rejected';
+  return st === 'done' ? n(c.kept) + ' parts published' : 'Writing to the library';
+}
+
+/** One sentence that says what is happening now. */
+function narrate(r) {
+  const c = cnt(r);
+  const n = (x) => (x == null ? 0 : x);
+  if (r.status === 'queued') return 'Waiting for a free GPU. Nothing has run yet.';
+  if (r.status === 'failed' || r.status === 'error') return 'This request stopped with an error. ' + (r.error || 'The log may say why.');
+  if (r.status === 'done') return 'Mining is finished. ' + n(c.kept) + ' of ' + n(c.candidates) + ' candidates beat random parts and went to the library.';
+  const id = curStageId(r);
+  if (id === 'fetch') return 'Downloading the weights to a Modal volume.';
+  if (id === 'read') return 'An agent is reading weight statistics to guess where the skills live.';
+  if (id === 'scan') return 'Scanning layer ' + Math.min(n(c.layers_scanned) + 1, c.layers_total || 9999) + (c.layers_total ? ' of ' + c.layers_total : '') + '. ' + n(c.candidates) + ' candidates named so far.';
+  if (id === 'ablate') return 'Switching off candidate ' + Math.min(n(c.ablations) + 1, Math.max(n(c.candidates), 1)) + ' of ' + n(c.candidates) + ' and scoring the model without it.';
+  if (id === 'gate') return 'Comparing each candidate with random parts of the same size. ' + n(c.kept) + ' kept, ' + n(c.rejected) + ' rejected so far.';
+  if (id === 'publish') return 'Writing the kept parts and their evidence to the library.';
+  return 'Starting up.';
+}
+
+/** The stage in words for a queue row. */
+function stageWords(r) {
+  const c = cnt(r);
+  if (r.status === 'queued') return 'Queued, waiting for a free GPU';
+  if (r.status === 'done') return 'Done: ' + (c.kept != null ? c.kept + ' parts kept' : 'finished') + (c.candidates ? ' of ' + c.candidates + ' candidates' : '');
+  if (r.status === 'failed' || r.status === 'error') return 'Stopped with an error';
+  const id = curStageId(r);
+  if (!id) return 'Starting up';
+  return stageName(id) + ': ' + stageLine(r, id).toLowerCase();
+}
+
+const dur = (ms) => {
+  const s = Math.max(0, Math.round(ms / 1000));
+  if (s < 90) return s + ' sec';
+  const m = Math.round(s / 60);
+  return m < 90 ? m + ' min' : (s / 3600).toFixed(1) + ' h';
+};
+/** Elapsed and time-left lines. The estimate needs 5 percent of real progress first. */
+function timing(r, now) {
+  const p = reqProgress(r);
+  if (r.status === 'queued') return { a: 'Not started', b: r.estimate ? 'Estimate once it starts: about ' + r.estimate.gpu_min + ' GPU min' : '' };
+  const t0 = r.started ? timeOf(r.started) : null;
+  if (r.status === 'done') return { a: t0 && r.finished ? 'Took ' + dur(timeOf(r.finished) - t0) : 'Finished', b: '' };
+  if (r.status !== 'running' || !t0) return { a: '', b: '' };
+  const el = Math.max(0, now - t0);
+  if (p < 0.05) return { a: 'Running for ' + dur(el), b: 'Time left: working it out' };
+  return { a: 'Running for ' + dur(el), b: 'About ' + dur(el * (1 - p) / p) + ' left' };
+}
+
+const modelSpecs = (r) => [r.params_b != null ? bText(r.params_b) + ' parameters' : null, r.layers ? r.layers + ' layers' : null, r.experts ? r.experts + ' experts per layer' : r.experts === 0 ? 'dense' : null].filter(Boolean);
+
+function Bar({ value, tone, indeterminate }) {
+  return html`<span class=${'mn-bar' + (tone ? ' ' + tone : '') + (indeterminate ? ' ind' : '')} role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${indeterminate ? undefined : pct(value)}><i style=${{ width: indeterminate ? '35%' : pct(value) + '%' }}></i></span>`;
+}
+
+function useNow(live) {
+  const [now, setNow] = useState(Date.now());
+  useInterval(() => setNow(Date.now()), live ? 1000 : null);
+  return now;
+}
 
 /* ---------- small pieces ---------- */
 
@@ -78,7 +191,7 @@ function StatusChip({ status }) {
   if (status === 'running') return html`<span class="livechip">Mining</span>`;
   if (status === 'queued') return html`<span class="tag">Queued</span>`;
   if (status === 'done') return html`<span class="tag g">Done</span>`;
-  if (status === 'error') return html`<span class="tag r">Failed</span>`;
+  if (status === 'error' || status === 'failed') return html`<span class="tag r">Failed</span>`;
   return html`<span class="tag">${status || 'Unknown'}</span>`;
 }
 
@@ -102,7 +215,7 @@ function SubmitPanel({ onSubmitted }) {
   const [look, setLook] = useState(null);
   const [looking, setLooking] = useState(false);
   const [skills, setSkills] = useState(['math', 'code']);
-  const [effort, setEffort] = useState('standard');
+  const [effort, setEffort] = useState('medium');
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
   const layers = (look && look.valid !== false && look.layers) || 28;
@@ -160,20 +273,21 @@ function SubmitPanel({ onSubmitted }) {
       </div>
     </div>
     <div class="mn-submit-r">
-      <${BeamPreview} layers=${layers} label=${ok ? donorShort(look.model) : 'Waiting for a model'} />
-      <div class="stage-hud"><span>${ok ? look.layers + ' layers' : 'Preview'}</span><span class="livechip">Scan beam</span></div>
+      <${BeamPreview} layers=${layers} label=${ok ? 'Preview of the scan of ' + donorShort(look.model) + '. The beam moves up one layer at a time.' : 'Preview. Enter a model id and the scene shows its layers.'} />
+      <div class="stage-hud"><span>${ok ? look.layers + ' layers' : 'Preview'}</span><span class="livechip">Scan preview</span></div>
     </div>
   </section>`;
 }
 
 function ReqRow({ r, i }) {
-  const c = r.counters || {};
+  const p = reqProgress(r);
+  const failed = r.status === 'failed' || r.status === 'error';
   return html`<a class=${'mn-req reveal' + (r.status === 'running' ? ' working' : '')} style=${{ '--i': i }} href=${'#/mine/req/' + r.id}>
-    <${ModelLogo} model=${r.model} size=${26} />
+    <${ModelLogo} model=${r.model} size=${30} />
     <div class="mn-req-main">
       <div class="mn-req-top"><span class="mn-req-n ell">${r.model}</span><${StatusChip} status=${r.status} /></div>
-      <div class="faint mn-req-s ell">${(r.skills || []).map(skillName).join(', ') || 'all skills'} · ${r.effort || 'standard'} · ${r.status === 'queued' ? 'waiting for a free GPU' : r.status === 'done' ? (c.kept != null ? c.kept + ' parts kept' : 'finished') : (c.candidates != null ? c.candidates + ' candidates, ' + (c.kept || 0) + ' kept' : 'working')} · ${ago(timeOf(r.created))}</div>
-      <${StageStrip} stages=${r.stages} />
+      <div class="mn-req-bar"><${Bar} value=${p} tone=${r.status === 'done' ? 'g' : failed ? 'r' : ''} /><b class="num">${pct(p)}%</b></div>
+      <div class="mn-req-s ell"><span class=${r.status === 'running' ? 'mn-now' : 'faint'}>${stageWords(r)}</span><span class="faint"> · ${(r.skills || []).map(skillName).join(', ') || 'all skills'} · ${effortName(r.effort)} · started ${ago(timeOf(r.created))}</span></div>
     </div>
     <${Icon} n="chevron" size=${16} />
   </a>`;
@@ -213,7 +327,7 @@ function MineHome() {
     return l;
   }, [data, q, sort]);
   if (err && !data) return html`<${ErrorBox} error=${err} onRetry=${load} />`;
-  const reqs = (data && data.requests) || [];
+  const reqs = ((data && data.requests) || []).slice().sort((a, b) => (isLive(b) ? 1 : 0) - (isLive(a) ? 1 : 0) || timeOf(b.created) - timeOf(a.created));
   const allParts = ((data && data.models) || []).reduce((a, m) => a + totalOf(m), 0);
   const pages = Math.max(1, Math.ceil(models.length / CARD_PAGE));
   const at = Math.min(page, pages);
@@ -227,8 +341,8 @@ function MineHome() {
       <div><b><${Count} n=${reqs.filter(isLive).length} /></b><span>requests running or queued</span></div>
     </div>
     <${SubmitPanel} onSubmitted=${load} />
-    <section class="sect"><h2 class="sec"><span>Queue</span><span class="faint cnt">${reqs.length}</span></h2>
-      ${!data ? html`<div class="skeleton" style="height:96px"></div>` : reqs.length === 0 ? html`<div class="empty">Nothing in the queue.</div>` : html`<div class="card mn-queue">${reqs.map((r, i) => html`<${ReqRow} key=${r.id} r=${r} i=${i} />`)}</div>`}
+    <section class="sect"><h2 class="sec"><span>Requests</span><span class="faint cnt">${reqs.filter((r) => r.status === 'running').length} running, ${reqs.filter((r) => r.status === 'queued').length} waiting, ${reqs.filter((r) => r.status === 'done').length} done</span></h2>
+      ${!data ? html`<div class="skeleton" style="height:96px"></div>` : reqs.length === 0 ? html`<div class="empty">No requests yet. Pick a model above to start one.</div>` : html`<div class="card mn-queue">${reqs.map((r, i) => html`<${ReqRow} key=${r.id} r=${r} i=${i} />`)}</div>`}
     </section>
     <section class="sect"><div ref=${top}></div><h2 class="sec"><span>Mined models</span><span class="faint cnt">${models.length}</span></h2>
       <div class="mn-toolbar">
@@ -246,7 +360,8 @@ function MineHome() {
 /* ---------- #/mine/req/<id>: one request, live ---------- */
 
 const mmss = (ms) => { const s = Math.max(0, Math.round(ms / 1000)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
-const VERDICT = { kept: ['g', 'Kept'], rejected: ['r', 'Rejected'], testing: ['b', 'Testing'], candidate: ['', 'Candidate'] };
+const STATE = { kept: ['g', 'Kept'], rejected: ['r', 'Rejected'], testing: ['b', 'Testing'], candidate: ['', 'Named'] };
+const SPONSOR_NAME = { modal: 'Modal', openai: 'OpenAI', pastdev: 'past.dev', exa: 'Exa' };
 
 function LogView({ log }) {
   const box = useRef(null);
@@ -266,12 +381,56 @@ function LogView({ log }) {
   </div>`;
 }
 
+/** The six stages as a stepper. Each step has its status, a bar, and its counts. */
+function Stepper({ r, active, onPick }) {
+  return html`<ol class="mn-steps">${MINE_STAGES.map(([id, name, sp], i) => {
+    const s = stOf(r, id);
+    const st = stStatus(s);
+    const f = stageFrac(r, id);
+    return html`<li key=${id} style=${{ '--i': i }}><button class=${'mn-step ' + st + (active === id ? ' sel' : '')} onClick=${() => onPick(id)} aria-pressed=${active === id ? 'true' : 'false'}>
+      <span class="mn-step-top"><span class="mn-step-no num">${st === 'done' ? html`<${Icon} n="check" size=${12} sw=${2.6} />` : i + 1}</span><span class="mn-step-sp"><${SponsorMark} who=${s.sponsor || sp} size=${14} /><em>${SPONSOR_NAME[s.sponsor || sp] || ''}</em></span></span>
+      <span class="mn-step-n">${s.name || name}</span>
+      <span class="mn-step-bar"><${Bar} value=${f == null ? 0 : f} tone=${st === 'done' ? 'g' : ''} indeterminate=${st === 'running' && f == null} />${st === 'running' && f != null && html`<b class="num">${pct(f)}%</b>`}</span>
+      <span class="mn-step-c num">${stageLine(r, id)}</span>
+    </button></li>`;
+  })}</ol>`;
+}
+
+const PART_CAP = 60;
+
+function Candidates({ found, live }) {
+  const [tab, setTab] = useState('all');
+  const [more, setMore] = useState(false);
+  const group = (f) => (f.verdict === 'kept' ? 'kept' : f.verdict === 'rejected' ? 'rejected' : 'testing');
+  const n = { all: found.length, testing: found.filter((f) => group(f) === 'testing').length, kept: found.filter((f) => group(f) === 'kept').length, rejected: found.filter((f) => group(f) === 'rejected').length };
+  const rows = found.filter((f) => tab === 'all' || group(f) === tab).slice().reverse();
+  const shown = more ? rows : rows.slice(0, PART_CAP);
+  const tabs = [['all', 'All'], ['testing', 'Testing'], ['kept', 'Kept'], ['rejected', 'Rejected by the gate']];
+  return html`<section class="sect"><h2 class="sec"><span>Candidate parts</span><span class="faint cnt">${found.length} named${live ? ', newest first' : ''}</span></h2>
+    <p class="faint mn-cap">A candidate is a group of units that fires more on the skill than on general text. Each is switched off to see how much the skill drops, then compared with random parts of the same size.</p>
+    <div class="mn-tabs" role="tablist">${tabs.map(([k, name]) => html`<button key=${k} role="tab" aria-selected=${tab === k ? 'true' : 'false'} class=${'fchip2' + (tab === k ? ' on' : '')} onClick=${() => setTab(k)}>${name}<span class="n">${n[k]}</span></button>`)}</div>
+    <div class="card mn-table mn-cands"><div class="mn-tscroll"><table>
+      <thead><tr><th>State</th><th>Part</th><th class="num">Layer</th><th>Kind</th><th>Skill</th><th class="num" title="How far the skill score falls when the part is switched off">Score drop</th><th class="num" title="Standard deviations above random parts of the same size. 3 or more passes the gate.">z-score</th></tr></thead>
+      <tbody>${shown.map((f, i) => { const [tone, name] = STATE[f.verdict] || ['', f.verdict || 'Named']; const open = f.id ? () => openPart(f.id) : null;
+        return html`<tr key=${(f.id || f.label) + ':' + f.layer} class=${'mn-tr' + (open ? '' : ' static') + (f.verdict === 'testing' ? ' working' : '')} tabindex=${open ? 0 : undefined} onClick=${open} onKeyDown=${open && ((e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } })}>
+          <td><span class=${'tag ' + tone}>${name}</span></td>
+          <td class="mn-tl"><span class="ell">${f.label}</span></td>
+          <td class="num">${f.layer != null ? 'L' + f.layer : '-'}</td>
+          <td><span class="mn-kk"><i class="mn-kd" style=${{ background: kindColor(f.kind) }}></i>${(KIND_NAMES[f.kind] || f.kind || '-').replace(/s$/, '')}</span></td>
+          <td>${f.skill ? skillName(f.skill) : html`<span class="faint">-</span>`}</td>
+          <td class="num">${f.drop != null ? '-' + (+f.drop).toFixed(1) + ' pts' : html`<span class="faint">not tested</span>`}</td>
+          <td class="num">${f.z != null ? html`<span class=${f.z >= 3 ? 'up' : 'down'}>${(+f.z).toFixed(1)}</span>` : html`<span class="faint">-</span>`}</td></tr>`; })}</tbody></table>
+      ${rows.length === 0 && html`<div class="faint mn-none">${found.length === 0 ? (live ? 'The scan has not named a candidate yet.' : 'No candidates were named.') : 'Nothing in this group yet.'}</div>`}</div>
+      ${rows.length > PART_CAP && !more && html`<button class="mn-more" onClick=${() => setMore(true)}>Show all ${rows.length}</button>`}</div>
+  </section>`;
+}
+
 function ReqView({ id }) {
   const [r, setR] = useState(null);
   const [err, setErr] = useState(null);
   const [pick, setPick] = useState(null);
-  const [tab, setTab] = useState('kept');
   const [pulse, setPulse] = useState(null);
+  const [showLog, setShowLog] = useState(false);
   const prev = useRef(null);
   const take = (n) => {
     const p = prev.current;
@@ -286,49 +445,76 @@ function ReqView({ id }) {
   };
   const load = () => api.mineReq(id).then((n) => { take(n); setErr(null); }).catch(setErr);
   useEffect(() => { load(); }, [id]);
-  useInterval(load, r && isLive(r) ? 1200 : null);
+  const live = r && isLive(r);
+  useInterval(load, live ? 1200 : null);
+  const now = useNow(live);
   if (err && !r) return html`<${ErrorBox} error=${err} onRetry=${load} />`;
   if (!r) return html`<div class="doc wide"><div class="skeleton" style="height:360px"></div></div>`;
   const found = r.found || [];
   const c = r.counters || {};
   const layers = r.layers || c.layers_total || 24;
-  const cur = MINE_STAGES.find(([sid]) => ((r.stages || []).find((s) => s.id === sid) || {}).status === 'running');
-  const stageId = pick || (cur ? cur[0] : r.status === 'done' ? 'publish' : 'fetch');
+  const cur = curStageId(r);
+  const stageId = pick || cur || (r.status === 'done' ? 'publish' : 'fetch');
   const stageDef = MINE_STAGES.find((s) => s[0] === stageId);
-  const kept = found.filter((f) => f.verdict === 'kept');
-  const testing = found.filter((f) => f.verdict === 'testing' || f.verdict === 'candidate');
-  const rejected = found.filter((f) => f.verdict === 'rejected');
-  const rows = tab === 'kept' ? kept : tab === 'testing' ? testing : rejected;
+  const kept = found.filter((f) => f.verdict === 'kept').length;
   const scanLayer = r.layer != null ? r.layer : c.layers_scanned || 0;
-  const label = r.status === 'done' ? 'Mined: ' + kept.length + ' parts kept' : r.status === 'queued' ? 'Queued' : (cur ? cur[1] : 'Working') + (stageId === 'scan' ? ', layer ' + scanLayer : '');
-  const counters = [['Layers scanned', c.layers_scanned, c.layers_total ? ' of ' + c.layers_total : ''], ['Candidates', c.candidates], ['Ablations', c.ablations], ['Parts kept', c.kept, '', 'g'], ['Rejected by the gate', c.rejected, '', 'r']];
+  const p = reqProgress(r);
+  const tm = timing(r, now);
+  const story = narrate(r);
+  const specs = modelSpecs(r);
+  const failed = r.status === 'failed' || r.status === 'error';
+  const doneStages = (r.stages || []).filter((s) => s.status === 'done').length;
   return html`<div class="doc wide mn">
     <a class="mn-back lnk" href="#/mine"><${Icon} n="chevron" size=${13} />Mine a model</a>
     <div class="ph mn-rhead"><div>
-      <div class="mn-rtitle"><${ModelLogo} model=${r.model} size=${34} /><h1 class="page-title ell">${donorShort(r.model)}</h1><${StatusChip} status=${r.status} /></div>
-      <p class="lede">${r.model} · looking for ${(r.skills || []).map(skillName).join(', ') || 'every skill'} · ${r.effort || 'standard'} effort${r.estimate ? ' · about ' + r.estimate.gpu_min + ' GPU minutes, $' + (+r.estimate.cost_usd).toFixed(2) : ''}</p></div>
-      <div class="mn-powered"><${PoweredBy} who="modal" label="GPUs on" /><${PoweredBy} who="pastdev" label="Memory on" /></div></div>
-    <div class=${'stage3d mn-stage' + (r.status === 'running' ? ' working' : '')}>
-      <${Brain3D} height=${420} layers=${layers} mode="donor" scan=${{ layer: scanLayer, total: layers, found: found.filter((f) => f.verdict !== 'rejected').map((f) => ({ layer: f.layer, kind: f.kind, label: f.label, id: f.id })) }} pulse=${pulse} highlight=${stageId === 'scan' ? scanLayer : null} label=${label} onPick=${(pid) => pid && openPart(pid)} />
-      <div class="stage-hud"><span class="mn-hud-l">${r.status === 'running' ? html`<span class="livechip">${cur ? cur[1] : 'Working'}</span>` : html`<${StatusChip} status=${r.status} />`}</span><span class="num">${found.length ? kept.length + ' kept of ' + found.length + ' found' : layers + ' layers'}</span></div>
-    </div>
-    <div class="mn-counters">${counters.map(([k, v, suf, tone], i) => html`<div class=${'card mn-counter reveal ' + (tone || '')} style=${{ '--i': i }} key=${k}><b class="num"><${Count} n=${v || 0} />${suf && html`<small>${suf}</small>`}</b><span>${k}</span></div>`)}</div>
-    <section class="sect"><h2 class="sec"><span>Stages</span><span class="faint cnt">${(r.stages || []).filter((s) => s.status === 'done').length} of ${MINE_STAGES.length} done</span></h2>
-      <${StageStrip} stages=${r.stages} onPick=${setPick} active=${stageId} big />
+      <div class="mn-rtitle"><${ModelLogo} model=${r.model} size=${42} /><h1 class="page-title ell">${donorShort(r.model)}</h1><${StatusChip} status=${r.status} /></div>
+      <p class="lede">${[r.model].concat(specs).join(' · ')}</p>
+      <p class="faint mn-ask">Looking for ${(r.skills || []).map(skillName).join(', ') || 'every skill'}. ${effortName(r.effort)} effort${r.estimate ? ', estimated at about ' + r.estimate.gpu_min + ' GPU minutes and $' + (+r.estimate.cost_usd).toFixed(2) : ''}.</p></div>
+      <div class="mn-powered"><${PoweredBy} who="modal" label="GPUs on" /><${PoweredBy} who="openai" label="Reading agent by" /><${PoweredBy} who="pastdev" label="Memory on" /></div></div>
+
+    <section class=${'card mn-over' + (failed ? ' bad' : '')}>
+      <div class="mn-pct"><b class="num"><${Count} n=${pct(p)} /><small>%</small></b><span>${r.status === 'done' ? 'complete' : 'done'}</span></div>
+      <div class="mn-over-main">
+        <${Bar} value=${p} tone=${r.status === 'done' ? 'g' : failed ? 'r' : ''} />
+        <div class="mn-story">${story}</div>
+        <div class="mn-over-meta faint num"><span>${doneStages} of ${MINE_STAGES.length} stages done</span>${tm.a && html`<span>${tm.a}</span>`}${tm.b && html`<span>${tm.b}</span>`}${c.candidates != null && html`<span>${c.candidates} candidates, ${kept} kept</span>`}</div>
+      </div>
+    </section>
+
+    <section class="sect"><h2 class="sec"><span>Stages</span><span class="faint cnt">click a stage to read what it does</span></h2>
+      <${Stepper} r=${r} active=${stageId} onPick=${(s) => setPick(s === pick ? null : s)} />
       <div class="card mn-stagebox" key=${stageId}>
         <div class="mn-stagehead"><${SponsorMark} who=${stageDef[2]} size=${16} /><b>${stageDef[1]}</b><span class="faint">${STAGE_NOTE[stageId]}</span></div>
-        ${stageDef[3].length > 0 ? html`<div class="mn-techs">${stageDef[3].map((tid, i) => { const t = techniqueById(tid); return t && html`<div class="mn-tech reveal" style=${{ '--i': i }} key=${tid}><div class="mn-tech-top"><b>${t.name}</b><${SponsorMark} who=${t.sponsor} size=${13} /></div><div class="mn-tech-what">${t.what}</div><div class="faint mn-tech-why">${t.why}</div></div>`; })}</div>` : html`<div class="faint" style="margin-top:8px">No technique runs in this stage. It moves files.</div>`}
+        ${stageDef[3].length > 0 && html`<details class="mn-tdet"><summary>Techniques used here (${stageDef[3].length})</summary>
+          <div class="mn-techs">${stageDef[3].map((tid) => { const t = techniqueById(tid); return t && html`<div class="mn-tech" key=${tid}><div class="mn-tech-top"><b>${t.name}</b><${SponsorMark} who=${t.sponsor} size=${13} /></div><div class="mn-tech-what">${t.what}</div><div class="faint mn-tech-why">${t.why}</div></div>`; })}</div></details>`}
       </div></section>
-    <div class="mn-two">
-      <section class="sect mn-logcol"><h2 class="sec"><span>Agent log</span>${r.status === 'running' && html`<span class="livechip">Live</span>`}</h2>
-        <div class="card mn-logcard"><${LogView} log=${r.log || []} /></div></section>
-      <section class="sect"><h2 class="sec"><span>Parts</span><span class="faint cnt">${found.length}</span></h2>
-        <div class="mn-tabs" role="tablist">${[['kept', 'Kept', kept.length], ['testing', 'In test', testing.length], ['rejected', 'Rejected', rejected.length]].map(([k, n, v]) => html`<button key=${k} role="tab" aria-selected=${tab === k ? 'true' : 'false'} class=${'fchip2' + (tab === k ? ' on' : '')} onClick=${() => setTab(k)}>${n}<span class="n">${v}</span></button>`)}</div>
-        <div class="card mn-parts">${rows.length === 0 && html`<div class="faint mn-none">${tab === 'kept' ? 'No part has passed the gate yet.' : 'Nothing here.'}</div>`}
-          ${rows.slice().reverse().slice(0, 60).map((f, i) => { const [tone, vt] = VERDICT[f.verdict] || ['', f.verdict]; const inner = html`<i class="mn-kd" style=${{ background: kindColor(f.kind) }}></i><span class="mn-pn ell">${f.label}</span><span class="faint num">L${f.layer}</span><span class="num mn-pz">${f.z != null ? 'z ' + (+f.z).toFixed(1) : ''}</span><span class=${'tag ' + tone}>${vt}</span>`;
-            return f.id ? html`<button class="mn-prow reveal" style=${{ '--i': Math.min(i, 8) }} key=${f.id} onClick=${() => openPart(f.id)}>${inner}</button>` : html`<div class="mn-prow static reveal" style=${{ '--i': Math.min(i, 8) }} key=${f.label + i}>${inner}</div>`; })}
-        </div></section>
-    </div>
+
+    <section class="sect"><h2 class="sec"><span>The donor scan</span><span class="faint cnt">${layers} layers</span></h2>
+      <div class="mn-live">
+        <div class=${'stage3d mn-stage' + (r.status === 'running' ? ' working' : '')}>
+          <${Brain3D} height=${400} layers=${layers} mode="donor" scan=${{ layer: scanLayer, total: layers, found: found.filter((f) => f.verdict !== 'rejected').map((f) => ({ layer: f.layer, kind: f.kind, label: f.label, id: f.id })) }} pulse=${pulse} highlight=${stageId === 'scan' && live ? scanLayer : null} label=${story} onPick=${(pid) => pid && openPart(pid)} />
+          <div class="stage-hud"><span class="mn-hud-l">${live ? html`<span class="livechip">${cur ? stageName(cur) : 'Working'}</span>` : html`<${StatusChip} status=${r.status} />`}</span><span class="num">${found.length ? kept + ' kept of ' + found.length + ' named' : layers + ' layers'}</span></div>
+        </div>
+        <aside class="card mn-read">
+          <h3>How to read this</h3>
+          <ul>
+            <li><b>Each flat sheet</b> is one layer of the model. Layer 0 is at the bottom.</li>
+            <li><b>The beam</b> is the scan. It moves up one layer at a time.</li>
+            <li><b>A glowing mark</b> is a candidate part the scan named. Click one to open it.</li>
+            <li><b>A flash</b> means a part was judged: green kept, red rejected.</li>
+          </ul>
+          <div class="mn-read-n num">
+            <div><b><${Count} n=${c.candidates || 0} /></b><span>candidates</span></div>
+            <div class="g"><b><${Count} n=${c.kept || 0} /></b><span>kept</span></div>
+            <div class="r"><b><${Count} n=${c.rejected || 0} /></b><span>rejected</span></div>
+          </div>
+        </aside>
+      </div></section>
+
+    <${Candidates} found=${found} live=${live} />
+
+    <section class="sect"><button class=${'mn-logtoggle' + (showLog ? ' open' : '')} onClick=${() => setShowLog(!showLog)} aria-expanded=${showLog ? 'true' : 'false'}><${Icon} n="chevron" size=${14} /><span>${showLog ? 'Hide the log' : 'Show the log'}</span><span class="faint num">${(r.log || []).length} lines${live ? ', live' : ''}</span></button>
+      ${showLog && html`<div class="card mn-logcard reveal"><${LogView} log=${r.log || []} /><div class="faint mn-lognote">Each line names the agent that wrote it. The OpenAI mark is the reading agent.</div></div>`}</section>
   </div>`;
 }
 
@@ -381,18 +567,31 @@ function ModelView({ id }) {
   const at = Math.min(page, pages);
   const th = (k, name, cls) => html`<th class=${cls || ''} aria-sort=${sort.k === k ? (sort.dir > 0 ? 'ascending' : 'descending') : 'none'}><button class=${'mn-th' + (sort.k === k ? ' on' : '')} onClick=${() => setSort({ k, dir: sort.k === k ? -sort.dir : 1 })}>${name}<span class="mn-arrow">${sort.k === k ? (sort.dir > 0 ? '↑' : '↓') : ''}</span></button></th>`;
   const sizeText = (m) => (m == null ? '-' : m >= 1000 ? (m / 1000).toFixed(2) + 'B' : m + 'M');
-  const facts = [['Parameters', bText(d.params_b)], ['Layers', L], ['Experts', d.experts || (d.kind === 'moe' ? 'mixture' : 'dense')], ['Parts', parts.length]];
+  const specLine = [d.params_b != null ? bText(d.params_b) + ' parameters' : null, L + ' layers', d.experts ? d.experts + ' experts per layer' : d.kind === 'moe' ? 'mixture of experts' : 'dense'].filter(Boolean).join(' · ');
+  const kindWords = KIND_ORDER.filter((k) => kinds[k]).map((k) => kinds[k] + ' ' + (KIND_NAMES[k] || k).toLowerCase());
+  const topNames = skills.slice(0, 3).map(([k]) => skillName(k));
+  const glanceText = parts.length === 0 ? 'Nothing from this model is in the library yet.' : 'Mining found ' + parts.length + ' parts in ' + (d.short || donorShort(d.model)) + ': ' + kindWords.join(', ') + '.' + (topNames.length ? ' They cover ' + topNames.join(', ').replace(/, ([^,]*)$/, ' and $1') + ' most.' : '');
   return html`<div class="doc wide mn">
     <a class="mn-back lnk" href="#/mine"><${Icon} n="chevron" size=${13} />Mine a model</a>
     <div class="ph mn-rhead"><div>
       <div class="mn-rtitle"><${ModelLogo} model=${d.model} size=${40} /><h1 class="page-title ell">${d.short || donorShort(d.model)}</h1>${d.kind === 'moe' && html`<span class="tag b">Mixture of experts</span>`}${d.in_library === false && html`<span class="tag w">Not in library</span>`}</div>
-      <p class="lede">${d.model}${d.license ? ' · ' + d.license : ''}</p></div>
+      <p class="lede">${d.model} · ${specLine}${d.license ? ' · ' + d.license : ''}</p></div>
       <div class="mn-powered"><${PoweredBy} who="modal" label="Mined on" /><${PoweredBy} who="pastdev" label="Shared through" /></div></div>
-    <div class="mn-hero num">${facts.map(([k, v], i) => html`<div class="reveal" style=${{ '--i': i }} key=${k}><b>${typeof v === 'number' ? html`<${Count} n=${v} />` : v}</b><span>${k}</span></div>`)}</div>
-    <div class="stage3d mn-stage">
+    <section class="card mn-glance">
+      <div class="mn-g-n"><b class="num"><${Count} n=${parts.length} /></b><span>parts mined</span></div>
+      <div class="mn-g-main">
+        <p class="mn-g-s">${glanceText}</p>
+        <${KindBar} kinds=${kinds} height=${8} />
+        <${KindLegend} kinds=${kinds} />
+      </div>
+      <div class="mn-g-sk"><span class="mn-g-h">Top skills</span>
+        ${skills.slice(0, 3).map(([k, n]) => html`<button class="mn-g-chip" key=${k} onClick=${() => { setF({ ...f, skill: k }); if (tbl.current) tbl.current.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}><span class="ell">${skillName(k)}</span><b class="num">${n}</b></button>`)}
+        ${skills.length === 0 && html`<span class="faint">None recorded</span>`}</div>
+    </section>
+    ${parts.length === 0 ? html`<section class="card mn-pad mn-empty3d"><b>This model has not been mined yet</b><p class="faint">No scan has run on it, so there is nothing to draw. Start a request on the Mine a model page to scan its ${L} layers and publish parts.</p><a class="btn" href="#/mine">Go to Mine a model</a></section>` : html`<div class="stage3d mn-stage">
       <${Brain3D} height=${440} layers=${L} mode="donor" scan=${{ layer: L, total: L, found: parts.slice(0, 240).map((p) => ({ layer: p.layers ? p.layers[0] : 0, kind: p.kind, label: p.label, id: p.id })) }} highlight=${hot} label=${parts.length + ' parts across ' + L + ' layers'} onPick=${(pid) => pid && openPart(pid)} />
-      <div class="stage-hud"><span>${hot != null ? 'Layer ' + hot : 'Every part glows at its layer. Click one to open it.'}</span><span class="mn-hud-r"><${KindLegend} kinds=${kinds} /></span></div>
-    </div>
+      <div class="stage-hud"><span>${hot != null ? 'Layer ' + hot : 'Every part glows at its layer. Click one to open it.'}</span><span class="mn-hud-r faint">${parts.length} parts, ${L} layers</span></div>
+    </div>`}
     <section class="sect"><h2 class="sec"><span>Where the parts are</span><span class="faint cnt">layers by kind</span></h2>
       <div class="card mn-pad"><${Heat} detail=${d} onHover=${setHot} hot=${hot} /></div></section>
     <section class="sect"><h2 class="sec"><span>Skills it covers</span><span class="faint cnt">${skills.length}</span></h2>
