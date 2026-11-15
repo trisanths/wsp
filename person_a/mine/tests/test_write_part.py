@@ -1,5 +1,6 @@
 # Checks what client.Miner.write_part puts in a catalog row: the old fields, the new evidence fields,
-# and the fallbacks for an engine deployment that has neither builtin_info nor expert_pick_rates.
+# the fallbacks for an engine deployment that has neither builtin_info nor expert_pick_rates, and that
+# a row is written when the files behind selection_data cannot be read.
 # The engine is a local stand-in (no Modal call); the row logic under test is the real one.
 #   .venv/bin/python mine/tests/test_write_part.py
 import json
@@ -28,9 +29,18 @@ PICKS = {"rates": {
     "general_text|heldout": {"n_items": 2, "layers": {"3": {"rates": [0.25, 0.25, 0.5, 1.0], "tokens": 60}}}},
     "counted_layers": [3], "unsupported": {}, "missing": []}
 # an engine whose image still holds benchmark built-in sets, while the local file has moved on
-ENGINE_BUILTIN = {"math": {"description": "GSM8K word problems; digit tokens of the worked solution", "dataset": None},
-                  "code": {"description": "MBPP Python tasks; tokens of the reference solution", "dataset": None},
-                  "general_text": {"description": "WikiText paragraph continuation (control only)", "dataset": None}}
+ENGINE_BUILTIN = {"math": {"description": "GSM8K word problems; digit tokens of the worked solution", "dataset": None,
+                           "items_sha": "sha-old-math"},
+                  "code": {"description": "MBPP Python tasks; tokens of the reference solution", "dataset": None,
+                           "items_sha": "sha-old-code"},
+                  "general_text": {"description": "WikiText paragraph continuation (control only)", "dataset": None,
+                                   "items_sha": "sha-general"}}
+# the same engine after a deploy with a new built-in file
+ENGINE_BUILTIN_NEW = {"math": {"description": "Orca-Math word problems (approved pool)", "dataset": None,
+                               "items_sha": "sha-new-math"},
+                      "code": {"description": "CodeAlpaca Python tasks (approved pool)", "dataset": None,
+                               "items_sha": "sha-new-code"},
+                      "general_text": ENGINE_BUILTIN["general_text"]}
 
 
 class FakeMethod:
@@ -99,6 +109,7 @@ def main():
     assert sd["description"] == "toy skill" and sd["control"] == "sk__control", sd
     assert sd["off_target"] == ["math", "code", "general_text"] and sd["pool"] is None, sd
     assert sd["builtin_basis"] == "local file", sd
+    assert sd["path_matches"] is True and "selection_note" not in rec, sd  # sk.json holds the hash of the state
     local = evidence.local_builtin()
     assert sd["off_target_data"]["math"]["description"] == local["math"]["description"], sd
     assert names_called(m) == ["builtin_info", "expert_pick_rates"], names_called(m)
@@ -117,6 +128,7 @@ def main():
     rec = m.write_part({"kind": "expert", "layer": 3, "indices": [1]}, "second expert", "sk", SCREEN, [], "why", "screened")
     assert "routing_note" not in rec, rec
     assert rec["routing"]["layer"] == 3 and rec["routing"]["skill"] == "sk", rec["routing"]
+    assert rec["routing"]["revision"] == "rev1" == rec["revision"], rec["routing"]  # the weights that were counted
     # ln(0.5 / 0.25) = 0.6931
     assert rec["routing"]["experts"] == {"1": {
         "search": {"skill_rate": 0.5, "general_rate": 0.25, "log_ratio": 0.6931},
@@ -124,6 +136,7 @@ def main():
     sd = rec["selection_data"]
     assert sd["builtin_basis"] == "engine", sd
     assert sd["off_target_data"]["math"]["description"] == ENGINE_BUILTIN["math"]["description"], sd
+    assert sd["off_target_data"]["math"]["items_sha"] == "sha-old-math", sd  # names the version the engine held
     hd = evidence.load_healdata()
     assert "openai/gsm8k" in hd.BANNED and "google-research-datasets/mbpp" in hd.BANNED
     assert sd["reported_benchmarks"] == ["openai/gsm8k", "google-research-datasets/mbpp"], sd
@@ -147,9 +160,79 @@ def main():
     rec = m.write_part({"kind": "expert", "layer": 3, "indices": [0]}, "third expert", "sk", SCREEN, [], "why", "screened")
     assert rec["routing"] is None and "module_list" in rec["routing_note"], rec
 
+    # 5. the state already shows module_list experts in the layer: the engine is not asked at all
+    m = make_miner({"builtin_info": ENGINE_BUILTIN, "expert_pick_rates": PICKS})
+    m.state["structure"]["layers_detail"] = [{"layer": l} for l in range(3)] + [
+        {"layer": 3, "experts": {"path": "mlp.experts", "n_experts": 4, "style": "module_list"}}]
+    rec = m.write_part({"kind": "expert", "layer": 3, "indices": [3]}, "fourth expert", "sk", SCREEN, [], "why", "screened")
+    assert rec["routing"] is None and rec["routing_note"].startswith(evidence.FINAL), rec
+    assert "module_list" in rec["routing_note"] and names_called(m) == ["builtin_info"], (rec, names_called(m))
+
+    # 6. the engine does not hold the target skill: no routing object with null rates, and a note
+    no_target = {"rates": {key: PICKS["rates"][key] for key in ["general_text|search", "general_text|heldout"]},
+                 "counted_layers": [3], "unsupported": {}, "missing": ["sk|search", "sk|heldout"]}
+    m = make_miner({"builtin_info": ENGINE_BUILTIN, "expert_pick_rates": no_target})
+    rec = m.write_part({"kind": "expert", "layer": 3, "indices": [0, 3]}, "fifth expert", "sk", SCREEN, [], "why", "screened")
+    assert rec["routing"] is None and "the engine does not hold this skill" in rec["routing_note"], rec
+
+    # 7. a deploy with a new built-in file while the run goes on. The answer of builtin_info is kept
+    # for BUILTIN_INFO_SECONDS, then asked again, and the row names the new sets.
+    m = make_miner({"builtin_info": ENGINE_BUILTIN})
+    rec = m.write_part({"kind": "mlp_cluster", "layer": 2, "indices": [1]}, "before deploy", "sk", SCREEN, [], "why", "screened")
+    assert rec["selection_data"]["off_target_data"]["math"]["items_sha"] == "sha-old-math"
+    m.engine.answers["builtin_info"] = ENGINE_BUILTIN_NEW
+    rec = m.write_part({"kind": "mlp_cluster", "layer": 2, "indices": [2]}, "just after", "sk", SCREEN, [], "why", "screened")
+    assert names_called(m) == ["builtin_info"], "a fresh answer is not asked again"
+    m._engine_builtin_at -= client.BUILTIN_INFO_SECONDS + 1
+    rec = m.write_part({"kind": "mlp_cluster", "layer": 2, "indices": [3]}, "later", "sk", SCREEN, [], "why", "screened")
+    assert names_called(m) == ["builtin_info", "builtin_info"], names_called(m)
+    sd = rec["selection_data"]
+    assert sd["builtin_basis"] == "engine" and sd["off_target_data"]["math"]["items_sha"] == "sha-new-math", sd
+    assert sd["off_target_data"]["math"]["description"] == ENGINE_BUILTIN_NEW["math"]["description"], sd
+    assert sd["reported_benchmarks"] == [], sd
+
+    # 8. another lane replaced the frozen test file of the skill: the row says that the file at
+    # path is not the test it was selected on
+    with open(os.path.join(root, "mine", "skills", "toy", "sk.json"), "w") as f:
+        json.dump({"hash": "h2", "items": {"search": [], "heldout": []}, "control": {"search": [], "heldout": []}}, f)
+    rec = m.write_part({"kind": "mlp_cluster", "layer": 2, "indices": [4]}, "other lane", "sk", SCREEN, [], "why", "screened")
+    sd = rec["selection_data"]
+    assert sd["hash"] == "h1" and sd["path_matches"] is False and sd["path_hash"] == "h2", sd
+
+    # 9. wsp/healdata.py cannot be executed. The part passed the paid gate: its row and its index
+    # file are written, with selection_data null and the reason in selection_note.
+    real_healdata = evidence.HEALDATA
+    evidence.HEALDATA = os.path.join(root, "healdata_broken.py")
+    with open(evidence.HEALDATA, "w") as f:
+        f.write("from .eval import nothing\n")
+    try:
+        rec = m.write_part({"kind": "mlp_cluster", "layer": 2, "indices": [5]}, "no healdata", "sk", SCREEN, [], "why",
+                           "screened")
+    finally:
+        evidence.HEALDATA = real_healdata
+    assert rec["selection_data"] is None and "ImportError" in rec["selection_note"], rec
+    assert rec["signature"]["z"] == 3.0 and os.path.exists(os.path.join(root, rec["units"])), rec
+    with open(common.catalog_path("toy")) as f:
+        assert json.loads(f.read().strip().splitlines()[-1]) == rec, "the row is on disk"
+
+    # 10. the engine cannot be asked and the local built-in file is broken: the row is written all the same
+    real_builtin = common.BUILTIN_SKILLS
+    common.BUILTIN_SKILLS = os.path.join(root, "builtin_broken.json")
+    with open(common.BUILTIN_SKILLS, "w") as f:
+        f.write("{not json")
+    try:
+        m = make_miner({})
+        rec = m.write_part({"kind": "mlp_cluster", "layer": 2, "indices": [6]}, "no builtin file", "sk", SCREEN, [], "why",
+                           "screened")
+    finally:
+        common.BUILTIN_SKILLS = real_builtin
+    assert rec["selection_data"] is None and "selection_data could not be built" in rec["selection_note"], rec
+    assert os.path.exists(os.path.join(root, rec["units"])), rec
+
     with open(common.catalog_path("toy")) as f:
         rows = [json.loads(line) for line in f if line.strip()]
-    assert len(rows) == 5 and len(set(r["id"] for r in rows)) == 5, [r["id"] for r in rows]
+    assert len(rows) == 13 and len(set(r["id"] for r in rows)) == 13, [r["id"] for r in rows]
+    assert len(os.listdir(os.path.join(root, "parts", "toy"))) == 13, "one index file for each row, none left over"
     shutil.rmtree(root)
     print("ok")
 

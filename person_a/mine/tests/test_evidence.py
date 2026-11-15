@@ -1,7 +1,11 @@
 # Checks the z-score, guard, selection_data and routing math of mine/evidence.py with numbers worked by hand.
 #   .venv/bin/python mine/tests/test_evidence.py
+import hashlib
+import json
 import os
+import shutil
 import sys
+import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import common  # noqa: E402
@@ -52,6 +56,28 @@ def test_z():
     out = evidence.z_fields({"fraction_role|search": 0.1593}, [0.0023, 0.0031, 0.0016, 0.002, 0.0016], "fraction_role")
     assert close(out["random_mean"], 0.00212) and close(out["random_std"], 0.000622), out
     assert abs(out["z"] - 252.66) < 0.02, out
+    # that row drew one value twice: 5 random drops, 4 distinct values
+    assert out["random_n"] == 5 and out["random_distinct"] == 4 and out["z_flag"] is None, out
+
+    # distinct random drops. The engine draws with replacement and rounds, so drops repeat.
+    out = evidence.z_fields({"t|search": 0.5}, [0.1, 0.2, 0.3], "t")
+    assert out["random_distinct"] == 3 and out["z_flag"] is None, out
+    # 0.1, 0.1, 0.3: mean 0.166667; squared deviations 0.004444 + 0.004444 + 0.017778 = 0.026667; over 2
+    # gives 0.013333; root 0.11547. (0.5 - 0.166667) / 0.11547 = 2.887. Two distinct values: z keeps its
+    # number and gets the flag.
+    out = evidence.z_fields({"t|search": 0.5}, [0.1, 0.1, 0.3], "t")
+    assert out["random_n"] == 3 and out["random_distinct"] == 2 and close(out["random_std"], 0.11547), out
+    assert out["z"] == 2.887 and out["z_flag"] == "fewer than 3 distinct random drops", out
+    # a stored row (k2horizon7b, ordinal_word): 5 drops, 3 distinct values, no flag
+    out = evidence.z_fields({"ordinal_word|search": 0.3}, [0.0, 0.0, 0.0061, -0.0061, -0.0061], "ordinal_word")
+    assert out["random_n"] == 5 and out["random_distinct"] == 3 and out["z_flag"] is None, out
+    # no z, no flag
+    out = evidence.z_fields({"t|search": 0.5}, [0.1], "t")
+    assert out["z"] is None and out["random_distinct"] == 1 and out["z_flag"] is None, out
+    out = evidence.z_fields({"t|search": 0.5}, [0.1, 0.1, 0.1], "t")
+    assert out["z"] is None and out["random_distinct"] == 1 and out["z_flag"] is None, out
+    out = evidence.z_fields({"t|search": 0.5}, [], "t")
+    assert out["random_distinct"] == 0 and out["z_flag"] is None, out
 
 
 def test_guard():
@@ -161,6 +187,93 @@ def test_selection_data():
     sd = evidence.selection_data("math", {"math|search": 0.3, "ghost|search": 0.0}, lookup, hd, "engine")
     assert sd["off_target_data"]["ghost"]["source"] == "unknown", sd
 
+    # items_sha (the digest the engine's builtin_info reports) stays with each built-in set
+    described = {"math": dict(OLD_DESCRIBED["math"], items_sha="aaaa"), "code": dict(OLD_DESCRIBED["code"], items_sha="bbbb")}
+    with_sha = evidence.builtin_sources(described, builders)
+    assert with_sha["math"]["items_sha"] == "aaaa" and "items_sha" not in builtin["math"], with_sha
+    sd = evidence.selection_data("math", EFFECT, evidence.make_lookup(AGENT, with_sha, pool={}), hd, "engine")
+    assert sd["items_sha"] == "aaaa" and sd["off_target_data"]["code"]["items_sha"] == "bbbb", sd
+    data = {"math": {"description": "d", "items": {"search": [{"context": "1", "continuation": "2"}], "heldout": []}}}
+    digest = hashlib.sha256(json.dumps(data["math"]["items"], sort_keys=True).encode()).hexdigest()[:16]
+    assert evidence.describe_builtin(data)["math"] == {"description": "d", "dataset": None, "items_sha": digest}
+
+    # an off-target agent skill of which two frozen tests are known: no hash, and the candidates
+    two = dict(AGENT, month_offset={"path": "p", "hash": None, "description": "d", "hash_candidates": ["4073", "7062"]})
+    sd = evidence.selection_data("fraction_role", EFFECT, evidence.make_lookup(two, builtin, pool={}), hd, "engine")
+    assert sd["off_target_data"]["month_offset"] == {"source": "agent", "hash": None,
+                                                     "hash_candidates": ["4073", "7062"]}, sd
+
+
+def test_path_check():
+    # is the frozen test file the test the row was selected on?
+    folder = tempfile.mkdtemp(prefix="wsp_path_check_")
+    path = os.path.join(folder, "product_sign.json")
+    with open(path, "w") as f:
+        json.dump({"name": "product_sign", "hash": "8245"}, f)
+    assert evidence.path_check(path, "8245") == {"path_matches": True}
+    out = evidence.path_check(path, "dfed")  # another lane replaced the file
+    assert out["path_matches"] is False and out["path_hash"] == "8245" and "8245" in out["path_note"], out
+    out = evidence.path_check(os.path.join(folder, "gone.json"), "dfed")
+    assert out["path_matches"] is None and "could not be read" in out["path_note"], out
+    with open(path, "w") as f:
+        f.write("{not json")
+    assert evidence.path_check(path, "8245")["path_matches"] is None
+    shutil.rmtree(folder)
+
+
+def test_merge_uncertain():
+    # A row whose engine held the old built-in file (GSM8K, MBPP) or the new one (Orca-Math, CodeAlpaca):
+    # the deploy time is not known, so neither is written as fact.
+    hd = evidence.load_healdata()
+    old = evidence.builtin_sources(OLD_DESCRIBED, evidence.builder_datasets(OLD_SOURCE))
+    new = {"math": {"source": "builtin", "description": "Orca-Math word problems",
+                    "datasets": ["microsoft/orca-math-word-problems-200k"]},
+           "code": {"source": "builtin", "description": "CodeAlpaca Python tasks", "datasets": ["sahil2801/CodeAlpaca-20k"]},
+           "general_text": old["general_text"]}
+    labels = [{"commit": "old", "time_from": "commit", "since": "t0"}, {"commit": "new", "time_from": "commit", "since": "t1"}]
+    basis = "git history, version uncertain"
+
+    # an agent target: the two versions differ on the off-target sets math and code
+    per = [evidence.selection_data("fraction_role", EFFECT, evidence.make_lookup(AGENT, b, pool={}), hd, basis)
+           for b in [old, new]]
+    assert per[0]["reported_benchmarks"] == ["openai/gsm8k", "google-research-datasets/mbpp"], per[0]
+    assert per[1]["reported_benchmarks"] == [], per[1]
+    sd = evidence.merge_uncertain(per, labels)
+    assert sd["reported_benchmarks"] == ["openai/gsm8k", "google-research-datasets/mbpp"], sd  # the union
+    assert sd["builtin_basis"] == basis and sd["description"] == "numerator or denominator", sd
+    assert sd["off_target_data"]["math"] == {"source": "builtin", "description": None, "uncertain": True,
+                                             "datasets": ["openai/gsm8k", "microsoft/orca-math-word-problems-200k"]}, sd
+    assert sd["off_target_data"]["general_text"] == per[0]["off_target_data"]["general_text"], sd  # same in both
+    assert sd["off_target_data"]["month_offset"] == {"source": "agent", "hash": "ac66"}, sd
+    assert [c["commit"] for c in sd["builtin_candidates"]] == ["old", "new"], sd
+    assert sd["builtin_candidates"][0]["skills"]["math"] == {"description": OLD_DESCRIBED["math"]["description"],
+                                                             "datasets": ["openai/gsm8k"]}, sd
+    assert sd["builtin_candidates"][1]["skills"]["code"]["datasets"] == ["sahil2801/CodeAlpaca-20k"], sd
+    assert sorted(sd["builtin_candidates"][0]["skills"]) == ["code", "math"], sd
+    assert "old, new" in sd["builtin_note"] and "math, code" in sd["builtin_note"] and "--live-since" in sd["builtin_note"]
+    assert per[1]["off_target_data"]["math"]["description"] == "Orca-Math word problems", "the inputs are not changed"
+
+    # a built-in target: its own description is not known either
+    per = [evidence.selection_data("math", EFFECT, evidence.make_lookup(AGENT, b, pool={}), hd, basis) for b in [old, new]]
+    sd = evidence.merge_uncertain(per, labels)
+    assert sd["source"] == "builtin" and sd["description"] is None, sd
+    assert sd["datasets"] == ["openai/gsm8k", "microsoft/orca-math-word-problems-200k"], sd
+    assert sd["pool"] == "math" and sd["pool_match"] == "name", sd  # matched by name in both versions
+    assert sd["reported_benchmarks"] == ["openai/gsm8k", "google-research-datasets/mbpp"], sd
+    assert sd["builtin_candidates"][1]["skills"]["math"]["description"] == "Orca-Math word problems", sd
+
+    # the versions agree on every skill of the row: nothing is blanked, and the note says so
+    per = [evidence.selection_data("fraction_role", {"fraction_role|search": 0.2, "general_text|search": 0.0},
+                                   evidence.make_lookup(AGENT, b, pool={}), hd, basis) for b in [old, new]]
+    sd = evidence.merge_uncertain(per, labels)
+    assert sd["reported_benchmarks"] == [] and sd["off_target_data"] == per[0]["off_target_data"], sd
+    assert "agree" in sd["builtin_note"] and sd["builtin_candidates"][0]["skills"] == {}, sd
+
+    # one version was not checked against the benchmark list: not checked is not "none found"
+    per = [evidence.selection_data("fraction_role", EFFECT, evidence.make_lookup(AGENT, old, pool={}), None, basis),
+           evidence.selection_data("fraction_role", EFFECT, evidence.make_lookup(AGENT, new, pool={}), hd, basis)]
+    assert evidence.merge_uncertain(per, labels)["reported_benchmarks"] is None
+
 
 def test_real_files():
     # the built-in and pool files of this checkout, with nothing about them typed in here
@@ -229,9 +342,47 @@ def test_routing():
     assert routing["tokens"] == {"sk|search": 40, "general_text|search": 60, "sk|heldout": 20, "general_text|heldout": 30}
     assert routing["n_items"]["sk|search"] == 2 and routing["n_items"]["general_text|heldout"] == 1, routing
 
-    # a layer the engine cannot count: no routing, and the note says why
+    # a layer the engine cannot count: no routing, and the note says why. The reason is final:
+    # another engine call gives the same answer.
     routing, note = evidence.routing_fields([0], 5, "sk", {"rates": {}, "unsupported": {"5": "module_list experts: x"}})
-    assert routing is None and "module_list" in note, note
+    assert routing is None and "module_list" in note and note.startswith(evidence.FINAL), note
+
+    # the engine does not hold the target skill: no routing object with null rates in it
+    general_only = {"rates": {
+        "general_text|search": {"n_items": 2, "layers": {"3": {"rates": [0.25, 0.25, 0.5, 1.0], "tokens": 60}}},
+        "general_text|heldout": {"n_items": 1, "layers": {"3": {"rates": [0.5, 0.0, 0.2, 1.3], "tokens": 30}}}},
+        "counted_layers": [3], "unsupported": {}, "missing": ["code_rust|search", "code_rust|heldout"]}
+    routing, note = evidence.routing_fields([1], 3, "code_rust", general_only)
+    assert routing is None and "code_rust|search (the engine does not hold this skill)" in note, (routing, note)
+    assert not note.startswith(evidence.FINAL), note
+    # one half of the target is absent: the routing is kept, and the note names the half
+    partial = dict(result, rates=dict(result["rates"]))
+    del partial["rates"]["sk|heldout"]
+    routing, note = evidence.routing_fields([1], 3, "sk", partial)
+    assert routing["experts"]["1"]["search"]["log_ratio"] == 0.6931, routing
+    assert routing["experts"]["1"]["heldout"] == {"skill_rate": None, "general_rate": 0.0, "log_ratio": None}, routing
+    assert note == "routing is partial: no pick rates for sk|heldout (no rates)", note
+    assert "sk|heldout" not in routing["tokens"], routing
+
+    # top_k: the rates of a layer must add up to it. 0 + 0.5 + 0.25 + 1.25 = 2 passes; the answer of a
+    # hook that counted rows in place of tokens (1 + 3.5 + 4 + 1.5 = 10 for a top-2 router) is refused.
+    with_k = json.loads(json.dumps(result))
+    for key in with_k["rates"]:
+        with_k["rates"][key]["layers"]["3"]["top_k"] = 2
+    routing, note = evidence.routing_fields([1], 3, "sk", with_k)
+    assert note is None and routing["experts"]["1"]["search"]["skill_rate"] == 0.5, (routing, note)
+    with_k["rates"]["sk|search"]["layers"]["3"] = {"rates": [1.0, 3.5, 4.0, 1.5], "tokens": 2, "top_k": 2}
+    routing, note = evidence.routing_fields([1], 3, "sk", with_k)
+    assert routing is None and note.startswith(evidence.FINAL) and "add up to 10.0" in note and "top-k 2" in note, note
+
+    # what the client knows about a layer without an engine call
+    detail = [{"layer": 0, "experts": {"path": "mlp.experts", "n_experts": 4}},
+              {"layer": 1, "experts": {"path": "mlp.experts", "n_experts": 3, "style": "module_list"}},
+              {"layer": 2, "mlp": {"path": "mlp.down_proj", "width": 8}}]
+    assert evidence.client_unsupported(detail, 0) is None
+    assert "module_list" in evidence.client_unsupported(detail, 1)
+    assert "no experts" in evidence.client_unsupported(detail, 2)
+    assert evidence.client_unsupported(None, 1) is None and evidence.client_unsupported([], 1) is None
     routing, note = evidence.routing_fields([0], 5, "sk", {"rates": {}, "unsupported": {}})
     assert routing is None and "no pick rates" in note, note
     assert evidence.log_ratio(None, 0.2) is None and evidence.log_ratio(0.2, 0.2) == 0.0
@@ -240,6 +391,8 @@ def test_routing():
 test_z()
 test_guard()
 test_selection_data()
+test_path_check()
+test_merge_uncertain()
 test_real_files()
 test_routing()
 print("ok")

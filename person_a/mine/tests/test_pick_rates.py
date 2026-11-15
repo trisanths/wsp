@@ -33,15 +33,25 @@ class FusedExperts(torch.nn.Module):
 class FusedMoE(torch.nn.Module):
     # The toy router reads the token id from the first hidden value: token t picks experts t % 4 and
     # (t + 1) % 4. That makes every pick count below checkable by hand.
-    def __init__(self):
+    # shape: how the block hands the indices to the experts module. "flat" is one row per token,
+    # (tokens, 2). "grid" keeps the batch, (batch, seq, 2). "short" drops the last token, which no
+    # mask of the batch fits.
+    def __init__(self, shape="flat"):
         super().__init__()
         self.experts = FusedExperts()
+        self.shape = shape
 
     def forward(self, x):
         flat = x.reshape(-1, D)
         first = flat[:, 0].long() % N_EXP
         idx = torch.stack([first, (first + 1) % N_EXP], dim=1)
         weights = torch.full(idx.shape, 0.5)
+        if self.shape == "grid":
+            idx = idx.reshape(x.shape[0], x.shape[1], 2)
+            weights = weights.reshape(x.shape[0], x.shape[1], 2)
+        if self.shape == "short":
+            idx = idx[:-1]
+            weights = weights[:-1]
         return x + self.experts(flat, idx, weights).reshape(x.shape)
 
 
@@ -74,9 +84,9 @@ class Layer(torch.nn.Module):
 
 
 class ToyModel(torch.nn.Module):
-    def __init__(self):
+    def __init__(self, shape="flat", second=None):
         super().__init__()
-        self.layers = torch.nn.ModuleList([Layer(FusedMoE()), Layer(ListMoE()), Layer(DenseMLP())])
+        self.layers = torch.nn.ModuleList([Layer(FusedMoE(shape)), Layer(second or ListMoE()), Layer(DenseMLP())])
 
     def get_decoder(self):
         return self
@@ -118,8 +128,30 @@ def item(context, continuation):
     return {"context": context, "continuation": continuation, "digits_only": False}
 
 
-def make_engine():
-    model = ToyModel()
+class ElsewhereMask:
+    # Stands for a mask on another GPU than the router indices, which a CPU test cannot build. As
+    # with torch, it can be reshaped and cast where it is, and it cannot index a tensor until .to()
+    # has moved it to the device of that tensor (indexing with this object raises).
+    def __init__(self, tensor, moved_to):
+        self.tensor = tensor
+        self.moved_to = moved_to
+
+    def reshape(self, *shape):
+        return ElsewhereMask(self.tensor.reshape(*shape), self.moved_to)
+
+    def bool(self):
+        return ElsewhereMask(self.tensor.bool(), self.moved_to)
+
+    def numel(self):
+        return self.tensor.numel()
+
+    def to(self, device):
+        self.moved_to.append(device)
+        return self.tensor.to(device)
+
+
+def make_engine(shape="flat", second=None):
+    model = ToyModel(shape, second)
     engine = LocalEngine.__new__(LocalEngine)
     engine.adapter = adapter
     engine.model = model
@@ -154,6 +186,75 @@ def test_pick_rates_math():
     assert adapter.pick_rates(sums) == {"5": {"rates": [0.0, 1.5, 0.0, 0.5], "tokens": 4}, "6": None}
 
 
+def test_router_picks():
+    # 2 rows of 3 tokens, top-2 router. Counted tokens (mask 1): tokens 1, 2 of row 0 and token 1 of
+    # row 1. Their picks: (1, 2), (2, 3), (0, 1): expert 0 once, 1 twice, 2 twice, 3 once.
+    idx = torch.tensor([[0, 1], [1, 2], [2, 3], [3, 0], [0, 1], [2, 3]])
+    mask = torch.tensor([[0, 1, 1], [0, 1, 0]])
+    counts, n, k = adapter.router_picks(idx, mask, N_EXP)
+    assert counts.tolist() == [1.0, 2.0, 2.0, 1.0] and n == 3.0 and k == 2, (counts, n, k)
+    # the same indices unflattened, (batch, seq, k): the same counts
+    counts, n, k = adapter.router_picks(idx.reshape(2, 3, 2), mask, N_EXP)
+    assert counts.tolist() == [1.0, 2.0, 2.0, 1.0] and n == 3.0 and k == 2, (counts, n, k)
+    # a top-1 router that gives one index per token
+    counts, n, k = adapter.router_picks(torch.tensor([0, 1, 2, 3, 0, 2]), mask, N_EXP)
+    assert counts.tolist() == [1.0, 1.0, 1.0, 0.0] and n == 3.0 and k == 1, (counts, n, k)
+    # indices that do not hold one row per token of the mask: no counts, not wrong counts
+    assert adapter.router_picks(idx[:-1], mask, N_EXP) is None
+    assert adapter.router_picks(idx.reshape(3, 4), mask, N_EXP) is None
+    assert adapter.router_picks(idx, torch.zeros(0, 3), N_EXP) is None
+
+    # the mask is on another device than the indices: it is moved to their device before it is used
+    moved_to = []
+    counts, n, k = adapter.router_picks(idx, ElsewhereMask(mask, moved_to), N_EXP)
+    assert moved_to == [idx.device], moved_to
+    assert counts.tolist() == [1.0, 2.0, 2.0, 1.0] and n == 3.0 and k == 2, (counts, n, k)
+
+    # the hook: the same counts in sums, with the mask held in state as the engine holds it
+    engine = make_engine()
+    sums = {}
+    bad = {}
+    handles = []
+    moved_to = []
+    state = {"mask": ElsewhereMask(torch.tensor([[0, 1, 1], [0, 1, 0]]), moved_to)}
+    adapter.install_pick_counter(engine.info, engine.layers, 0, sums, state, bad, handles)
+    engine.model(input_ids=torch.tensor([[9, 1, 2], [9, 0, 9]]))  # counted tokens 1, 2, 0: picks (1,2) (2,3) (0,1)
+    adapter.remove_all(handles)
+    assert len(moved_to) == 1 and bad == {}, (moved_to, bad)
+    assert sums[0]["sum"].tolist() == [1.0, 2.0, 2.0, 1.0] and sums[0]["n"] == 3.0 and sums[0]["top_k"] == 2, sums
+    assert adapter.pick_rates(sums)["0"]["top_k"] == 2
+
+
+def test_index_shapes():
+    payload = {"skills": {"sk": {"hash": "h1", "control": None,
+                                 "items": {"search": [item("1 1 1", "1 1"), item("2 2", "2")],
+                                           "heldout": [item("3 3 3", "3")]}},
+                          "general_text": {"builtin": True}}}
+    flat = raw("expert_pick_rates")(make_engine("flat"), payload, ["sk", "general_text"], [0], 64)
+    # A model that passes the indices as (batch, seq, k). sk search is one padded batch of 2 rows:
+    # 6 countable tokens, picks 0, 4, 6, 2 (worked out in test_engine_method). A hook that takes the
+    # rows for tokens reports 2 tokens and rates that add up to 10.
+    grid = raw("expert_pick_rates")(make_engine("grid"), payload, ["sk", "general_text"], [0], 64)
+    assert grid["rates"] == flat["rates"], grid
+    got = grid["rates"]["sk|search"]["layers"]["0"]
+    assert got == {"rates": [0.0, 0.666667, 1.0, 0.333333], "tokens": 6, "top_k": 2}, got
+    assert grid["unsupported"] == {} and grid["counted_layers"] == [0], grid
+
+    # Indices that do not fit the batch: the layer is reported with the reason, and no rate of it comes back
+    short = raw("expert_pick_rates")(make_engine("short"), payload, ["sk", "general_text"], [0], 64)
+    assert short["counted_layers"] == [], short
+    assert "do not fit" in short["unsupported"]["0"], short
+    for key in short["rates"]:
+        assert short["rates"][key]["layers"] == {}, short
+    routing, note = evidence.routing_fields([1], 0, "sk", short)
+    assert routing is None and note.startswith(evidence.FINAL) and "do not fit" in note, note
+
+    # two fused layers, one of them bad: the good one keeps its rates
+    both = raw("expert_pick_rates")(make_engine("flat", FusedMoE("short")), payload, ["sk"], [0, 1], 64)
+    assert both["counted_layers"] == [0] and list(both["unsupported"]) == ["1"], both
+    assert both["rates"]["sk|search"]["layers"] == flat["rates"]["sk|search"]["layers"], both
+
+
 def test_engine_method():
     engine = make_engine()
     payload = {"skills": {"sk": {"hash": "h1", "control": None,
@@ -171,10 +272,12 @@ def test_engine_method():
     assert got["layers"]["0"]["rates"] == [0.0, 0.666667, 1.0, 0.333333], got
     assert abs(sum(got["layers"]["0"]["rates"]) - 2.0) < 1e-5  # top-2 router: the rates add up to 2
     # sk held-out: 3 3 3 3, 3 counted tokens, each picks experts 3 and 0
-    assert res["rates"]["sk|heldout"]["layers"]["0"] == {"rates": [1.0, 0.0, 0.0, 1.0], "tokens": 3}, res
+    assert res["rates"]["sk|heldout"]["layers"]["0"] == {"rates": [1.0, 0.0, 0.0, 1.0], "tokens": 3, "top_k": 2}, res
     # general search: 2 2 1 1 1, counted 2 1 1 1: expert 1 three times, expert 2 four times, expert 3 once
-    assert res["rates"]["general_text|search"]["layers"]["0"] == {"rates": [0.0, 0.75, 1.0, 0.25], "tokens": 4}, res
-    assert res["rates"]["general_text|heldout"]["layers"]["0"] == {"rates": [1.0, 0.0, 0.0, 1.0], "tokens": 3}, res
+    assert res["rates"]["general_text|search"]["layers"]["0"] == {"rates": [0.0, 0.75, 1.0, 0.25], "tokens": 4,
+                                                                  "top_k": 2}, res
+    assert res["rates"]["general_text|heldout"]["layers"]["0"] == {"rates": [1.0, 0.0, 0.0, 1.0], "tokens": 3,
+                                                                   "top_k": 2}, res
     # the hooks are gone after the call
     assert len(engine.layers[0].mlp.experts._forward_pre_hooks) == 0
 
@@ -189,7 +292,8 @@ def test_engine_method():
 
     # n_items limits the items of each half: only "1 1 1 1 1" is read
     res = raw("expert_pick_rates")(engine, payload, ["sk"], [0], 1)
-    assert res["rates"]["sk|search"] == {"n_items": 1, "layers": {"0": {"rates": [0.0, 1.0, 1.0, 0.0], "tokens": 4}}}, res
+    assert res["rates"]["sk|search"] == {"n_items": 1, "layers": {"0": {"rates": [0.0, 1.0, 1.0, 0.0], "tokens": 4,
+                                                                        "top_k": 2}}}, res
 
     # a module_list layer: nothing is counted, and the row says why
     res = raw("expert_pick_rates")(engine, payload, ["sk", "general_text"], [1], 64)
@@ -200,6 +304,11 @@ def test_engine_method():
     # a skill that the payload does not hold is reported, not guessed
     res = raw("expert_pick_rates")(engine, payload, ["nope"], [0], 64)
     assert res["missing"] == ["nope|search", "nope|heldout"] and res["rates"] == {}, res
+    # and the row gets no routing object for it: the general text alone says nothing about the skill
+    res = raw("expert_pick_rates")(engine, payload, ["nope", "general_text"], [0], 64)
+    assert sorted(res["rates"]) == ["general_text|heldout", "general_text|search"], res
+    routing, note = evidence.routing_fields([1], 0, "nope", res)
+    assert routing is None and "the engine does not hold this skill" in note, (routing, note)
 
 
 def test_builtin_info():
@@ -209,13 +318,18 @@ def test_builtin_info():
     digest = hashlib.sha256(json.dumps(items, sort_keys=True).encode()).hexdigest()[:16]
     assert out == {"general_text": {"description": "toy general text", "dataset": None, "n_search": 1,
                                     "n_heldout": 1, "items_sha": digest}}, out
-    # what the client makes of it
+    # what the client makes of it: the digest stays, and the client's own formula gives the same one
     sources = evidence.builtin_sources(out, {})
-    assert sources["general_text"] == {"source": "builtin", "description": "toy general text", "datasets": []}
+    assert sources["general_text"] == {"source": "builtin", "description": "toy general text", "datasets": [],
+                                       "items_sha": digest}
+    assert evidence.items_sha(items) == digest
+    assert evidence.describe_builtin(engine.builtin)["general_text"]["items_sha"] == digest
 
 
 test_layers()
 test_pick_rates_math()
+test_router_picks()
+test_index_shapes()
 test_engine_method()
 test_builtin_info()
 print("ok")

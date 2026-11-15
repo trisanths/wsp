@@ -105,7 +105,11 @@ All your models in parallel:
   - whether the label was built-in or agent-defined, and the agent's weight rationale
   - in `signature`: `z` (the target drop on the search half as a z-score against the random same-size
     parts: the drop minus their mean, divided by their sample standard deviation; null with fewer than
-    2 random drops or when they are all equal), `random_n`, `random_mean`, `random_std`
+    2 random drops or when they are all equal), `random_n`, `random_mean`, `random_std`. Read `z` as a
+    rough number: it is from the search half, the half the part was selected on, and from the gate's
+    5 random parts (`GATE_N_RANDOM` in `mine/client.py`). The engine draws them with replacement and
+    rounds each score, so drops can repeat: `random_distinct` counts the distinct values, and `z_flag`
+    is set when there are fewer than 3.
   - in `signature`: `z_heldout` and `random_heldout` (the same for the held-out half; null while the
     engine scores random parts on the search half only)
   - in `signature`: `guard` (for `search` and for `heldout`: the skill, other than the target and its
@@ -116,11 +120,25 @@ All your models in parallel:
     text pool of `wsp/healdata.py` that matches the skill, or null) with `pool_match`, and
     `reported_benchmarks` (the dataset ids in the selection data that are in the `BANNED` list of
     `wsp/healdata.py`; null means not checked). `builtin_basis` says where the built-in
-    descriptions came from: `engine`, `local file`, or `git history`.
+    descriptions came from: `engine`, `local file`, `git history`, or
+    `git history, version uncertain`. `items_sha` names the version of a built-in set.
+    `selection_data` is null, with the reason in `selection_note`, when the files behind it could
+    not be read at the time the row was written; `mine/enrich_rows.py` fills it in.
+  - in `selection_data`, for an agent skill: `path_matches` (does the file at `path` still have the
+    row's `hash`? Lanes on one model share `mine/skills/<short_name>/`, and a later lane can replace
+    a test of the same name; `path_hash` and `path_note` say what was found). An off-target agent
+    skill has its `hash`, or null and `hash_candidates` when more than one test of that name is known.
+  - in `selection_data`, with `git history, version uncertain`: the backfill could not tell which
+    version of the built-in file the engine held for the row. `reported_benchmarks` is then the
+    union over the versions, `builtin_candidates` lists what each version says, and `builtin_note`
+    says how to settle it.
   - `routing` (expert parts only): for each expert, `skill_rate` and `general_rate` (router picks per
     token on the target skill's text and on `general_text`) and their `log_ratio`, for `search` and
-    `heldout`. It is null, with the reason in `routing_note`, when the engine cannot count the picks
-    (`module_list` experts, or a deployment older than `expert_pick_rates`).
+    `heldout`, and the `revision` of the weights the picks were counted on. It is null, with the
+    reason in `routing_note`, when the engine cannot count the picks (`module_list` experts, router
+    indices that do not fit the batch, a target skill the engine does not hold, or a deployment
+    older than `expert_pick_rates`). A note that starts with `no routing, final:` names a reason
+    that another engine call cannot change.
   - `enriched_at`: set on rows that `mine/enrich_rows.py` filled in after they were written
 - `parts/<short_name>/*.pt`: index files `{kind, model, layer, indices}`.
 - `mine/skills/<short_name>/`: the tests the agent wrote for its own labels. These are frozen and hashed.
@@ -130,13 +148,25 @@ Rows written before these fields existed get them from the stored numbers, with 
 ```bash
 .venv/bin/python mine/enrich_rows.py --model <short_name>      # repeat --model for more models
 ```
-It keeps every field and the row order, and it never touches `*.rejected.jsonl`. It refuses a model
-whose `logs/<short_name>/` changed in the last 10 minutes (a live run), unless you pass `--force`.
-A fresh `git pull` or checkout also gives the log files new times, so wait 10 minutes after one.
-`--routing` also fills `routing` for expert rows; that one flag calls the GPU engine. For rows without
-an engine-reported description, the built-in sets are taken from the git history of
-`mine/data/builtin_skills.json` at the row's `created` time. If you know when the engine began to use
-a version, pass `--live-since <commit>=<YYYY-MM-DDTHH:MM:SS>`.
+It keeps every field and the row order, and it never touches `*.rejected.jsonl`.
+- Run it on the machine that mines the model, after the run has stopped and the catalog is pushed.
+  It rewrites every line of the file, so a teammate who appends rows to the same file on another
+  machine gets a merge conflict.
+- It refuses a model whose `logs/<short_name>/` changed in the last 10 minutes (a live run), and a
+  model that has no `logs/<short_name>/` folder on this machine (the run can be on another machine),
+  unless you pass `--force`. A fresh `git pull` or checkout also gives the log files new times, so
+  wait 10 minutes after one.
+- Do not run it while an agent run or `mine/regate.py` works on the model, also not with `--force`.
+  The backfill holds the catalog lock against new rows, but the agent's `confirm_math` tool and
+  `regate.py` replace the file without that lock and can write the old rows back.
+- For rows without an engine-reported description, the built-in sets come from the git history of
+  `mine/data/builtin_skills.json`. The engine uses the file from its last deploy, and git does not
+  hold the deploy time. A row made after the commit of a newer version gets
+  `git history, version uncertain`. Ask the person who deployed when the engine began to use that
+  version, and pass `--live-since <commit>=<YYYY-MM-DDTHH:MM:SS>` (local time).
+- `--routing` also fills `routing` for expert rows; that one flag calls the GPU engine, and it
+  prints the number of engine calls first. The engine is built for the `revision` of each row. A row
+  with a `no routing, final:` note is not asked again unless you add `--retry-routing`.
 
 ## 7. Push your results (no merge conflicts by design)
 Every model writes only its **own** files, so teammates never edit the same file.

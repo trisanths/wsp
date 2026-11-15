@@ -22,10 +22,16 @@ GATE_N_RANDOM = 5
 CONFIRM_MIN_DROP = 0.20
 # items per skill half for the router pick rates of an expert part (the count skill_maps uses)
 ROUTING_ITEMS = 64
+# how long an answer of the engine's builtin_info is used before it is asked again
+BUILTIN_INFO_SECONDS = 300
 
 
 class Miner:
-    def __init__(self, short):
+    # True for a handle that enrich_rows.py builds for the revision of a catalog row: it reads no
+    # state file, pins nothing, and writes neither state nor log.
+    read_only = False
+
+    def __init__(self, short, revision=None):
         donors = common.load_donors()
         if short not in donors:
             raise SystemExit("unknown model '" + short + "'. Known: " + ", ".join(sorted(donors.keys())))
@@ -34,11 +40,17 @@ class Miner:
         self.hf_id = self.row["hf_id"]
         self.params_b = float(self.row["params_b"])
         self.gpu = common.pick_gpu(self.params_b, short)
-        self.state = common.read_json_safe(common.state_path(short), {})
-        if not self.state.get("revision"):
-            self.state["revision"] = common.pin_revision(self.hf_id)
-            self.state["model"] = self.hf_id
-            self.save()
+        if revision is not None:
+            # The weights a catalog row was mined on. The state file of this machine can name another
+            # revision, or be absent, and then pin_revision would take today's head of the HF repo.
+            self.read_only = True
+            self.state = {"revision": revision, "model": self.hf_id}
+        else:
+            self.state = common.read_json_safe(common.state_path(short), {})
+            if not self.state.get("revision"):
+                self.state["revision"] = common.pin_revision(self.hf_id)
+                self.state["model"] = self.hf_id
+                self.save()
         self.revision = self.state["revision"]
         cls = modal.Cls.from_name(common.APP_NAME, self.gpu)
         self.engine = cls(model_key=short, hf_id=self.hf_id, revision=self.revision)
@@ -47,6 +59,8 @@ class Miner:
     # ---------- state ----------
 
     def save(self):
+        if self.read_only:
+            return
         common.write_json_atomic(common.state_path(self.short), self.state)
 
     def call(self, method, *args):
@@ -136,14 +150,19 @@ class Miner:
     def engine_builtin(self):
         # The built-in skill sets as the deployed engine holds them (its image keeps the file from
         # deploy time). None when the engine cannot be asked, for example a deployment older than
-        # builtin_info. Asked once per process: a redeploy between runs must be seen.
-        if "_engine_builtin" not in self.__dict__:
+        # builtin_info. An agent run can last for hours and a deploy can change the built-in file in
+        # that time, so an answer older than BUILTIN_INFO_SECONDS is asked again. A row written after
+        # a deploy can still carry the earlier answer for that long; items_sha in selection_data
+        # names the version the engine reported, so such a row can be found later.
+        age = time.time() - self.__dict__.get("_engine_builtin_at", 0.0)
+        if "_engine_builtin" not in self.__dict__ or age > BUILTIN_INFO_SECONDS:
             try:
                 self._engine_builtin = self.call("builtin_info")
             except Exception as e:
                 self._engine_builtin = None
                 common.log_event(self.short, "builtin_info_failed", {},
                                  {"error": type(e).__name__ + ": " + str(e)[:200]})
+            self._engine_builtin_at = time.time()
         return self._engine_builtin
 
     def skill_sources(self):
@@ -164,21 +183,56 @@ class Miner:
         # state file does not hold (enrich_rows.py passes the frozen test of an agent skill).
         names = [target, evidence.ROUTING_REFERENCE]
         try:
-            known = self.payload(include_skipped=True)["skills"]
-            known.update(extra_skills or {})
-            skills = {}
-            for name in names:
-                if name in known:
-                    skills[name] = known[name]
-            res = self.call("expert_pick_rates", {"skills": skills}, names, [int(part["layer"])], ROUTING_ITEMS)
-            routing, note = evidence.routing_fields(part["indices"], part["layer"], target, res)
+            # a layer that the engine can never count (module_list experts) is known from the layer
+            # list in the state: no engine call for it
+            reason = evidence.client_unsupported((self.state.get("structure") or {}).get("layers_detail"),
+                                                 part["layer"])
+            if reason:
+                routing, note = None, evidence.FINAL + reason
+            else:
+                known = self.payload(include_skipped=True)["skills"]
+                known.update(extra_skills or {})
+                skills = {}
+                for name in names:
+                    if name in known:
+                        skills[name] = known[name]
+                res = self.call("expert_pick_rates", {"skills": skills}, names, [int(part["layer"])], ROUTING_ITEMS)
+                routing, note = evidence.routing_fields(part["indices"], part["layer"], target, res)
+                if routing is not None:
+                    routing["revision"] = self.revision  # the weights the picks were counted on
         except Exception as e:
             routing = None
             note = ("no routing: engine call expert_pick_rates failed (a deployment older than this method?): "
                     + type(e).__name__ + ": " + str(e)[:160])
-        common.log_event(self.short, "expert_routing", {"part": part_brief(part), "target": target},
-                         {"ok": routing is not None, "note": note})
+        if not self.read_only:
+            common.log_event(self.short, "expert_routing", {"part": part_brief(part), "target": target},
+                             {"ok": routing is not None, "note": note})
         return routing, note
+
+    def row_selection_data(self, target, drops, sources):
+        # (selection_data, note) for a new row. It never raises: this runs after the part passed the
+        # paid gate, and it reads files the gate did not need (wsp/healdata.py, build_data.py, the
+        # built-in file). On an error the row is written with selection_data null and the reason in
+        # selection_note, and mine/enrich_rows.py can fill it in later.
+        try:
+            if sources is None:
+                sources = (evidence.make_lookup(self.agent_skills(), evidence.local_builtin()), "local file")
+            lookup, basis = sources
+            data = evidence.selection_data(target, drops, lookup, evidence.load_healdata(), basis)
+            if data["source"] == "agent":
+                # another lane on this model can have replaced the frozen test file of the same name
+                data.update(evidence.path_check(os.path.join(common.ROOT, str(data.get("path"))), data.get("hash")))
+            return data, None
+        except Exception as e:
+            note = "selection_data could not be built: " + type(e).__name__ + ": " + str(e)[:160]
+            self.log_failure("selection_data_failed", {"target": target}, note)
+            return None, note
+
+    def log_failure(self, what, config, error):
+        try:
+            common.log_event(self.short, what, config, {"error": error})
+        except OSError:
+            pass  # a log line must not cost the row either
 
     # ---------- catalog ----------
 
@@ -196,7 +250,11 @@ class Miner:
     def write_part(self, part, label, target, screen_result, evidence_used, weight_rationale, tier, confirm=None):
         # Engine calls for the evidence fields happen here, before the lock: a GPU call can take
         # minutes on a cold container, and the lock must stay short for the other lanes.
-        sources = self.skill_sources()
+        try:
+            sources = self.skill_sources()
+        except Exception as e:
+            sources = None  # row_selection_data tries the local file, and writes the row in any case
+            self.log_failure("skill_sources_failed", {}, type(e).__name__ + ": " + str(e)[:200])
         routing = None
         if part["kind"] == "expert":
             key = part_key(part)
@@ -269,9 +327,6 @@ class Miner:
         signature = {"effect": screen_result["drops"], "random_drops": screen_result["random_drops"],
                      "gate": screen_result["gate"], "confirm": confirm}
         signature.update(evidence.signature_fields(screen_result["drops"], screen_result["random_drops"], target))
-        if sources is None:
-            sources = (evidence.make_lookup(self.agent_skills(), evidence.local_builtin()), "local file")
-        lookup, basis = sources
         record = {
             "id": part_id,
             "type": part["kind"],
@@ -294,8 +349,9 @@ class Miner:
             record["layers"] = list(part["layers"])
         else:
             record["layer"] = int(part["layer"])
-        record["selection_data"] = evidence.selection_data(target, screen_result["drops"], lookup,
-                                                           evidence.load_healdata(), basis)
+        record["selection_data"], selection_note = self.row_selection_data(target, screen_result["drops"], sources)
+        if selection_note:
+            record["selection_note"] = selection_note
         if part["kind"] == "expert":
             if routing is None:
                 routing = (None, "no routing: not measured when the row was written")

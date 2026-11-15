@@ -655,8 +655,12 @@ class EngineBase:
         # For expert parts: how often the router picks each expert of the given layers on the text of
         # each named skill, for the search half and the held-out half. A rate is picks per counted
         # token (padding and the first position are left out), so the rates of one layer add up to the
-        # router's top-k. Only fused experts can be counted; other layers come back in "unsupported"
-        # with the reason (see adapter.expert_count_layers).
+        # router's top-k, which comes back as "top_k" next to the rates. Only fused experts can be
+        # counted; other layers come back in "unsupported" with the reason (see
+        # adapter.expert_count_layers), and so does a layer whose router indices do not fit the batch.
+        # The hook is adapter.install_pick_counter, not _stat_hook: it moves the mask to the device of
+        # the indices (a large model has its layers on several GPUs and the mask is on the first),
+        # and it reads indices that a model passes unflattened.
         import torch
 
         start = time.time()
@@ -664,6 +668,7 @@ class EngineBase:
         sets = self._skill_sets(payload)
         rates = {}
         missing = []
+        bad = {}
         for name in names:
             for split in ["search", "heldout"]:
                 key = (name, split)
@@ -678,18 +683,18 @@ class EngineBase:
                 handles = []
                 try:
                     for l in counted:
-                        handles.append(self._stat_hook("expert", l, sums, state))
+                        self.adapter.install_pick_counter(self.info, self.layers, l, sums, state, bad, handles)
                     with torch.no_grad():
                         for batch in self._batches(rows, 4.0e8):
                             ids, mask = self._pad(rows, batch)
                             m = mask.clone()
                             m[:, 0] = 0
                             state["mask"] = m
-                            state["count"] = float(m.sum())
                             self.model(input_ids=ids, attention_mask=mask, use_cache=False)
                 finally:
                     self.adapter.remove_all(handles)
                 rates[name + "|" + split] = {"n_items": len(rows), "layers": self.adapter.pick_rates(sums)}
+        counted = self.adapter.drop_uncounted(rates, counted, unsupported, bad)
         return {"rates": rates, "counted_layers": counted, "unsupported": unsupported, "missing": missing,
                 "seconds": round(time.time() - start, 1)}
 

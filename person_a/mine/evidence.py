@@ -5,6 +5,7 @@
 #   - routing: router pick rates of an expert part, put together from the engine's counts
 # client.py calls these when it writes a row. enrich_rows.py calls them to backfill old rows.
 import ast
+import hashlib
 import importlib.util
 import json
 import math
@@ -15,6 +16,11 @@ import common
 
 SPLITS = ["search", "heldout"]
 ROUTING_REFERENCE = "general_text"
+# A z-score over fewer distinct random drops than this gets a flag (see z_fields)
+MIN_DISTINCT = 3
+# A routing_note that starts with this names a reason that another engine call cannot change.
+# enrich_rows.py --routing skips rows that carry one, unless --retry-routing is given.
+FINAL = "no routing, final: "
 POOL_SKILLS = os.path.join(common.MINE_DIR, "data", "pool_skills.json")
 BUILD_DATA = os.path.join(common.MINE_DIR, "build_data.py")
 # The repo root is one level above person_a/. A copy of mine/ outside the team repo has no wsp/ folder.
@@ -81,6 +87,10 @@ def rounded(value, digits):
 
 
 def z_fields(effect, random_drops, target):
+    # z is a number of the search half, the half the part was selected on, so it is larger than a
+    # fresh sample would give. The engine draws the random parts with replacement and rounds each
+    # score to 5 decimals, so the stored drops can repeat: random_distinct counts the distinct values,
+    # and z_flag marks a z whose deviation rests on fewer than MIN_DISTINCT of them.
     rnd = random_split(random_drops)
     search = spread(rnd["search"])
     out = {"z": rounded(z_score(effect.get(target + "|search"), rnd["search"]), 3),
@@ -90,6 +100,10 @@ def z_fields(effect, random_drops, target):
     if rnd["heldout"]:
         held = spread(rnd["heldout"])
         out["random_heldout"] = {"n": held["n"], "mean": rounded(held["mean"], 6), "std": rounded(held["std"], 6)}
+    out["random_distinct"] = len(set(rnd["search"]))
+    out["z_flag"] = None
+    if out["z"] is not None and out["random_distinct"] < MIN_DISTINCT:
+        out["z_flag"] = "fewer than " + str(MIN_DISTINCT) + " distinct random drops"
     return out
 
 
@@ -193,11 +207,28 @@ def local_builders():
     return _cache[key]
 
 
+def items_sha(items):
+    # The same digest as the engine's builtin_info: it names one version of a built-in set, whatever
+    # its description says. (The engine image holds no copy of this file, so the line is written twice.)
+    return hashlib.sha256(json.dumps(items, sort_keys=True).encode()).hexdigest()[:16]
+
+
+def describe_builtin(data):
+    # data: the content of a built-in skill file. Returns what the engine's builtin_info reports.
+    described = {}
+    for name in data:
+        described[name] = {"description": data[name].get("description"), "dataset": data[name].get("dataset")}
+        if isinstance(data[name].get("items"), dict):
+            described[name]["items_sha"] = items_sha(data[name]["items"])
+    return described
+
+
 def builtin_sources(described, builders):
-    # described: {name: {"description": ..., "dataset": ... or absent}}, read from a built-in skill
-    # file or reported by the engine. The file holds a description and no dataset id, so the ids come
-    # from the builder, and only when the builder's description is the one in the file. If they
-    # differ, the file was built by another version of build_data.py and the ids are left empty.
+    # described: {name: {"description": ..., "dataset": ... or absent, "items_sha": ... or absent}},
+    # read from a built-in skill file or reported by the engine. The file holds a description and no
+    # dataset id, so the ids come from the builder, and only when the builder's description is the one
+    # in the file. If they differ, the file was built by another version of build_data.py and the ids
+    # are left empty.
     out = {}
     for name in described:
         desc = described[name].get("description")
@@ -207,15 +238,13 @@ def builtin_sources(described, builders):
         elif name in builders and builders[name]["description"] == desc:
             datasets = list(builders[name]["datasets"])
         out[name] = {"source": "builtin", "description": desc, "datasets": datasets}
+        if described[name].get("items_sha"):
+            out[name]["items_sha"] = described[name]["items_sha"]
     return out
 
 
 def local_builtin():
-    data = read_json(common.BUILTIN_SKILLS)
-    described = {}
-    for name in data:
-        described[name] = {"description": data[name].get("description"), "dataset": data[name].get("dataset")}
-    return builtin_sources(described, local_builders())
+    return builtin_sources(describe_builtin(read_json(common.BUILTIN_SKILLS)), local_builders())
 
 
 def local_pool():
@@ -234,7 +263,8 @@ def local_pool():
 
 def make_lookup(agent, builtin, pool=None):
     # Returns lookup(name) -> where a skill's test data comes from. agent: {name: {"path", "hash",
-    # "description"}}; builtin: the output of builtin_sources; pool: the output of local_pool, or
+    # "description"}}, and "hash_candidates" when more than one frozen test of that name is known
+    # (the hash is None then); builtin: the output of builtin_sources; pool: the output of local_pool, or
     # None to read the pool file only when a name is in neither of the others. An agent skill
     # cannot take a built-in name (skills.define refuses it), and the miner scores agent and built-in
     # skills only, so the order agent, built-in, pool is the order of what a row can hold.
@@ -243,8 +273,11 @@ def make_lookup(agent, builtin, pool=None):
     def lookup(name):
         if name in agent:
             spec = agent[name]
-            return {"source": "agent", "path": spec.get("path"), "hash": spec.get("hash"),
-                    "description": spec.get("description"), "datasets": []}
+            out = {"source": "agent", "path": spec.get("path"), "hash": spec.get("hash"),
+                   "description": spec.get("description"), "datasets": []}
+            if spec.get("hash_candidates"):
+                out["hash_candidates"] = list(spec["hash_candidates"])
+            return out
         if name in builtin:
             return dict(builtin[name])
         if held["pool"] is None:
@@ -332,11 +365,12 @@ def off_target_names(effect, target):
 def selection_data(target, effect, lookup, healdata, builtin_basis):
     # Names the data a part was selected on. builtin_basis says where the built-in descriptions came
     # from: "engine" (the deployed engine reported them when the row was written), "local file"
-    # (the engine could not be asked; its copy can be older than the local file), or "git history"
-    # (backfill: the version of the built-in file at the row's creation time).
+    # (the engine could not be asked; its copy can be older than the local file), "git history"
+    # (backfill: the one version of the built-in file the engine can have held at the row's creation
+    # time), or "git history, version uncertain" (backfill: see merge_uncertain).
     info = lookup(target)
     out = {"skill": target, "source": info["source"]}
-    for key in ["path", "hash", "description", "dataset", "datasets"]:
+    for key in ["path", "hash", "description", "dataset", "datasets", "items_sha"]:
         if key in info:
             out[key] = info[key]
     out["control"] = target + "__control" if (target + "__control|search") in effect else None
@@ -349,9 +383,15 @@ def selection_data(target, effect, lookup, healdata, builtin_basis):
         if other["source"] == "agent":
             # the hash names the frozen test in mine/skills/<model>/; its text stays in that file
             out["off_target_data"][name] = {"source": "agent", "hash": other.get("hash")}
+            if other.get("hash_candidates"):
+                # lanes on one model can each freeze a test of this name: which one the row's lane
+                # used is not known, so no hash is given
+                out["off_target_data"][name]["hash_candidates"] = other["hash_candidates"]
         else:
             out["off_target_data"][name] = {"source": other["source"], "description": other.get("description"),
                                             "datasets": other.get("datasets") or []}
+            if other.get("items_sha"):
+                out["off_target_data"][name]["items_sha"] = other["items_sha"]
     out["builtin_basis"] = builtin_basis
     if healdata is None:
         # not checked is not the same as none found
@@ -362,6 +402,89 @@ def selection_data(target, effect, lookup, healdata, builtin_basis):
         return out
     out["pool"], out["pool_match"] = match_pool(target, info, healdata.SOURCES)
     out["reported_benchmarks"] = reported_benchmarks(infos, [str(b).lower() for b in healdata.BANNED])
+    return out
+
+
+def path_check(path, row_hash):
+    # For an agent skill: is the frozen test file at `path` the test the row was selected on? Lanes
+    # on one model share mine/skills/<model>/, so a later lane can replace a file of the same name.
+    # path_matches is True or False, or None when the file cannot be read (path_note says why).
+    try:
+        with open(path) as f:
+            found = json.load(f).get("hash")
+    except (OSError, ValueError, AttributeError, TypeError) as e:
+        return {"path_matches": None, "path_note": "the frozen test file could not be read: " + type(e).__name__}
+    if found == row_hash:
+        return {"path_matches": True}
+    return {"path_matches": False, "path_hash": found,
+            "path_note": "the file at path holds another test of this name (hash " + str(found)
+                         + "), not the test this row was selected on"}
+
+
+def union(lists):
+    out = []
+    for values in lists:
+        for v in values or []:
+            if v not in out:
+                out.append(v)
+    return out
+
+
+def merge_uncertain(per, labels):
+    # Backfill only. per: the selection_data of one row under each version of the built-in file that
+    # the engine can have held when the row was made, oldest first (2 or more). labels: for each
+    # version {"commit", "time_from", "since"}. The engine uses the file from its last deploy, and the
+    # deploy time is not in git, so no single version is written as fact: a skill on which the versions
+    # differ gets description None and the datasets of all of them, reported_benchmarks is the union
+    # (a benchmark that any of the versions used is reported), and builtin_candidates lists what each
+    # version says.
+    out = dict(per[-1])
+    out["off_target_data"] = dict(per[-1]["off_target_data"])
+    differ = []
+    if out["source"] == "builtin":
+        keys = ["description", "datasets", "items_sha"]
+        if any([p.get(k) for k in keys] != [per[0].get(k) for k in keys] for p in per):
+            differ.append(out["skill"])
+            out["description"] = None
+            out["datasets"] = union(p.get("datasets") for p in per)
+            if "items_sha" in out:
+                out["items_sha"] = None
+    for name in out["off_target_data"]:
+        entries = [p["off_target_data"].get(name) for p in per]
+        if all(e == entries[0] for e in entries):
+            continue
+        differ.append(name)
+        sources = union([[(e or {}).get("source")] for e in entries])
+        out["off_target_data"][name] = {"source": sources[0] if len(sources) == 1 else None, "description": None,
+                                        "datasets": union((e or {}).get("datasets") for e in entries),
+                                        "uncertain": True}
+    for key in ["pool", "pool_match"]:
+        if any(p.get(key) != per[0].get(key) for p in per):
+            out[key] = None
+    if any(p.get("reported_benchmarks") is None for p in per):
+        out["reported_benchmarks"] = None
+    else:
+        out["reported_benchmarks"] = union(p["reported_benchmarks"] for p in per)
+    out["builtin_candidates"] = []
+    for i in range(len(per)):
+        skills = {}
+        for name in differ:
+            if name == out["skill"]:
+                entry = per[i]
+            else:
+                entry = per[i]["off_target_data"].get(name) or {}
+            skills[name] = {"description": entry.get("description"), "datasets": entry.get("datasets") or []}
+            if entry.get("items_sha"):
+                skills[name]["items_sha"] = entry["items_sha"]
+        out["builtin_candidates"].append(dict(labels[i], skills=skills))
+    commits = ", ".join(str(label.get("commit")) for label in labels)
+    if differ:
+        out["builtin_note"] = ("the built-in file the engine held for this row is not known: one of commits " + commits
+                               + ". They differ on " + ", ".join(differ) + "; reported_benchmarks is the union over"
+                               + " them. Pass --live-since <commit>=<deploy time> to enrich_rows.py to settle it.")
+    else:
+        out["builtin_note"] = ("the built-in file the engine held for this row is not known: one of commits " + commits
+                               + ". They agree on every built-in skill of this row.")
     return out
 
 
@@ -379,32 +502,69 @@ def layer_rates(result, name, split, layer):
     return (entry.get("layers") or {}).get(str(layer))
 
 
+def client_unsupported(layers_detail, layer):
+    # Why the router picks of this layer cannot be counted, decided from the layer list that the
+    # engine's info_summary returned (state["structure"]["layers_detail"]), so no engine call is
+    # paid for an answer that is known. None when the layer can be counted or the list is missing.
+    if not isinstance(layers_detail, list) or not layers_detail:
+        return None
+    import adapter
+
+    info = {"n_layers": len(layers_detail), "layers": layers_detail}
+    return adapter.expert_count_layers(info, [int(layer)])[1].get(str(int(layer)))
+
+
 def routing_fields(indices, layer, target, result, general=ROUTING_REFERENCE):
-    # result: what the engine's expert_pick_rates returned for this layer. Returns (routing, note);
-    # routing is None when the layer cannot be counted, and the note says why.
+    # result: what the engine's expert_pick_rates returned for this layer. Returns (routing, note).
+    # routing is None when the layer cannot be counted or when no pick rate of the target skill came
+    # back, and the note says why. A routing that lacks one half gets a note too, so a null rate in
+    # it is never read as a measured one.
     reason = (result.get("unsupported") or {}).get(str(layer))
     if reason:
-        return None, "no routing: " + reason
+        return None, FINAL + reason
     experts = {}
     tokens = {}
     n_items = {}
-    found = False
+    gaps = []
+    skill_found = False
+    for label, name in [("skill", target), ("general", general)]:
+        for split in SPLITS:
+            key = name + "|" + split
+            counted = layer_rates(result, name, split, layer)
+            if not counted or not counted.get("rates"):
+                why = "the engine does not hold this skill" if key in (result.get("missing") or []) else "no rates"
+                gaps.append(key + " (" + why + ")")
+                continue
+            top_k = counted.get("top_k")
+            total = math.fsum(counted["rates"])
+            if is_number(top_k) and abs(total - top_k) > 0.01 * max(top_k, 1):
+                # each counted token picks top-k experts, so the rates of a layer add up to top-k;
+                # another sum means the hook did not see one row of indices per token
+                return None, (FINAL + "the pick rates of layer " + str(layer) + " on " + key + " add up to "
+                              + str(round(total, 4)) + ", not to the router's top-k " + str(top_k))
+            tokens[key] = counted["tokens"]
+            n_items[key] = result["rates"][key].get("n_items")
+            if label == "skill":
+                skill_found = True
+    if not skill_found:
+        if not tokens:
+            return None, "no routing: the engine returned no pick rates for layer " + str(layer)
+        return None, "no routing: no pick rates for the target skill: " + "; ".join(gaps)
     for i in sorted(int(x) for x in indices):
         per = {}
         for split in SPLITS:
             rates = {}
             for label, name in [("skill", target), ("general", general)]:
-                counted = layer_rates(result, name, split, layer)
                 rates[label] = None
-                if counted and i < len(counted["rates"]):
-                    rates[label] = counted["rates"][i]
-                    tokens[name + "|" + split] = counted["tokens"]
-                    n_items[name + "|" + split] = result["rates"][name + "|" + split].get("n_items")
-                    found = True
+                if name + "|" + split in tokens:
+                    counted = layer_rates(result, name, split, layer)
+                    if i < len(counted["rates"]):
+                        rates[label] = counted["rates"][i]
             per[split] = {"skill_rate": rates["skill"], "general_rate": rates["general"],
                           "log_ratio": log_ratio(rates["skill"], rates["general"])}
         experts[str(i)] = per
-    if not found:
-        return None, "no routing: the engine returned no pick rates for layer " + str(layer)
+    note = None
+    if gaps:
+        note = "routing is partial: no pick rates for " + "; ".join(gaps)
     return {"layer": int(layer), "skill": target, "general": general, "n_items": n_items, "tokens": tokens,
-            "experts": experts}, None
+            "experts": experts}, note
