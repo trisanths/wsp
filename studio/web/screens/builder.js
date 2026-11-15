@@ -4,7 +4,7 @@ import { go, toast, pct, pctS, sgn, bsize, clamp, clone, emptyProgram, normProgr
 import { TopBar, Icon, Spinner, ErrorBox, Menu, BenchBar, BenchLegend, Ring, Tag, StubBadge } from '../components.js';
 import { PopNum, SlidingBar, SkelReveal, Matrix, SuccessCheck, useShake, shake, SwapText } from '../motion.js';
 import { ModelLogo } from '../logos.js';
-import { Compare, StatusTag, groupByKind, lockOf, HealNote, usesHeal, healNoteOf, PartsList, Stages, VerdictTag, componentFor } from '../cmp.js';
+import { Compare, StatusTag, groupByKind, lockOf, HealNote, usesHeal, healNoteOf, PartsList, Stages, VerdictTag, componentFor, filterItems, countItems, FilterRow, NO_FILTER, PAGE_SIZE } from '../cmp.js';
 
 // Short labels for score statuses other than ok. Only "collapsed" means the model lost a skill.
 const STATUS_LABELS = { collapsed: 'collapsed', infra_error: 'GPU error', compile_error: 'compile error', rejected_fit: 'fit too low', invalid: 'invalid', budget_exhausted: 'no budget' };
@@ -73,6 +73,12 @@ export function BuilderScreen({ id, specId }) {
   const [view, setView] = useState('canvas');
   const [layerMode, setLayerMode] = useState('simple');
   const [q, setQ] = useState('');
+  const [pf, setPf] = useState(NO_FILTER);
+  const [plimit, setPlimit] = useState(PAGE_SIZE);
+  const palette = useMemo(() => (cat ? [...cat.parts, ...cat.masks] : []), [cat]);
+  const paletteCounts = useMemo(() => countItems(palette), [palette]);
+  const paletteShown = useMemo(() => filterItems(palette, pf, q), [palette, pf, q]);
+  useEffect(() => { setPlimit(PAGE_SIZE); }, [pf, q]);
   const [over, setOver] = useState(null);
   const [dragId, setDragId] = useState(null);
   const [menuAt, setMenuAt] = useState(null);
@@ -358,8 +364,11 @@ export function BuilderScreen({ id, specId }) {
   const runB = est ? est.run_params_b : null;
   const healMin = est ? est.heal_min : null;
   const lo = { total: !!lim && lim.max_total_params_b != null && totalB > lim.max_total_params_b + 1e-6, run: !!lim && lim.max_run_params_b != null && runB != null && runB > lim.max_run_params_b + 1e-6, heal: !!lim && lim.max_heal_min != null && healMin != null && healMin > lim.max_heal_min + 1e-6 };
-  const matches = (x) => !q || (x.label + ' ' + (x.donor || '') + ' ' + (x.summary || '') + ' ' + x.group).toLowerCase().includes(q.toLowerCase());
-  const addParts = cat.parts.filter((x) => matches(x)), rmParts = cat.masks.filter(matches), trParts = cat.train.filter(matches);
+  const addAll = paletteShown.filter((x) => x.group === 'add');
+  const addParts = addAll.slice(0, plimit), rmParts = paletteShown.filter((x) => x.group === 'remove');
+  const noFilter = !pf.kind && !pf.status && !pf.placeable;
+  const trParts = noFilter ? cat.train.filter((x) => !q || (x.label + ' ' + x.summary).toLowerCase().includes(q.toLowerCase())) : [];
+  const readyCount = addAll.filter((x) => !lockOf(x)).length;
   const used = (pid) => program.grafts.some((g) => g.id === pid);
   const mIds = maskIds(program.masks);
   const healLabel = program.heal ? program.heal.steps + ' steps' : '300 steps';
@@ -393,12 +402,18 @@ export function BuilderScreen({ id, specId }) {
   <${SkelReveal} fill ready=${true} skeleton=${null}><div class="builder">
     <aside class="palette">
       <div class="searchbox"><${Icon} n="search" size=${15} /><input placeholder="Search parts" value=${q} onInput=${(e) => setQ(e.target.value)} /></div>
-      ${cat.kinds && cat.kinds.length ? groupByKind(addParts).map((g) => html`<div class="pgroup" key=${g.kind}>${g.name}<span class="n">${g.items.length}</span></div>${g.items.map((p) => partPiece(p))}`) : html`${addParts.length > 0 && html`<div class="pgroup">Add a skill</div>`}${addParts.map((p) => partPiece(p))}`}
+      <${FilterRow} counts=${paletteCounts} f=${pf} setF=${setPf} compact />
+      ${addParts.map((p, i) => {
+        const locked = !!lockOf(p);
+        const head = i === 0 || locked !== !!lockOf(addParts[i - 1]);
+        return html`${head && html`<div class="pgroup" key=${'h' + i}>${locked ? 'Locked' : 'Ready to place'}<span class="n">${locked ? addAll.length - readyCount : readyCount}</span></div>`}${partPiece(p)}`;
+      })}
+      ${addAll.length > plimit && html`<div class="morebar"><button class="btn sm" onClick=${() => setPlimit(plimit + PAGE_SIZE * 2)}>Show ${Math.min(PAGE_SIZE * 2, addAll.length - plimit)} more</button></div>`}
       ${rmParts.length > 0 && html`<div class="pgroup">Remove a skill</div>`}
       ${rmParts.map((m) => html`<${Piece} key=${m.id} lead=${html`<div class="pic" style=${{ '--c': 'var(--red)' }}>-</div>`} status=${m.status} tip=${m.evidence} lock=${m.status === 'rejected' ? lockOf(m) : null} t1=${m.label} t2=${m.summary} used=${mIds.includes(m.id)} dragging=${dragId === m.id} onDragStart=${(e) => startDrag(e, { kind: 'mask', mask: m }, m.id)} onDragEnd=${endDrag} onClick=${() => addMask(m)} />`)}
       ${trParts.length > 0 && html`<div class="pgroup">Train</div>`}
       ${trParts.map((t) => html`<${Piece} key=${t.id} lead=${html`<div class="pic" style=${{ '--c': t.id === 'lora' ? 'var(--amber)' : 'var(--green)' }}>${t.id === 'lora' ? 'R' : 'H'}</div>`} t1=${t.label} t2=${t.summary} used=${trainUsed(t)} dragging=${dragId === t.id} onDragStart=${(e) => startDrag(e, { kind: 'train', train: t }, t.id)} onDragEnd=${endDrag} onClick=${() => addTrain(t)} />`)}
-      ${!addParts.length && !rmParts.length && !trParts.length && html`<div class="faint" style="margin-top:20px">Nothing matches "${q}".</div>`}
+      ${!addParts.length && !rmParts.length && !trParts.length && html`<div class="faint" style="margin-top:20px">${q ? 'Nothing matches "' + q + '".' : 'Nothing matches these filters.'}</div>`}
     </aside>
 
     <section class="canvas">

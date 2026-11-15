@@ -311,6 +311,26 @@ def get_catalog():
     return catalog_mod.build_palette(settings.backend())
 
 
+@app.get("/api/library/recipes")
+def get_recipes():
+    return {"recipes": catalog_mod.recipe_list(settings.backend())}
+
+
+@app.get("/api/library/findings")
+def get_findings():
+    return {"findings": catalog_mod.finding_list()}
+
+
+@app.get("/api/library/stitches")
+def get_stitches():
+    return {"stitches": catalog_mod.stitch_list()}
+
+
+@app.get("/api/library/models")
+def get_models():
+    return {"models": catalog_mod.model_list()}
+
+
 @app.post("/api/program/text")
 async def program_text(request: Request):
     body, problem = await read_json(request)

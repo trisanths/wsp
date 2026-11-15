@@ -62,6 +62,9 @@ const real = {
     const { tap_train_default, ...rest } = c;
     return { ...rest, parts: (c.parts || []).filter((x) => x.kind !== 'tap') };
   }),
+  recipes: () => req('GET', '/api/library/recipes'),
+  findings: () => req('GET', '/api/library/findings'),
+  stitches: () => req('GET', '/api/library/stitches'),
   programText: (program) => req('POST', '/api/program/text', { program }),
   programParse: (text) => req('POST', '/api/program/parse', { text }),
   programValidate: (program) => req('POST', '/api/program/validate', { program }),

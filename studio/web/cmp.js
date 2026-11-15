@@ -89,6 +89,66 @@ export function groupByKind(parts) {
   return groups;
 }
 
+/* ---------- filters for the parts lists (library page and builder palette) ---------- */
+
+export const KIND_CHIPS = [['block', 'Blocks'], ['attn_heads', 'Attention heads'], ['mlp_cluster', 'Neuron clusters'], ['expert', 'Experts'], ['inserted_layer', 'Inserted layers'], ['deletion_mask', 'Masks']];
+export const STATUS_CHIPS = ['validated', 'candidate', 'rejected'];
+export const NO_FILTER = { kind: null, status: null, placeable: false };
+export const PAGE_SIZE = 60;
+
+/** The kind of a palette item. Masks have no kind of their own, they sit in the "remove" group. */
+export const kindOf = (x) => x.kind || (x.group === 'remove' ? 'deletion_mask' : null);
+
+/** The lowercase text a search looks in. Built once per item. */
+function hay(x) {
+  if (x._hay === undefined) x._hay = [x.label, x.id, x.donor, x.summary, x.kind, (x.skills || []).join(' ')].join(' ').toLowerCase();
+  return x._hay;
+}
+
+/** Items that pass the kind, status, placeable and search filters. Placeable items come first. */
+export function filterItems(items, f, q) {
+  const text = (q || '').trim().toLowerCase();
+  const words = text ? text.split(/\s+/) : [];
+  const keep = [];
+  items.forEach((x, i) => {
+    if (f.kind && kindOf(x) !== f.kind) return;
+    if (f.status && x.status !== f.status) return;
+    const locked = lockOf(x) ? 1 : 0;
+    if (f.placeable && locked) return;
+    if (words.length) { const h = hay(x); for (const w of words) if (!h.includes(w)) return; }
+    const rank = KIND_CHIPS.findIndex((c) => c[0] === kindOf(x));
+    keep.push([x, locked, rank < 0 ? 99 : rank, i]);
+  });
+  return keep.sort((a, b) => (a[1] - b[1]) || (a[2] - b[2]) || (a[3] - b[3])).map((p) => p[0]);
+}
+
+/** Counts per kind and per status over a list of items. */
+export function countItems(items) {
+  const kinds = {}, status = {};
+  for (const x of items) {
+    const k = kindOf(x);
+    if (k) kinds[k] = (kinds[k] || 0) + 1;
+    if (x.status) status[x.status] = (status[x.status] || 0) + 1;
+  }
+  return { kinds, status };
+}
+
+/** The chip rows: kind chips with counts, status chips, and the placeable toggle. */
+export function FilterRow({ counts, f, setF, compact, noKinds }) {
+  const chip = (on, label, n, onClick, key) => html`<button key=${key} class=${'fchip2' + (on ? ' on' : '')} aria-pressed=${on ? 'true' : 'false'} onClick=${onClick}>${label}${n != null && html`<span class="n">${n}</span>`}</button>`;
+  const kindTotal = Object.values(counts.kinds).reduce((a, b) => a + b, 0);
+  return html`<div class=${'fbar' + (compact ? ' compact' : '')}>
+    ${!noKinds && html`<div class="frow2" role="group" aria-label="Kind">
+      ${chip(!f.kind, 'All', kindTotal, () => setF({ ...f, kind: null }), 'all')}
+      ${KIND_CHIPS.filter(([k]) => counts.kinds[k]).map(([k, name]) => chip(f.kind === k, name, counts.kinds[k], () => setF({ ...f, kind: f.kind === k ? null : k }), k))}
+    </div>`}
+    <div class="frow2" role="group" aria-label="Status">
+      ${STATUS_CHIPS.map((s) => chip(f.status === s, s[0].toUpperCase() + s.slice(1), counts.status[s] || 0, () => setF({ ...f, status: f.status === s ? null : s }), s))}
+      ${!noKinds && html`<button class=${'fchip2 tog' + (f.placeable ? ' on' : '')} role="switch" aria-checked=${f.placeable ? 'true' : 'false'} onClick=${() => setF({ ...f, placeable: !f.placeable })}><span class="knob"></span>Placeable only</button>`}
+    </div>
+  </div>`;
+}
+
 /** True when a program trains the model, so its score depends on the heal recipe. */
 export const usesHeal = (p) => !!(p && (p.heal || p.lora));
 

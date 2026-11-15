@@ -316,6 +316,10 @@ All bodies are JSON unless marked.
 | GET | `/api/runs/{id}/agents/{agent_id}` | | Agent detail |
 | POST | `/api/runs/{id}/agents/{agent_id}/nudge` | `{"text": "..."}` | `{"ok": true}` |
 | GET | `/api/catalog` | | Catalog |
+| GET | `/api/library/recipes` | | `{"recipes": [...]}` (see Library lists) |
+| GET | `/api/library/findings` | | `{"findings": [...]}` |
+| GET | `/api/library/stitches` | | `{"stitches": [...]}` |
+| GET | `/api/library/models` | | `{"models": [...]}` (all models, incomplete ones flagged) |
 | POST | `/api/program/text` | `{"program": {}}` | `{"text": "..."}` |
 | POST | `/api/program/parse` | `{"text": "..."}` | `{"program": {}}` or 400 `{"error": "...", "line": 3}` |
 | POST | `/api/program/validate` | `{"program": {}}` | `{"errors": []}` |
@@ -358,6 +362,23 @@ Heal, fit and selection text comes from the `wsp/healdata.py` pools, never from 
 ### Library palette
 
 `GET /api/catalog` returns `parts` from the compiler catalog and from `library/index.jsonl` (read when the server starts) and `atlas/entries/*.json` when that folder exists. Every part has `kind` (`block`, `attn_heads`, `mlp_cluster`, `expert`, `inserted_layer`), `status` (`candidate`, `validated`, `rejected`), `evidence` (one line), `source` (`stub`, `catalog`, `library`, `atlas`), `usable` and `usable_reason`. A part is usable when the compiler catalog has a record for it. Tap read points from the library are listed as not usable. The response also has `kinds` (name and count per kind), `library` (counts) and `product`. Masks have `status` and `evidence` too.
+
+The catalog response also has:
+
+- `counts`: `{"total", "placeable", "status": {candidate, validated, rejected}, "kinds": {kind: {"total", "placeable", "candidate", "validated", "rejected"}}}`. Masks count under the kind `deletion_mask`.
+- On each part and mask: `findings` (`[{"id", "title"}]`, the findings that name it), and on each part `stitches` (same shape), `skills`, and `from_library` (true when the compiler record was built from the library file).
+- `library.loaded` (rows loaded, by index kind, plus `inserted_layer` from the atlas) and `library.failed` (number of rows that did not load).
+
+On the Modal backend the server writes `catalog_modal.jsonl` as the repo `catalog.jsonl` plus one record per library part whose file has what the compiler needs: a donor model and layer plus an index file in the library folder (`mlp_cluster`, `attn_heads`, `expert`), or a donor model and a run of layers (`block`, `inserted_layer`). The record has `library_entry` (the library id) and its evidence line says it came from the library. A part stays locked when something specific is missing, and `usable_reason` says what (for example `No unit indices in the library file.`). The stub backend keeps library parts locked, because the stub has made-up parts only.
+
+### Library lists
+
+The server reads every row of `library/index.jsonl` when it starts, logs one line with the counts and any row that failed (with the reason), and never stops on one bad row. `library.get()["counts"]` has the rows loaded by kind and `["failed"]` has `{"id", "kind", "reason"}` for each row that did not load.
+
+- Recipe: `id`, `title`, `status`, `status_reason`, `host`, `builds` (one line), `components`, `models`, `skills`, `evidence`, `source`, `text`, `syntax_gap`, `starting_program` (a program for the builder, or null), `no_start_reason` (why there is no starting program), `start_problems` (what the builder would complain about, such as a part that is not in the compiler catalog). A recipe has a starting program when its program has a host and no taps, bake or carve.
+- Finding: `id`, `title`, `claim`, `setup`, `numbers`, `numbers_source`, `status`, `status_reason`, `source`, `skills`, `evidence`, `about` (`{"parts": [ids], "models": [hf ids]}`). A finding is about a part when its text names the part id, or names the part's layer and the part's model is one of the finding's models.
+- Stitch: `id`, `title`, `status`, `host`, `donor`, `host_layers`, `donor_layer`, `stitch_kind`, `method`, `objective`, `steps`, `sink`, `params`, `penalty` (before and after), `ridge_r2`, `fit` (one line), `evidence`.
+- Model: `id`, `hf_id`, `title`, `status`, `family`, `params_b`, `layers`, `hidden`, `incomplete` (true when `hf_id` or `params_b` is missing), `missing` (the empty fields), `findings`.
 
 ### Comparison set
 
