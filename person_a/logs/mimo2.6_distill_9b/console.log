@@ -1,0 +1,523 @@
+
+===== 2026-11-14 19:29:06 /Users/pyro/Research/wsp-mine/person_a/.venv/bin/python -u /Users/pyro/Research/wsp-mine/person_a/mine/run.py --model mimo2.6_distill_9b --budget-usd 25.0 --max-hours 3.0 --max-screens 60 --effort high --smoke --person Trisanth
+model: XiaomiMiMo/MiMo-V2.6-Distill-Qwen-9B | revision: 1f09ddcc1a0ea45751ae0dfe2af20d533168c46f | GPU: EngineL40S
+structure: {
+ "n_layers": 32,
+ "d_model": 4096,
+ "layers_with": {
+  "attn": 32,
+  "mlp": 32,
+  "experts": 0
+ },
+ "example": {
+  "attn": {
+   "path": "linear_attn.out_proj",
+   "n_heads": 32,
+   "head_dim": 128,
+   "type": "Qwen3_5GatedDeltaNet"
+  },
+  "mlp": {
+   "path": "mlp.down_proj",
+   "width": 12288
+  }
+ },
+ "hf_id": "XiaomiMiMo/MiMo-V2.6-Distill-Qwen-9B",
+ "revision": "1f09ddcc1a0ea45751ae0dfe2af20d533168c46f",
+ "load_seconds": 20.3,
+ "model_class": "Qwen3_5ForCausalLM",
+ "vocab": 248320
+}
+base scores (geometric-mean prob of answer tokens):
+   code|heldout 0.48731
+   code|search 0.47928
+   facts|heldout 0.16916
+   facts|search 0.21102
+   general_text|heldout 0.08042
+   general_text|search 0.08027
+   math|heldout 0.8899
+   math|search 0.85171
+   multilingual|heldout 0.29343
+   multilingual|search 0.27007
+margin vs shuffled answers (nats; < 0.25 => built-in skill skipped): {'math': 0.5019, 'code': 0.5289, 'facts': 6.4108, 'multilingual': 2.8535, 'general_text': 0.7654}
+skipped skills: []
+one ablation {"kind": "attn_heads", "layer": 16, "indices": [0, 1]} -> {"math|search": 0.001, "math|heldout": 0.0007, "code|search": 0.0005, "code|heldout": -0.0003, "facts|search": 0.0007, "facts|heldout": -0.0021, "multilingual|search": -0.0009, "multilingual|heldout": 0.0004, "general_text|search": 0.003, "general_text|heldout": 0.0002} in 18.0 s
+smoke OK in 136.0 s (wall clock, includes model load)
+
+===== 2026-11-14 19:51:30 /Users/pyro/Research/wsp-mine/person_a/.venv/bin/python -u /Users/pyro/Research/wsp-mine/person_a/mine/run.py --model mimo2.6_distill_9b --budget-usd 25.0 --max-hours 3.0 --max-screens 60 --effort medium --llm claude --person Trisanth
+[mimo2.6_distill_9b] round 1 | budget left $25.0 | hours left 3.0
+[mimo2.6_distill_9b] run run-20261114-195131 GPU EngineL40S revision 1f09ddcc1a | llm claude-opus-5-5 | shared memory on
+[mimo2.6_distill_9b][tool] model_structure {"structure": {"attn": {"path": "linear_attn.out_proj", "n_heads": 32, "head_dim": 128, "type": "Qwen3_5GatedDeltaNet"}, "mlp": {"path": "mlp.down_proj", "width": 12288}}, "n_layers": 32, "layers_with": {"attn": 32, "mlp": 32, "experts": 0}
+[mimo2.6_distill_9b][tool] recall_shared {"results": "- [Rex | qwen3.8_27b | attempt] Model qwen3.8_27b: {\"kind\": \"mlp_cluster\", \"layer\": 56, \"n\": 2, \"first\": [1961, 14249]} labelled 'None' (target skill None), evidence weights+ablation. Weight rationale: L56 month-name 
+[mimo2.6_distill_9b][tool] run_python {"output": "{'architectures': ['Qwen3_5ForConditionalGeneration'], 'image_token_id': 248056, 'model_type': 'qwen3_5', 'tie_word_embeddings': False, 'transformers_version': '5.12.1', 'video_token_id': 248057, 'vision_config': {'deepstack_vis
+[mimo2.6_distill_9b][tool] run_python {"output": "tensor(1.1406) tensor(0.1414) tensor(-0.2227) tensor(1.9922)\n(248320, 4096)\n'January' [31164]\n' January' [5869]\n'March' [26631]\n' red' [2438]\n' Monday' [6796]\n' VII' [43469]\n"}
+[mimo2.6_distill_9b][tool] run_python {"output": "month 12 [(0.605, 30, 2262), (-0.538, 31, 5149), (-0.492, 30, 855), (-0.434, 30, 4661), (0.41, 25, 54), (-0.385, 27, 3420)]\nweekday 7 [(-0.535, 28, 1058), (-0.391, 26, 6956), (0.366, 30, 6501), (-0.337, 29, 457), (-0.322, 31, 5
+[mimo2.6_distill_9b][tool] define_skill {"accepted": true, "name": "month_successor", "hash": "b88b845e6c10026d", "n_items": 120, "n_control": 120, "base_score_search": 0.11469, "margin_nats": 1.601, "note": "frozen; the held-out half is hidden. It now joins every ablation's scor
+[mimo2.6_distill_9b][tool] define_skill {"accepted": true, "name": "roman_numeral", "hash": "13d593c4d8d9191a", "n_items": 120, "n_control": 120, "base_score_search": 0.65248, "margin_nats": 6.125, "note": "frozen; the held-out half is hidden. It now joins every ablation's scorin
+[mimo2.6_distill_9b][tool] define_skill {"accepted": true, "name": "ordinal_word", "hash": "34b5a74cc6ee1d2b", "n_items": 120, "n_control": 120, "base_score_search": 0.04677, "margin_nats": 1.8348, "note": "frozen; the held-out half is hidden. It now joins every ablation's scorin
+[mimo2.6_distill_9b][tool] define_skill {"accepted": true, "name": "weekday_successor", "hash": "7cf31526db2134df", "n_items": 120, "n_control": 120, "base_score_search": 0.05843, "margin_nats": 0.7979, "note": "frozen; the held-out half is hidden. It now joins every ablation's s
+[mimo2.6_distill_9b][agent] Defined four skills (month/weekday successor, roman numerals, ordinals). Now testing the strongest weight-aligned writer units by ablation.
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 31, "n": 1, "first": [4163]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.001, "multilingual": 0.0, "general_text": 0.0, "month_successor": 0.001, "month_successor__control": 0.0, "roman_numera
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 30, "n": 3, "first": [855, 2262, 4661]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.002, "multilingual": -0.0, "general_text": -0.0, "month_successor": 0.068, "month_successor__control": -0.03
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 28, "n": 1, "first": [1058]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.002, "multilingual": -0.001, "general_text": -0.0, "month_successor": 0.01, "month_successor__control": -0.004, "roman_
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 31, "n": 1, "first": [5406]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.001, "multilingual": 0.0, "general_text": 0.0, "month_successor": -0.001, "month_successor__control": -0.002, "roman_nu
+[mimo2.6_distill_9b][tool] run_python {"output": "30 2262 POS [['\u0120March'], ['\u0120May'], ['\u0120April'], ['\u0120June'], ['\u0120February'], ['March'], ['\u0120August'], ['\u0120January'], ['\u0120July'], ['\u0120December'], ['\u0120October'], ['April']] \n    NEG [['\u0
+[mimo2.6_distill_9b][tool] run_python {"output": "month 27 [(3420, -0.39), (3688, -0.22), (10080, 0.15), (5925, 0.13), (10630, -0.12), (6912, 0.08), (5414, 0.08), (5069, -0.08)]\nmonth 28 [(6494, 0.27), (163, 0.18), (5044, 0.14), (1058, -0.11), (11591, -0.1), (11790, 0.09), (16
+[mimo2.6_distill_9b][tool] attribution_scan {"scan_id": "scan1", "top_units_[layer,unit,score]": {"month_successor": [[29, 1118, 0.132], [30, 855, 0.077], [24, 11717, 0.067], [24, 1961, 0.06], [22, 9278, 0.056], [30, 10425, 0.049], [24, 6064, 0.047], [24, 10740, 0.04]], "weekday_succ
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 27, "n": 1, "first": [6176]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.003, "multilingual": -0.001, "general_text": -0.0, "month_successor": -0.009, "month_successor__control": 0.001, "roman
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 28, "n": 1, "first": [480]}, "drops": {"math": -0.0, "code": 0.001, "facts": -0.003, "multilingual": -0.0, "general_text": 0.0, "month_successor": 0.006, "month_successor__control": 0.004, "roman_nu
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 30, "n": 2, "first": [2262, 6501]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.001, "multilingual": 0.0, "general_text": -0.001, "month_successor": 0.003, "month_successor__control": -0.042, "
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 29, "n": 1, "first": [1118]}, "drops": {"math": 0.001, "code": 0.004, "facts": 0.114, "multilingual": 0.019, "general_text": 0.031, "month_successor": 0.224, "month_successor__control": 0.169, "roma
+[mimo2.6_distill_9b][agent] Two strong single-unit hits. Screening them.
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": -0.0, "code": 0.001, "facts": -0.003, "multilingual": -0.0, "general_text": 0.0, "month_successor": 0.006, "month_successor__control": 0.004, "roman_numeral": 0.439, "roman_numeral__control"
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": -0.0, "code": 0.0, "facts": -0.003, "multilingual": -0.001, "general_text": -0.0, "month_successor": -0.009, "month_successor__control": 0.001, "roman_numeral": -0.001, "roman_numeral__contr
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 30, "n": 1, "first": [6501]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.001, "multilingual": 0.0, "general_text": 0.0, "month_successor": -0.008, "month_successor__control": -0.001, "roman_nu
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 30, "n": 1, "first": [2262]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.002, "multilingual": 0.0, "general_text": -0.0, "month_successor": -0.012, "month_successor__control": -0.044, "roman_n
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 24, "n": 4, "first": [1961, 6064, 10740, 11717]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.002, "multilingual": 0.0, "general_text": 0.0, "month_successor": 0.3, "month_successor__control": 
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 26, "n": 2, "first": [4058, 6190]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.002, "multilingual": -0.0, "general_text": 0.0, "month_successor": -0.01, "month_successor__control": -0.001, "ro
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": -0.0, "code": 0.0, "facts": -0.002, "multilingual": -0.0, "general_text": 0.0, "month_successor": -0.01, "month_successor__control": -0.001, "roman_numeral": 0.554, "roman_numeral__control":
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 24, "n": 1, "first": [11717]}, "drops": {"math": -0.0, "code": 0.001, "facts": -0.001, "multilingual": 0.0, "general_text": -0.0, "month_successor": 0.113, "month_successor__control": 0.066, "roman_
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 24, "n": 2, "first": [1961, 6064]}, "drops": {"math": -0.0, "code": 0.001, "facts": -0.003, "multilingual": -0.001, "general_text": 0.0, "month_successor": 0.118, "month_successor__control": 0.039, 
+[mimo2.6_distill_9b][tool] define_skill {"accepted": true, "name": "color_of_object", "hash": "56842699529f106e", "n_items": 96, "n_control": 96, "base_score_search": 0.39764, "margin_nats": 6.4388, "note": "frozen; the held-out half is hidden. It now joins every ablation's scori
+[mimo2.6_distill_9b][tool] define_skill {"accepted": true, "name": "greek_letter_successor", "hash": "889de7649fe7a926", "n_items": 100, "n_control": 100, "base_score_search": 0.09089, "margin_nats": 3.3906, "note": "frozen; the held-out half is hidden. It now joins every ablatio
+[mimo2.6_distill_9b][tool] define_skill {"accepted": true, "name": "country_of_city", "hash": "67aad542e6cfa462", "n_items": 96, "n_control": 96, "base_score_search": 0.77121, "margin_nats": 10.7943, "note": "frozen; the held-out half is hidden. It now joins every ablation's scor
+[mimo2.6_distill_9b][tool] attribution_scan {"scan_id": "scan2", "top_units_[layer,unit,score]": {"color_of_object": [[29, 1118, 0.152], [31, 3924, 0.061], [30, 1084, 0.059], [31, 5671, 0.054], [26, 1715, 0.043], [26, 2397, 0.031], [30, 2958, 0.031], [25, 646, 0.029]], "greek_letter_
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 30, "n": 2, "first": [1084, 2958]}, "drops": {"math": -0.0, "code": 0.0, "facts": 0.002, "multilingual": -0.0, "general_text": -0.0, "month_successor": -0.003, "month_successor__control": 0.001, "ro
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 31, "n": 4, "first": [3924, 5671, 11180, 11257]}, "drops": {"math": -0.0, "code": 0.0, "facts": 0.001, "multilingual": 0.0, "general_text": 0.0, "month_successor": -0.002, "month_successor__control"
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 31, "n": 4, "first": [4884, 9187, 10086, 10907]}, "drops": {"math": 0.0, "code": 0.002, "facts": -0.005, "multilingual": 0.0, "general_text": 0.001, "month_successor": 0.318, "month_successor__contr
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 30, "n": 3, "first": [2262, 4586, 5660]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.001, "multilingual": -0.001, "general_text": -0.0, "month_successor": 0.002, "month_successor__control": -0
+[mimo2.6_distill_9b][agent] Screening the weekday cluster (L30, 3 units) next; also widening the color search.
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": -0.0, "code": 0.0, "facts": -0.001, "multilingual": -0.001, "general_text": -0.0, "month_successor": 0.002, "month_successor__control": -0.018, "roman_numeral": -0.001, "roman_numeral__contr
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 26, "n": 3, "first": [1715, 2397, 5730]}, "drops": {"math": 0.0, "code": 0.001, "facts": 0.001, "multilingual": -0.001, "general_text": 0.0, "month_successor": 0.001, "month_successor__control": -0.
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 25, "n": 2, "first": [646, 8162]}, "drops": {"math": 0.0, "code": 0.001, "facts": -0.001, "multilingual": 0.0, "general_text": 0.0, "month_successor": -0.008, "month_successor__control": -0.004, "ro
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 30, "n": 3, "first": [1084, 2958, 5994]}, "drops": {"math": -0.0, "code": 0.0, "facts": 0.003, "multilingual": 0.0, "general_text": -0.0, "month_successor": -0.005, "month_successor__control": 0.0, 
+/Users/pyro/Research/wsp-mine/person_a/mine/weight_sandbox.py:84: AsyncUsageWarning: A blocking Modal interface is being used in an async context.
+
+This may cause performance issues or bugs. Consider rewriting to use Modal's async interfaces:
+https://modal.com/docs/guide/async
+
+Suggested rewrite:
+  await self.sb.terminate.aio()
+
+Original line:
+  self.sb.terminate()
+Traceback (most recent call last):
+  File "/Users/pyro/Research/wsp-mine/person_a/.venv/lib/python3.12/site-packages/anyio/streams/memory.py", line 119, in receive
+    return self.receive_nowait()
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/pyro/Research/wsp-mine/person_a/.venv/lib/python3.12/site-packages/anyio/streams/memory.py", line 114, in receive_nowait
+    raise WouldBlock
+anyio.WouldBlock
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/pyro/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/pyro/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/Users/pyro/Research/wsp-mine/person_a/mine/agent_claude.py", line 145, in _run
+    await drain(client)
+  File "/Users/pyro/Research/wsp-mine/person_a/mine/agent_claude.py", line 122, in drain
+    async for msg in client.receive_response():
+  File "/Users/pyro/Research/wsp-mine/person_a/.venv/lib/python3.12/site-packages/claude_agent_sdk/client.py", line 602, in receive_response
+    async for message in self.receive_messages():
+  File "/Users/pyro/Research/wsp-mine/person_a/.venv/lib/python3.12/site-packages/claude_agent_sdk/client.py", line 267, in receive_messages
+    async for data in self._query.receive_messages():
+  File "/Users/pyro/Research/wsp-mine/person_a/.venv/lib/python3.12/site-packages/claude_agent_sdk/_internal/query.py", line 1166, in receive_messages
+    async for message in self._message_receive:
+  File "/Users/pyro/Research/wsp-mine/person_a/.venv/lib/python3.12/site-packages/anyio/abc/_streams.py", line 37, in __anext__
+    return await self.receive()
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/pyro/Research/wsp-mine/person_a/.venv/lib/python3.12/site-packages/anyio/streams/memory.py", line 131, in receive
+    await receive_event.wait()
+  File "/Users/pyro/Research/wsp-mine/person_a/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2009, in wait
+    await self._event.wait()
+  File "/Users/pyro/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/asyncio/locks.py", line 212, in wait
+    await fut
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/pyro/Research/wsp-mine/person_a/mine/run.py", line 105, in <module>
+    main()
+  File "/Users/pyro/Research/wsp-mine/person_a/mine/run.py", line 95, in main
+    cost = agent.run(args.model, budget_usd=budget_left, max_hours=hours_left,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/pyro/Research/wsp-mine/person_a/mine/agent_claude.py", line 35, in run
+    return asyncio.run(_run(short, budget_usd, max_hours, max_screens, use_notes, effort, person, focus))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/pyro/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/Users/pyro/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/asyncio/runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+===== 2026-11-14 20:14:14 /Users/pyro/Research/wsp-mine/person_a/.venv/bin/python -u /Users/pyro/Research/wsp-mine/person_a/mine/run.py --model mimo2.6_distill_9b --budget-usd 25.0 --max-hours 2.6 --max-screens 60 --effort medium --llm claude --person Trisanth --focus Large units that a compiler can move into another model. Prefer, in this order: whole blocks (1 to 4 contiguous layers), expert sets (several experts in one layer, or the same skill's experts across layers), MLP clusters of 64 or more neurons, and groups of 4 or more attention heads. Single neurons and groups of 2 to 4 heads have not beaten a random part of the same size when compiled into a host model, so use them only as seeds to grow a larger unit. Target broad skills too (math reasoning, code, a language, a knowledge domain), not only narrow lexical ones. Select parts only with your own skill tests and the built-in sets; never use benchmark items.
+[mimo2.6_distill_9b] round 1 | budget left $25.0 | hours left 2.6
+/Users/pyro/Research/wsp-mine/person_a/mine/client.py:51: AsyncUsageWarning: A blocking Modal interface is being used in an async context.
+
+This may cause performance issues or bugs. Consider rewriting to use Modal's async interfaces:
+https://modal.com/docs/guide/async
+
+Suggested rewrite:
+  result = await getattr(self.engine, method).remote.aio(*args)
+
+Original line:
+  result = getattr(self.engine, method).remote(*args)
+[mimo2.6_distill_9b] run run-20261114-201415 GPU EngineL40S revision 1f09ddcc1a | llm claude-opus-5-5 | shared memory on
+[mimo2.6_distill_9b][tool] model_structure {"structure": {"attn": {"path": "linear_attn.out_proj", "n_heads": 32, "head_dim": 128, "type": "Qwen3_5GatedDeltaNet"}, "mlp": {"path": "mlp.down_proj", "width": 12288}}, "n_layers": 32, "layers_with": {"attn": 32, "mlp": 32, "experts": 0}
+[mimo2.6_distill_9b][tool] recall_shared {"results": "- [Trisanth | qwen3.5_9b | attempt] Model qwen3.5_9b: {\"kind\": \"mlp_cluster\", \"layer\": 20, \"n\": 3, \"first\": [3426, 5559, 11323]} labelled 'None' (target skill None), evidence weights+ablation. Weight rationale: The L2
+[mimo2.6_distill_9b][tool] run_python {"output": "760\n['lm_head.weight', 'model.language_model.embed_tokens.weight', 'model.language_model.layers.0.input_layernorm.weight', 'model.language_model.layers.0.linear_attn.A_log', 'model.language_model.layers.0.linear_attn.conv1d.wei
+[mimo2.6_distill_9b][tool] run_python {"output": "['input_layernorm', 'linear_attn', 'mlp', 'post_attention_layernorm', 'self_attn']\n[11, 15, 19, 23, 27, 3, 31, 7]\ntensor(1.1406) tensor(0.1414) tensor([1.2422, 1.1016, 1.2266, 1.2422, 0.4668])\n(248320, 4096) (4096, 12288)\nmo
+[mimo2.6_distill_9b][tool] run_python {"output": "{'country': 62, 'color': 25, 'code': 40, 'month': 24, 'weekday': 14, 'digit': 10, 'french': 30, 'german': 27, 'spanish': 24, 'mathop': 22}\ntorch.Size([4278, 4096])\n"}
+[mimo2.6_distill_9b][tool] run_python {"output": "8 country:2.1/1.12 color:1.8/1.40 code:1.3/0.93 month:2.3/1.63 weekday:2.7/1.88 digit:3.8/2.70 french:1.3/0.97 german:1.9/1.07 spanish:1.3/1.04 mathop:2.0/1.53\n9 country:1.4/1.04 color:2.9/1.38 code:1.2/0.93 month:2.7/1.67 week
+[mimo2.6_distill_9b][tool] run_python {"output": "color 23 [11.899086952209473, 1.3421683311462402, 1.1853752136230469]\ncolor 25 [11.351676940917969, 1.5544227361679077, 1.3437838554382324]\ncolor 26 [11.85620403289795, 1.674217700958252, 1.290337324142456]\ncolor 28 [13.81170
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 28, "n": 64, "first": [44, 530, 631, 947, 1230, 1238, 1246, 1424]}, "drops": {"math": -0.0, "code": -0.001, "facts": 0.004, "multilingual": -0.002, "general_text": -0.001, "month_successor": 0.012, 
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 30, "n": 64, "first": [49, 430, 467, 567, 654, 998, 1324, 2220]}, "drops": {"math": -0.0, "code": 0.0, "facts": 0.002, "multilingual": -0.0, "general_text": 0.002, "month_successor": -0.0, "month_su
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 31, "n": 64, "first": [385, 600, 609, 951, 1553, 1756, 1855, 2017]}, "drops": {"math": 0.006, "code": 0.0, "facts": 0.01, "multilingual": 0.001, "general_text": 0.002, "month_successor": -0.028, "mo
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "block", "layers": [28]}, "drops": {"math": 0.021, "code": 0.018, "facts": 0.412, "multilingual": 0.167, "general_text": 0.137, "month_successor": 0.286, "month_successor__control": 0.233, "roman_numeral": 0.617, "roman_nu
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "block", "layers": [24]}, "drops": {"math": 0.014, "code": 0.029, "facts": 0.486, "multilingual": 0.081, "general_text": 0.156, "month_successor": 0.402, "month_successor__control": 0.241, "roman_numeral": 0.148, "roman_nu
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "block", "layers": [20]}, "drops": {"math": 0.006, "code": 0.054, "facts": 0.208, "multilingual": 0.028, "general_text": 0.1, "month_successor": 0.311, "month_successor__control": -0.011, "roman_numeral": -0.002, "roman_nu
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "block", "layers": [16]}, "drops": {"math": -0.001, "code": 0.016, "facts": -0.111, "multilingual": 0.004, "general_text": 0.027, "month_successor": -0.449, "month_successor__control": -0.011, "roman_numeral": -0.101, "rom
+[mimo2.6_distill_9b][tool] attribution_scan {"scan_id": "scan1", "top_units_[layer,unit,score]": {"facts": [[22, 7623, 0.054], [22, 5945, 0.041], [24, 10069, 0.041], [24, 5272, 0.031], [22, 6526, 0.03], [28, 9342, 0.027], [28, 7894, 0.024], [26, 633, 0.024]], "month_successor": [[18,
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 22, "n": 4, "first": [2150, 5945, 6526, 7623]}, "drops": {"math": -0.0, "code": 0.0, "facts": 0.031, "multilingual": 0.0, "general_text": 0.001, "month_successor": -0.004, "month_successor__control"
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 24, "n": 5, "first": [1623, 5272, 8126, 10069, 10573]}, "drops": {"math": -0.0, "code": 0.0, "facts": 0.026, "multilingual": 0.0, "general_text": 0.001, "month_successor": -0.005, "month_successor__
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 26, "n": 6, "first": [1715, 1932, 2397, 2871, 8227, 9817]}, "drops": {"math": 0.001, "code": 0.003, "facts": 0.018, "multilingual": 0.011, "general_text": 0.009, "month_successor": -0.007, "month_su
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 18, "n": 4, "first": [3274, 5129, 10058, 10349]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.005, "multilingual": -0.001, "general_text": 0.001, "month_successor": 0.223, "month_successor__con
+[mimo2.6_distill_9b][tool] run_python {"output": "[9817, 1715, 8227, 2871, 2397, 1932, 5730, 7814, 11235, 6100]\n[9817, 8227, 2871, 1715, 1932, 2397, 619, 390, 2990, 11110]\n[1715, 1932, 8227, 2871, 2397, 9817, 5730, 7814, 11235, 6100]\n[3274, 5129, 10058, 10349, 10932, 6765, 1
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 26, "n": 64, "first": [1, 390, 441, 462, 524, 947, 1004, 1035]}, "drops": {"math": 0.001, "code": 0.003, "facts": 0.018, "multilingual": 0.012, "general_text": 0.01, "month_successor": 0.001, "month
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 26, "n": 64, "first": [390, 619, 679, 1077, 1086, 1566, 1602, 1697]}, "drops": {"math": 0.001, "code": 0.003, "facts": 0.026, "multilingual": 0.013, "general_text": 0.009, "month_successor": 0.003, 
+[mimo2.6_distill_9b][agent] The 64-unit L26 colour cluster keeps a 0.238 drop with its own control at 0.03. Screening it.
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": 0.001, "code": 0.003, "facts": 0.018, "multilingual": 0.012, "general_text": 0.01, "month_successor": 0.001, "month_successor__control": 0.076, "roman_numeral": 0.017, "roman_numeral__contro
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 26, "n": 128, "first": [1, 390, 441, 462, 524, 585, 872, 880]}, "drops": {"math": 0.001, "code": 0.003, "facts": 0.022, "multilingual": 0.012, "general_text": 0.01, "month_successor": -0.015, "month
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 18, "n": 64, "first": [1673, 1959, 2307, 2388, 2768, 3064, 3076, 3274]}, "drops": {"math": 0.001, "code": 0.001, "facts": -0.01, "multilingual": -0.0, "general_text": -0.0, "month_successor": 0.22, 
+[mimo2.6_distill_9b][tool] attribution_scan {"scan_id": "scan2", "top_units_[layer,unit,score]": {"facts": [[23, 8, 0.145], [19, 6, 0.07], [18, 0, 0.039], [23, 10, 0.039], [12, 17, 0.037], [25, 16, 0.027], [20, 6, 0.027], [26, 6, 0.025]], "multilingual": [[16, 29, 0.037], [18, 6, 0.0
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 19, "n": 4, "first": [1, 9, 11, 13]}, "drops": {"math": 0.005, "code": 0.01, "facts": 0.04, "multilingual": -0.002, "general_text": 0.022, "month_successor": 0.584, "month_successor__control": 0.025,
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 23, "n": 3, "first": [8, 10, 11]}, "drops": {"math": -0.0, "code": 0.008, "facts": 0.228, "multilingual": 0.004, "general_text": 0.017, "month_successor": 0.009, "month_successor__control": -0.064, "
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 23, "n": 1, "first": [2]}, "drops": {"math": 0.004, "code": -0.001, "facts": 0.016, "multilingual": -0.0, "general_text": 0.004, "month_successor": 0.266, "month_successor__control": 0.018, "roman_nu
+[mimo2.6_distill_9b][tool] define_skill {"accepted": true, "name": "en_fr_translation", "hash": "b6de326ef9d38a30", "n_items": 70, "n_control": 70, "base_score_search": 0.91104, "margin_nats": 13.1626, "note": "frozen; the held-out half is hidden. It now joins every ablation's sc
+[mimo2.6_distill_9b][tool] define_skill {"error": "agent-defined skill cap reached"}
+[mimo2.6_distill_9b][tool] define_skill {"error": "agent-defined skill cap reached"}
+[mimo2.6_distill_9b][tool] define_skill {"error": "agent-defined skill cap reached"}
+[mimo2.6_distill_9b][agent] My skill cap is reached at eight; en_fr_translation was accepted (base 0.91). Now I'm hunting French-translation units with attribution plus weight reading.
+[mimo2.6_distill_9b][tool] attribution_scan {"scan_id": "scan3", "top_units_[layer,unit,score]": {"en_fr_translation": [[31, 12, 0.026], [21, 9, 0.024], [30, 0, 0.023], [24, 15, 0.018], [31, 13, 0.015], [8, 21, 0.014], [15, 2, 0.01], [30, 1, 0.01]], "facts": [[23, 8, 0.135], [15, 4, 
+[mimo2.6_distill_9b][tool] attribution_scan {"scan_id": "scan4", "top_units_[layer,unit,score]": {"en_fr_translation": [[30, 5634, 0.048], [31, 10405, 0.029], [31, 1626, 0.028], [26, 876, 0.024], [30, 5312, 0.016], [31, 2652, 0.015], [27, 12265, 0.014], [26, 2871, 0.012]], "facts": [
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 31, "n": 4, "first": [8, 9, 10, 14]}, "drops": {"math": -0.0, "code": 0.005, "facts": 0.153, "multilingual": -0.004, "general_text": 0.047, "month_successor": 0.446, "month_successor__control": 0.327
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 30, "n": 1, "first": [9]}, "drops": {"math": 0.001, "code": -0.002, "facts": 0.068, "multilingual": 0.001, "general_text": 0.011, "month_successor": 0.142, "month_successor__control": 0.061, "roman_n
+[mimo2.6_distill_9b][agent] Late heads (L30/L31) turn out to be generic few-shot copy heads, and they hit every control. Back to MLP clusters: trying month writers at L24/L25 and a facts cluster at L21.
+[mimo2.6_distill_9b][tool] run_python {"output": "22 month top z [10.6, 7.3, 6.3, 5.7, 4.9, 4.8, 4.1, 4.0, 3.9, 3.9]\n24 month top z [14.4, 6.7, 5.3, 5.0, 4.9, 3.2, 2.8, 2.4, 2.4, 2.2]\n25 month top z [16.2, 4.6, 3.5, 3.5, 3.3, 3.0, 2.8, 2.7, 2.3, 2.1]\n9876 [['\u0120\u00d0\u01
+[mimo2.6_distill_9b][tool] run_python {"output": "ok\n"}
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 22, "n": 64, "first": [2, 92, 558, 845, 922, 964, 1533, 2135]}, "drops": {"math": -0.0, "code": -0.0, "facts": -0.007, "multilingual": -0.0, "general_text": 0.002, "month_successor": 0.046, "month_s
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 25, "n": 64, "first": [54, 171, 1144, 1543, 1578, 1704, 1825, 1866]}, "drops": {"math": -0.0, "code": -0.0, "facts": -0.003, "multilingual": -0.0, "general_text": 0.0, "month_successor": -0.071, "mo
+[mimo2.6_distill_9b][agent] Pure writer clusters don't work for months (L22 drops 0.046, L25 −0.071). Trying activation scans, which should rank many units per layer and so support larger handles.
+[mimo2.6_distill_9b][tool] activation_scan {"scan_id": "scan5", "top_units_[layer,unit,score]": {"month_successor": [[18, 10381, 36.477], [18, 4858, 36.103], [20, 11273, 26.344], [24, 11717, 24.695], [16, 5729, 23.229], [22, 5851, 22.723], [20, 10989, 21.911], [24, 5610, 19.792]], "
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 26, "n": 13, "first": [1408, 1916, 2905, 5229, 6788, 7297, 8155, 8273]}, "drops": {"math": -0.0, "code": 0.001, "facts": -0.002, "multilingual": -0.0, "general_text": 0.0, "month_successor": -0.003,
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 18, "n": 6, "first": [928, 2435, 6256, 8925, 9037, 9355]}, "drops": {"math": -0.0, "code": -0.0, "facts": 0.001, "multilingual": -0.0, "general_text": 0.0, "month_successor": 0.009, "month_successor
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 20, "n": 7, "first": [508, 3850, 4320, 5718, 9035, 12073, 12213]}, "drops": {"math": 0.0, "code": 0.0, "facts": -0.002, "multilingual": -0.003, "general_text": -0.0, "month_successor": -0.001, "mont
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 24, "n": 7, "first": [1755, 4425, 5331, 6958, 8765, 8995, 10176]}, "drops": {"math": -0.0, "code": -0.001, "facts": -0.002, "multilingual": -0.0, "general_text": 0.0, "month_successor": -0.005, "mon
+[mimo2.6_distill_9b][agent] Scan handles get cut to the 6–13 selective units, so I'll need my own big rankings. Meanwhile I'm mapping single-layer block selectivity across depth, looking for a layer where one skill dominates.
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "block", "layers": [2]}, "drops": {"math": 0.011, "code": 0.027, "facts": 0.449, "multilingual": 0.148, "general_text": 0.121, "month_successor": 0.096, "month_successor__control": 0.256, "roman_numeral": 0.38, "roman_nume
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "block", "layers": [6]}, "drops": {"math": 0.003, "code": 0.048, "facts": 0.333, "multilingual": 0.137, "general_text": 0.245, "month_successor": 0.284, "month_successor__control": 0.331, "roman_numeral": 0.571, "roman_num
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "block", "layers": [12]}, "drops": {"math": 0.001, "code": 0.015, "facts": -0.124, "multilingual": 0.026, "general_text": 0.034, "month_successor": 0.337, "month_successor__control": -0.143, "roman_numeral": 0.259, "roman_
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "block", "layers": [22]}, "drops": {"math": 0.003, "code": 0.053, "facts": 0.355, "multilingual": 0.062, "general_text": 0.135, "month_successor": 0.011, "month_successor__control": -0.06, "roman_numeral": -0.093, "roman_n
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "block", "layers": [30]}, "drops": {"math": 0.021, "code": 0.063, "facts": 0.381, "multilingual": 0.247, "general_text": 0.206, "month_successor": 0.391, "month_successor__control": -0.021, "roman_numeral": 0.237, "roman_n
+[mimo2.6_distill_9b][agent] Whole blocks are noisy, with large swings on the low-base controls; none come close to selective. Back to weight-built 64-unit writer clusters for greek letters and countries.
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 28, "n": 64, "first": [119, 528, 589, 687, 817, 942, 1630, 1659]}, "drops": {"math": -0.0, "code": -0.001, "facts": 0.006, "multilingual": 0.001, "general_text": 0.002, "month_successor": 0.012, "mo
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 25, "n": 64, "first": [237, 433, 606, 960, 1142, 1193, 1687, 1710]}, "drops": {"math": -0.0, "code": -0.0, "facts": -0.004, "multilingual": -0.0, "general_text": 0.0, "month_successor": 0.013, "mont
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 25, "n": 64, "first": [111, 646, 1128, 1380, 1410, 1460, 1523, 1711]}, "drops": {"math": -0.0, "code": 0.0, "facts": 0.002, "multilingual": -0.0, "general_text": 0.001, "month_successor": 0.006, "mo
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 24, "n": 64, "first": [17, 360, 409, 1010, 1316, 1738, 1811, 2187]}, "drops": {"math": -0.0, "code": 0.0, "facts": 0.001, "multilingual": -0.001, "general_text": 0.001, "month_successor": 0.047, "mo
+[mimo2.6_distill_9b][agent] The greek L25 64-unit cluster drops greek 0.158, but its control moves −0.076, which is over the ±0.053 limit. Getting attribution seeds for greek around L23–27 so I can grow it.
+[mimo2.6_distill_9b][tool] attribution_scan {"scan_id": "scan6", "top_units_[layer,unit,score]": {"greek_letter_successor": [[22, 720, 0.117], [24, 6064, 0.114], [20, 4014, 0.102], [27, 4324, 0.084], [19, 11996, 0.083], [21, 9918, 0.067], [19, 5909, 0.06], [22, 1695, 0.059]], "color_
+[mimo2.6_distill_9b][tool] run_python {"output": "12039 6.8 [['\u0120tau'], ['\u0120Beta'], ['_tau'], ['\u0120Tau'], ['\u0120Gamma'], ['\u0120Lambda'], ['tau'], ['Tau']]\n5772 3.3 [['\u0120alpha'], ['alpha'], ['\u0120beta'], ['beta'], ['\u0120Alpha'], ['Alpha'], ['-alpha'], ['\
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 25, "n": 128, "first": [237, 361, 397, 433, 606, 960, 1057, 1142]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.014, "multilingual": 0.0, "general_text": 0.001, "month_successor": 0.008, "month
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 23, "n": 64, "first": [96, 207, 379, 541, 593, 668, 678, 723]}, "drops": {"math": -0.0, "code": -0.0, "facts": -0.002, "multilingual": -0.0, "general_text": 0.0, "month_successor": 0.003, "month_suc
+[mimo2.6_distill_9b][agent] Greek L25 at 128 units: target 0.165, control still −0.069. Splitting the cluster to find which units shift the control.
+[mimo2.6_distill_9b][tool] run_python {"output": "ok\n"}
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 25, "n": 16, "first": [237, 1193, 2458, 2612, 3124, 4067, 4660, 4996]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.001, "multilingual": -0.0, "general_text": 0.0, "month_successor": 0.011, "mo
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 25, "n": 112, "first": [361, 397, 433, 606, 960, 1057, 1142, 1305]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.013, "multilingual": 0.001, "general_text": 0.001, "month_successor": -0.016, "m
+[mimo2.6_distill_9b][tool] run_python {"output": "ok\n"}
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 31, "n": 512, "first": [32, 72, 81, 132, 164, 174, 185, 188]}, "drops": {"math": 0.001, "code": 0.033, "facts": 0.06, "multilingual": 0.013, "general_text": 0.024, "month_successor": 0.241, "month_s
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 30, "n": 512, "first": [13, 18, 38, 53, 79, 89, 98, 107]}, "drops": {"math": -0.0, "code": 0.003, "facts": 0.027, "multilingual": 0.005, "general_text": -0.0, "month_successor": 0.077, "month_succes
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 25, "n": 64, "first": [51, 72, 130, 218, 372, 578, 682, 783]}, "drops": {"math": -0.0, "code": -0.0, "facts": -0.002, "multilingual": -0.002, "general_text": 0.001, "month_successor": 0.002, "month_
+[mimo2.6_distill_9b][agent] Code writers don't respond even at 512 units. Trying a facts head group in L23 (full attention). If the engine splits o_proj into 128-dim halves, heads 8–11 would be two real heads.
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 23, "n": 4, "first": [8, 9, 10, 11]}, "drops": {"math": 0.002, "code": 0.011, "facts": 0.278, "multilingual": 0.002, "general_text": 0.023, "month_successor": 0.006, "month_successor__control": -0.01
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 23, "n": 2, "first": [8, 9]}, "drops": {"math": 0.002, "code": 0.006, "facts": 0.201, "multilingual": 0.002, "general_text": 0.015, "month_successor": -0.026, "month_successor__control": -0.046, "rom
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 15, "n": 4, "first": [8, 9, 12, 13]}, "drops": {"math": -0.0, "code": 0.002, "facts": -0.021, "multilingual": 0.011, "general_text": 0.005, "month_successor": 0.11, "month_successor__control": 0.232,
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 31, "n": 7, "first": [4223, 5798, 6214, 6765, 7886, 8626, 10509]}, "drops": {"math": 0.001, "code": 0.005, "facts": -0.002, "multilingual": 0.016, "general_text": 0.001, "month_successor": 0.052, "m
+[mimo2.6_distill_9b][tool] run_python {"output": "ok\n"}
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 20, "n": 64, "first": [419, 523, 613, 625, 640, 1290, 1369, 1390]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.003, "multilingual": -0.0, "general_text": 0.001, "month_successor": -0.003, "mon
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 22, "n": 64, "first": [87, 183, 309, 365, 396, 1030, 2045, 2235]}, "drops": {"math": -0.0, "code": 0.001, "facts": -0.007, "multilingual": -0.001, "general_text": 0.002, "month_successor": -0.015, "
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 19, "n": 64, "first": [182, 209, 595, 688, 1000, 1029, 1125, 1389]}, "drops": {"math": 0.0, "code": 0.001, "facts": 0.101, "multilingual": -0.001, "general_text": 0.001, "month_successor": 0.376, "m
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 24, "n": 64, "first": [226, 288, 530, 751, 1583, 1648, 1961, 2167]}, "drops": {"math": 0.0, "code": 0.0, "facts": -0.002, "multilingual": 0.0, "general_text": 0.0, "month_successor": 0.299, "month_s
+[mimo2.6_distill_9b][agent] mon24_64 is close: month 0.299 with control 0.089, but greek 0.105 is just over the 0.0997 limit. Unit 6064 was the top greek attribution in L24, so I'm removing it.
+[mimo2.6_distill_9b][tool] run_python {"output": "False\n"}
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 24, "n": 64, "first": [226, 288, 530, 751, 1583, 1648, 1961, 2167]}, "drops": {"math": 0.0, "code": 0.0, "facts": -0.005, "multilingual": 0.001, "general_text": 0.0, "month_successor": 0.255, "month
+[mimo2.6_distill_9b][tool] run_python {"output": "gate cos top [0.17450781166553497, 0.14392727613449097, 0.14199961721897125, 0.1116320863366127, 0.10876115411520004, 0.09757135808467865, 0.09472792595624924, 0.08980309963226318]\nmonth z of top-z units [1961, 5444, 1583, 5168
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 24, "n": 64, "first": [21, 184, 352, 502, 1012, 1024, 1583, 1593]}, "drops": {"math": -0.0, "code": 0.001, "facts": 0.015, "multilingual": 0.001, "general_text": 0.001, "month_successor": 0.208, "mo
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 24, "n": 64, "first": [155, 226, 288, 530, 751, 1648, 1961, 2167]}, "drops": {"math": 0.0, "code": 0.001, "facts": -0.002, "multilingual": 0.0, "general_text": 0.001, "month_successor": 0.257, "mont
+[mimo2.6_distill_9b][tool] run_python {"output": "ok\n"}
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 24, "n": 128, "first": [19, 155, 226, 288, 297, 530, 674, 724]}, "drops": {"math": 0.0, "code": 0.001, "facts": 0.005, "multilingual": 0.001, "general_text": 0.001, "month_successor": 0.286, "month_
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 24, "n": 64, "first": [226, 288, 530, 751, 1583, 1648, 1961, 2167]}, "drops": {"math": 0.0, "code": 0.001, "facts": -0.001, "multilingual": 0.001, "general_text": 0.0, "month_successor": 0.302, "mon
+[mimo2.6_distill_9b][tool] run_python {"output": "ok\n"}
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 22, "n": 64, "first": [94, 156, 184, 309, 357, 720, 736, 1238]}, "drops": {"math": -0.0, "code": 0.0, "facts": 0.0, "multilingual": 0.0, "general_text": 0.001, "month_successor": -0.056, "month_succ
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 20, "n": 64, "first": [19, 99, 566, 749, 785, 1015, 1127, 1242]}, "drops": {"math": -0.0, "code": 0.001, "facts": 0.005, "multilingual": -0.001, "general_text": 0.0, "month_successor": 0.01, "month_
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 27, "n": 64, "first": [84, 200, 360, 586, 662, 988, 1048, 1139]}, "drops": {"math": -0.0, "code": 0.001, "facts": -0.003, "multilingual": -0.001, "general_text": 0.001, "month_successor": -0.008, "m
+[mimo2.6_distill_9b][agent] Three clean greek clusters. L27 drops greek 0.227 and L22 0.219, with every other skill and control under 0.06. Screening both.
+[mimo2.6_distill_9b][tool] screen {"passed": false, "reasons": ["held-out check failed"], "drops": {"math": -0.0, "code": 0.001, "facts": -0.003, "multilingual": -0.001, "general_text": 0.001, "month_successor": -0.008, "month_successor__control": -0.005, "roman_numeral": 0
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": -0.0, "code": 0.0, "facts": 0.0, "multilingual": 0.0, "general_text": 0.001, "month_successor": -0.056, "month_successor__control": 0.006, "roman_numeral": 0.003, "roman_numeral__control": -
+[mimo2.6_distill_9b][tool] attribution_scan {"scan_id": "scan7", "top_units_[layer,unit,score]": {"roman_numeral": [[28, 480, 0.167], [26, 4058, 0.119], [25, 7031, 0.062], [29, 1118, 0.044], [27, 9449, 0.034], [28, 3300, 0.033], [21, 6063, 0.033], [29, 7555, 0.029]], "ordinal_word": 
+[mimo2.6_distill_9b][tool] run_python {"output": "{'roman': 40, 'ordinal': 26, 'weekday': 14}\n16 roman:2.1 ordinal:2.6 weekday:4.0\n17 roman:2.8 ordinal:2.7 weekday:3.1\n18 roman:2.0 ordinal:4.6 weekday:3.3\n19 roman:2.4 ordinal:7.0 weekday:4.5\n20 roman:2.9 ordinal:3.6 weekda
+[mimo2.6_distill_9b][tool] run_python {"output": "ok\n"}
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 16, "n": 64, "first": [38, 387, 841, 987, 1584, 1951, 2034, 2267]}, "drops": {"math": -0.0, "code": -0.0, "facts": 0.025, "multilingual": 0.0, "general_text": 0.001, "month_successor": 0.175, "month
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 22, "n": 64, "first": [206, 268, 278, 709, 820, 884, 888, 1105]}, "drops": {"math": -0.001, "code": 0.0, "facts": 0.002, "multilingual": -0.001, "general_text": 0.001, "month_successor": -0.027, "mo
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 23, "n": 64, "first": [111, 461, 705, 804, 825, 1274, 1592, 1686]}, "drops": {"math": -0.001, "code": 0.001, "facts": -0.002, "multilingual": 0.001, "general_text": 0.001, "month_successor": 0.017, 
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 28, "n": 64, "first": [8, 78, 194, 398, 465, 480, 502, 523]}, "drops": {"math": -0.0, "code": 0.001, "facts": -0.005, "multilingual": -0.001, "general_text": -0.001, "month_successor": -0.016, "mont
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 21, "n": 64, "first": [494, 615, 734, 863, 924, 980, 1033, 1073]}, "drops": {"math": 0.0, "code": 0.001, "facts": -0.004, "multilingual": 0.001, "general_text": 0.001, "month_successor": -0.002, "mo
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 27, "n": 128, "first": [84, 158, 165, 200, 290, 360, 412, 519]}, "drops": {"math": -0.0, "code": 0.001, "facts": -0.0, "multilingual": -0.001, "general_text": 0.001, "month_successor": -0.005, "mont
+[mimo2.6_distill_9b][agent] Three strong clean clusters: L28 roman 0.484, L23 ordinal 0.352 and L21 weekday 0.199. Screening all three.
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": -0.0, "code": 0.001, "facts": -0.005, "multilingual": -0.001, "general_text": -0.001, "month_successor": -0.016, "month_successor__control": -0.01, "roman_numeral": 0.484, "roman_numeral__co
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": -0.001, "code": 0.001, "facts": -0.002, "multilingual": 0.001, "general_text": 0.001, "month_successor": 0.017, "month_successor__control": 0.001, "roman_numeral": 0.017, "roman_numeral__con
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": 0.0, "code": 0.001, "facts": -0.004, "multilingual": 0.001, "general_text": 0.001, "month_successor": -0.002, "month_successor__control": -0.019, "roman_numeral": -0.005, "roman_numeral__con
+[mimo2.6_distill_9b][tool] run_python {"output": "ok\n"}
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 28, "n": 256, "first": [8, 49, 57, 78, 79, 119, 154, 171]}, "drops": {"math": -0.001, "code": 0.001, "facts": -0.007, "multilingual": 0.0, "general_text": -0.0, "month_successor": 0.015, "month_succ
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 23, "n": 128, "first": [24, 111, 299, 383, 411, 431, 461, 498]}, "drops": {"math": -0.0, "code": 0.001, "facts": 0.001, "multilingual": 0.002, "general_text": 0.001, "month_successor": 0.021, "month
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 21, "n": 128, "first": [132, 494, 578, 608, 615, 661, 727, 734]}, "drops": {"math": 0.0, "code": -0.0, "facts": -0.009, "multilingual": 0.001, "general_text": 0.001, "month_successor": -0.014, "mont
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 16, "n": 64, "first": [38, 387, 453, 841, 987, 1584, 1951, 2034]}, "drops": {"math": -0.0, "code": -0.0, "facts": 0.022, "multilingual": -0.001, "general_text": 0.001, "month_successor": 0.178, "mon
+[mimo2.6_distill_9b][agent] ord23_128 stays clean at 0.35, so I'll screen it as the larger version. In L16 the spill comes from the seeds themselves; testing without 1951, plus rom28_128.
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": -0.0, "code": 0.001, "facts": 0.001, "multilingual": 0.002, "general_text": 0.001, "month_successor": 0.021, "month_successor__control": 0.011, "roman_numeral": 0.024, "roman_numeral__contro
+[mimo2.6_distill_9b][tool] run_python {"output": "gate-cos to 1951 [0.2792598009109497, 0.16395969688892365, 0.16370832920074463, 0.16368576884269714, 0.1613301783800125, 0.14588363468647003, 0.1398680955171585, 0.13586759567260742, 0.13271799683570862]\nok\n"}
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 16, "n": 64, "first": [38, 387, 453, 841, 987, 1584, 2034, 2267]}, "drops": {"math": 0.0, "code": 0.0, "facts": 0.0, "multilingual": -0.001, "general_text": 0.0, "month_successor": 0.025, "month_suc
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 28, "n": 128, "first": [8, 78, 119, 154, 194, 203, 398, 465]}, "drops": {"math": -0.0, "code": 0.001, "facts": -0.008, "multilingual": 0.001, "general_text": -0.0, "month_successor": 0.002, "month_s
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": -0.0, "code": 0.001, "facts": -0.008, "multilingual": 0.001, "general_text": -0.0, "month_successor": 0.002, "month_successor__control": -0.002, "roman_numeral": 0.467, "roman_numeral__contr
+[mimo2.6_distill_9b][tool] run_python {"output": "ok\n"}
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 25, "n": 64, "first": [253, 339, 361, 577, 974, 1143, 1239, 1242]}, "drops": {"math": -0.0, "code": 0.0, "facts": 0.007, "multilingual": -0.0, "general_text": 0.001, "month_successor": -0.012, "mont
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 26, "n": 64, "first": [208, 259, 377, 419, 619, 666, 690, 947]}, "drops": {"math": -0.001, "code": 0.001, "facts": -0.003, "multilingual": -0.0, "general_text": 0.001, "month_successor": -0.041, "mo
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 31, "n": 64, "first": [40, 385, 970, 1190, 1251, 1409, 1553, 1837]}, "drops": {"math": 0.002, "code": 0.004, "facts": 0.013, "multilingual": 0.004, "general_text": 0.007, "month_successor": 0.011, "
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 27, "n": 64, "first": [250, 591, 860, 916, 930, 988, 1023, 1435]}, "drops": {"math": -0.0, "code": 0.001, "facts": 0.001, "multilingual": -0.001, "general_text": -0.0, "month_successor": -0.013, "mo
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 18, "n": 64, "first": [262, 347, 352, 678, 845, 943, 1356, 1395]}, "drops": {"math": -0.0, "code": 0.001, "facts": -0.006, "multilingual": -0.001, "general_text": 0.0, "month_successor": 0.034, "mon
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 24, "n": 64, "first": [212, 226, 391, 447, 466, 547, 945, 2209]}, "drops": {"math": -0.001, "code": 0.0, "facts": -0.004, "multilingual": 0.0, "general_text": 0.001, "month_successor": -0.013, "mont
+[mimo2.6_distill_9b][agent] rom26_64 gives a large, clean drop (roman 0.536). Screening it and testing a 128-unit version.
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": -0.001, "code": 0.001, "facts": -0.003, "multilingual": -0.0, "general_text": 0.001, "month_successor": -0.041, "month_successor__control": 0.013, "roman_numeral": 0.536, "roman_numeral__con
+[mimo2.6_distill_9b][tool] run_python {"output": "ok\n"}
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 26, "n": 256, "first": [11, 120, 168, 182, 208, 228, 241, 259]}, "drops": {"math": -0.001, "code": 0.003, "facts": 0.017, "multilingual": 0.01, "general_text": 0.008, "month_successor": -0.001, "mon
+[mimo2.6_distill_9b][agent] The 256-unit L26 roman cluster is still clean (0.571, max spill 0.064). Screening it as a large transplantable unit.
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": -0.001, "code": 0.003, "facts": 0.017, "multilingual": 0.01, "general_text": 0.008, "month_successor": -0.001, "month_successor__control": 0.051, "roman_numeral": 0.571, "roman_numeral__cont
+[mimo2.6_distill_9b][agent] Passed (L26, 256 units, roman 0.571). Pushing sizes further: roman at 512, ordinal L23 at 256, greek L22 at 128/256.
+[mimo2.6_distill_9b][tool] run_python {"output": "ok\n"}
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 26, "n": 512, "first": [11, 81, 120, 155, 157, 168, 174, 182]}, "drops": {"math": 0.001, "code": 0.005, "facts": 0.009, "multilingual": 0.015, "general_text": 0.011, "month_successor": -0.007, "mont
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 23, "n": 256, "first": [24, 111, 154, 299, 370, 383, 411, 431]}, "drops": {"math": -0.001, "code": 0.001, "facts": 0.011, "multilingual": 0.001, "general_text": 0.001, "month_successor": 0.049, "mon
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 22, "n": 256, "first": [42, 54, 61, 67, 69, 94, 120, 138]}, "drops": {"math": -0.0, "code": 0.001, "facts": 0.011, "multilingual": 0.001, "general_text": 0.003, "month_successor": -0.04, "month_succ
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 22, "n": 128, "first": [69, 94, 138, 156, 184, 309, 357, 499]}, "drops": {"math": 0.0, "code": 0.001, "facts": 0.003, "multilingual": -0.001, "general_text": 0.001, "month_successor": -0.049, "month
+[mimo2.6_distill_9b][agent] Roman L26 at 512 units (0.548) and ordinal L23 at 256 (0.358) stay selective, and so does greek L22 at 128 (0.221). Screening all three.
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": 0.001, "code": 0.005, "facts": 0.009, "multilingual": 0.015, "general_text": 0.011, "month_successor": -0.007, "month_successor__control": 0.077, "roman_numeral": 0.548, "roman_numeral__cont
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": -0.001, "code": 0.001, "facts": 0.011, "multilingual": 0.001, "general_text": 0.001, "month_successor": 0.049, "month_successor__control": 0.015, "roman_numeral": 0.015, "roman_numeral__cont
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": 0.0, "code": 0.001, "facts": 0.003, "multilingual": -0.001, "general_text": 0.001, "month_successor": -0.049, "month_successor__control": 0.029, "roman_numeral": 0.024, "roman_numeral__contr
+[mimo2.6_distill_9b][agent] 11 screens used and every passing cluster sits in L21–L28. Next: weekday at L22/L23/L29, colour at L23, and attention-head attribution for roman/ordinal/weekday to find 4+ head groups.
+[mimo2.6_distill_9b][tool] run_python {"output": "ok\n"}
+[mimo2.6_distill_9b][tool] attribution_scan {"scan_id": "scan8", "top_units_[layer,unit,score]": {"roman_numeral": [[23, 6, 0.028], [17, 2, 0.024], [14, 12, 0.022], [15, 6, 0.018], [27, 0, 0.017], [16, 14, 0.017], [14, 14, 0.016], [18, 4, 0.015]], "ordinal_word": [[28, 25, 0.881], [1
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 22, "n": 64, "first": [60, 124, 268, 357, 644, 829, 1208, 1450]}, "drops": {"math": -0.0, "code": 0.001, "facts": -0.006, "multilingual": -0.004, "general_text": 0.002, "month_successor": 0.047, "mo
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 23, "n": 64, "first": [73, 77, 139, 175, 385, 757, 957, 1294]}, "drops": {"math": -0.001, "code": -0.0, "facts": 0.0, "multilingual": -0.001, "general_text": 0.001, "month_successor": 0.042, "month_
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 21, "n": 256, "first": [7, 112, 132, 215, 233, 390, 393, 465]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.009, "multilingual": 0.001, "general_text": 0.002, "month_successor": -0.01, "month_s
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 26, "n": 256, "first": [1, 11, 55, 342, 390, 441, 462, 524]}, "drops": {"math": 0.001, "code": 0.004, "facts": 0.039, "multilingual": 0.013, "general_text": 0.011, "month_successor": -0.007, "month_
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 28, "n": 1, "first": [25]}, "drops": {"math": 0.0, "code": 0.001, "facts": -0.001, "multilingual": 0.0, "general_text": 0.001, "month_successor": 0.06, "month_successor__control": -0.009, "roman_nume
+[mimo2.6_distill_9b][tool] run_python {"output": "torch.Size([4096, 4096])\n[(25, 5.62), (6, 1.67), (26, 1.2), (23, 1.1), (22, 1.0), (9, 0.98), (0, 0.84), (18, 0.84), (15, 0.82), (30, 0.81)]\n"}
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 28, "n": 4, "first": [6, 23, 25, 26]}, "drops": {"math": 0.001, "code": 0.003, "facts": -0.009, "multilingual": 0.011, "general_text": 0.029, "month_successor": 0.08, "month_successor__control": 0.01
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": 0.001, "code": 0.003, "facts": -0.009, "multilingual": 0.011, "general_text": 0.029, "month_successor": 0.08, "month_successor__control": 0.018, "roman_numeral": 0.05, "roman_numeral__contro
+[mimo2.6_distill_9b][tool] run_python {"output": "8 ordinal:h13=1.0 roman:h6=1.1 weekday:h19=0.8 month:h17=0.7 color:h20=0.8 country:h31=0.8 french:h23=0.9 greek:h18=1.0\n9 ordinal:h1=1.0 roman:h27=1.1 weekday:h20=0.9 month:h26=0.8 color:h5=0.9 country:h5=0.7 french:h8=0.9 gree
+[mimo2.6_distill_9b][tool] run_python {"output": "29 country [(23, 5.3), (9, 0.68), (31, 0.67), (21, 0.67), (18, 0.66), (1, 0.65)]\n27 roman [(23, 6.52), (22, 5.98), (6, 2.01), (7, 1.99), (19, 1.71), (18, 1.62)]\n27 month [(25, 5.23), (24, 2.75), (7, 1.3), (6, 1.21), (5, 0.94),
+[mimo2.6_distill_9b][agent] Head pairs in the full-attention layers (22/23, 6/7, 24/25, 8/9 at L27) confirm the engine splits each 256-dim head into two 128-dim slices. Ablating the top 4-head groups by category OV energy.
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 29, "n": 4, "first": [9, 21, 23, 31]}, "drops": {"math": -0.0, "code": -0.0, "facts": 0.04, "multilingual": 0.004, "general_text": 0.01, "month_successor": 0.026, "month_successor__control": 0.025, "
+[mimo2.6_distill_9b][tool] ablate {"error": "ValueError('bad part: index 23 out of range 0..15')"}
+[mimo2.6_distill_9b][tool] ablate {"error": "ValueError('bad part: index 25 out of range 0..15')"}
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 23, "n": 4, "first": [0, 1, 12, 13]}, "drops": {"math": 0.003, "code": 0.004, "facts": 0.006, "multilingual": 0.011, "general_text": 0.001, "month_successor": 0.036, "month_successor__control": 0.156
+[mimo2.6_distill_9b][tool] ablate {"error": "ValueError('bad part: index 24 out of range 0..15')"}
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 28, "n": 4, "first": [1, 23, 28, 29]}, "drops": {"math": 0.0, "code": 0.001, "facts": 0.02, "multilingual": 0.008, "general_text": 0.027, "month_successor": -0.021, "month_successor__control": -0.005
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": 0.0, "code": 0.001, "facts": 0.02, "multilingual": 0.008, "general_text": 0.027, "month_successor": -0.021, "month_successor__control": -0.005, "roman_numeral": -0.006, "roman_numeral__contr
+[mimo2.6_distill_9b][tool] run_python {"output": "23 ordinal [(5, 2.39), (2, 1.58), (4, 1.56), (12, 1.11), (0, 1.11)]\n23 roman [(9, 1.8), (7, 1.67), (2, 1.07), (0, 1.02), (14, 0.92)]\n23 weekday [(6, 2.76), (2, 1.01), (0, 0.95), (3, 0.95), (15, 0.9)]\n23 color [(6, 3.99), (0, 
+[mimo2.6_distill_9b][agent] Passed: the L28 greek 4-head group (0.209; random parts at most 0.043). Now testing 4-head groups in the 16-head full-attention layers L23, L27 and L31.
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 27, "n": 4, "first": [3, 9, 11, 15]}, "drops": {"math": -0.002, "code": -0.001, "facts": -0.011, "multilingual": 0.004, "general_text": 0.014, "month_successor": 0.008, "month_successor__control": -0
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 27, "n": 4, "first": [2, 3, 12, 14]}, "drops": {"math": 0.001, "code": 0.001, "facts": 0.047, "multilingual": 0.013, "general_text": 0.011, "month_successor": 0.057, "month_successor__control": 0.212
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 27, "n": 4, "first": [4, 5, 7, 11]}, "drops": {"math": -0.002, "code": 0.005, "facts": 0.002, "multilingual": 0.006, "general_text": 0.016, "month_successor": 0.001, "month_successor__control": 0.011
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 23, "n": 4, "first": [0, 3, 6, 9]}, "drops": {"math": 0.003, "code": 0.006, "facts": 0.049, "multilingual": 0.001, "general_text": 0.006, "month_successor": 0.151, "month_successor__control": 0.134, 
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 31, "n": 4, "first": [0, 1, 5, 8]}, "drops": {"math": -0.001, "code": -0.003, "facts": 0.009, "multilingual": 0.013, "general_text": 0.03, "month_successor": 0.091, "month_successor__control": 0.05, 
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 27, "n": 4, "first": [4, 6, 7, 10]}, "drops": {"math": -0.001, "code": 0.006, "facts": 0.023, "multilingual": 0.002, "general_text": 0.013, "month_successor": 0.042, "month_successor__control": 0.024
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 27, "n": 4, "first": [2, 3, 9, 11]}, "drops": {"math": -0.0, "code": 0.0, "facts": 0.021, "multilingual": 0.005, "general_text": 0.009, "month_successor": 0.015, "month_successor__control": -0.026, "
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 20, "n": 4, "first": [4, 20, 21, 29]}, "drops": {"math": -0.001, "code": 0.009, "facts": -0.018, "multilingual": -0.001, "general_text": 0.009, "month_successor": -0.013, "month_successor__control": 
+[mimo2.6_distill_9b][agent] Full-attention head groups leak into other controls, so I'll split time. Linear-attention head groups at L25 (weekday h19 3.1x) and L26 (month h16 3.0x), plus more MLP seed clusters.
+[mimo2.6_distill_9b][tool] run_python {"output": "25 weekday [(19, 3.06), (25, 0.92), (12, 0.92), (24, 0.77)]\n26 month [(16, 3.02), (1, 1.35), (0, 0.9), (13, 0.86)]\n24 ordinal [(7, 1.87), (13, 1.65), (14, 1.55), (11, 0.86)]\n26 roman [(1, 1.58), (30, 1.2), (7, 1.14), (31, 1.1
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 25, "n": 4, "first": [12, 19, 24, 25]}, "drops": {"math": 0.0, "code": 0.001, "facts": 0.025, "multilingual": 0.002, "general_text": 0.009, "month_successor": 0.023, "month_successor__control": -0.00
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 26, "n": 4, "first": [0, 1, 13, 16]}, "drops": {"math": -0.0, "code": 0.003, "facts": 0.004, "multilingual": 0.002, "general_text": 0.004, "month_successor": 0.218, "month_successor__control": 0.161,
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 20, "n": 4, "first": [20, 23, 24, 26]}, "drops": {"math": -0.0, "code": -0.008, "facts": -0.06, "multilingual": 0.002, "general_text": 0.007, "month_successor": -0.048, "month_successor__control": 0.
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 24, "n": 4, "first": [7, 11, 13, 14]}, "drops": {"math": -0.0, "code": 0.001, "facts": 0.005, "multilingual": 0.006, "general_text": 0.007, "month_successor": 0.016, "month_successor__control": 0.013
+[mimo2.6_distill_9b][tool] run_python {"output": "ok\n"}
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 29, "n": 64, "first": [486, 501, 657, 901, 995, 1185, 1911, 2039]}, "drops": {"math": -0.001, "code": 0.0, "facts": 0.001, "multilingual": -0.0, "general_text": 0.0, "month_successor": 0.005, "month
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 21, "n": 64, "first": [85, 379, 413, 537, 893, 961, 1181, 1253]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.002, "multilingual": -0.001, "general_text": 0.001, "month_successor": -0.03, "mont
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 29, "n": 64, "first": [154, 205, 297, 371, 428, 453, 786, 927]}, "drops": {"math": 0.0, "code": -0.002, "facts": 0.117, "multilingual": 0.019, "general_text": 0.032, "month_successor": 0.216, "month
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 27, "n": 64, "first": [199, 442, 636, 1003, 1065, 1106, 1511, 1556]}, "drops": {"math": -0.0, "code": -0.0, "facts": -0.0, "multilingual": -0.001, "general_text": 0.001, "month_successor": -0.001, "
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 18, "n": 128, "first": [233, 262, 347, 352, 564, 678, 763, 845]}, "drops": {"math": -0.001, "code": 0.001, "facts": -0.011, "multilingual": -0.001, "general_text": 0.001, "month_successor": 0.043, "
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 20, "n": 128, "first": [19, 26, 52, 99, 120, 156, 296, 300]}, "drops": {"math": 0.001, "code": 0.0, "facts": 0.002, "multilingual": 0.001, "general_text": 0.001, "month_successor": 0.022, "month_suc
+[mimo2.6_distill_9b][agent] The L20 greek cluster at 128 units is clean (0.194), so I'm screening it. L18 weekday at 128 (0.204) misses the gate on a 0.07 ordinal spill, so I'll try 256 to raise the target.
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": 0.001, "code": 0.0, "facts": 0.002, "multilingual": 0.001, "general_text": 0.001, "month_successor": 0.022, "month_successor__control": 0.001, "roman_numeral": 0.002, "roman_numeral__control
+[mimo2.6_distill_9b][tool] run_python {"output": "ok\n"}
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 18, "n": 128, "first": [233, 262, 347, 352, 564, 678, 763, 845]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.006, "multilingual": -0.0, "general_text": 0.001, "month_successor": 0.032, "month_
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 18, "n": 256, "first": [49, 92, 197, 233, 244, 262, 310, 331]}, "drops": {"math": -0.001, "code": 0.001, "facts": -0.01, "multilingual": -0.001, "general_text": 0.001, "month_successor": 0.035, "mon
+[mimo2.6_distill_9b][agent] The L20 greek cluster passed (0.194). L18 weekday keeps leaking into ordinal (0.072–0.096) even after excluding ordinal writers, so I'm dropping it. A last check on colour seeds at L18 and L25.
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 18, "n": 64, "first": [375, 468, 507, 1031, 1086, 1152, 1244, 1616]}, "drops": {"math": -0.0, "code": 0.0, "facts": 0.01, "multilingual": -0.001, "general_text": 0.001, "month_successor": -0.023, "m
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 25, "n": 64, "first": [51, 72, 130, 218, 372, 578, 646, 682]}, "drops": {"math": -0.001, "code": 0.0, "facts": 0.001, "multilingual": -0.001, "general_text": 0.001, "month_successor": -0.004, "month
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 28, "n": 8, "first": [6, 9, 22, 23, 25, 26, 28, 29]}, "drops": {"math": 0.001, "code": 0.003, "facts": 0.009, "multilingual": 0.015, "general_text": 0.041, "month_successor": 0.111, "month_successor_
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 28, "n": 6, "first": [6, 9, 22, 23, 25, 26]}, "drops": {"math": 0.001, "code": 0.002, "facts": 0.01, "multilingual": 0.014, "general_text": 0.039, "month_successor": 0.116, "month_successor__control"
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": 0.001, "code": 0.002, "facts": 0.01, "multilingual": 0.014, "general_text": 0.039, "month_successor": 0.116, "month_successor__control": 0.05, "roman_numeral": 0.083, "roman_numeral__control
+[mimo2.6_distill_9b][tool] finish {"error": "Not yet: 36 minutes and 43 screens are left. Keep mining: try layers, part kinds and skills you have not covered yet (check recall_shared for what teammates already found, and avoid repeating it), define new skills from what the 
+[mimo2.6_distill_9b][agent] Not finished yet: 36 minutes and 43 screens left. Running MLP attribution across the layers I haven't covered (8–15, 30–31) to get seeds for more layers.
+[mimo2.6_distill_9b][tool] attribution_scan {"scan_id": "scan9", "top_units_[layer,unit,score]": {"roman_numeral": [[31, 11144, 0.09], [8, 1553, 0.089], [9, 12136, 0.076], [8, 9955, 0.052], [9, 5594, 0.051], [8, 10451, 0.048], [30, 364, 0.047], [31, 4918, 0.041]], "ordinal_word": [[3
+[mimo2.6_distill_9b][tool] run_python {"output": "month 10 seed z [-0.0] top [4.1, 3.2, 3.0, 2.8, 2.6]\nmonth 11 seed z [-0.1, -0.2] top [3.6, 3.3, 3.1, 2.5, 2.3]\nmonth 12 seed z [-0.0] top [3.7, 3.6, 3.4, 3.4, 3.3]\ngreek 8 seed z [-0.0] top [4.6, 4.3, 2.7, 2.6, 2.6]\ngreek 1
+[mimo2.6_distill_9b][agent] The seeds don't respond to raw token embeddings, so they likely encode context rather than token identity. Testing four early clusters anyway.
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 10, "n": 64, "first": [107, 447, 509, 547, 631, 672, 701, 720]}, "drops": {"math": -0.0, "code": -0.0, "facts": -0.013, "multilingual": -0.002, "general_text": 0.001, "month_successor": 0.1, "month_
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 12, "n": 64, "first": [169, 363, 384, 440, 1277, 1344, 1489, 1508]}, "drops": {"math": -0.001, "code": -0.001, "facts": 0.007, "multilingual": -0.0, "general_text": 0.002, "month_successor": 0.06, "
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 10, "n": 64, "first": [43, 395, 403, 506, 532, 547, 580, 631]}, "drops": {"math": 0.0, "code": -0.001, "facts": -0.006, "multilingual": 0.0, "general_text": 0.0, "month_successor": 0.08, "month_succ
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 9, "n": 64, "first": [12, 337, 339, 372, 556, 593, 685, 1269]}, "drops": {"math": -0.001, "code": 0.0, "facts": 0.013, "multilingual": -0.001, "general_text": -0.0, "month_successor": -0.015, "month
+[mimo2.6_distill_9b][agent] The input-aligned L12 greek cluster drops greek 0.287 with every spill under the 0.096 limit. Screening it, and testing the L9 roman cluster at 128.
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": -0.001, "code": -0.001, "facts": 0.007, "multilingual": -0.0, "general_text": 0.002, "month_successor": 0.06, "month_successor__control": -0.019, "roman_numeral": 0.076, "roman_numeral__cont
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 9, "n": 128, "first": [12, 18, 337, 339, 353, 367, 372, 512]}, "drops": {"math": -0.0, "code": -0.001, "facts": 0.021, "multilingual": -0.001, "general_text": 0.002, "month_successor": -0.04, "month
+[mimo2.6_distill_9b][agent] Passed: input-side greek detectors at L12 (0.287). Applying the same input-detector recipe to more early layers.
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 13, "n": 64, "first": [80, 243, 532, 764, 814, 878, 1584, 1599]}, "drops": {"math": -0.001, "code": 0.0, "facts": 0.012, "multilingual": 0.0, "general_text": 0.001, "month_successor": 0.012, "month_
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 8, "n": 64, "first": [260, 387, 844, 957, 1574, 1611, 1631, 1651]}, "drops": {"math": -0.001, "code": -0.0, "facts": -0.018, "multilingual": -0.001, "general_text": 0.001, "month_successor": -0.027,
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 14, "n": 64, "first": [253, 788, 854, 864, 889, 932, 1063, 1069]}, "drops": {"math": 0.0, "code": -0.001, "facts": 0.009, "multilingual": 0.0, "general_text": 0.001, "month_successor": -0.023, "mont
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 13, "n": 64, "first": [41, 147, 157, 491, 514, 769, 921, 1048]}, "drops": {"math": 0.0, "code": -0.0, "facts": 0.002, "multilingual": -0.001, "general_text": 0.001, "month_successor": 0.022, "month_
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 12, "n": 128, "first": [77, 78, 84, 118, 169, 356, 363, 384]}, "drops": {"math": -0.001, "code": -0.001, "facts": 0.018, "multilingual": 0.0, "general_text": 0.002, "month_successor": 0.103, "month_
+[mimo2.6_distill_9b][agent] Greek detectors at L8 (0.261) and L13 (0.228) are both clean, so I'm screening both. In parallel I'm growing the ordinal (L14) and weekday (L13) clusters.
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": -0.001, "code": -0.0, "facts": -0.018, "multilingual": -0.001, "general_text": 0.001, "month_successor": -0.027, "month_successor__control": -0.004, "roman_numeral": 0.01, "roman_numeral__co
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": -0.001, "code": 0.0, "facts": 0.012, "multilingual": 0.0, "general_text": 0.001, "month_successor": 0.012, "month_successor__control": 0.037, "roman_numeral": -0.032, "roman_numeral__control
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 14, "n": 128, "first": [253, 265, 433, 499, 561, 787, 788, 803]}, "drops": {"math": 0.0, "code": -0.001, "facts": 0.011, "multilingual": -0.0, "general_text": 0.001, "month_successor": 0.03, "month_
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 13, "n": 128, "first": [41, 147, 156, 157, 491, 492, 514, 696]}, "drops": {"math": 0.0, "code": 0.001, "facts": 0.007, "multilingual": -0.001, "general_text": 0.001, "month_successor": 0.032, "month
+[mimo2.6_distill_9b][agent] Both greek detector clusters passed (L8 0.261, L13 0.228). I'll screen the clean but weak L14 ordinal cluster (0.156) and test the rest of the early-layer detector clusters.
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": 0.0, "code": -0.001, "facts": 0.011, "multilingual": -0.0, "general_text": 0.001, "month_successor": 0.03, "month_successor__control": -0.019, "roman_numeral": -0.018, "roman_numeral__contro
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 9, "n": 64, "first": [433, 520, 670, 769, 806, 986, 1179, 1280]}, "drops": {"math": -0.0, "code": 0.001, "facts": 0.011, "multilingual": -0.0, "general_text": 0.0, "month_successor": 0.053, "month_s
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 8, "n": 64, "first": [199, 583, 694, 957, 1087, 1545, 1553, 1611]}, "drops": {"math": -0.0, "code": -0.001, "facts": 0.009, "multilingual": -0.001, "general_text": 0.002, "month_successor": -0.072, 
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 11, "n": 64, "first": [369, 720, 733, 915, 1084, 1147, 1401, 1446]}, "drops": {"math": -0.0, "code": 0.0, "facts": 0.018, "multilingual": -0.0, "general_text": -0.0, "month_successor": 0.074, "month
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 11, "n": 64, "first": [281, 382, 408, 692, 910, 1334, 1492, 1539]}, "drops": {"math": -0.001, "code": -0.001, "facts": -0.014, "multilingual": -0.001, "general_text": 0.001, "month_successor": -0.03
+[mimo2.6_distill_9b][agent] The input-side roman cluster at L8 is clean at 0.16. Screening it and checking a 128-unit version.
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": -0.0, "code": -0.001, "facts": 0.009, "multilingual": -0.001, "general_text": 0.002, "month_successor": -0.072, "month_successor__control": -0.0, "roman_numeral": 0.16, "roman_numeral__contr
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 8, "n": 128, "first": [40, 122, 199, 451, 497, 583, 677, 694]}, "drops": {"math": -0.0, "code": -0.001, "facts": 0.002, "multilingual": -0.001, "general_text": 0.002, "month_successor": -0.043, "mon
+[mimo2.6_distill_9b][agent] Passed: L8 roman detectors (0.16). One last try: growing the L8 greek detector cluster to 128.
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 8, "n": 128, "first": [139, 169, 260, 387, 488, 651, 677, 844]}, "drops": {"math": -0.001, "code": 0.001, "facts": 0.002, "multilingual": -0.0, "general_text": 0.002, "month_successor": 0.006, "mont
+[mimo2.6_distill_9b][tool] finish {"error": "Not yet: 26 minutes and 38 screens are left. Keep mining: try layers, part kinds and skills you have not covered yet (check recall_shared for what teammates already found, and avoid repeating it), define new skills from what the 
+[mimo2.6_distill_9b][agent] 26 minutes and 38 screens left, so I'm applying the input-detector recipe to the remaining early-layer seeds from scan9 (greek, ordinal, month, colour, weekday at L8–17).
+[mimo2.6_distill_9b][tool] run_python {"output": "ok\n"}
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 9, "n": 64, "first": [257, 339, 353, 595, 700, 783, 850, 927]}, "drops": {"math": -0.001, "code": 0.001, "facts": 0.007, "multilingual": -0.0, "general_text": 0.001, "month_successor": -0.006, "mont
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 11, "n": 64, "first": [52, 517, 629, 1019, 1194, 1560, 2131, 2197]}, "drops": {"math": -0.001, "code": 0.001, "facts": 0.005, "multilingual": -0.001, "general_text": 0.001, "month_successor": 0.086,
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 14, "n": 64, "first": [177, 394, 520, 753, 1061, 1238, 2070, 2117]}, "drops": {"math": -0.0, "code": -0.0, "facts": -0.013, "multilingual": -0.0, "general_text": 0.002, "month_successor": 0.028, "mo
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 12, "n": 64, "first": [7, 154, 172, 224, 453, 679, 749, 1494]}, "drops": {"math": 0.001, "code": -0.0, "facts": 0.009, "multilingual": -0.001, "general_text": 0.001, "month_successor": 0.09, "month_
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 17, "n": 64, "first": [28, 416, 579, 613, 1130, 1814, 1833, 2130]}, "drops": {"math": -0.0, "code": -0.0, "facts": 0.009, "multilingual": -0.001, "general_text": 0.002, "month_successor": -0.103, "m
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 17, "n": 64, "first": [279, 599, 911, 1030, 1059, 1096, 1198, 1462]}, "drops": {"math": -0.001, "code": -0.0, "facts": -0.086, "multilingual": -0.001, "general_text": 0.001, "month_successor": 0.138
+[mimo2.6_distill_9b][agent] The L9 greek detector cluster is clean (0.232, spills at most 0.019). Screening it, and testing the remaining seeds (L15 greek, ordinal L8/L15, colour L14/L15).
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": -0.001, "code": 0.001, "facts": 0.007, "multilingual": -0.0, "general_text": 0.001, "month_successor": -0.006, "month_successor__control": -0.031, "roman_numeral": -0.014, "roman_numeral__co
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 15, "n": 64, "first": [210, 338, 376, 433, 511, 556, 656, 757]}, "drops": {"math": -0.0, "code": 0.0, "facts": 0.005, "multilingual": 0.001, "general_text": 0.001, "month_successor": 0.015, "month_s
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 8, "n": 64, "first": [493, 657, 1122, 1428, 2055, 2554, 2675, 2734]}, "drops": {"math": -0.0, "code": 0.001, "facts": -0.002, "multilingual": -0.001, "general_text": 0.001, "month_successor": -0.071
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 15, "n": 64, "first": [88, 226, 332, 360, 463, 678, 805, 883]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.009, "multilingual": -0.0, "general_text": 0.001, "month_successor": -0.026, "month_s
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 14, "n": 64, "first": [53, 305, 487, 595, 620, 625, 641, 738]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.006, "multilingual": 0.001, "general_text": 0.001, "month_successor": -0.001, "month_
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 15, "n": 64, "first": [93, 163, 201, 373, 754, 776, 796, 813]}, "drops": {"math": -0.0, "code": -0.001, "facts": 0.006, "multilingual": -0.0, "general_text": 0.0, "month_successor": 0.003, "month_su
+[mimo2.6_distill_9b][agent] Passed: L9 greek detectors (0.232). The L8 ordinal cluster (0.175) leaks 0.092 into greek, so as a final attempt I'm rebuilding it without the top L8 greek-detector units.
+[mimo2.6_distill_9b][tool] run_python {"output": "ok\n"}
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 8, "n": 64, "first": [493, 657, 1122, 1428, 2087, 2366, 2554, 2675]}, "drops": {"math": -0.0, "code": 0.001, "facts": -0.009, "multilingual": -0.001, "general_text": 0.001, "month_successor": -0.092
+[mimo2.6_distill_9b][tool] finish {"error": "Not yet: 21 minutes and 37 screens are left. Keep mining: try layers, part kinds and skills you have not covered yet (check recall_shared for what teammates already found, and avoid repeating it), define new skills from what the 
+[mimo2.6_distill_9b][agent] Still 21 minutes and 37 screens left. Trying colour seeds at L23, L27 and L12, plus 128-unit versions of the L9 and L13 greek detectors.
+[mimo2.6_distill_9b][tool] run_python {"output": "ok\n"}
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 23, "n": 64, "first": [421, 428, 584, 678, 776, 922, 1254, 1498]}, "drops": {"math": -0.001, "code": 0.0, "facts": 0.007, "multilingual": -0.0, "general_text": 0.001, "month_successor": 0.0, "month_
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 27, "n": 64, "first": [476, 1080, 1230, 1269, 1276, 1366, 1420, 1735]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.005, "multilingual": -0.001, "general_text": 0.002, "month_successor": -0.001
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 9, "n": 128, "first": [103, 106, 257, 339, 353, 511, 595, 700]}, "drops": {"math": -0.0, "code": 0.0, "facts": 0.007, "multilingual": -0.0, "general_text": 0.002, "month_successor": -0.05, "month_su
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 13, "n": 128, "first": [80, 112, 243, 334, 513, 532, 637, 693]}, "drops": {"math": -0.001, "code": -0.001, "facts": 0.014, "multilingual": 0.003, "general_text": 0.002, "month_successor": 0.01, "mon
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 12, "n": 64, "first": [177, 185, 339, 362, 398, 580, 843, 864]}, "drops": {"math": -0.0, "code": 0.001, "facts": -0.048, "multilingual": -0.001, "general_text": -0.001, "month_successor": 0.057, "mo
+[mimo2.6_distill_9b][agent] Both 128-unit greek detector clusters (L9 and L13, 0.236 each) are clean. Screening them as the larger units.
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": -0.0, "code": 0.0, "facts": 0.007, "multilingual": -0.0, "general_text": 0.002, "month_successor": -0.05, "month_successor__control": -0.055, "roman_numeral": -0.031, "roman_numeral__control
+[mimo2.6_distill_9b][tool] screen {"passed": true, "reasons": [], "drops": {"math": -0.001, "code": -0.001, "facts": 0.014, "multilingual": 0.003, "general_text": 0.002, "month_successor": 0.01, "month_successor__control": 0.025, "roman_numeral": -0.023, "roman_numeral__con
+[mimo2.6_distill_9b][tool] finish {"error": "Not yet: 17 minutes and 35 screens are left. Keep mining: try layers, part kinds and skills you have not covered yet (check recall_shared for what teammates already found, and avoid repeating it), define new skills from what the 
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 12, "n": 64, "first": [167, 181, 183, 565, 903, 941, 957, 1122]}, "drops": {"math": -0.001, "code": -0.0, "facts": -0.011, "multilingual": 0.001, "general_text": 0.0, "month_successor": 0.133, "mont
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 9, "n": 64, "first": [164, 244, 729, 866, 1040, 1157, 1197, 1356]}, "drops": {"math": 0.0, "code": 0.001, "facts": 0.003, "multilingual": -0.001, "general_text": 0.0, "month_successor": 0.112, "mont
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 8, "n": 64, "first": [34, 394, 465, 485, 538, 555, 1075, 1119]}, "drops": {"math": -0.001, "code": -0.0, "facts": -0.011, "multilingual": -0.002, "general_text": 0.0, "month_successor": -0.014, "mon
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 12, "n": 64, "first": [167, 181, 183, 565, 903, 941, 957, 1122]}, "drops": {"math": -0.001, "code": -0.0, "facts": -0.011, "multilingual": 0.001, "general_text": 0.0, "month_successor": 0.133, "mont
+[mimo2.6_distill_9b][agent] L12 month detectors are clean but weak (0.133). Growing to 128 to try to clear 0.15.
+[mimo2.6_distill_9b][tool] run_python {"output": "ok\n"}
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 12, "n": 128, "first": [167, 181, 183, 242, 470, 565, 633, 747]}, "drops": {"math": -0.001, "code": -0.001, "facts": -0.012, "multilingual": 0.001, "general_text": 0.001, "month_successor": 0.119, "
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 12, "n": 256, "first": [8, 11, 167, 181, 183, 242, 295, 353]}, "drops": {"math": -0.0, "code": 0.001, "facts": -0.01, "multilingual": -0.002, "general_text": 0.002, "month_successor": 0.114, "month_
+[mimo2.6_distill_9b][tool] finish {"error": "Not yet: 15 minutes and 35 screens are left. Keep mining: try layers, part kinds and skills you have not covered yet (check recall_shared for what teammates already found, and avoid repeating it), define new skills from what the 
+[mimo2.6_distill_9b][agent] 15 minutes left. Trying the last untested linear-attention head groups by OV energy: L26 roman, L22 weekday, L25 colour.
+[mimo2.6_distill_9b][tool] run_python {"output": "26 roman [(1, 1.58), (30, 1.2), (7, 1.14), (31, 1.1)]\n22 weekday [(22, 1.93), (24, 0.93), (11, 0.82), (25, 0.75)]\n25 color [(31, 1.85), (29, 0.8), (12, 0.77), (28, 0.77)]\n29 color [(9, 1.73), (3, 1.53), (27, 1.05), (2, 0.9)]\
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 26, "n": 4, "first": [1, 7, 30, 31]}, "drops": {"math": -0.0, "code": -0.0, "facts": -0.015, "multilingual": 0.004, "general_text": 0.004, "month_successor": 0.009, "month_successor__control": 0.013,
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 22, "n": 4, "first": [11, 22, 24, 25]}, "drops": {"math": 0.0, "code": 0.005, "facts": -0.008, "multilingual": 0.007, "general_text": 0.004, "month_successor": 0.046, "month_successor__control": 0.03
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "attn_heads", "layer": 25, "n": 4, "first": [12, 28, 29, 31]}, "drops": {"math": 0.0, "code": 0.001, "facts": 0.01, "multilingual": 0.003, "general_text": 0.007, "month_successor": 0.006, "month_successor__control": 0.02, 
+[mimo2.6_distill_9b][tool] finish {"error": "Not yet: 13 minutes and 35 screens are left. Keep mining: try layers, part kinds and skills you have not covered yet (check recall_shared for what teammates already found, and avoid repeating it), define new skills from what the 
+[mimo2.6_distill_9b][agent] 13 minutes left. Retrying the L11 greek detector cluster (0.23, but a 0.086 month leak) with the month detectors excluded.
+[mimo2.6_distill_9b][tool] run_python {"output": "ok\n"}
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 11, "n": 64, "first": [52, 517, 629, 1019, 1194, 1560, 1916, 2113]}, "drops": {"math": -0.001, "code": 0.001, "facts": 0.007, "multilingual": 0.001, "general_text": 0.001, "month_successor": 0.065, 
+[mimo2.6_distill_9b][tool] finish {"ok": true, "note": "Run finished. Reply with one short line and stop."}
+[mimo2.6_distill_9b][agent] Run finished: 24 of 26 screens passed, all on narrow lexical skills (roman numerals, ordinal words, greek letters, weekdays, colours); math, code, multilingual and facts yielded nothing selective, and the L28 ordinal head groups effectively behave as one head (25).
+[mimo2.6_distill_9b][agent] {"lessons": ["[mimo2.6_distill_9b] To get passing MLP clusters of 64-512 units, take attribution seeds (top selective units in one layer) and grow them by the down_proj logit-lens z-score on the skill's tokens. L26 roman with seeds 4058/6190 dropped .536 at 64, .571 at 256 and .548 at 512, with rand
+/Users/pyro/Research/wsp-mine/person_a/mine/weight_sandbox.py:84: AsyncUsageWarning: A blocking Modal interface is being used in an async context.
+
+This may cause performance issues or bugs. Consider rewriting to use Modal's async interfaces:
+https://modal.com/docs/guide/async
+
+Suggested rewrite:
+  await self.sb.terminate.aio()
+
+Original line:
+  self.sb.terminate()
+[mimo2.6_distill_9b] DONE {"run_id": "run-20261114-201415", "person": "Trisanth", "llm": "claude-opus-5-5", "openai_usd_est": 0.0, "claude_equiv_usd": 12.84, "modal_gpu_usd_est": 4.13, "modal_busy_seconds": 7620, "gpu": "EngineL40S", "note": "claude_equiv_usd is the API-price equivalent the CLI reports; the run uses the Claude plan. Modal estimate counts busy call time only (not idle keep-warm or first load)", "usage": {"turns": 249, "claude_equiv_usd": 12.842696399999998, "input_tokens": 184, "output_tokens": 85921, "cache_read_input_tokens": 13962161}, "turns": 249, "python_runs": 38, "screens": 25, "stop_reason": "finished", "summary": "24 of 26 screens passed on MiMo-V2.6-Distill-Qwen-9B. All of them are narrow lexical skills: roman numerals, ordinal words, greek letters, weekdays and colours. Nothing I tried came close to a selective unit for the broad skills (math, code, multilingual, facts).\n\nThe model is a Qwen3.5 hybrid: GatedDeltaNet linear attention with 32 heads of 128 dims, plus full attention at L3/7/.../31 with 16 heads of 256 dims. Its MLPs are 12288 wide.\n\nTwo weight recipes produced every passing part:\n- **Late layers (L20\u201328), output writers:** take attribution seeds in one layer and grow the cluster to 64\u2013512 units by each unit's down_proj logit-lens z-score on the skill's tokens.\n- **Early layers (L8\u201314), input detectors:** grow seeds by each unit's silu(gate)\u00b7up response to the skill's token embeddings, compared with random tokens.\n- **Heads:** rank the
+[mimo2.6_distill_9b] round 2 | budget left $25.0 | hours left 0.2
+[mimo2.6_distill_9b] run run-20261114-223759 GPU EngineL40S revision 1f09ddcc1a | llm claude-opus-5-5 | shared memory on
+[mimo2.6_distill_9b][tool] model_structure {"structure": {"attn": {"path": "linear_attn.out_proj", "n_heads": 32, "head_dim": 128, "type": "Qwen3_5GatedDeltaNet"}, "mlp": {"path": "mlp.down_proj", "width": 12288}}, "n_layers": 32, "layers_with": {"attn": 32, "mlp": 32, "experts": 0}
+[mimo2.6_distill_9b][tool] run_python {"output": "['model.language_model.layers.20.input_layernorm.weight', 'model.language_model.layers.20.linear_attn.A_log', 'model.language_model.layers.20.linear_attn.conv1d.weight', 'model.language_model.layers.20.linear_attn.dt_bias', 'mod
+[mimo2.6_distill_9b][tool] run_python {"output": "country 40\nmonth 12\nweekday 7\ncolor 11\nordinal 10\ngreek 11\nroman 11\ndigit 1\n18 top country frac 0.006961892358958721 rand 0.0018341694958508015\n20 top country frac 0.008215325884521008 rand 0.0018234890885651112\n22 top
+[mimo2.6_distill_9b][tool] ablate {"error": "no /work/cty_l24_256.json in the sandbox"}
+[mimo2.6_distill_9b][tool] ablate {"error": "no /work/cty_l30_256.json in the sandbox"}
+[mimo2.6_distill_9b][tool] ablate {"error": "no /work/cty_l26_512.json in the sandbox"}
+[mimo2.6_distill_9b][agent] Handles get lowercased; I'll rename files.
+[mimo2.6_distill_9b][tool] run_python {"output": "['cty_L18_256.json', 'cty_L18_512.json', 'cty_L18_64.json', 'cty_L20_256.json', 'cty_L20_512.json', 'cty_L20_64.json', 'cty_L22_256.json', 'cty_L22_512.json', 'cty_L22_64.json', 'cty_L24_256.json', 'cty_L24_512.json', 'cty_L24_6
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 24, "n": 256, "first": [2, 102, 189, 197, 215, 245, 261, 377]}, "drops": {"math": -0.0, "code": 0.001, "facts": 0.001, "multilingual": -0.001, "general_text": 0.003, "month_successor": 0.001, "month
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 30, "n": 256, "first": [49, 60, 61, 71, 98, 146, 222, 345]}, "drops": {"math": -0.0, "code": 0.001, "facts": 0.022, "multilingual": 0.001, "general_text": 0.008, "month_successor": -0.021, "month_su
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 26, "n": 512, "first": [7, 37, 44, 46, 136, 149, 214, 266]}, "drops": {"math": -0.0, "code": -0.0, "facts": 0.031, "multilingual": 0.006, "general_text": 0.005, "month_successor": -0.008, "month_suc
+[mimo2.6_distill_9b][tool] run_python {"output": "3 0.014985303394496441 0.008109629154205322\n5 0.014826043508946896 0.00810687430202961\n8 0.014476709067821503 0.008074496872723103\n10 0.01424437202513218 0.007946895435452461\n12 0.014392816461622715 0.007899995893239975\n14 
+[mimo2.6_distill_9b][tool] run_python {"output": "[(0, 'lin'), (1, 'lin'), (2, 'lin'), (3, 'self_attn'), (4, 'lin'), (5, 'lin'), (6, 'lin'), (7, 'self_attn'), (8, 'lin'), (9, 'lin'), (10, 'lin'), (11, 'self_attn'), (12, 'lin'), (13, 'lin'), (14, 'lin'), (15, 'self_attn'), (16, 
+[mimo2.6_distill_9b][agent] Now attribution scan for country_of_city, en_fr_translation and math.
+[mimo2.6_distill_9b][tool] attribution_scan {"scan_id": "scan1", "top_units_[layer,unit,score]": {"country_of_city": [[14, 3335, 0.017], [24, 215, 0.008], [24, 8510, 0.007], [22, 9130, 0.006], [10, 9826, 0.005], [22, 4972, 0.005], [22, 9167, 0.005], [10, 10304, 0.004]], "en_fr_transl
+[mimo2.6_distill_9b][tool] run_python {"output": "cty 14 [0.234, 0.208, 0.179, 0.159, 0.155] 0.09759268164634705 0.07794074714183807 0.03365562483668327\ncty 24 [0.312, 0.299, 0.293, 0.275, 0.274] 0.13147972524166107 0.10084444284439087 0.05507981777191162\ncty 22 [0.602, 0.509
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 14, "n": 128, "first": [24, 122, 138, 178, 194, 337, 389, 438]}, "drops": {"math": -0.0, "code": -0.001, "facts": -0.019, "multilingual": -0.003, "general_text": 0.002, "month_successor": -0.099, "m
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 20, "n": 128, "first": [19, 52, 74, 186, 402, 508, 638, 799]}, "drops": {"math": -0.0, "code": 0.001, "facts": 0.025, "multilingual": -0.003, "general_text": 0.001, "month_successor": 0.025, "month_
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 18, "n": 128, "first": [22, 128, 373, 423, 582, 672, 703, 768]}, "drops": {"math": -0.0, "code": 0.004, "facts": -0.008, "multilingual": 0.0, "general_text": 0.001, "month_successor": -0.005, "month
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 22, "n": 128, "first": [103, 377, 385, 650, 664, 679, 685, 695]}, "drops": {"math": 0.0, "code": 0.001, "facts": -0.003, "multilingual": -0.0, "general_text": 0.002, "month_successor": -0.02, "month
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 14, "n": 256, "first": [13, 24, 51, 122, 138, 161, 178, 194]}, "drops": {"math": -0.001, "code": 0.003, "facts": -0.018, "multilingual": -0.001, "general_text": 0.002, "month_successor": -0.039, "mo
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "block", "layers": [20, 21]}, "drops": {"math": 0.029, "code": 0.123, "facts": 0.454, "multilingual": 0.103, "general_text": 0.207, "month_successor": -0.131, "month_successor__control": -0.197, "roman_numeral": 0.166, "ro
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "block", "layers": [14]}, "drops": {"math": 0.005, "code": 0.015, "facts": 0.048, "multilingual": 0.063, "general_text": 0.052, "month_successor": -0.574, "month_successor__control": 0.408, "roman_numeral": 0.105, "roman_n
+[mimo2.6_distill_9b][tool] attribution_scan {"scan_id": "scan2", "top_units_[layer,unit,score]": {"roman_numeral": [[14, 3335, 0.051], [19, 11996, 0.044], [21, 6063, 0.033], [11, 9876, 0.03], [16, 4087, 0.026], [19, 5645, 0.025], [11, 5787, 0.024], [19, 12030, 0.023]], "color_of_obje
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 14, "n": 64, "first": [24, 178, 194, 389, 543, 736, 1785, 1814]}, "drops": {"math": 0.0, "code": -0.0, "facts": -0.02, "multilingual": -0.002, "general_text": 0.002, "month_successor": -0.11, "month
+[mimo2.6_distill_9b][tool] run_python {"output": "\n[stderr]\nTraceback (most recent call last):\n  File \"<string>\", line 4, in <module>\nNameError: name 'grow' is not defined\n\n[exit code 1]"}
+[mimo2.6_distill_9b][tool] run_python {"output": "rom 19 ok\nrom 11 ok\nrom 21 ok\ncol 16 ok\ncol 17 ok\ncty 16 ok\n"}
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 19, "n": 128, "first": [339, 542, 588, 625, 635, 663, 737, 901]}, "drops": {"math": -0.0, "code": 0.001, "facts": -0.01, "multilingual": -0.001, "general_text": 0.001, "month_successor": -0.035, "mo
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 11, "n": 128, "first": [160, 235, 529, 575, 750, 751, 807, 888]}, "drops": {"math": -0.0, "code": 0.002, "facts": 0.014, "multilingual": 0.0, "general_text": -0.001, "month_successor": -0.018, "mont
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 16, "n": 128, "first": [274, 329, 394, 458, 599, 714, 765, 910]}, "drops": {"math": -0.001, "code": 0.001, "facts": 0.07, "multilingual": 0.0, "general_text": -0.0, "month_successor": 0.196, "month_
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 17, "n": 128, "first": [100, 221, 277, 293, 367, 391, 497, 566]}, "drops": {"math": -0.001, "code": 0.001, "facts": -0.006, "multilingual": -0.001, "general_text": 0.001, "month_successor": 0.071, "
+[mimo2.6_distill_9b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 16, "n": 128, "first": [96, 155, 199, 223, 257, 354, 376, 426]}, "drops": {"math": -0.001, "code": 0.0, "facts": 0.047, "multilingual": -0.0, "general_text": 0.002, "month_successor": 0.262, "month_
+[mimo2.6_distill_9b][tool] screen {"passed": false, "reasons": ["target drop 0.138 < 0.15", "held-out check failed"], "drops": {"math": -0.0, "code": -0.0, "facts": -0.018, "multilingual": -0.002, "general_text": 0.002, "month_successor": -0.08, "month_successor__control": 
+[mimo2.6_distill_9b][tool] screen {"error": "Time limit reached. Call finish now with your summary."}
+[mimo2.6_distill_9b][tool] screen {"error": "Time limit reached. Call finish now with your summary."}
+[mimo2.6_distill_9b][tool] finish {"ok": true, "note": "Run finished. Reply with one short line and stop."}
+[mimo2.6_distill_9b][agent] No new part passed the screen this run. I used 1 of the 35 allowed screens before the 0.2-hour limit cut me off, so two queued screens (an L11 roman cluster and an L16 Greek-letter cluster) never ran.
+
+- **Closest miss:** a 128-neuron MLP cluster at layer 14, grown around neuron 3335 (the top roman-
+[mimo2.6_distill_9b][agent] {"lessons": ["[mimo2.6_distill_9b] Country-writer MLP clusters were inert. Ranking down_proj columns by country unembedding-subspace fraction, minus 1.5x the other categories, gave clean logit lenses (China/Egypt/Japan units, subspace fraction .041 vs .0019 random at L30). Yet 256-512 unit clusters 
+/Users/pyro/Research/wsp-mine/person_a/mine/weight_sandbox.py:84: AsyncUsageWarning: A blocking Modal interface is being used in an async context.
+
+This may cause performance issues or bugs. Consider rewriting to use Modal's async interfaces:
+https://modal.com/docs/guide/async
+
+Suggested rewrite:
+  await self.sb.terminate.aio()
+
+Original line:
+  self.sb.terminate()
+[mimo2.6_distill_9b] DONE {"run_id": "run-20261114-223759", "person": "Trisanth", "llm": "claude-opus-5-5", "openai_usd_est": 0.0, "claude_equiv_usd": 2.64, "modal_gpu_usd_est": 0.35, "modal_busy_seconds": 651, "gpu": "EngineL40S", "note": "claude_equiv_usd is the API-price equivalent the CLI reports; the run uses the Claude plan. Modal estimate counts busy call time only (not idle keep-warm or first load)", "usage": {"turns": 36, "claude_equiv_usd": 2.638886, "input_tokens": 40, "output_tokens": 11302, "cache_read_input_tokens": 1555389}, "turns": 36, "python_runs": 8, "screens": 1, "stop_reason": "finished", "summary": "MiMo-V2.6-Distill-Qwen-9B (hybrid: full attention at L3,7,...,31, GatedDeltaNet elsewhere). No new screen passed in this short run (1 screen: L14 roman 128-unit cluster, roman .138 vs random max .024, but under .15 and failed held-out). Findings: (1) Country-writer MLP clusters (country unembedding subspace minus 1.5x other categories) at L24/L26/L30, 256-512 units, were inert for country_of_city (\u2264.03) even though the logit lens is clean (China/Egypt/Japan units). This matches the lesson that writer clusters are not causal when the skill has a large margin. (2) Whole blocks L14 and L20-21 were not selective (facts .45, general_text .21). (3) Attribution plus weight-cosine seed growth found: L14 u3335 is a roman-numeral unit (attribution .051). Its 64/128/256 clusters cut roman .12-.14 with control \u2264.03, well above random. That is close to passing, so the next step is to ad
