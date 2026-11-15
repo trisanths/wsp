@@ -33,38 +33,25 @@ An agent swarm ties the four together: it proposes builds, scores them against c
 
 ## What it does
 
-Sapien turns a plain-language request ("a coding model at half the memory", "a 2B model that reads contracts") into one model built from the parts of existing models. Screens below are from the Sapien studio in demo mode.
+Sapien turns a plain-language request ("a coding model at half the memory", "a 2B model that reads contracts") into one model built from the parts of existing models.
 
-<img src="docs/img/fig-request.png" alt="New model request" width="760">
+1. **Mine.** Agents read the weights of open models and name the parts that hold a skill. So far: 1,369 parts from 76 models (0.35B to 235B), with 42,338 shared memories on past.dev.
+2. **Test.** Each part is switched off and every skill rescored. It is kept only if its own skill drops at least 15% on held-out text and more than for five random parts of the same size.
+3. **Plan.** Sapien drafts a "Frankenstein" model for the task: a base plus parts, under limits on size, compute per token and heal time. An Exa agent picks the benchmarks to target.
 
-<sub>Start from a plain-language request.</sub>
+<table><tr>
+<td width="50%"><img src="docs/img/fig-mine.png" alt="Mining stages"><br><sub>Mining a model, stage by stage</sub></td>
+<td width="50%"><img src="docs/img/fig-spec.png" alt="Exa benchmark research"><br><sub>Exa finds the benchmarks for a request</sub></td>
+</tr></table>
 
-1. **Mine.** Mining agents (Claude Opus 5.5 and GPT-5) read the raw weights of an open model in a network-blocked Modal sandbox and name candidate parts. So far they have mined **76 models** from 0.35B to 235B parameters (Qwen, Llama, Gemma, Liquid LFM, Phi, Granite and domain fine-tunes such as Apollo2 and Saul) and saved **1,369 parts**: 584 MoE expert sets, 430 MLP neuron clusters, 264 layer blocks and 91 attention-head groups. The largest categories are math (659 parts), programming languages, science and professional subjects (chemistry, physics, biology, medicine, law, finance), natural languages and tool calling. Every attempt is written to past.dev, which now holds **42,338 memories** from 2,944 writes and 1,065 recalls, so each agent starts from what the others found.
+4. **Compile.** A swarm of agents, or a person on a canvas, places the parts; each result steers the next choice (for example, a Qwen2.5-7B slice only helps once it runs past layer 15).
+5. **Heal.** A short training pass fits the parts in. Only the connectors train, about 14M parameters for a 7B donor slice.
+6. **Evaluate.** Every build is scored on a held-out split against the base, a LoRA of the same trainable size, the connector alone, and random parts of the same size.
 
-   <img src="docs/img/fig-mine.png" alt="Mining stages" width="760">
-
-   <sub>Mining a model: fetch weights, read them, scan layers, switch parts off, gate against random parts, publish.</sub>
-2. **Test and file.** Each candidate is switched off and every skill is rescored in one pass. A part is kept only if its own skill drops at least 15% on both a search half and a hidden held-out half, every other skill drops by at most max(5%, a third of that drop), its matched control text stays within the same limit, and the drop beats five random parts of the same size from the same layer.
-3. **Plan.** Sapien drafts a "Frankenstein" model for the task: a base model plus the parts that should give it the skill, under hard limits on total parameters, parameters run per token and heal minutes. An Exa research agent picks 3 to 6 benchmarks for the task and pulls sourced reference scores for models of that size; guard benchmarks name the skills the model must keep. Before any GPU starts, the planner checks how each donor relates to the base (identical, fine-tune, same tokenizer or different family) and allows only the build methods that relation supports.
-
-   <img src="docs/img/fig-spec.png" alt="Exa benchmark research" width="760">
-
-   <sub>The research agent searches with Exa and reads benchmark papers before setting targets.</sub>
-4. **Compile.** An agent swarm, or a person on the builder canvas, picks parts and places them. Results feed back into the next choice. Examples from the logs: a donor slice must run past about layer 15 of Qwen2.5-7B to help (layers 4 to 15 reach 54.0 MMLU held-out, 4 to 20 reach 58.5, 4 to 11 stay at the 50.3 control level); the branch reads and writes near half depth of the host (layer 7 of Llama-1B's 16); and reading a mix of host layers 1 to 7 beats reading one layer (54.9 against 53.1).
-
-   <img src="docs/img/fig-compile-3d.png" alt="Parts placed on the host in 3D" width="760">
-
-   <sub>Parts placed on Llama-3.2-1B, layer by layer.</sub>
-
-   <img src="docs/img/fig-swarm.png" alt="Swarm activity feed" width="760">
-
-   <sub>Planners propose programs each round; the analyst feeds lessons back.</sub>
-5. **Heal.** An extra training pass makes the new parts work inside the model. It trains only the connectors (an encoder, a decoder and a per-token gate, about 14M parameters for a 7B donor slice) on answer letters from non-benchmark sets, with a KL penalty that keeps the model close to the original host on general text.
-6. **Evaluate.** Every build is scored against four controls: the base model, a LoRA with the same trainable budget, the same connector with the donor removed ("adapter only"), and the same build with random parts of the same size. Configurations are chosen on a 1,000-item dev split and reported on a separate 2,000-item held-out split; multiple-choice items are scored by the log-probability of each answer letter. No text that trains, ranks or heals a model comes from a reported benchmark in any split, and a claim needs two seeds before it counts. The compiler reports a verdict for each part (contributes, no better than random, or harmful), and the result is compared with the best existing open model at the same size.
-
-   <img src="docs/img/fig-leaderboard.png" alt="Leaderboard against controls" width="760">
-
-   <sub>Every build ranked against the host, LoRA and random parts of the same size.</sub>
+<table><tr>
+<td width="50%"><img src="docs/img/fig-compile-3d.png" alt="Parts placed on the host"><br><sub>Parts placed on Llama-3.2-1B</sub></td>
+<td width="50%"><img src="docs/img/fig-leaderboard.png" alt="Leaderboard against controls"><br><sub>Every build ranked against the controls</sub></td>
+</tr></table>
 
 The output is one standard model that loads in Hugging Face Transformers and serves on vLLM.
 
@@ -213,7 +200,7 @@ Qwen3-30B-A3B has 128 experts in each layer. Each layer keeps its top N experts 
 | Keep 32 by code saliency, healed | 8.78B | 73.8 | 61.9 | 25.6 |
 | Keep 32 random experts, healed (3 seeds) | 8.78B | 6.1 to 11.6 | 7.4 to 23.3 | 24 |
 
-<img src="docs/img/fig-shrink.png" alt="Shrink plan" width="760">
+<img src="docs/img/fig-shrink.png" alt="Shrink plan" width="480">
 
 <sub>A shrink plan: keep 64 of 128 experts per layer, ranked by code saliency.</sub>
 
