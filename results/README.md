@@ -97,3 +97,46 @@ Reading:
 Next (round 4): the same test with a host that shares the donor's
 tokenizer (Qwen2.5-0.5B-Instruct host, Qwen2.5-Math-1.5B donor), to
 separate "the stitch is too lossy" from "tokenization differs".
+
+## Run 4 (2026-11-14): the stitch is the bottleneck
+
+Raw rows: round4_rows.json.
+
+Stitch penalty. Host Qwen2.5-0.5B-Instruct and donor Qwen2.5-Math-1.5B
+share a tokenizer, so positions line up. Replace the donor's input to layer
+l with the ridge map of host layer k, run the rest of the donor, and score
+the donor's own next-token loss on 150 GSM8K texts.
+
+| Host layer to donor layer | Pooled R2 | Per-dim R2 | Donor loss |
+|---|---|---|---|
+| none (native) | | | 0.80 |
+| 3 to 4 | 0.70 | 0.57 | 2.85 |
+| 7 to 8 | 0.69 | 0.52 | 2.16 |
+| 12 to 14 | 0.64 | 0.45 | 2.99 |
+| 17 to 20 | 0.60 | 0.44 | 2.78 |
+
+A linear per-token stitch raises the donor's loss by 1.4 to 2.2 nats even
+with the same tokenizer. The donor block cannot do its job on that input.
+
+Grafts on the same-tokenizer host (3 seeds, 300 heal steps):
+
+| Host / arm | Trainable params | Search acc. (sd) |
+|---|---|---|
+| Qwen-0.5B host, untrained | 0 | 33.5 |
+| Qwen-0.5B LoRA r1, lr 3e-4 | 0.55M | 37.3 (1.6) |
+| Qwen-0.5B LoRA r16, lr 1e-4 | 8.8M | 36.3 (1.4) |
+| Qwen-0.5B LoRA r64, lr 5e-5 | 35.2M | 36.3 (0.6) |
+| Qwen-0.5B block 8..19, rank-64 glue | 0.31M | 36.3 (2.5) |
+| Qwen-0.5B block 4..23, rank-64 glue | 0.31M | 36.3 (3.8) |
+| Qwen-0.5B random block, rank-64 glue | 0.31M | 37.8 (0.8) |
+| Llama-1B LoRA r16, lr 1e-4 | 11.3M | 44.0 (0.5) |
+| Llama-1B LoRA r64, lr 5e-5 | 45.1M | 46.7 (1.6) |
+
+Reading:
+- Same tokenizer does not rescue grafts: donor blocks equal a random
+  block. The stitch, not tokenization, is the bottleneck.
+- The fair LoRA bar on Llama-1B is 46.7% (r64, lr 5e-5). Round 3's 28.8%
+  for r64 came from a too-high lr.
+- The stitch penalty is a cheap, eval-free target. Next: train the stitch
+  to drive it down (linear and MLP, on regression, on the donor's own LM
+  loss, and on matching later donor states), before any task heal.
