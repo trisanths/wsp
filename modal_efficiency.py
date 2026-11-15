@@ -116,6 +116,7 @@ PARTS = {
     "eagle3b": spec(method="eagle3", model=EAGLE3_ALT, num_speculative_tokens=3),
     "eagle3b2": spec(method="eagle3", model=EAGLE3_ALT, num_speculative_tokens=2),
     "eagle3b5": spec(method="eagle3", model=EAGLE3_ALT, num_speculative_tokens=5),
+    "eagle3b7": spec(method="eagle3", model=EAGLE3_ALT, num_speculative_tokens=7),
     "marlin": {"moe_backend": "marlin"},
     "eager": {"enforce_eager": True},
     "nochunk": {"enable_chunked_prefill": False},
