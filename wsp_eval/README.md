@@ -132,3 +132,22 @@ Verdict (`claims.compare`): DOES NOT COUNT. Mean gain over the random part is +0
 lost one, and tied one. The matched LoRA beats both by about 0.035. This agrees with Trisanth's round 2:
 a single-layer MLP cluster from Qwen2.5-Math-1.5B carries no transferable GSM8K skill through a linear stitch;
 the gain over the host (0.23 to about 0.41) comes from the glue and heal, not the part.
+
+## Hour-16 gate (2026-11-15). SEARCH SPLIT: an interim check, not a result.
+
+Index files for 3 donors, 6 parts each (3 `mlp_cluster`, 3 `attn_heads`), each with 3 random
+same-layer controls and a contrast signature: `parts_extracted/`. Random-part control per donor
+(`modal run modal_eval.py::part_gate --donor <id>`): the top-ranked 64-neuron MLP cluster, rank-64 glue,
+300 heal steps (gsm8k_train, lr 3e-4, batch 8, seq 384), against a random 64 neurons from the same layer
+with the identical heal. GSM8K search split (n=200), host 0.230. Raw: `results/part_gate_*.json`.
+
+| Donor | Part | Fit R² | Graft s0/s1/s2 | Random s0/s1/s2 | Mean gain | Verdict |
+|---|---|---|---|---|---|---|
+| Qwen2.5-Math-1.5B | L10 contrast, 512 neurons (hour-8 gate) | 0.68 | 0.415 / 0.410 / 0.405 | 0.385 / 0.420 / 0.405 | +0.007 | does not count |
+| microsoft/phi-4 | `mlp_cluster_phi4_l16_gsm8k` | 0.46 | 0.365 / 0.370 / 0.420 | 0.360 / 0.365 / 0.345 | +0.028 | counts (search split) |
+| Nanbeige4.3-33B | `mlp_cluster_nanbeige4333b_l36_gsm8k` | 0.46 | 0.300 / 0.210 / 0.170 | 0.275 / 0.230 / 0.230 | -0.018 | does not count |
+
+Reading: Phi-4 passes the rule, but two of its three wins are 0.005 (one item of 200); most of the gain is
+seed 2. It is a candidate for the held-out run, not a finding. Nanbeige is unstable (graft 0.30 to 0.17)
+and falls below the host on seed 2. No part arm beats the hour-8 matched LoRA (0.445). Held-out host:
+GSM8K 0.201 (n=1319), if_guard 0.488 (n=410), `results/base_scores_heldout.json`.
