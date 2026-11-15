@@ -343,3 +343,26 @@ Reading:
   the better single tap.
 - Llama-3.1-8B at layer 22 and LFM2.5-1.2B are weak or unstable donors in
   this setup; their read layer and prompt format need tuning.
+
+## Baselines (2026-11-14): full fine-tuning and donor ceilings on GSM8K
+
+Scored with Person B's wsp_eval harness on the GSM8K search split (raw
+prompt). Full fine-tuning: 300 steps, batch 8, seq 384, 30 warmup steps,
+3 seeds. Raw rows: baselines_rows.json. Two chat-mode cells failed in vLLM
+(aclose RuntimeError).
+
+| Model | Trainable | Score by seed | Mean |
+|---|---|---|---|
+| Llama-1B full FT, lr 1e-5 | 1.24B | 36.0, 28.5, 36.0 | 33.5 |
+| Llama-1B full FT, lr 3e-5 | 1.24B | 14.5, 13.5, 13.5 | 13.8 |
+| Qwen-0.5B full FT, lr 1e-5 | 494M | 42.0, 39.5, 42.0 | 41.2 |
+| Qwen-0.5B full FT, lr 3e-5 | 494M | 24.0, 20.0, 19.5 | 21.2 |
+
+Donor ceilings, no training, raw prompt: Llama-3.2-3B-Instruct 59.0,
+LFM2.5-1.2B-Instruct 38.5, Qwen2.5-Math-1.5B-Instruct 32.0,
+LFM2.5-1.2B-Thinking 27.5, Qwen2.5-1.5B-Instruct 7.0, LFM2-350M-Math 1.0.
+
+Reading: at 300 steps, full fine-tuning is worse than LoRA rank 64 (47.2)
+on Llama-1B, so LoRA r64 stays the fine-tuning bar on GSM8K. Chat-tuned
+donors score badly on the raw prompt; donor ceilings need chat-format
+scoring to mean anything.
