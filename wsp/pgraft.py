@@ -886,6 +886,35 @@ def mc_loss(model, tok, items, letter_ids, device):
     return loss, {"mc": float(loss.detach()), "mc_acc": acc}
 
 
+def mc_soft_loss(model, tok, items, letter_ids, device, soft=None, kd_weight=0.0):
+    """Answer-letter loss with optional distillation: CE to gold plus kd_weight * KL(soft || student) over the letters.
+
+    items are (prompt, gold index); soft is a (batch, letters) tensor of the donor's probabilities over the same letters.
+    info also holds the real token count of the batch ("tokens").
+    """
+    tok.padding_side = "left"
+    if tok.pad_token is None:
+        tok.pad_token = tok.eos_token
+    enc = tok([p for p, _ in items], return_tensors="pt", padding=True).to(device)
+    with autocast(device):
+        logits = model(input_ids=enc["input_ids"], attention_mask=enc["attention_mask"], use_cache=False).logits
+    letters = logits[:, -1, :].float()[:, letter_ids]
+    gold = torch.tensor([g for _, g in items], dtype=torch.long, device=device)
+    ce = F.cross_entropy(letters, gold)
+    loss = ce
+    info = {"mc": float(ce.detach()), "mc_acc": float((letters.argmax(-1) == gold).float().mean()),
+            "tokens": int(enc["attention_mask"].sum())}
+    if soft is not None and kd_weight > 0:
+        soft = soft.to(device).float().clamp(min=1e-8)
+        soft = soft / soft.sum(-1, keepdim=True)
+        logq = F.log_softmax(letters, dim=-1)
+        kl = (soft * (soft.log() - logq)).sum(-1).mean()
+        loss = ce + kd_weight * kl
+        info["kd"] = float(kl.detach())
+    tok.padding_side = "right"
+    return loss, info
+
+
 # ------------------------------------------------- subnetwork parts (bundles)
 
 

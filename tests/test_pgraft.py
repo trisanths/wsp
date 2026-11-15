@@ -243,3 +243,27 @@ def test_trunk_bundle_reads_parts_in_native_context():
     cfg = {"align_steps": 5, "geo_steps": 2, "seq_len": 32, "donor_seq_len": 32}
     pgraft.set_sink(graft, donor, tok, 2, TEXTS)
     pgraft.align(base, tok, donor, tok, graft, TEXTS[:8], cfg, log_every=0)
+
+
+def test_mc_soft_loss_matches_ce_without_soft_and_trains_with_it():
+    base, donor, tok, graft = setup()
+    items = [(" ".join(TEXTS[i].split()[:6]), i % 4) for i in range(8)]
+    letter_ids = [5, 6, 7, 8]
+    dev = torch.device("cpu")
+    plain, _ = pgraft.mc_loss(base, tok, items, letter_ids, dev)
+    same, info = pgraft.mc_soft_loss(base, tok, items, letter_ids, dev)
+    assert abs(float(plain) - float(same)) < 1e-5 and info["tokens"] > 0
+    soft = torch.softmax(torch.randn(8, 4), -1)
+    loss, info = pgraft.mc_soft_loss(base, tok, items, letter_ids, dev, soft=soft, kd_weight=1.0)
+    assert info["kd"] >= 0 and float(loss) >= float(same) - 1e-6
+    loss.backward()
+    assert graft.dec.up.weight.grad is not None
+
+
+def test_mc_soft_loss_runs_in_bf16():
+    base = tiny_host().to(torch.bfloat16)
+    tok = tiny_tokenizer()
+    items = [(" ".join(TEXTS[i].split()[:6]), i % 4) for i in range(4)]
+    soft = torch.softmax(torch.randn(4, 4), -1)
+    loss, _ = pgraft.mc_soft_loss(base, tok, items, [5, 6, 7, 8], torch.device("cpu"), soft=soft, kd_weight=1.0)
+    assert torch.isfinite(loss)
