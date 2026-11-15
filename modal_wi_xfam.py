@@ -70,6 +70,12 @@ PRESETS = {
     "fullft_lr3": {"arm": "fullft", "ft_lr": 3e-5},
     "lora_big_lr2": {"arm": "lora_big", "lora_rank": 128, "lora_lr": 3e-4},
     "reference": {"arm": "reference"},
+    "graft_two_lora": {"lora_rank": 16, "two_points": {"host_layer": 12, "first": 20, "last": 28}},
+    "graft_wide_lora_ce": {"first": 2, "last": 24, "lora_rank": 16, "kd_w": 0.0},
+    "identity_l": {"arm": "identity", "lora_rank": 16},
+    "scrambled_l": {"arm": "scrambled", "lora_rank": 16},
+    "lora_match_l": {"arm": "lora_match", "match_lora": 16},
+    "lora_match_wl": {"arm": "lora_match", "match_lora": 16},
 }
 
 
@@ -218,8 +224,7 @@ def decode_tps(model, tok, new=96):
         return f"error: {repr(e)[:120]}"
 
 
-@app.function(image=image, volumes={"/vol": volume}, gpu="H100", memory=131072, timeout=5 * 3600)
-def cell(name, seed, smoke=False, overrides=None):
+def _cell(name, seed, smoke=False, overrides=None):
     import gc
 
     import torch
@@ -231,7 +236,7 @@ def cell(name, seed, smoke=False, overrides=None):
 
     cname = f"{name}:{seed}" + (":smoke" if smoke else "")
     t0 = time.time()
-    c = dict(BASE_CFG, **PRESETS[name], **(overrides or {}))
+    c = {**BASE_CFG, **PRESETS[name], **(overrides or {})}
     c["seed"] = seed
     arm = c["arm"]
     torch.manual_seed(seed)
@@ -330,7 +335,7 @@ def cell(name, seed, smoke=False, overrides=None):
         trainable_total = pgraft.count(glue) + pgraft.count(lora_params)
     elif arm in ("lora_match", "lora_big"):
         if arm == "lora_match":
-            target = row_budget(c)
+            target = row_budget(c, base.config)
             rank = rank_for_budget(base, target)
         else:
             rank = c["lora_rank"]
@@ -435,12 +440,26 @@ def cell(name, seed, smoke=False, overrides=None):
     return finish(row, t0, smoke, cname, volume)
 
 
-def row_budget(c):
+@app.function(image=image, volumes={"/vol": volume}, gpu="H100", memory=131072, timeout=5 * 3600)
+def cell(name, seed, smoke=False, overrides=None):
+    return _cell(name, seed, smoke, overrides)
+
+
+@app.function(image=image, volumes={"/vol": volume}, gpu="H200", memory=131072, timeout=6 * 3600)
+def cell_big(name, seed, smoke=False, overrides=None):
+    return _cell(name, seed, smoke, overrides)
+
+
+def row_budget(c, config):
     """Trainable count of the real graft with this config, the matched-LoRA budget."""
     from wsp import pgraft
-    return (pgraft.count(pgraft.Enc(D_HOST, D_DONOR, depth=c["enc_depth"]).parameters())
-            + pgraft.count(pgraft.Dec(D_DONOR, D_HOST, rank=c["dec_rank"]).parameters()) + D_HOST + 1
-            + (0 if not c["lora_rank"] else 0))
+    from wsp.lora import lora_param_count
+    points = 2 if c.get("match_points", 1) == 2 else 1
+    total = points * (pgraft.count(pgraft.Enc(D_HOST, D_DONOR, depth=c["enc_depth"]).parameters())
+                      + pgraft.count(pgraft.Dec(D_DONOR, D_HOST, rank=c["dec_rank"]).parameters()) + D_HOST + 1)
+    if c.get("match_lora", 0):
+        total += lora_param_count(config, c["match_lora"])
+    return total
 
 
 def finish(row, t0, smoke, cname, volume):
@@ -469,11 +488,14 @@ def main(cells: str = "", smoke: bool = False, prep_data: bool = False, override
     if not calls:
         raise SystemExit("0 cells: pass --cells name:seed,...")
     rows = []
-    for row in cell.starmap(calls, return_exceptions=True):
-        if isinstance(row, Exception):
-            print("cell failed:", repr(row)[:1000])
-            continue
-        rows.append(row)
+    small = [x for x in calls if PRESETS[x[0]].get("arm", "graft") in ("lora_match", "lora_big", "fullft", "reference", "identity")]
+    big = [x for x in calls if x not in small]
+    handles = [cell.spawn(*x) for x in small] + [cell_big.spawn(*x) for x in big]
+    for h in handles:
+        try:
+            rows.append(h.get())
+        except Exception as e:
+            print("cell failed:", repr(e)[:1000])
     os.makedirs("results", exist_ok=True)
     tag = "smoke" if smoke else cells.replace(":", "").replace(",", "_")[:60]
     with open(f"results/wi_xfam_{tag}.json", "w") as f:
