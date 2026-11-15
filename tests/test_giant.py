@@ -1181,3 +1181,24 @@ def test_partial_run_marks_the_entry_partial_and_a_full_run_clears_it():
     last = modal_giant.merge_expert_maps(second, {"math": {"0": [1], "1": [2], "2": [3], "3": [4]}}, done, zoo_row())
     assert "partial" not in last
     assert sorted(last["expert_maps"]["math"]) == ["0", "1", "2", "3"]
+
+
+
+def test_skeleton_survives_import_error_in_auto_class(tmp_path, monkeypatch):
+    """An auto class that fails with an ImportError must not stop the fallback to the next one.
+
+    GLM-5.3-Flash is not listed by AutoModelForCausalLM. transformers then builds its error message
+    by importing every config class, and one of them needs a package the image does not have, so the
+    call raises ModuleNotFoundError and not ValueError.
+    """
+    tok = tokenizer()
+    model, folder = saved(tmp_path, "qwen3_moe")
+    expected = reference_maps(model, tok)
+
+    def broken(config, **kwargs):
+        raise ModuleNotFoundError("Could not import module 'AriaTextConfig'.")
+
+    monkeypatch.setattr(transformers.AutoModelForCausalLM, "from_config", broken)
+    result = stream(folder, model, tok)
+    for skill in expected:
+        assert same_map(expected[skill], result["maps"][skill])

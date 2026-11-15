@@ -1133,7 +1133,11 @@ class Skeleton:
                 with torch.device("meta"):
                     model = auto.from_config(config, trust_remote_code=trust_remote_code)
                 break
-            except (ValueError, KeyError, OSError, AttributeError, TypeError) as error:
+            except (ValueError, KeyError, OSError, AttributeError, TypeError, ImportError) as error:
+                # ImportError: when an auto class does not list the config, transformers builds its
+                # "should be one of" message by importing every config class, and one of them can need
+                # a package the image does not have (GLM-5.3-Flash hit this on AriaTextConfig). The next
+                # auto class may still build the model.
                 errors.append(f"{auto_name}: {error!r}")
         if model is None:
             raise ValueError("cannot build the model skeleton: " + "; ".join(errors))
