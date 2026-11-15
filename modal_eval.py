@@ -161,8 +161,7 @@ def gate_remote(seeds, donor_layer, neurons, heal_steps):
     return json.loads(json.dumps(summary, default=str))
 
 
-@app.function(image=image, volumes={"/vol": volume}, gpu="H100", memory=163840, ephemeral_disk=200 * 1024,
-              timeout=8 * 3600)
+@app.function(image=image, volumes={"/vol": volume}, gpu="H100", memory=163840, timeout=8 * 3600)
 def part_gate_remote(donor, part_id, seeds, heal_steps):
     from wsp_eval.gate import run_part_gate
     _prepare_catalog()

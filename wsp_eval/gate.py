@@ -101,8 +101,8 @@ def run_gate(seeds=(0, 1, 2), donor_layer=10, neurons=512, glue_rank=64, heal_st
 
 
 def load_records(donor):
-    """The extraction records for a donor, from the Modal volume (written by modal_eval.py::extract)."""
-    path = os.path.join(config.work_dir(), "extracted", donor.replace("/", "__"), "records.jsonl")
+    """The extraction records for a donor: WSP_ROOT/extracted/<donor>/records.jsonl (written by modal_eval.py::extract)."""
+    path = config.root_path("extracted", donor.replace("/", "__"), "records.jsonl")
     records = []
     with open(path) as f:
         for line in f:
