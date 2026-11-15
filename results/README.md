@@ -479,3 +479,29 @@ Reading:
   and the heal trained only the seam glue. Run 14b adds a base LoRA to the
   heal; the MoE design (experts write into the slot their own downstream
   expects) is the alternative.
+
+## Run 14b (2026-11-14): the base learns to read the block (host LoRA)
+
+Same base and blocks as run 14, but the heal also trains LoRA r16 on the
+base, plus part LoRA r8 and the glue: 1500 steps, lr 2e-4. Random blocks
+use same-length random layer ranges of the same donor. MMLU dev 1000 /
+held-out 2000. One trisanths shard failed (workspace disabled), so some
+arms have one seed. Raw rows: round14b_rows.json.
+
+| Arm | Params run | Dev | Held-out |
+|---|---|---|---|
+| Base + LoRA r16, 1500 steps | 0.49B | 48.1, 47.2 | 46.2, 46.8 |
+| + Qwen-7B layers 8..20, host LoRA | 3.58B | 48.6, 49.5 | 47.8, 46.4 |
+| + random Qwen-7B block, host LoRA | 3.58B | 49.9 | 48.7 |
+| + Qwen-14B layers 14..34, host LoRA | 6.37B | 49.7, 46.1 | 52.6, 49.9 |
+| + random Qwen-14B block, host LoRA | 6.37B | 51.9 | 52.3 |
+
+Reading:
+- The host LoRA lets the base gain from the block (+3 to +6 over LoRA on
+  held-out with the 14B block), but the random block gains as much. The
+  gain is from added depth and capacity, not from the donor's skill.
+- So a donor block written into a much smaller base does not carry the
+  donor's skill, even with a lossless stitch and a base LoRA. The base
+  cannot reach the representations the block's skill lives in. This path
+  stops here for small bases. Same-lineage experts (run 16b) and fusion
+  into a same-width base (run 16) are the next tests.
