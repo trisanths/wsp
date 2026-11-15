@@ -451,3 +451,31 @@ is that a component helps only if what is downstream of it can read it.
 Next: skills as experts in one MoE network (each layer's MLP becomes a
 router over the same layer's MLP from several specialists), and run 14b
 (the base learns to read written-in blocks through a host LoRA in the heal).
+
+## Run 14 (2026-11-14): donor blocks written into a 0.5B base
+
+One network: Qwen2.5-0.5B-Instruct base with a donor block grafted at host
+layer 7 as a residual branch (h + W_out(block(W_in h) - x)), MLP stitch
+trained 800 steps on the donor's own LM loss (with the sink), glue rank 64,
+heal 500 steps on MMLU aux text (glue, plus part LoRA r8 where noted).
+MMLU dev / held-out, 2 seeds. Raw rows: round14_rows.json.
+
+| Arm | Total params | Dev | Held-out | Stitch penalty after training |
+|---|---|---|---|---|
+| Base | 0.49B | 48.0 | 45.8 | |
+| Base + LoRA r16 | 0.49B | 47.8, 47.3 | 45.1, 45.9 | |
+| + Qwen-7B layers 8..20 | 3.56B | 48.0, 47.2 | 45.9, 47.0 | +0.008 |
+| + Qwen-7B block, part LoRA | 3.57B | 48.2, 48.6 | 47.1, 46.7 | +0.024 |
+| + random Qwen-7B block (control) | 3.56B | 45.7, 50.1 | 45.4, 49.5 | +0.182 |
+| + Qwen-14B layers 14..34 | 6.34B | 48.2, 48.6 | 49.4, 48.6 | -0.020 |
+| + Qwen-14B block, part LoRA | 6.36B | 49.6, 48.2 | 50.0, 47.4 | -0.020 |
+
+Reading:
+- The trained stitch is now essentially lossless (penalty +0.008 and
+  -0.02 nats; without the sink it would be 2.9 to 4.5). The donor block
+  receives correct input and computes what it does in its own model.
+- The base still cannot use it: +3 points from 6B parameters of a model
+  that scores 78. The base's later layers cannot read the block's output,
+  and the heal trained only the seam glue. Run 14b adds a base LoRA to the
+  heal; the MoE design (experts write into the slot their own downstream
+  expects) is the alternative.
