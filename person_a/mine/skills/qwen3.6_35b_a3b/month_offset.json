@@ -1,0 +1,980 @@
+{
+ "name": "month_offset",
+ "description": "Compute the month reached by a small signed month offset; matched control asks for a tag in the same record.",
+ "hash": "306546c311216081",
+ "agent_items": false,
+ "generator_code": "import random,json,calendar\nrandom.seed(0)\nmonths=list(calendar.month_name)[1:]; items=[]; control=[]\nfor i in range(96):\n m=random.randrange(12); n=random.choice([-5,-3,-2,-1,1,2,3,5]); tag=random.choice(['alpha','beta','gamma','delta'])\n s=f'Start month: {months[m]}. Offset: {n:+d} months. Tag: {tag}. '\n items.append({'prompt':s+'What is the resulting month? Answer:','answer':' '+months[(m+n)%12]})\n control.append({'prompt':s+'What is the tag? Answer:','answer':' '+tag})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Start month: June. Offset: -1 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: September. Offset: -3 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: September. Offset: +1 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: November. Offset: +2 months. Tag: delta. What is the resulting month? Answer:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: November. Offset: +1 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: December. Offset: +3 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: May. Offset: +5 months. Tag: delta. What is the resulting month? Answer:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: May. Offset: -2 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: April. Offset: +1 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: December. Offset: -1 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: April. Offset: -1 months. Tag: beta. What is the resulting month? Answer:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: December. Offset: -5 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: April. Offset: +1 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: July. Offset: -3 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: July. Offset: -1 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: May. Offset: +5 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: February. Offset: -1 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: May. Offset: +1 months. Tag: beta. What is the resulting month? Answer:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: January. Offset: +5 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: October. Offset: -2 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: February. Offset: +1 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: May. Offset: -3 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: March. Offset: -1 months. Tag: beta. What is the resulting month? Answer:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: September. Offset: +5 months. Tag: delta. What is the resulting month? Answer:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: October. Offset: +1 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: November. Offset: +3 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: August. Offset: -3 months. Tag: delta. What is the resulting month? Answer:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: September. Offset: -1 months. Tag: beta. What is the resulting month? Answer:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: July. Offset: +3 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: January. Offset: -3 months. Tag: beta. What is the resulting month? Answer:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: January. Offset: -5 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: May. Offset: +5 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: April. Offset: -2 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: July. Offset: +1 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: April. Offset: -3 months. Tag: beta. What is the resulting month? Answer:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: December. Offset: +3 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: April. Offset: -5 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: March. Offset: +5 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: August. Offset: -1 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: October. Offset: +5 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: January. Offset: -1 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: November. Offset: +5 months. Tag: delta. What is the resulting month? Answer:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: May. Offset: -2 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: December. Offset: -3 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: April. Offset: +2 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: September. Offset: -1 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: August. Offset: +5 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: September. Offset: +5 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " February",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Start month: October. Offset: +5 months. Tag: beta. What is the resulting month? Answer:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: July. Offset: +3 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: July. Offset: +3 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: September. Offset: +5 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: March. Offset: -1 months. Tag: beta. What is the resulting month? Answer:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: January. Offset: +1 months. Tag: delta. What is the resulting month? Answer:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: June. Offset: -2 months. Tag: beta. What is the resulting month? Answer:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: October. Offset: -3 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: December. Offset: +5 months. Tag: delta. What is the resulting month? Answer:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: July. Offset: +3 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: December. Offset: +3 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: February. Offset: -1 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: January. Offset: +5 months. Tag: delta. What is the resulting month? Answer:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: February. Offset: -2 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: October. Offset: -1 months. Tag: beta. What is the resulting month? Answer:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: June. Offset: -5 months. Tag: delta. What is the resulting month? Answer:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: June. Offset: +1 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: May. Offset: +5 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: February. Offset: -3 months. Tag: beta. What is the resulting month? Answer:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: February. Offset: -1 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: November. Offset: -2 months. Tag: beta. What is the resulting month? Answer:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: November. Offset: -3 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: February. Offset: +5 months. Tag: delta. What is the resulting month? Answer:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: July. Offset: +1 months. Tag: beta. What is the resulting month? Answer:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: February. Offset: -5 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: July. Offset: +2 months. Tag: beta. What is the resulting month? Answer:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: December. Offset: -2 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: October. Offset: -3 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: February. Offset: +2 months. Tag: delta. What is the resulting month? Answer:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: January. Offset: -1 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: February. Offset: +2 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: September. Offset: -5 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: December. Offset: -5 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: March. Offset: +2 months. Tag: delta. What is the resulting month? Answer:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: March. Offset: +5 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: March. Offset: -1 months. Tag: delta. What is the resulting month? Answer:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: March. Offset: -5 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: May. Offset: -2 months. Tag: delta. What is the resulting month? Answer:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: November. Offset: -5 months. Tag: delta. What is the resulting month? Answer:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: September. Offset: -5 months. Tag: delta. What is the resulting month? Answer:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: December. Offset: -1 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: October. Offset: -3 months. Tag: delta. What is the resulting month? Answer:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: December. Offset: -3 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: June. Offset: +1 months. Tag: gamma. What is the resulting month? Answer:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: August. Offset: +2 months. Tag: beta. What is the resulting month? Answer:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: October. Offset: +1 months. Tag: beta. What is the resulting month? Answer:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: December. Offset: +5 months. Tag: beta. What is the resulting month? Answer:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: July. Offset: -2 months. Tag: alpha. What is the resulting month? Answer:",
+    "continuation": " May",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Start month: September. Offset: -5 months. Tag: delta. What is the tag? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: November. Offset: +3 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: September. Offset: +5 months. Tag: delta. What is the tag? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: October. Offset: -3 months. Tag: delta. What is the tag? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: May. Offset: -2 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: August. Offset: +2 months. Tag: beta. What is the tag? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: April. Offset: -1 months. Tag: beta. What is the tag? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: July. Offset: +2 months. Tag: beta. What is the tag? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: July. Offset: -1 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: April. Offset: +1 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: June. Offset: +1 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: November. Offset: -5 months. Tag: delta. What is the tag? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: December. Offset: +5 months. Tag: delta. What is the tag? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: February. Offset: -1 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: March. Offset: -1 months. Tag: beta. What is the tag? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: March. Offset: -1 months. Tag: delta. What is the tag? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: December. Offset: +5 months. Tag: beta. What is the tag? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: December. Offset: +3 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: December. Offset: -3 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: July. Offset: +1 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: August. Offset: -1 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: October. Offset: +1 months. Tag: beta. What is the tag? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: June. Offset: +1 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: May. Offset: -2 months. Tag: delta. What is the tag? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: March. Offset: +2 months. Tag: delta. What is the tag? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: June. Offset: -1 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: October. Offset: -3 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: April. Offset: +1 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: January. Offset: -1 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: December. Offset: -1 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: January. Offset: +5 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: January. Offset: +1 months. Tag: delta. What is the tag? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: January. Offset: -3 months. Tag: beta. What is the tag? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: October. Offset: +1 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: February. Offset: -5 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: February. Offset: +1 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: May. Offset: +1 months. Tag: beta. What is the tag? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: October. Offset: -3 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: October. Offset: -2 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: June. Offset: -5 months. Tag: delta. What is the tag? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: September. Offset: -1 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: November. Offset: +2 months. Tag: delta. What is the tag? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: September. Offset: +5 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: March. Offset: +5 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: September. Offset: +1 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: May. Offset: -3 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: July. Offset: -3 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: January. Offset: +5 months. Tag: delta. What is the tag? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Start month: February. Offset: +5 months. Tag: delta. What is the tag? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: January. Offset: -1 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: February. Offset: +2 months. Tag: delta. What is the tag? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: September. Offset: +5 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: May. Offset: +5 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: July. Offset: +3 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: April. Offset: -2 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: December. Offset: -2 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: August. Offset: -3 months. Tag: delta. What is the tag? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: October. Offset: +5 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: February. Offset: -1 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: August. Offset: +5 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: May. Offset: -2 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: January. Offset: -5 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: July. Offset: +3 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: December. Offset: +3 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: November. Offset: +5 months. Tag: delta. What is the tag? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: December. Offset: -1 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: March. Offset: -5 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: November. Offset: -3 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: May. Offset: +5 months. Tag: delta. What is the tag? Answer:",
+    "continuation": " delta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: March. Offset: -1 months. Tag: beta. What is the tag? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: June. Offset: -2 months. Tag: beta. What is the tag? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: May. Offset: +5 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: December. Offset: -5 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: February. Offset: -1 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: December. Offset: +3 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: September. Offset: -1 months. Tag: beta. What is the tag? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: April. Offset: -5 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: February. Offset: -2 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: July. Offset: +3 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: May. Offset: +5 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: November. Offset: -2 months. Tag: beta. What is the tag? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: July. Offset: -2 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: October. Offset: -1 months. Tag: beta. What is the tag? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: December. Offset: -3 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: September. Offset: -5 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: February. Offset: -3 months. Tag: beta. What is the tag? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: November. Offset: +1 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: April. Offset: -3 months. Tag: beta. What is the tag? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: July. Offset: +1 months. Tag: beta. What is the tag? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: October. Offset: +5 months. Tag: beta. What is the tag? Answer:",
+    "continuation": " beta",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: December. Offset: -5 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: April. Offset: +2 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: February. Offset: +2 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: September. Offset: -3 months. Tag: gamma. What is the tag? Answer:",
+    "continuation": " gamma",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: July. Offset: +3 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   },
+   {
+    "context": "Start month: March. Offset: +5 months. Tag: alpha. What is the tag? Answer:",
+    "continuation": " alpha",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 4.0052
+}

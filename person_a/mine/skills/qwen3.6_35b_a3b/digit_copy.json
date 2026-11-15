@@ -1,511 +1,611 @@
 {
  "name": "digit_copy",
- "description": "Copy the digit string assigned to a named field, distinguishing distractors; matched control copies a word field in the same format.",
- "hash": "eb65ca89d3fb0ba8",
+ "description": "Exact copying of an isolated decimal digit from a simple record; control copies a capital letter in the same record.",
+ "hash": "a7c122a13c42177c",
  "agent_items": false,
- "generator_code": "import random,json\nrandom.seed(0)\nitems=[]; control=[]\nwords=['red','blue','green','gold','white','black','pink','gray']\nfor i in range(100):\n    keys=random.sample(['alpha','beta','gamma','delta'],3)\n    nums=[''.join(str(random.randrange(10)) for _ in range(random.randrange(3,7))) for j in keys]\n    ws=random.sample(words,3); q=random.randrange(3)\n    text='; '.join(k+'='+n+', color='+w for k,n,w in zip(keys,nums,ws))\n    items.append({'prompt':'Record: '+text+'.\\nCopy only the digits for '+keys[q]+':','answer':' '+nums[q]})\n    control.append({'prompt':'Record: '+text+'.\\nCopy only the color for '+keys[q]+':','answer':' '+ws[q]})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "generator_code": "import random,json,string\nrandom.seed(0)\na=[];b=[]\nfor i in range(120):\n d=str(random.randrange(10)); c=random.choice(string.ascii_uppercase); text=f'Record: digit={d}; letter={c}.\\n'\n a.append({'prompt':text+'Copy the digit:','answer':' '+d})\n b.append({'prompt':text+'Copy the letter:','answer':' '+c})\njson.dump({'items':a,'control':b},open('/work/skill.json','w'))",
  "items": {
   "search": [
    {
-    "context": "Record: alpha=6418, color=red; gamma=0675, color=gold; beta=7510, color=green.\nCopy only the digits for alpha:",
-    "continuation": " 6418",
+    "context": "Record: digit=8; letter=I.\nCopy the digit:",
+    "continuation": " 8",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=5841, color=red; gamma=207698, color=gold; delta=56428, color=black.\nCopy only the digits for alpha:",
-    "continuation": " 5841",
+    "context": "Record: digit=2; letter=W.\nCopy the digit:",
+    "continuation": " 2",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=381206, color=gold; beta=503008, color=pink; alpha=319, color=green.\nCopy only the digits for beta:",
-    "continuation": " 503008",
+    "context": "Record: digit=9; letter=D.\nCopy the digit:",
+    "continuation": " 9",
     "digits_only": false
    },
    {
-    "context": "Record: beta=62087, color=green; alpha=916, color=black; delta=4579, color=pink.\nCopy only the digits for beta:",
-    "continuation": " 62087",
+    "context": "Record: digit=7; letter=M.\nCopy the digit:",
+    "continuation": " 7",
     "digits_only": false
    },
    {
-    "context": "Record: beta=2302, color=pink; alpha=1691, color=red; delta=299045, color=black.\nCopy only the digits for beta:",
-    "continuation": " 2302",
+    "context": "Record: digit=7; letter=V.\nCopy the digit:",
+    "continuation": " 7",
     "digits_only": false
    },
    {
-    "context": "Record: delta=582369, color=red; gamma=02245, color=green; beta=51590, color=blue.\nCopy only the digits for delta:",
-    "continuation": " 582369",
+    "context": "Record: digit=3; letter=G.\nCopy the digit:",
+    "continuation": " 3",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=815659, color=red; gamma=8778, color=white; beta=08016, color=gold.\nCopy only the digits for gamma:",
-    "continuation": " 8778",
+    "context": "Record: digit=1; letter=Z.\nCopy the digit:",
+    "continuation": " 1",
     "digits_only": false
    },
    {
-    "context": "Record: beta=88027, color=white; gamma=452, color=gray; alpha=19861, color=red.\nCopy only the digits for alpha:",
-    "continuation": " 19861",
+    "context": "Record: digit=8; letter=A.\nCopy the digit:",
+    "continuation": " 8",
     "digits_only": false
    },
    {
-    "context": "Record: delta=197, color=blue; gamma=24364, color=pink; beta=004, color=black.\nCopy only the digits for gamma:",
-    "continuation": " 24364",
+    "context": "Record: digit=9; letter=H.\nCopy the digit:",
+    "continuation": " 9",
     "digits_only": false
    },
    {
-    "context": "Record: beta=3570, color=blue; alpha=9342, color=gray; delta=197378, color=pink.\nCopy only the digits for alpha:",
-    "continuation": " 9342",
+    "context": "Record: digit=0; letter=T.\nCopy the digit:",
+    "continuation": " 0",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=688, color=green; beta=77936, color=gold; delta=534, color=blue.\nCopy only the digits for beta:",
-    "continuation": " 77936",
+    "context": "Record: digit=9; letter=H.\nCopy the digit:",
+    "continuation": " 9",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=065, color=gray; delta=8222, color=black; beta=3950, color=pink.\nCopy only the digits for delta:",
-    "continuation": " 8222",
+    "context": "Record: digit=4; letter=D.\nCopy the digit:",
+    "continuation": " 4",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=07493, color=blue; beta=864, color=white; delta=8212, color=black.\nCopy only the digits for delta:",
-    "continuation": " 8212",
+    "context": "Record: digit=1; letter=X.\nCopy the digit:",
+    "continuation": " 1",
     "digits_only": false
    },
    {
-    "context": "Record: beta=61849, color=blue; delta=4789, color=gray; gamma=844301, color=black.\nCopy only the digits for delta:",
-    "continuation": " 4789",
+    "context": "Record: digit=5; letter=G.\nCopy the digit:",
+    "continuation": " 5",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=300, color=pink; delta=802199, color=red; beta=1730, color=white.\nCopy only the digits for alpha:",
-    "continuation": " 300",
+    "context": "Record: digit=3; letter=B.\nCopy the digit:",
+    "continuation": " 3",
     "digits_only": false
    },
    {
-    "context": "Record: beta=393, color=blue; gamma=2871, color=green; delta=587, color=white.\nCopy only the digits for gamma:",
-    "continuation": " 2871",
+    "context": "Record: digit=5; letter=N.\nCopy the digit:",
+    "continuation": " 5",
     "digits_only": false
    },
    {
-    "context": "Record: delta=625425, color=red; alpha=606488, color=white; gamma=091662, color=blue.\nCopy only the digits for gamma:",
-    "continuation": " 091662",
+    "context": "Record: digit=0; letter=G.\nCopy the digit:",
+    "continuation": " 0",
     "digits_only": false
    },
    {
-    "context": "Record: delta=123126, color=pink; gamma=835006, color=white; beta=1699, color=blue.\nCopy only the digits for beta:",
-    "continuation": " 1699",
+    "context": "Record: digit=1; letter=G.\nCopy the digit:",
+    "continuation": " 1",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=725, color=gray; beta=2573, color=white; gamma=667, color=pink.\nCopy only the digits for alpha:",
-    "continuation": " 725",
+    "context": "Record: digit=4; letter=Q.\nCopy the digit:",
+    "continuation": " 4",
     "digits_only": false
    },
    {
-    "context": "Record: beta=8612, color=blue; alpha=951663, color=pink; delta=636376, color=green.\nCopy only the digits for alpha:",
-    "continuation": " 951663",
+    "context": "Record: digit=9; letter=U.\nCopy the digit:",
+    "continuation": " 9",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=180, color=gray; delta=320, color=green; beta=07522, color=white.\nCopy only the digits for delta:",
-    "continuation": " 320",
+    "context": "Record: digit=2; letter=Y.\nCopy the digit:",
+    "continuation": " 2",
     "digits_only": false
    },
    {
-    "context": "Record: beta=151090, color=blue; gamma=2173, color=pink; alpha=086, color=green.\nCopy only the digits for beta:",
-    "continuation": " 151090",
+    "context": "Record: digit=5; letter=Q.\nCopy the digit:",
+    "continuation": " 5",
     "digits_only": false
    },
    {
-    "context": "Record: beta=841269, color=red; alpha=116116, color=gold; gamma=0766, color=green.\nCopy only the digits for gamma:",
-    "continuation": " 0766",
+    "context": "Record: digit=9; letter=J.\nCopy the digit:",
+    "continuation": " 9",
     "digits_only": false
    },
    {
-    "context": "Record: delta=696, color=red; beta=271, color=gray; gamma=27878, color=gold.\nCopy only the digits for beta:",
-    "continuation": " 271",
+    "context": "Record: digit=0; letter=T.\nCopy the digit:",
+    "continuation": " 0",
     "digits_only": false
    },
    {
-    "context": "Record: beta=13793, color=black; gamma=825278, color=red; alpha=818, color=pink.\nCopy only the digits for beta:",
-    "continuation": " 13793",
+    "context": "Record: digit=7; letter=B.\nCopy the digit:",
+    "continuation": " 7",
     "digits_only": false
    },
    {
-    "context": "Record: delta=340797, color=blue; gamma=341, color=black; alpha=89267, color=gold.\nCopy only the digits for delta:",
-    "continuation": " 340797",
+    "context": "Record: digit=7; letter=C.\nCopy the digit:",
+    "continuation": " 7",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=099, color=gray; beta=5185, color=white; delta=6710, color=black.\nCopy only the digits for beta:",
-    "continuation": " 5185",
+    "context": "Record: digit=6; letter=K.\nCopy the digit:",
+    "continuation": " 6",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=47121, color=black; beta=18927, color=white; alpha=266237, color=blue.\nCopy only the digits for beta:",
-    "continuation": " 18927",
+    "context": "Record: digit=4; letter=E.\nCopy the digit:",
+    "continuation": " 4",
     "digits_only": false
    },
    {
-    "context": "Record: beta=198537, color=gold; delta=5760, color=green; gamma=086736, color=gray.\nCopy only the digits for delta:",
-    "continuation": " 5760",
+    "context": "Record: digit=3; letter=T.\nCopy the digit:",
+    "continuation": " 3",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=67088, color=black; gamma=977473, color=red; beta=40002, color=green.\nCopy only the digits for beta:",
-    "continuation": " 40002",
+    "context": "Record: digit=4; letter=R.\nCopy the digit:",
+    "continuation": " 4",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=545, color=black; delta=190, color=pink; alpha=12438, color=gold.\nCopy only the digits for gamma:",
-    "continuation": " 545",
+    "context": "Record: digit=4; letter=R.\nCopy the digit:",
+    "continuation": " 4",
     "digits_only": false
    },
    {
-    "context": "Record: beta=706360, color=blue; alpha=09555, color=green; delta=298141, color=red.\nCopy only the digits for delta:",
-    "continuation": " 298141",
+    "context": "Record: digit=6; letter=W.\nCopy the digit:",
+    "continuation": " 6",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=35749, color=green; gamma=2088, color=blue; beta=59026, color=white.\nCopy only the digits for alpha:",
-    "continuation": " 35749",
+    "context": "Record: digit=4; letter=F.\nCopy the digit:",
+    "continuation": " 4",
     "digits_only": false
    },
    {
-    "context": "Record: delta=801, color=green; alpha=367, color=white; gamma=65641, color=blue.\nCopy only the digits for gamma:",
-    "continuation": " 65641",
+    "context": "Record: digit=0; letter=T.\nCopy the digit:",
+    "continuation": " 0",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=002, color=black; delta=7931, color=gray; alpha=457325, color=gold.\nCopy only the digits for delta:",
-    "continuation": " 7931",
+    "context": "Record: digit=3; letter=Y.\nCopy the digit:",
+    "continuation": " 3",
     "digits_only": false
    },
    {
-    "context": "Record: beta=112648, color=pink; gamma=296451, color=gold; alpha=7580, color=red.\nCopy only the digits for gamma:",
-    "continuation": " 296451",
+    "context": "Record: digit=1; letter=H.\nCopy the digit:",
+    "continuation": " 1",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=930, color=red; alpha=76081, color=gray; beta=605, color=white.\nCopy only the digits for gamma:",
-    "continuation": " 930",
+    "context": "Record: digit=1; letter=V.\nCopy the digit:",
+    "continuation": " 1",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=468811, color=red; gamma=036954, color=white; delta=039, color=pink.\nCopy only the digits for gamma:",
-    "continuation": " 036954",
+    "context": "Record: digit=1; letter=C.\nCopy the digit:",
+    "continuation": " 1",
     "digits_only": false
    },
    {
-    "context": "Record: beta=3236, color=gray; alpha=99271, color=gold; delta=895, color=green.\nCopy only the digits for beta:",
-    "continuation": " 3236",
+    "context": "Record: digit=0; letter=Z.\nCopy the digit:",
+    "continuation": " 0",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=4173, color=white; beta=428, color=gold; delta=465, color=red.\nCopy only the digits for gamma:",
-    "continuation": " 4173",
+    "context": "Record: digit=6; letter=S.\nCopy the digit:",
+    "continuation": " 6",
     "digits_only": false
    },
    {
-    "context": "Record: beta=57928, color=red; alpha=348, color=green; delta=025, color=white.\nCopy only the digits for beta:",
-    "continuation": " 57928",
+    "context": "Record: digit=6; letter=B.\nCopy the digit:",
+    "continuation": " 6",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=2323, color=white; beta=827, color=blue; delta=94516, color=green.\nCopy only the digits for delta:",
-    "continuation": " 94516",
+    "context": "Record: digit=6; letter=T.\nCopy the digit:",
+    "continuation": " 6",
     "digits_only": false
    },
    {
-    "context": "Record: beta=868, color=blue; alpha=83396, color=gold; gamma=77515, color=white.\nCopy only the digits for gamma:",
-    "continuation": " 77515",
+    "context": "Record: digit=5; letter=Q.\nCopy the digit:",
+    "continuation": " 5",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=634, color=white; gamma=769930, color=green; delta=248, color=red.\nCopy only the digits for gamma:",
-    "continuation": " 769930",
+    "context": "Record: digit=7; letter=O.\nCopy the digit:",
+    "continuation": " 7",
     "digits_only": false
    },
    {
-    "context": "Record: delta=17176, color=blue; beta=452, color=gray; gamma=9611, color=black.\nCopy only the digits for delta:",
-    "continuation": " 17176",
+    "context": "Record: digit=3; letter=Q.\nCopy the digit:",
+    "continuation": " 3",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=602234, color=gray; beta=00762, color=gold; delta=912560, color=pink.\nCopy only the digits for gamma:",
-    "continuation": " 602234",
+    "context": "Record: digit=7; letter=S.\nCopy the digit:",
+    "continuation": " 7",
     "digits_only": false
    },
    {
-    "context": "Record: delta=400, color=gold; beta=68967, color=white; alpha=454, color=red.\nCopy only the digits for delta:",
-    "continuation": " 400",
+    "context": "Record: digit=4; letter=L.\nCopy the digit:",
+    "continuation": " 4",
     "digits_only": false
    },
    {
-    "context": "Record: delta=10337, color=gold; gamma=43075, color=black; beta=11496, color=green.\nCopy only the digits for gamma:",
-    "continuation": " 43075",
+    "context": "Record: digit=8; letter=I.\nCopy the digit:",
+    "continuation": " 8",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=505, color=gray; gamma=246292, color=black; beta=480222, color=pink.\nCopy only the digits for beta:",
-    "continuation": " 480222",
+    "context": "Record: digit=1; letter=K.\nCopy the digit:",
+    "continuation": " 1",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=340956, color=gray; delta=802, color=blue; alpha=066617, color=pink.\nCopy only the digits for delta:",
-    "continuation": " 802",
+    "context": "Record: digit=5; letter=M.\nCopy the digit:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=5; letter=W.\nCopy the digit:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=1; letter=C.\nCopy the digit:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=0; letter=C.\nCopy the digit:",
+    "continuation": " 0",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=3; letter=X.\nCopy the digit:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=1; letter=U.\nCopy the digit:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=8; letter=D.\nCopy the digit:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=5; letter=P.\nCopy the digit:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=9; letter=O.\nCopy the digit:",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=8; letter=Z.\nCopy the digit:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=5; letter=D.\nCopy the digit:",
+    "continuation": " 5",
     "digits_only": false
    }
   ],
   "heldout": [
    {
-    "context": "Record: alpha=286, color=red; gamma=7640, color=gold; delta=6279, color=gray.\nCopy only the digits for delta:",
-    "continuation": " 6279",
+    "context": "Record: digit=4; letter=P.\nCopy the digit:",
+    "continuation": " 4",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=616570, color=white; delta=404, color=blue; alpha=38856, color=red.\nCopy only the digits for alpha:",
-    "continuation": " 38856",
+    "context": "Record: digit=9; letter=D.\nCopy the digit:",
+    "continuation": " 9",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=63522, color=gray; gamma=952, color=red; beta=696, color=black.\nCopy only the digits for beta:",
-    "continuation": " 696",
+    "context": "Record: digit=6; letter=C.\nCopy the digit:",
+    "continuation": " 6",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=150, color=red; alpha=52035, color=blue; beta=923, color=black.\nCopy only the digits for beta:",
-    "continuation": " 923",
+    "context": "Record: digit=3; letter=Z.\nCopy the digit:",
+    "continuation": " 3",
     "digits_only": false
    },
    {
-    "context": "Record: delta=8292, color=pink; gamma=8407, color=blue; alpha=0626, color=gold.\nCopy only the digits for alpha:",
-    "continuation": " 0626",
+    "context": "Record: digit=3; letter=Z.\nCopy the digit:",
+    "continuation": " 3",
     "digits_only": false
    },
    {
-    "context": "Record: beta=4059, color=black; delta=250, color=red; gamma=003003, color=pink.\nCopy only the digits for delta:",
-    "continuation": " 250",
+    "context": "Record: digit=2; letter=W.\nCopy the digit:",
+    "continuation": " 2",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=7603, color=pink; alpha=412, color=red; delta=7058, color=white.\nCopy only the digits for gamma:",
-    "continuation": " 7603",
+    "context": "Record: digit=5; letter=C.\nCopy the digit:",
+    "continuation": " 5",
     "digits_only": false
    },
    {
-    "context": "Record: delta=87647, color=green; beta=93824, color=gray; alpha=1948, color=red.\nCopy only the digits for alpha:",
-    "continuation": " 1948",
+    "context": "Record: digit=6; letter=Y.\nCopy the digit:",
+    "continuation": " 6",
     "digits_only": false
    },
    {
-    "context": "Record: beta=92610, color=gray; gamma=157, color=pink; alpha=17594, color=blue.\nCopy only the digits for beta:",
-    "continuation": " 92610",
+    "context": "Record: digit=2; letter=A.\nCopy the digit:",
+    "continuation": " 2",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=2943, color=green; delta=675, color=white; beta=256627, color=gray.\nCopy only the digits for gamma:",
-    "continuation": " 2943",
+    "context": "Record: digit=9; letter=E.\nCopy the digit:",
+    "continuation": " 9",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=259118, color=green; gamma=4345, color=red; delta=48727, color=black.\nCopy only the digits for delta:",
-    "continuation": " 48727",
+    "context": "Record: digit=6; letter=B.\nCopy the digit:",
+    "continuation": " 6",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=083518, color=gold; gamma=2363, color=gray; delta=524583, color=green.\nCopy only the digits for alpha:",
-    "continuation": " 083518",
+    "context": "Record: digit=1; letter=I.\nCopy the digit:",
+    "continuation": " 1",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=9894, color=white; gamma=196593, color=gold; beta=23209, color=red.\nCopy only the digits for alpha:",
-    "continuation": " 9894",
+    "context": "Record: digit=2; letter=J.\nCopy the digit:",
+    "continuation": " 2",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=382, color=gray; delta=90664, color=black; beta=4587, color=red.\nCopy only the digits for delta:",
-    "continuation": " 90664",
+    "context": "Record: digit=8; letter=W.\nCopy the digit:",
+    "continuation": " 8",
     "digits_only": false
    },
    {
-    "context": "Record: delta=592945, color=black; gamma=678, color=red; alpha=0195, color=pink.\nCopy only the digits for delta:",
-    "continuation": " 592945",
+    "context": "Record: digit=9; letter=U.\nCopy the digit:",
+    "continuation": " 9",
     "digits_only": false
    },
    {
-    "context": "Record: delta=560169, color=blue; alpha=2016, color=green; beta=0446, color=pink.\nCopy only the digits for alpha:",
-    "continuation": " 2016",
+    "context": "Record: digit=6; letter=W.\nCopy the digit:",
+    "continuation": " 6",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=50932, color=gray; gamma=7175, color=green; delta=20355, color=pink.\nCopy only the digits for delta:",
-    "continuation": " 20355",
+    "context": "Record: digit=0; letter=R.\nCopy the digit:",
+    "continuation": " 0",
     "digits_only": false
    },
    {
-    "context": "Record: delta=771113, color=green; alpha=263, color=blue; beta=916860, color=gold.\nCopy only the digits for delta:",
-    "continuation": " 771113",
+    "context": "Record: digit=3; letter=L.\nCopy the digit:",
+    "continuation": " 3",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=46595, color=pink; beta=407, color=gold; gamma=436, color=black.\nCopy only the digits for gamma:",
-    "continuation": " 436",
+    "context": "Record: digit=7; letter=K.\nCopy the digit:",
+    "continuation": " 7",
     "digits_only": false
    },
    {
-    "context": "Record: beta=974, color=green; delta=6685, color=gray; gamma=9410, color=black.\nCopy only the digits for gamma:",
-    "continuation": " 9410",
+    "context": "Record: digit=1; letter=A.\nCopy the digit:",
+    "continuation": " 1",
     "digits_only": false
    },
    {
-    "context": "Record: delta=73142, color=gray; gamma=12029, color=black; alpha=0068, color=pink.\nCopy only the digits for delta:",
-    "continuation": " 73142",
+    "context": "Record: digit=5; letter=R.\nCopy the digit:",
+    "continuation": " 5",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=843656, color=blue; delta=846612, color=black; alpha=0998, color=pink.\nCopy only the digits for alpha:",
-    "continuation": " 0998",
+    "context": "Record: digit=8; letter=V.\nCopy the digit:",
+    "continuation": " 8",
     "digits_only": false
    },
    {
-    "context": "Record: delta=568512, color=pink; gamma=02205, color=red; beta=0604, color=white.\nCopy only the digits for beta:",
-    "continuation": " 0604",
+    "context": "Record: digit=0; letter=Z.\nCopy the digit:",
+    "continuation": " 0",
     "digits_only": false
    },
    {
-    "context": "Record: beta=886, color=white; alpha=164, color=blue; delta=953, color=black.\nCopy only the digits for beta:",
-    "continuation": " 886",
+    "context": "Record: digit=0; letter=V.\nCopy the digit:",
+    "continuation": " 0",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=23759, color=green; delta=59924, color=blue; alpha=610935, color=pink.\nCopy only the digits for alpha:",
-    "continuation": " 610935",
+    "context": "Record: digit=2; letter=K.\nCopy the digit:",
+    "continuation": " 2",
     "digits_only": false
    },
    {
-    "context": "Record: beta=395368, color=green; gamma=817, color=gold; alpha=877, color=white.\nCopy only the digits for gamma:",
-    "continuation": " 817",
+    "context": "Record: digit=9; letter=N.\nCopy the digit:",
+    "continuation": " 9",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=385, color=blue; delta=3444, color=red; beta=475304, color=gold.\nCopy only the digits for delta:",
-    "continuation": " 3444",
+    "context": "Record: digit=9; letter=R.\nCopy the digit:",
+    "continuation": " 9",
     "digits_only": false
    },
    {
-    "context": "Record: delta=875773, color=green; alpha=0555, color=pink; beta=824, color=gold.\nCopy only the digits for beta:",
-    "continuation": " 824",
+    "context": "Record: digit=1; letter=P.\nCopy the digit:",
+    "continuation": " 1",
     "digits_only": false
    },
    {
-    "context": "Record: beta=7546, color=pink; alpha=1658, color=gray; delta=355645, color=black.\nCopy only the digits for alpha:",
-    "continuation": " 1658",
+    "context": "Record: digit=1; letter=T.\nCopy the digit:",
+    "continuation": " 1",
     "digits_only": false
    },
    {
-    "context": "Record: delta=81552, color=red; beta=78034, color=green; alpha=9546, color=white.\nCopy only the digits for beta:",
-    "continuation": " 78034",
+    "context": "Record: digit=0; letter=O.\nCopy the digit:",
+    "continuation": " 0",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=18321, color=pink; beta=448298, color=black; gamma=8168, color=green.\nCopy only the digits for beta:",
-    "continuation": " 448298",
+    "context": "Record: digit=1; letter=R.\nCopy the digit:",
+    "continuation": " 1",
     "digits_only": false
    },
    {
-    "context": "Record: delta=358017, color=gold; gamma=63609, color=black; beta=614, color=green.\nCopy only the digits for delta:",
-    "continuation": " 358017",
+    "context": "Record: digit=3; letter=R.\nCopy the digit:",
+    "continuation": " 3",
     "digits_only": false
    },
    {
-    "context": "Record: beta=104714, color=black; alpha=8512, color=green; delta=00034, color=white.\nCopy only the digits for beta:",
-    "continuation": " 104714",
+    "context": "Record: digit=8; letter=T.\nCopy the digit:",
+    "continuation": " 8",
     "digits_only": false
    },
    {
-    "context": "Record: delta=732605, color=gray; beta=5288, color=red; alpha=297939, color=blue.\nCopy only the digits for beta:",
-    "continuation": " 5288",
+    "context": "Record: digit=0; letter=R.\nCopy the digit:",
+    "continuation": " 0",
     "digits_only": false
    },
    {
-    "context": "Record: beta=66763, color=green; alpha=7390, color=blue; delta=031250, color=white.\nCopy only the digits for alpha:",
-    "continuation": " 7390",
+    "context": "Record: digit=3; letter=A.\nCopy the digit:",
+    "continuation": " 3",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=317643, color=black; delta=392, color=white; gamma=376, color=blue.\nCopy only the digits for alpha:",
-    "continuation": " 317643",
+    "context": "Record: digit=2; letter=Z.\nCopy the digit:",
+    "continuation": " 2",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=52353, color=red; delta=6759, color=black; gamma=6902, color=gold.\nCopy only the digits for gamma:",
-    "continuation": " 6902",
+    "context": "Record: digit=1; letter=U.\nCopy the digit:",
+    "continuation": " 1",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=894, color=black; alpha=6223, color=gold; delta=83324, color=gray.\nCopy only the digits for gamma:",
-    "continuation": " 894",
+    "context": "Record: digit=4; letter=D.\nCopy the digit:",
+    "continuation": " 4",
     "digits_only": false
    },
    {
-    "context": "Record: delta=079148, color=blue; beta=867423, color=red; alpha=24927, color=gold.\nCopy only the digits for beta:",
-    "continuation": " 867423",
+    "context": "Record: digit=6; letter=F.\nCopy the digit:",
+    "continuation": " 6",
     "digits_only": false
    },
    {
-    "context": "Record: beta=785142, color=gray; gamma=354603, color=black; alpha=535, color=pink.\nCopy only the digits for alpha:",
-    "continuation": " 535",
+    "context": "Record: digit=4; letter=L.\nCopy the digit:",
+    "continuation": " 4",
     "digits_only": false
    },
    {
-    "context": "Record: beta=075994, color=blue; delta=97620, color=red; alpha=436151, color=green.\nCopy only the digits for beta:",
-    "continuation": " 075994",
+    "context": "Record: digit=7; letter=D.\nCopy the digit:",
+    "continuation": " 7",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=396837, color=gray; delta=5919, color=green; gamma=558, color=pink.\nCopy only the digits for alpha:",
-    "continuation": " 396837",
+    "context": "Record: digit=5; letter=T.\nCopy the digit:",
+    "continuation": " 5",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=2509, color=pink; alpha=925, color=blue; beta=44576, color=red.\nCopy only the digits for gamma:",
-    "continuation": " 2509",
+    "context": "Record: digit=5; letter=T.\nCopy the digit:",
+    "continuation": " 5",
     "digits_only": false
    },
    {
-    "context": "Record: beta=78771, color=black; delta=864, color=green; alpha=811, color=red.\nCopy only the digits for delta:",
-    "continuation": " 864",
+    "context": "Record: digit=3; letter=X.\nCopy the digit:",
+    "continuation": " 3",
     "digits_only": false
    },
    {
-    "context": "Record: beta=580, color=pink; alpha=019, color=white; gamma=2606, color=black.\nCopy only the digits for alpha:",
-    "continuation": " 019",
+    "context": "Record: digit=2; letter=W.\nCopy the digit:",
+    "continuation": " 2",
     "digits_only": false
    },
    {
-    "context": "Record: delta=1166, color=gray; beta=284576, color=black; alpha=7785, color=red.\nCopy only the digits for beta:",
-    "continuation": " 284576",
+    "context": "Record: digit=9; letter=Z.\nCopy the digit:",
+    "continuation": " 9",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=413, color=blue; alpha=25601, color=red; delta=3098, color=pink.\nCopy only the digits for delta:",
-    "continuation": " 3098",
+    "context": "Record: digit=9; letter=I.\nCopy the digit:",
+    "continuation": " 9",
     "digits_only": false
    },
    {
-    "context": "Record: delta=40644, color=red; beta=53620, color=white; gamma=9657, color=gold.\nCopy only the digits for gamma:",
-    "continuation": " 9657",
+    "context": "Record: digit=4; letter=W.\nCopy the digit:",
+    "continuation": " 4",
     "digits_only": false
    },
    {
-    "context": "Record: delta=670285, color=red; beta=3234, color=blue; gamma=2848, color=pink.\nCopy only the digits for gamma:",
-    "continuation": " 2848",
+    "context": "Record: digit=2; letter=F.\nCopy the digit:",
+    "continuation": " 2",
     "digits_only": false
    },
    {
-    "context": "Record: delta=27385, color=red; alpha=6547, color=pink; beta=048487, color=white.\nCopy only the digits for beta:",
-    "continuation": " 048487",
+    "context": "Record: digit=6; letter=G.\nCopy the digit:",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=4; letter=P.\nCopy the digit:",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=7; letter=P.\nCopy the digit:",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=1; letter=P.\nCopy the digit:",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=8; letter=O.\nCopy the digit:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=5; letter=S.\nCopy the digit:",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=2; letter=E.\nCopy the digit:",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=8; letter=J.\nCopy the digit:",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=0; letter=Q.\nCopy the digit:",
+    "continuation": " 0",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=3; letter=F.\nCopy the digit:",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=4; letter=D.\nCopy the digit:",
+    "continuation": " 4",
     "digits_only": false
    }
   ]
@@ -513,508 +613,608 @@
  "control": {
   "search": [
    {
-    "context": "Record: delta=40644, color=red; beta=53620, color=white; gamma=9657, color=gold.\nCopy only the color for gamma:",
-    "continuation": " gold",
+    "context": "Record: digit=0; letter=R.\nCopy the letter:",
+    "continuation": " R",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=67088, color=black; gamma=977473, color=red; beta=40002, color=green.\nCopy only the color for beta:",
-    "continuation": " green",
+    "context": "Record: digit=9; letter=D.\nCopy the letter:",
+    "continuation": " D",
     "digits_only": false
    },
    {
-    "context": "Record: beta=580, color=pink; alpha=019, color=white; gamma=2606, color=black.\nCopy only the color for alpha:",
-    "continuation": " white",
+    "context": "Record: digit=8; letter=I.\nCopy the letter:",
+    "continuation": " I",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=2509, color=pink; alpha=925, color=blue; beta=44576, color=red.\nCopy only the color for gamma:",
-    "continuation": " pink",
+    "context": "Record: digit=0; letter=R.\nCopy the letter:",
+    "continuation": " R",
     "digits_only": false
    },
    {
-    "context": "Record: beta=868, color=blue; alpha=83396, color=gold; gamma=77515, color=white.\nCopy only the color for gamma:",
-    "continuation": " white",
+    "context": "Record: digit=3; letter=A.\nCopy the letter:",
+    "continuation": " A",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=634, color=white; gamma=769930, color=green; delta=248, color=red.\nCopy only the color for gamma:",
-    "continuation": " green",
+    "context": "Record: digit=3; letter=Z.\nCopy the letter:",
+    "continuation": " Z",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=396837, color=gray; delta=5919, color=green; gamma=558, color=pink.\nCopy only the color for alpha:",
-    "continuation": " gray",
+    "context": "Record: digit=4; letter=P.\nCopy the letter:",
+    "continuation": " P",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=23759, color=green; delta=59924, color=blue; alpha=610935, color=pink.\nCopy only the color for alpha:",
-    "continuation": " pink",
+    "context": "Record: digit=1; letter=U.\nCopy the letter:",
+    "continuation": " U",
     "digits_only": false
    },
    {
-    "context": "Record: delta=696, color=red; beta=271, color=gray; gamma=27878, color=gold.\nCopy only the color for beta:",
-    "continuation": " gray",
+    "context": "Record: digit=4; letter=W.\nCopy the letter:",
+    "continuation": " W",
     "digits_only": false
    },
    {
-    "context": "Record: beta=706360, color=blue; alpha=09555, color=green; delta=298141, color=red.\nCopy only the color for delta:",
-    "continuation": " red",
+    "context": "Record: digit=4; letter=R.\nCopy the letter:",
+    "continuation": " R",
     "digits_only": false
    },
    {
-    "context": "Record: beta=3236, color=gray; alpha=99271, color=gold; delta=895, color=green.\nCopy only the color for beta:",
-    "continuation": " gray",
+    "context": "Record: digit=5; letter=P.\nCopy the letter:",
+    "continuation": " P",
     "digits_only": false
    },
    {
-    "context": "Record: beta=66763, color=green; alpha=7390, color=blue; delta=031250, color=white.\nCopy only the color for alpha:",
-    "continuation": " blue",
+    "context": "Record: digit=4; letter=L.\nCopy the letter:",
+    "continuation": " L",
     "digits_only": false
    },
    {
-    "context": "Record: beta=57928, color=red; alpha=348, color=green; delta=025, color=white.\nCopy only the color for beta:",
-    "continuation": " red",
+    "context": "Record: digit=8; letter=A.\nCopy the letter:",
+    "continuation": " A",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=616570, color=white; delta=404, color=blue; alpha=38856, color=red.\nCopy only the color for alpha:",
-    "continuation": " red",
+    "context": "Record: digit=1; letter=A.\nCopy the letter:",
+    "continuation": " A",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=7603, color=pink; alpha=412, color=red; delta=7058, color=white.\nCopy only the color for gamma:",
-    "continuation": " pink",
+    "context": "Record: digit=5; letter=M.\nCopy the letter:",
+    "continuation": " M",
     "digits_only": false
    },
    {
-    "context": "Record: delta=560169, color=blue; alpha=2016, color=green; beta=0446, color=pink.\nCopy only the color for alpha:",
-    "continuation": " green",
+    "context": "Record: digit=2; letter=K.\nCopy the letter:",
+    "continuation": " K",
     "digits_only": false
    },
    {
-    "context": "Record: beta=8612, color=blue; alpha=951663, color=pink; delta=636376, color=green.\nCopy only the color for alpha:",
-    "continuation": " pink",
+    "context": "Record: digit=1; letter=Z.\nCopy the letter:",
+    "continuation": " Z",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=688, color=green; beta=77936, color=gold; delta=534, color=blue.\nCopy only the color for beta:",
-    "continuation": " gold",
+    "context": "Record: digit=1; letter=C.\nCopy the letter:",
+    "continuation": " C",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=300, color=pink; delta=802199, color=red; beta=1730, color=white.\nCopy only the color for alpha:",
-    "continuation": " pink",
+    "context": "Record: digit=1; letter=U.\nCopy the letter:",
+    "continuation": " U",
     "digits_only": false
    },
    {
-    "context": "Record: delta=1166, color=gray; beta=284576, color=black; alpha=7785, color=red.\nCopy only the color for beta:",
-    "continuation": " black",
+    "context": "Record: digit=1; letter=T.\nCopy the letter:",
+    "continuation": " T",
     "digits_only": false
    },
    {
-    "context": "Record: beta=841269, color=red; alpha=116116, color=gold; gamma=0766, color=green.\nCopy only the color for gamma:",
-    "continuation": " green",
+    "context": "Record: digit=6; letter=C.\nCopy the letter:",
+    "continuation": " C",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=07493, color=blue; beta=864, color=white; delta=8212, color=black.\nCopy only the color for delta:",
-    "continuation": " black",
+    "context": "Record: digit=8; letter=W.\nCopy the letter:",
+    "continuation": " W",
     "digits_only": false
    },
    {
-    "context": "Record: beta=88027, color=white; gamma=452, color=gray; alpha=19861, color=red.\nCopy only the color for alpha:",
-    "continuation": " red",
+    "context": "Record: digit=6; letter=F.\nCopy the letter:",
+    "continuation": " F",
     "digits_only": false
    },
    {
-    "context": "Record: delta=801, color=green; alpha=367, color=white; gamma=65641, color=blue.\nCopy only the color for gamma:",
-    "continuation": " blue",
+    "context": "Record: digit=1; letter=H.\nCopy the letter:",
+    "continuation": " H",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=52353, color=red; delta=6759, color=black; gamma=6902, color=gold.\nCopy only the color for gamma:",
-    "continuation": " gold",
+    "context": "Record: digit=1; letter=R.\nCopy the letter:",
+    "continuation": " R",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=413, color=blue; alpha=25601, color=red; delta=3098, color=pink.\nCopy only the color for delta:",
-    "continuation": " pink",
+    "context": "Record: digit=7; letter=D.\nCopy the letter:",
+    "continuation": " D",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=259118, color=green; gamma=4345, color=red; delta=48727, color=black.\nCopy only the color for delta:",
-    "continuation": " black",
+    "context": "Record: digit=0; letter=Z.\nCopy the letter:",
+    "continuation": " Z",
     "digits_only": false
    },
    {
-    "context": "Record: delta=10337, color=gold; gamma=43075, color=black; beta=11496, color=green.\nCopy only the color for gamma:",
-    "continuation": " black",
+    "context": "Record: digit=0; letter=T.\nCopy the letter:",
+    "continuation": " T",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=385, color=blue; delta=3444, color=red; beta=475304, color=gold.\nCopy only the color for delta:",
-    "continuation": " red",
+    "context": "Record: digit=5; letter=N.\nCopy the letter:",
+    "continuation": " N",
     "digits_only": false
    },
    {
-    "context": "Record: delta=358017, color=gold; gamma=63609, color=black; beta=614, color=green.\nCopy only the color for delta:",
-    "continuation": " gold",
+    "context": "Record: digit=8; letter=O.\nCopy the letter:",
+    "continuation": " O",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=6418, color=red; gamma=0675, color=gold; beta=7510, color=green.\nCopy only the color for alpha:",
-    "continuation": " red",
+    "context": "Record: digit=6; letter=W.\nCopy the letter:",
+    "continuation": " W",
     "digits_only": false
    },
    {
-    "context": "Record: delta=197, color=blue; gamma=24364, color=pink; beta=004, color=black.\nCopy only the color for gamma:",
-    "continuation": " pink",
+    "context": "Record: digit=3; letter=Q.\nCopy the letter:",
+    "continuation": " Q",
     "digits_only": false
    },
    {
-    "context": "Record: delta=340797, color=blue; gamma=341, color=black; alpha=89267, color=gold.\nCopy only the color for delta:",
-    "continuation": " blue",
+    "context": "Record: digit=0; letter=T.\nCopy the letter:",
+    "continuation": " T",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=286, color=red; gamma=7640, color=gold; delta=6279, color=gray.\nCopy only the color for delta:",
-    "continuation": " gray",
+    "context": "Record: digit=5; letter=S.\nCopy the letter:",
+    "continuation": " S",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=150, color=red; alpha=52035, color=blue; beta=923, color=black.\nCopy only the color for beta:",
-    "continuation": " black",
+    "context": "Record: digit=5; letter=Q.\nCopy the letter:",
+    "continuation": " Q",
     "digits_only": false
    },
    {
-    "context": "Record: delta=625425, color=red; alpha=606488, color=white; gamma=091662, color=blue.\nCopy only the color for gamma:",
-    "continuation": " blue",
+    "context": "Record: digit=2; letter=W.\nCopy the letter:",
+    "continuation": " W",
     "digits_only": false
    },
    {
-    "context": "Record: delta=400, color=gold; beta=68967, color=white; alpha=454, color=red.\nCopy only the color for delta:",
-    "continuation": " gold",
+    "context": "Record: digit=9; letter=E.\nCopy the letter:",
+    "continuation": " E",
     "digits_only": false
    },
    {
-    "context": "Record: beta=785142, color=gray; gamma=354603, color=black; alpha=535, color=pink.\nCopy only the color for alpha:",
-    "continuation": " pink",
+    "context": "Record: digit=3; letter=Y.\nCopy the letter:",
+    "continuation": " Y",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=180, color=gray; delta=320, color=green; beta=07522, color=white.\nCopy only the color for delta:",
-    "continuation": " green",
+    "context": "Record: digit=9; letter=J.\nCopy the letter:",
+    "continuation": " J",
     "digits_only": false
    },
    {
-    "context": "Record: delta=123126, color=pink; gamma=835006, color=white; beta=1699, color=blue.\nCopy only the color for beta:",
-    "continuation": " blue",
+    "context": "Record: digit=6; letter=S.\nCopy the letter:",
+    "continuation": " S",
     "digits_only": false
    },
    {
-    "context": "Record: beta=886, color=white; alpha=164, color=blue; delta=953, color=black.\nCopy only the color for beta:",
-    "continuation": " white",
+    "context": "Record: digit=9; letter=H.\nCopy the letter:",
+    "continuation": " H",
     "digits_only": false
    },
    {
-    "context": "Record: delta=81552, color=red; beta=78034, color=green; alpha=9546, color=white.\nCopy only the color for beta:",
-    "continuation": " green",
+    "context": "Record: digit=9; letter=U.\nCopy the letter:",
+    "continuation": " U",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=382, color=gray; delta=90664, color=black; beta=4587, color=red.\nCopy only the color for delta:",
-    "continuation": " black",
+    "context": "Record: digit=0; letter=O.\nCopy the letter:",
+    "continuation": " O",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=602234, color=gray; beta=00762, color=gold; delta=912560, color=pink.\nCopy only the color for gamma:",
-    "continuation": " gray",
+    "context": "Record: digit=0; letter=T.\nCopy the letter:",
+    "continuation": " T",
     "digits_only": false
    },
    {
-    "context": "Record: beta=62087, color=green; alpha=916, color=black; delta=4579, color=pink.\nCopy only the color for beta:",
-    "continuation": " green",
+    "context": "Record: digit=4; letter=P.\nCopy the letter:",
+    "continuation": " P",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=340956, color=gray; delta=802, color=blue; alpha=066617, color=pink.\nCopy only the color for delta:",
-    "continuation": " blue",
+    "context": "Record: digit=3; letter=Z.\nCopy the letter:",
+    "continuation": " Z",
     "digits_only": false
    },
    {
-    "context": "Record: beta=4059, color=black; delta=250, color=red; gamma=003003, color=pink.\nCopy only the color for delta:",
-    "continuation": " red",
+    "context": "Record: digit=7; letter=B.\nCopy the letter:",
+    "continuation": " B",
     "digits_only": false
    },
    {
-    "context": "Record: beta=395368, color=green; gamma=817, color=gold; alpha=877, color=white.\nCopy only the color for gamma:",
-    "continuation": " gold",
+    "context": "Record: digit=3; letter=G.\nCopy the letter:",
+    "continuation": " G",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=381206, color=gold; beta=503008, color=pink; alpha=319, color=green.\nCopy only the color for beta:",
-    "continuation": " pink",
+    "context": "Record: digit=7; letter=O.\nCopy the letter:",
+    "continuation": " O",
     "digits_only": false
    },
    {
-    "context": "Record: beta=151090, color=blue; gamma=2173, color=pink; alpha=086, color=green.\nCopy only the color for beta:",
-    "continuation": " blue",
+    "context": "Record: digit=5; letter=T.\nCopy the letter:",
+    "continuation": " T",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=9; letter=R.\nCopy the letter:",
+    "continuation": " R",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=1; letter=P.\nCopy the letter:",
+    "continuation": " P",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=3; letter=T.\nCopy the letter:",
+    "continuation": " T",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=8; letter=J.\nCopy the letter:",
+    "continuation": " J",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=9; letter=Z.\nCopy the letter:",
+    "continuation": " Z",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=9; letter=I.\nCopy the letter:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=0; letter=Z.\nCopy the letter:",
+    "continuation": " Z",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=9; letter=H.\nCopy the letter:",
+    "continuation": " H",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=2; letter=J.\nCopy the letter:",
+    "continuation": " J",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=3; letter=R.\nCopy the letter:",
+    "continuation": " R",
     "digits_only": false
    }
   ],
   "heldout": [
    {
-    "context": "Record: beta=61849, color=blue; delta=4789, color=gray; gamma=844301, color=black.\nCopy only the color for delta:",
-    "continuation": " gray",
+    "context": "Record: digit=9; letter=D.\nCopy the letter:",
+    "continuation": " D",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=002, color=black; delta=7931, color=gray; alpha=457325, color=gold.\nCopy only the color for delta:",
-    "continuation": " gray",
+    "context": "Record: digit=6; letter=K.\nCopy the letter:",
+    "continuation": " K",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=468811, color=red; gamma=036954, color=white; delta=039, color=pink.\nCopy only the color for gamma:",
-    "continuation": " white",
+    "context": "Record: digit=3; letter=X.\nCopy the letter:",
+    "continuation": " X",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=2323, color=white; beta=827, color=blue; delta=94516, color=green.\nCopy only the color for delta:",
-    "continuation": " green",
+    "context": "Record: digit=1; letter=X.\nCopy the letter:",
+    "continuation": " X",
     "digits_only": false
    },
    {
-    "context": "Record: delta=875773, color=green; alpha=0555, color=pink; beta=824, color=gold.\nCopy only the color for beta:",
-    "continuation": " gold",
+    "context": "Record: digit=2; letter=W.\nCopy the letter:",
+    "continuation": " W",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=725, color=gray; beta=2573, color=white; gamma=667, color=pink.\nCopy only the color for alpha:",
-    "continuation": " gray",
+    "context": "Record: digit=2; letter=E.\nCopy the letter:",
+    "continuation": " E",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=843656, color=blue; delta=846612, color=black; alpha=0998, color=pink.\nCopy only the color for alpha:",
-    "continuation": " pink",
+    "context": "Record: digit=2; letter=W.\nCopy the letter:",
+    "continuation": " W",
     "digits_only": false
    },
    {
-    "context": "Record: beta=13793, color=black; gamma=825278, color=red; alpha=818, color=pink.\nCopy only the color for beta:",
-    "continuation": " black",
+    "context": "Record: digit=4; letter=R.\nCopy the letter:",
+    "continuation": " R",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=35749, color=green; gamma=2088, color=blue; beta=59026, color=white.\nCopy only the color for alpha:",
-    "continuation": " green",
+    "context": "Record: digit=8; letter=Z.\nCopy the letter:",
+    "continuation": " Z",
     "digits_only": false
    },
    {
-    "context": "Record: beta=075994, color=blue; delta=97620, color=red; alpha=436151, color=green.\nCopy only the color for beta:",
-    "continuation": " blue",
+    "context": "Record: digit=9; letter=U.\nCopy the letter:",
+    "continuation": " U",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=099, color=gray; beta=5185, color=white; delta=6710, color=black.\nCopy only the color for beta:",
-    "continuation": " white",
+    "context": "Record: digit=1; letter=K.\nCopy the letter:",
+    "continuation": " K",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=4173, color=white; beta=428, color=gold; delta=465, color=red.\nCopy only the color for gamma:",
-    "continuation": " white",
+    "context": "Record: digit=7; letter=C.\nCopy the letter:",
+    "continuation": " C",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=2943, color=green; delta=675, color=white; beta=256627, color=gray.\nCopy only the color for gamma:",
-    "continuation": " green",
+    "context": "Record: digit=6; letter=T.\nCopy the letter:",
+    "continuation": " T",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=545, color=black; delta=190, color=pink; alpha=12438, color=gold.\nCopy only the color for gamma:",
-    "continuation": " black",
+    "context": "Record: digit=3; letter=L.\nCopy the letter:",
+    "continuation": " L",
     "digits_only": false
    },
    {
-    "context": "Record: delta=592945, color=black; gamma=678, color=red; alpha=0195, color=pink.\nCopy only the color for delta:",
-    "continuation": " black",
+    "context": "Record: digit=7; letter=V.\nCopy the letter:",
+    "continuation": " V",
     "digits_only": false
    },
    {
-    "context": "Record: beta=112648, color=pink; gamma=296451, color=gold; alpha=7580, color=red.\nCopy only the color for gamma:",
-    "continuation": " gold",
+    "context": "Record: digit=6; letter=W.\nCopy the letter:",
+    "continuation": " W",
     "digits_only": false
    },
    {
-    "context": "Record: delta=8292, color=pink; gamma=8407, color=blue; alpha=0626, color=gold.\nCopy only the color for alpha:",
-    "continuation": " gold",
+    "context": "Record: digit=5; letter=W.\nCopy the letter:",
+    "continuation": " W",
     "digits_only": false
    },
    {
-    "context": "Record: beta=3570, color=blue; alpha=9342, color=gray; delta=197378, color=pink.\nCopy only the color for alpha:",
-    "continuation": " gray",
+    "context": "Record: digit=5; letter=G.\nCopy the letter:",
+    "continuation": " G",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=894, color=black; alpha=6223, color=gold; delta=83324, color=gray.\nCopy only the color for gamma:",
-    "continuation": " black",
+    "context": "Record: digit=0; letter=G.\nCopy the letter:",
+    "continuation": " G",
     "digits_only": false
    },
    {
-    "context": "Record: beta=974, color=green; delta=6685, color=gray; gamma=9410, color=black.\nCopy only the color for gamma:",
-    "continuation": " black",
+    "context": "Record: digit=0; letter=C.\nCopy the letter:",
+    "continuation": " C",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=815659, color=red; gamma=8778, color=white; beta=08016, color=gold.\nCopy only the color for gamma:",
-    "continuation": " white",
+    "context": "Record: digit=3; letter=X.\nCopy the letter:",
+    "continuation": " X",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=63522, color=gray; gamma=952, color=red; beta=696, color=black.\nCopy only the color for beta:",
-    "continuation": " black",
+    "context": "Record: digit=2; letter=F.\nCopy the letter:",
+    "continuation": " F",
     "digits_only": false
    },
    {
-    "context": "Record: delta=079148, color=blue; beta=867423, color=red; alpha=24927, color=gold.\nCopy only the color for beta:",
-    "continuation": " red",
+    "context": "Record: digit=6; letter=B.\nCopy the letter:",
+    "continuation": " B",
     "digits_only": false
    },
    {
-    "context": "Record: beta=393, color=blue; gamma=2871, color=green; delta=587, color=white.\nCopy only the color for gamma:",
-    "continuation": " green",
+    "context": "Record: digit=4; letter=D.\nCopy the letter:",
+    "continuation": " D",
     "digits_only": false
    },
    {
-    "context": "Record: delta=732605, color=gray; beta=5288, color=red; alpha=297939, color=blue.\nCopy only the color for beta:",
-    "continuation": " red",
+    "context": "Record: digit=5; letter=Q.\nCopy the letter:",
+    "continuation": " Q",
     "digits_only": false
    },
    {
-    "context": "Record: delta=771113, color=green; alpha=263, color=blue; beta=916860, color=gold.\nCopy only the color for delta:",
-    "continuation": " green",
+    "context": "Record: digit=1; letter=P.\nCopy the letter:",
+    "continuation": " P",
     "digits_only": false
    },
    {
-    "context": "Record: delta=582369, color=red; gamma=02245, color=green; beta=51590, color=blue.\nCopy only the color for delta:",
-    "continuation": " red",
+    "context": "Record: digit=4; letter=Q.\nCopy the letter:",
+    "continuation": " Q",
     "digits_only": false
    },
    {
-    "context": "Record: delta=73142, color=gray; gamma=12029, color=black; alpha=0068, color=pink.\nCopy only the color for delta:",
-    "continuation": " gray",
+    "context": "Record: digit=4; letter=L.\nCopy the letter:",
+    "continuation": " L",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=47121, color=black; beta=18927, color=white; alpha=266237, color=blue.\nCopy only the color for beta:",
-    "continuation": " white",
+    "context": "Record: digit=5; letter=R.\nCopy the letter:",
+    "continuation": " R",
     "digits_only": false
    },
    {
-    "context": "Record: gamma=930, color=red; alpha=76081, color=gray; beta=605, color=white.\nCopy only the color for gamma:",
-    "continuation": " red",
+    "context": "Record: digit=1; letter=V.\nCopy the letter:",
+    "continuation": " V",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=083518, color=gold; gamma=2363, color=gray; delta=524583, color=green.\nCopy only the color for alpha:",
-    "continuation": " gold",
+    "context": "Record: digit=3; letter=B.\nCopy the letter:",
+    "continuation": " B",
     "digits_only": false
    },
    {
-    "context": "Record: delta=87647, color=green; beta=93824, color=gray; alpha=1948, color=red.\nCopy only the color for alpha:",
-    "continuation": " red",
+    "context": "Record: digit=1; letter=G.\nCopy the letter:",
+    "continuation": " G",
     "digits_only": false
    },
    {
-    "context": "Record: beta=7546, color=pink; alpha=1658, color=gray; delta=355645, color=black.\nCopy only the color for alpha:",
-    "continuation": " gray",
+    "context": "Record: digit=1; letter=I.\nCopy the letter:",
+    "continuation": " I",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=46595, color=pink; beta=407, color=gold; gamma=436, color=black.\nCopy only the color for gamma:",
-    "continuation": " black",
+    "context": "Record: digit=1; letter=C.\nCopy the letter:",
+    "continuation": " C",
     "digits_only": false
    },
    {
-    "context": "Record: delta=27385, color=red; alpha=6547, color=pink; beta=048487, color=white.\nCopy only the color for beta:",
-    "continuation": " white",
+    "context": "Record: digit=9; letter=O.\nCopy the letter:",
+    "continuation": " O",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=9894, color=white; gamma=196593, color=gold; beta=23209, color=red.\nCopy only the color for alpha:",
-    "continuation": " white",
+    "context": "Record: digit=0; letter=V.\nCopy the letter:",
+    "continuation": " V",
     "digits_only": false
    },
    {
-    "context": "Record: beta=78771, color=black; delta=864, color=green; alpha=811, color=red.\nCopy only the color for delta:",
-    "continuation": " green",
+    "context": "Record: digit=6; letter=Y.\nCopy the letter:",
+    "continuation": " Y",
     "digits_only": false
    },
    {
-    "context": "Record: beta=104714, color=black; alpha=8512, color=green; delta=00034, color=white.\nCopy only the color for beta:",
-    "continuation": " black",
+    "context": "Record: digit=2; letter=A.\nCopy the letter:",
+    "continuation": " A",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=50932, color=gray; gamma=7175, color=green; delta=20355, color=pink.\nCopy only the color for delta:",
-    "continuation": " pink",
+    "context": "Record: digit=8; letter=T.\nCopy the letter:",
+    "continuation": " T",
     "digits_only": false
    },
    {
-    "context": "Record: beta=2302, color=pink; alpha=1691, color=red; delta=299045, color=black.\nCopy only the color for beta:",
-    "continuation": " pink",
+    "context": "Record: digit=8; letter=V.\nCopy the letter:",
+    "continuation": " V",
     "digits_only": false
    },
    {
-    "context": "Record: beta=198537, color=gold; delta=5760, color=green; gamma=086736, color=gray.\nCopy only the color for delta:",
-    "continuation": " green",
+    "context": "Record: digit=3; letter=F.\nCopy the letter:",
+    "continuation": " F",
     "digits_only": false
    },
    {
-    "context": "Record: delta=568512, color=pink; gamma=02205, color=red; beta=0604, color=white.\nCopy only the color for beta:",
-    "continuation": " white",
+    "context": "Record: digit=7; letter=M.\nCopy the letter:",
+    "continuation": " M",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=505, color=gray; gamma=246292, color=black; beta=480222, color=pink.\nCopy only the color for beta:",
-    "continuation": " pink",
+    "context": "Record: digit=7; letter=P.\nCopy the letter:",
+    "continuation": " P",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=065, color=gray; delta=8222, color=black; beta=3950, color=pink.\nCopy only the color for delta:",
-    "continuation": " black",
+    "context": "Record: digit=4; letter=D.\nCopy the letter:",
+    "continuation": " D",
     "digits_only": false
    },
    {
-    "context": "Record: delta=17176, color=blue; beta=452, color=gray; gamma=9611, color=black.\nCopy only the color for delta:",
-    "continuation": " blue",
+    "context": "Record: digit=7; letter=K.\nCopy the letter:",
+    "continuation": " K",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=18321, color=pink; beta=448298, color=black; gamma=8168, color=green.\nCopy only the color for beta:",
-    "continuation": " black",
+    "context": "Record: digit=6; letter=G.\nCopy the letter:",
+    "continuation": " G",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=5841, color=red; gamma=207698, color=gold; delta=56428, color=black.\nCopy only the color for alpha:",
-    "continuation": " red",
+    "context": "Record: digit=4; letter=F.\nCopy the letter:",
+    "continuation": " F",
     "digits_only": false
    },
    {
-    "context": "Record: delta=670285, color=red; beta=3234, color=blue; gamma=2848, color=pink.\nCopy only the color for gamma:",
-    "continuation": " pink",
+    "context": "Record: digit=5; letter=D.\nCopy the letter:",
+    "continuation": " D",
     "digits_only": false
    },
    {
-    "context": "Record: beta=92610, color=gray; gamma=157, color=pink; alpha=17594, color=blue.\nCopy only the color for beta:",
-    "continuation": " gray",
+    "context": "Record: digit=9; letter=N.\nCopy the letter:",
+    "continuation": " N",
     "digits_only": false
    },
    {
-    "context": "Record: alpha=317643, color=black; delta=392, color=white; gamma=376, color=blue.\nCopy only the color for alpha:",
-    "continuation": " black",
+    "context": "Record: digit=8; letter=I.\nCopy the letter:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=4; letter=E.\nCopy the letter:",
+    "continuation": " E",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=5; letter=C.\nCopy the letter:",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=8; letter=D.\nCopy the letter:",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=2; letter=Z.\nCopy the letter:",
+    "continuation": " Z",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=2; letter=Y.\nCopy the letter:",
+    "continuation": " Y",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=0; letter=Q.\nCopy the letter:",
+    "continuation": " Q",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=7; letter=S.\nCopy the letter:",
+    "continuation": " S",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=4; letter=D.\nCopy the letter:",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=6; letter=B.\nCopy the letter:",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "Record: digit=5; letter=T.\nCopy the letter:",
+    "continuation": " T",
     "digits_only": false
    }
   ]
  },
- "base_margin": 2.6125
+ "base_margin": 1.7943
 }
