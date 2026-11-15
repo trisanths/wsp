@@ -210,3 +210,39 @@ Reading:
 Next (round 6): taps on MMLU, where the answer is already in the donor's
 prefill states and fine-tuning cannot add knowledge; and LoRA plus a tap
 against LoRA alone on GSM8K.
+
+## Run 6 (2026-11-14): a tap beats fine-tuning on knowledge
+
+Raw rows: round6_mmlu_rows.json, round6_gsm8k_rows.json.
+
+MMLU. Host Llama-3.2-1B-Instruct, donor Qwen2.5-7B-Instruct. 500 steps on
+8000 MMLU auxiliary_train pairs (prompts up to 240 tokens), batch 8; scored
+on 1000 seeded MMLU test items by the log-probability of " A" to " D".
+Branch lr 3e-4, gate lr 3e-2, LoRA lr 1e-4. 3 seeds.
+
+| Arm | Trainable params | MMLU acc. (sd) |
+|---|---|---|
+| Host, untrained | 0 | 47.5 |
+| Donor alone | 0 | 71.5 |
+| LoRA rank 16 (fine-tuning) | 11.3M | 50.3 (1.1) |
+| Tap donor L20 into host L10 | 2.9M | 67.9 (0.4) |
+| Tap donor L27 into host L12 | 2.9M | 65.6 (4.1) |
+| Control: tap L27 on mismatched messages | 2.9M | 48.6 (0.3) |
+| Tap L27 plus LoRA r16, trained jointly | 14.2M | 49.2 (1.6) |
+
+GSM8K, LoRA rank 64 plus a tap against LoRA alone (same loop, 3 seeds):
+LoRA plus null tap 47.5 (2.3); plus LFM2-350M-Math L8 tap 47.0 (0.9); plus
+Qwen-Math L14 tap 47.5 (4.8). Gates stay near 0.
+
+Reading:
+- The tap recovers 85% of the host-to-donor gap (+20.4 points) with 2.9M
+  trainable parameters and about 100 s of training. Fine-tuning gains 2.8
+  points, because the knowledge is not in its data.
+- The mismatched-message control falls to host level, so the gain comes
+  from the donor's states for that question, not from added capacity.
+- Joint tap plus LoRA training collapses the tap: the LoRA takes the easy
+  path first and the gate stays near 0. Train the tap first, then LoRA.
+- On GSM8K, prefill taps add nothing on top of LoRA: multi-step reasoning
+  is not in the donor's prefill states.
+- These are numbers on a fixed 1000-item MMLU test sample used during
+  development, not a held-out result yet.
