@@ -96,3 +96,23 @@ uv venv --python 3.12 && uv pip install -e ".[dev,compile,eval]" "transformers==
 
 `transformers==4.57.1` matches the Modal image; `datasets==4.1.1` is the newest release that works with the
 `huggingface_hub` that version needs.
+
+## Hour-8 gate, seed 0 (2026-11-15). SEARCH SPLIT: an interim check, not a result.
+
+Host unsloth/Llama-3.2-1B-Instruct, donor Qwen/Qwen2.5-Math-1.5B, GSM8K search split (200 items from
+train, same items as `wsp.data.gsm8k_splits`), scored by `eval()` with the hf backend for every row.
+Part: 512 MLP neurons from donor layer 10, chosen by contrast (GSM8K heal text vs WikiText-2), grafted at
+host layer 6 with rank-64 glue. Heal for every arm: 300 steps, gsm8k_train, lr 3e-4, batch 8, seq 384.
+Run with `modal run modal_eval.py::gate --seeds "0"`. Raw: `results/gate_hour8_s0.json`.
+
+| Model | GSM8K search | fit R2 (pooled / per dim) |
+|---|---|---|
+| Host | 0.230 | |
+| Donor | 0.450 | |
+| Graft + heal | 0.415 | 0.68 / 0.53 |
+| Control 1: random 512 neurons, same layer, same glue and heal | 0.385 | 0.68 / 0.53 |
+| Control 2: host LoRA matched to glue + part params (2.82M) | 0.440 | |
+
+Reading: the pipeline runs end to end. The graft's 0.03 lead over the random part is inside the noise
+(paired standard error about 0.05 on 200 items), and the matched LoRA scores highest. One seed is not a
+claim; `--seeds "0 1 2"` reuses the seed-0 compiles and adds the other two.
