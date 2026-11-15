@@ -121,3 +121,37 @@ def load_graft_state(grafts, state, lora_params=()):
             g.in_scale.copy_(s["in_scale"])
         for p, v in zip(lora_params, state["lora"]):
             p.copy_(v.to(p.dtype))
+
+
+def train_accum(base, groups, steps, step_fn, seed=0, warmup=30, log_every=100):
+    """Like pgraft.train, but step_fn calls backward itself on each loss term and returns an info dict.
+
+    The gradient is the same sum of terms. Backward per term frees each term's activations before the next term runs,
+    which keeps two donor slices in one training step inside one GPU. zero_grad runs before step_fn, so the gradients
+    from every term add up until the optimiser step. info must hold "loss" (the summed value of the terms).
+    """
+    import math
+
+    torch.manual_seed(seed)
+    groups = [g for g in groups if len(g["params"]) > 0]
+    params = [p for g in groups for p in g["params"]]
+    opt = torch.optim.AdamW(groups, weight_decay=0.0)
+    sched = torch.optim.lr_scheduler.LambdaLR(
+        opt, lambda s: min(1.0, (s + 1) / warmup) * 0.5 * (1 + math.cos(math.pi * s / steps)))
+    log = []
+    base.train()
+    try:
+        for step in range(steps):
+            opt.zero_grad()
+            info = dict(step_fn(step))
+            torch.nn.utils.clip_grad_norm_(params, 1.0)
+            opt.step()
+            sched.step()
+            info["step"] = step
+            log.append(info)
+            if log_every and step % log_every == 0:
+                print("train " + " ".join(f"{k} {v:.4f}" if isinstance(v, float) else f"{k} {v}"
+                                          for k, v in info.items()), flush=True)
+    finally:
+        base.eval()
+    return log

@@ -28,7 +28,7 @@ image = (
         "torch==2.7.1", "transformers==4.57.1", "accelerate", "huggingface_hub", "requests",
         "safetensors", "zstandard", "numpy", "datasets", "sentencepiece", "protobuf",
     )
-    .env({"HF_HOME": "/vol/hf"})
+    .env({"HF_HOME": "/vol/hf", "PYTORCH_CUDA_ALLOC_CONF": "expandable_segments:True"})
     .add_local_python_source("wsp")
     .add_local_file("modal_graft.py", "/root/modal_graft.py")
     .add_local_file("modal_round5.py", "/root/modal_round5.py")
@@ -452,24 +452,29 @@ def _cell(name, seed, smoke=False, overrides=None):
         sp = torch.tensor([soft[i] for i in idx])
         loss, info = pgraft.mc_soft_loss(base, tok, batch, letters, device, soft=sp, kd_weight=c["kd_w"])
         tokens[0] += info.pop("tokens")
-        if c["preserve"] > 0:
-            enc_ = pgraft._tok_batch(tok, next(gen_feed), cfg["seq_len"], device)
-            _, logits = pgraft.seq_lm_loss(base, enc_, return_logits=True)
-            drift = pgraft.drift_kl(ref, enc_, logits)
-            loss = loss + c["preserve"] * drift
-            info["drift"] = float(drift.detach())
-        if arm == "graft" and c["align_reg"] > 0 and step % 2 == 0:
-            for g, feed in zip(grafts, align_feeds):
-                rl, _ = pgraft.functional_loss(base, tok, donors[g.donor_name], donor_toks[g.donor_name], g,
-                                               next(feed), cfg)
-                loss = loss + c["align_reg"] * rl / len(grafts)
         if grafts:
             gm = pgraft.mean_gate(grafts)
             if gm is not None:
                 info["gate"] = float(gm.detach())
-        return loss, info
+        total = float(loss.detach())
+        loss.backward()  # each term backward on its own: same summed gradient, lower peak memory
+        if c["preserve"] > 0:
+            enc_ = pgraft._tok_batch(tok, next(gen_feed), cfg["seq_len"], device)
+            _, logits = pgraft.seq_lm_loss(base, enc_, return_logits=True)
+            drift = pgraft.drift_kl(ref, enc_, logits)
+            info["drift"] = float(drift.detach())
+            total += c["preserve"] * info["drift"]
+            (c["preserve"] * drift).backward()
+        if arm == "graft" and c["align_reg"] > 0 and step % 2 == 0:
+            for g, feed in zip(grafts, align_feeds):
+                rl, _ = pgraft.functional_loss(base, tok, donors[g.donor_name], donor_toks[g.donor_name], g,
+                                               next(feed), cfg)
+                total += c["align_reg"] * float(rl.detach()) / len(grafts)
+                (c["align_reg"] * rl / len(grafts)).backward()
+        info["loss"] = total
+        return info
 
-    log = pgraft.train(base, groups, steps, step_fn, seed=seed + 1, log_every=100)
+    log = clinic.train_accum(base, groups, steps, step_fn, seed=seed + 1, log_every=100)
     row["tokens_trained"] = tokens[0]
     row["gate_curve"] = [[r["step"], round(r["gate"], 4)] for r in log if "gate" in r and r["step"] % 100 == 0]
     row["loss_first50"] = sum(r["loss"] for r in log[:50]) / max(1, len(log[:50]))
@@ -517,6 +522,23 @@ def cell(name, seed, smoke=False, overrides=None):
 @app.function(image=image, volumes={"/vol": volume}, gpu="H200", memory=131072, timeout=6 * 3600)
 def cell_big(name, seed, smoke=False, overrides=None):
     return _cell(name, seed, smoke, overrides)
+
+
+@app.function(image=image, volumes={"/vol": volume}, gpu="H100", memory=131072, timeout=20 * 3600)
+def cell_seq(calls):
+    """Run cells one after another in this container. calls: list of [name, seed, overrides]."""
+    import gc
+
+    import torch
+    rows = []
+    for name, seed, overrides in calls:
+        try:
+            rows.append(_cell(name, seed, False, overrides))
+        except Exception as e:
+            print(f"{name}:{seed}", "FAILED", repr(e)[:500], flush=True)
+        gc.collect()
+        torch.cuda.empty_cache()
+    return rows
 
 
 DEMO_PROMPTS = [
@@ -592,7 +614,7 @@ def demo(ckpt="graft_both_0", name="graft_both"):
 
 
 @app.local_entrypoint()
-def main(cells: str = "", smoke: bool = False, prep_data: bool = False, pick_donor: bool = False,
+def main(cells: str = "", seq: str = "", smoke: bool = False, prep_data: bool = False, pick_donor: bool = False,
          demo_run: bool = False, overrides: str = ""):
     if pick_donor:
         print(json.dumps(pick.remote(), indent=1))
@@ -603,6 +625,15 @@ def main(cells: str = "", smoke: bool = False, prep_data: bool = False, pick_don
     if prep_data:
         print(json.dumps(prep.remote()))
         return
+    if seq:
+        todo = []
+        for item in [x for x in seq.split(",") if x]:
+            name, seed = item.split(":")
+            if name not in PRESETS:
+                raise SystemExit(f"unknown preset {name}")
+            todo.append([name, int(seed), json.loads(overrides) if overrides else None])
+        print("seq rows", len(cell_seq.remote(todo)))
+        return
     calls = []
     for item in [x for x in cells.split(",") if x]:
         name, seed = item.split(":")
@@ -611,7 +642,7 @@ def main(cells: str = "", smoke: bool = False, prep_data: bool = False, pick_don
         calls.append((name, int(seed), smoke, json.loads(overrides) if overrides else None))
     if not calls:
         raise SystemExit("0 cells: pass --cells name:seed,...")
-    small = [x for x in calls if PRESETS[x[0]]["arm"] in ("lora_match", "lora_big", "fullft", "reference", "identity")]
+    small = [x for x in calls if PRESETS[x[0]].get("arm", "graft") in ("lora_match", "lora_big", "fullft", "reference", "identity")]
     big = [x for x in calls if x not in small]
     handles = [cell.spawn(*x) for x in small] + [cell_big.spawn(*x) for x in big]
     rows = []

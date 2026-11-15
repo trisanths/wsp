@@ -100,6 +100,37 @@ def test_two_donor_forward_and_state_in_bf16():
     assert torch.allclose(logits(base2, tok, TEXTS[:3]).float(), out.float(), atol=1e-2)
 
 
+def test_train_accum_matches_pgraft_train_for_split_backward():
+    def run(split):
+        torch.manual_seed(0)
+        model = torch.nn.Linear(4, 2)
+        x = torch.randn(8, 4)
+        y = torch.randn(8, 2)
+        groups = [{"params": list(model.parameters()), "lr": 0.05}]
+
+        def terms():
+            out = model(x)
+            return (out - y).pow(2).mean(), out.abs().mean()
+
+        if split:
+            def step_fn(step):
+                a, b = terms()
+                a.backward()
+                b2 = terms()[1]
+                b2.backward()
+                return {"loss": float(a.detach() + b.detach())}
+            clinic.train_accum(model, groups, 5, step_fn, seed=1, warmup=2, log_every=0)
+        else:
+            def step_fn(step):
+                a, b = terms()
+                return a + b, {}
+            pgraft.train(model, groups, 5, step_fn, seed=1, warmup=2, log_every=0)
+        return [p.detach().clone() for p in model.parameters()]
+
+    for a, b in zip(run(True), run(False)):
+        assert torch.allclose(a, b, atol=1e-6)
+
+
 def test_only_context_isolates_one_graft_and_restores():
     base, tok, grafts, lora = two_donor_host(torch.float32)
     perturb(grafts, lora)
