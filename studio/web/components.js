@@ -67,7 +67,6 @@ export function Logo() {
 }
 
 export function TopBar({ children, right }) {
-  const stub = useStubFlag();
   const health = useHealth();
   const [open, setOpen] = useState(false);
   const modal = health && health.backend === 'modal';
@@ -86,7 +85,7 @@ export function TopBar({ children, right }) {
     ${children}
     <span class="grow"></span>
     ${right}
-    ${DEMO ? html`<${DemoPill} />` : modal ? html`<span class="pill" title="Jobs run on Modal GPUs">Modal GPU</span>` : stub && html`<${StubBadge} />`}
+    ${DEMO ? html`<${DemoPill} />` : modal && html`<span class="pill" title="Jobs run on Modal GPUs">Modal GPU</span>`}
   </header>`;
 }
 

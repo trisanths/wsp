@@ -15,10 +15,34 @@ import { useCatalog } from './run-shared.js';
 export function Slider({ value, min, max, step, onChange, ticks = [], color, ariaLabel }) {
   const f = (v) => clamp((v - min) / (max - min), 0, 1);
   const pos = (v) => 'calc(8px + (100% - 16px) * ' + f(v) + ')';
-  return html`<div class=${'sl' + (ticks.some((t) => t.label) ? ' has-ticks' : '')} style=${{ '--p': 'calc(8px + (100% - 16px) * ' + f(value) + ')', '--c1': color || 'var(--text-1)' }}>
+  // a mark outside the range would be pinned to the edge under a number the slider cannot reach, so it is left out
+  const shown = ticks.filter((t) => t.v >= min && t.v <= max);
+  return html`<div class=${'sl' + (shown.some((t) => t.label) ? ' has-ticks' : '')} style=${{ '--p': 'calc(8px + (100% - 16px) * ' + f(value) + ')', '--c1': color || 'var(--text-1)' }}>
     <input type="range" min=${min} max=${max} step=${step} value=${value} aria-label=${ariaLabel} onInput=${(e) => onChange(parseFloat(e.target.value))} />
-    ${ticks.map((t) => html`<span class=${'tk ' + t.kind} style=${{ left: pos(t.v) }}>${t.label && html`<span>${t.label}</span>`}</span>`)}
+    ${shown.map((t) => html`<span class=${'tk ' + t.kind} style=${{ left: pos(t.v) }}>${t.label && html`<span>${t.label}</span>`}</span>`)}
   </div>`;
+}
+
+// well-known dense models and their total parameters, to say what a size means
+const SIZE_REFS = [
+  ['Qwen2.5-0.5B', 0.49], ['Llama-3.2-1B', 1.24], ['Qwen2.5-1.5B', 1.54], ['Gemma-2-2B', 2.61], ['Llama-3.2-3B', 3.21], ['Phi-3.5-mini', 3.82],
+  ['Qwen2.5-7B', 7.62], ['Llama-3.1-8B', 8.03], ['Gemma-2-9B', 9.24], ['Qwen2.5-14B', 14.7], ['Qwen2.5-32B', 32.8],
+];
+const nearestRef = (b) => SIZE_REFS.reduce((best, r) => (Math.abs(Math.log(b / r[1])) < Math.abs(Math.log(b / best[1])) ? r : best));
+
+/** A stored size in plain terms: the closest well-known model and the memory its weights take at 16-bit (2 bytes each). */
+export function sizeRef(b) {
+  if (!(b > 0)) return '';
+  const [name, size] = nearestRef(b);
+  const gb = b * 2;
+  return 'Close to ' + name + ' (' + size + 'B), about ' + (gb < 10 ? gb.toFixed(1) : Math.round(gb)) + ' GB of weights at 16-bit.';
+}
+
+/** A per-token size in plain terms: the dense model that does about the same work for each token. */
+export function runRef(b) {
+  if (!(b > 0)) return '';
+  const [name, size] = nearestRef(b);
+  return 'Each token takes about the compute of ' + name + ' (' + size + 'B).';
 }
 
 function BenchRow({ b, why, onChange, onRemove, late, leaving, shrink }) {
@@ -240,21 +264,25 @@ export function SpecScreen({ id }) {
     ${isShrink && html`<${ShrinkSection} spec=${spec} edit=${edit} onChangeSource=${changeSource} />`}
 
     <section class="sect"><h2 class="sec"><span>Limits</span><${PoweredBy} who="exa" label="Sizes checked with" /></h2>
+      <div class="rs-why slead">Hard caps. A build that goes over any of them is refused, with the numbers.</div>
       ${!isShrink && smallest != null && room < smallest - 1e-9 && html`<div class="limwarn">No part in the library fits in ${n2(Math.max(0, room))}B. The smallest is ${fmtSmall(smallest)}B. Raise the total size.</div>`}
       <div class="srow">
         <div class="top"><span class="nm">Total size</span><span class="val">up to <${SubtleNum} text=${n2(lim.max_total_params_b)} />B parameters</span></div>
+        <div class="rs-why">${isShrink ? 'All the weights the shrunk model may store. The target size above has to fit under it.' : 'All the weights the finished model stores, the host and every part added to it.'}</div>
         <${Slider} value=${lim.max_total_params_b} min=${sizeMin} max=${totMax} step=${0.01} ticks=${sizeTicks} ariaLabel="Maximum total parameters" onChange=${(v) => setLimit({ max_total_params_b: Math.round(v * 100) / 100 })} />
-        <div class="note"><span>${isShrink ? 'The shrunk model has to stay under this. The source has ' + (hostB || 0).toFixed(2) + 'B.' : lim.max_total_params_b < (hostB || 0) ? 'Below the host size. Only deletion masks can get there.' : 'Room for ' + Math.max(0, room).toFixed(2) + 'B of grafted parts.'}</span><span>${n2(sizeMin)}B to ${n2(totMax)}B</span></div>
+        <div class="note"><span>${!isShrink && (lim.max_total_params_b < (hostB || 0) ? 'Below the host size, so only deletion masks can get there. ' : 'Room for ' + Math.max(0, room).toFixed(2) + 'B of added parts. ')}${sizeRef(lim.max_total_params_b)}</span><span>${n2(sizeMin)}B to ${n2(totMax)}B</span></div>
       </div>
       <div class="srow">
         <div class="top"><span class="nm">Run per token</span><span class="val">up to <${SubtleNum} text=${n2(Math.min(lim.max_run_params_b, lim.max_total_params_b))} />B parameters</span></div>
+        <div class="rs-why">The weights each token passes through, which sets the speed. It is below the total size only when each token goes to a few experts.</div>
         <${Slider} value=${clamp(Math.min(lim.max_run_params_b, lim.max_total_params_b), runMin, runMax)} min=${runMin} max=${runMax} step=${0.01} ticks=${runTicks} ariaLabel="Maximum parameters run per token" onChange=${(v) => setLimit({ max_run_params_b: Math.round(v * 100) / 100 })} />
-        <div class="note"><span>The parameters a single token passes through. It sets speed and energy.</span><span>up to the total size</span></div>
+        <div class="note"><span>${runRef(Math.min(lim.max_run_params_b, lim.max_total_params_b))}</span><span>up to the total size</span></div>
       </div>
       <div class="srow">
         <div class="top"><span class="nm">Heal time</span><span class="val"><${SubtleNum} text=${String(lim.max_heal_min)} /> min at most</span></div>
+        <div class="rs-why">${isShrink ? 'The longest the heal steps above may take to train.' : 'The longest the short training after the build may run. It lets added parts settle into the host.'}</div>
         <${Slider} value=${lim.max_heal_min} min=${1} max=${healMax} step=${1} ariaLabel="Maximum heal minutes" onChange=${(v) => setLimit({ max_heal_min: v })} />
-        <div class="note"><span>Builds over a limit are refused, with the numbers.</span><span>1 to ${healMax} min</span></div>
+        <div class="note"><span></span><span>1 to ${healMax} min</span></div>
       </div>
     </section>
 
