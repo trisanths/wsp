@@ -508,11 +508,11 @@ class SweepMiner(client.Miner):
             out["catalog_id"] = rec["id"]
         return out
 
-    def _write_part_locked(self, part, label, target, screen_result, evidence_used, weight_rationale, tier,
-                           confirm=None):
+    def _write_part_locked(self, *args, **kwargs):
         # Runs under the catalog lock that Miner.write_part holds. Miner builds the row and appends it with
         # common.append_jsonl; for that one call the append also adds the sweep's fields (add_row_fields),
         # so the row is written once and complete. The lock makes this the only writer at that moment.
+        # The arguments go to Miner unchanged, whatever they are: another branch adds arguments there.
         extra = self.row_extra
         catalog = common.catalog_path(self.short)
         real_append = common.append_jsonl
@@ -524,8 +524,7 @@ class SweepMiner(client.Miner):
 
         common.append_jsonl = append
         try:
-            return client.Miner._write_part_locked(self, part, label, target, screen_result, evidence_used,
-                                                   weight_rationale, tier, confirm)
+            return client.Miner._write_part_locked(self, *args, **kwargs)
         finally:
             common.append_jsonl = real_append
 
