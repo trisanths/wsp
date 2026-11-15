@@ -143,6 +143,57 @@ def head_dim(model):
     return config.hidden_size // config.num_attention_heads
 
 
+class RouterBlock:
+    """Handle for block_router_experts. remove() puts the router's earlier forward back."""
+
+    def __init__(self, router, earlier):
+        self.router = router
+        # The forward set on this router before the block, or None for the class forward.
+        self.earlier = earlier
+
+    def remove(self):
+        if self.earlier is not None:
+            self.router.forward = self.earlier
+        elif "forward" in self.router.__dict__:
+            del self.router.forward
+
+
+def block_router_experts(router, indices):
+    """Make the router never choose the experts in indices. Returns a handle with remove().
+
+    In Transformers 4 the router (gate) is an nn.Linear that returns logits,
+    and the MoE block picks the top experts. In Transformers 5 the router
+    module picks them itself and returns (logits, weights, indices). A hook
+    on the router output is then too late. Both call
+    torch.nn.functional.linear for the logits, so while the router runs we
+    set the blocked experts' logits to -inf at that call. The router then
+    picks and weights the other experts the same way it always does. A
+    router that adds a score bias after a sigmoid (DeepSeek V3 style) can
+    still pick a blocked expert whose bias is large.
+    """
+    import torch
+    functional = torch.nn.functional
+    earlier = router.__dict__.get("forward")
+    original_forward = router.forward
+
+    def blocked_forward(*args, **kwargs):
+        original_linear = functional.linear
+
+        def masked_linear(*linear_args, **linear_kwargs):
+            logits = original_linear(*linear_args, **linear_kwargs).clone()
+            logits[..., indices.to(logits.device)] = float("-inf")
+            return logits
+
+        functional.linear = masked_linear
+        try:
+            return original_forward(*args, **kwargs)
+        finally:
+            functional.linear = original_linear
+
+    router.forward = blocked_forward
+    return RouterBlock(router, earlier)
+
+
 def add_ablation_hooks(model, ablation):
     """Register hooks that knock out the units. Returns the hook handles (call .remove())."""
     import torch
@@ -172,15 +223,7 @@ def add_ablation_hooks(model, ablation):
         handles.append(attn_o_proj(layer).register_forward_pre_hook(zero_heads))
 
     elif ablation["kind"] == "expert":
-        def block_experts(module, args, output):
-            if isinstance(output, tuple):
-                logits = output[0].clone()
-                logits[..., indices.to(logits.device)] = float("-inf")
-                return (logits,) + tuple(output[1:])
-            logits = output.clone()
-            logits[..., indices.to(logits.device)] = float("-inf")
-            return logits
-        handles.append(moe_router(layer).register_forward_hook(block_experts))
+        handles.append(block_router_experts(moe_router(layer), indices))
 
     else:
         raise ValueError("unknown ablation kind " + str(ablation["kind"]))
