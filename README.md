@@ -121,19 +121,19 @@ A frozen slice of a larger model, grafted into a small host, beats LoRA and full
 - **Bigger donors give more.** On the 1B host, a 7B slice adds 8 to 10 MMLU points, a 14B slice 15, a 32B slice 18.
 - **The cost is compute per token.** Llama-1B with a 7B slice runs 5.2B parameters per token. The planner checks every graft plan against the best plain model at that budget before spending GPU time.
 
-**Adding languages.** Request: "My assistant runs on Llama-3.2-1B. It needs to understand Arabic, Japanese, Chinese, Korean and Hindi as well as it understands English. Add those languages from a model that already knows them." Meta does not list Arabic, Japanese, Chinese or Korean among the languages Llama-3.2 supports. The graft is the same Qwen2.5-7B slice (layers 4 to 20), trained on multiple-choice items in the five languages. The score is Belebele reading comprehension (900 test items per language), which nothing trains on:
+**Adding languages.** Request: "I need a Hindi, French, and Japanese medical assistant that runs on my grandma's laptop, under 7B parameters." Sapien keeps the small Llama-3.2-1B host and grafts in a slice of Qwen2.5-7B (layers 4 to 20), 5.2B parameters in all. Reading comprehension on Belebele (900 test items per language, never trained on):
 
-| Model | Params per token | Arabic | Japanese | Chinese | Korean | Hindi | English |
-|---|---|---|---|---|---|---|---|
-| Llama-3.2-1B base | 1.24B | 42.8 | 45.8 | 54.4 | 45.7 | 38.1 | 58.7 |
-| Same graft, donor weights scrambled (2 seeds) | 5.21B | 55.7 | 57.4 | 68.3 | 57.6 | 50.0 | 77.4 |
-| + Qwen2.5-7B slice (3 seeds) | 5.21B | **75.7** | **76.0** | **84.2** | **77.3** | **67.3** | **89.7** |
-| Native Qwen2.5-1.5B | 1.54B | 68.4 | 68.6 | 79.4 | 70.8 | 48.9 | 82.4 |
-| Native Llama-3.2-3B | 3.21B | 69.8 | 70.4 | 78.8 | 70.2 | 63.0 | 86.2 |
-| Native Qwen2.5-3B | 3.09B | 81.9 | 79.7 | 86.6 | 81.3 | 61.7 | 90.4 |
-| Qwen2.5-7B donor alone | 7.62B | 86.0 | 84.9 | 89.6 | 85.7 | 69.8 | 92.4 |
+| Model | Params | Hindi | French | Japanese | English |
+|---|---|---|---|---|---|
+| Llama-3.2-1B base | 1.2B | 38.1 | 52.2 | 45.8 | 58.7 |
+| Same graft, donor weights scrambled | 5.2B | 50.0 | 68.8 | 57.4 | 77.4 |
+| **+ Qwen2.5-7B slice** | 5.2B | **67.3** | **86.7** | **76.0** | **89.7** |
+| Native Qwen2.5-1.5B | 1.5B | 48.9 | 76.0 | 68.6 | 82.4 |
+| Native Llama-3.2-3B | 3.2B | 63.0 | 81.6 | 70.4 | 86.2 |
+| Native Qwen2.5-3B | 3.1B | 61.7 | 85.3 | 79.7 | 90.4 |
+| Qwen2.5-7B donor alone | 7.6B | 69.8 | 89.9 | 84.9 | 92.4 |
 
-The graft adds about 30 points in every target language and sits 17 to 20 points above the scrambled-donor control. It passes native Qwen2.5-1.5B and Llama-3.2-3B in all six languages; Qwen2.5-3B stays 2 to 6 points ahead in four of them at fewer parameters per token. Languages with no training text rise too (Spanish 51.2 to 85.0, French 52.2 to 86.7, Bengali 34.0 to 54.9, Swahili 36.0 to 61.2), and English MMLU goes from 44.6 to 59.8. The LoRA and full fine-tune arms for this run are still being scored. Source: [docs/write_in_language.md](docs/write_in_language.md).
+The graft adds about 30 points in each language (3 seeds) and comes within 3 points of the 7B donor in Hindi and French. French got no training text at all: the graft was trained on Arabic, Japanese, Chinese, Korean and Hindi, and Spanish, Bengali and Swahili rose the same way. Details: [docs/write_in_language.md](docs/write_in_language.md).
 
 ### 2. Mining: from toy skills to domain skills
 
