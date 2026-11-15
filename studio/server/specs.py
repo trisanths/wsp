@@ -715,6 +715,10 @@ def clean_benchmark(config, item):
             lora = LORA_BARS.get(task_id)
         out["lora"] = lora
     out["recommended"] = bool(item.get("recommended", False))
+    if item.get("research"):
+        out["research"] = True
+    if isinstance(item.get("reference_scores"), list):
+        out["reference_scores"] = item["reference_scores"]
     return out
 
 

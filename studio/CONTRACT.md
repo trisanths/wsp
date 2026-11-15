@@ -71,6 +71,40 @@ When the LLM is `none`, the spec is drafted by rules and the agents are the swar
 - `base` is the host's score. `lora` is the fine-tuning bar when one is known, else null.
 - `available_benchmarks` are the ones the "+ add benchmark" menu offers.
 
+### Benchmark research
+
+When a spec is drafted (`POST /api/spec`) the server starts a research run in a background thread. It reads the request, searches the web for benchmarks and reference scores, and proposes benchmarks. It never picks components or skills, and never changes limits, size or title. The run is saved on the spec as `spec.benchmark_research`, so the spec page can poll `GET /api/spec/{id}/research` (or the spec) and show the steps as they arrive.
+
+```json
+{
+  "status": "running | done | error | skipped",
+  "provider": "exa | openai_web | none",
+  "steps": [
+    {"kind": "think", "text": "I will look for legal QA benchmarks...", "t": 1.6},
+    {"kind": "search", "text": "Searched: legal question answering benchmark", "provider": "exa", "t": 2.8},
+    {"kind": "read", "text": "Legal LLM Leaderboard", "url": "https://...", "provider": "exa", "t": 2.8},
+    {"kind": "pick", "text": "Picked MMLU-Pro law: closest runnable exam", "t": 8.1}
+  ],
+  "reasoning": "plain paragraphs on which benchmarks fit and why",
+  "proposals": [
+    {"name": "MMLU-Pro law", "measures": "...", "why": "...", "runnable_id": "mmlupro:law",
+     "kind": "target", "suggested_target": 0.45, "in_spec": true,
+     "reference_scores": [{"model": "Qwen3-1.7B", "params_b": 1.7, "score": 0.7,
+                           "source_url": "https://...", "sourced": true}]}
+  ],
+  "sources": [{"title": "...", "url": "https://..."}],
+  "started_at": 1763000000.0, "finished_at": 1763000009.0, "error": null,
+  "usage": {"input_tokens": 0, "output_tokens": 0, "web_searches": 0}
+}
+```
+
+- `step.kind` is `think`, `search`, `read` or `pick`. `t` is seconds since the run started. `provider` is on search and read steps. `url` is on read steps.
+- `provider` is `exa` when `EXA_API_KEY` is set, else `openai_web` when `OPENAI_API_KEY` is set, else `none` (the model's own knowledge only).
+- `status` is `skipped` when `WSP_STUDIO_LLM` is `none` (the reason is in `error`; the rule-drafted benchmarks stay). A run that takes more than about 90 seconds ends as `error` with a plain message and keeps its steps.
+- `runnable_id` is an id Sapien can run, else null (a reference-only benchmark that stays in `proposals`). `in_spec` is true when the proposal is now in `spec.benchmarks`.
+- `reference_scores[].score` is a fraction in 0..1. `sourced` is true only when `source_url` was one of the urls the search returned. When it is false the page must label the score as an estimate.
+- When a run finishes, each proposal with a `runnable_id` is added to `spec.benchmarks` (at most 4 targets in total). A benchmark entry made by research has `"research": true` and `"reference_scores": [...]` next to its normal fields. Benchmarks already on the spec stay unchanged, and a matching proposal only adds `reference_scores` and `research` to them. `PUT /api/spec/{id}` keeps both fields.
+
 ### Program
 
 The program dict is the one in `wsp/swarm/program_schema.py` (`host`, `seed`, `masks`, `task_vectors`, `grafts`, `heal`, and `lora` when the compiler has it). The web app treats it as opaque JSON except for `grafts[].id`, `grafts[].at`, `grafts[].glue_rank`, `heal.steps`, `heal.data`, `masks`, and `lora`.
@@ -191,6 +225,8 @@ All bodies are JSON unless marked.
 | POST | `/api/spec` | multipart: `prompt` (text), `files` (0..n files) | Spec |
 | GET | `/api/spec/{id}` | | Spec |
 | PUT | `/api/spec/{id}` | Spec (edited) | Spec |
+| POST | `/api/spec/{id}/research` | | `{"status": "running"}` (or `"skipped"` with no LLM); 409 when a run is already going |
+| GET | `/api/spec/{id}/research` | | `benchmark_research` (see Benchmark research), 404 when the spec has none |
 | POST | `/api/runs` | `{"spec_id": "...", "program": null}` | `{"run_id": "..."}` |
 | GET | `/api/runs/{id}` | | Run snapshot |
 | GET | `/api/runs/{id}/stream` | | Server-sent events. Each event is `event: snapshot` with the run snapshot as data, sent on every change (at most every 0.5 s) and every 5 s as a heartbeat. |
