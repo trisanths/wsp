@@ -6,7 +6,7 @@ import { toast, pct, pctS, sgn, dur, primaryTarget, addRecent, patchRecent, runE
 import { TopBar, Icon, ErrorBox, StopMark } from '../components.js';
 import { Shimmer, SubtleNum, Reel, SuccessCheck, SkelReveal, SlidingBar, PageSwap, IconSwap, SwapText } from '../motion.js';
 import { openProgramInBuilder, bestProgram } from './shared.js';
-import { useCatalog, nameOf, AgentList, bestTarget } from './run-shared.js';
+import { useCatalog, nameOf, AgentList, bestTarget, isEmptyEnd, runRecent } from './run-shared.js';
 import { ActivityPage } from './run-activity.js';
 import { AgentPage } from './run-agent.js';
 import { ResultsPage } from './run-results.js';
@@ -23,6 +23,7 @@ function StatusLine({ snap, justDone }) {
   const left = per * (b.evals_total - b.evals_used);
   const evalPart = html`eval <${SubtleNum} text=${String(b.evals_used)} /> of ${b.evals_total}`;
   const end = runEnd(snap);
+  if (end === 'finished' && isEmptyEnd(snap)) return html`<span class="rstat"><${StopMark} /> Ended, nothing scored, after ${dur(snap.elapsed_s)}</span>`;
   if (end === 'finished') return html`<span class="rstat"><${SuccessCheck} play=${justDone} size=${16} class="ok" /> Finished in ${dur(snap.elapsed_s)}</span>`;
   if (end === 'stopped') return html`<span class="rstat"><${StopMark} /> Stopped after ${dur(snap.elapsed_s)}</span>`;
   if (end === 'error') return html`<span class="rstat down">Stopped by an error</span>`;
@@ -37,7 +38,7 @@ function RunHead({ snap, justDone, note, onPause, onResume, onStop }) {
   const frac = b.evals_total ? Math.min(1, b.evals_used / b.evals_total) : 0;
   const live = s === 'running' || s === 'starting' || s === 'paused' || s === 'stopping';
   const paused = s === 'paused';
-  const end = runEnd(snap);
+  const end = runEnd(snap) === 'finished' && isEmptyEnd(snap) ? 'empty' : runEnd(snap);
   return html`<header class="rhead"><div class="col">
     <div class="rh-row">
       <h1 class="page-title ell">${snap.spec.title}</h1>
@@ -105,7 +106,7 @@ function TopPrograms({ snap, cat, id }) {
 function Overview({ snap, cat, id, done, busy, onBuild }) {
   return html`<div class="rpage"><div class="col">
     <${BestBlock} snap=${snap} cat=${cat} done=${done} busy=${busy} onBuild=${onBuild} />
-    ${snap.refused > 0 && html`<div class="refused">${snap.refused} ${snap.refused === 1 ? 'proposal' : 'proposals'} refused for going over your limits</div>`}
+    ${snap.refused > 0 && !/refused/.test(snap.empty_reason || '') && html`<div class="refused">${snap.refused} ${snap.refused === 1 ? 'proposal' : 'proposals'} refused for going over your limits</div>`}
     <section class="rsec"><h2 class="rh2">Agents</h2><${AgentList} snap=${snap} /></section>
     <${TopPrograms} snap=${snap} cat=${cat} id=${id} />
   </div></div>`;
@@ -145,9 +146,9 @@ export function RunScreen({ id, page, agent }) {
   }, [id]);
   useEffect(() => {
     if (!snap) return;
-    addRecent({ kind: 'run', id, title: snap.spec.title, status: recentStatus(snap) });
+    addRecent({ kind: 'run', id, title: snap.spec.title, status: runRecent(snap) });
   }, [id, !!snap]);
-  useEffect(() => { if (snap) patchRecent('run', id, { status: recentStatus(snap) }); }, [snap && recentStatus(snap)]);
+  useEffect(() => { if (snap) patchRecent('run', id, { status: runRecent(snap) }); }, [snap && runRecent(snap)]);
   // the check draws only when the run ends while the page is open
   useEffect(() => {
     if (!snap) return;

@@ -1,7 +1,7 @@
 // Helpers and small parts shared by the run pages.
 import { html, useState, useEffect } from '../lib.js';
 import { api } from '../api.js';
-import { pctS, primaryTarget } from '../util.js';
+import { pctS, primaryTarget, recentStatus } from '../util.js';
 import { Dot } from '../components.js';
 import { SubtleNum, ThinkLine } from '../motion.js';
 
@@ -41,8 +41,19 @@ export function nameOf(row, cat) {
 
 /* ---------- status ---------- */
 export const ACTIVE = { thinking: 1, probing: 1, compiling: 1, scoring: 1 };
-// Once the run has ended, every agent gets the same grey dot.
-export function agentDot(status, ended) {
+// A run that ended on its own with nothing scored. Runs from before the server sent outcome "empty" have no best.
+export function isEmptyEnd(snap) {
+  if (snap.status !== 'done' || snap.outcome === 'stopped' || snap.outcome === 'error' || snap.stopped_early === true) return false;
+  return snap.outcome === 'empty' || !snap.best;
+}
+// the status word kept in Recent: "empty" for a finished run with nothing scored
+export function runRecent(snap) {
+  const s = recentStatus(snap);
+  return s === 'done' && isEmptyEnd(snap) ? 'empty' : s;
+}
+// Once the run has ended, every agent gets the same grey dot, amber when nothing was scored.
+export function agentDot(status, ended, empty) {
+  if (ended && empty) return 'var(--amber)';
   if (ended) return 'var(--text-3)';
   if (ACTIVE[status]) return 'var(--blue)';
   if (status === 'done') return 'var(--text-3)';
@@ -62,8 +73,9 @@ export function bestTarget(snap) {
 // A plain list: dot, name, what it is doing, best score. No cards.
 export function AgentList({ snap }) {
   const ended = snap.status === 'done' || snap.status === 'error';
+  const empty = isEmptyEnd(snap);
   return html`<div class="alist">${snap.agents.map((a) => html`<a class="arow" key=${a.id} href=${'#/run/' + snap.run_id + '/agents/' + a.id}>
-    <${Dot} color=${agentDot(a.status, ended)} pulse=${!ended && !!ACTIVE[a.status]} />
+    <${Dot} color=${agentDot(a.status, ended, empty)} pulse=${!ended && !!ACTIVE[a.status]} />
     <span class="an">${a.name}</span>
     <span class="anow"><${ThinkLine} text=${a.now || STATUS_WORD[a.status] || a.status} still=${ended || !ACTIVE[a.status]} fluid /></span>
     <span class="asc num">${a.best != null ? html`<${SubtleNum} text=${pctS(a.best)} />` : '-'}</span>

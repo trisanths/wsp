@@ -116,13 +116,6 @@ export function benchProgress(b, score) {
   if (span <= 0) return score >= (b.target ?? 1) ? 1 : 0;
   return clamp((score - base) / span, 0, 1);
 }
-export function specProgress(spec, scores) {
-  const bs = spec.benchmarks || [];
-  if (!bs.length || !scores) return 0;
-  let sum = 0;
-  for (const b of bs) sum += benchProgress(b, scores[b.id]);
-  return sum / bs.length;
-}
 
 /* ---------- program helpers ---------- */
 export function emptyProgram(host) {

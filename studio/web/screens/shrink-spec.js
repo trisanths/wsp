@@ -1,4 +1,4 @@
-import { html, useState } from '../lib.js';
+import { html, useState, useRef } from '../lib.js';
 import { clamp } from '../util.js';
 import { Icon, Menu } from '../components.js';
 import { SubtleNum } from '../motion.js';
@@ -54,9 +54,21 @@ export function expertsGuess(sh) {
 /** A quiet menu button: current value, a chevron, and a menu of choices. */
 export function Pick({ label, value, items, onPick, width = 300 }) {
   const [open, setOpen] = useState(false);
-  return html`<span class="addwrap pickwrap">
-    <button class="btn sm" onClick=${() => setOpen(!open)} aria-haspopup="menu" aria-expanded=${open} aria-label=${label}>${value}<${Icon} n="down" size=${14} /></button>
-    <${Menu} open=${open} origin="top-left" onClose=${() => setOpen(false)} style=${{ top: '34px', left: 0, minWidth: width + 'px' }}>
+  const [side, setSide] = useState({ origin: 'top-left', w: width });
+  const wrap = useRef();
+  // Measure on open: cap the menu to the viewport minus a 12px margin, and align its right edge with the
+  // button's when the menu would run past the right side of the viewport.
+  const toggle = () => {
+    if (!open && wrap.current) {
+      const r = wrap.current.getBoundingClientRect();
+      const w = Math.min(width, Math.max(160, window.innerWidth - 24));
+      setSide({ origin: r.left + w > window.innerWidth - 12 ? 'top-right' : 'top-left', w });
+    }
+    setOpen(!open);
+  };
+  return html`<span class="addwrap pickwrap" ref=${wrap}>
+    <button class="btn sm" onClick=${toggle} aria-haspopup="menu" aria-expanded=${open} aria-label=${label}>${value}<${Icon} n="down" size=${14} /></button>
+    <${Menu} open=${open} class="pickmenu" origin=${side.origin} onClose=${() => setOpen(false)} style=${{ minWidth: side.w + 'px' }}>
       ${items.map((it) => html`<button class=${'mi two' + (it.on ? ' on' : '')} key=${it.id} onClick=${() => { setOpen(false); onPick(it.id); }}>
         <span class="mi-main">${it.lead}<span class="mi-t"><span>${it.name}</span><span class="faint mi-why">${it.why}</span></span></span>${it.right && html`<span class="faint">${it.right}</span>`}
       </button>`)}
@@ -84,7 +96,7 @@ export function ShrinkSection({ spec, edit, onChangeSource }) {
         ${cands.length > 0 && html`<${Pick} label="Change the source model" value="Change" onPick=${onChangeSource} width=${360}
           items=${cands.map((c) => ({ id: c.model, name: modelName(c.model), why: c.why, right: fmtB(c.params_b, 1), lead: html`<${ModelLogo} model=${c.model} size=${18} />` }))} />`}
       </div>
-      <div class="card row-card srccard"><${ModelLogo} model=${spec.host} size=${24} />
+      <div class="card row-card srccard"><${ModelLogo} model=${sh.source_model} size=${24} />
         <div class="srcmain"><div class="srcname">${modelName(sh.source_model)}</div><div class="faint small">${fmtB(src)} stored, ${fmtB(sh.source_active_params_b)} run per token</div></div>
       </div>
       ${(sh.notes || []).map((n) => html`<div class="note"><span>${n}</span></div>`)}
@@ -107,7 +119,7 @@ export function ShrinkSection({ spec, edit, onChangeSource }) {
       <div class="note"><span>${moe ? 'Moving this sets how many experts stay. The server picks the closest count that fits.' : 'The size after layers, neurons and heads are removed.'}</span><span>${tMin}B to ${tMax}B</span></div>
     </div>
     ${moe && html`<div class="srow">
-      <div class="top"><span class="nm">Experts kept per layer</span><span class="val"><${SubtleNum} text=${String(keep)} /> of ${sh.experts_total || 'all'}</span></div>
+      <div class="top"><span class="nm">Experts kept per layer</span><span class="val"><${SubtleNum} text=${String(keep)} /> of ${nExp}</span></div>
       <${Slider} value=${keep} min=${1} max=${nExp} step=${1} ariaLabel="Experts kept per layer" onChange=${(v) => setSh({ keep_experts: v })} />
       <div class="note"><span>Fewer experts means a smaller model. The plan page shows the size this gives.</span><span>1 to ${nExp}</span></div>
     </div>`}

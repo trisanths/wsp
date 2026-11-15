@@ -7,6 +7,7 @@ import { ModelLogo } from '../logos.js';
 import { ResearchBlock, RefList, AlsoConsidered, refTicks } from './research.js';
 import { ShrinkSection } from './shrink-spec.js';
 import { CompilerPlan } from './frontdoor.js';
+import { useCatalog } from './run-shared.js';
 
 // slider with optional tick marks (fractions of the range are given as values)
 export function Slider({ value, min, max, step, onChange, ticks = [], color, ariaLabel }) {
@@ -18,12 +19,13 @@ export function Slider({ value, min, max, step, onChange, ticks = [], color, ari
   </div>`;
 }
 
-function BenchRow({ b, why, onChange, onRemove, late, leaving }) {
+function BenchRow({ b, why, onChange, onRemove, late, leaving, shrink }) {
   const born = useRef(late);
   const isT = b.kind === 'target';
   const key = isT ? 'target' : 'floor';
+  const who = shrink ? 'Source' : 'Host';
   const ticks = [];
-  if (b.base != null) ticks.push({ v: b.base, kind: 'base', label: 'host ' + pct(b.base, 0) });
+  if (b.base != null) ticks.push({ v: b.base, kind: 'base', label: who.toLowerCase() + ' ' + pct(b.base, 0) });
   if (b.lora != null) ticks.push({ v: b.lora, kind: 'lora', label: 'LoRA ' + pct(b.lora) });
   ticks.push(...refTicks(b.reference_scores));
   const val = b[key] ?? b.base ?? 0.3;
@@ -34,7 +36,7 @@ function BenchRow({ b, why, onChange, onRemove, late, leaving }) {
     </div>
     ${why && html`<div class="rs-why">${why}</div>`}
     <${Slider} value=${val} min=${0} max=${1} step=${0.01} ticks=${ticks} color=${isT ? 'var(--text-1)' : 'var(--red)'} ariaLabel=${b.name} onChange=${(v) => onChange({ [key]: Math.round(v * 100) / 100 })} />
-    <div class="note"><span>${b.base == null ? 'Host score not measured yet. The first run measures it' + (isT ? '.' : '. A guard keeps the model from losing this skill.') : isT ? 'Host starts at ' + pct(b.base) + '%' : 'Host starts at ' + pct(b.base) + '%. A guard keeps the model from losing this skill.'}${b.lora != null ? '. Fine-tuning (LoRA) reaches ' + pct(b.lora) + '%.' : ''}</span></div>
+    <div class="note"><span>${b.base == null ? who + ' score not measured yet. The first run measures it' + (isT ? '.' : '. A guard keeps the model from losing this skill.') : isT ? who + ' starts at ' + pct(b.base) + '%' : who + ' starts at ' + pct(b.base) + '%. A guard keeps the model from losing this skill.'}${b.lora != null ? '. Fine-tuning (LoRA) reaches ' + pct(b.lora) + '%.' : ''}</span></div>
     <${RefList} scores=${b.reference_scores} />
   </div>`;
 }
@@ -51,6 +53,7 @@ export function SpecScreen({ id }) {
   const dirty = useRef(false);
   const first = useRef(true);
   const [gone, setGone] = useState(null);
+  const cat = useCatalog();
   useEffect(() => { if (spec) first.current = false; }, [!!spec]);
 
   const load = () => { setErr(null); api.getSpec(id).then((s) => { latest.current = s; setSpec(s); addRecent({ kind: 'spec', id, title: s.title }); }).catch(setErr); };
@@ -200,14 +203,27 @@ export function SpecScreen({ id }) {
   const healMax = Math.max(120, lim.max_heal_min * 2);
   const setLimit = (patch) => edit((s) => {
     s.limits = { ...lim, ...(s.limits || {}), ...patch };
-    if (patch.max_total_params_b != null) { s.size.max_params_b = patch.max_total_params_b; s.limits.max_run_params_b = Math.min(s.limits.max_run_params_b, patch.max_total_params_b); }
+    if (patch.max_total_params_b != null) {
+      // grafted parts add to the total and the run size alike, so a change in the total moves the run limit by the same amount
+      const oldTotal = lim.max_total_params_b, oldRun = Math.min(lim.max_run_params_b, oldTotal);
+      const moved = isShrink ? oldRun : oldRun + (patch.max_total_params_b - oldTotal);
+      s.size.max_params_b = patch.max_total_params_b;
+      s.limits.max_run_params_b = Math.round(clamp(moved, isShrink ? 0.1 : Math.min(hostB || 0.1, patch.max_total_params_b), patch.max_total_params_b) * 100) / 100;
+    }
   });
   // limits show up to two decimals ("1.24B"), and the same number comes back after a save
   const n2 = (x) => String(Math.round(Number(x) * 100) / 100);
   const runMin = Math.max(0.1, Math.min(isShrink ? 0.1 : (hostB || 0.5), lim.max_total_params_b - 0.1));
   const runMax = Math.max(lim.max_total_params_b, runMin + 0.1);
   const room = Math.round((lim.max_total_params_b - (hostB || 0)) * 100) / 100;
+  // the smallest part in the catalog that can go into this host, in billions
+  const sized = ((cat && cat.parts) || []).filter((x) => x.usable && x.params_m > 0).map((x) => x.params_m / 1000);
+  const smallest = sized.length ? Math.min(...sized) : null;
+  const fmtSmall = (x) => (x >= 0.01 ? String(Math.ceil(x * 100 - 1e-9) / 100) : Number(x.toPrecision(2)).toString());
+  const srcRun = isShrink && spec.shrink ? spec.shrink.source_active_params_b : null;
   const sizeTicks = hostB != null ? [{ v: hostB, kind: 'host', label: (isShrink ? 'source ' : 'host ') + hostB.toFixed(2) + 'B' }] : [];
+  // a shrink runs fewer parameters per token than it stores, so its run slider ticks at the source's run size
+  const runTicks = isShrink ? (srcRun != null ? [{ v: srcRun, kind: 'host', label: 'source ' + srcRun.toFixed(2) + 'B' }] : []) : sizeTicks;
   const b = spec.budget;
   const compMax = Math.max(240, b.compute_min * 3);
   const addable = spec.available_benchmarks || [];
@@ -222,7 +238,7 @@ export function SpecScreen({ id }) {
     ${isShrink && html`<${ShrinkSection} spec=${spec} edit=${edit} onChangeSource=${changeSource} />`}
 
     <section class="sect"><h2 class="sec">Limits</h2>
-      ${!isShrink && room < 0.2 && html`<div class="limwarn">No room for parts. Raise the total size.</div>`}
+      ${!isShrink && smallest != null && room < smallest - 1e-9 && html`<div class="limwarn">No part in the library fits in ${n2(Math.max(0, room))}B. The smallest is ${fmtSmall(smallest)}B. Raise the total size.</div>`}
       <div class="srow">
         <div class="top"><span class="nm">Total size</span><span class="val">up to <${SubtleNum} text=${n2(lim.max_total_params_b)} />B parameters</span></div>
         <${Slider} value=${lim.max_total_params_b} min=${sizeMin} max=${totMax} step=${0.01} ticks=${sizeTicks} ariaLabel="Maximum total parameters" onChange=${(v) => setLimit({ max_total_params_b: Math.round(v * 100) / 100 })} />
@@ -230,7 +246,7 @@ export function SpecScreen({ id }) {
       </div>
       <div class="srow">
         <div class="top"><span class="nm">Run per token</span><span class="val">up to <${SubtleNum} text=${n2(Math.min(lim.max_run_params_b, lim.max_total_params_b))} />B parameters</span></div>
-        <${Slider} value=${clamp(Math.min(lim.max_run_params_b, lim.max_total_params_b), runMin, runMax)} min=${runMin} max=${runMax} step=${0.01} ticks=${sizeTicks} ariaLabel="Maximum parameters run per token" onChange=${(v) => setLimit({ max_run_params_b: Math.round(v * 100) / 100 })} />
+        <${Slider} value=${clamp(Math.min(lim.max_run_params_b, lim.max_total_params_b), runMin, runMax)} min=${runMin} max=${runMax} step=${0.01} ticks=${runTicks} ariaLabel="Maximum parameters run per token" onChange=${(v) => setLimit({ max_run_params_b: Math.round(v * 100) / 100 })} />
         <div class="note"><span>The parameters a single token passes through. It sets speed and energy.</span><span>up to the total size</span></div>
       </div>
       <div class="srow">
@@ -255,10 +271,10 @@ export function SpecScreen({ id }) {
 
     <section class="sect"><h2 class="sec"><span>Targets</span><span class="legend"><span class="lg base">host</span><span class="lg lora">LoRA</span>${spec.benchmarks.some((x) => x.reference_scores && x.reference_scores.length) && html`<span class="lg ref">other models</span>`}</span></h2>
       ${running && html`<div class="rs-pending">More benchmarks arrive when research finishes.</div>`}
-      <${AutoHeight}>${targets.length ? targets.map((x) => html`<${BenchRow} key=${x.id} b=${x} why=${whyOf(x.id)} late=${!first.current} leaving=${gone === x.id} onChange=${(p) => upd(x.id, p)} onRemove=${() => drop(x.id)} />`) : html`<div class="empty">No targets. Add one below.</div>`}<//>
+      <${AutoHeight}>${targets.length ? targets.map((x) => html`<${BenchRow} key=${x.id} b=${x} why=${whyOf(x.id)} late=${!first.current} leaving=${gone === x.id} shrink=${isShrink} onChange=${(p) => upd(x.id, p)} onRemove=${() => drop(x.id)} />`) : html`<div class="empty">No targets. Add one below.</div>`}<//>
     </section>
     <section class="sect"><h2 class="sec"><span>Guards</span></h2>
-      <${AutoHeight}>${guards.map((x) => html`<${BenchRow} key=${x.id} b=${x} why=${whyOf(x.id)} late=${!first.current} leaving=${gone === x.id} onChange=${(p) => upd(x.id, p)} onRemove=${() => drop(x.id)} />`)}
+      <${AutoHeight}>${guards.map((x) => html`<${BenchRow} key=${x.id} b=${x} why=${whyOf(x.id)} late=${!first.current} leaving=${gone === x.id} shrink=${isShrink} onChange=${(p) => upd(x.id, p)} onRemove=${() => drop(x.id)} />`)}
       ${!guards.length && html`<div class="empty">No guards. A guard stops the model from losing a skill you want to keep.</div>`}<//>
     </section>
 

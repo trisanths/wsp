@@ -4,7 +4,7 @@ import { go, toast, useRoute, useRecent, useTheme, useHealth, useStubFlag, getLa
 import { Icon, Mark, StubBadge, Dot } from './components.js';
 import { IconSwap, SwapText } from './motion.js';
 
-const RUN_COLOR = { planned: 'var(--text-4)', stopped: 'var(--text-3)', running: 'var(--blue)', starting: 'var(--blue)', paused: 'var(--amber)', stopping: 'var(--amber)', done: 'var(--green)', error: 'var(--red)' };
+const RUN_COLOR = { planned: 'var(--text-4)', stopped: 'var(--text-3)', running: 'var(--blue)', starting: 'var(--blue)', paused: 'var(--amber)', stopping: 'var(--amber)', done: 'var(--green)', empty: 'var(--amber)', error: 'var(--red)' };
 
 function Row({ icon, label, href, onClick, on, rail, badge }) {
   const inner = html`<${Icon} n=${icon} size=${18} /><span class="sb-text">${label}</span>${badge}`;

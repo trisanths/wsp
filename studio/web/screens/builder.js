@@ -1,10 +1,10 @@
 import { html, useState, useEffect, useLayoutEffect, useRef, useMemo } from '../lib.js';
 import { api } from '../api.js';
-import { go, toast, pct, pctS, sgn, bsize, clamp, clone, emptyProgram, normProgram, hasTaps, donorShort, maskIds, buildMask, donorColor, donorLetter, specProgress, primaryTarget, tokenizeLine, setLastBuild, healPool } from '../util.js';
+import { go, toast, pct, pctS, sgn, bsize, clamp, clone, emptyProgram, normProgram, hasTaps, donorShort, maskIds, buildMask, donorColor, donorLetter, benchProgress, primaryTarget, tokenizeLine, setLastBuild, healPool } from '../util.js';
 import { TopBar, Icon, Spinner, ErrorBox, Menu, BenchBar, BenchLegend, Ring, Tag, StubBadge } from '../components.js';
 import { PopNum, SlidingBar, SkelReveal, Matrix, SuccessCheck, useShake, shake, SwapText } from '../motion.js';
 import { ModelLogo } from '../logos.js';
-import { Compare, StatusTag, groupByKind, lockOf, HealNote, usesHeal, healNoteOf, PartsList, Stages, VerdictTag, componentFor, filterItems, countItems, FilterRow, NO_FILTER, PAGE_SIZE } from '../cmp.js';
+import { Compare, StatusTag, groupByKind, lockOf, HealNote, usesHeal, healNoteOf, PartsList, Stages, VerdictTag, componentFor, filterItems, countItems, FilterRow, NO_FILTER, PAGE_SIZE, DELETION } from '../cmp.js';
 
 // Short labels for score statuses other than ok. Only "collapsed" means the model lost a skill.
 const STATUS_LABELS = { collapsed: 'collapsed', infra_error: 'GPU error', compile_error: 'compile error', rejected_fit: 'fit too low', invalid: 'invalid', budget_exhausted: 'no budget' };
@@ -46,11 +46,13 @@ function dragImage(e) {
   setTimeout(() => g.remove(), 0);
 }
 
-const onKeyAct = (fn) => (e) => { if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); fn(e); } };
+// the shared tooltip closes on Escape, so a part that was just added does not leave its tip on screen
+const hideTip = () => { try { document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); } catch (e) { /* no tooltip to close */ } };
+const onKeyAct = (fn) => (e) => { if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); fn(e); hideTip(); } };
 
-function Piece({ lead, t1, t2, t3, status, tip, lock, used, dragging, onDragStart, onDragEnd, onClick }) {
+function Piece({ lead, t1, t2, t3, status, tip, lock, used, dragging, onDragStart, onDragEnd, onClick, pid, active, onFocus }) {
   const locked = !!lock;
-  return html`<div class=${'piece' + (dragging ? ' dragging' : '') + (used ? ' used' : '') + (locked ? ' locked' : '')} draggable=${locked ? 'false' : 'true'} onDragStart=${locked ? null : onDragStart} onDragEnd=${onDragEnd} onClick=${locked ? null : onClick} tabindex=${locked ? null : '0'} role="button" onKeyDown=${locked || !onClick ? null : onKeyAct(onClick)} data-tip=${locked ? lock.why : tip || 'Drag onto the model, or click to add'} data-tip-side="right" aria-disabled=${locked ? 'true' : null}>
+  return html`<div class=${'piece' + (dragging ? ' dragging' : '') + (used ? ' used' : '') + (locked ? ' locked' : '')} draggable=${locked ? 'false' : 'true'} onDragStart=${locked ? null : onDragStart} onDragEnd=${onDragEnd} onClick=${locked ? null : onClick} onFocus=${locked ? null : onFocus} data-pid=${pid} tabindex=${locked ? null : active ? '0' : '-1'} role="button" onKeyDown=${locked || !onClick ? null : onKeyAct(onClick)} data-tip=${locked ? lock.why : tip || 'Drag onto the model, or click to add'} data-tip-side="right" aria-disabled=${locked ? 'true' : null}>
     ${lead}<div style="min-width:0"><div class="t1">${t1}</div><div class="t2 t2s"><${StatusTag} status=${status} /><span>${t2}</span></div>${t3 && html`<div class="t3">${t3}</div>`}</div>
     <span class=${locked ? 'lk' : 'add'}>${locked ? html`<${Icon} n="lock" size=${14} />` : used ? html`<${Icon} n="check" size=${14} />` : html`<${Icon} n="plus" size=${14} />`}</span></div>`;
 }
@@ -76,7 +78,7 @@ export function BuilderScreen({ id, specId }) {
   const [pf, setPf] = useState(NO_FILTER);
   const [plimit, setPlimit] = useState(PAGE_SIZE);
   const palette = useMemo(() => (cat ? [...cat.parts, ...cat.masks] : []), [cat]);
-  const paletteCounts = useMemo(() => countItems(palette), [palette]);
+  const paletteCounts = useMemo(() => countItems(palette, pf), [palette, pf.kind === DELETION]);
   const paletteShown = useMemo(() => filterItems(palette, pf, q), [palette, pf, q]);
   useEffect(() => { setPlimit(PAGE_SIZE); }, [pf, q]);
   const [over, setOver] = useState(null);
@@ -97,6 +99,8 @@ export function BuilderScreen({ id, specId }) {
   const [cw, setCw] = useState(1000);
   const [flash, setFlash] = useState(null);
   const [sizeInfo, setSizeInfo] = useState(null);
+  const [palActive, setPalActive] = useState(null);
+  const canvasRef = useRef();
   const flashTimer = useRef(0);
   const btnRefs = useRef({});
   const known = useRef(null);
@@ -353,7 +357,11 @@ export function BuilderScreen({ id, specId }) {
     const v = ids.length ? ids.map((k) => a.scores[k]) : Object.values(a.scores || {});
     return v.length ? v.reduce((x, y) => x + y, 0) / v.length : null;
   };
-  const prog = spec && lastOk ? specProgress(spec, lastOk.scores) : 0;
+  // progress toward spec runs from the host's starting score (the benchmark base) to its target, over the targets only
+  const prog = (() => {
+    const ts = spec && lastOk ? (spec.benchmarks || []).filter((b) => b.kind === 'target') : [];
+    return ts.length ? ts.reduce((sum, b) => sum + benchProgress(b, lastOk.scores[b.id]), 0) / ts.length : 0;
+  })();
   const t1 = spec ? primaryTarget(spec) : null;
   const vsCtl = lastOk && lastOk.control && t1 ? lastOk.scores[t1.id] - lastOk.control.scores[t1.id] : null;
   const estSize = cat.host.params_b + program.grafts.reduce((s, g) => s + ((partById(g.id) || {}).params_m || 0) / 1000, 0);
@@ -362,6 +370,24 @@ export function BuilderScreen({ id, specId }) {
   const sameAsLast = lastOk && JSON.stringify(lastOk.program) === JSON.stringify(program);
   const totalB = sameAsLast && lastOk.params_b ? lastOk.params_b : est ? est.total_params_b : estSize;
   const runB = est ? est.run_params_b : null;
+  // added size of each graft node: the estimate's figure (part plus glue), so a node and the limit text agree
+  const nodeAddB = (() => {
+    const out = [];
+    let k = 0;
+    const sized = est && est.parts ? est.parts : [];
+    program.grafts.forEach((g) => {
+      const part = partById(g.id);
+      const fallback = ((part && part.params_m) || 0) / 1000;
+      if (g.control != null) { out.push(fallback); return; }
+      // the estimate skips parts of unknown size, so take the next entry with this id
+      let at = k;
+      while (at < sized.length && sized[at].id !== g.id) at += 1;
+      if (at < sized.length) { out.push(sized[at].params_b); k = at + 1; } else out.push(fallback);
+    });
+    return out;
+  })();
+  const fmtB = (x) => Number(x.toFixed(3)).toString() + 'B';
+  const scoreEvals = program.grafts.some((g) => g.control == null) ? 2 : 1;
   const healMin = est ? est.heal_min : null;
   const lo = { total: !!lim && lim.max_total_params_b != null && totalB > lim.max_total_params_b + 1e-6, run: !!lim && lim.max_run_params_b != null && runB != null && runB > lim.max_run_params_b + 1e-6, heal: !!lim && lim.max_heal_min != null && healMin != null && healMin > lim.max_heal_min + 1e-6 };
   const addAll = paletteShown.filter((x) => x.group === 'add');
@@ -371,6 +397,23 @@ export function BuilderScreen({ id, specId }) {
   const readyCount = addAll.filter((x) => !lockOf(x)).length;
   const used = (pid) => program.grafts.some((g) => g.id === pid);
   const mIds = maskIds(program.masks);
+  // the palette is one tab stop: arrow keys move between its parts (roving tabindex)
+  const palIds = [...addParts.filter((x) => !lockOf(x)).map((x) => 'p:' + x.id), ...rmParts.filter((m) => !(m.status === 'rejected' && lockOf(m))).map((m) => 'm:' + m.id), ...trParts.map((t) => 't:' + t.id)];
+  const activePid = palIds.includes(palActive) ? palActive : palIds[0];
+  const palKey = (e) => {
+    const t = e.target;
+    if (!t || !t.classList || !t.classList.contains('piece')) return;
+    const at = palIds.indexOf(t.dataset.pid);
+    let to = null;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') to = Math.min(palIds.length - 1, at + 1);
+    else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') to = Math.max(0, at - 1);
+    else if (e.key === 'Home') to = 0;
+    else if (e.key === 'End') to = palIds.length - 1;
+    if (to == null || at < 0) return;
+    e.preventDefault();
+    const el = [...e.currentTarget.querySelectorAll('.piece[data-pid]')].find((x) => x.dataset.pid === palIds[to]);
+    if (el) { setPalActive(palIds[to]); el.focus(); }
+  };
   const healLabel = program.heal ? program.heal.steps + ' steps' : '300 steps';
   const cvClass = 'cv-body' + (view === 'split' ? ' split' : '');
   const showCanvas = view !== 'code';
@@ -380,7 +423,7 @@ export function BuilderScreen({ id, specId }) {
   const jobPct = job ? Math.min(94, ((Date.now() - job.t0) / 2600) * 100) : 0;
   const codeLines = codeText.replace(/\n$/, '').split('\n');
 
-  const partPiece = (p) => html`<${Piece} key=${p.id} lead=${html`<${ModelLogo} model=${p.donor} size=${20} />`} status=${p.status} tip=${p.evidence} lock=${lockOf(p)} t1=${p.label} t2=${(p.donor || '').split('/').pop() + ' · ' + (p.layers ? 'L' + p.layers[0] + (p.layers[1] !== p.layers[0] ? '-' + p.layers[1] : '') : '')} used=${used(p.id)} dragging=${dragId === p.id} onDragStart=${(e) => startDrag(e, { kind: 'part', part: p }, p.id)} onDragEnd=${endDrag} onClick=${() => addPart(p)} />`;
+  const partPiece = (p) => html`<${Piece} key=${p.id} lead=${html`<${ModelLogo} model=${p.donor} size=${20} />`} status=${p.status} tip=${p.evidence} lock=${lockOf(p)} t1=${p.label} t2=${(p.donor || '').split('/').pop() + ' · ' + (p.layers ? 'L' + p.layers[0] + (p.layers[1] !== p.layers[0] ? '-' + p.layers[1] : '') : '')} used=${used(p.id)} dragging=${dragId === p.id} onDragStart=${(e) => startDrag(e, { kind: 'part', part: p }, p.id)} onDragEnd=${endDrag} onClick=${() => addPart(p)} pid=${'p:' + p.id} active=${activePid === 'p:' + p.id} onFocus=${() => setPalActive('p:' + p.id)} />`;
 
   const slabEl = (s) => {
     const label = s.n === 1 ? 'L' + s.first : 'L' + s.first + ' to L' + (s.first + s.n - 1);
@@ -395,12 +438,13 @@ export function BuilderScreen({ id, specId }) {
   };
 
   return html`<${TopBar} right=${html`<span class="pill hide-sm">evals left <b class="num">${budget ? budget.evals_total - budget.evals_used + ' / ' + budget.evals_total : '-'}</b></span>
-      <span class="pill hide-md">compute <b class="num">${budget ? (budget.compute_used_s / 60).toFixed(budget.compute_used_s < 600 ? 1 : 0) + ' / ' + Math.round(budget.compute_total_s / 60) + ' min' : '-'}</b></span>
+      <span class="pill hide-md" title=${budget && budget.compute_raised ? 'The spec says ' + budget.spec_compute_min + ' min. The stub backend raises the compute cap so the evals run out first.' : null}>compute <b class="num">${budget ? (budget.compute_used_s / 60).toFixed(budget.compute_used_s < 600 ? 1 : 0) + ' / ' + Math.round(budget.compute_total_s / 60) + ' min' : '-'}</b>${budget && budget.compute_raised ? html` <${StubBadge} small />` : null}</span>
       <button class="btn ghost sm" disabled=${!undo.length} onClick=${doUndo} title="Undo (Ctrl or Cmd + Z)"><${Icon} n="undo" size=${14} /> Undo</button><button class="btn sm" disabled=${handing} onClick=${handoff}>${handing ? html`<${Spinner} size=${12} />` : null} Hand to agents</button>`}>
       <h1 class="page-title bt-title ell" title=${spec ? spec.title : 'Builder'}>${spec ? spec.title : 'Builder'}</h1><span class="tag">draft ${attempts.length + 1}</span>
     <//>
   <${SkelReveal} fill ready=${true} skeleton=${null}><div class="builder">
-    <aside class="palette">
+    <a class="skip-link" href="#builder-canvas" onClick=${(e) => { e.preventDefault(); if (canvasRef.current) canvasRef.current.focus(); }}>Skip to canvas</a>
+    <aside class="palette" onKeyDown=${palKey}>
       <div class="searchbox"><${Icon} n="search" size=${15} /><input placeholder="Search parts" value=${q} onInput=${(e) => setQ(e.target.value)} /></div>
       <${FilterRow} counts=${paletteCounts} f=${pf} setF=${setPf} compact />
       ${addParts.map((p, i) => {
@@ -410,13 +454,13 @@ export function BuilderScreen({ id, specId }) {
       })}
       ${addAll.length > plimit && html`<div class="morebar"><button class="btn sm" onClick=${() => setPlimit(plimit + PAGE_SIZE * 2)}>Show ${Math.min(PAGE_SIZE * 2, addAll.length - plimit)} more</button></div>`}
       ${rmParts.length > 0 && html`<div class="pgroup">Remove a skill</div>`}
-      ${rmParts.map((m) => html`<${Piece} key=${m.id} lead=${html`<div class="pic" style=${{ '--c': 'var(--red)' }}>-</div>`} status=${m.status} tip=${m.evidence} lock=${m.status === 'rejected' ? lockOf(m) : null} t1=${m.label} t2=${m.summary} used=${mIds.includes(m.id)} dragging=${dragId === m.id} onDragStart=${(e) => startDrag(e, { kind: 'mask', mask: m }, m.id)} onDragEnd=${endDrag} onClick=${() => addMask(m)} />`)}
+      ${rmParts.map((m) => html`<${Piece} key=${m.id} lead=${html`<div class="pic" style=${{ '--c': 'var(--red)' }}>-</div>`} status=${m.status} tip=${m.evidence} lock=${m.status === 'rejected' ? lockOf(m) : null} t1=${m.label} t2=${m.summary} used=${mIds.includes(m.id)} dragging=${dragId === m.id} onDragStart=${(e) => startDrag(e, { kind: 'mask', mask: m }, m.id)} onDragEnd=${endDrag} onClick=${() => addMask(m)} pid=${'m:' + m.id} active=${activePid === 'm:' + m.id} onFocus=${() => setPalActive('m:' + m.id)} />`)}
       ${trParts.length > 0 && html`<div class="pgroup">Train</div>`}
-      ${trParts.map((t) => html`<${Piece} key=${t.id} lead=${html`<div class="pic" style=${{ '--c': t.id === 'lora' ? 'var(--amber)' : 'var(--green)' }}>${t.id === 'lora' ? 'R' : 'H'}</div>`} t1=${t.label} t2=${t.summary} used=${trainUsed(t)} dragging=${dragId === t.id} onDragStart=${(e) => startDrag(e, { kind: 'train', train: t }, t.id)} onDragEnd=${endDrag} onClick=${() => addTrain(t)} />`)}
+      ${trParts.map((t) => html`<${Piece} key=${t.id} lead=${html`<div class="pic" style=${{ '--c': t.id === 'lora' ? 'var(--amber)' : 'var(--green)' }}>${t.id === 'lora' ? 'R' : 'H'}</div>`} t1=${t.label} t2=${t.summary} used=${trainUsed(t)} dragging=${dragId === t.id} onDragStart=${(e) => startDrag(e, { kind: 'train', train: t }, t.id)} onDragEnd=${endDrag} onClick=${() => addTrain(t)} pid=${'t:' + t.id} active=${activePid === 't:' + t.id} onFocus=${() => setPalActive('t:' + t.id)} />`)}
       ${!addParts.length && !rmParts.length && !trParts.length && html`<div class="faint" style="margin-top:20px">${q ? 'Nothing matches "' + q + '".' : 'Nothing matches these filters.'}</div>`}
     </aside>
 
-    <section class="canvas">
+    <section class="canvas" id="builder-canvas" tabindex="-1" ref=${canvasRef}>
       <div class="ctool">
         <${SlidingBar} class="seg2">${[['canvas', 'Canvas', 'grid'], ['code', 'Code', 'code'], ['split', 'Split', 'layers']].map(([k, l]) => html`<button class=${view === k ? 'on' : ''} onClick=${() => setView(k)}>${l}</button>`)}<//>
         ${showCanvas && html`<${SlidingBar} class="seg2"><button class=${layerMode === 'simple' ? 'on' : ''} onClick=${() => setLayerMode('simple')}>Simple</button><button class=${layerMode === 'layers' ? 'on' : ''} onClick=${() => setLayerMode('layers')}>Layers</button><//>`}
@@ -454,7 +498,7 @@ export function BuilderScreen({ id, specId }) {
                 <//>
                 <div class="ds">${part.summary || part.donor}</div>
                 <div class="tags"><span class="tag">at L${g.at}</span><span class="tag">glue ${g.glue_rank ? 'r' + g.glue_rank : 'full'}</span>${part.layers && html`<span class="tag c">donor L${part.layers[0]}${part.layers[1] !== part.layers[0] ? '-' + part.layers[1] : ''}</span>`}</div>
-                <div class="nf"><span>+${((part.params_m || 0) / 1000).toFixed(2)}B params</span>${fit != null ? html`<span class=${'fitchip' + (fit < 0.45 ? ' low' : fit < 0.65 ? ' mid' : '')}>fit ${fit.toFixed(2)}</span>` : html`<span class="faint">not checked</span>`}</div>
+                <div class="nf"><span>+${fmtB(nodeAddB[i] || 0)} params</span>${fit != null ? html`<span class=${'fitchip' + (fit < 0.45 ? ' low' : fit < 0.65 ? ' mid' : '')}>fit ${fit.toFixed(2)}</span>` : html`<span class="faint">not checked</span>`}</div>
                 ${(() => { const comp = componentFor(lastOk && lastOk.components, g); return comp && html`<div class="nv"><${VerdictTag} c=${comp} /></div>`; })()}
               </div>`; })}
             ${!program.grafts.length && html`<div class="empty-hint" style=${{ left: nodeX - 60 + 'px' }}><b>Drag a skill onto a layer</b>It grafts a part of a donor model into the host at that layer. A wire shows the link.</div>`}
@@ -475,7 +519,7 @@ export function BuilderScreen({ id, specId }) {
           <button class=${'btn' + (job && job.action === 'compile' ? ' is-busy' : '')} ref=${(el) => { btnRefs.current.compile = el; }} disabled=${!!job} onClick=${() => run('compile')}>${job && job.action === 'compile' ? html`<${Matrix} variant="scan" />` : html`<${Icon} n="gear" size=${14} />`} Compile <span class="k">free fit check</span></button>
           <button class=${'btn' + (job && job.action === 'heal' ? ' is-busy' : '')} ref=${(el) => { btnRefs.current.heal = el; }} disabled=${!!job} onClick=${() => run('heal')}>${job && job.action === 'heal' ? html`<${Matrix} variant="pulse" />` : html`<${Icon} n="heal" size=${14} />`} Heal <span class="k">${healLabel}</span></button>
           <button class=${'btn' + (job && job.action === 'train' ? ' is-busy' : '')} ref=${(el) => { btnRefs.current.train = el; }} disabled=${!!job} onClick=${() => run('train')}>${job && job.action === 'train' ? html`<${Matrix} variant="orbit" />` : html`<${Icon} n="up" size=${14} />`} Train <span class="k">LoRA r${program.lora ? program.lora.rank : 16}</span></button>
-          <button class=${'btn primary' + (job && job.action === 'score' ? ' is-busy' : '')} ref=${(el) => { btnRefs.current.score = el; }} disabled=${!!job} onClick=${() => run('score')}>${job && job.action === 'score' ? html`<${Matrix} variant="twinkle" />` : flash === 'score' ? html`<${SuccessCheck} size=${14} />` : html`<${Icon} n="play" size=${13} />`} Score <span class="k">1 eval</span></button>
+          <button class=${'btn primary' + (job && job.action === 'score' ? ' is-busy' : '')} ref=${(el) => { btnRefs.current.score = el; }} disabled=${!!job} onClick=${() => run('score')}>${job && job.action === 'score' ? html`<${Matrix} variant="twinkle" />` : flash === 'score' ? html`<${SuccessCheck} size=${14} />` : html`<${Icon} n="play" size=${13} />`} Score <span class="k" title=${scoreEvals === 2 ? 'One eval for this build and one for its random-part control' : null}>${scoreEvals} eval${scoreEvals === 1 ? '' : 's'}</span></button>
         </div>
       </div>
     </section>
@@ -485,7 +529,7 @@ export function BuilderScreen({ id, specId }) {
         <${Ring} value=${prog} />
         <div style="min-width:0"><div class="label">${lastOk ? 'Average of targets' : 'No score yet'}</div>
           <div class="num bigv">${html`<${PopNum} text=${lastOk ? pctS(avg(lastOk)) : '-'} />`}${lastOk && stubOf() && html`<${StubBadge} small />`}</div>
-          <div class="dim" style="font-size:12px"><${HealNote} show=${!!lastOk && !lastOk.comparison && (usesHeal(lastOk.program) || lastOk.action === 'heal' || lastOk.action === 'train')} note=${healNoteOf(lastOk)} />${lastOk ? 'Attempt ' + lastOk.n + ', across ' + (benches.filter((b) => b.kind === 'target' && lastOk.scores[b.id] != null).length || Object.keys(lastOk.scores).length) + (benches.some((b) => b.kind === 'target') ? ' targets' : ' benchmarks') : 'Press Score to run one eval'}${prevOk ? html`<br /><span class=${avg(lastOk) >= avg(prevOk) ? 'up' : 'down'}>${sgn(avg(lastOk) - avg(prevOk))}</span> vs attempt ${prevOk.n}` : ''}</div></div>
+          <div class="dim" style="font-size:12px"><${HealNote} show=${!!lastOk && !lastOk.comparison && (usesHeal(lastOk.program) || lastOk.action === 'heal' || lastOk.action === 'train')} note=${healNoteOf(lastOk)} />${lastOk ? 'Attempt ' + lastOk.n + ', across ' + (benches.filter((b) => b.kind === 'target' && lastOk.scores[b.id] != null).length || Object.keys(lastOk.scores).length) + (benches.some((b) => b.kind === 'target') ? ' targets' : ' benchmarks') : 'Press Score to run an eval'}${prevOk ? html`<br /><span class=${avg(lastOk) >= avg(prevOk) ? 'up' : 'down'}>${sgn(avg(lastOk) - avg(prevOk))}</span> vs attempt ${prevOk.n}` : ''}</div></div>
       </div>
 
       <div class="card benchcard">

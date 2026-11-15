@@ -175,7 +175,7 @@ The program dict is the one in `wsp/swarm/program_schema.py` (`host`, `seed`, `m
 - `curve` has one point per scored eval in order: `best` is the best target score so far among valid (ok) programs, `score` is that eval's target score. A collapsed program adds a point but never raises `best`. `best` is `null` until the first valid program is scored.
 - `base_scores` is read once when the run thread starts. It is `{}` until then (treat it as pending).
 - `stopped_early` is true when the person pressed Stop. The run still ends with status `done`. The held-out check and its controls are skipped, and the activity says so.
-- `outcome` is `null` while the run goes, then `"finished"`, `"stopped"` (the person pressed Stop) or `"error"`. When the run ends every agent has `status: "done"` and `now` is `"Finished"` (`"Stopped"` after a stop or an error).
+- `outcome` is `null` while the run goes, then `"finished"`, `"empty"` (the run ended on its own and nothing was scored, so there is no `best`), `"stopped"` (the person pressed Stop) or `"error"`. When the run ends every agent has `status: "done"` and `now` is `"Finished"` (`"Ended, nothing scored"` for `"empty"`, `"Stopped"` after a stop or an error).
 - `empty_reason` is `null` while the run goes and when there is a `best`. When a run ended with no best model it is one plain sentence, for example "Every proposal was refused for going over your limits (195 refused). Raise the size limits on the spec." Other texts: every scored build failed, the run ended with an error, the run was stopped, or the search ended before any build was scored.
 - `sort` is `"target score"`: `leaderboard` is ordered by the mean target score, best first. Builds with status `ok` come first, other failed statuses next and `collapsed` last. `rank` follows this order. `target_score` is that mean (null when no target was scored).
 - `vs_control` is the target score minus its random-part control, or null when no control ran.
@@ -434,7 +434,7 @@ The second request type. A person asks for a smaller model that keeps one skill:
 - `keep_skill` is one of the `wsp/healdata.py` pool names: `math`, `code`, `medicine`, `general`, `prose`.
 - `rule` for experts: `freq`, `saliency` (default), `selective`, `random`, `general`. For dense: `skill` (default, same as `skill_cost`), `specific`, `general`, `random`.
 - MoE: `keep_experts` is N per layer, `target_params_b` is the estimated total after keeping N (informational). Dense: `target_params_b` is the wanted total, `keep_experts` is null.
-- `source_active_params_b` is the estimated parameters the source runs per token. `candidates` holds up to 5 other sources that fit, best first. `notes` holds plain sentences (for example a named model that cannot be slimmed).
+- `source_active_params_b` is the estimated parameters the source runs per token. `experts_total` is the source's experts per layer for an MoE source and null for a dense one. `candidates` holds up to 5 other sources that fit, best first. `notes` holds plain sentences (for example a named model that cannot be slimmed).
 - `PUT /api/spec/{id}` edits the block. Send `shrink` with the fields to change (or the whole block). Checks, each a 400 with a plain message: the model must be in the library (or one of the studio's extra Qwen2.5-Coder models) and its architecture must be supported; `keep_skill` must be a pool name; `rule` must fit the method; `keep_experts` must be 1..experts; dense `target_params_b` must be above the embedding and head size and below the source size; `heal_steps` is 0..1000; `method` cannot disagree with the model. Changing `source_model` resets the other fields to that model's defaults unless the edit names them. Editing an MoE `target_params_b` (without `keep_experts`) recomputes `keep_experts`. `limits` and `size.max_params_b` edit as for a build, with no lower bound at the source size.
 - A shrink spec is refused by `POST /api/runs` and `POST /api/builder` (400). A build spec is refused by `POST /api/shrink`.
 
@@ -531,13 +531,13 @@ A list of measured results. Every row was scored by the compiler, so the web app
 
 ```
 [{ "id", "title", "kind": "skill_removal", "skill": "code", "model": "<hf id>", "experts_per_layer": 128,
-   "params_run_per_token_b": 3.03, "date", "scorer": "wsp.skills_eval", "runs_per_cell": 1, "heal": "none",
+   "params_run_per_token_b": 3.03, "date", "scorer": "wsp.skills_eval", "runs_per_cell": 1, "heal": "500 steps on two rows",
    "source", "caveats": ["plain sentence", ...],
    "rows": [{ "label", "experts_kept", "rule", "total_params_b", "scores": {"humaneval", "mbpp", "gsm8k", "mmlu"},
-              "is_control", "is_full" }] }]
+              "is_control", "is_full", "heal_steps" }] }]
 ```
 
-A score a row did not measure is absent from `scores`. A control row picks experts by a rule that should not work (random, skill-to-general ratio).
+A score a row did not measure is absent from `scores`. `heal_steps` is 0 for a raw cut and the number of distillation heal steps otherwise; the result's `heal` is a short phrase for the whole table. A control row picks experts by a rule that should not work (random, skill-to-general ratio).
 
 ### GET /api/spec/{id}/request
 

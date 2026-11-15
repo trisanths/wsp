@@ -244,7 +244,7 @@ export function Menu({ open, onClose, children, class: cls, style, origin = 'top
     const box = par && ((anchorSel && par.querySelector(anchorSel)) || par);
     if (!el || !box) return;
     const r = box.getBoundingClientRect();
-    const vw = window.innerWidth, vh = window.innerHeight, m = 8, gap = 6;
+    const vw = window.innerWidth, vh = window.innerHeight, m = 12, gap = 6;
     el.style.maxHeight = '340px';
     const w = el.offsetWidth, h = el.offsetHeight;
     const below = vh - r.bottom - gap - m, above = r.top - gap - m;

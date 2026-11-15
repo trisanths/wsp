@@ -6,25 +6,28 @@ const clone = (x) => JSON.parse(JSON.stringify(x));
 
 const CAVEATS = [
   'One run per cell, so a gap of a few points may be noise.',
-  'No heal has run yet. These are the raw cuts.',
+  'Two rows have a 500-step distillation heal on code text from the healdata pools. The other rows are raw cuts with no training.',
+  'The healed 32 expert model (73.8, 61.9) does not beat Qwen2.5-Coder-7B (85.4, 86.0) at a similar total size. It runs 3.0B params per token against 7.6B.',
   'Removing experts keeps the parameters run per token at about 3.0B, so it shrinks storage and memory, not speed.',
   'Other skills fall: MMLU goes from 77.8 to 44.9 at 64 experts.',
   'The 32 expert rows share one size, 8.78B, because the same number of experts per layer gives the same size.',
 ];
-const row = (label, experts_kept, rule, total_params_b, scores, is_control = false, is_full = false) => ({ label, experts_kept, rule, total_params_b, scores, is_control, is_full });
+const row = (label, experts_kept, rule, total_params_b, scores, is_control = false, is_full = false, heal_steps = 0) => ({ label, experts_kept, rule, total_params_b, scores, is_control, is_full, heal_steps });
 
 const MEASURED = [{
   id: 'run19_qwen3_30b_a3b_code', title: 'Skill removal on Qwen3-30B-A3B, code only', kind: 'skill_removal', skill: 'code',
   model: 'Qwen/Qwen3-30B-A3B-Instruct-2507', experts_per_layer: 128, params_run_per_token_b: 3.03, date: '2026-11-14',
-  scorer: 'wsp.skills_eval', runs_per_cell: 1, heal: 'none', source: 'compiler session, team memory, 2026-11-14', caveats: CAVEATS,
+  scorer: 'wsp.skills_eval', runs_per_cell: 1, heal: '500 steps on two rows', source: 'compiler session, results/README.md run 19, 2026-11-14', caveats: CAVEATS,
   rows: [
     row('Full model', 128, 'none', 30.5, { humaneval: 91.5, mbpp: 84.4, gsm8k: 91.5, mmlu: 77.8 }, false, true),
     row('Keep 64 by code saliency', 64, 'saliency', 16.0, { humaneval: 87.8, mbpp: 79.0, gsm8k: 80.5, mmlu: 44.9 }),
-    row('Keep 32 by code saliency', 32, 'saliency', 8.78, { humaneval: 57.9, mbpp: 55.3 }),
-    row('Keep 16 by code saliency', 16, 'saliency', 5.15, { humaneval: 3.7, mbpp: 7.8 }),
-    row('Keep 32 by routing frequency', 32, 'freq', 8.78, { humaneval: 7.9, mbpp: 11.7 }),
-    row('Keep 32 random (two seeds)', 32, 'random', 8.78, { humaneval: 0.0, mbpp: 0.0 }, true),
-    row('Keep 32 by skill-to-general ratio', 32, 'selective', 8.78, { humaneval: 0.0, mbpp: 0.0 }, true),
+    row('Keep 32 by code saliency', 32, 'saliency', 8.78, { humaneval: 57.9, mbpp: 55.3, gsm8k: 2.5, mmlu: 26.1 }),
+    row('Keep 32 by code saliency, 500-step heal', 32, 'saliency', 8.78, { humaneval: 73.8, mbpp: 61.9, gsm8k: 2.0, mmlu: 25.6 }, false, false, 500),
+    row('Keep 16 by code saliency', 16, 'saliency', 5.15, { humaneval: 3.7, mbpp: 7.8, gsm8k: 0.5, mmlu: 23.6 }),
+    row('Keep 32 by routing frequency', 32, 'freq', 8.78, { humaneval: 7.9, mbpp: 11.7, gsm8k: 0.0, mmlu: 24.4 }),
+    row('Keep 32 random (three seeds)', 32, 'random', 8.78, { humaneval: 0.0, mbpp: 0.0 }, true),
+    row('Keep 32 random, 500-step heal (seed 1)', 32, 'random', 8.78, { humaneval: 11.6, mbpp: 23.3, gsm8k: 2.0, mmlu: 24.1 }, true, false, 500),
+    row('Keep 32 by skill-to-general ratio', 32, 'selective', 8.78, { humaneval: 0.0, mbpp: 0.0, gsm8k: 0.0, mmlu: 23.9 }, true),
   ],
 }];
 

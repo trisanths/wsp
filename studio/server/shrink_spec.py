@@ -112,7 +112,8 @@ def new_block(facts, skill, target_b=None, rule=None, heal_steps=DEFAULT_HEAL_ST
     """A plan for one source model. target_b is the wanted total size in billions, or None for the default cut."""
     block = {"source_model": facts["hf_id"], "source_params_b": round(facts["params_b"], 4),
              "source_active_params_b": round(models_mod.run_params_b(facts), 4),
-             "family": facts["kind"], "keep_skill": skill, "heal_steps": int(heal_steps)}
+             "family": facts["kind"], "keep_skill": skill, "heal_steps": int(heal_steps),
+             "experts_total": facts["experts"] if facts["kind"] == "moe" else None}
     if facts["kind"] == "moe":
         block["method"] = "experts"
         if target_b is None:
@@ -274,6 +275,7 @@ def check_block(incoming, old):
     block["source_params_b"] = round(facts["params_b"], 4)
     block["source_active_params_b"] = round(models_mod.run_params_b(facts), 4)
     block["family"] = facts["kind"]
+    block["experts_total"] = facts["experts"] if method == "experts" else None
     if changed_source or skill != old.get("keep_skill") or "candidates" not in block:
         target_hint = None
         if method == "dense":

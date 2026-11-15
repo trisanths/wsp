@@ -716,7 +716,7 @@ function candidatesFor(src, skill) {
 function moeTotal(f, keep) { return f.base + (f.params - f.base) * keep / f.experts; }
 function newBlock(model, skill, target, rule, steps) {
   const f = SMODELS[model];
-  const b = { source_model: model, source_params_b: f.params, source_active_params_b: f.active, family: f.kind, keep_skill: skill, method: f.kind === 'moe' ? 'experts' : 'dense', target_params_b: null, keep_experts: null, rule: rule || (f.kind === 'moe' ? 'saliency' : 'skill'), heal_steps: steps ?? 300, candidates: candidatesFor(model, skill), notes: [] };
+  const b = { source_model: model, source_params_b: f.params, source_active_params_b: f.active, family: f.kind, keep_skill: skill, method: f.kind === 'moe' ? 'experts' : 'dense', experts_total: f.kind === 'moe' ? f.experts : null, target_params_b: null, keep_experts: null, rule: rule || (f.kind === 'moe' ? 'saliency' : 'skill'), heal_steps: steps ?? 300, candidates: candidatesFor(model, skill), notes: [] };
   if (f.kind === 'moe') {
     let keep = Math.max(1, Math.floor(f.experts / 4));
     if (target) keep = clamp(Math.floor((target - f.base) / (f.params - f.base) * f.experts), 1, f.experts);

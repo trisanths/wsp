@@ -68,14 +68,19 @@ function Leaderboard({ snap, cat, onBuild }) {
   useEffect(() => () => clearTimeout(timer.current), []);
   if (!snap.leaderboard.length) return html`<div class="faint">No scored programs yet.</div>`;
   const short = (n) => (n.length > 10 ? n.slice(0, 9) + '.' : n);
-  return html`<div class="tscroll"><table class="lb rlb"><thead><tr><th style="width:32px">#</th><th>Program</th>${bs.map((b) => html`<th class="r" style="width:76px" title=${b.name}>${short(b.name)}</th>`)}<th class="r" style="width:84px">vs random</th><th class="r" style="width:64px">Size</th><th style="width:28px"></th></tr></thead>
-    <tbody>${snap.leaderboard.map((r) => {
+  return html`<div class="tscroll"><table class="lb rlb"><thead><tr><th style="width:32px">#</th><th style="min-width:240px">Program</th>${bs.map((b) => html`<th class="r" style="width:76px" title=${b.name}>${short(b.name)}</th>`)}<th class="r" style="width:84px">vs random</th><th class="r" style="width:64px">Size</th><th style="width:28px"></th></tr></thead>
+    <tbody>${(() => {
+      // two different programs must never read the same: a repeated name gets the start of its program hash
+      const seen = {};
+      for (const r of snap.leaderboard) { const n = nameOf(r, cat); seen[n] = (seen[n] || 0) + 1; }
+      const label = (r) => { const n = nameOf(r, cat); return seen[n] > 1 && r.program_hash ? n + ' · ' + String(r.program_hash).slice(0, 6) : n; };
+      return snap.leaderboard.map((r) => {
       const ok = r.status === 'ok';
       const isOpen = open === r.program_hash;
       const body = isOpen || closing === r.program_hash;
       return html`<${Fragment} key=${r.program_hash}>
         <tr class=${'row' + (isOpen ? ' open' : '')} onClick=${() => toggle(r)}>
-          <td class="num dim3">${r.rank}</td><td><div class="desc"><${Logos} models=${donorsOf(r.program, cat)} max=${3} size=${16} /><span title=${nameOf(r, cat)}>${nameOf(r, cat)}</span><${HealNote} show=${usesHeal(r.program)} mark note=${healNoteOf(r)} /></div></td>
+          <td class="num dim3">${r.rank}</td><td><div class="desc"><${Logos} models=${donorsOf(r.program, cat)} max=${3} size=${16} /><span title=${label(r)}>${label(r)}</span><${HealNote} show=${usesHeal(r.program)} mark note=${healNoteOf(r)} /></div></td>
           ${bs.map((b) => { const v = r.scores[b.id]; const bad = b.kind === 'guard' && v != null && v < b.floor; return html`<td class=${'num r' + (bad ? ' down' : '')}>${v != null ? html`<${SubtleNum} text=${pct(v)} />` : '-'}</td>`; })}
           <td class="r">${!ok ? html`<${Tag} kind="r">${r.status.replace(/_/g, ' ')}<//>` : r.vs_control == null ? html`<span class="faint">pending</span>` : html`<span class=${r.vs_control > 0.02 ? 'up' : 'dim3'}>${sgn(r.vs_control)}</span>`}</td>
           <td class="num r">${bsize(r.params_b)}</td>
@@ -83,7 +88,8 @@ function Leaderboard({ snap, cat, onBuild }) {
         </tr>
         <tr class="t-acc det" data-open=${isOpen ? 'true' : 'false'}><td colspan=${bs.length + 5}><div class="t-acc-panel"><div class="t-acc-panel-inner">${body && html`<${Detail} r=${r} snap=${snap} cat=${cat} text=${texts[r.program_hash]} onBuild=${onBuild} />`}</div></div></td></tr>
       <//>`;
-    })}</tbody></table></div>`;
+      });
+    })()}</tbody></table></div>`;
 }
 
 function Targets({ snap }) {
