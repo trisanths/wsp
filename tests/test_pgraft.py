@@ -267,3 +267,56 @@ def test_mc_soft_loss_runs_in_bf16():
     soft = torch.softmax(torch.randn(4, 4), -1)
     loss, _ = pgraft.mc_soft_loss(base, tok, items, [5, 6, 7, 8], torch.device("cpu"), soft=soft, kd_weight=1.0)
     assert torch.isfinite(loss)
+
+def split_setup(write_layer, dtype=torch.float32):
+    base = tiny_host().to(dtype)
+    for p in base.parameters():
+        p.requires_grad_(False)
+    donor = tiny_donor().to(dtype)
+    tok = tiny_tokenizer()
+    graft = pgraft.build(base, donor, host_layer=1, first=2, last=4, enc_depth=2, write_layer=write_layer)
+    pgraft.set_sink(graft, donor, tok, 2, TEXTS)
+    return base, tok, graft
+
+
+def test_split_graft_writes_late_and_off_restores_base():
+    base, tok, graft = split_setup(3)
+    assert isinstance(graft, pgraft.SplitGraft)
+    pgraft.attach_split(base, graft)
+    plain = tiny_host()
+    assert torch.allclose(logits(base, tok, TEXTS[:4]), logits(plain, tok, TEXTS[:4]), atol=1e-6)
+    torch.nn.init.normal_(graft.dec.up.weight, std=0.05)
+    on = logits(base, tok, TEXTS[:4])
+    assert not torch.allclose(on, logits(plain, tok, TEXTS[:4]), atol=1e-4)
+    with pgraft.grafts_off(base):
+        off = logits(base, tok, TEXTS[:4])
+    assert torch.allclose(off, logits(plain, tok, TEXTS[:4]), atol=1e-6)
+    assert graft.pending is None
+
+
+def test_split_graft_at_host_layer_matches_parallel_and_trains_bf16():
+    base, tok, graft = split_setup(1)
+    assert type(graft) is pgraft.ParallelGraft
+    base2, tok2, graft2 = split_setup(3, dtype=torch.bfloat16)
+    pgraft.attach_split(base2, graft2)
+    ids, mask, _, _ = encode(tok2, TEXTS[:4], 32)
+    out = base2(input_ids=ids, attention_mask=mask).logits
+    loss = out.float().logsumexp(-1).mean()
+    loss.backward()
+    assert graft2.dec.up.weight.grad is not None
+    assert torch.isfinite(loss)
+
+
+def test_split_graft_generate_with_cache_matches_no_cache():
+    base, tok, graft = split_setup(3)
+    pgraft.attach_split(base, graft)
+    torch.nn.init.normal_(graft.dec.up.weight, std=0.05)
+    ids, mask, _, _ = encode(tok, TEXTS[:2], 12)
+    cached = base.generate(input_ids=ids, attention_mask=mask, max_new_tokens=4, do_sample=False)
+    seq = ids
+    m = mask
+    for _ in range(4):
+        nxt = base(input_ids=seq, attention_mask=m, use_cache=False).logits[:, -1].argmax(-1, keepdim=True)
+        seq = torch.cat([seq, nxt], dim=1)
+        m = torch.cat([m, torch.ones_like(nxt)], dim=1)
+    assert torch.equal(cached, seq)

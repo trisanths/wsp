@@ -226,8 +226,15 @@ class ParallelGraft(Graft):
         return self.pad_mask[:, -h.shape[1]:]
 
     def forward(self, h):
-        if self.forced_off:
+        update = self.update_for(h)
+        if update is None:
             return h
+        return h + update.to(h.dtype)
+
+    def update_for(self, h):
+        """The gated, first-position-masked update to add to h, or None when the graft is forced off."""
+        if self.forced_off:
+            return None
         x = self.donor_input(h)
         y = self.contribution(x) * self.in_scale
         update = self.dec(y)
@@ -245,7 +252,42 @@ class ParallelGraft(Graft):
                     keep = keep & (real.to(keep.device) != 0)
                 self.ratio_sum += float(ratio[keep].sum())
                 self.ratio_count += int(keep.sum())
-        return h + update.to(h.dtype)
+        return update
+
+
+class SplitGraft(ParallelGraft):
+    """A ParallelGraft that reads at its host layer and writes at a later base layer (write_layer).
+
+    The branch is a skip connection: base layers host+1..write_layer run in
+    parallel with the donor slice, and the slice's contribution joins the base
+    residual after write_layer. With write_layer equal to the last base
+    layer, the donor's upper layers feed the base head directly.
+    """
+
+    def __init__(self, *args, write_layer=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.write_layer = write_layer
+        self.pending = None
+
+    def forward(self, h):
+        self.pending = self.update_for(h)
+        return h
+
+
+def attach_split(base, graft):
+    """Attach a SplitGraft: the read hook comes from attach, the write hook adds graft.pending after write_layer."""
+    handles = attach(base, [graft])
+    _, layers = find_decoder_layers(base, graft.write_layer)
+
+    def write(module, inputs, output, graft=graft):
+        update = graft.pending
+        graft.pending = None
+        if update is None:
+            return output
+        return replace_hidden(output, lambda h: h + update.to(h.dtype))
+
+    handles.append(layers[graft.write_layer].register_forward_hook(write))
+    return handles
 
 
 def grafts_of(model):
@@ -281,7 +323,7 @@ def num_layers(model):
 
 
 def build(base, donor, host_layer, first, last, control=None, enc_depth=1, dec_rank=64, dec_depth=1,
-          gate_bias=0.0, out_rms=1.0, d_donor=None):
+          gate_bias=0.0, out_rms=1.0, d_donor=None, write_layer=None):
     """Make one ParallelGraft that runs donor layers first..last, and attach it after base layer host_layer.
 
     The block is the donor's own decoder layer code, built from the loaded
@@ -301,7 +343,11 @@ def build(base, donor, host_layer, first, last, control=None, enc_depth=1, dec_r
         part = nn.Identity()
     enc = Enc(d_host, d_donor, depth=enc_depth, out_rms=out_rms)
     dec = Dec(d_donor, d_host, rank=dec_rank, depth=dec_depth)
-    graft = ParallelGraft(d_host, d_donor, part, enc, dec, control=control, gate_bias=gate_bias)
+    if write_layer is None or write_layer == host_layer:
+        graft = ParallelGraft(d_host, d_donor, part, enc, dec, control=control, gate_bias=gate_bias)
+    else:
+        graft = SplitGraft(d_host, d_donor, part, enc, dec, control=control, gate_bias=gate_bias,
+                           write_layer=write_layer)
     graft.donor_span = (first, last)
     device = device_of(base)
     graft.w_in.to(device)
