@@ -1,5 +1,6 @@
 import { html, useState, useEffect, useRef } from './lib.js';
-import { agentColor, agentInitials, tokenizeLine, useStubFlag, useHealth, useToasts, clamp, pct, go } from './util.js';
+import { agentColor, agentInitials, tokenizeLine, useStubFlag, useHealth, subscribeToasts, clamp, pct, go } from './util.js';
+import { usePresence, presenceClass, tokenMs, reduced, PopNum, SlidingBar, dissolveText } from './motion.js';
 
 const ICONS = {
   plus: 'M12 5v14M5 12h14',
@@ -62,7 +63,7 @@ export function TopBar({ children, right }) {
   return html`<header class="topbar">
     <div class="picker-wrap">
       <button class="picker" onClick=${() => setOpen(!open)} aria-haspopup="menu" aria-expanded=${open}><span>${label}</span><${Icon} n="down" size=${14} /></button>
-      <${Menu} open=${open} onClose=${() => setOpen(false)} style=${{ top: '36px', left: 0, minWidth: '260px' }}>
+      <${Menu} open=${open} origin="top-left" onClose=${() => setOpen(false)} style=${{ top: '36px', left: 0, minWidth: '260px' }}>
         <div class="mrow"><span class="mk">Agent model</span><span class="mv">${(health && health.llm_model) || 'not set'}</span></div>
         <div class="mrow"><span class="mk">Agent provider</span><span class="mv">${(health && health.llm) || 'none'}</span></div>
         <div class="mrow"><span class="mk">Backend</span><span class="mv">${health ? (modal ? 'Modal GPU' : health.backend === 'stub' ? 'Stub' : health.backend) : 'unknown'}</span></div>
@@ -113,16 +114,17 @@ export function BenchLegend({ guard }) {
 export function Ring({ value, label = 'of the way to spec', size = 104 }) {
   const C = 2 * Math.PI * 42;
   const v = clamp(value || 0, 0, 1);
-  return html`<svg class="ring" width=${size} height=${size} viewBox="0 0 100 100">
-    <circle class="ring-bg" cx="50" cy="50" r="42" stroke-width="7" fill="none"/>
-    <circle class="ring-fg" cx="50" cy="50" r="42" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray=${C} stroke-dashoffset=${C * (1 - v)} transform="rotate(-90 50 50)"/>
-    <text class="ring-v" x="50" y="52" text-anchor="middle" font-size="20" font-weight="400">${Math.round(v * 100)}%</text>
-    <text class="ring-l" x="50" y="66" text-anchor="middle" font-size="7.5">${label}</text>
-  </svg>`;
+  return html`<div class="ringwrap" style=${{ width: size + 'px', height: size + 'px' }}>
+    <svg class="ring" width=${size} height=${size} viewBox="0 0 100 100">
+      <circle class="ring-bg" cx="50" cy="50" r="42" stroke-width="7" fill="none"/>
+      <circle class="ring-fg" cx="50" cy="50" r="42" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray=${C} stroke-dashoffset=${C * (1 - v)} transform="rotate(-90 50 50)"/>
+    </svg>
+    <div class="ring-c"><div class="ring-v"><${PopNum} text=${Math.round(v * 100) + '%'} /></div><div class="ring-l">${label}</div></div>
+  </div>`;
 }
 
 export function Tabs({ tabs, value, onChange, right }) {
-  return html`<div class="tabs">${tabs.map((t) => html`<button class=${'tab' + (value === t.id ? ' on' : '')} onClick=${() => onChange(t.id)}>${t.label}${t.n != null && html`<span class="tabn">${t.n}</span>`}</button>`)}<span class="grow"></span>${right}</div>`;
+  return html`<${SlidingBar} class="tabs">${tabs.map((t) => html`<button class=${'tab' + (value === t.id ? ' on' : '')} onClick=${() => onChange(t.id)}>${t.label}${t.n != null && html`<span class="tabn">${t.n}</span>`}</button>`)}<span class="grow"></span>${right}<//>`;
 }
 
 // wsp text with syntax colors. prev is the older text, changed lines get a highlight
@@ -132,9 +134,52 @@ export function CodeView({ text, prev }) {
   return html`<div class="code">${lines.map((ln, i) => html`<div class=${'cl' + (old && !old.has(ln) ? ' hl' : '')}><span class="ln">${i + 1}</span><span class="lt">${tokenizeLine(ln).map((t) => (t.c ? html`<span class=${'tk-' + t.c}>${t.t}</span>` : t.t))}${ln === '' ? ' ' : ''}</span></div>`)}</div>`;
 }
 
+// Up to three toasts stack with the newest in front. A fourth pushes the oldest out.
 export function Toasts() {
-  const list = useToasts();
-  return html`<div class="toasts">${list.map((t) => html`<div class=${'toast ' + t.kind} key=${t.id}>${t.text}</div>`)}</div>`;
+  const [items, setItems] = useState([]); // newest first
+  const stack = useRef();
+  const timers = useRef(new Set());
+  const removeLater = (id, ms) => {
+    if (timers.current.has(id)) return;
+    timers.current.add(id);
+    setTimeout(() => { timers.current.delete(id); setItems((l) => l.filter((x) => x.id !== id)); }, reduced() ? 0 : ms);
+  };
+  const dismiss = (id) => setItems((l) => l.map((x) => (x.id === id && x.mode === 'in' ? { ...x, mode: 'dismiss' } : x)));
+  useEffect(() => subscribeToasts((t) => {
+    setItems((l) => {
+      let n = 0;
+      return [{ ...t, mode: 'in' }, ...l].map((x) => (x.mode === 'in' && n++ >= 3 ? { ...x, mode: 'leaving' } : x));
+    });
+    setTimeout(() => dismiss(t.id), 3800);
+  }), []);
+  useEffect(() => {
+    items.forEach((x) => { if (x.mode === 'leaving') removeLater(x.id, tokenMs('--stack-close', 250) + 60); else if (x.mode === 'dismiss') removeLater(x.id, tokenMs('--toast-close', 250) + 60); });
+  }, [items]);
+  // hovering the stack fans it out. This is geometry, because the gaps belong to no element.
+  useEffect(() => {
+    if (items.length < 2) return;
+    const gap = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--stack-spread-gap')) || 8;
+    const within = (e, below) => {
+      const el = stack.current;
+      if (!el) return false;
+      const r = el.getBoundingClientRect();
+      return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom + below;
+    };
+    const move = (e) => {
+      const el = stack.current;
+      if (!el) return;
+      if (el.classList.contains('is-spread')) { if (!within(e, (el.offsetHeight + gap()) * 2)) el.classList.remove('is-spread'); }
+      else if (within(e, 0)) el.classList.add('is-spread');
+    };
+    window.addEventListener('pointermove', move);
+    return () => { window.removeEventListener('pointermove', move); if (stack.current) stack.current.classList.remove('is-spread'); };
+  }, [items.length > 1]);
+  let depth = 0;
+  return html`<div class="toasts"><div class="t-stack" ref=${stack}>${items.map((t) => {
+    const d = t.mode === 'in' ? depth++ : 0;
+    return html`<div key=${t.id} class=${'toast t-stack-banner ' + t.kind + (t.mode === 'leaving' ? ' is-leaving' : t.mode === 'dismiss' ? ' is-dismiss' : '')} data-depth=${d}
+      ref=${(el) => { if (el && !el._ent) { el._ent = 1; if (!reduced()) { el.classList.add('is-enter'); void el.offsetWidth; el.classList.remove('is-enter'); } } }}>${t.text}</div>`;
+  })}</div></div>`;
 }
 
 export function Spinner({ size = 14 }) {
@@ -145,26 +190,30 @@ export function ErrorBox({ error, onRetry }) {
   return html`<div class="errbox card"><div class="label">Something went wrong</div><div style="margin:6px 0 10px">${error.message || String(error)}</div>${onRetry && html`<button class="btn" onClick=${onRetry}>Try again</button>`}<a class="btn ghost" href="#/">Start over</a></div>`;
 }
 
-// a tiny menu that closes on outside click
-export function Menu({ open, onClose, children, class: cls, style }) {
+// A tiny menu that closes on outside click. It opens from the corner named by origin.
+export function Menu({ open, onClose, children, class: cls, style, origin = 'top-left' }) {
   const ref = useRef();
+  const st = usePresence(open, tokenMs('--dropdown-close-dur', 150));
   useEffect(() => {
     if (!open) return;
     const f = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose(); };
     const k = (e) => { if (e.key === 'Escape') onClose(); };
-    setTimeout(() => document.addEventListener('mousedown', f), 0);
+    const t = setTimeout(() => document.addEventListener('mousedown', f), 0);
     document.addEventListener('keydown', k);
-    return () => { document.removeEventListener('mousedown', f); document.removeEventListener('keydown', k); };
+    return () => { clearTimeout(t); document.removeEventListener('mousedown', f); document.removeEventListener('keydown', k); };
   }, [open]);
-  if (!open) return null;
-  return html`<div class=${'menu ' + (cls || '')} style=${style} ref=${ref}>${children}</div>`;
+  if (st === 'out') return null;
+  return html`<div class=${'menu t-dropdown ' + presenceClass(st) + ' ' + (cls || '')} data-origin=${cls && /\bup\b/.test(cls) ? 'bottom-left' : origin} style=${style} ref=${ref}>${children}</div>`;
 }
 
 // A composer: rounded box, optional chips on top, a growing textarea, attach and send buttons.
-export function Composer({ value, onInput, onSubmit, placeholder, chips, onAttach, disabled, over, taRef, autoFocus, footLeft, label, minRows = 2, extra }) {
+export function Composer({ value, onInput, onSubmit, placeholder, chips, onAttach, disabled, over, taRef, autoFocus, footLeft, label, minRows = 2, extra, clearRef }) {
   const own = useRef();
   const ta = taRef || own;
+  const wrap = useRef(), mirror = useRef(), phold = useRef(), glow = useRef();
   const has = !!(value && value.trim());
+  // the parent calls clearRef.current() just before it empties the text, so the sent text dissolves
+  if (clearRef) clearRef.current = () => dissolveText({ wrap: wrap.current, ta: ta.current, mirror: mirror.current, phold: phold.current, glow: glow.current });
   useEffect(() => {
     const el = ta.current;
     if (!el) return;
@@ -174,10 +223,15 @@ export function Composer({ value, onInput, onSubmit, placeholder, chips, onAttac
   useEffect(() => { if (autoFocus && ta.current) ta.current.focus(); }, []);
   return html`<div class=${'composer' + (over ? ' over' : '')}>
     ${chips}
-    <textarea ref=${ta} rows=${minRows} value=${value} placeholder=${placeholder} aria-label=${label || 'Message'} disabled=${disabled} onInput=${(e) => onInput(e.target.value)} onKeyDown=${(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); onSubmit(); } }}></textarea>
+    <div class="t-clear" ref=${wrap}>
+      <textarea ref=${ta} rows=${minRows} value=${value} placeholder=${placeholder} aria-label=${label || 'Message'} disabled=${disabled} onInput=${(e) => onInput(e.target.value)} onKeyDown=${(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); onSubmit(); } }}></textarea>
+      <div class="t-clear-mirror" aria-hidden="true" ref=${mirror}></div>
+      <div class="t-clear-placeholder" aria-hidden="true" ref=${phold}>${placeholder}</div>
+      <div class="t-clear-glow" aria-hidden="true" ref=${glow}></div>
+    </div>
     <div class="comp-foot">
-      <div class="comp-left">${onAttach && html`<button class="rbtn" type="button" title="Attach files" aria-label="Attach files" onClick=${onAttach}><${Icon} n="clip" size=${16} /></button>`}${footLeft}</div>
-      <button class=${'send' + (has ? ' on' : '')} type="button" title="Send" aria-label="Send" disabled=${!has || disabled} onClick=${onSubmit}><${Icon} n="up" size=${16} sw=${2} /></button>
+      <div class="comp-left">${onAttach && html`<button class="rbtn" type="button" data-tip="Attach files" aria-label="Attach files" onClick=${onAttach}><${Icon} n="clip" size=${16} /></button>`}${footLeft}</div>
+      <button class=${'send' + (has ? ' on' : '')} type="button" data-tip="Send" aria-label="Send" disabled=${!has || disabled} onClick=${onSubmit}><${Icon} n="up" size=${16} sw=${2} /></button>
     </div>
     ${extra}
   </div>`;

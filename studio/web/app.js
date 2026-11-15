@@ -8,6 +8,10 @@ import { SpecScreen } from './screens/spec.js';
 import { RunScreen } from './screens/run.js';
 import { BuilderScreen } from './screens/builder.js';
 import { RunsScreen, PartsScreen } from './screens/pages.js';
+import { PageSwap, initTooltips } from './motion.js';
+
+// Deeper screens slide in from the right. Equal or shallower depth slides back.
+const DEPTH = { prompt: 0, runs: 1, parts: 1, spec: 1, run: 2, build: 2 };
 
 function App() {
   const r = useRoute();
@@ -19,7 +23,8 @@ function App() {
   else if (r.name === 'runs') screen = html`<${RunsScreen} />`;
   else if (r.name === 'parts') screen = html`<${PartsScreen} />`;
   else screen = html`<${PromptScreen} />`;
-  return html`<${Shell}>${screen}<//><${Toasts} />`;
+  return html`<${Shell}><${PageSwap} pageKey=${r.name + ':' + (r.id || '')} depth=${DEPTH[r.name] ?? 0}>${screen}<//><//><${Toasts} />`;
 }
 
+initTooltips();
 render(html`<${App} />`, document.getElementById('app'));

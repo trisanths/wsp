@@ -104,7 +104,18 @@ The program dict is the one in `wsp/swarm/program_schema.py` (`host`, `seed`, `m
 - `status`: `starting`, `running`, `paused`, `stopping`, `done`, `error`.
 - Agent `status`: `thinking`, `probing`, `compiling`, `scoring`, `idle`, `paused`, `done`.
 - Agent ids are `analyst`, `planner-1` .. `planner-N`, `judge`.
-- `activity` holds the newest 200 items, newest last. Its `status` is `ok`, `bad` (collapse, error), or `info`.
+- `activity` holds the newest 200 items, newest last. Its `status` is `ok`, `bad` (collapse, error), or `info`. Each item is `{"id", "ts", "agent", "kind", "status", "text", "data", "round"}`. `id` is a stable increasing number. `text` is one plain sentence for people. `round` is the swarm round (may be null). `kind` and `data`:
+  - `eval`: `{"name", "program_hash", "target", "best", "is_best", "guards": [{"id", "name", "score", "floor", "ok"}], "scores", "result"}`. `name` is the readable program name, `target` the mean target score, `result` the env status (`ok`, `collapsed`, `rejected_fit`, `compile_error`, `invalid`, `infra_error`).
+  - `probe`: `{"name", "fits": [numbers], "program_hash"}`. Fit checks; frequent, so pages may fold them.
+  - `plan`: `{"count"}`. A planner proposed programs.
+  - `map`: null, or `{"detail"}` with the analyst's raw table.
+  - `verdict`: `{"frontier": [{"program_hash", "name", "target"}], "retired", "killed"}`.
+  - `heldout`: `{"name", "program_hash", "target", "scores"}`.
+  - `milestone`: null. Search finished, stalled, or stopped.
+  - `nudge`: agent is `"you"`, data `{"to", "to_name"}`, text is the nudge.
+  - `nudge_applied`: `{"nudge"}`.
+  - `error`, `system`, `handoff`: null.
+- Agent `now` and leaderboard and agent history use readable program names where they describe a program (for example "Math block L8-19 at L6, heal 300").
 - `curve` has one point per scored eval in order: `best` is the best target score so far, `score` is that eval's target score.
 - `vs_control` is the target score minus its random-part control, or null when no control ran.
 

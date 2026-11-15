@@ -2,14 +2,15 @@ import { html, useState, useEffect, useRef } from './lib.js';
 import { api } from './api.js';
 import { go, toast, useRoute, useRecent, useTheme, useHealth, useStubFlag, getLastBuild } from './util.js';
 import { Icon, Mark, StubBadge, Dot } from './components.js';
+import { IconSwap, SwapText } from './motion.js';
 
 const RUN_COLOR = { running: 'var(--blue)', starting: 'var(--blue)', paused: 'var(--amber)', stopping: 'var(--amber)', done: 'var(--green)', error: 'var(--red)' };
 
 function Row({ icon, label, href, onClick, on, rail, badge }) {
   const inner = html`<${Icon} n=${icon} size=${18} /><span class="sb-text">${label}</span>${badge}`;
   return href
-    ? html`<a class=${'sb-row' + (on ? ' on' : '')} href=${href} title=${rail ? label : null} aria-label=${label} aria-current=${on ? 'page' : null}>${inner}</a>`
-    : html`<button class=${'sb-row' + (on ? ' on' : '')} onClick=${onClick} title=${rail ? label : null} aria-label=${label}>${inner}</button>`;
+    ? html`<a class=${'sb-row' + (on ? ' on' : '')} href=${href} data-tip=${rail ? label : null} data-tip-side="right" aria-label=${label} aria-current=${on ? 'page' : null}>${inner}</a>`
+    : html`<button class=${'sb-row' + (on ? ' on' : '')} onClick=${onClick} data-tip=${rail ? label : null} data-tip-side="right" aria-label=${label}>${inner}</button>`;
 }
 
 export function Sidebar({ rail, onToggle, route }) {
@@ -32,8 +33,8 @@ export function Sidebar({ rail, onToggle, route }) {
   const isRecent = (r) => (r.kind === 'spec' && route.name === 'spec' && route.id === r.id) || (r.kind === 'run' && route.name === 'run' && route.id === r.id);
   return html`<aside class=${'sidebar' + (rail ? ' rail' : '')} aria-label="Sidebar">
     <div class="sb-head">
-      <a class="logo" href="#/" title="wsp studio" aria-label="wsp studio home"><${Mark} size=${24} /><span class="logotext sb-text">wsp studio</span></a>
-      <button class="rbtn sb-toggle" onClick=${onToggle} title=${rail ? 'Expand sidebar' : 'Collapse sidebar'} aria-label=${rail ? 'Expand sidebar' : 'Collapse sidebar'}><${Icon} n="panel" size=${18} /></button>
+      <a class="logo" href="#/" data-tip=${rail ? 'wsp studio' : null} data-tip-side="right" aria-label="wsp studio home"><${Mark} size=${24} /><span class="logotext sb-text">wsp studio</span></a>
+      <button class="rbtn sb-toggle" onClick=${onToggle} data-tip=${rail ? 'Expand sidebar' : 'Collapse sidebar'} data-tip-side=${rail ? 'right' : 'bottom'} aria-label=${rail ? 'Expand sidebar' : 'Collapse sidebar'}><${Icon} n="panel" size=${18} /></button>
     </div>
     <nav class="sb-nav">
       <${Row} icon="plus" label="New model" href="#/" on=${route.name === 'prompt'} rail=${rail} />
@@ -49,7 +50,7 @@ export function Sidebar({ rail, onToggle, route }) {
         ${r.kind === 'run' && r.status && html`<${Dot} color=${RUN_COLOR[r.status] || 'var(--text-4)'} />`}</a>`)}
     </div>
     <div class="sb-foot">
-      <button class="sb-row" onClick=${flip} title=${theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'} aria-label=${theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}><${Icon} n=${theme === 'dark' ? 'sun' : 'moon'} size=${18} /><span class="sb-text">${theme === 'dark' ? 'Light theme' : 'Dark theme'}</span></button>
+      <button class="sb-row" onClick=${flip} data-tip=${rail ? (theme === 'dark' ? 'Light theme' : 'Dark theme') : null} data-tip-side="right" aria-label=${theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}><${IconSwap} state=${theme === 'dark' ? 'a' : 'b'} a=${html`<${Icon} n="sun" size=${18} />`} b=${html`<${Icon} n="moon" size=${18} />`} /><span class="sb-text"><${SwapText} text=${theme === 'dark' ? 'Light theme' : 'Dark theme'} /></span></button>
       <div class="sb-status" title=${modal ? 'Jobs run on Modal GPUs' : stub ? 'Stub backend: numbers are not real results' : 'Backend'}>
         <${Icon} n="server" size=${18} />
         <span class="sb-text">${modal ? 'Modal GPU' : stub ? html`Stub backend <${StubBadge} small />` : health ? health.backend : 'Connecting'}</span>

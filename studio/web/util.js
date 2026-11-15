@@ -184,17 +184,10 @@ const toastListeners = new Set();
 export function toast(text, kind = 'info') {
   toastListeners.forEach((f) => f({ id: Math.random(), text, kind }));
 }
-export function useToasts() {
-  const [list, setList] = useState([]);
-  useEffect(() => {
-    const f = (t) => {
-      setList((l) => [...l, t]);
-      setTimeout(() => setList((l) => l.filter((x) => x.id !== t.id)), 3800);
-    };
-    toastListeners.add(f);
-    return () => toastListeners.delete(f);
-  }, []);
-  return list;
+// The toast stack in components.js listens here and owns the timers and the exit motion.
+export function subscribeToasts(fn) {
+  toastListeners.add(fn);
+  return () => toastListeners.delete(fn);
 }
 
 /* ---------- hooks ---------- */

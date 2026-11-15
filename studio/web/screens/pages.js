@@ -2,6 +2,7 @@ import { html, useState, useEffect } from '../lib.js';
 import { api } from '../api.js';
 import { pct, donorColor, donorLetter, donorShort, useRecent, patchRecent, dur } from '../util.js';
 import { TopBar, Icon, Spinner, ErrorBox, Dot, StubBadge } from '../components.js';
+import { SkelReveal } from '../motion.js';
 
 const RUN_LABEL = { starting: 'Starting', running: 'Running', paused: 'Paused', stopping: 'Stopping', done: 'Finished', error: 'Error', gone: 'Not on the server' };
 const RUN_COLOR = { starting: 'var(--blue)', running: 'var(--blue)', paused: 'var(--amber)', stopping: 'var(--amber)', done: 'var(--green)', error: 'var(--red)', gone: 'var(--text-4)' };
@@ -63,7 +64,7 @@ export function PartsScreen() {
   const load = () => { setErr(null); api.catalog().then(setCat).catch(setErr); };
   useEffect(load, []);
   if (err) return html`<${TopBar} /><${ErrorBox} error=${err} onRetry=${load} />`;
-  if (!cat) return html`<${TopBar} /><main class="screen"><div class="doc wide"><div class="skeleton" style="height:40px;width:280px"></div><div class="grid3" style="margin-top:24px">${[1, 2, 3, 4, 5, 6].map(() => html`<div class="skeleton" style="height:96px"></div>`)}</div></div></main>`;
+  if (!cat) return html`<${TopBar} /><main class="screen"><div class="doc wide"><${SkelReveal} ready=${false} skeleton=${html`<div class="skeleton" style="height:40px;width:280px"></div><div class="grid3" style="margin-top:24px">${[1, 2, 3, 4, 5, 6].map(() => html`<div class="skeleton" style="height:96px"></div>`)}</div>`} /></div></main>`;
   const m = (x) => !q || (x.label + ' ' + (x.donor || '') + ' ' + (x.summary || '') + ' ' + (x.kind || '')).toLowerCase().includes(q.toLowerCase());
   const taps = cat.parts.filter((x) => x.kind === 'tap' && m(x));
   const adds = cat.parts.filter((x) => x.kind !== 'tap' && m(x));
@@ -72,7 +73,7 @@ export function PartsScreen() {
   const none = !taps.length && !adds.length && !rms.length && !trs.length;
   const layers = (p) => 'L' + p.layers[0] + (p.layers[1] !== p.layers[0] ? ' to L' + p.layers[1] : '');
   return html`<${TopBar} />
-  <main class="screen"><div class="doc wide">
+  <main class="screen"><div class="doc wide"><${SkelReveal} ready=${true} skeleton=${null}>
     <div class="ph"><div><h1 class="page-title">Parts library</h1>
       <p class="lede">Host model ${cat.host.model.split('/').pop()}, ${cat.host.layers} layers, ${cat.host.params_b.toFixed(2)}B parameters. Drag these onto it in the builder.${cat.stub ? ' ' : ''}${cat.stub && html`<${StubBadge} small />`}</p></div>
       <div class="searchbox pq"><${Icon} n="search" size=${16} /><input placeholder="Search parts" aria-label="Search parts" value=${q} onInput=${(e) => setQ(e.target.value)} /></div></div>
@@ -81,5 +82,5 @@ export function PartsScreen() {
     ${rms.length > 0 && html`<section class="sect"><h2 class="sec"><span>Remove a skill</span><span class="faint cnt">${rms.length}</span></h2><div class="grid3">${rms.map((p) => html`<${PartCard} key=${p.id} ic="-" color="var(--red)" title=${p.label} sub=${p.summary} measured=${measuredLine(p.measured)} />`)}</div></section>`}
     ${trs.length > 0 && html`<section class="sect"><h2 class="sec"><span>Train</span><span class="faint cnt">${trs.length}</span></h2><div class="grid3">${trs.map((p) => html`<${PartCard} key=${p.id} ic=${p.id === 'lora' ? 'R' : 'H'} color=${p.id === 'lora' ? 'var(--amber)' : 'var(--green)'} title=${p.label} sub=${p.summary} />`)}</div></section>`}
     ${none && html`<div class="empty" style="margin-top:30px">Nothing matches "${q}".</div>`}
-  </div></main>`;
+  <//></div></main>`;
 }

@@ -2,6 +2,7 @@ import { html, useState, useEffect, useRef } from '../lib.js';
 import { api } from '../api.js';
 import { go, toast, pct, clamp, donorColor, donorLetter, useDebouncedCallback, clone, addRecent, patchRecent, setLastBuild } from '../util.js';
 import { TopBar, Icon, Spinner, ErrorBox, Menu, StubBadge } from '../components.js';
+import { SubtleNum, AutoHeight, SkelReveal, reduced } from '../motion.js';
 
 // slider with optional tick marks (fractions of the range are given as values)
 export function Slider({ value, min, max, step, onChange, ticks = [], color, ariaLabel }) {
@@ -13,17 +14,18 @@ export function Slider({ value, min, max, step, onChange, ticks = [], color, ari
   </div>`;
 }
 
-function BenchRow({ b, onChange, onRemove }) {
+function BenchRow({ b, onChange, onRemove, late, leaving }) {
+  const born = useRef(late);
   const isT = b.kind === 'target';
   const key = isT ? 'target' : 'floor';
   const ticks = [];
   if (b.base != null) ticks.push({ v: b.base, kind: 'base', label: 'host ' + pct(b.base, 0) });
   if (b.lora != null) ticks.push({ v: b.lora, kind: 'lora', label: 'LoRA ' + pct(b.lora) });
   const val = b[key] ?? b.base ?? 0.3;
-  return html`<div class="srow">
+  return html`<div class=${'srow' + (born.current ? ' t-row-in' : '') + (leaving ? ' t-row-out' : '')}>
     <div class="top">
       <span class="nm">${b.name}${b.recommended && html`<span class="tag b">recommended</span>`}</span>
-      <span class="vwrap"><span class=${'val' + (isT ? '' : ' guard')}>${isT ? 'aim for ' : 'stay above '}${pct(val, 0)}%</span><button class="xbtn" title="Remove" onClick=${onRemove}><${Icon} n="x" size=${14} /></button></span>
+      <span class="vwrap"><span class=${'val' + (isT ? '' : ' guard')}>${isT ? 'aim for ' : 'stay above '}<${SubtleNum} text=${pct(val, 0)} />%</span><button class="xbtn" data-tip="Remove" aria-label=${'Remove ' + b.name} onClick=${onRemove}><${Icon} n="x" size=${14} /></button></span>
     </div>
     <${Slider} value=${val} min=${0} max=${1} step=${0.01} ticks=${ticks} color=${isT ? 'var(--text-1)' : 'var(--red)'} ariaLabel=${b.name} onChange=${(v) => onChange({ [key]: Math.round(v * 100) / 100 })} />
     <div class="note"><span>${b.base == null ? 'Host score not measured yet. The first run measures it' + (isT ? '.' : '. A guard keeps the model from losing this skill.') : isT ? 'Host starts at ' + pct(b.base) + '%' : 'Host starts at ' + pct(b.base) + '%. A guard keeps the model from losing this skill.'}${b.lora != null ? '. Fine-tuning (LoRA) reaches ' + pct(b.lora) + '%.' : ''}</span></div>
@@ -38,6 +40,9 @@ export function SpecScreen({ id }) {
   const [busy, setBusy] = useState(null);
   const latest = useRef(null);
   const dirty = useRef(false);
+  const first = useRef(true);
+  const [gone, setGone] = useState(null);
+  useEffect(() => { if (spec) first.current = false; }, [!!spec]);
 
   const load = () => { setErr(null); api.getSpec(id).then((s) => { latest.current = s; setSpec(s); addRecent({ kind: 'spec', id, title: s.title }); }).catch(setErr); };
   useEffect(load, [id]);
@@ -61,7 +66,7 @@ export function SpecScreen({ id }) {
   useEffect(() => () => { debounced.cancel(); if (dirty.current && latest.current) api.putSpec(id, latest.current).catch(() => {}); }, []);
 
   if (err) return html`<${TopBar} /><${ErrorBox} error=${err} onRetry=${load} />`;
-  if (!spec) return html`<${TopBar} /><main class="screen"><div class="doc"><div class="skeleton" style="height:48px"></div><div class="skeleton" style="height:420px;margin-top:20px"></div></div></main>`;
+  if (!spec) return html`<${TopBar} /><main class="screen"><div class="doc"><${SkelReveal} ready=${false} skeleton=${html`<div class="skeleton" style="height:48px"></div><div class="skeleton" style="height:420px;margin-top:20px"></div>`} /></div></main>`;
 
   const targets = spec.benchmarks.filter((b) => b.kind === 'target');
   const guards = spec.benchmarks.filter((b) => b.kind === 'guard');
@@ -72,6 +77,8 @@ export function SpecScreen({ id }) {
     const back = { ...b }; delete back.target; delete back.floor; delete back.recommended;
     s.available_benchmarks = [...s.available_benchmarks, back];
   });
+  // a removed row fades out first, then the targets card resizes
+  const drop = (bid) => { setGone(bid); setTimeout(() => { remove(bid); setGone(null); }, reduced() ? 0 : 170); };
   const add = (a) => { edit((s) => {
     s.available_benchmarks = s.available_benchmarks.filter((x) => x.id !== a.id);
     const nb = { ...a };
@@ -97,39 +104,39 @@ export function SpecScreen({ id }) {
   const addable = spec.available_benchmarks || [];
 
   return html`<${TopBar} right=${html`<span class="savestate">${save === 'saving' ? html`<${Spinner} size=${11} /> Saving` : save === 'error' ? html`<span class="down">Not saved</span>` : save === 'dirty' ? 'Unsaved changes' : html`<${Icon} n="check" size=${13} /> Saved`}</span>`} />
-  <main class="screen"><div class="doc">
+  <main class="screen"><div class="doc"><${SkelReveal} ready=${true} skeleton=${null}>
     <input class="doc-title" value=${spec.title} aria-label="Title" onInput=${(e) => edit((s) => { s.title = e.target.value; })} />
     <textarea class="doc-sum" rows="2" ref=${(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 2 + 'px'; } }} value=${spec.summary} aria-label="Summary" onInput=${(e) => edit((s) => { s.summary = e.target.value; })}></textarea>
 
     <section class="sect"><h2 class="sec">Size and budget</h2>
       <div class="srow">
-        <div class="top"><span class="nm">Size limit</span><span class="val">up to ${spec.size.max_params_b.toFixed(1)}B parameters</span></div>
+        <div class="top"><span class="nm">Size limit</span><span class="val">up to <${SubtleNum} text=${spec.size.max_params_b.toFixed(1)} />B parameters</span></div>
         <${Slider} value=${spec.size.max_params_b} min=${spec.size.min_b} max=${spec.size.max_b} step=${0.1} ticks=${sizeTicks} ariaLabel="Maximum parameters" onChange=${(v) => edit((s) => { s.size.max_params_b = Math.round(v * 10) / 10; })} />
         <div class="note"><span>${spec.size.max_params_b < hostB ? 'Below the host size. Only deletion masks can get there.' : 'Room for ' + Math.max(0, (spec.size.max_params_b - hostB)).toFixed(2) + 'B of grafted parts.'}</span><span>${spec.size.min_b}B to ${spec.size.max_b}B</span></div>
       </div>
       <div class="srow">
-        <div class="top"><span class="nm">Evals</span><span class="val">${b.evals} scored attempts</span></div>
+        <div class="top"><span class="nm">Evals</span><span class="val"><${SubtleNum} text=${String(b.evals)} /> scored attempts</span></div>
         <${Slider} value=${b.evals} min=${b.min_evals} max=${b.max_evals} step=${1} ariaLabel="Evals" onChange=${(v) => edit((s) => { s.budget.evals = v; })} />
         <div class="note"><span>A free fit check does not use an eval.</span><span>${b.min_evals} to ${b.max_evals}</span></div>
       </div>
       <div class="srow">
-        <div class="top"><span class="nm">Compute</span><span class="val">${b.compute_min} min</span></div>
+        <div class="top"><span class="nm">Compute</span><span class="val"><${SubtleNum} text=${String(b.compute_min)} /> min</span></div>
         <${Slider} value=${b.compute_min} min=${5} max=${compMax} step=${5} ariaLabel="Compute minutes" onChange=${(v) => edit((s) => { s.budget.compute_min = v; })} />
         <div class="note"><span>The run stops at whichever limit it hits first.</span><span>5 to ${compMax} min</span></div>
       </div>
     </section>
 
     <section class="sect"><h2 class="sec"><span>Targets</span><span class="legend"><span class="lg base">host</span><span class="lg lora">LoRA</span></span></h2>
-      ${targets.length ? targets.map((x) => html`<${BenchRow} key=${x.id} b=${x} onChange=${(p) => upd(x.id, p)} onRemove=${() => remove(x.id)} />`) : html`<div class="empty">No targets. Add one below.</div>`}
+      <${AutoHeight}>${targets.length ? targets.map((x) => html`<${BenchRow} key=${x.id} b=${x} late=${!first.current} leaving=${gone === x.id} onChange=${(p) => upd(x.id, p)} onRemove=${() => drop(x.id)} />`) : html`<div class="empty">No targets. Add one below.</div>`}<//>
     </section>
     <section class="sect"><h2 class="sec"><span>Guards</span></h2>
-      ${guards.map((x) => html`<${BenchRow} key=${x.id} b=${x} onChange=${(p) => upd(x.id, p)} onRemove=${() => remove(x.id)} />`)}
-      ${!guards.length && html`<div class="empty">No guards. A guard stops the model from losing a skill you want to keep.</div>`}
+      <${AutoHeight}>${guards.map((x) => html`<${BenchRow} key=${x.id} b=${x} late=${!first.current} leaving=${gone === x.id} onChange=${(p) => upd(x.id, p)} onRemove=${() => drop(x.id)} />`)}
+      ${!guards.length && html`<div class="empty">No guards. A guard stops the model from losing a skill you want to keep.</div>`}<//>
     </section>
 
     <div class="addwrap">
       <button class="btn" onClick=${() => setMenu(!menu)} disabled=${!addable.length}><${Icon} n="plus" size=${16} /> Add benchmark</button>
-      <${Menu} open=${menu} onClose=${() => setMenu(false)} style=${{ top: '40px', left: 0, minWidth: '280px' }}>
+      <${Menu} open=${menu} origin="top-left" onClose=${() => setMenu(false)} style=${{ top: '40px', left: 0, minWidth: '280px' }}>
         ${['target', 'guard'].map((k) => html`${addable.some((a) => a.kind === k) && html`<div class="mlabel">${k === 'target' ? 'Targets' : 'Guards'}</div>`}${addable.filter((a) => a.kind === k).map((a) => html`<button class="mi" onClick=${() => add(a)}><span>${a.name}</span><span class="faint">host ${pct(a.base, 0)}%</span></button>`)}`)}
       <//>
     </div>
@@ -158,5 +165,5 @@ export function SpecScreen({ id }) {
         <button class="btn big" disabled=${!!busy} onClick=${startBuilder}><span class="bt"><b>Build it myself</b><small>Drag parts onto the host model</small></span>${busy === 'build' ? html`<${Spinner} />` : html`<${Icon} n="arrow" />`}</button>
       </div>
     </div>
-  </div></main>`;
+  <//></div></main>`;
 }
