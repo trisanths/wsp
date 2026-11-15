@@ -390,7 +390,7 @@ def load_tap_donors(program, device):
         donor.eval()
         for param in donor.parameters():
             param.requires_grad_(False)
-        donor_tokenizer = transformers.AutoTokenizer.from_pretrained(spec.donor)
+        donor_tokenizer = load_tokenizer(spec.donor)
         donors[spec.donor] = (donor, donor_tokenizer)
     return donors
 
