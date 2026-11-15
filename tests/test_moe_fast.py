@@ -104,3 +104,30 @@ def test_graft_with_shared_fast_part_trains(dtype):
     out.float().sum().backward()
     assert graft.enc.proj.weight.grad is not None
     assert all(p.grad is None for p in part.parameters())
+
+
+@pytest.mark.parametrize("dtype,tol", [(torch.float32, 1e-4), (torch.bfloat16, 0.1)])
+def test_fast_grafted_final_matches_pgraft(dtype, tol):
+    from wsp import pgraft
+
+    donor = model_with_fast(tiny_model(dtype))
+    x = torch.randn(3, 10, 48).to(dtype)
+    mask = torch.ones(3, 10, dtype=torch.long)
+    mask[1, 7:] = 0
+    with torch.no_grad():
+        want = pgraft._grafted_final(donor, 2, x, mask)
+        got = moe_fast.fast_grafted_final(donor, 2, x, mask)
+    real = mask.bool()[..., None]
+    assert ((want.float() - got.float()) * real).abs().max() < tol
+
+
+def test_checkpoint_matches_plain_gradient():
+    model = tiny_model(torch.float32)
+    fast = moe_fast.stack_native(model.model.layers[0].mlp)
+    x = torch.randn(2, 7, 48, requires_grad=True)
+    fast(x)[0].sum().backward()
+    plain = x.grad.clone()
+    x.grad = None
+    fast.ckpt = True
+    fast(x)[0].sum().backward()
+    assert (x.grad - plain).abs().max() < 1e-5

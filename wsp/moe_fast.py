@@ -43,6 +43,7 @@ class FastMoeBlock(_module().Qwen3MoeSparseMoeBlock):
         self.w_up = nn.Parameter(torch.empty(e, i, d), requires_grad=False)
         self.w_down = nn.Parameter(torch.empty(e, d, i), requires_grad=False)
         self.act_fn = F.silu if config.hidden_act == "silu" else _act(config.hidden_act)
+        self.ckpt = False  # recompute the expert pass in backward to save memory
 
     def route(self, flat):
         logits = self.gate(flat)
@@ -56,7 +57,12 @@ class FastMoeBlock(_module().Qwen3MoeSparseMoeBlock):
         batch, seq, dim = hidden_states.shape
         flat = hidden_states.reshape(-1, dim)
         logits, weights, chosen = self.route(flat)
-        out = self.experts_forward(flat, weights, chosen)
+        if self.ckpt and torch.is_grad_enabled() and flat.requires_grad:
+            from torch.utils.checkpoint import checkpoint
+
+            out = checkpoint(self.experts_forward, flat, weights, chosen, use_reentrant=False)
+        else:
+            out = self.experts_forward(flat, weights, chosen)
         return out.reshape(batch, seq, dim), logits
 
     def experts_forward(self, flat, weights, chosen):
@@ -307,3 +313,32 @@ def active_params(part, top_k, num_experts):
         routed = name.split(".")[-1] in ("w_gate", "w_up", "w_down")
         total += p.numel() * (top_k / num_experts if routed else 1.0)
     return int(total), stored
+
+
+def set_checkpoint(model_or_part, on=True):
+    for m in model_or_part.modules():
+        if isinstance(m, FastMoeBlock):
+            m.ckpt = on
+
+
+def fast_grafted_final(donor, layer, x, mask):
+    """Same result as pgraft._grafted_final, but runs only donor layers layer..end on x (no work on zero embeddings)."""
+    last = len(donor.model.layers) - 1
+    cache = getattr(donor, "_tail_parts", None)
+    if cache is None:
+        cache = donor._tail_parts = {}
+    if layer not in cache:
+        cache[layer] = block_part(donor, layer, last)
+    part = cache[layer]
+    from wsp.stitch import autocast
+
+    with autocast(x.device):
+        out = x + part(x, attention_mask=mask)
+        return donor.model.norm(out)
+
+
+def install_fast_alignment():
+    """Make wsp.pgraft use fast_grafted_final in stage 1 and in the functional regularizer."""
+    from wsp import pgraft
+
+    pgraft._grafted_final = fast_grafted_final
