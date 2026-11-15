@@ -185,18 +185,21 @@ Served on vLLM 0.32 on one H200, the 64-expert model halves weight memory, solve
 | Full Qwen3-30B-A3B | 56.93 GiB | 90.2 | 259 / 2486 |
 | Keep 64 experts | 29.92 GiB | 88.4 | 259 / 3021 |
 
-Quantization and speculative decoding stack on top. All rows are vLLM 0.32, greedy, one run each; HumanEval moves about 2 points between configs with the same weights ([docs/efficiency.md](docs/efficiency.md)):
+The same ranking keeps whichever skill the request names. For a clinic ("a private assistant that answers medical questions as well as Qwen3-30B, on a smaller GPU we can keep on site") the experts are ranked on medical text. For a law firm they are ranked on legal text. No training in either case, one run each ([demo/README.md](demo/README.md)):
 
-| Model | GPU | Weight memory | HumanEval | MBPP | Decode tok/s, batch 1 / 32 |
-|---|---|---|---|---|---|
-| Full, INT4 (GPTQ) | A10G 24 GB | 15.7 GiB | 90.2 | 84.4 | 133 / 1107 |
-| Full, INT4, EAGLE-3 draft head | A10G 24 GB | 16.0 GiB | 92.1 | 84.4 | 219 / 1452 |
-| Full, bf16, EAGLE-3 draft head | H200 | 57.3 GiB | 90.2 | 84.4 | 467 / 4679 |
-| Full, INT4, EAGLE-3 with 7 draft tokens | H200 | 16.0 GiB | 90.9 | 85.2 | 556 / 5873 |
-| Keep 64 experts, INT4 | H200 | 8.7 GiB | 89.0 | 81.3 | 217 / 4208 |
-| Keep 64 experts, INT4 | L4 24 GB | 8.7 GiB | 87.2 | 82.9 | 89 / 800 |
+| Request | Model | Total params | Skill score | MMLU general |
+|---|---|---|---|---|
+| Clinic | Full Qwen3-30B-A3B | 30.5B | MedMCQA 68.0, MMLU medical 86.9 | 77.2 |
+| Clinic | Keep 64 experts by medical saliency | 16.0B | MedMCQA 65.9, MMLU medical 84.3 | 65.0 |
+| Clinic | Keep 48 by medical saliency | 12.4B | MedMCQA 64.5, MMLU medical 81.3 | 56.8 |
+| Clinic | Keep 48 random experts | 12.4B | MedMCQA 31.1, MMLU medical 21.7 | 23.8 |
+| Law firm | Full Qwen3-30B-A3B | 30.5B | MMLU law 62.7 | 80.3 |
+| Law firm | Keep 64 experts by legal saliency | 16.0B | MMLU law 61.8 | 60.3 |
+| Law firm | Keep 48 random experts | 12.4B | MMLU law 24.4 | 24.4 |
 
-The full model in INT4 fits a 24 GB card with no HumanEval loss, and EAGLE-3 roughly doubles batch-1 speed at the same accuracy (539 against 234 tok/s on real HumanEval requests in bf16, 778 in INT4 with 7 draft tokens). The 64-expert model in INT4 is 8.7 GiB.
+At half the size the clinic model loses 2.1 points on MedMCQA and 2.5 on MMLU medical, and the law model loses 0.9 on MMLU law, while general MMLU falls 12 and 20 points. One model gives a code model, a medical model, or a law model depending on which experts the request keeps, and the random control at the same size falls to chance each time.
+
+The result is a standard checkpoint, so quantization and speculative decoding apply to it as to any model; those numbers are in [docs/efficiency.md](docs/efficiency.md) and are not part of Sapien's method.
 
 Verified self-training lifts the 32-expert model. One round samples 10,594 train problems with tests (MBPP train, validation and prompt splits, LeetCodeDataset, APPS and AceCode-87K, with any problem that shares a 13-gram with a HumanEval or MBPP test item dropped), keeps the answers that pass their tests, adds passing answers from the full 30B model, and trains on them. Under vLLM it moves the healed 8.78B model from 82.9 to 83.5 on HumanEval and from 73.2 to 77.0 on MBPP, against 90.9 and 83.7 for the full model in the same harness (one seed; the HumanEval change is inside the noise) ([docs/rft.md](docs/rft.md)).
 
