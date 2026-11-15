@@ -162,7 +162,7 @@ td { padding: 9px 10px; border-bottom: 1px solid var(--line-1); vertical-align: 
 .mlabel { font-size: 12px; line-height: 16px; color: var(--text-3); padding: 6px 10px 2px; }
 .msep { height: 1px; background: var(--line-2); margin: 4px 0; }
 .mrow { display: flex; justify-content: space-between; gap: 16px; padding: 7px 10px; font-size: 14px; }
-.mrow .mk { color: var(--text-3); } .mrow .mv { color: var(--text-1); font-family: var(--mono); font-size: 13px; }
+.mrow .mk { color: var(--text-3); } .mrow .mv { white-space: nowrap; color: var(--text-1); font-family: var(--mono); font-size: 13px; }
 .mnote { font-size: 12px; color: var(--text-3); padding: 6px 10px 4px; }
 .toasts { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; }
 .toast { padding: 10px 14px; border-radius: 12px; background: var(--bg-raised); border: 1px solid var(--line-3); box-shadow: var(--shadow-float); animation: slidein .16s ease-out; max-width: 340px; }
@@ -872,3 +872,22 @@ h3.sub { font-size: 14px; line-height: 20px; font-weight: 500; margin: 24px 0 6p
 .detparts { margin-bottom: 10px; }
 .detparts .label { margin-bottom: 4px; }
 .part-stub { display: flex; gap: 6px; align-items: center; font-size: 12px; line-height: 16px; padding-top: 6px; }
+
+/* ---------- phone width ---------- */
+@media (max-width: 600px) {
+  .shell { flex-direction: column; height: 100dvh; }
+  .sidebar, .sidebar.rail { width: 100%; height: 48px; flex-direction: row; align-items: center; padding: 4px 8px; gap: 4px; overflow-x: auto; overflow-y: hidden; }
+  .sidebar .sb-toggle, .sidebar .sb-label, .sidebar .sb-recent { display: none; }
+  .rail .sb-head { flex-direction: row; margin: 0 4px 0 0; height: 36px; }
+  .rail .sb-nav, .rail .sb-foot { flex-direction: row; align-items: center; padding: 0; margin: 0; }
+  .rail .sb-foot { margin-left: auto; }
+  .rail .sb-row, .rail .sb-status { width: 36px; justify-content: center; padding: 0; }
+  .main-area { flex: 1 1 0; min-height: 0; }
+  .buildcard { position: static; }
+  .bc-row, .bc-row.one { grid-template-columns: 1fr; }
+  .buildcard .bc-row > * { min-width: 0; }
+  .sec { flex-wrap: wrap; row-gap: 6px; }
+  .sec > span { min-width: 0; }
+  .rs-hd { flex-wrap: wrap; row-gap: 4px; }
+  .rs-hd .powered > span { display: none; }
+}

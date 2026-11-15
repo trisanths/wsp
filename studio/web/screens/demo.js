@@ -1,6 +1,6 @@
 import { html, useState, useEffect, useLayoutEffect, useRef } from '../lib.js';
-import { DEMO, setDemo, demoSpeed, setDemoSpeed } from '../demo-flag.js';
-import { go, useTheme } from '../util.js';
+import { DEMO, HOSTED, setDemo, demoSpeed, setDemoSpeed } from '../demo-flag.js';
+import { go, toast, useTheme } from '../util.js';
 import { TopBar, Icon } from '../components.js';
 import { SponsorStrip } from '../logos.js';
 import { reduced } from '../motion.js';
@@ -54,7 +54,7 @@ export const STEPS = [
 
   { ch: 'The library', hash: '#/parts', sel: 'button.fchip2', text: 'Deletions', click: true, pass: true, say: 'Every part mined from open models. Filter to deletions.' },
   { ch: 'The library', hash: '#/parts?kind=deletion_mask', sel: 'button.ptab', text: 'Results', click: true, pass: true, hold: 1200, say: 'Each deletion mask removes one skill from a model. Next, the measured results.' },
-  { ch: 'The library', hash: '#/parts?tab=results', sel: ['.screen .mcard', '.mtable'], say: 'Numbers measured by the compiler on real weights, kept apart from the sample data.' },
+  { ch: 'The library', hash: '#/parts?tab=results', sel: ['.screen .mcard', '.mtable'], say: 'Numbers measured by the compiler on real weights, kept apart from the simulated runs.' },
   { ch: 'The library', hash: '#/runs', sel: '.card.list', say: 'Every run, builder session and shrink, in one list. That is the tour.' },
 ];
 const CHAPTERS = [...new Set(STEPS.map((s) => s.ch))];
@@ -188,7 +188,7 @@ function TourLayer({ i, auto }) {
     if (!auto || !ready) return;
     const t = setTimeout(() => {
       if (step.pass && elRef.current) elRef.current.click();
-      if (last) setAuto(false); else stepTo(i + 1);
+      if (last) { endTour(); toast('That is the tour.', 'info'); } else stepTo(i + 1);
     }, dwell(step));
     return () => clearTimeout(t);
   }, [auto, ready, i]);
@@ -299,21 +299,21 @@ export function DemoScreen() {
     return html`<${TopBar} />
     <main class="screen"><div class="doc wide demo-page">
       <h1 class="page-title">Demo tour</h1>
-      <p class="demo-lede">Demo mode fills every screen with sample data and runs without a server, so you can show the whole product from start to finish.</p>
+      <p class="demo-lede">Demo mode shows the whole product from start to finish without a server. Runs are simulated on the real parts library.</p>
       <div class="demo-sp"><${SponsorStrip} /></div>
       <div class="demo-cta"><button class="btn primary" onClick=${() => setDemo(true, '#/demo')}>Turn on demo mode</button></div>
-      <p class="demo-note">A small Demo label stays in the top bar while it is on, so sample numbers are never read as measured results. You can also press Ctrl+Shift+D (Cmd+Shift+D on a Mac) on any screen.</p>
+      <p class="demo-note">A small Demo label stays in the top bar while it is on, so simulated scores are never read as measured results. You can also press Ctrl+Shift+D (Cmd+Shift+D on a Mac) on any screen.</p>
     </div></main>`;
   }
   return html`<${TopBar} />
   <main class="screen"><div class="doc wide demo-page">
     <h1 class="page-title">Demo tour</h1>
-    <p class="demo-lede">A guided walk through the product on sample data, ${STEPS.length} steps. A white highlight moves to each part of the screen and shows where to click. Click the highlight or press the right arrow to go on, or let it play by itself. Space pauses, Escape leaves the tour.</p>
+    <p class="demo-lede">A guided walk through the product on the real parts library, ${STEPS.length} steps. A white highlight moves to each part of the screen and shows where to click. Click the highlight or press the right arrow to go on, or let it play by itself. Space pauses, Escape leaves the tour.</p>
     <div class="demo-sp"><${SponsorStrip} /></div>
     <div class="demo-cta">
       <button class="btn primary" onClick=${() => startTour(0, false)}>Start the tour</button>
       <button class="btn" onClick=${() => startTour(0, true)}>Play automatically</button>
-      <button class="btn" onClick=${() => setDemo(false, '#/')}>Turn off demo mode</button>
+      ${!HOSTED && html`<button class="btn" onClick=${() => setDemo(false, '#/')}>Turn off demo mode</button>`}
     </div>
     <div class="demo-grid demo-chapters">${CHAPTERS.map((ch, k) => {
       const steps = STEPS.filter((s) => s.ch === ch);
@@ -392,7 +392,7 @@ export function DemoControl() {
       ${speed !== demoSpeed() && html`<div class="demo-rn">Applies on the next reload.</div>`}
       <div class="demo-row"><span class="demo-rl">Theme</span><button class="demo-link" onClick=${flip}>${theme === 'dark' ? 'Light' : 'Dark'}</button></div>
       <div class="demo-row"><span class="demo-rl">Control</span><button class="demo-link" onClick=${() => { setHidden(true); setMore(false); }}>Hide (Alt+H)</button></div>
-      <div class="demo-row"><span class="demo-rl">Demo mode</span><button class="demo-link" onClick=${() => { endTour(); setDemo(false, '#/'); }}>Turn off</button></div>
+      ${!HOSTED && html`<div class="demo-row"><span class="demo-rl">Demo mode</span><button class="demo-link" onClick=${() => { endTour(); setDemo(false, '#/'); }}>Turn off</button></div>`}
     </div>`}
     <div class="demo-bar">
       ${t.on
@@ -410,6 +410,7 @@ export function DemoControl() {
 
 export function useDemoShortcut() {
   useEffect(() => {
+    if (HOSTED) return undefined;
     const f = (e) => {
       if (e.shiftKey && (e.ctrlKey || e.metaKey) && !e.altKey && e.code === 'KeyD') { e.preventDefault(); setDemo(!DEMO); }
     };

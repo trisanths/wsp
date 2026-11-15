@@ -48,6 +48,10 @@ button.demo-card { font: inherit; color: inherit; text-align: left; border: 0; c
 @media (max-width: 640px) {
   .demo-ctl { right: 8px; bottom: 8px; }
   .demo-title { max-width: 150px; }
+  /* the idle control folds to the play and options buttons, so it never covers the prompt box or a form */
+  .demo-ctl .demo-start, .demo-ctl .demo-bar > .demo-b[aria-label="Chapters"] { display: none; }
+  body:has(.demo-ctl) .screen { padding-bottom: 56px; }
+  .demo-type .dock { bottom: 52px; }
   .demo-lab { font-size: 12px; }
   .demo-pop { position: fixed; left: 8px; right: 8px; bottom: 52px; }
 }
@@ -127,3 +131,5 @@ body:has(.demo-ctl) .builder .side, body:has(.demo-ctl) .builder .palette { padd
 /* demo mode: the run overview keeps room for its fullest "Best model so far" block, so the
    Agents section below stays at one height as lines load in during a screen recording */
 .ovtop-fixed { min-height: 356px; }
+
+body.pd-open .demo-ctl { display: none; }

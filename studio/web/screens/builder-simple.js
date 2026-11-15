@@ -6,7 +6,7 @@ import { ModelLogo } from '../logos.js';
 import { openPart } from './part-detail.js';
 import { lockOf, filterItems, Pager } from '../cmp.js';
 import { maskIds as maskIdsOf } from '../util.js';
-import { pickSkills, plainName, plainNames, plainSentence, sizeText, trustText, pickForgets, forgetName, resultOf, failText, progressText, sizeLine, polishText } from './builder-simple-logic.js';
+import { pickSkills, browseOrder, dropTwins, fitsRoom, plainName, plainNames, plainSentence, sizeText, trustText, pickForgets, forgetName, resultOf, failText, progressText, sizeLine, polishText } from './builder-simple-logic.js';
 
 const BROWSE_SIZE = 8;
 
@@ -22,32 +22,39 @@ function Step({ n, id, title, tag, lead, children }) {
   </section>`;
 }
 
-function SkillCard({ part, spec, hostB, on, onToggle, tight, name: given }) {
+function SkillCard({ part, spec, hostB, on, onToggle, tight, tooBig, name: given }) {
   const name = given || plainName(part, spec);
   const trust = trustText(part);
   return html`<div class=${'bs-card card' + (on ? ' on' : '') + (tight ? ' tight' : '')}>
     <div class="bs-card-top"><${ModelLogo} model=${part.donor} size=${28} alt="" />
       <div class="bs-card-text"><div class="bs-name">${name}</div>
         <div class="bs-sent">${plainSentence(part)}</div>
-        <div class="bs-meta"><span>${sizeText(part, hostB)}</span>${trust && html`<span class=${'bs-trust' + (part.status === 'validated' ? ' g' : '')}>${trust}</span>`}</div></div></div>
+        <div class="bs-meta"><span>${sizeText(part, hostB)}</span>${tooBig && html`<span class="bs-big-note">Too big for this model</span>`}${trust && html`<span class=${'bs-trust' + (part.status === 'validated' ? ' g' : '')}>${trust}</span>`}</div></div></div>
     <div class="bs-card-act">
       <button class="btn ghost sm" type="button" onClick=${() => openPart(part.id)} aria-label=${'More about ' + name}>More</button>
-      <button class=${'btn sm bs-add' + (on ? ' on' : ' primary')} type="button" aria-pressed=${on ? 'true' : 'false'} aria-label=${(on ? 'Remove ' : 'Add ') + name} onClick=${() => onToggle(part, !on)}>${on ? html`<${Icon} n="check" size=${14} /> Added` : html`<${Icon} n="plus" size=${14} /> Add`}</button>
+      <button class=${'btn sm bs-add' + (on ? ' on' : tooBig ? '' : ' primary')} type="button" disabled=${tooBig && !on} aria-pressed=${on ? 'true' : 'false'} aria-label=${(on ? 'Remove ' : 'Add ') + name + (tooBig && !on ? ' (too big for this model)' : '')} onClick=${() => onToggle(part, !on)}>${tooBig && !on ? 'Too big' : on ? html`<${Icon} n="check" size=${14} /> Added` : html`<${Icon} n="plus" size=${14} /> Add`}</button>
     </div>
   </div>`;
 }
 
-function Browse({ cat, spec, hostB, usedIds, onToggle }) {
+function Browse({ cat, spec, hostB, usedIds, onToggle, roomB }) {
   const [q, setQ] = useState('');
   const [page, setPage] = useState(1);
-  const items = useMemo(() => filterItems(cat.parts.filter((p) => !p.group || p.group === 'add'), { kind: null, status: null, placeable: true }, q), [cat, q]);
-  useEffect(() => { setPage(1); }, [q]);
+  const [showBig, setShowBig] = useState(false);
+  const all = useMemo(() => dropTwins(browseOrder(filterItems(cat.parts.filter((p) => !p.group || p.group === 'add'), { kind: null, status: null, placeable: true }, q), spec)), [cat, q, spec && spec.id]);
+  // parts that fit the room left under the size limit; added parts stay so they can be removed
+  const fits = (p) => usedIds.has(p.id) || fitsRoom(p, roomB);
+  const small = all.filter(fits);
+  const bigN = all.length - small.length;
+  const items = showBig ? [...small, ...all.filter((p) => !fits(p))] : small;
+  useEffect(() => { setPage(1); }, [q, showBig]);
   const shown = items.slice((page - 1) * BROWSE_SIZE, page * BROWSE_SIZE);
   const shownNames = plainNames(shown, spec);
   return html`<div class="bs-browse">
     <div class="searchbox bs-search"><${Icon} n="search" size=${15} /><input type="search" placeholder="Search skills, such as math or a model name" aria-label="Search skills" value=${q} onInput=${(e) => setQ(e.target.value)} /></div>
-    ${shown.map((p, i) => html`<${SkillCard} key=${p.id} name=${shownNames[i]} part=${p} spec=${spec} hostB=${hostB} on=${usedIds.has(p.id)} onToggle=${onToggle} tight />`)}
-    ${!shown.length && html`<div class="faint bs-none">Nothing matches "${q}".</div>`}
+    ${bigN > 0 && html`<label class="bs-bigtoggle"><input type="checkbox" checked=${showBig} onChange=${(e) => setShowBig(e.target.checked)} /> Show parts that are too big (${bigN})</label>`}
+    ${shown.map((p, i) => html`<${SkillCard} key=${p.id} name=${shownNames[i]} part=${p} spec=${spec} hostB=${hostB} on=${usedIds.has(p.id)} onToggle=${onToggle} tooBig=${!fits(p)} tight />`)}
+    ${!shown.length && html`<div class="faint bs-none">${q ? 'Nothing matches "' + q + '".' : 'Every other skill is too big for this model.'}${!q && bigN > 0 && !showBig ? ' Turn on the box above to see them.' : ''}${q && bigN > 0 && !showBig ? ' ' + bigN + (bigN === 1 ? ' match is' : ' matches are') + ' too big. Turn on the box above to see them.' : ''}</div>`}
     <${Pager} page=${page} total=${items.length} size=${BROWSE_SIZE} onPage=${setPage} label="Skill pages" />
   </div>`;
 }
@@ -57,7 +64,8 @@ export function SimpleBuilder({ gone, earlierN, cat, spec, program, brain, est, 
   const [browse, setBrowse] = useState(false);
   const hostB = cat.host.params_b || 0;
   const usedIds = new Set(program.grafts.map((g) => g.id));
-  const picked = useMemo(() => pickSkills(cat, spec, lockOf), [cat, spec && spec.id]);
+  const limB = lim && lim.max_total_params_b != null ? lim.max_total_params_b : null;
+  const picked = useMemo(() => pickSkills(cat, spec, lockOf, 6, limB != null ? limB - hostB : null), [cat, spec && spec.id, limB, hostB]);
   // parts added some other way (Advanced mode, browse) stay on the list so they can be removed
   const extra = program.grafts.map((g) => g.id).filter((id, i, a) => a.indexOf(id) === i && !picked.some((p) => p.id === id)).map((id) => cat.parts.find((p) => p.id === id)).filter(Boolean);
   const skills = [...picked, ...extra];
@@ -95,7 +103,7 @@ export function SimpleBuilder({ gone, earlierN, cat, spec, program, brain, est, 
         <button class="btn sm" type="button" aria-expanded=${browse ? 'true' : 'false'} onClick=${() => setBrowse(!browse)}>${browse ? 'Hide the full list' : 'Browse all skills'}</button>
         <button class="btn ghost sm" type="button" onClick=${onAdvanced}>Switch to Advanced mode</button>
       </div>
-      ${browse && html`<${Browse} cat=${cat} spec=${spec} hostB=${hostB} usedIds=${usedIds} onToggle=${(part, on) => (on ? onAdd(part) : onRemove(part.id))} />`}
+      ${browse && html`<${Browse} cat=${cat} spec=${spec} hostB=${hostB} usedIds=${usedIds} roomB=${limB != null ? limB - totalB : null} onToggle=${(part, on) => (on ? onAdd(part) : onRemove(part.id))} />`}
       <${Help}>A skill is a piece of another model that is already good at something, such as math. Adding it copies that piece into your model. Each skill makes the model a little bigger.<//>
     <//>
 
@@ -117,14 +125,14 @@ export function SimpleBuilder({ gone, earlierN, cat, spec, program, brain, est, 
       <button type="button" class=${'btn primary bs-test' + (running ? ' is-busy' : '')} disabled=${busy || gone} onClick=${onScore}>${running ? html`<${Spinner} size=${14} />` : flash === 'score' ? html`<${SuccessCheck} size=${15} />` : html`<${Icon} n="play" size=${14} />`} ${running ? 'Testing' : 'Test my model'}</button>
       ${running && html`<div class="bs-progress" role="status"><span>${progressText(job)}</span><div class="bigbar"><div class="fill" style=${{ width: pctNow + '%', transition: 'width 1s linear' }}></div></div></div>`}
       ${!running && res && !res.failed && html`<div class=${'bs-result card' + (res.meets ? ' good' : '')} aria-live="polite">
-        <div class="bs-rtags">${earlier && html`<span class="tag">Last test (from earlier)</span>`}${stub && DEMO && html`<span class="tag">Sample</span>`}</div>
+        <div class="bs-rtags">${earlier && html`<span class="tag">Last test (from earlier)</span>`}</div>
         ${res.empty ? html`<p>${res.lines.join(' ')}</p>` : html`
           <div class="bs-verdict">${res.verdict}</div>
           <div class="bs-big num">${Math.round(res.score * 1000) / 10}%<span class="bs-unit"> right on ${res.name}</span></div>
           <p>${res.lines.join(' ')}</p>
           ${res.next && html`<p>${res.next}</p>`}`}
         ${!sameAsLast && html`<p class="faint bs-note">You changed your model after this test. Test again to update the result.</p>`}
-        ${stub && html`<p class="faint bs-note">${DEMO ? 'Sample result. No GPU ran.' : 'Estimated offline. No GPU ran.'}</p>`}
+
       </div>`}
       ${!running && res && res.failed && html`<div class="bs-result card bad" role="alert"><p>${failText(res.status)}</p></div>`}
       <${Help}>The test gives your model a set of questions it has not seen and counts how many it gets right. We also test the starting model and a model with random parts of the same size, so you can see if your skills are what helped.<//>

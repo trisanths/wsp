@@ -55,7 +55,7 @@ export function StubBadge({ small, title }) {
 
 /** The one quiet marker for demo mode, shown in the top bar of every screen. */
 export function DemoPill() {
-  return html`<span class="demopill" title="Demo mode: real parts library, sample runs">Demo</span>`;
+  return html`<span class="demopill" title="Demo: real parts library, simulated runs">Demo</span>`;
 }
 
 // the studio mark: three bars, the middle one cut, like a deletion mask
@@ -74,12 +74,12 @@ export function TopBar({ children, right }) {
   return html`<header class="topbar">
     <div class="picker-wrap">
       <button class="picker" onClick=${() => setOpen(!open)} aria-haspopup="menu" aria-expanded=${open}><${SponsorMark} who="openai" size=${14} title="OpenAI" /><span>${label}</span><${Icon} n="down" size=${14} /></button>
-      <${Menu} open=${open} origin="top-left" onClose=${() => setOpen(false)} style=${{ top: '36px', left: 0, minWidth: '260px' }}>
+      <${Menu} open=${open} origin="top-left" onClose=${() => setOpen(false)} style=${{ top: '36px', left: 0, minWidth: '300px' }}>
         <div class="mrow"><span class="mk">Agent model</span><span class="mv">${(health && health.llm_model) || 'not set'}</span></div>
         <div class="mrow"><span class="mk">Agent provider</span><span class="mv">${(health && health.llm) || 'none'}</span></div>
-        <div class="mrow"><span class="mk">Backend</span><span class="mv">${health ? (modal ? 'Modal GPU' : health.backend === 'stub' ? (DEMO ? 'Sample data' : 'Offline') : health.backend) : 'unknown'}</span></div>
+        <div class="mrow"><span class="mk">Backend</span><span class="mv">${health ? (modal ? 'Modal GPU' : health.backend === 'stub' ? (DEMO ? 'Simulated runs' : 'Offline') : health.backend) : 'unknown'}</span></div>
         <div class="mrow"><${PoweredBy} who="openai" label="Agents think with" /></div>
-        <div class="mnote">Read only. The server sets these.</div>
+        <div class="mnote">Set by your workspace.</div>
       <//>
     </div>
     ${children}

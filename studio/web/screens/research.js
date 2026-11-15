@@ -23,7 +23,9 @@ export function logoId(name) {
 
 const safeUrl = (u) => { try { const x = new URL(u); return x.protocol === 'http:' || x.protocol === 'https:' ? x.href : null; } catch (e) { return null; } };
 export const hostOf = (u) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (e) { return ''; } };
-const score = (s) => (s * 100).toFixed(1).replace(/\.0$/, '') + '%';
+const score = (s) => Math.round(s * 100) + '%';
+// the hosted demo only shows reference scores that link to a source
+const shown = (scores) => (scores || []).filter((s) => s && typeof s.score === 'number' && (!DEMO || s.sourced));
 
 // what the line above the timeline says while the agent works
 export function stepLine(s) {
@@ -56,15 +58,16 @@ function Live({ r }) {
   const steps = r.steps || [];
   const first = useRef(steps.length);
   const last = steps[steps.length - 1];
-  // demo mode: always exactly 6 one-line rows (the newest steps; empty rows keep their space),
-  // so the box never changes height during a screen recording
+  // demo mode: at most 6 one-line rows (the newest steps), with one empty row held ahead
+  // so the box grows one line at a time and does not show a blank gap at the start
   if (DEMO) {
     const b = Math.max(0, steps.length - 1 - 6);
     const recent = steps.slice(b, -1);
-    const rows = [...recent, ...Array.from({ length: 6 - recent.length }, () => ({ kind: 'think', text: ' ' }))];
+    // hold the space only once the first step lands, so the first paint has no blank gap
+    const rows = recent.length ? [...recent, ...Array.from({ length: Math.min(6, recent.length + 1) - recent.length }, () => ({ kind: 'think', text: ' ' }))] : [];
     return html`<div class="rs-live rs-six">
       <div class="rs-now"><${ThinkLine} fluid=${true} text=${stepLine(last)} /><span class="tag rs-prov">${providerName(r.provider)}</span></div>
-      <div class=${'rs-more' + (b > 0 ? '' : ' rs-hold')}>${b} earlier ${b === 1 ? 'step' : 'steps'}</div>
+      ${recent.length > 0 && html`<div class=${'rs-more' + (b > 0 ? '' : ' rs-hold')}>${b} earlier ${b === 1 ? 'step' : 'steps'}</div>`}
       <${Steps} steps=${rows} offset=${b} reveal=${recent.length} animateFrom=${first.current} clamp=${true} prov=${r.provider} />
     </div>`;
   }
@@ -112,11 +115,11 @@ export function ResearchBlock({ r, starting, onStart }) {
 
 // reference scores as slider ticks
 export function refTicks(scores) {
-  return (scores || []).filter((s) => s && typeof s.score === 'number').map((s) => ({ v: Math.min(1, Math.max(0, s.score)), kind: 'ref' + (s.sourced ? '' : ' est') }));
+  return shown(scores).map((s) => ({ v: Math.min(1, Math.max(0, s.score)), kind: 'ref' + (s.sourced ? '' : ' est') }));
 }
 
 export function RefList({ scores }) {
-  const list = (scores || []).filter((s) => s && typeof s.score === 'number');
+  const list = shown(scores);
   if (!list.length) return null;
   return html`<ul class="refs">${list.map((s, i) => {
     const href = s.sourced ? safeUrl(s.source_url) : null;

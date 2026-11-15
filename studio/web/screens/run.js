@@ -2,7 +2,7 @@
 // This screen owns the one stream of snapshots. The pages read it, so switching pages never reconnects.
 import { html, useState, useEffect, useRef } from '../lib.js';
 import { api } from '../api.js';
-import { useHealth, useModalChip, toast, pct, pctS, sgn, dur, primaryTarget, addRecent, patchRecent, runEnd, recentStatus } from '../util.js';
+import { useHealth, useModalChip, toast, pct, pctS, sgn, dur, primaryTarget, addRecent, patchRecent, recentSub, runEnd, recentStatus } from '../util.js';
 import { TopBar, Icon, ErrorBox, StopMark } from '../components.js';
 import { Shimmer, SubtleNum, Reel, SuccessCheck, SkelReveal, SlidingBar, PageSwap, IconSwap, SwapText } from '../motion.js';
 import { openProgramInBuilder, bestProgram } from './shared.js';
@@ -20,6 +20,10 @@ const TABS = [['overview', 'Overview', ''], ['pipeline', 'Pipeline', '/pipeline'
 // the order of pages sets the slide direction
 const DEPTH = { overview: 0, pipeline: 0.5, activity: 1, agents: 2, agent: 2.5, findings: 2.8, results: 3 };
 
+// the title and tab bar use the same column width as the page under them
+const colOf = (page) => 'col' + (page === 'results' ? ' wide' : page === 'activity' ? ' narrow' : page === 'agents' || page === 'agent' || page === 'findings' ? ' agwide' : '');
+const colStyle = (page) => (page === 'pipeline' ? { width: 'min(1280px, 100%)' } : null);
+
 function StatusLine({ snap, justDone }) {
   const b = snap.budget;
   const s = snap.status;
@@ -36,7 +40,7 @@ function StatusLine({ snap, justDone }) {
   return html`<span class="rstat"><${Shimmer} text=${s === 'starting' ? 'Starting' : 'Running'} />, ${evalPart}${left > 0 && s === 'running' ? ', about ' + dur(left) + ' left' : ''}</span>`;
 }
 
-function RunHead({ snap, justDone, note, onPause, onResume, onStop }) {
+function RunHead({ page, snap, justDone, note, onPause, onResume, onStop }) {
   const health = useHealth();
   const modalChip = useModalChip();
   const b = snap.budget;
@@ -45,7 +49,7 @@ function RunHead({ snap, justDone, note, onPause, onResume, onStop }) {
   const live = s === 'running' || s === 'starting' || s === 'paused' || s === 'stopping';
   const paused = s === 'paused';
   const end = runEnd(snap) === 'finished' && isEmptyEnd(snap) ? 'empty' : runEnd(snap);
-  return html`<header class="rhead"><div class="col">
+  return html`<header class="rhead"><div class=${colOf(page)} style=${colStyle(page)}>
     <div class="rh-row">
       <h1 class="page-title ell">${snap.spec.title}</h1>
       <span class="grow"></span>
@@ -62,7 +66,7 @@ function RunHead({ snap, justDone, note, onPause, onResume, onStop }) {
 
 function SubNav({ id, page }) {
   const cur = page === 'agent' ? 'agents' : page;
-  return html`<nav class="rnav" aria-label="Run pages"><div class="col"><${SlidingBar} class="tabs rtabs">${TABS.map(([k, label, path]) => html`<a class=${'tab' + (cur === k ? ' on' : '')} href=${'#/run/' + id + path} aria-current=${cur === k ? 'page' : null}>${label}</a>`)}<//></div></nav>`;
+  return html`<nav class="rnav" aria-label="Run pages"><div class=${colOf(page)} style=${colStyle(page)}><${SlidingBar} class="tabs rtabs">${TABS.map(([k, label, path]) => html`<a class=${'tab' + (cur === k ? ' on' : '')} href=${'#/run/' + id + path} aria-current=${cur === k ? 'page' : null}>${label}</a>`)}<//></div></nav>`;
 }
 
 /* ---------- overview ---------- */
@@ -111,7 +115,7 @@ function TopPrograms({ snap, cat, id }) {
 
 function Overview({ snap, cat, id, done, busy, onBuild }) {
   return html`<div class="rpage"><div class="col">
-    <div class=${DEMO ? 'ovtop-fixed' : null}>
+    <div class=${DEMO && snap.status !== 'done' ? 'ovtop-fixed' : null}>
     <${BestBlock} snap=${snap} cat=${cat} done=${done} busy=${busy} onBuild=${onBuild} />
     ${snap.refused > 0 && !/refused/.test(snap.empty_reason || '') && html`<div class="refused">${snap.refused} ${snap.refused === 1 ? 'proposal' : 'proposals'} refused for going over your limits</div>`}
     </div>
@@ -144,7 +148,7 @@ export function RunScreen({ id, page, agent }) {
       if (closed || !e || e.status !== 404) return false;
       if (poll) { clearInterval(poll); poll = null; }
       close();
-      setErr(new Error('This run is no longer on the server. Runs are kept in server memory, so a server restart ends them. Start it again from its spec.'));
+      setErr(new Error('This run is not in this browser any more. Start it again from its spec.'));
       return true;
     };
     const startPoll = () => { if (!poll && !closed) poll = setInterval(() => api.getRun(id).then(on).catch(gone), 2000); };
@@ -154,7 +158,7 @@ export function RunScreen({ id, page, agent }) {
   }, [id]);
   useEffect(() => {
     if (!snap) return;
-    addRecent({ kind: 'run', id, title: snap.spec.title, status: runRecent(snap) });
+    addRecent({ kind: 'run', id, title: snap.spec.title, sub: recentSub(snap.spec), status: runRecent(snap) });
   }, [id, !!snap]);
   useEffect(() => { if (snap) patchRecent('run', id, { status: runRecent(snap) }); }, [snap && runRecent(snap)]);
   // the check draws only when the run ends while the page is open
@@ -186,7 +190,7 @@ export function RunScreen({ id, page, agent }) {
     else if (page === 'pipeline') pageEl = html`<${PipelinePage} snap=${snap} id=${id} cat=${cat} />`;
     else if (page === 'results') pageEl = html`<${ResultsPage} snap=${snap} id=${id} cat=${cat} onBuild=${(p) => openProgramInBuilder(spec.id, p)} />`;
     else pageEl = html`<${Overview} snap=${snap} cat=${cat} id=${id} done=${done} busy=${busy} onBuild=${openBest} />`;
-    body = html`<${RunHead} snap=${snap} justDone=${justDone} note=${note} onPause=${() => act(api.pause)} onResume=${() => act(api.resume)} onStop=${() => act(api.stop)} />
+    body = html`<${RunHead} page=${page} snap=${snap} justDone=${justDone} note=${note} onPause=${() => act(api.pause)} onResume=${() => act(api.resume)} onStop=${() => act(api.stop)} />
       <${SubNav} id=${id} page=${page} />
       <${PageSwap} pageKey=${page + ':' + (agent || '')} depth=${DEPTH[page] ?? 0}>${pageEl}<//>`;
   }

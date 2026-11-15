@@ -81,3 +81,30 @@
   .bs-hand { align-self: stretch; }
 }
 @media (prefers-reduced-motion: reduce) { .bs-sw, .bs-sw span, .bs-card { transition: none; } }
+.bs-big-note { color: var(--amber-t, var(--text-2)); }
+.bs-bigtoggle { display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 18px; color: var(--text-2); cursor: pointer; }
+.bs-bigtoggle input { margin: 0; }
+
+/* Advanced builder fixes */
+.slab.mask .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.slab.mask .ctl { flex: none; }
+.slab.mask .ctl .faint { white-space: nowrap; }
+.side { min-width: 0; }
+.side .sug { min-width: 0; overflow-wrap: anywhere; }
+.cv-body.split .cv-inner { min-width: 0; }
+.cv-body.split .node { width: 200px; }
+.cv-body.split .codepane { min-width: 0; }
+.cv-actions.in-split { left: 12px; transform: none; max-width: calc(56% - 24px); }
+.cv-body.split .codepane .editor { min-width: 0; }
+.cv-body.split .codepane .okline, .cv-body.split .codepane .errline { white-space: normal; }
+.cv-actions.in-split .row { flex-wrap: wrap; }
+@container main (max-width: 640px) {
+  .hide-xs { display: none !important; }
+  .builder { display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden; }
+  .builder > .canvas { order: 1; flex: none; height: 640px; min-height: 0; }
+  .builder > .palette { order: 2; flex: none; max-height: 340px; padding: 8px 16px; border-top: 1px solid var(--line-2); }
+  .builder > .side { order: 3; flex: none; overflow: visible; padding: 12px 16px 24px; }
+  .ctool { flex-wrap: wrap; gap: 6px; }
+  .cv-actions { max-width: calc(100% - 16px); }
+  .cv-actions .row { flex-wrap: wrap; }
+}

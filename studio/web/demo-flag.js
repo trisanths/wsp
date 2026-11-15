@@ -21,6 +21,7 @@ export const DEMO = HOSTED || read(KEY) === '1';
 
 /** Turn demo mode on or off. Reloads the page at the same screen, or at `hash` when given. */
 export function setDemo(on, hash) {
+  if (HOSTED) return; // the hosted site has no server, so demo mode cannot change
   write(KEY, on ? '1' : null);
   const q = new URLSearchParams(location.search);
   q.delete('demo');

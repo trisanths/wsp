@@ -51,8 +51,8 @@ function BenchRow({ b, why, onChange, onRemove, late, leaving, shrink }) {
   const key = isT ? 'target' : 'floor';
   const who = shrink ? 'Source' : 'Host';
   const ticks = [];
-  if (b.base != null) ticks.push({ v: b.base, kind: 'base', label: who.toLowerCase() + ' ' + pct(b.base, 0) });
-  if (b.lora != null) ticks.push({ v: b.lora, kind: 'lora', label: 'LoRA ' + pct(b.lora) });
+  if (b.base != null) ticks.push({ v: b.base, kind: 'base', label: who.toLowerCase() + ' ' + pct(b.base, 0) + '%' });
+  if (b.lora != null) ticks.push({ v: b.lora, kind: 'lora', label: 'LoRA ' + pct(b.lora, 0) + '%' });
   ticks.push(...refTicks(b.reference_scores));
   const val = b[key] ?? b.base ?? 0.3;
   return html`<div class=${'srow' + (born.current ? ' t-row-in' : '') + (leaving ? ' t-row-out' : '')}>
@@ -62,14 +62,23 @@ function BenchRow({ b, why, onChange, onRemove, late, leaving, shrink }) {
     </div>
     ${why && html`<div class="rs-why">${why}</div>`}
     <${Slider} value=${val} min=${0} max=${1} step=${0.01} ticks=${ticks} color=${isT ? 'var(--text-1)' : 'var(--red)'} ariaLabel=${b.name} onChange=${(v) => onChange({ [key]: Math.round(v * 100) / 100 })} />
-    <div class="note"><span>${b.base == null ? who + ' score not measured yet. The first run measures it' + (isT ? '.' : '. A guard keeps the model from losing this skill.') : isT ? who + ' starts at ' + pct(b.base) + '%' : who + ' starts at ' + pct(b.base) + '%. A guard keeps the model from losing this skill.'}${b.lora != null ? '. Fine-tuning (LoRA) reaches ' + pct(b.lora) + '%.' : ''}</span></div>
+    <div class="note"><span>${b.base == null ? who + ' score not measured yet. The first run measures it' + (isT ? '.' : '. A guard keeps the model from losing this skill.') : isT ? who + ' starts at ' + pct(b.base, 0) + '%' : who + ' starts at ' + pct(b.base, 0) + '%. A guard keeps the model from losing this skill.'}${b.lora != null ? '. Fine-tuning (LoRA) reaches ' + pct(b.lora, 0) + '%.' : ''}</span></div>
     <${RefList} scores=${b.reference_scores} />
   </div>`;
 }
 
+const BIG = { minWidth: 0, maxWidth: '100%', whiteSpace: 'normal' };
 const withoutResearch = (s) => { const { benchmark_research, ...rest } = s; return rest; };
 
 export function SpecScreen({ id }) {
+  const [narrow, setNarrow] = useState(() => !!(window.matchMedia && window.matchMedia('(max-width: 640px)').matches));
+  useEffect(() => {
+    if (!window.matchMedia) return;
+    const mq = window.matchMedia('(max-width: 640px)');
+    const on = () => setNarrow(mq.matches);
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, []);
   const [spec, setSpec] = useState(null);
   const [err, setErr] = useState(null);
   const [save, setSave] = useState('saved');
@@ -265,7 +274,7 @@ export function SpecScreen({ id }) {
 
     <section class="sect"><h2 class="sec"><span>Limits</span><${PoweredBy} who="exa" label="Sizes checked with" /></h2>
       <div class="rs-why slead">Hard caps. A build that goes over any of them is refused, with the numbers.</div>
-      ${!isShrink && smallest != null && room < smallest - 1e-9 && html`<div class="limwarn">No part in the library fits in ${n2(Math.max(0, room))}B. The smallest is ${fmtSmall(smallest)}B. Raise the total size.</div>`}
+      ${!isShrink && smallest != null && room >= 0 && room < smallest - 1e-9 && html`<div class="limwarn">No part in the library fits in ${n2(Math.max(0, room))}B. The smallest is ${fmtSmall(smallest)}B. Raise the total size.</div>`}
       <div class="srow">
         <div class="top"><span class="nm">Total size</span><span class="val">up to <${SubtleNum} text=${n2(lim.max_total_params_b)} />B parameters</span></div>
         <div class="rs-why">${isShrink ? 'All the weights the shrunk model may store. The target size above has to fit under it.' : 'All the weights the finished model stores, the host and every part added to it.'}</div>
@@ -299,7 +308,7 @@ export function SpecScreen({ id }) {
       </div>
     </section>
 
-    <section class="sect"><h2 class="sec"><span>Targets</span><span class="legend"><span class="lg base">host</span><span class="lg lora">LoRA</span>${spec.benchmarks.some((x) => x.reference_scores && x.reference_scores.length) && html`<span class="lg ref">other models</span>`}</span></h2>
+    <section class="sect"><h2 class="sec"><span>Targets</span><span class="legend"><span class="lg base">host</span><span class="lg lora">LoRA</span>${spec.benchmarks.some((x) => refTicks(x.reference_scores).length) && html`<span class="lg ref">other models</span>`}</span></h2>
       ${running && html`<div class="rs-pending">More benchmarks arrive when research finishes.</div>`}
       <${AutoHeight}>${targets.length ? targets.map((x) => html`<${BenchRow} key=${x.id} b=${x} why=${whyOf(x.id)} late=${!first.current} leaving=${gone === x.id} shrink=${isShrink} onChange=${(p) => upd(x.id, p)} onRemove=${() => drop(x.id)} />`) : html`<div class="empty">No targets. Add one below.</div>`}<//>
     </section>
@@ -338,12 +347,12 @@ export function SpecScreen({ id }) {
 
     ${isShrink ? html`<div class="buildcard shrinkcard">
       <div class="bc-head"><span class="bc-title">Ready to plan the shrink?</span><span class="faint bc-meta"><${DraftedBy} by=${spec.drafted_by} />${showStub(spec) ? ' Scores are offline estimates. The parts are real.' : ''}</span></div>
-      <div class="bc-row one"><button class="btn primary big" disabled=${!!busy} onClick=${startShrink}><span class="bt"><b>Plan the shrink</b><small>See the size and cost before anything runs</small></span>${busy === 'shrink' ? html`<${Spinner} />` : html`<${Icon} n="arrow" />`}</button></div>
+      <div class="bc-row one"><button class="btn primary big" style=${BIG} disabled=${!!busy} onClick=${startShrink}><span class="bt"><b>Plan the shrink</b><small>See the size and cost before anything runs</small></span>${busy === 'shrink' ? html`<${Spinner} />` : html`<${Icon} n="arrow" />`}</button></div>
     </div>` : html`<div class="buildcard">
       <div class="bc-head"><span class="bc-title">How do you want to build it?</span><span class="faint bc-meta"><${DraftedBy} by=${spec.drafted_by} />${showStub(spec) ? ' Scores are offline estimates. The parts are real.' : ''}</span></div>
-      <div class="bc-row">
-        <button class="btn primary big" disabled=${!!busy} onClick=${startRun}><span class="bt"><b>Let agents build it</b><small>A swarm searches and you watch</small></span>${busy === 'run' ? html`<${Spinner} />` : html`<${Icon} n="arrow" />`}</button>
-        <button class="btn big" disabled=${!!busy} onClick=${startBuilder}><span class="bt"><b>Build it myself</b><small>Drag parts onto the host model</small></span>${busy === 'build' ? html`<${Spinner} />` : html`<${Icon} n="arrow" />`}</button>
+      <div class="bc-row" style=${narrow ? { gridTemplateColumns: '1fr' } : null}>
+        <button class="btn primary big" style=${BIG} disabled=${!!busy} onClick=${startRun}><span class="bt"><b>Let agents build it</b><small>A swarm searches and you watch</small></span>${busy === 'run' ? html`<${Spinner} />` : html`<${Icon} n="arrow" />`}</button>
+        <button class="btn big" style=${BIG} disabled=${!!busy} onClick=${startBuilder}><span class="bt"><b>Build it myself</b><small>Drag parts onto the host model</small></span>${busy === 'build' ? html`<${Spinner} />` : html`<${Icon} n="arrow" />`}</button>
       </div>
     </div>`}
   <//></div></main>`;

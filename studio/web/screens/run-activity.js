@@ -1,7 +1,7 @@
 // The Activity page: a readable log of the run, grouped by round, with a composer to nudge agents.
 import { html, useState, useEffect, useLayoutEffect, useRef } from '../lib.js';
 import { api } from '../api.js';
-import { toast, pctS } from '../util.js';
+import { toast, pctS, runEnd } from '../util.js';
 import { Icon, Composer, Menu } from '../components.js';
 import { StreamText, SubtleNum, usePresence, presenceClass } from '../motion.js';
 import { PoweredBy, SponsorMark } from '../logos.js';
@@ -169,6 +169,7 @@ export function ActivityPage({ snap, id }) {
     if (stick.current) setUnread(0);
   };
 
+  const over = snap.status === 'done' || snap.status === 'error' || runEnd(snap) !== 'running';
   const planners = snap.agents.filter((a) => a.role === 'planner');
   const target = to === 'all' ? null : snap.agents.find((a) => a.id === to);
   const send = async () => {
@@ -220,8 +221,8 @@ export function ActivityPage({ snap, id }) {
     </div></div>
     <${NewPill} unread=${unread} onClick=${() => { scrollEnd(); stick.current = true; setUnread(0); }} />
     <div class="adock"><div class="col narrow">
-      <${Composer} value=${text} onInput=${setText} onSubmit=${send} disabled=${sending} minRows=${1} clearRef=${clearRef} label="Nudge the agents" footLeft=${picker} placeholder=${target ? 'Tell ' + target.name + ' what to try next' : 'Tell the planners what to try next'} />
-      <div class="dock-note">Agents can be wrong. Check results on the held-out split before you use them.</div>
+      ${over ? html`<div class="dock-note">This run has ended. Open the best program in the builder to keep going.</div>` : html`<${Composer} value=${text} onInput=${setText} onSubmit=${send} disabled=${sending} minRows=${1} clearRef=${clearRef} label="Nudge the agents" footLeft=${picker} placeholder=${target ? 'Tell ' + target.name + ' what to try next' : 'Tell the planners what to try next'} />
+      <div class="dock-note">Agents can be wrong. Check results on the held-out split before you use them.</div>`}
     </div></div>
   </div>`;
 }

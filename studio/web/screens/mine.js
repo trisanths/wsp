@@ -237,7 +237,7 @@ function SubmitPanel({ onSubmitted }) {
     setBusy(true);
     try {
       const r = await api.mineSubmit({ model: look.model, skills, effort, note: note.trim() });
-      toast('Mining started for ' + donorShort(r.model || look.model) + '.', 'ok');
+      toast('Mining started for ' + String(r.model || look.model).split('/').pop() + '.', 'ok');
       onSubmitted(r);
       go('/mine/req/' + r.id);
     } catch (e) { toast('Could not start mining: ' + e.message, 'err'); setBusy(false); }
@@ -287,7 +287,7 @@ function ReqRow({ r, i }) {
     <div class="mn-req-main">
       <div class="mn-req-top"><span class="mn-req-n ell">${r.model}</span><${StatusChip} status=${r.status} /></div>
       <div class="mn-req-bar"><${Bar} value=${p} tone=${r.status === 'done' ? 'g' : failed ? 'r' : ''} /><b class="num">${pct(p)}%</b></div>
-      <div class="mn-req-s ell"><span class=${r.status === 'running' ? 'mn-now' : 'faint'}>${stageWords(r)}</span><span class="faint"> · ${(r.skills || []).map(skillName).join(', ') || 'all skills'} · ${effortName(r.effort)} · started ${ago(timeOf(r.created))}</span></div>
+      <div class="mn-req-s ell"><span class=${r.status === 'running' ? 'mn-now' : 'faint'}>${stageWords(r)}</span><span class="faint"> · ${(r.skills || []).map(skillName).join(', ') || 'all skills'} · ${effortName(r.effort)} · ${r.status === 'queued' ? 'queued ' : 'started '}${ago(timeOf(r.created))}</span></div>
     </div>
     <${Icon} n="chevron" size=${16} />
   </a>`;
@@ -477,6 +477,7 @@ function ReqView({ id }) {
       <div class="mn-over-main">
         <${Bar} value=${p} tone=${r.status === 'done' ? 'g' : failed ? 'r' : ''} />
         <div class="mn-story">${story}</div>
+        ${r.status === 'done' && html`<div><a class="btn sm primary" href=${'#/mine/model/' + r.model}>View parts in the library</a></div>`}
         <div class="mn-over-meta faint num"><span>${doneStages} of ${MINE_STAGES.length} stages done</span>${tm.a && html`<span>${tm.a}</span>`}${tm.b && html`<span>${tm.b}</span>`}${c.candidates != null && html`<span>${c.candidates} candidates, ${kept} kept</span>`}</div>
       </div>
     </section>

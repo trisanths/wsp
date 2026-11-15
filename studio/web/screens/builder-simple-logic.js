@@ -7,7 +7,7 @@ const TASK_WORDS = {
   legal: /law|legal|saul|civil|contract|court/,
   medicine: /medic|health|clinic|bio/,
 };
-const SKILL_NAMES = { math: 'Math', code: 'Coding', legal: 'Legal', medicine: 'Medicine', biology: 'Biology', chemistry: 'Chemistry', law: 'Legal', reasoning: 'Reasoning', general: 'General', physics: 'Physics', history: 'History' };
+const SKILL_NAMES = { math: 'Math', code: 'Coding', legal: 'Legal', medicine: 'Medicine', biology: 'Biology', chemistry: 'Chemistry', law: 'Legal', reasoning: 'Reasoning', general: 'General', physics: 'Physics', history: 'History', knowledge: 'Knowledge', science: 'Science', decision: 'Decision', multilingual: 'Multilingual' };
 const STRONG = /against|beats|over random|above the control|better than/i;
 const WEAK = /no measurement|one seed|not run|no control|mined from the library|not measured/i;
 
@@ -30,9 +30,9 @@ export function evidenceRank(p) {
 
 /** Up to `max` parts to offer as skills: the spec's recommended parts, then parts named for its task.
  *  Only parts you can place. `locked` is the lock test (lockOf in the app). */
-export function pickSkills(cat, spec, locked, max = 6) {
+export function pickSkills(cat, spec, locked, max = 6, roomB = null) {
   if (!cat || !spec) return [];
-  const placeable = (cat.parts || []).filter((p) => (!p.group || p.group === 'add') && !locked(p));
+  const placeable = (cat.parts || []).filter((p) => (!p.group || p.group === 'add') && !locked(p) && fitsRoom(p, roomB));
   const byId = new Map(placeable.map((p) => [p.id, p]));
   const out = [];
   const seen = new Set();
@@ -47,10 +47,10 @@ export function pickSkills(cat, spec, locked, max = 6) {
 }
 
 /** Drop parts that read exactly like an earlier one (same name, sentence, size and trust). The first stays. */
-function dropTwins(parts) {
+export function dropTwins(parts) {
   const seen = new Set();
   return parts.filter((p) => {
-    const k = [plainName(p), plainSentence(p), Math.round(p.params_m || 0), trustText(p), labelDetail(p)].join('|');
+    const k = [plainName(p), plainSentence(p), Math.round(p.params_m || 0), trustText(p), layersText(p), kindOf(p)].join('|');
     if (seen.has(k)) return false;
     seen.add(k);
     return true;
@@ -71,13 +71,44 @@ export function skillWord(part, spec) {
   return '';
 }
 
-/** "Math skill from Qwen2.5-Math-1.5B". */
+const kindOf = (p) => p.kind || '';
+
+/** The part's label with layer codes taken out: "Math block L8-10" becomes "Math block". */
+export function cleanLabel(part) {
+  let t = String(part.label || '');
+  t = t.replace(/\bL\d+(\s*-\s*\d+)?\b/g, '').replace(/\blayers?\s*\d+(\s*-\s*\d+)?\b/gi, '');
+  t = t.replace(/[_]+/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!t) t = ({ block: 'Block', attn_heads: 'Attention heads', mlp_cluster: 'Neurons', expert: 'Expert', inserted_layer: 'Block' })[part.kind] || '';
+  return t.charAt(0).toUpperCase() + t.slice(1);
+}
+
+/** "layer 7" or "layers 8 to 12", or '' when the part has no layer range. */
+export function layersText(part) {
+  const l = part.layers;
+  if (!Array.isArray(l) || l.length < 2 || l[0] == null) return '';
+  return l[0] === l[1] ? 'layer ' + l[0] : 'layers ' + l[0] + ' to ' + l[1];
+}
+
+/** "Math block from Qwen2.5-Math-1.5B". The noun follows the kind of part. */
 export function plainName(part, spec) {
-  const w = skillWord(part, spec);
+  const t = cleanLabel(part);
   const d = donorName(part.donor);
-  if (w && d) return w + ' skill from ' + d;
-  if (d) return (part.label || 'Skill') + ' from ' + d;
-  return part.label || part.id;
+  if (t && d) return t + ' from ' + d;
+  return t || part.id;
+}
+
+/** True when the part fits in `roomB` billion parameters of room, or there is no limit. */
+export function fitsRoom(part, roomB) {
+  if (roomB == null || part.params_m == null) return true;
+  return part.params_m / 1000 <= roomB + 1e-6;
+}
+
+/** Order parts for browsing: the spec's recommended parts, then parts named for its task, then better evidence, then smaller. */
+export function browseOrder(parts, spec) {
+  const rec = new Map(((spec && spec.ingredients) || []).map((g, i) => [g.part_id, i]));
+  const words = taskWords(spec);
+  const key = (p) => [rec.has(p.id) ? rec.get(p.id) : 1e6, words && words.test(hayOf(p)) ? 0 : 1, evidenceRank(p), p.params_m || 0];
+  return parts.map((p, i) => [p, i, key(p)]).sort((a, b) => { for (let k = 0; k < 4; k++) if (a[2][k] !== b[2][k]) return a[2][k] - b[2][k]; return a[1] - b[1]; }).map((x) => x[0]);
 }
 
 const KIND_SENTENCES = {
@@ -85,9 +116,13 @@ const KIND_SENTENCES = {
   attn_heads: 'Copies in small pieces that help a model focus on the right details.',
   mlp_cluster: 'Copies in a small group of neurons that fire on this skill.',
   expert: 'Copies in a specialist from a larger model.',
-  inserted_layer: 'Adds one new layer that steers the model toward this skill.',
 };
 export function plainSentence(part) {
+  if (part.kind === 'inserted_layer') {
+    const l = part.layers;
+    const n = Array.isArray(l) && l.length > 1 && l[0] != null ? l[1] - l[0] + 1 : 1;
+    return n > 1 ? 'Adds ' + n + ' new layers that steer the model toward this skill.' : 'Adds one new layer that steers the model toward this skill.';
+  }
   return KIND_SENTENCES[part.kind] || 'Adds a piece of another model that is good at this.';
 }
 
@@ -137,9 +172,15 @@ export function pickForgets(cat, spec, program, locked, maskIds, max = 6) {
   return list.slice(0, max);
 }
 
+/** A readable name for a deletion mask: "BBEH Boardgame qa" becomes "Boardgame QA". */
+export function maskTitle(m) {
+  let t = String(m.label || m.id || '').replace(/^(remove|forget)\s+/i, '').replace(/^bbeh\s+/i, '').replace(/_/g, ' ').replace(/\bqa\b/gi, 'QA').replace(/\s+/g, ' ').trim();
+  return t.charAt(0).toUpperCase() + t.slice(1);
+}
+
 /** "Forget medicine". */
 export function forgetName(m) {
-  return 'Forget ' + String(m.label || m.id).replace(/^(remove|forget)\s+/i, '').toLowerCase();
+  return 'Forget ' + maskTitle(m).replace(/^([A-Z])([a-z])/, (x, a, b) => a.toLowerCase() + b);
 }
 
 const n1 = (x) => String(Math.round(x * 1000) / 10);
@@ -240,17 +281,7 @@ export function pickMode(queryMode, saved) {
   return 'simple';
 }
 
-/** The part's own label with the donor name taken out, short, or ''. */
-export function labelDetail(part) {
-  const d = donorName(part.donor);
-  let t = String(part.label || '');
-  if (d) t = t.split(d).join('');
-  t = t.replace(/\bL\d+(\s*-\s*\d+)?\b/gi, '').replace(/\blayers?\s*\d+(\s*-\s*\d+)?\b/gi, '');
-  t = t.replace(/^[\s,:;\-_/]+|[\s,:;\-_/]+$/g, '').replace(/\s+/g, ' ');
-  return t.length > 30 ? t.slice(0, 29).trim() : t;
-}
-
-/** Plain names for a list of parts. Parts that would share a name get a detail from their label or size,
+/** Plain names for a list of parts. Parts that would share a name get their layers or size,
  *  and "(option 2)" only when nothing else tells them apart. */
 export function plainNames(parts, spec) {
   const base = parts.map((p) => plainName(p, spec));
@@ -260,7 +291,8 @@ export function plainNames(parts, spec) {
   Object.keys(groups).forEach((n) => {
     const ix = groups[n];
     if (ix.length < 2) return;
-    const tries = [(p) => labelDetail(p), (p) => (labelDetail(p) ? labelDetail(p) + ', ' : '') + (paramsText(p.params_m) || '').replace(' parameters', ''), (p) => paramsText(p.params_m) && paramsText(p.params_m).replace(' parameters', '')];
+    const sz = (p) => (paramsText(p.params_m) || '').replace(' parameters', '');
+    const tries = [(p) => layersText(p), (p) => [layersText(p), sz(p)].filter(Boolean).join(', '), sz];
     for (const f of tries) {
       const d = ix.map((i) => f(parts[i]));
       if (d.every(Boolean) && new Set(d).size === d.length) { ix.forEach((i, k) => { out[i] = n + ', ' + d[k]; }); return; }

@@ -8,7 +8,7 @@ import { ModelLogo, SponsorMark, PoweredBy } from '../logos.js';
 import { Brain3D } from '../brain3d.js';
 import { openPart } from './part-detail.js';
 import { SimpleBuilder } from './builder-simple.js';
-import { plainName, pickMode } from './builder-simple-logic.js';
+import { plainName, pickMode, maskTitle, paramsText } from './builder-simple-logic.js';
 import { Compare, StatusTag, groupByKind, lockOf, HealNote, usesHeal, healNoteOf, PartsList, Stages, VerdictTag, componentFor, filterItems, countItems, FilterRow, NO_FILTER, PAGE_SIZE, DELETION } from '../cmp.js';
 
 // Short labels for score statuses other than ok. Only "collapsed" means the model lost a skill.
@@ -86,7 +86,13 @@ export function BuilderScreen({ id, specId }) {
   };
   // opening the same builder with a new ?mode= in the address switches the view
   useEffect(() => {
-    const f = () => { const m = parseHash().q.get('mode'); if (m === 'simple' || m === 'advanced') setModeRaw(m); };
+    const f = () => {
+      const q = parseHash().q;
+      const m = q.get('mode');
+      if (m === 'simple' || m === 'advanced') setModeRaw(m);
+      const v = q.get('view');
+      setViewRaw(v === 'code' || v === 'split' || v === '3d' ? v : 'canvas');
+    };
     window.addEventListener('hashchange', f);
     return () => window.removeEventListener('hashchange', f);
   }, []);
@@ -96,7 +102,16 @@ export function BuilderScreen({ id, specId }) {
   const [err, setErr] = useState(null);
   const [program, setProgramRaw] = useState(null);
   const [undo, setUndo] = useState([]);
-  const [view, setView] = useState(() => { const v = parseHash().q.get('view'); return v === 'code' || v === 'split' || v === '3d' ? v : 'canvas'; });
+  const [view, setViewRaw] = useState(() => { const v = parseHash().q.get('view'); return v === 'code' || v === 'split' || v === '3d' ? v : 'canvas'; });
+  // the view is kept in the address, so a reload or a shared link opens the same tab
+  const setView = (v) => {
+    setViewRaw(v);
+    try {
+      const h = location.hash || '#/';
+      const nh = /([?&])view=[^&]*/.test(h) ? h.replace(/([?&])view=[^&]*/, '$1view=' + v) : h + (h.includes('?') ? '&' : '?') + 'view=' + v;
+      if (nh !== h) history.replaceState(null, '', nh);
+    } catch (e) { /* the address stays as it is */ }
+  };
   const [pulse, setPulse] = useState(null);
   const fire = (kind, o) => setPulse({ kind, ...(o || {}), key: ++PULSE_KEY });
   const [layerMode, setLayerMode] = useState('simple');
@@ -112,7 +127,9 @@ export function BuilderScreen({ id, specId }) {
     if (!spec) return shown;
     const rec = new Set((spec.ingredients || []).map((g) => g.part_id));
     const words = { math: /math|gsm8k/, code: /code|coder/, legal: /law|legal|saul|civil|contract|court/, medicine: /medic|health|clinic|bio/ }[spec.task_type];
-    const rank = (x) => (rec.has(x.id) ? 0 : words && words.test((x.label + ' ' + (x.donor || '')).toLowerCase()) ? 1 : 2);
+    const hit = (x) => !!words && words.test((x.label + ' ' + (x.donor || '')).toLowerCase());
+    // a deletion that removes the spec's own skill goes last
+    const rank = (x) => (x.group === 'remove' ? (hit(x) ? 4 : 3) : rec.has(x.id) ? 0 : hit(x) ? 1 : 2);
     const locked = (x) => (lockOf(x) ? 1 : 0);
     return shown.map((x, i) => [x, i]).sort((a, b) => (locked(a[0]) - locked(b[0])) || (rank(a[0]) - rank(b[0])) || (a[1] - b[1])).map((p) => p[0]);
   }, [palette, pf, q, spec && spec.id]);
@@ -145,7 +162,7 @@ export function BuilderScreen({ id, specId }) {
   const newKeys = useRef(new Set());
   const errRef = useShake(codeErr ? codeErr.message + ':' + codeErr.line : null);
   const compact = cw < 780;
-  const nodeX = compact ? 276 : 480;
+  const nodeX = cw < 560 ? 214 : compact ? 276 : 480;
 
   const innerRef = useRef();
   const scrollRef = useRef();
@@ -417,7 +434,7 @@ export function BuilderScreen({ id, specId }) {
     const comp = componentFor(lastOkRaw() && lastOkRaw().components, g);
     return { id: 'g' + i, label: part.label || g.id, kind: part.kind || 'block', at: clamp(g.at, 0, N - 1), donor: part.donor || '', size: part.params_m ? (part.params_m >= 1000 ? (part.params_m / 1000).toFixed(2) + 'B' : Math.round(part.params_m * 10) / 10 + 'M') + ' params' : '', fit: fits[g.id + '@' + g.at] != null ? fits[g.id + '@' + g.at] : null, verdict: comp && ['contributes', 'no better than random', 'harmful'].includes(comp.verdict) ? comp.verdict : null };
   }) : [];
-  const brainCuts = program ? maskIds(program.masks).map((mid, i) => { const m = maskById(mid) || {}; const l = Array.isArray(m.layers) ? m.layers[0] : (4 + i * 3) % N; return { layer: clamp(l, 0, N - 1), frac: 0.35, label: m.label || mid }; }) : [];
+  const brainCuts = program ? maskIds(program.masks).map((mid, i) => { const m = maskById(mid) || {}; const l = Array.isArray(m.layers) ? m.layers[0] : (4 + i * 3) % N; return { layer: clamp(l, 0, N - 1), frac: 0.35, label: m.label ? maskTitle(m) : mid }; }) : [];
   const hostName = (cat.host.model || '').split('/').pop();
   const lastScored = [...attempts].reverse().find((a) => a.scores && (!a.status || a.status === 'ok'));
   const brainResult = lastScored ? readoutOf(lastScored.scores, lastScored.comparison, lastScored.comparison ? lastScored.comparison.verdict !== 'failed' : null) : null;
@@ -499,7 +516,7 @@ export function BuilderScreen({ id, specId }) {
   const jobPct = job ? Math.min(94, ((Date.now() - job.t0) / 2600) * 100) : 0;
   const codeLines = codeText.replace(/\n$/, '').split('\n');
 
-  const partPiece = (p) => html`<${Piece} key=${p.id} infoId=${p.id} lead=${html`<${ModelLogo} model=${p.donor} size=${20} />`} status=${p.status} tip=${p.evidence} lock=${lockOf(p)} t1=${p.label} t2=${(p.donor || '').split('/').pop() + ' · ' + (p.layers ? 'L' + p.layers[0] + (p.layers[1] !== p.layers[0] ? '-' + p.layers[1] : '') : '')} used=${used(p.id)} dragging=${dragId === p.id} onDragStart=${(e) => startDrag(e, { kind: 'part', part: p }, p.id)} onDragEnd=${endDrag} onClick=${() => addPart(p)} pid=${'p:' + p.id} active=${activePid === 'p:' + p.id} onFocus=${() => setPalActive('p:' + p.id)} />`;
+  const partPiece = (p) => html`<${Piece} key=${p.id} infoId=${p.id} lead=${html`<${ModelLogo} model=${p.donor} size=${20} />`} status=${p.status} tip=${p.evidence} lock=${lockOf(p)} t1=${p.label} t2=${(p.donor || '').split('/').pop() + ' · ' + [p.layers ? 'L' + p.layers[0] + (p.layers[1] !== p.layers[0] ? '-' + p.layers[1] : '') : '', p.params_m ? (paramsText(p.params_m) || '').replace(' parameters', '') : ''].filter(Boolean).join(' · ')} used=${used(p.id)} dragging=${dragId === p.id} onDragStart=${(e) => startDrag(e, { kind: 'part', part: p }, p.id)} onDragEnd=${endDrag} onClick=${() => addPart(p)} pid=${'p:' + p.id} active=${activePid === 'p:' + p.id} onFocus=${() => setPalActive('p:' + p.id)} />`;
 
   const slabEl = (s) => {
     const label = s.n === 1 ? 'L' + s.first : 'L' + s.first + ' to L' + (s.first + s.n - 1);
@@ -523,7 +540,7 @@ export function BuilderScreen({ id, specId }) {
   }
   return html`<${TopBar} right=${html`${modeSwitch}<span class="pill hide-sm">evals left <b class="num">${budget ? budget.evals_total - budget.evals_used + ' / ' + budget.evals_total : '-'}</b></span>
       <span class="pill hide-md" title=${budget && budget.compute_raised && !DEMO ? 'The spec says ' + budget.spec_compute_min + ' min. The offline backend raises the compute cap so the evals run out first.' : null}>${modalChip && html`<${SponsorMark} who="modal" size=${12} title="GPUs on Modal" />`} compute <b class="num">${budget ? (budget.compute_used_s / 60).toFixed(budget.compute_used_s < 600 ? 1 : 0) + ' / ' + Math.round(budget.compute_total_s / 60) + ' min' : '-'}</b>${budget && budget.compute_raised ? html` <${StubBadge} small />` : null}</span>
-      <button class="btn ghost sm" disabled=${!undo.length} onClick=${doUndo} title="Undo (Ctrl or Cmd + Z)"><${Icon} n="undo" size=${14} /> Undo</button><button class="btn sm" disabled=${handing} onClick=${handoff}>${handing ? html`<${Spinner} size=${12} />` : null} Hand to agents</button>`}>
+      <button class="btn ghost sm" disabled=${!undo.length} onClick=${doUndo} title="Undo (Ctrl or Cmd + Z)"><${Icon} n="undo" size=${14} /> Undo</button><button class="btn sm hide-xs" disabled=${handing} onClick=${handoff}>${handing ? html`<${Spinner} size=${12} />` : null} Hand to agents</button>`}>
       <h1 class="page-title bt-title ell" title=${spec ? spec.title : 'Builder'}>${spec ? spec.title : 'Builder'}</h1><span class="tag">draft ${attempts.length + 1}</span>
     <//>
   <${SkelReveal} fill ready=${true} skeleton=${null}><div class="builder">
@@ -538,7 +555,7 @@ export function BuilderScreen({ id, specId }) {
       })}
       ${addAll.length > plimit && html`<div class="morebar"><button class="btn sm" onClick=${() => setPlimit(plimit + PAGE_SIZE * 2)}>Show ${Math.min(PAGE_SIZE * 2, addAll.length - plimit)} more</button></div>`}
       ${rmParts.length > 0 && html`<div class="pgroup">Remove a skill</div>`}
-      ${rmParts.map((m) => html`<${Piece} key=${m.id} lead=${html`<div class="pic" style=${{ '--c': 'var(--red)' }}>-</div>`} status=${m.status} tip=${m.evidence} lock=${m.status === 'rejected' ? lockOf(m) : null} t1=${m.label} t2=${m.summary} used=${mIds.includes(m.id)} dragging=${dragId === m.id} onDragStart=${(e) => startDrag(e, { kind: 'mask', mask: m }, m.id)} onDragEnd=${endDrag} onClick=${() => addMask(m)} pid=${'m:' + m.id} active=${activePid === 'm:' + m.id} onFocus=${() => setPalActive('m:' + m.id)} />`)}
+      ${rmParts.map((m) => html`<${Piece} key=${m.id} lead=${html`<div class="pic" style=${{ '--c': 'var(--red)' }}>-</div>`} status=${m.status} tip=${m.evidence} lock=${m.status === 'rejected' ? lockOf(m) : null} t1=${maskTitle(m)} t2=${'Removes what the model knows about this'} used=${mIds.includes(m.id)} dragging=${dragId === m.id} onDragStart=${(e) => startDrag(e, { kind: 'mask', mask: m }, m.id)} onDragEnd=${endDrag} onClick=${() => addMask(m)} pid=${'m:' + m.id} active=${activePid === 'm:' + m.id} onFocus=${() => setPalActive('m:' + m.id)} />`)}
       ${trParts.length > 0 && html`<div class="pgroup">Train</div>`}
       ${trParts.map((t) => html`<${Piece} key=${t.id} lead=${html`<div class="pic" style=${{ '--c': t.id === 'lora' ? 'var(--amber)' : 'var(--green)' }}>${t.id === 'lora' ? 'R' : 'H'}</div>`} t1=${t.label} t2=${t.summary} used=${trainUsed(t)} dragging=${dragId === t.id} onDragStart=${(e) => startDrag(e, { kind: 'train', train: t }, t.id)} onDragEnd=${endDrag} onClick=${() => addTrain(t)} pid=${'t:' + t.id} active=${activePid === 't:' + t.id} onFocus=${() => setPalActive('t:' + t.id)} />`)}
       ${!addParts.length && !rmParts.length && !trParts.length && html`<div class="faint" style="margin-top:20px">${q ? 'Nothing matches "' + q + '".' : 'Nothing matches these filters.'}</div>`}
@@ -559,7 +576,7 @@ export function BuilderScreen({ id, specId }) {
             <div class="stack" style=${{ marginLeft: '0px' }}>
               <span class="label hostlabel"><${ModelLogo} model=${cat.host.model} size=${24} alt="" />Host · ${cat.host.model.split('/').pop()}</span>
               ${slabs.map(slabEl)}
-              ${mIds.map((mid) => html`<div class="slab mask" key=${mid}><span class="nm">- ${(maskById(mid) || { label: mid }).label} mask</span><span class="ctl"><span class="faint">all layers</span><button class="x" data-tip="Remove mask" aria-label="Remove mask" onClick=${(e) => { e.stopPropagation(); edit((p) => { p.masks = buildMask(maskIds(p.masks).filter((x) => x !== mid)); }); }}>×</button></span></div>`)}
+              ${mIds.map((mid) => html`<div class="slab mask" key=${mid}><span class="nm" title=${maskTitle(maskById(mid) || { label: mid })}>Forget ${maskTitle(maskById(mid) || { label: mid }).toLowerCase().replace(/\bqa\b/g, 'QA')}</span><span class="ctl"><span class="faint">all layers</span><button class="x" data-tip="Remove mask" aria-label="Remove mask" onClick=${(e) => { e.stopPropagation(); edit((p) => { p.masks = buildMask(maskIds(p.masks).filter((x) => x !== mid)); }); }}>×</button></span></div>`)}
               ${program.lora && html`<div class="slab lora"><span class="nm">LoRA</span><span class="ctl">rank <select value=${program.lora.rank || 16} onChange=${(e) => edit((p) => { p.lora.rank = +e.target.value; })}>${[1, 2, 4, 8, 16, 32, 64].map((r) => html`<option value=${r}>${r}</option>`)}</select><button class="x" data-tip="Remove LoRA" aria-label="Remove LoRA" onClick=${() => edit((p) => { p.lora = null; })}>×</button></span></div>`}
               ${program.heal && html`<div class="slab heal"><span class="nm">Heal</span><span class="ctl"><button data-tip="Fewer steps" aria-label="Fewer steps" onClick=${() => edit((p) => { const i = HEAL_STEPS.indexOf(p.heal.steps); p.heal.steps = HEAL_STEPS[Math.max(1, (i < 0 ? 3 : i) - 1)]; })}>-</button><span class="num" style="min-width:62px;text-align:center">${program.heal.steps} steps</span><button data-tip="More steps" aria-label="More steps" onClick=${() => edit((p) => { const i = HEAL_STEPS.indexOf(p.heal.steps); p.heal.steps = HEAL_STEPS[Math.min(HEAL_STEPS.length - 1, (i < 0 ? 3 : i) + 1)]; })}>+</button><button class="x" data-tip="Remove heal" aria-label="Remove heal" onClick=${() => edit((p) => { p.heal = null; })}>×</button></span></div>`}
               <div class=${'slab tail' + (over === 'tail' && DRAG ? ' drop' : '')}>${over === 'tail' && DRAG ? 'Release to add' : 'Drop a mask, heal or LoRA here'}</div>
@@ -598,7 +615,7 @@ export function BuilderScreen({ id, specId }) {
           ${codeErr ? html`<div class="errline" ref=${errRef}>${codeErr.line != null ? 'Line ' + codeErr.line + ': ' : ''}${codeErr.message}</div>` : html`<div class="okline"><span>wsp text. Edits update the canvas.</span><span class="up">valid</span></div>`}
         </div>`}
       </div>
-      <div class="cv-actions" style=${view === 'code' ? { display: 'none' } : {}}>
+      <div class=${'cv-actions' + (view === 'split' ? ' in-split' : '')} style=${view === 'code' ? { display: 'none' } : {}}>
         ${job && html`<div class="jobline"><${Spinner} size=${13} />${modalChip && html`<${SponsorMark} who="modal" size=${13} title="Running on Modal GPUs" />`}<span style="text-transform:capitalize">${job.action === 'compile' ? 'Checking fit' : job.action === 'heal' ? 'Healing' : job.action === 'train' ? 'Training' : 'Scoring'}${job.status === 'queued' ? ', queued' : ''}</span><div class="bigbar"><div class="fill" style=${{ width: jobPct + '%', transition: 'width 1s linear' }}></div></div></div>`}
         <div class="row">
           <button class=${'btn' + (job && job.action === 'compile' ? ' is-busy' : '')} ref=${(el) => { btnRefs.current.compile = el; }} disabled=${!!job} onClick=${() => run('compile')}>${job && job.action === 'compile' ? html`<${Matrix} variant="scan" />` : html`<${Icon} n="gear" size=${14} />`} Compile <span class="k">free fit check</span></button>
@@ -638,7 +655,7 @@ export function BuilderScreen({ id, specId }) {
       ${attempts.length > 0 && html`<div><div class="label" style="margin:2px 0 6px">Attempts this session <span class="faint">(average of targets)</span></div>
         ${[...attempts].reverse().slice(0, 8).map((a) => html`<div class="attempt" title="Load this program" tabindex="0" role="button" onKeyDown=${onKeyAct(() => { setProgram(clone(a.program)); setFits({}); })} onClick=${() => { setProgram(clone(a.program)); setFits({}); }}><span class="n">${a.n}</span><span class="d">${briefProgram(a.program, cat)}</span><span class=${'num ' + (a.status && a.status !== 'ok' ? 'down' : '')}>${a.status && a.status !== 'ok' ? statusLabel(a.status) : a.scores && avg(a) != null ? pctS(avg(a)) : pctS(a.combined)}</span></div>`)}</div>`}
 
-      <div style="display:flex;justify-content:space-between;align-items:center"><span class="label" style="display:inline-flex;align-items:center;gap:8px">Suggestions<${PoweredBy} who="openai" label="Suggested with" /></span><button class="btn ghost sm" disabled=${sugBusy} onClick=${() => refreshSugs()}>${sugBusy ? html`<${Spinner} size=${11} />` : 'Refresh'}</button></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px 8px"><span class="label" style="display:inline-flex;align-items:center;flex-wrap:wrap;gap:4px 8px;min-width:0">Suggestions<${PoweredBy} who="openai" label="Suggested with" /></span><button class="btn ghost sm" style="flex:none" disabled=${sugBusy} onClick=${() => refreshSugs()}>${sugBusy ? html`<${Spinner} size=${11} />` : 'Refresh'}</button></div>
       ${sugBusy && !sugs && html`<div class="sugload"><${Spinner} size=${13} /> Thinking</div>`}
       ${(sugs || []).map((s) => html`<div class="sug"><b>${s.title}</b> <span class="dim">${s.detail}</span><div class="row"><${Tag} kind=${/likely/.test(s.tag) ? 'g' : /bigger/.test(s.tag) ? 'b' : ''}>${s.tag}<//><button class="btn sm" onClick=${() => { setProgram(clone(s.program)); setFits({}); toast('Applied. Undo with Ctrl or Cmd + Z.'); setSugs((x) => (x || []).filter((y) => y !== s)); }}>Apply</button></div></div>`)}
       ${sugs && !sugs.length && !sugBusy && html`<div class="faint">No suggestions right now.</div>`}

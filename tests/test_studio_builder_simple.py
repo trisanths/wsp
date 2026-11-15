@@ -69,8 +69,8 @@ def test_picks_recommended_first_then_task_matches_without_locked(out):
 
 
 def test_plain_names_and_sizes(out):
-    assert out["name"] == "Math skill from Qwen2.5-Math-1.5B"
-    assert out["names"] == ["Math skill from Qwen2.5-Math-1.5B (option 1)", "Math skill from Qwen2.5-Math-1.5B (option 2)"]
+    assert out["name"] == "Math block from Qwen2.5-Math-1.5B"
+    assert out["names"] == ["Math block from Qwen2.5-Math-1.5B (option 1)", "Math block from Qwen2.5-Math-1.5B (option 2)"]
     assert out["byLabel"] == ["Math skill from LFM2-24B-A2B, expert 18", "Math skill from LFM2-24B-A2B, expert 7"] or "expert 18" in out["byLabel"][0]
     assert "100M" in out["bySize"][0] and "200M" in out["bySize"][1]
     assert out["twins"] == ["x1", "x3"]

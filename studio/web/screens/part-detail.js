@@ -147,13 +147,13 @@ function Body({ id, data, onClose }) {
       ${isMask && html`<div class="stage3d pd-stage wide"><${Brain3D} height=${240} layers=${hostLayers} mode="host" cuts=${[{ layer: Math.floor(hostLayers / 2), frac: 0.18, label: d.label }]} pulse=${{ kind: 'cut', at: Math.floor(hostLayers / 2), ok: null, key: 'pdc:' + d.id }} label="A deletion mask cuts these units" /></div>`}
     </div>
     <dl class="pd-facts reveal" style=${{ '--i': 1 }}>
-      ${!isMask && html`<${FactRow} k="Donor"><${ModelLogo} model=${d.donor} size=${16} /> <button class="lnk pd-donorlink" onClick=${openModel}>${d.donor}</button><//>`}
+      ${!isMask && html`<${FactRow} k="Donor"><span class="pd-donor"><${ModelLogo} model=${d.donor} size=${16} /><button class="lnk pd-donorlink" title=${d.donor} onClick=${openModel}>${String(d.donor).split('/').pop()}</button></span><//>`}
       ${!isMask && html`<${FactRow} k="Donor layers">${layerText(d)}<//>`}
       ${!isMask && html`<${FactRow} k="Host layer">L${at} <span class="faint">default</span><//>`}
-      <${FactRow} k="Size">${sizeText(d.params_m)}<//>
-      <${FactRow} k="Units">${d.num_units != null ? d.num_units.toLocaleString('en-US') : '-'}<//>
+      <${FactRow} k="Size">${isMask ? 'Adds no parameters' : sizeText(d.params_m)}<//>
+      ${d.num_units != null && html`<${FactRow} k="Units">${d.num_units.toLocaleString('en-US')}<//>`}
       <${FactRow} k="Tier">${d.tier || '-'}<//>
-      <${FactRow} k="Skill">${d.skill ? skillName(d.skill) : (d.skills || []).map(skillName).join(', ') || '-'}<//>
+      ${(d.skill || (d.skills || []).length > 0) && html`<${FactRow} k="Skill">${d.skill ? skillName(d.skill) : (d.skills || []).map(skillName).join(', ')}<//>`}
       ${d.selection && html`<${FactRow} k="Selection">${d.selection}<//>`}
       <${FactRow} k="Status"><${StatusTag} status=${d.status} /><//>
     </dl>

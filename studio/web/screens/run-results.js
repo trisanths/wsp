@@ -4,7 +4,7 @@ import { api } from '../api.js';
 import { go, pct, pctS, sgn, bsize, primaryTarget } from '../util.js';
 import { BenchBar, BenchLegend, CodeView, Tag } from '../components.js';
 import { SubtleNum } from '../motion.js';
-import { nameOf } from './run-shared.js';
+import { nameOf, useNarrow } from './run-shared.js';
 import { ModelLogo } from '../logos.js';
 import { Logos, donorsOf, Compare, HealNote, usesHeal, healNoteOf, PartsList } from '../cmp.js';
 
@@ -119,6 +119,7 @@ function Leaderboard({ snap, cat, onBuild }) {
   const [open, setOpen] = useState(null);
   const [closing, setClosing] = useState(null);
   const [texts, setTexts] = useState({});
+  const narrow = useNarrow();
   const timer = useRef(0);
   const bs = snap.spec.benchmarks;
   const toggle = (r) => {
@@ -131,8 +132,26 @@ function Leaderboard({ snap, cat, onBuild }) {
   };
   useEffect(() => () => clearTimeout(timer.current), []);
   if (!snap.leaderboard.length) return html`<div class="faint">No scored programs yet.</div>`;
-  const short = (n) => (n.length > 10 ? n.slice(0, 9) + '.' : n);
-  return html`<div class="tscroll"><table class="lb rlb"><thead><tr><th style="width:32px">#</th><th style="min-width:240px">Program</th>${bs.map((b) => html`<th class="r" style="width:76px" title=${b.name}>${short(b.name)}</th>`)}<th class="r" style="width:84px">vs random</th><th class="r" style="width:64px">Size</th><th style="width:28px"></th></tr></thead>
+  if (narrow) {
+    const seenN = {};
+    for (const r of snap.leaderboard) { const n = nameOf(r, cat); seenN[n] = (seenN[n] || 0) + 1; }
+    return html`<div class="lbcards">${snap.leaderboard.map((r) => {
+      const n = nameOf(r, cat);
+      const label = seenN[n] > 1 && r.program_hash ? n + ' · ' + String(r.program_hash).slice(0, 6) : n;
+      const ok = r.status === 'ok';
+      const isOpen = open === r.program_hash;
+      const bits = ok ? [...bs.map((b) => b.name + ' ' + (r.scores[b.id] != null ? pct(r.scores[b.id]) : '-')), r.vs_control != null ? 'vs random ' + sgn(r.vs_control) : null, bsize(r.params_b)].filter(Boolean).join(', ') : r.status.replace(/_/g, ' ');
+      return html`<article class=${'lbcard' + (isOpen ? ' open' : '')} key=${r.program_hash} style="background:var(--bg-card);box-shadow:var(--shadow-card);border-radius:12px;padding:12px 14px;margin-bottom:10px">
+        <button type="button" onClick=${() => toggle(r)} aria-expanded=${isOpen ? 'true' : 'false'} style="all:unset;display:block;width:100%;cursor:pointer;box-sizing:border-box">
+          <div style="display:flex;align-items:center;gap:8px"><span class="num dim3">${r.rank}</span><${Logos} models=${donorsOf(r.program, cat)} max=${3} size=${16} /><span class="ell" style="font-family:var(--mono);font-size:12px;min-width:0" title=${label}>${label}</span></div>
+          <div class="faint" style="font-size:13px;line-height:20px;margin-top:6px">${bits}</div>
+        </button>
+        ${(isOpen || closing === r.program_hash) && html`<div style="margin-top:10px"><${Detail} r=${r} snap=${snap} cat=${cat} text=${texts[r.program_hash]} onBuild=${onBuild} /></div>`}
+      </article>`;
+    })}</div>`;
+  }
+  const short = (n) => n;
+  return html`<div class="tscroll"><table class="lb rlb" style=${{ minWidth: (340 + 84 * (bs.length + 2)) + 'px' }}><thead><tr><th style="width:32px">#</th><th style="min-width:240px">Program</th>${bs.map((b) => html`<th class="r" style="width:84px;white-space:normal;line-height:1.2" title=${b.name}>${short(b.name)}</th>`)}<th class="r" style="width:84px">vs random</th><th class="r" style="width:64px">Size</th><th style="width:28px"></th></tr></thead>
     <tbody>${(() => {
       // two different programs must never read the same: a repeated name gets the start of its program hash
       const seen = {};

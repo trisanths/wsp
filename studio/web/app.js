@@ -1,5 +1,5 @@
 import { html, render, useEffect } from './lib.js';
-import { useRoute, markStub, setHealth } from './util.js';
+import { useRoute, useRecent, markStub, setHealth } from './util.js';
 import { api } from './api.js';
 import { Toasts } from './components.js';
 import { Shell } from './shell.js';
@@ -18,8 +18,16 @@ import { DemoScreen, DemoControl, useDemoShortcut } from './screens/demo.js';
 // Deeper screens slide in from the right. Equal or shallower depth slides back.
 const DEPTH = { prompt: 0, runs: 1, parts: 1, demo: 1, spec: 1, run: 2, build: 2, shrink: 2 };
 
+const PAGE_NAME = { prompt: 'New model', runs: 'Runs', parts: 'Parts library', mine: 'Mine a model', demo: 'Demo tour', build: 'Builder', shrink: 'Shrink', spec: 'Spec', run: 'Run' };
+
 function App() {
   const r = useRoute();
+  const recent = useRecent();
+  useEffect(() => {
+    const own = r.id && recent.find((x) => x.kind === r.name && x.id === r.id);
+    const name = (own && own.title) || PAGE_NAME[r.name] || '';
+    document.title = name ? name + ' - Sapien' : 'Sapien';
+  }, [r.name, r.id, recent]);
   useDemoShortcut();
   useEffect(() => { api.health().then((h) => { setHealth(h); if (h && h.stub) markStub(true); }).catch(() => {}); }, []);
   let screen;

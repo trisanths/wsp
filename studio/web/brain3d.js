@@ -471,6 +471,7 @@ function createEngine(THREE, els, propsRef, seq, reduced) {
       // the card
       const el = mk(onPickable() ? 'button' : 'div', 'b3d-card');
       el.style.setProperty('--c', cssRgb(col));
+      el.title = pt.label || pt.id;
       el.appendChild(logoNode(pt.donor || pt.label, 18));
       const tx = mk('span', 'b3d-card-t');
       tx.append(mk('b', null, pt.label || pt.id));

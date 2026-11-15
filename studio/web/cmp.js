@@ -182,7 +182,7 @@ export function FilterRow({ counts, f, setF, compact, noKinds }) {
       ${nDel > 0 && chip(f.kind === DELETION, html`<span class="fdel-mark" aria-hidden="true">-</span>Deletions`, nDel, () => setF({ ...f, kind: f.kind === DELETION ? null : DELETION }), DELETION)}
     </div>`}
     <div class="frow2" role="group" aria-label="Status">
-      ${STATUS_CHIPS.map((s) => chip(f.status === s, s[0].toUpperCase() + s.slice(1), counts.status[s] || 0, () => setF({ ...f, status: f.status === s ? null : s }), s))}
+      ${STATUS_CHIPS.filter((s) => (counts.status[s] || 0) > 0 || f.status === s).map((s) => chip(f.status === s, s[0].toUpperCase() + s.slice(1), counts.status[s] || 0, () => setF({ ...f, status: f.status === s ? null : s }), s))}
       ${!noKinds && html`<button class=${'fchip2 tog' + (f.placeable ? ' on' : '')} role="switch" aria-checked=${f.placeable ? 'true' : 'false'} onClick=${() => setF({ ...f, placeable: !f.placeable })}><span class="knob"></span>Placeable only</button>`}
     </div>
   </div>`;

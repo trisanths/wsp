@@ -28,7 +28,8 @@ export function ago(ts) {
   if (s < 60) return 'just now';
   if (s < 3600) return Math.round(s / 60) + ' min ago';
   if (s < 86400) return Math.round(s / 3600) + ' h ago';
-  return Math.round(s / 86400) + ' d ago';
+  const d = Math.round(s / 86400);
+  return d + (d === 1 ? ' day ago' : ' days ago');
 }
 // A quiet suffix for rows that share a title: the kind and when it was opened, like "run, 5 min ago".
 export function rowSuffixes(rows) {
@@ -37,6 +38,18 @@ export function rowSuffixes(rows) {
   const out = {};
   rows.forEach((r) => { if (count[(r.title || r.id) + ''] > 1) out[r.kind + r.id] = r.kind + ', ' + ago(r.ts || Date.now()); });
   return out;
+}
+/** A parameter count given in millions, as "898M" or "3.13B". */
+export function sizeM(m) {
+  if (m == null || isNaN(m)) return '-';
+  return m >= 1000 ? (m / 1000).toFixed(m >= 10000 ? 1 : 2) + 'B' : Math.round(m) + 'M';
+}
+/** The second line of a run or shrink row: what it works on, from its spec. */
+export function recentSub(spec) {
+  if (!spec) return '';
+  const t = (spec.benchmarks || []).find((b) => b.kind === 'target');
+  const host = String(spec.host || (spec.size && spec.size.host) || '').split('/').pop();
+  return [t ? benchName(t.id || t.name) : '', host].filter(Boolean).join(', ');
 }
 // the pool name the heal data comes from, by the kind of task
 export function healPool(spec) {

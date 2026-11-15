@@ -168,6 +168,7 @@ function AgentCard({ a, det, snap, cat, vmap, i, ended, empty, nav }) {
   const sp = sparkFor(snap, a);
   const t = primaryTarget(snap.spec);
   const memN = (snap.activity || []).filter((e) => e.agent === a.id && ['plan', 'map', 'verdict', 'nudge_applied'].includes(kindOf(e))).length;
+  const ownN = (snap.activity || []).filter((e) => e.agent === a.id && kindOf(e) === (role === 'analyst' ? 'map' : 'verdict')).length;
   const modal = active && (a.status === 'compiling' || a.status === 'scoring' || a.status === 'probing');
   const onClick = (e) => { if (e.target.closest('button, a')) return; nav(); };
   return html`<article class=${'acard reveal' + (active ? ' live' : '')} style=${{ '--i': i }} tabindex="0" role="link" aria-label=${'Open ' + a.name} onClick=${onClick} onKeyDown=${(e) => { if (e.key === 'Enter' && e.target === e.currentTarget) nav(); }}>
@@ -179,14 +180,17 @@ function AgentCard({ a, det, snap, cat, vmap, i, ended, empty, nav }) {
     <p class="ac-does">${a.blurb ? cap(a.blurb) + '. ' : ''}${ROLE[role] ? ROLE[role].does : ''}</p>
     <div class="ac-think"><${SponsorMark} who="openai" size=${13} title="Thinking by OpenAI" /><${ThinkLine} text=${a.now || STATUS_WORD[a.status] || ''} still=${!active} fluid /></div>
     ${think && html`<blockquote class="ac-quote" title=${think.text}>${think.text}</blockquote>`}
-    ${role === 'planner' && html`<div class="ac-sec"><span class="ac-k">Trying now</span><${ProgramBlock} det=${det} cat=${cat} vmap=${vmap} /></div>`}
+    ${role === 'planner' && (!ended || (det && det.current && det.current.program)) && html`<div class="ac-sec"><span class="ac-k">${ended ? 'Last program' : 'Trying now'}</span><${ProgramBlock} det=${det} cat=${cat} vmap=${vmap} /></div>`}
     <div class="ac-stats">
+      ${role === 'planner' ? html`
       <div><b class="num"><${SubtleNum} text=${String(a.attempts)} /></b><span>attempts</span></div>
-      <div><b class="num">${a.best != null ? html`<${SubtleNum} text=${pctS(a.best)} />` : '-'}</b><span>best${t ? ' on ' + t.name : ''}</span></div>
+      <div><b class="num">${a.best != null ? html`<${SubtleNum} text=${pctS(a.best)} />` : '-'}</b><span title=${t ? 'Best on ' + t.name : ''}>best</span></div>
       <div><b class=${'num' + (a.collapses ? ' down' : '')}><${SubtleNum} text=${String(a.collapses)} /></b><span>collapses</span></div>
-      <div><b class="num"><${SubtleNum} text=${String(a.lessons || 0)} /></b><span>lessons</span></div>
+      <div><b class="num"><${SubtleNum} text=${String(a.lessons || 0)} /></b><span>lessons</span></div>` : html`
+      <div><b class="num"><${SubtleNum} text=${String(ownN)} /></b><span>${role === 'analyst' ? 'maps drawn' : 'verdicts given'}</span></div>
+      <div><b class="num"><${SubtleNum} text=${String(a.lessons || 0)} /></b><span>lessons</span></div>`}
     </div>
-    <div class="ac-spark"><${Spark} pts=${sp} label=${a.name + ' scores over time'} /><span class="faint ac-sl">${a.id === 'judge' ? 'best so far' : role === 'planner' ? 'its scores' : ''}</span></div>
+    ${role !== 'analyst' && html`<div class="ac-spark"><${Spark} pts=${sp} label=${a.name + ' scores over time'} /><span class="faint ac-sl">${a.id === 'judge' ? 'best so far' : role === 'planner' ? 'its scores' : ''}</span></div>`}
     <footer class="ac-f">${modal && html`<span class="powered sm"><${SponsorMark} who="modal" size=${12} /> Modal</span>`}${memN > 0 && html`<span class="powered sm"><${SponsorMark} who="pastdev" size=${12} /> ${memN} shared</span>`}<span class="grow"></span><a class="linkbtn" href=${'#/run/' + snap.run_id + '/agents/' + a.id}>Open mind view</a></footer>
   </article>`;
 }
@@ -435,6 +439,7 @@ export function AgentPage({ snap, id, agentId, cat }) {
     } catch (e) { toast(e.message, 'err'); }
     setSending(false);
   };
+  const ownCount = (snap.activity || []).filter((e) => e.agent === agentId && kindOf(e) === (role === 'analyst' ? 'map' : 'verdict')).length;
   const bits = [plural(live.attempts, 'attempt'), plural(live.collapses, 'collapse')];
   const modalCalls = tools.filter((x) => ONMODAL.test(x.call || '')).length;
   const memRows = (snap.activity || []).filter((e) => e.agent === agentId && ['plan', 'map', 'verdict', 'nudge_applied', 'handoff'].includes(kindOf(e))).length;
@@ -447,7 +452,7 @@ export function AgentPage({ snap, id, agentId, cat }) {
         <div class="mh-t"><div class="ahd"><h1 class="page-title">${a.name}</h1><span class="tag">${ROLE[role] ? ROLE[role].label : cap(role)}</span>
           ${active ? html`<span class="livechip">${STATUS_WORD[live.status] || live.status}</span>` : html`<span class="astat"><${Dot} color=${agentDot(live.status, ended, isEmptyEnd(snap))} />${ended && isEmptyEnd(snap) ? 'Ended' : STATUS_WORD[live.status] || live.status}</span>`}</div>
           <div class="ameta">${ROLE[role] ? ROLE[role].does : ''}</div></div>
-        <div class="mh-stats"><div><b class="num"><${SubtleNum} text=${String(live.attempts)} /></b><span>attempts</span></div><div><b class="num">${live.best != null ? html`<${SubtleNum} text=${pctS(live.best)} />` : '-'}</b><span>best</span></div><div><b class=${'num' + (live.collapses ? ' down' : '')}>${live.collapses}</b><span>collapses</span></div><div><b class="num">${live.lessons || 0}</b><span>lessons</span></div></div>
+        <div class="mh-stats">${role === 'planner' ? html`<div><b class="num"><${SubtleNum} text=${String(live.attempts)} /></b><span>attempts</span></div><div><b class="num">${live.best != null ? html`<${SubtleNum} text=${pctS(live.best)} />` : '-'}</b><span>best</span></div><div><b class=${'num' + (live.collapses ? ' down' : '')}>${live.collapses}</b><span>collapses</span></div>` : html`<div><b class="num">${ownCount}</b><span>${role === 'analyst' ? 'maps drawn' : 'verdicts given'}</span></div>`}<div><b class="num">${live.lessons || 0}</b><span>lessons</span></div></div>
       </div>
       ${err && !det && html`<div class="down" style="margin-top:24px">${err.message}</div>`}
       ${!det && !err && html`<div class="skeleton" style="height:180px;margin-top:32px"></div>`}
@@ -458,10 +463,11 @@ export function AgentPage({ snap, id, agentId, cat }) {
           <div class="now-l">
             <div class="now-line"><${ThinkLine} text=${live.now || STATUS_WORD[live.status] || ''} still=${!active} fluid /></div>
             ${role === 'planner' && html`<${StepTrail} status=${live.status} ended=${ended} />`}
-            ${lastThought ? html`<div class="now-why"><span class="k">Why</span><${StreamText} class="now-txt" text=${lastThought.text} play=${!seenSet.has(lastThought.ts)} /><span class="faint now-ts">${clock(lastThought.ts)}</span></div>` : html`<div class="faint">No thoughts yet.</div>`}
-            ${nexts.length > 0 && html`<div class="now-next"><span class="k">Plans next</span><ul>${nexts.map((s, i) => html`<li key=${i}>${s}</li>`)}</ul></div>`}
+            ${lastThought ? html`<div class="now-why"><span class="k">${ended ? 'Last thought' : 'Why'}</span><${StreamText} class="now-txt" text=${lastThought.text} play=${!seenSet.has(lastThought.ts)} /><span class="faint now-ts">${clock(lastThought.ts)}</span></div>` : html`<div class="faint">No thoughts yet.</div>`}
+            ${!ended && nexts.length > 0 && html`<div class="now-next"><span class="k">Plans next</span><ul>${nexts.map((s, i) => html`<li key=${i}>${s}</li>`)}</ul></div>`}
           </div>
-          ${role === 'planner' && html`<div class="now-r">
+          ${role === 'planner' && (!ended || (cur && cur.program)) && html`<div class="now-r">
+            ${ended && html`<div class="faint" style="font-size:12px;margin-bottom:6px">Last program</div>`}
             ${cur && cur.program ? html`<div class="stage3d mind3d"><${Brain3D} layers=${(cat && cat.host && cat.host.layers) || 16} parts=${brainParts} cuts=${[]} pulse=${pulse} height=${200} /></div>
               <div class="pb-n ell" title=${cur.name || cur.describe}>${cur.name || progName(cur.program, cat) || cur.describe}</div>
               <${ProgramStrip} program=${cur.program} cat=${cat} vmap=${d.vmap} />
@@ -513,11 +519,11 @@ export function AgentPage({ snap, id, agentId, cat }) {
         </div>
       </section>`}
     </div></div>
-    <div class="adock nudgedock"><div class="col agwide">
+    ${ended ? html`<div class="adock nudgedock"><div class="col agwide"><div class="nd-h"><span class="faint">This run has ended. Open the best program in the builder to keep going.</span></div></div></div>` : html`<div class="adock nudgedock"><div class="col agwide">
       <div class="nd-h"><span class="nd-t">Nudge ${a.name}</span><span class="faint">${live.nudges_pending ? plural(live.nudges_pending, 'nudge') + ' waiting to be read' : 'It reads your note before its next attempt.'}</span><span class="grow"></span><${PoweredBy} who="pastdev" label="Shared through" /></div>
       ${sugg.length > 0 && html`<div class="sugs" role="group" aria-label="Suggested nudges">${sugg.map((s) => html`<button class="sug" key=${s} onClick=${() => setText(s)}>${s}</button>`)}</div>`}
       <${Composer} value=${text} onInput=${setText} onSubmit=${send} disabled=${sending} minRows=${1} clearRef=${clearRef} label=${'Nudge ' + a.name} placeholder=${'Tell ' + a.name + ' what to try next'} />
       ${det && det.nudges.length > 0 && html`<div class="nd-list">${det.nudges.slice(-3).reverse().map((n, i) => html`<span class="nd-i" key=${i}><${VDot} v=${n.applied ? 'contributes' : null} /> ${n.text} <span class="faint">${n.applied ? 'read' : 'waiting'}</span></span>`)}</div>`}
-    </div></div>
+    </div></div>`}
   </div>`;
 }

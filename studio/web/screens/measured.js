@@ -53,6 +53,7 @@ function Bar({ value, control }) {
 // plain names for the rows; the compiler's own label stays as the hover title
 function plainLabel(row, result) {
   const skill = result.skill || 'the skill';
+  if (result.columns) return row.label;
   if (row.is_full) return 'Full model, all ' + (result.experts_per_layer || row.experts_kept) + ' experts';
   const what = { saliency: 'experts chosen for ' + skill, freq: 'most-used experts', random: 'random experts', selective: 'experts used more on ' + skill + ' than elsewhere' }[row.rule];
   if (!what) return row.label;
@@ -66,11 +67,24 @@ function ordered(rows) {
 }
 
 function RowLabel({ row, result }) {
-  return html`<span class="ml" title=${row.label}>${plainLabel(row, result)}${row.is_control && html` <span class="tag mctl" title="A check: the same number of experts, picked without the method. A real result has to beat it.">control</span>`}</span>`;
+  return html`<span class="ml" title=${row.label}>${plainLabel(row, result)}${row.is_control && html` <span class="tag mctl" title="A check: the same setup without the method. A real result has to beat it.">control</span>`}</span>`;
 }
 
 // the table of one result: HumanEval against total size, with a bar
 export function MeasuredTable({ result, mark, only }) {
+  const cols = result.columns;
+  if (cols) {
+    const rowsL = (result.rows || []).filter((row) => !only || only(row));
+    const best = (id) => Math.max(...rowsL.map((r) => r.scores[id] ?? 0));
+    return html`<div class="mtable mlang" role="table" aria-label=${result.title} style=${{ '--mcols': cols.length }}>
+      <div class="mrow mhead" role="row"><span role="columnheader">Model</span><span role="columnheader" class="r">Size per token</span>${cols.map((c) => html`<span role="columnheader" class="r" key=${c.id}>${c.label}</span>`)}</div>
+      ${rowsL.map((row) => html`<div class=${'mrow' + (mark && mark(row) ? ' on' : '') + (row.is_control ? ' mrow-ctl' : '')} role="row" key=${row.label}>
+        <${RowLabel} row=${row} result=${result} />
+        <span class="r num" role="cell">${sizeText(row.params_per_token_b)}</span>
+        ${cols.map((c) => html`<span class="r num" role="cell" key=${c.id}>${num(row.scores[c.id])}</span>`)}
+      </div>`)}
+    </div>`;
+  }
   const rows = ordered((result.rows || []).filter((row) => !only || only(row)));
   return html`<div class="mtable" role="table" aria-label=${result.title}>
     <div class="mrow mhead" role="row"><span role="columnheader">Model</span><span role="columnheader" class="r">Size</span><span role="columnheader" class="r" title="HumanEval: Python coding problems, percent solved">HumanEval</span><span role="columnheader" class="mbarcol"></span><span role="columnheader" class="r" title="MBPP: short Python problems, percent solved">MBPP</span></div>
@@ -100,7 +114,7 @@ export function MeasuredCard({ result, onTry, only }) {
     <div class="mhd"><${ModelLogo} model=${result.model} size=${20} /><h3 class="mtitle">${result.title}</h3><${MeasuredTag} /></div>
     <${Meta} result=${result} />
     <${MeasuredTable} result=${result} only=${only} />
-    ${onTry && html`<div class="mfoot"><span class="faint small">Source: ${result.source}, scored with ${result.scorer}</span><button class="btn sm" onClick=${() => onTry(TRY_TEXT)}>Try this request</button></div>`}
+    ${onTry && html`<div class="mfoot"><span class="faint small">Source: ${result.source}, scored with ${result.scorer}</span><button class="btn sm" onClick=${() => onTry(result.try_text || TRY_TEXT)}>Try this request</button></div>`}
     <${Caveats} result=${result} />
   </div>`;
 }

@@ -37,5 +37,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         pass
 
 
+class Server(http.server.ThreadingHTTPServer):
+    # a page loads about 40 modules at once; the default backlog of 5 resets some of them
+    request_queue_size = 256
+    daemon_threads = True
+
+
 if __name__ == "__main__":
-    http.server.ThreadingHTTPServer(("127.0.0.1", PORT), Handler).serve_forever()
+    Server(("127.0.0.1", PORT), Handler).serve_forever()

@@ -5,6 +5,23 @@ import { pctS, primaryTarget, recentStatus } from '../util.js';
 import { Dot } from '../components.js';
 import { SubtleNum, ThinkLine } from '../motion.js';
 
+/* ---------- layout ---------- */
+// true on a phone-width screen, so wide tables can become cards
+export function useNarrow(px = 640) {
+  const q = '(max-width: ' + px + 'px)';
+  const get = () => typeof matchMedia === 'function' && matchMedia(q).matches;
+  const [n, setN] = useState(get);
+  useEffect(() => {
+    if (typeof matchMedia !== 'function') return undefined;
+    const m = matchMedia(q);
+    const on = () => setN(m.matches);
+    on();
+    m.addEventListener ? m.addEventListener('change', on) : m.addListener(on);
+    return () => (m.removeEventListener ? m.removeEventListener('change', on) : m.removeListener(on));
+  }, [q]);
+  return n;
+}
+
 /* ---------- names ---------- */
 let catalog = null;
 let catalogLoad = null;

@@ -7,7 +7,7 @@ import { SubtleNum } from '../motion.js';
 import { PoweredBy, SponsorMark, ModelLogo } from '../logos.js';
 import { openProgramInBuilder } from './shared.js';
 import { openPart } from './part-detail.js';
-import { nameOf, progName } from './run-shared.js';
+import { nameOf, progName, useNarrow } from './run-shared.js';
 
 const VKEY = { contributes: 'good', 'no better than random': 'noise', harmful: 'bad' };
 const ALIAS = { llm_plan: 'plan', analyst_map: 'map', judge_verdict: 'verdict', nudge_sent: 'nudge' };
@@ -293,11 +293,17 @@ function Hero({ d, snap, cat }) {
 const PCOLS = [['label', 'Part'], ['n', 'Tried'], ['good', 'Verdicts'], ['mean', 'Mean effect'], ['layer', 'Best layer']];
 function PartsTable({ d, cat }) {
   const [sort, setSort] = useState(['good', -1]);
+  const narrow = useNarrow();
   const list = Object.values(d.parts);
   const val = (s, k) => (k === 'label' ? s.label.toLowerCase() : k === 'layer' ? (s.bestLayer == null ? -1 : s.bestLayer) : k === 'mean' ? (s.mean == null ? -9 : s.mean) : k === 'good' ? s.good / Math.max(1, s.tested) + s.good / 100 : s[k]);
   const sorted = list.slice().sort((a, b) => { const x = val(a, sort[0]), y = val(b, sort[0]); return (x < y ? -1 : x > y ? 1 : 0) * sort[1]; });
   const set = (k) => setSort(sort[0] === k ? [k, -sort[1]] : [k, k === 'label' ? 1 : -1]);
   if (!list.length) return null;
+  if (narrow) return html`<section class="rsec"><h2 class="rh2">Parts the swarm has scored</h2>
+    <div class="ptcards">${sorted.map((s) => html`<article key=${s.id} class="ptr" onClick=${() => openPart(s.id)} tabindex="0" onKeyDown=${(e) => { if (e.key === 'Enter') openPart(s.id); }} style="background:var(--bg-card);box-shadow:var(--shadow-card);border-radius:12px;padding:12px 14px;margin-bottom:10px;cursor:pointer">
+      <div style="display:flex;align-items:center;gap:8px">${s.donor && html`<${ModelLogo} model=${s.donor} size=${16} />`}<span class="ell" style="min-width:0;font-size:13px;font-weight:500">${s.label}</span></div>
+      <div class="faint" style="font-size:13px;line-height:20px;margin-top:4px">${['Tried ' + s.n, s.tested ? s.good + ' of ' + s.tested + ' contribute' : 'no verdicts yet', s.mean != null ? 'mean ' + pts(s.mean) : null, s.bestLayer != null ? 'best at L' + s.bestLayer : null].filter(Boolean).join(', ')}</div>
+    </article>`)}</div></section>`;
   return html`<section class="rsec"><h2 class="rh2">Parts the swarm has scored</h2>
     <div class="ptwrap"><table class="ptable"><thead><tr>${PCOLS.map(([k, l]) => html`<th class=${k === 'label' ? '' : 'r'} key=${k}><button class=${'thbtn' + (sort[0] === k ? ' on' : '')} onClick=${() => set(k)} aria-label=${'Sort by ' + l}>${l}${sort[0] === k ? html`<span class="arr">${sort[1] > 0 ? '↑' : '↓'}</span>` : ''}</button></th>`)}</tr></thead>
     <tbody>${sorted.map((s) => html`<tr key=${s.id} class="ptr" onClick=${() => openPart(s.id)} tabindex="0" onKeyDown=${(e) => { if (e.key === 'Enter') openPart(s.id); }}>
