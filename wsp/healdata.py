@@ -460,7 +460,17 @@ def row_pair(row, kind, features=None):
         facts = str(row.get("facts") or "").strip()
         return row["question"], (facts + "\n" if facts else "") + "The answer is " + word + "."
     if kind == "logiqa":
-        data = json.loads(row["text"]) if isinstance(row.get("text"), str) else row
+        # LogiQA2.0 mixes multiple-choice rows with premise/hypothesis rows (no options),
+        # and a few rows are not valid JSON. Only the multiple-choice rows make a pair.
+        if isinstance(row.get("text"), str):
+            try:
+                data = json.loads(row["text"])
+            except ValueError:
+                return None
+        else:
+            data = row
+        if "options" not in data or "question" not in data or "answer" not in data:
+            return None
         texts = list(data["options"])
         labels = list(LETTERS[:len(texts)])
         index = int(data["answer"])

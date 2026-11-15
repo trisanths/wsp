@@ -608,3 +608,105 @@ Reading:
   TIES collapse. Their components must go through translation layers
   (wsp/synth.py), and per-layer weight mixing is only for true
   fine-tunes (wsp/weave.py lists verified ones from 7B to 32B).
+
+## Run 22 (2026-11-14): parallel grafts with functional alignment (wsp/pgraft.py)
+
+Base Llama-3.2-1B-Instruct; donor Qwen2.5-7B-Instruct (different
+tokenizers). The graft reads base layer 7, runs Enc (linear plus one
+residual MLP, 13.8M) into frozen donor layers k..20 with the donor sink at
+position 0, and writes the donor's contribution (block output minus
+input) back through a rank-64 Dec and a token gate. Stage 1 trains Enc on
+functional KL: the donor, fed Enc's states at layer k and run to its own
+LM head, against its native next-token distribution at positions paired
+by character end offsets. Stage 2 trains Dec and the gate on the base's LM
+loss with a utility hinge, stochastic depth on base layers 8..9, and gate
+L1, all annealed. Heal data: healdata knowledge, medicine, general, prose
+pools only. Raw rows: round22_align_rows.json, round22_full_rows.json.
+
+Alignment gate (held-out pool text, 17.5k paired positions, donor native
+next-token accuracy 56.1%; survival = grafted accuracy / native):
+
+| Donor start k | Survival untrained | Survival after 600 steps | KL (nats) |
+|---|---|---|---|
+| 4 | 1.6% | 90.7% | 0.49 |
+| 10 | 1.1% | 89.6% | 0.55 |
+| 16 | 1.5% | 86.6% | 0.68 |
+
+Full comparison, k = 10, 1600 steps per arm (graft: 600 align + 1000
+integrate), seeds 0 and 1:
+
+| Arm | Trainable | MMLU dev | MMLU held-out | Domain LM loss (held-out) |
+|---|---|---|---|---|
+| Base | 0 | 48.0 | 44.6 | 2.676 |
+| LoRA r20 (matched) | 14.1M | 46.4, 45.7 | 44.3, 43.7 | 1.912, 1.940 |
+| Parallel graft | 14.1M (13.8M stage 1) | 43.0, 40.5 | 40.5, 38.6 | 2.293, 2.303 |
+| Identity-donor control | 14.1M | 42.7, 43.0 | 40.2, 41.9 | 2.363, 2.347 |
+
+Reading:
+- Functional KL fixes the cross-tokenizer stitch: the donor keeps about
+  90% of its next-token accuracy on Llama's states (the ridge and
+  downstream stitches of earlier rounds left it near noise).
+- The base uses a little of it: the graft beats the identity control by
+  about 0.06 nats on domain text and 0.04 on general text, on both seeds.
+- It is not a win. A matched LoRA is 0.37 nats better on domain text, and
+  both graft arms cost 4 to 7 MMLU points (gates end near 0.035, with large
+  Dec outputs). Stage 2 trains only 0.36M parameters (Dec and gate),
+  which may be what limits it.
+- The survival number may partly be Enc passing the base's own next-token
+  guess through the donor's residual; it measures alignment, not use.
+
+## Runs 22b to 22d (2026-11-14): fixing the graft, then the LoRA-on-top test
+
+Same pair, data and k = 10 as run 22; 2 seeds. Raw rows:
+round22_v2_full_rows.json, round22_v2_staged_full_rows.json,
+round22_v3_full_rows.json. Domain = held-out healdata knowledge and
+medicine text, per-token LM loss (lower is better).
+
+- v2 (22b): Enc keeps training in stage 2 at lr 1e-4, Dec rank 256, gate
+  L1 1e-4, and every trained arm gets KL to a frozen base copy on general
+  batches.
+- Staged (22c): the v2 graft (or identity control), frozen, then the same
+  LoRA as the LoRA arm (rank 21, 1600 steps) on top.
+- v3 (22d): v2 plus the stage-1 functional KL as a stage-2 regularizer
+  (weight 1, every second step), graft fidelity logged every 100 steps,
+  update ratio ||g * Dec|| / ||h|| per token, and KL to the frozen base on
+  held-out text. lora2x is a LoRA sized to graft + LoRA (rank 43, 30.3M,
+  3200 steps), the fair bar for the staged arms.
+
+| Arm | Domain LM loss | MMLU dev | MMLU held-out |
+|---|---|---|---|
+| Base | 2.676 | 48.0 | 44.6 |
+| LoRA r21 (v2) | 1.915, 1.944 | 49.3, 46.7 | 46.0, 44.5 |
+| Graft v2 | 2.359, 2.402 | 44.9, 46.0 | 42.1, 42.4 |
+| Identity v2 | 2.538, 2.566 | 47.9, 47.1 | 44.6, 44.8 |
+| Graft v2, then LoRA | 1.919, 1.938 | 46.5, 48.4 | 44.3, 44.7 |
+| Identity v2, then LoRA | 1.917, 1.937 | 48.1, 48.3 | 46.1, 45.5 |
+| Graft v3 | 2.557, 2.430 | 46.4, 44.8 | 43.9, 43.3 |
+| Graft v3, then LoRA | 1.930, 1.941 | 47.5, 49.0 | 45.9, 44.1 |
+| LoRA r43, 3200 steps (lora2x) | 1.607, 1.634 | 47.0, 48.2 | 46.2, 45.6 |
+
+v3 graft fidelity during stage 2 stays 0.87 to 0.91 (seed 0 0.888 to
+0.912, seed 1 0.864 to 0.878). Update ratio, domain / general text: graft
+v3 0.12 and 0.35 / 0.02 and 0.04; drift KL on general text: graft v3 0.013
+and 0.017 nats, staged arms about 0.107, lora2x 0.18.
+
+Reading:
+- v2 widened the donor's edge over the identity control to about 0.17
+  nats (seed spread 0.03 to 0.04) and cut the MMLU cost to about 2.5.
+- Once a LoRA trains on top, the edge is gone: graft + LoRA, identity +
+  LoRA, and LoRA alone all land at 1.92 to 1.94. What the donor added on
+  this text, LoRA learns from the same data.
+- At equal total budget, more LoRA wins by about 0.3 nats (lora2x 1.62 vs
+  graft + LoRA 1.94). On this data the donor's slice is worth about zero.
+- The functional-KL regularizer did its job (no drift toward bypass:
+  fidelity flat near 0.9), but it also cost seed 0 its edge, so bypass
+  was not hiding a bigger donor effect.
+- The per-token gates separate text kinds: graft updates are 3 to 9 times
+  larger on domain text than on general text.
+- Caveat on the regression metric: every arm also trains LM loss on the
+  general pools, so drift KL on held-out general text mixes regression
+  with learning that text's format (lora2x drifts 0.18 nats while its
+  general loss falls 2.61 to 1.86).
+- Next: a test where the data alone cannot supply the knowledge, for
+  example training on donor-written answers and scoring on held-out
+  questions, so LoRA cannot learn the answers from the training text.
