@@ -1,0 +1,1220 @@
+{
+ "name": "nationality_to_country",
+ "description": "Map a nationality adjective to its country (German -> Germany). Control: same format but copy the adjective.",
+ "hash": "7c08a89b84278a79",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nP=[('German','Germany'),('French','France'),('Italian','Italy'),('Spanish','Spain'),('Japanese','Japan'),('Chinese','China'),('Russian','Russia'),('Canadian','Canada'),('Brazilian','Brazil'),('Indian','India'),('Mexican','Mexico'),('Turkish','Turkey'),('Greek','Greece'),('Polish','Poland'),('Swedish','Sweden'),('Norwegian','Norway'),('Dutch','Netherlands'),('Egyptian','Egypt'),('Korean','Korea'),('Australian','Australia'),('Portuguese','Portugal'),('Irish','Ireland'),('Argentine','Argentina'),('Thai','Thailand'),('Vietnamese','Vietnam'),('Finnish','Finland'),('Danish','Denmark'),('Swiss','Switzerland'),('Austrian','Austria'),('Belgian','Belgium'),('Chilean','Chile'),('Peruvian','Peru'),('Kenyan','Kenya'),('Nigerian','Nigeria'),('Iranian','Iran'),('Hungarian','Hungary')]\nitems=[];control=[]\nfor t in range(120):\n    sh=random.sample(P,3); q=random.choice([o for o in P if o not in sh])\n    p=''.join(f\"Nationality: {a}\\nCountry: {b}\\n\\n\" for a,b in sh)+f\"Nationality: {q[0]}\\nCountry:\"\n    items.append({\"prompt\":p,\"answer\":\" \"+q[1]})\n    p2=''.join(f\"Nationality: {a}\\nSame word: {a}\\n\\n\" for a,b in sh)+f\"Nationality: {q[0]}\\nSame word:\"\n    control.append({\"prompt\":p2,\"answer\":\" \"+q[0]})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Nationality: Greek\nCountry: Greece\n\nNationality: Canadian\nCountry: Canada\n\nNationality: Australian\nCountry: Australia\n\nNationality: Portuguese\nCountry:",
+    "continuation": " Portugal",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Dutch\nCountry: Netherlands\n\nNationality: Irish\nCountry: Ireland\n\nNationality: Japanese\nCountry: Japan\n\nNationality: Iranian\nCountry:",
+    "continuation": " Iran",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Italian\nCountry: Italy\n\nNationality: Chinese\nCountry: China\n\nNationality: Nigerian\nCountry: Nigeria\n\nNationality: Russian\nCountry:",
+    "continuation": " Russia",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Brazilian\nCountry: Brazil\n\nNationality: Korean\nCountry: Korea\n\nNationality: Russian\nCountry: Russia\n\nNationality: Australian\nCountry:",
+    "continuation": " Australia",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Indian\nCountry: India\n\nNationality: French\nCountry: France\n\nNationality: Italian\nCountry: Italy\n\nNationality: Turkish\nCountry:",
+    "continuation": " Turkey",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Chinese\nCountry: China\n\nNationality: French\nCountry: France\n\nNationality: Egyptian\nCountry: Egypt\n\nNationality: Peruvian\nCountry:",
+    "continuation": " Peru",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Danish\nCountry: Denmark\n\nNationality: Russian\nCountry: Russia\n\nNationality: Hungarian\nCountry: Hungary\n\nNationality: Kenyan\nCountry:",
+    "continuation": " Kenya",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Argentine\nCountry: Argentina\n\nNationality: Chinese\nCountry: China\n\nNationality: Portuguese\nCountry: Portugal\n\nNationality: Brazilian\nCountry:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Greek\nCountry: Greece\n\nNationality: Turkish\nCountry: Turkey\n\nNationality: Canadian\nCountry: Canada\n\nNationality: Nigerian\nCountry:",
+    "continuation": " Nigeria",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Thai\nCountry: Thailand\n\nNationality: Mexican\nCountry: Mexico\n\nNationality: Irish\nCountry: Ireland\n\nNationality: Chilean\nCountry:",
+    "continuation": " Chile",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Mexican\nCountry: Mexico\n\nNationality: Norwegian\nCountry: Norway\n\nNationality: Swedish\nCountry: Sweden\n\nNationality: Peruvian\nCountry:",
+    "continuation": " Peru",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Korean\nCountry: Korea\n\nNationality: Thai\nCountry: Thailand\n\nNationality: Finnish\nCountry: Finland\n\nNationality: Brazilian\nCountry:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Peruvian\nCountry: Peru\n\nNationality: Irish\nCountry: Ireland\n\nNationality: Greek\nCountry: Greece\n\nNationality: Dutch\nCountry:",
+    "continuation": " Netherlands",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Irish\nCountry: Ireland\n\nNationality: Thai\nCountry: Thailand\n\nNationality: Chinese\nCountry: China\n\nNationality: Vietnamese\nCountry:",
+    "continuation": " Vietnam",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Canadian\nCountry: Canada\n\nNationality: Peruvian\nCountry: Peru\n\nNationality: Swiss\nCountry: Switzerland\n\nNationality: Italian\nCountry:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Vietnamese\nCountry: Vietnam\n\nNationality: Portuguese\nCountry: Portugal\n\nNationality: Norwegian\nCountry: Norway\n\nNationality: Australian\nCountry:",
+    "continuation": " Australia",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Dutch\nCountry: Netherlands\n\nNationality: Polish\nCountry: Poland\n\nNationality: Italian\nCountry: Italy\n\nNationality: Norwegian\nCountry:",
+    "continuation": " Norway",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Thai\nCountry: Thailand\n\nNationality: Canadian\nCountry: Canada\n\nNationality: Italian\nCountry: Italy\n\nNationality: French\nCountry:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Chilean\nCountry: Chile\n\nNationality: Argentine\nCountry: Argentina\n\nNationality: Polish\nCountry: Poland\n\nNationality: Hungarian\nCountry:",
+    "continuation": " Hungary",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Australian\nCountry: Australia\n\nNationality: Irish\nCountry: Ireland\n\nNationality: Indian\nCountry: India\n\nNationality: Turkish\nCountry:",
+    "continuation": " Turkey",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Spanish\nCountry: Spain\n\nNationality: Hungarian\nCountry: Hungary\n\nNationality: German\nCountry: Germany\n\nNationality: Canadian\nCountry:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Italian\nCountry: Italy\n\nNationality: Chilean\nCountry: Chile\n\nNationality: Danish\nCountry: Denmark\n\nNationality: Mexican\nCountry:",
+    "continuation": " Mexico",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Iranian\nCountry: Iran\n\nNationality: Egyptian\nCountry: Egypt\n\nNationality: Brazilian\nCountry: Brazil\n\nNationality: Dutch\nCountry:",
+    "continuation": " Netherlands",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Greek\nCountry: Greece\n\nNationality: Canadian\nCountry: Canada\n\nNationality: Peruvian\nCountry: Peru\n\nNationality: Swiss\nCountry:",
+    "continuation": " Switzerland",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Kenyan\nCountry: Kenya\n\nNationality: Vietnamese\nCountry: Vietnam\n\nNationality: Nigerian\nCountry: Nigeria\n\nNationality: Hungarian\nCountry:",
+    "continuation": " Hungary",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Chilean\nCountry: Chile\n\nNationality: Argentine\nCountry: Argentina\n\nNationality: Korean\nCountry: Korea\n\nNationality: Vietnamese\nCountry:",
+    "continuation": " Vietnam",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Chinese\nCountry: China\n\nNationality: German\nCountry: Germany\n\nNationality: Greek\nCountry: Greece\n\nNationality: Vietnamese\nCountry:",
+    "continuation": " Vietnam",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Korean\nCountry: Korea\n\nNationality: Brazilian\nCountry: Brazil\n\nNationality: Vietnamese\nCountry: Vietnam\n\nNationality: Portuguese\nCountry:",
+    "continuation": " Portugal",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Austrian\nCountry: Austria\n\nNationality: Peruvian\nCountry: Peru\n\nNationality: Polish\nCountry: Poland\n\nNationality: Belgian\nCountry:",
+    "continuation": " Belgium",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Polish\nCountry: Poland\n\nNationality: Spanish\nCountry: Spain\n\nNationality: Mexican\nCountry: Mexico\n\nNationality: Greek\nCountry:",
+    "continuation": " Greece",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Norwegian\nCountry: Norway\n\nNationality: Portuguese\nCountry: Portugal\n\nNationality: Japanese\nCountry: Japan\n\nNationality: Polish\nCountry:",
+    "continuation": " Poland",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: French\nCountry: France\n\nNationality: Egyptian\nCountry: Egypt\n\nNationality: Canadian\nCountry: Canada\n\nNationality: Dutch\nCountry:",
+    "continuation": " Netherlands",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Vietnamese\nCountry: Vietnam\n\nNationality: Danish\nCountry: Denmark\n\nNationality: Italian\nCountry: Italy\n\nNationality: Austrian\nCountry:",
+    "continuation": " Austria",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Japanese\nCountry: Japan\n\nNationality: Dutch\nCountry: Netherlands\n\nNationality: Mexican\nCountry: Mexico\n\nNationality: Peruvian\nCountry:",
+    "continuation": " Peru",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Dutch\nCountry: Netherlands\n\nNationality: Australian\nCountry: Australia\n\nNationality: Danish\nCountry: Denmark\n\nNationality: Swiss\nCountry:",
+    "continuation": " Switzerland",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Indian\nCountry: India\n\nNationality: Vietnamese\nCountry: Vietnam\n\nNationality: Korean\nCountry: Korea\n\nNationality: Nigerian\nCountry:",
+    "continuation": " Nigeria",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Russian\nCountry: Russia\n\nNationality: Australian\nCountry: Australia\n\nNationality: Hungarian\nCountry: Hungary\n\nNationality: Portuguese\nCountry:",
+    "continuation": " Portugal",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Italian\nCountry: Italy\n\nNationality: Peruvian\nCountry: Peru\n\nNationality: Portuguese\nCountry: Portugal\n\nNationality: Irish\nCountry:",
+    "continuation": " Ireland",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Danish\nCountry: Denmark\n\nNationality: Egyptian\nCountry: Egypt\n\nNationality: Austrian\nCountry: Austria\n\nNationality: Iranian\nCountry:",
+    "continuation": " Iran",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Portuguese\nCountry: Portugal\n\nNationality: Russian\nCountry: Russia\n\nNationality: Hungarian\nCountry: Hungary\n\nNationality: Vietnamese\nCountry:",
+    "continuation": " Vietnam",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Australian\nCountry: Australia\n\nNationality: Finnish\nCountry: Finland\n\nNationality: Irish\nCountry: Ireland\n\nNationality: Portuguese\nCountry:",
+    "continuation": " Portugal",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: German\nCountry: Germany\n\nNationality: Irish\nCountry: Ireland\n\nNationality: Portuguese\nCountry: Portugal\n\nNationality: Thai\nCountry:",
+    "continuation": " Thailand",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Italian\nCountry: Italy\n\nNationality: Russian\nCountry: Russia\n\nNationality: Finnish\nCountry: Finland\n\nNationality: Swedish\nCountry:",
+    "continuation": " Sweden",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Indian\nCountry: India\n\nNationality: Italian\nCountry: Italy\n\nNationality: Chinese\nCountry: China\n\nNationality: Austrian\nCountry:",
+    "continuation": " Austria",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Argentine\nCountry: Argentina\n\nNationality: Swiss\nCountry: Switzerland\n\nNationality: Portuguese\nCountry: Portugal\n\nNationality: Polish\nCountry:",
+    "continuation": " Poland",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: German\nCountry: Germany\n\nNationality: Turkish\nCountry: Turkey\n\nNationality: Australian\nCountry: Australia\n\nNationality: Hungarian\nCountry:",
+    "continuation": " Hungary",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Japanese\nCountry: Japan\n\nNationality: Swedish\nCountry: Sweden\n\nNationality: Brazilian\nCountry: Brazil\n\nNationality: Italian\nCountry:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Nigerian\nCountry: Nigeria\n\nNationality: Egyptian\nCountry: Egypt\n\nNationality: Norwegian\nCountry: Norway\n\nNationality: Polish\nCountry:",
+    "continuation": " Poland",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Belgian\nCountry: Belgium\n\nNationality: Argentine\nCountry: Argentina\n\nNationality: Japanese\nCountry: Japan\n\nNationality: Italian\nCountry:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Spanish\nCountry: Spain\n\nNationality: Belgian\nCountry: Belgium\n\nNationality: Irish\nCountry: Ireland\n\nNationality: Brazilian\nCountry:",
+    "continuation": " Brazil",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Canadian\nCountry: Canada\n\nNationality: Greek\nCountry: Greece\n\nNationality: Finnish\nCountry: Finland\n\nNationality: Chinese\nCountry:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Turkish\nCountry: Turkey\n\nNationality: Spanish\nCountry: Spain\n\nNationality: Kenyan\nCountry: Kenya\n\nNationality: Peruvian\nCountry:",
+    "continuation": " Peru",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Hungarian\nCountry: Hungary\n\nNationality: Chinese\nCountry: China\n\nNationality: Brazilian\nCountry: Brazil\n\nNationality: German\nCountry:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Russian\nCountry: Russia\n\nNationality: Peruvian\nCountry: Peru\n\nNationality: Indian\nCountry: India\n\nNationality: Swiss\nCountry:",
+    "continuation": " Switzerland",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Japanese\nCountry: Japan\n\nNationality: Chinese\nCountry: China\n\nNationality: Nigerian\nCountry: Nigeria\n\nNationality: Italian\nCountry:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Hungarian\nCountry: Hungary\n\nNationality: Korean\nCountry: Korea\n\nNationality: Austrian\nCountry: Austria\n\nNationality: Chinese\nCountry:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Canadian\nCountry: Canada\n\nNationality: Hungarian\nCountry: Hungary\n\nNationality: Irish\nCountry: Ireland\n\nNationality: Swedish\nCountry:",
+    "continuation": " Sweden",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Danish\nCountry: Denmark\n\nNationality: Italian\nCountry: Italy\n\nNationality: Belgian\nCountry: Belgium\n\nNationality: Finnish\nCountry:",
+    "continuation": " Finland",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Turkish\nCountry: Turkey\n\nNationality: Russian\nCountry: Russia\n\nNationality: Chilean\nCountry: Chile\n\nNationality: Swiss\nCountry:",
+    "continuation": " Switzerland",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Canadian\nCountry: Canada\n\nNationality: Japanese\nCountry: Japan\n\nNationality: French\nCountry: France\n\nNationality: Peruvian\nCountry:",
+    "continuation": " Peru",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Nationality: Iranian\nCountry: Iran\n\nNationality: Indian\nCountry: India\n\nNationality: Australian\nCountry: Australia\n\nNationality: Russian\nCountry:",
+    "continuation": " Russia",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Chinese\nCountry: China\n\nNationality: Thai\nCountry: Thailand\n\nNationality: Swedish\nCountry: Sweden\n\nNationality: Korean\nCountry:",
+    "continuation": " Korea",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Mexican\nCountry: Mexico\n\nNationality: Swiss\nCountry: Switzerland\n\nNationality: Greek\nCountry: Greece\n\nNationality: Vietnamese\nCountry:",
+    "continuation": " Vietnam",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Vietnamese\nCountry: Vietnam\n\nNationality: Dutch\nCountry: Netherlands\n\nNationality: Indian\nCountry: India\n\nNationality: German\nCountry:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Polish\nCountry: Poland\n\nNationality: Spanish\nCountry: Spain\n\nNationality: French\nCountry: France\n\nNationality: Chilean\nCountry:",
+    "continuation": " Chile",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Indian\nCountry: India\n\nNationality: Russian\nCountry: Russia\n\nNationality: Greek\nCountry: Greece\n\nNationality: Kenyan\nCountry:",
+    "continuation": " Kenya",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Thai\nCountry: Thailand\n\nNationality: Italian\nCountry: Italy\n\nNationality: Peruvian\nCountry: Peru\n\nNationality: Kenyan\nCountry:",
+    "continuation": " Kenya",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Vietnamese\nCountry: Vietnam\n\nNationality: Danish\nCountry: Denmark\n\nNationality: Italian\nCountry: Italy\n\nNationality: Egyptian\nCountry:",
+    "continuation": " Egypt",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Belgian\nCountry: Belgium\n\nNationality: Spanish\nCountry: Spain\n\nNationality: Russian\nCountry: Russia\n\nNationality: Nigerian\nCountry:",
+    "continuation": " Nigeria",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Swedish\nCountry: Sweden\n\nNationality: Norwegian\nCountry: Norway\n\nNationality: Indian\nCountry: India\n\nNationality: Peruvian\nCountry:",
+    "continuation": " Peru",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Kenyan\nCountry: Kenya\n\nNationality: Peruvian\nCountry: Peru\n\nNationality: Finnish\nCountry: Finland\n\nNationality: Australian\nCountry:",
+    "continuation": " Australia",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Italian\nCountry: Italy\n\nNationality: Nigerian\nCountry: Nigeria\n\nNationality: Indian\nCountry: India\n\nNationality: Korean\nCountry:",
+    "continuation": " Korea",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Hungarian\nCountry: Hungary\n\nNationality: Chilean\nCountry: Chile\n\nNationality: Austrian\nCountry: Austria\n\nNationality: Dutch\nCountry:",
+    "continuation": " Netherlands",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Canadian\nCountry: Canada\n\nNationality: Nigerian\nCountry: Nigeria\n\nNationality: Greek\nCountry: Greece\n\nNationality: Italian\nCountry:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Brazilian\nCountry: Brazil\n\nNationality: Indian\nCountry: India\n\nNationality: Egyptian\nCountry: Egypt\n\nNationality: Vietnamese\nCountry:",
+    "continuation": " Vietnam",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Polish\nCountry: Poland\n\nNationality: German\nCountry: Germany\n\nNationality: Nigerian\nCountry: Nigeria\n\nNationality: Canadian\nCountry:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Italian\nCountry: Italy\n\nNationality: Peruvian\nCountry: Peru\n\nNationality: Dutch\nCountry: Netherlands\n\nNationality: French\nCountry:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Korean\nCountry: Korea\n\nNationality: Canadian\nCountry: Canada\n\nNationality: Chilean\nCountry: Chile\n\nNationality: Dutch\nCountry:",
+    "continuation": " Netherlands",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Spanish\nCountry: Spain\n\nNationality: Russian\nCountry: Russia\n\nNationality: Indian\nCountry: India\n\nNationality: Egyptian\nCountry:",
+    "continuation": " Egypt",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Greek\nCountry: Greece\n\nNationality: Swedish\nCountry: Sweden\n\nNationality: Spanish\nCountry: Spain\n\nNationality: Swiss\nCountry:",
+    "continuation": " Switzerland",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Danish\nCountry: Denmark\n\nNationality: Kenyan\nCountry: Kenya\n\nNationality: Australian\nCountry: Australia\n\nNationality: Thai\nCountry:",
+    "continuation": " Thailand",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Finnish\nCountry: Finland\n\nNationality: Danish\nCountry: Denmark\n\nNationality: Portuguese\nCountry: Portugal\n\nNationality: German\nCountry:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Vietnamese\nCountry: Vietnam\n\nNationality: Spanish\nCountry: Spain\n\nNationality: Mexican\nCountry: Mexico\n\nNationality: Indian\nCountry:",
+    "continuation": " India",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Swiss\nCountry: Switzerland\n\nNationality: Nigerian\nCountry: Nigeria\n\nNationality: Peruvian\nCountry: Peru\n\nNationality: Portuguese\nCountry:",
+    "continuation": " Portugal",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Spanish\nCountry: Spain\n\nNationality: Australian\nCountry: Australia\n\nNationality: Turkish\nCountry: Turkey\n\nNationality: Chinese\nCountry:",
+    "continuation": " China",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Canadian\nCountry: Canada\n\nNationality: Dutch\nCountry: Netherlands\n\nNationality: Brazilian\nCountry: Brazil\n\nNationality: Finnish\nCountry:",
+    "continuation": " Finland",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Belgian\nCountry: Belgium\n\nNationality: Chinese\nCountry: China\n\nNationality: Irish\nCountry: Ireland\n\nNationality: Italian\nCountry:",
+    "continuation": " Italy",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Vietnamese\nCountry: Vietnam\n\nNationality: Thai\nCountry: Thailand\n\nNationality: Iranian\nCountry: Iran\n\nNationality: Indian\nCountry:",
+    "continuation": " India",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Finnish\nCountry: Finland\n\nNationality: German\nCountry: Germany\n\nNationality: Peruvian\nCountry: Peru\n\nNationality: Argentine\nCountry:",
+    "continuation": " Argentina",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Finnish\nCountry: Finland\n\nNationality: Austrian\nCountry: Austria\n\nNationality: Thai\nCountry: Thailand\n\nNationality: Greek\nCountry:",
+    "continuation": " Greece",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Austrian\nCountry: Austria\n\nNationality: Turkish\nCountry: Turkey\n\nNationality: German\nCountry: Germany\n\nNationality: Nigerian\nCountry:",
+    "continuation": " Nigeria",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Chilean\nCountry: Chile\n\nNationality: Japanese\nCountry: Japan\n\nNationality: Chinese\nCountry: China\n\nNationality: Mexican\nCountry:",
+    "continuation": " Mexico",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Vietnamese\nCountry: Vietnam\n\nNationality: Chinese\nCountry: China\n\nNationality: Japanese\nCountry: Japan\n\nNationality: Canadian\nCountry:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Peruvian\nCountry: Peru\n\nNationality: Greek\nCountry: Greece\n\nNationality: Iranian\nCountry: Iran\n\nNationality: Norwegian\nCountry:",
+    "continuation": " Norway",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Italian\nCountry: Italy\n\nNationality: Egyptian\nCountry: Egypt\n\nNationality: Mexican\nCountry: Mexico\n\nNationality: Turkish\nCountry:",
+    "continuation": " Turkey",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Russian\nCountry: Russia\n\nNationality: Dutch\nCountry: Netherlands\n\nNationality: Japanese\nCountry: Japan\n\nNationality: Egyptian\nCountry:",
+    "continuation": " Egypt",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: German\nCountry: Germany\n\nNationality: Russian\nCountry: Russia\n\nNationality: Finnish\nCountry: Finland\n\nNationality: Portuguese\nCountry:",
+    "continuation": " Portugal",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Chinese\nCountry: China\n\nNationality: Portuguese\nCountry: Portugal\n\nNationality: Kenyan\nCountry: Kenya\n\nNationality: Iranian\nCountry:",
+    "continuation": " Iran",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Australian\nCountry: Australia\n\nNationality: German\nCountry: Germany\n\nNationality: Austrian\nCountry: Austria\n\nNationality: Thai\nCountry:",
+    "continuation": " Thailand",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Chilean\nCountry: Chile\n\nNationality: Vietnamese\nCountry: Vietnam\n\nNationality: Swedish\nCountry: Sweden\n\nNationality: French\nCountry:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Dutch\nCountry: Netherlands\n\nNationality: Argentine\nCountry: Argentina\n\nNationality: Chilean\nCountry: Chile\n\nNationality: Mexican\nCountry:",
+    "continuation": " Mexico",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Turkish\nCountry: Turkey\n\nNationality: Greek\nCountry: Greece\n\nNationality: Italian\nCountry: Italy\n\nNationality: Australian\nCountry:",
+    "continuation": " Australia",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Swiss\nCountry: Switzerland\n\nNationality: Thai\nCountry: Thailand\n\nNationality: Iranian\nCountry: Iran\n\nNationality: Turkish\nCountry:",
+    "continuation": " Turkey",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Italian\nCountry: Italy\n\nNationality: Iranian\nCountry: Iran\n\nNationality: Japanese\nCountry: Japan\n\nNationality: French\nCountry:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Chilean\nCountry: Chile\n\nNationality: Irish\nCountry: Ireland\n\nNationality: Canadian\nCountry: Canada\n\nNationality: Nigerian\nCountry:",
+    "continuation": " Nigeria",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Brazilian\nCountry: Brazil\n\nNationality: Australian\nCountry: Australia\n\nNationality: Vietnamese\nCountry: Vietnam\n\nNationality: Belgian\nCountry:",
+    "continuation": " Belgium",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Canadian\nCountry: Canada\n\nNationality: Indian\nCountry: India\n\nNationality: Egyptian\nCountry: Egypt\n\nNationality: French\nCountry:",
+    "continuation": " France",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Irish\nCountry: Ireland\n\nNationality: Nigerian\nCountry: Nigeria\n\nNationality: Dutch\nCountry: Netherlands\n\nNationality: Canadian\nCountry:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Norwegian\nCountry: Norway\n\nNationality: Korean\nCountry: Korea\n\nNationality: Irish\nCountry: Ireland\n\nNationality: Spanish\nCountry:",
+    "continuation": " Spain",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Swiss\nCountry: Switzerland\n\nNationality: Polish\nCountry: Poland\n\nNationality: Korean\nCountry: Korea\n\nNationality: Belgian\nCountry:",
+    "continuation": " Belgium",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Nigerian\nCountry: Nigeria\n\nNationality: Peruvian\nCountry: Peru\n\nNationality: Hungarian\nCountry: Hungary\n\nNationality: German\nCountry:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Italian\nCountry: Italy\n\nNationality: Polish\nCountry: Poland\n\nNationality: Dutch\nCountry: Netherlands\n\nNationality: Thai\nCountry:",
+    "continuation": " Thailand",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Polish\nCountry: Poland\n\nNationality: Vietnamese\nCountry: Vietnam\n\nNationality: Korean\nCountry: Korea\n\nNationality: German\nCountry:",
+    "continuation": " Germany",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Japanese\nCountry: Japan\n\nNationality: Australian\nCountry: Australia\n\nNationality: Argentine\nCountry: Argentina\n\nNationality: Chilean\nCountry:",
+    "continuation": " Chile",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Japanese\nCountry: Japan\n\nNationality: Irish\nCountry: Ireland\n\nNationality: Chilean\nCountry: Chile\n\nNationality: Canadian\nCountry:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Belgian\nCountry: Belgium\n\nNationality: Spanish\nCountry: Spain\n\nNationality: Danish\nCountry: Denmark\n\nNationality: Polish\nCountry:",
+    "continuation": " Poland",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Greek\nCountry: Greece\n\nNationality: Vietnamese\nCountry: Vietnam\n\nNationality: Peruvian\nCountry: Peru\n\nNationality: Canadian\nCountry:",
+    "continuation": " Canada",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Mexican\nCountry: Mexico\n\nNationality: Indian\nCountry: India\n\nNationality: Belgian\nCountry: Belgium\n\nNationality: Finnish\nCountry:",
+    "continuation": " Finland",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Danish\nCountry: Denmark\n\nNationality: Italian\nCountry: Italy\n\nNationality: Mexican\nCountry: Mexico\n\nNationality: Peruvian\nCountry:",
+    "continuation": " Peru",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Peruvian\nCountry: Peru\n\nNationality: Chinese\nCountry: China\n\nNationality: Indian\nCountry: India\n\nNationality: Vietnamese\nCountry:",
+    "continuation": " Vietnam",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Nationality: Italian\nSame word: Italian\n\nNationality: Peruvian\nSame word: Peruvian\n\nNationality: Dutch\nSame word: Dutch\n\nNationality: French\nSame word:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Chinese\nSame word: Chinese\n\nNationality: Thai\nSame word: Thai\n\nNationality: Swedish\nSame word: Swedish\n\nNationality: Korean\nSame word:",
+    "continuation": " Korean",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Nigerian\nSame word: Nigerian\n\nNationality: Egyptian\nSame word: Egyptian\n\nNationality: Norwegian\nSame word: Norwegian\n\nNationality: Polish\nSame word:",
+    "continuation": " Polish",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Peruvian\nSame word: Peruvian\n\nNationality: Greek\nSame word: Greek\n\nNationality: Iranian\nSame word: Iranian\n\nNationality: Norwegian\nSame word:",
+    "continuation": " Norwegian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Italian\nSame word: Italian\n\nNationality: Egyptian\nSame word: Egyptian\n\nNationality: Mexican\nSame word: Mexican\n\nNationality: Turkish\nSame word:",
+    "continuation": " Turkish",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Vietnamese\nSame word: Vietnamese\n\nNationality: Dutch\nSame word: Dutch\n\nNationality: Indian\nSame word: Indian\n\nNationality: German\nSame word:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Iranian\nSame word: Iranian\n\nNationality: Indian\nSame word: Indian\n\nNationality: Australian\nSame word: Australian\n\nNationality: Russian\nSame word:",
+    "continuation": " Russian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: German\nSame word: German\n\nNationality: Russian\nSame word: Russian\n\nNationality: Finnish\nSame word: Finnish\n\nNationality: Portuguese\nSame word:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Irish\nSame word: Irish\n\nNationality: Nigerian\nSame word: Nigerian\n\nNationality: Dutch\nSame word: Dutch\n\nNationality: Canadian\nSame word:",
+    "continuation": " Canadian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Norwegian\nSame word: Norwegian\n\nNationality: Portuguese\nSame word: Portuguese\n\nNationality: Japanese\nSame word: Japanese\n\nNationality: Polish\nSame word:",
+    "continuation": " Polish",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Canadian\nSame word: Canadian\n\nNationality: Hungarian\nSame word: Hungarian\n\nNationality: Irish\nSame word: Irish\n\nNationality: Swedish\nSame word:",
+    "continuation": " Swedish",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Japanese\nSame word: Japanese\n\nNationality: Swedish\nSame word: Swedish\n\nNationality: Brazilian\nSame word: Brazilian\n\nNationality: Italian\nSame word:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Argentine\nSame word: Argentine\n\nNationality: Chinese\nSame word: Chinese\n\nNationality: Portuguese\nSame word: Portuguese\n\nNationality: Brazilian\nSame word:",
+    "continuation": " Brazilian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Greek\nSame word: Greek\n\nNationality: Swedish\nSame word: Swedish\n\nNationality: Spanish\nSame word: Spanish\n\nNationality: Swiss\nSame word:",
+    "continuation": " Swiss",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Spanish\nSame word: Spanish\n\nNationality: Belgian\nSame word: Belgian\n\nNationality: Irish\nSame word: Irish\n\nNationality: Brazilian\nSame word:",
+    "continuation": " Brazilian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Spanish\nSame word: Spanish\n\nNationality: Australian\nSame word: Australian\n\nNationality: Turkish\nSame word: Turkish\n\nNationality: Chinese\nSame word:",
+    "continuation": " Chinese",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Danish\nSame word: Danish\n\nNationality: Russian\nSame word: Russian\n\nNationality: Hungarian\nSame word: Hungarian\n\nNationality: Kenyan\nSame word:",
+    "continuation": " Kenyan",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Italian\nSame word: Italian\n\nNationality: Peruvian\nSame word: Peruvian\n\nNationality: Portuguese\nSame word: Portuguese\n\nNationality: Irish\nSame word:",
+    "continuation": " Irish",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Japanese\nSame word: Japanese\n\nNationality: Chinese\nSame word: Chinese\n\nNationality: Nigerian\nSame word: Nigerian\n\nNationality: Italian\nSame word:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Finnish\nSame word: Finnish\n\nNationality: German\nSame word: German\n\nNationality: Peruvian\nSame word: Peruvian\n\nNationality: Argentine\nSame word:",
+    "continuation": " Argentine",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Mexican\nSame word: Mexican\n\nNationality: Swiss\nSame word: Swiss\n\nNationality: Greek\nSame word: Greek\n\nNationality: Vietnamese\nSame word:",
+    "continuation": " Vietnamese",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Canadian\nSame word: Canadian\n\nNationality: Nigerian\nSame word: Nigerian\n\nNationality: Greek\nSame word: Greek\n\nNationality: Italian\nSame word:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Australian\nSame word: Australian\n\nNationality: German\nSame word: German\n\nNationality: Austrian\nSame word: Austrian\n\nNationality: Thai\nSame word:",
+    "continuation": " Thai",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Indian\nSame word: Indian\n\nNationality: Vietnamese\nSame word: Vietnamese\n\nNationality: Korean\nSame word: Korean\n\nNationality: Nigerian\nSame word:",
+    "continuation": " Nigerian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Austrian\nSame word: Austrian\n\nNationality: Turkish\nSame word: Turkish\n\nNationality: German\nSame word: German\n\nNationality: Nigerian\nSame word:",
+    "continuation": " Nigerian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Dutch\nSame word: Dutch\n\nNationality: Argentine\nSame word: Argentine\n\nNationality: Chilean\nSame word: Chilean\n\nNationality: Mexican\nSame word:",
+    "continuation": " Mexican",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Vietnamese\nSame word: Vietnamese\n\nNationality: Spanish\nSame word: Spanish\n\nNationality: Mexican\nSame word: Mexican\n\nNationality: Indian\nSame word:",
+    "continuation": " Indian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Japanese\nSame word: Japanese\n\nNationality: Dutch\nSame word: Dutch\n\nNationality: Mexican\nSame word: Mexican\n\nNationality: Peruvian\nSame word:",
+    "continuation": " Peruvian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Vietnamese\nSame word: Vietnamese\n\nNationality: Portuguese\nSame word: Portuguese\n\nNationality: Norwegian\nSame word: Norwegian\n\nNationality: Australian\nSame word:",
+    "continuation": " Australian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Japanese\nSame word: Japanese\n\nNationality: Australian\nSame word: Australian\n\nNationality: Argentine\nSame word: Argentine\n\nNationality: Chilean\nSame word:",
+    "continuation": " Chilean",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: French\nSame word: French\n\nNationality: Egyptian\nSame word: Egyptian\n\nNationality: Canadian\nSame word: Canadian\n\nNationality: Dutch\nSame word:",
+    "continuation": " Dutch",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Argentine\nSame word: Argentine\n\nNationality: Swiss\nSame word: Swiss\n\nNationality: Portuguese\nSame word: Portuguese\n\nNationality: Polish\nSame word:",
+    "continuation": " Polish",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Greek\nSame word: Greek\n\nNationality: Canadian\nSame word: Canadian\n\nNationality: Peruvian\nSame word: Peruvian\n\nNationality: Swiss\nSame word:",
+    "continuation": " Swiss",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Japanese\nSame word: Japanese\n\nNationality: Irish\nSame word: Irish\n\nNationality: Chilean\nSame word: Chilean\n\nNationality: Canadian\nSame word:",
+    "continuation": " Canadian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Italian\nSame word: Italian\n\nNationality: Russian\nSame word: Russian\n\nNationality: Finnish\nSame word: Finnish\n\nNationality: Swedish\nSame word:",
+    "continuation": " Swedish",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Chilean\nSame word: Chilean\n\nNationality: Irish\nSame word: Irish\n\nNationality: Canadian\nSame word: Canadian\n\nNationality: Nigerian\nSame word:",
+    "continuation": " Nigerian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Swedish\nSame word: Swedish\n\nNationality: Norwegian\nSame word: Norwegian\n\nNationality: Indian\nSame word: Indian\n\nNationality: Peruvian\nSame word:",
+    "continuation": " Peruvian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Dutch\nSame word: Dutch\n\nNationality: Australian\nSame word: Australian\n\nNationality: Danish\nSame word: Danish\n\nNationality: Swiss\nSame word:",
+    "continuation": " Swiss",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Iranian\nSame word: Iranian\n\nNationality: Egyptian\nSame word: Egyptian\n\nNationality: Brazilian\nSame word: Brazilian\n\nNationality: Dutch\nSame word:",
+    "continuation": " Dutch",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Portuguese\nSame word: Portuguese\n\nNationality: Russian\nSame word: Russian\n\nNationality: Hungarian\nSame word: Hungarian\n\nNationality: Vietnamese\nSame word:",
+    "continuation": " Vietnamese",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Greek\nSame word: Greek\n\nNationality: Turkish\nSame word: Turkish\n\nNationality: Canadian\nSame word: Canadian\n\nNationality: Nigerian\nSame word:",
+    "continuation": " Nigerian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Brazilian\nSame word: Brazilian\n\nNationality: Indian\nSame word: Indian\n\nNationality: Egyptian\nSame word: Egyptian\n\nNationality: Vietnamese\nSame word:",
+    "continuation": " Vietnamese",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Finnish\nSame word: Finnish\n\nNationality: Austrian\nSame word: Austrian\n\nNationality: Thai\nSame word: Thai\n\nNationality: Greek\nSame word:",
+    "continuation": " Greek",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Thai\nSame word: Thai\n\nNationality: Mexican\nSame word: Mexican\n\nNationality: Irish\nSame word: Irish\n\nNationality: Chilean\nSame word:",
+    "continuation": " Chilean",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Nigerian\nSame word: Nigerian\n\nNationality: Peruvian\nSame word: Peruvian\n\nNationality: Hungarian\nSame word: Hungarian\n\nNationality: German\nSame word:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Polish\nSame word: Polish\n\nNationality: Spanish\nSame word: Spanish\n\nNationality: French\nSame word: French\n\nNationality: Chilean\nSame word:",
+    "continuation": " Chilean",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Kenyan\nSame word: Kenyan\n\nNationality: Vietnamese\nSame word: Vietnamese\n\nNationality: Nigerian\nSame word: Nigerian\n\nNationality: Hungarian\nSame word:",
+    "continuation": " Hungarian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Chinese\nSame word: Chinese\n\nNationality: French\nSame word: French\n\nNationality: Egyptian\nSame word: Egyptian\n\nNationality: Peruvian\nSame word:",
+    "continuation": " Peruvian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Indian\nSame word: Indian\n\nNationality: Italian\nSame word: Italian\n\nNationality: Chinese\nSame word: Chinese\n\nNationality: Austrian\nSame word:",
+    "continuation": " Austrian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Swiss\nSame word: Swiss\n\nNationality: Thai\nSame word: Thai\n\nNationality: Iranian\nSame word: Iranian\n\nNationality: Turkish\nSame word:",
+    "continuation": " Turkish",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Belgian\nSame word: Belgian\n\nNationality: Chinese\nSame word: Chinese\n\nNationality: Irish\nSame word: Irish\n\nNationality: Italian\nSame word:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Polish\nSame word: Polish\n\nNationality: Vietnamese\nSame word: Vietnamese\n\nNationality: Korean\nSame word: Korean\n\nNationality: German\nSame word:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Austrian\nSame word: Austrian\n\nNationality: Peruvian\nSame word: Peruvian\n\nNationality: Polish\nSame word: Polish\n\nNationality: Belgian\nSame word:",
+    "continuation": " Belgian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Greek\nSame word: Greek\n\nNationality: Vietnamese\nSame word: Vietnamese\n\nNationality: Peruvian\nSame word: Peruvian\n\nNationality: Canadian\nSame word:",
+    "continuation": " Canadian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Brazilian\nSame word: Brazilian\n\nNationality: Australian\nSame word: Australian\n\nNationality: Vietnamese\nSame word: Vietnamese\n\nNationality: Belgian\nSame word:",
+    "continuation": " Belgian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Canadian\nSame word: Canadian\n\nNationality: Indian\nSame word: Indian\n\nNationality: Egyptian\nSame word: Egyptian\n\nNationality: French\nSame word:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Danish\nSame word: Danish\n\nNationality: Egyptian\nSame word: Egyptian\n\nNationality: Austrian\nSame word: Austrian\n\nNationality: Iranian\nSame word:",
+    "continuation": " Iranian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Mexican\nSame word: Mexican\n\nNationality: Norwegian\nSame word: Norwegian\n\nNationality: Swedish\nSame word: Swedish\n\nNationality: Peruvian\nSame word:",
+    "continuation": " Peruvian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Hungarian\nSame word: Hungarian\n\nNationality: Chilean\nSame word: Chilean\n\nNationality: Austrian\nSame word: Austrian\n\nNationality: Dutch\nSame word:",
+    "continuation": " Dutch",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Chilean\nSame word: Chilean\n\nNationality: Japanese\nSame word: Japanese\n\nNationality: Chinese\nSame word: Chinese\n\nNationality: Mexican\nSame word:",
+    "continuation": " Mexican",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Nationality: Italian\nSame word: Italian\n\nNationality: Chinese\nSame word: Chinese\n\nNationality: Nigerian\nSame word: Nigerian\n\nNationality: Russian\nSame word:",
+    "continuation": " Russian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Chinese\nSame word: Chinese\n\nNationality: German\nSame word: German\n\nNationality: Greek\nSame word: Greek\n\nNationality: Vietnamese\nSame word:",
+    "continuation": " Vietnamese",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Russian\nSame word: Russian\n\nNationality: Peruvian\nSame word: Peruvian\n\nNationality: Indian\nSame word: Indian\n\nNationality: Swiss\nSame word:",
+    "continuation": " Swiss",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Peruvian\nSame word: Peruvian\n\nNationality: Irish\nSame word: Irish\n\nNationality: Greek\nSame word: Greek\n\nNationality: Dutch\nSame word:",
+    "continuation": " Dutch",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Dutch\nSame word: Dutch\n\nNationality: Irish\nSame word: Irish\n\nNationality: Japanese\nSame word: Japanese\n\nNationality: Iranian\nSame word:",
+    "continuation": " Iranian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Belgian\nSame word: Belgian\n\nNationality: Spanish\nSame word: Spanish\n\nNationality: Danish\nSame word: Danish\n\nNationality: Polish\nSame word:",
+    "continuation": " Polish",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Indian\nSame word: Indian\n\nNationality: Russian\nSame word: Russian\n\nNationality: Greek\nSame word: Greek\n\nNationality: Kenyan\nSame word:",
+    "continuation": " Kenyan",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Polish\nSame word: Polish\n\nNationality: Spanish\nSame word: Spanish\n\nNationality: Mexican\nSame word: Mexican\n\nNationality: Greek\nSame word:",
+    "continuation": " Greek",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Turkish\nSame word: Turkish\n\nNationality: Russian\nSame word: Russian\n\nNationality: Chilean\nSame word: Chilean\n\nNationality: Swiss\nSame word:",
+    "continuation": " Swiss",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Australian\nSame word: Australian\n\nNationality: Irish\nSame word: Irish\n\nNationality: Indian\nSame word: Indian\n\nNationality: Turkish\nSame word:",
+    "continuation": " Turkish",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Belgian\nSame word: Belgian\n\nNationality: Argentine\nSame word: Argentine\n\nNationality: Japanese\nSame word: Japanese\n\nNationality: Italian\nSame word:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Chilean\nSame word: Chilean\n\nNationality: Argentine\nSame word: Argentine\n\nNationality: Korean\nSame word: Korean\n\nNationality: Vietnamese\nSame word:",
+    "continuation": " Vietnamese",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: German\nSame word: German\n\nNationality: Irish\nSame word: Irish\n\nNationality: Portuguese\nSame word: Portuguese\n\nNationality: Thai\nSame word:",
+    "continuation": " Thai",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Korean\nSame word: Korean\n\nNationality: Canadian\nSame word: Canadian\n\nNationality: Chilean\nSame word: Chilean\n\nNationality: Dutch\nSame word:",
+    "continuation": " Dutch",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Indian\nSame word: Indian\n\nNationality: French\nSame word: French\n\nNationality: Italian\nSame word: Italian\n\nNationality: Turkish\nSame word:",
+    "continuation": " Turkish",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Polish\nSame word: Polish\n\nNationality: German\nSame word: German\n\nNationality: Nigerian\nSame word: Nigerian\n\nNationality: Canadian\nSame word:",
+    "continuation": " Canadian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Canadian\nSame word: Canadian\n\nNationality: Greek\nSame word: Greek\n\nNationality: Finnish\nSame word: Finnish\n\nNationality: Chinese\nSame word:",
+    "continuation": " Chinese",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Irish\nSame word: Irish\n\nNationality: Thai\nSame word: Thai\n\nNationality: Chinese\nSame word: Chinese\n\nNationality: Vietnamese\nSame word:",
+    "continuation": " Vietnamese",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Dutch\nSame word: Dutch\n\nNationality: Polish\nSame word: Polish\n\nNationality: Italian\nSame word: Italian\n\nNationality: Norwegian\nSame word:",
+    "continuation": " Norwegian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Hungarian\nSame word: Hungarian\n\nNationality: Chinese\nSame word: Chinese\n\nNationality: Brazilian\nSame word: Brazilian\n\nNationality: German\nSame word:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Italian\nSame word: Italian\n\nNationality: Iranian\nSame word: Iranian\n\nNationality: Japanese\nSame word: Japanese\n\nNationality: French\nSame word:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Norwegian\nSame word: Norwegian\n\nNationality: Korean\nSame word: Korean\n\nNationality: Irish\nSame word: Irish\n\nNationality: Spanish\nSame word:",
+    "continuation": " Spanish",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Kenyan\nSame word: Kenyan\n\nNationality: Peruvian\nSame word: Peruvian\n\nNationality: Finnish\nSame word: Finnish\n\nNationality: Australian\nSame word:",
+    "continuation": " Australian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Korean\nSame word: Korean\n\nNationality: Thai\nSame word: Thai\n\nNationality: Finnish\nSame word: Finnish\n\nNationality: Brazilian\nSame word:",
+    "continuation": " Brazilian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Italian\nSame word: Italian\n\nNationality: Chilean\nSame word: Chilean\n\nNationality: Danish\nSame word: Danish\n\nNationality: Mexican\nSame word:",
+    "continuation": " Mexican",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Vietnamese\nSame word: Vietnamese\n\nNationality: Thai\nSame word: Thai\n\nNationality: Iranian\nSame word: Iranian\n\nNationality: Indian\nSame word:",
+    "continuation": " Indian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Chilean\nSame word: Chilean\n\nNationality: Argentine\nSame word: Argentine\n\nNationality: Polish\nSame word: Polish\n\nNationality: Hungarian\nSame word:",
+    "continuation": " Hungarian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Chilean\nSame word: Chilean\n\nNationality: Vietnamese\nSame word: Vietnamese\n\nNationality: Swedish\nSame word: Swedish\n\nNationality: French\nSame word:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Danish\nSame word: Danish\n\nNationality: Kenyan\nSame word: Kenyan\n\nNationality: Australian\nSame word: Australian\n\nNationality: Thai\nSame word:",
+    "continuation": " Thai",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Russian\nSame word: Russian\n\nNationality: Australian\nSame word: Australian\n\nNationality: Hungarian\nSame word: Hungarian\n\nNationality: Portuguese\nSame word:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Canadian\nSame word: Canadian\n\nNationality: Peruvian\nSame word: Peruvian\n\nNationality: Swiss\nSame word: Swiss\n\nNationality: Italian\nSame word:",
+    "continuation": " Italian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Thai\nSame word: Thai\n\nNationality: Canadian\nSame word: Canadian\n\nNationality: Italian\nSame word: Italian\n\nNationality: French\nSame word:",
+    "continuation": " French",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Italian\nSame word: Italian\n\nNationality: Nigerian\nSame word: Nigerian\n\nNationality: Indian\nSame word: Indian\n\nNationality: Korean\nSame word:",
+    "continuation": " Korean",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Turkish\nSame word: Turkish\n\nNationality: Spanish\nSame word: Spanish\n\nNationality: Kenyan\nSame word: Kenyan\n\nNationality: Peruvian\nSame word:",
+    "continuation": " Peruvian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Danish\nSame word: Danish\n\nNationality: Italian\nSame word: Italian\n\nNationality: Belgian\nSame word: Belgian\n\nNationality: Finnish\nSame word:",
+    "continuation": " Finnish",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Swiss\nSame word: Swiss\n\nNationality: Nigerian\nSame word: Nigerian\n\nNationality: Peruvian\nSame word: Peruvian\n\nNationality: Portuguese\nSame word:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Vietnamese\nSame word: Vietnamese\n\nNationality: Danish\nSame word: Danish\n\nNationality: Italian\nSame word: Italian\n\nNationality: Egyptian\nSame word:",
+    "continuation": " Egyptian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Belgian\nSame word: Belgian\n\nNationality: Spanish\nSame word: Spanish\n\nNationality: Russian\nSame word: Russian\n\nNationality: Nigerian\nSame word:",
+    "continuation": " Nigerian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Vietnamese\nSame word: Vietnamese\n\nNationality: Chinese\nSame word: Chinese\n\nNationality: Japanese\nSame word: Japanese\n\nNationality: Canadian\nSame word:",
+    "continuation": " Canadian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Finnish\nSame word: Finnish\n\nNationality: Danish\nSame word: Danish\n\nNationality: Portuguese\nSame word: Portuguese\n\nNationality: German\nSame word:",
+    "continuation": " German",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Danish\nSame word: Danish\n\nNationality: Italian\nSame word: Italian\n\nNationality: Mexican\nSame word: Mexican\n\nNationality: Peruvian\nSame word:",
+    "continuation": " Peruvian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Brazilian\nSame word: Brazilian\n\nNationality: Korean\nSame word: Korean\n\nNationality: Russian\nSame word: Russian\n\nNationality: Australian\nSame word:",
+    "continuation": " Australian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Italian\nSame word: Italian\n\nNationality: Polish\nSame word: Polish\n\nNationality: Dutch\nSame word: Dutch\n\nNationality: Thai\nSame word:",
+    "continuation": " Thai",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Chinese\nSame word: Chinese\n\nNationality: Portuguese\nSame word: Portuguese\n\nNationality: Kenyan\nSame word: Kenyan\n\nNationality: Iranian\nSame word:",
+    "continuation": " Iranian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Spanish\nSame word: Spanish\n\nNationality: Russian\nSame word: Russian\n\nNationality: Indian\nSame word: Indian\n\nNationality: Egyptian\nSame word:",
+    "continuation": " Egyptian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Swiss\nSame word: Swiss\n\nNationality: Polish\nSame word: Polish\n\nNationality: Korean\nSame word: Korean\n\nNationality: Belgian\nSame word:",
+    "continuation": " Belgian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Vietnamese\nSame word: Vietnamese\n\nNationality: Danish\nSame word: Danish\n\nNationality: Italian\nSame word: Italian\n\nNationality: Austrian\nSame word:",
+    "continuation": " Austrian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Canadian\nSame word: Canadian\n\nNationality: Japanese\nSame word: Japanese\n\nNationality: French\nSame word: French\n\nNationality: Peruvian\nSame word:",
+    "continuation": " Peruvian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Canadian\nSame word: Canadian\n\nNationality: Dutch\nSame word: Dutch\n\nNationality: Brazilian\nSame word: Brazilian\n\nNationality: Finnish\nSame word:",
+    "continuation": " Finnish",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Greek\nSame word: Greek\n\nNationality: Canadian\nSame word: Canadian\n\nNationality: Australian\nSame word: Australian\n\nNationality: Portuguese\nSame word:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Korean\nSame word: Korean\n\nNationality: Brazilian\nSame word: Brazilian\n\nNationality: Vietnamese\nSame word: Vietnamese\n\nNationality: Portuguese\nSame word:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Thai\nSame word: Thai\n\nNationality: Italian\nSame word: Italian\n\nNationality: Peruvian\nSame word: Peruvian\n\nNationality: Kenyan\nSame word:",
+    "continuation": " Kenyan",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Hungarian\nSame word: Hungarian\n\nNationality: Korean\nSame word: Korean\n\nNationality: Austrian\nSame word: Austrian\n\nNationality: Chinese\nSame word:",
+    "continuation": " Chinese",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Russian\nSame word: Russian\n\nNationality: Dutch\nSame word: Dutch\n\nNationality: Japanese\nSame word: Japanese\n\nNationality: Egyptian\nSame word:",
+    "continuation": " Egyptian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Spanish\nSame word: Spanish\n\nNationality: Hungarian\nSame word: Hungarian\n\nNationality: German\nSame word: German\n\nNationality: Canadian\nSame word:",
+    "continuation": " Canadian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Mexican\nSame word: Mexican\n\nNationality: Indian\nSame word: Indian\n\nNationality: Belgian\nSame word: Belgian\n\nNationality: Finnish\nSame word:",
+    "continuation": " Finnish",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: German\nSame word: German\n\nNationality: Turkish\nSame word: Turkish\n\nNationality: Australian\nSame word: Australian\n\nNationality: Hungarian\nSame word:",
+    "continuation": " Hungarian",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Peruvian\nSame word: Peruvian\n\nNationality: Chinese\nSame word: Chinese\n\nNationality: Indian\nSame word: Indian\n\nNationality: Vietnamese\nSame word:",
+    "continuation": " Vietnamese",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Australian\nSame word: Australian\n\nNationality: Finnish\nSame word: Finnish\n\nNationality: Irish\nSame word: Irish\n\nNationality: Portuguese\nSame word:",
+    "continuation": " Portuguese",
+    "digits_only": false
+   },
+   {
+    "context": "Nationality: Turkish\nSame word: Turkish\n\nNationality: Greek\nSame word: Greek\n\nNationality: Italian\nSame word: Italian\n\nNationality: Australian\nSame word:",
+    "continuation": " Australian",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 14.2378
+}

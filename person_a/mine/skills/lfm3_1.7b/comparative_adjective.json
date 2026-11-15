@@ -1,0 +1,1220 @@
+{
+ "name": "comparative_adjective",
+ "description": "Form the comparative of an adjective (big -> bigger, good -> better). Control: same format but repeat the base adjective.",
+ "hash": "07ff327f5d92670c",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nA=[('big','bigger'),('small','smaller'),('long','longer'),('short','shorter'),('fast','faster'),('slow','slower'),('tall','taller'),('old','older'),('young','younger'),('strong','stronger'),('weak','weaker'),('hard','harder'),('soft','softer'),('good','better'),('bad','worse'),('large','larger'),('high','higher'),('low','lower'),('cold','colder'),('warm','warmer'),('deep','deeper'),('wide','wider'),('rich','richer'),('poor','poorer'),('clean','cleaner'),('dark','darker'),('bright','brighter'),('heavy','heavier'),('easy','easier'),('happy','happier')]\nitems=[];control=[]\nfor t in range(120):\n    sh=random.sample(A,3); q=random.choice([a for a in A if a not in sh])\n    p=''.join(f\"Adjective: {a}\\nComparative: {b}\\n\\n\" for a,b in sh)+f\"Adjective: {q[0]}\\nComparative:\"\n    items.append({\"prompt\":p,\"answer\":\" \"+q[1]})\n    p2=''.join(f\"Adjective: {a}\\nBase form: {a}\\n\\n\" for a,b in sh)+f\"Adjective: {q[0]}\\nBase form:\"\n    control.append({\"prompt\":p2,\"answer\":\" \"+q[0]})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Adjective: slow\nComparative: slower\n\nAdjective: rich\nComparative: richer\n\nAdjective: short\nComparative: shorter\n\nAdjective: low\nComparative:",
+    "continuation": " lower",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: big\nComparative: bigger\n\nAdjective: bright\nComparative: brighter\n\nAdjective: wide\nComparative: wider\n\nAdjective: low\nComparative:",
+    "continuation": " lower",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: low\nComparative: lower\n\nAdjective: deep\nComparative: deeper\n\nAdjective: long\nComparative: longer\n\nAdjective: happy\nComparative:",
+    "continuation": " happier",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: strong\nComparative: stronger\n\nAdjective: large\nComparative: larger\n\nAdjective: hard\nComparative: harder\n\nAdjective: wide\nComparative:",
+    "continuation": " wider",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: deep\nComparative: deeper\n\nAdjective: high\nComparative: higher\n\nAdjective: bright\nComparative: brighter\n\nAdjective: rich\nComparative:",
+    "continuation": " richer",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: happy\nComparative: happier\n\nAdjective: wide\nComparative: wider\n\nAdjective: big\nComparative: bigger\n\nAdjective: cold\nComparative:",
+    "continuation": " colder",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: wide\nComparative: wider\n\nAdjective: good\nComparative: better\n\nAdjective: easy\nComparative: easier\n\nAdjective: warm\nComparative:",
+    "continuation": " warmer",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: low\nComparative: lower\n\nAdjective: bad\nComparative: worse\n\nAdjective: long\nComparative: longer\n\nAdjective: short\nComparative:",
+    "continuation": " shorter",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: old\nComparative: older\n\nAdjective: strong\nComparative: stronger\n\nAdjective: slow\nComparative: slower\n\nAdjective: young\nComparative:",
+    "continuation": " younger",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: rich\nComparative: richer\n\nAdjective: short\nComparative: shorter\n\nAdjective: low\nComparative: lower\n\nAdjective: hard\nComparative:",
+    "continuation": " harder",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: rich\nComparative: richer\n\nAdjective: old\nComparative: older\n\nAdjective: hard\nComparative: harder\n\nAdjective: easy\nComparative:",
+    "continuation": " easier",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: small\nComparative: smaller\n\nAdjective: dark\nComparative: darker\n\nAdjective: wide\nComparative: wider\n\nAdjective: tall\nComparative:",
+    "continuation": " taller",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: weak\nComparative: weaker\n\nAdjective: easy\nComparative: easier\n\nAdjective: high\nComparative: higher\n\nAdjective: low\nComparative:",
+    "continuation": " lower",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: easy\nComparative: easier\n\nAdjective: happy\nComparative: happier\n\nAdjective: cold\nComparative: colder\n\nAdjective: slow\nComparative:",
+    "continuation": " slower",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: deep\nComparative: deeper\n\nAdjective: hard\nComparative: harder\n\nAdjective: soft\nComparative: softer\n\nAdjective: happy\nComparative:",
+    "continuation": " happier",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: bright\nComparative: brighter\n\nAdjective: soft\nComparative: softer\n\nAdjective: rich\nComparative: richer\n\nAdjective: happy\nComparative:",
+    "continuation": " happier",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: long\nComparative: longer\n\nAdjective: big\nComparative: bigger\n\nAdjective: warm\nComparative: warmer\n\nAdjective: young\nComparative:",
+    "continuation": " younger",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: dark\nComparative: darker\n\nAdjective: soft\nComparative: softer\n\nAdjective: weak\nComparative: weaker\n\nAdjective: deep\nComparative:",
+    "continuation": " deeper",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: soft\nComparative: softer\n\nAdjective: happy\nComparative: happier\n\nAdjective: dark\nComparative: darker\n\nAdjective: easy\nComparative:",
+    "continuation": " easier",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: wide\nComparative: wider\n\nAdjective: young\nComparative: younger\n\nAdjective: fast\nComparative: faster\n\nAdjective: warm\nComparative:",
+    "continuation": " warmer",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: strong\nComparative: stronger\n\nAdjective: short\nComparative: shorter\n\nAdjective: poor\nComparative: poorer\n\nAdjective: long\nComparative:",
+    "continuation": " longer",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: large\nComparative: larger\n\nAdjective: heavy\nComparative: heavier\n\nAdjective: happy\nComparative: happier\n\nAdjective: soft\nComparative:",
+    "continuation": " softer",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: hard\nComparative: harder\n\nAdjective: long\nComparative: longer\n\nAdjective: weak\nComparative: weaker\n\nAdjective: rich\nComparative:",
+    "continuation": " richer",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: poor\nComparative: poorer\n\nAdjective: good\nComparative: better\n\nAdjective: bright\nComparative: brighter\n\nAdjective: wide\nComparative:",
+    "continuation": " wider",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: easy\nComparative: easier\n\nAdjective: dark\nComparative: darker\n\nAdjective: good\nComparative: better\n\nAdjective: tall\nComparative:",
+    "continuation": " taller",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: short\nComparative: shorter\n\nAdjective: large\nComparative: larger\n\nAdjective: cold\nComparative: colder\n\nAdjective: poor\nComparative:",
+    "continuation": " poorer",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: big\nComparative: bigger\n\nAdjective: poor\nComparative: poorer\n\nAdjective: young\nComparative: younger\n\nAdjective: fast\nComparative:",
+    "continuation": " faster",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: low\nComparative: lower\n\nAdjective: weak\nComparative: weaker\n\nAdjective: hard\nComparative: harder\n\nAdjective: wide\nComparative:",
+    "continuation": " wider",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: clean\nComparative: cleaner\n\nAdjective: large\nComparative: larger\n\nAdjective: hard\nComparative: harder\n\nAdjective: wide\nComparative:",
+    "continuation": " wider",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: soft\nComparative: softer\n\nAdjective: bright\nComparative: brighter\n\nAdjective: rich\nComparative: richer\n\nAdjective: low\nComparative:",
+    "continuation": " lower",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: large\nComparative: larger\n\nAdjective: low\nComparative: lower\n\nAdjective: short\nComparative: shorter\n\nAdjective: soft\nComparative:",
+    "continuation": " softer",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: short\nComparative: shorter\n\nAdjective: strong\nComparative: stronger\n\nAdjective: low\nComparative: lower\n\nAdjective: hard\nComparative:",
+    "continuation": " harder",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: slow\nComparative: slower\n\nAdjective: weak\nComparative: weaker\n\nAdjective: good\nComparative: better\n\nAdjective: happy\nComparative:",
+    "continuation": " happier",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: heavy\nComparative: heavier\n\nAdjective: rich\nComparative: richer\n\nAdjective: old\nComparative: older\n\nAdjective: small\nComparative:",
+    "continuation": " smaller",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: warm\nComparative: warmer\n\nAdjective: short\nComparative: shorter\n\nAdjective: tall\nComparative: taller\n\nAdjective: fast\nComparative:",
+    "continuation": " faster",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: rich\nComparative: richer\n\nAdjective: slow\nComparative: slower\n\nAdjective: bad\nComparative: worse\n\nAdjective: cold\nComparative:",
+    "continuation": " colder",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: bad\nComparative: worse\n\nAdjective: heavy\nComparative: heavier\n\nAdjective: high\nComparative: higher\n\nAdjective: young\nComparative:",
+    "continuation": " younger",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: warm\nComparative: warmer\n\nAdjective: wide\nComparative: wider\n\nAdjective: long\nComparative: longer\n\nAdjective: big\nComparative:",
+    "continuation": " bigger",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: old\nComparative: older\n\nAdjective: dark\nComparative: darker\n\nAdjective: fast\nComparative: faster\n\nAdjective: easy\nComparative:",
+    "continuation": " easier",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: deep\nComparative: deeper\n\nAdjective: hard\nComparative: harder\n\nAdjective: short\nComparative: shorter\n\nAdjective: slow\nComparative:",
+    "continuation": " slower",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: wide\nComparative: wider\n\nAdjective: slow\nComparative: slower\n\nAdjective: big\nComparative: bigger\n\nAdjective: low\nComparative:",
+    "continuation": " lower",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: clean\nComparative: cleaner\n\nAdjective: wide\nComparative: wider\n\nAdjective: rich\nComparative: richer\n\nAdjective: small\nComparative:",
+    "continuation": " smaller",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: bright\nComparative: brighter\n\nAdjective: long\nComparative: longer\n\nAdjective: easy\nComparative: easier\n\nAdjective: poor\nComparative:",
+    "continuation": " poorer",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: old\nComparative: older\n\nAdjective: poor\nComparative: poorer\n\nAdjective: weak\nComparative: weaker\n\nAdjective: dark\nComparative:",
+    "continuation": " darker",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: warm\nComparative: warmer\n\nAdjective: dark\nComparative: darker\n\nAdjective: young\nComparative: younger\n\nAdjective: cold\nComparative:",
+    "continuation": " colder",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: tall\nComparative: taller\n\nAdjective: big\nComparative: bigger\n\nAdjective: rich\nComparative: richer\n\nAdjective: heavy\nComparative:",
+    "continuation": " heavier",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: warm\nComparative: warmer\n\nAdjective: clean\nComparative: cleaner\n\nAdjective: big\nComparative: bigger\n\nAdjective: long\nComparative:",
+    "continuation": " longer",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: heavy\nComparative: heavier\n\nAdjective: long\nComparative: longer\n\nAdjective: tall\nComparative: taller\n\nAdjective: deep\nComparative:",
+    "continuation": " deeper",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: rich\nComparative: richer\n\nAdjective: deep\nComparative: deeper\n\nAdjective: easy\nComparative: easier\n\nAdjective: bad\nComparative:",
+    "continuation": " worse",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: small\nComparative: smaller\n\nAdjective: tall\nComparative: taller\n\nAdjective: wide\nComparative: wider\n\nAdjective: weak\nComparative:",
+    "continuation": " weaker",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: strong\nComparative: stronger\n\nAdjective: bad\nComparative: worse\n\nAdjective: long\nComparative: longer\n\nAdjective: rich\nComparative:",
+    "continuation": " richer",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: easy\nComparative: easier\n\nAdjective: fast\nComparative: faster\n\nAdjective: happy\nComparative: happier\n\nAdjective: small\nComparative:",
+    "continuation": " smaller",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: bright\nComparative: brighter\n\nAdjective: cold\nComparative: colder\n\nAdjective: short\nComparative: shorter\n\nAdjective: good\nComparative:",
+    "continuation": " better",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: rich\nComparative: richer\n\nAdjective: easy\nComparative: easier\n\nAdjective: wide\nComparative: wider\n\nAdjective: cold\nComparative:",
+    "continuation": " colder",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: easy\nComparative: easier\n\nAdjective: large\nComparative: larger\n\nAdjective: happy\nComparative: happier\n\nAdjective: cold\nComparative:",
+    "continuation": " colder",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: happy\nComparative: happier\n\nAdjective: big\nComparative: bigger\n\nAdjective: long\nComparative: longer\n\nAdjective: dark\nComparative:",
+    "continuation": " darker",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: small\nComparative: smaller\n\nAdjective: dark\nComparative: darker\n\nAdjective: happy\nComparative: happier\n\nAdjective: cold\nComparative:",
+    "continuation": " colder",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: happy\nComparative: happier\n\nAdjective: bad\nComparative: worse\n\nAdjective: dark\nComparative: darker\n\nAdjective: heavy\nComparative:",
+    "continuation": " heavier",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: tall\nComparative: taller\n\nAdjective: poor\nComparative: poorer\n\nAdjective: dark\nComparative: darker\n\nAdjective: small\nComparative:",
+    "continuation": " smaller",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: fast\nComparative: faster\n\nAdjective: rich\nComparative: richer\n\nAdjective: strong\nComparative: stronger\n\nAdjective: bad\nComparative:",
+    "continuation": " worse",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Adjective: easy\nComparative: easier\n\nAdjective: happy\nComparative: happier\n\nAdjective: tall\nComparative: taller\n\nAdjective: low\nComparative:",
+    "continuation": " lower",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: strong\nComparative: stronger\n\nAdjective: wide\nComparative: wider\n\nAdjective: hard\nComparative: harder\n\nAdjective: deep\nComparative:",
+    "continuation": " deeper",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: easy\nComparative: easier\n\nAdjective: deep\nComparative: deeper\n\nAdjective: heavy\nComparative: heavier\n\nAdjective: warm\nComparative:",
+    "continuation": " warmer",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: young\nComparative: younger\n\nAdjective: bad\nComparative: worse\n\nAdjective: large\nComparative: larger\n\nAdjective: clean\nComparative:",
+    "continuation": " cleaner",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: bright\nComparative: brighter\n\nAdjective: slow\nComparative: slower\n\nAdjective: small\nComparative: smaller\n\nAdjective: wide\nComparative:",
+    "continuation": " wider",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: rich\nComparative: richer\n\nAdjective: weak\nComparative: weaker\n\nAdjective: slow\nComparative: slower\n\nAdjective: young\nComparative:",
+    "continuation": " younger",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: slow\nComparative: slower\n\nAdjective: small\nComparative: smaller\n\nAdjective: high\nComparative: higher\n\nAdjective: low\nComparative:",
+    "continuation": " lower",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: heavy\nComparative: heavier\n\nAdjective: soft\nComparative: softer\n\nAdjective: clean\nComparative: cleaner\n\nAdjective: bad\nComparative:",
+    "continuation": " worse",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: short\nComparative: shorter\n\nAdjective: heavy\nComparative: heavier\n\nAdjective: young\nComparative: younger\n\nAdjective: slow\nComparative:",
+    "continuation": " slower",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: good\nComparative: better\n\nAdjective: weak\nComparative: weaker\n\nAdjective: warm\nComparative: warmer\n\nAdjective: poor\nComparative:",
+    "continuation": " poorer",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: small\nComparative: smaller\n\nAdjective: young\nComparative: younger\n\nAdjective: high\nComparative: higher\n\nAdjective: cold\nComparative:",
+    "continuation": " colder",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: slow\nComparative: slower\n\nAdjective: bad\nComparative: worse\n\nAdjective: long\nComparative: longer\n\nAdjective: weak\nComparative:",
+    "continuation": " weaker",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: rich\nComparative: richer\n\nAdjective: dark\nComparative: darker\n\nAdjective: warm\nComparative: warmer\n\nAdjective: fast\nComparative:",
+    "continuation": " faster",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: happy\nComparative: happier\n\nAdjective: heavy\nComparative: heavier\n\nAdjective: small\nComparative: smaller\n\nAdjective: clean\nComparative:",
+    "continuation": " cleaner",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: easy\nComparative: easier\n\nAdjective: poor\nComparative: poorer\n\nAdjective: large\nComparative: larger\n\nAdjective: happy\nComparative:",
+    "continuation": " happier",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: small\nComparative: smaller\n\nAdjective: warm\nComparative: warmer\n\nAdjective: big\nComparative: bigger\n\nAdjective: young\nComparative:",
+    "continuation": " younger",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: deep\nComparative: deeper\n\nAdjective: good\nComparative: better\n\nAdjective: hard\nComparative: harder\n\nAdjective: warm\nComparative:",
+    "continuation": " warmer",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: heavy\nComparative: heavier\n\nAdjective: slow\nComparative: slower\n\nAdjective: weak\nComparative: weaker\n\nAdjective: cold\nComparative:",
+    "continuation": " colder",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: bright\nComparative: brighter\n\nAdjective: happy\nComparative: happier\n\nAdjective: low\nComparative: lower\n\nAdjective: tall\nComparative:",
+    "continuation": " taller",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: long\nComparative: longer\n\nAdjective: weak\nComparative: weaker\n\nAdjective: poor\nComparative: poorer\n\nAdjective: small\nComparative:",
+    "continuation": " smaller",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: cold\nComparative: colder\n\nAdjective: bright\nComparative: brighter\n\nAdjective: good\nComparative: better\n\nAdjective: deep\nComparative:",
+    "continuation": " deeper",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: long\nComparative: longer\n\nAdjective: hard\nComparative: harder\n\nAdjective: bright\nComparative: brighter\n\nAdjective: fast\nComparative:",
+    "continuation": " faster",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: warm\nComparative: warmer\n\nAdjective: deep\nComparative: deeper\n\nAdjective: tall\nComparative: taller\n\nAdjective: weak\nComparative:",
+    "continuation": " weaker",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: heavy\nComparative: heavier\n\nAdjective: good\nComparative: better\n\nAdjective: small\nComparative: smaller\n\nAdjective: bad\nComparative:",
+    "continuation": " worse",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: young\nComparative: younger\n\nAdjective: short\nComparative: shorter\n\nAdjective: warm\nComparative: warmer\n\nAdjective: high\nComparative:",
+    "continuation": " higher",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: good\nComparative: better\n\nAdjective: warm\nComparative: warmer\n\nAdjective: short\nComparative: shorter\n\nAdjective: happy\nComparative:",
+    "continuation": " happier",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: deep\nComparative: deeper\n\nAdjective: rich\nComparative: richer\n\nAdjective: happy\nComparative: happier\n\nAdjective: heavy\nComparative:",
+    "continuation": " heavier",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: old\nComparative: older\n\nAdjective: deep\nComparative: deeper\n\nAdjective: bad\nComparative: worse\n\nAdjective: good\nComparative:",
+    "continuation": " better",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: easy\nComparative: easier\n\nAdjective: heavy\nComparative: heavier\n\nAdjective: wide\nComparative: wider\n\nAdjective: weak\nComparative:",
+    "continuation": " weaker",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: rich\nComparative: richer\n\nAdjective: warm\nComparative: warmer\n\nAdjective: deep\nComparative: deeper\n\nAdjective: large\nComparative:",
+    "continuation": " larger",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: heavy\nComparative: heavier\n\nAdjective: tall\nComparative: taller\n\nAdjective: easy\nComparative: easier\n\nAdjective: rich\nComparative:",
+    "continuation": " richer",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: warm\nComparative: warmer\n\nAdjective: large\nComparative: larger\n\nAdjective: bright\nComparative: brighter\n\nAdjective: weak\nComparative:",
+    "continuation": " weaker",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: rich\nComparative: richer\n\nAdjective: big\nComparative: bigger\n\nAdjective: bad\nComparative: worse\n\nAdjective: bright\nComparative:",
+    "continuation": " brighter",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: heavy\nComparative: heavier\n\nAdjective: rich\nComparative: richer\n\nAdjective: cold\nComparative: colder\n\nAdjective: good\nComparative:",
+    "continuation": " better",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: rich\nComparative: richer\n\nAdjective: wide\nComparative: wider\n\nAdjective: tall\nComparative: taller\n\nAdjective: heavy\nComparative:",
+    "continuation": " heavier",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: wide\nComparative: wider\n\nAdjective: young\nComparative: younger\n\nAdjective: large\nComparative: larger\n\nAdjective: long\nComparative:",
+    "continuation": " longer",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: low\nComparative: lower\n\nAdjective: young\nComparative: younger\n\nAdjective: fast\nComparative: faster\n\nAdjective: strong\nComparative:",
+    "continuation": " stronger",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: happy\nComparative: happier\n\nAdjective: tall\nComparative: taller\n\nAdjective: low\nComparative: lower\n\nAdjective: high\nComparative:",
+    "continuation": " higher",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: large\nComparative: larger\n\nAdjective: weak\nComparative: weaker\n\nAdjective: strong\nComparative: stronger\n\nAdjective: happy\nComparative:",
+    "continuation": " happier",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: wide\nComparative: wider\n\nAdjective: good\nComparative: better\n\nAdjective: weak\nComparative: weaker\n\nAdjective: big\nComparative:",
+    "continuation": " bigger",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: happy\nComparative: happier\n\nAdjective: bright\nComparative: brighter\n\nAdjective: low\nComparative: lower\n\nAdjective: rich\nComparative:",
+    "continuation": " richer",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: dark\nComparative: darker\n\nAdjective: wide\nComparative: wider\n\nAdjective: deep\nComparative: deeper\n\nAdjective: big\nComparative:",
+    "continuation": " bigger",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: small\nComparative: smaller\n\nAdjective: warm\nComparative: warmer\n\nAdjective: short\nComparative: shorter\n\nAdjective: dark\nComparative:",
+    "continuation": " darker",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: dark\nComparative: darker\n\nAdjective: warm\nComparative: warmer\n\nAdjective: low\nComparative: lower\n\nAdjective: deep\nComparative:",
+    "continuation": " deeper",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: heavy\nComparative: heavier\n\nAdjective: high\nComparative: higher\n\nAdjective: happy\nComparative: happier\n\nAdjective: strong\nComparative:",
+    "continuation": " stronger",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: weak\nComparative: weaker\n\nAdjective: heavy\nComparative: heavier\n\nAdjective: tall\nComparative: taller\n\nAdjective: young\nComparative:",
+    "continuation": " younger",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: young\nComparative: younger\n\nAdjective: long\nComparative: longer\n\nAdjective: old\nComparative: older\n\nAdjective: short\nComparative:",
+    "continuation": " shorter",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: young\nComparative: younger\n\nAdjective: high\nComparative: higher\n\nAdjective: dark\nComparative: darker\n\nAdjective: old\nComparative:",
+    "continuation": " older",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: young\nComparative: younger\n\nAdjective: rich\nComparative: richer\n\nAdjective: slow\nComparative: slower\n\nAdjective: short\nComparative:",
+    "continuation": " shorter",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: poor\nComparative: poorer\n\nAdjective: fast\nComparative: faster\n\nAdjective: big\nComparative: bigger\n\nAdjective: bad\nComparative:",
+    "continuation": " worse",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: bright\nComparative: brighter\n\nAdjective: cold\nComparative: colder\n\nAdjective: deep\nComparative: deeper\n\nAdjective: low\nComparative:",
+    "continuation": " lower",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: deep\nComparative: deeper\n\nAdjective: strong\nComparative: stronger\n\nAdjective: hard\nComparative: harder\n\nAdjective: large\nComparative:",
+    "continuation": " larger",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: soft\nComparative: softer\n\nAdjective: tall\nComparative: taller\n\nAdjective: young\nComparative: younger\n\nAdjective: bad\nComparative:",
+    "continuation": " worse",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: long\nComparative: longer\n\nAdjective: wide\nComparative: wider\n\nAdjective: clean\nComparative: cleaner\n\nAdjective: slow\nComparative:",
+    "continuation": " slower",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: fast\nComparative: faster\n\nAdjective: strong\nComparative: stronger\n\nAdjective: clean\nComparative: cleaner\n\nAdjective: short\nComparative:",
+    "continuation": " shorter",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: short\nComparative: shorter\n\nAdjective: deep\nComparative: deeper\n\nAdjective: tall\nComparative: taller\n\nAdjective: rich\nComparative:",
+    "continuation": " richer",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: young\nComparative: younger\n\nAdjective: heavy\nComparative: heavier\n\nAdjective: big\nComparative: bigger\n\nAdjective: long\nComparative:",
+    "continuation": " longer",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: bad\nComparative: worse\n\nAdjective: small\nComparative: smaller\n\nAdjective: dark\nComparative: darker\n\nAdjective: happy\nComparative:",
+    "continuation": " happier",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: small\nComparative: smaller\n\nAdjective: short\nComparative: shorter\n\nAdjective: dark\nComparative: darker\n\nAdjective: tall\nComparative:",
+    "continuation": " taller",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: deep\nComparative: deeper\n\nAdjective: long\nComparative: longer\n\nAdjective: big\nComparative: bigger\n\nAdjective: weak\nComparative:",
+    "continuation": " weaker",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Adjective: deep\nBase form: deep\n\nAdjective: good\nBase form: good\n\nAdjective: hard\nBase form: hard\n\nAdjective: warm\nBase form:",
+    "continuation": " warm",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: strong\nBase form: strong\n\nAdjective: wide\nBase form: wide\n\nAdjective: hard\nBase form: hard\n\nAdjective: deep\nBase form:",
+    "continuation": " deep",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: heavy\nBase form: heavy\n\nAdjective: long\nBase form: long\n\nAdjective: tall\nBase form: tall\n\nAdjective: deep\nBase form:",
+    "continuation": " deep",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: heavy\nBase form: heavy\n\nAdjective: rich\nBase form: rich\n\nAdjective: cold\nBase form: cold\n\nAdjective: good\nBase form:",
+    "continuation": " good",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: rich\nBase form: rich\n\nAdjective: wide\nBase form: wide\n\nAdjective: tall\nBase form: tall\n\nAdjective: heavy\nBase form:",
+    "continuation": " heavy",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: young\nBase form: young\n\nAdjective: bad\nBase form: bad\n\nAdjective: large\nBase form: large\n\nAdjective: clean\nBase form:",
+    "continuation": " clean",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: easy\nBase form: easy\n\nAdjective: happy\nBase form: happy\n\nAdjective: tall\nBase form: tall\n\nAdjective: low\nBase form:",
+    "continuation": " low",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: low\nBase form: low\n\nAdjective: young\nBase form: young\n\nAdjective: fast\nBase form: fast\n\nAdjective: strong\nBase form:",
+    "continuation": " strong",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: young\nBase form: young\n\nAdjective: high\nBase form: high\n\nAdjective: dark\nBase form: dark\n\nAdjective: old\nBase form:",
+    "continuation": " old",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: large\nBase form: large\n\nAdjective: low\nBase form: low\n\nAdjective: short\nBase form: short\n\nAdjective: soft\nBase form:",
+    "continuation": " soft",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: small\nBase form: small\n\nAdjective: dark\nBase form: dark\n\nAdjective: happy\nBase form: happy\n\nAdjective: cold\nBase form:",
+    "continuation": " cold",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: warm\nBase form: warm\n\nAdjective: clean\nBase form: clean\n\nAdjective: big\nBase form: big\n\nAdjective: long\nBase form:",
+    "continuation": " long",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: low\nBase form: low\n\nAdjective: bad\nBase form: bad\n\nAdjective: long\nBase form: long\n\nAdjective: short\nBase form:",
+    "continuation": " short",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: long\nBase form: long\n\nAdjective: weak\nBase form: weak\n\nAdjective: poor\nBase form: poor\n\nAdjective: small\nBase form:",
+    "continuation": " small",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: small\nBase form: small\n\nAdjective: tall\nBase form: tall\n\nAdjective: wide\nBase form: wide\n\nAdjective: weak\nBase form:",
+    "continuation": " weak",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: young\nBase form: young\n\nAdjective: short\nBase form: short\n\nAdjective: warm\nBase form: warm\n\nAdjective: high\nBase form:",
+    "continuation": " high",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: wide\nBase form: wide\n\nAdjective: good\nBase form: good\n\nAdjective: easy\nBase form: easy\n\nAdjective: warm\nBase form:",
+    "continuation": " warm",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: warm\nBase form: warm\n\nAdjective: wide\nBase form: wide\n\nAdjective: long\nBase form: long\n\nAdjective: big\nBase form:",
+    "continuation": " big",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: easy\nBase form: easy\n\nAdjective: large\nBase form: large\n\nAdjective: happy\nBase form: happy\n\nAdjective: cold\nBase form:",
+    "continuation": " cold",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: easy\nBase form: easy\n\nAdjective: heavy\nBase form: heavy\n\nAdjective: wide\nBase form: wide\n\nAdjective: weak\nBase form:",
+    "continuation": " weak",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: easy\nBase form: easy\n\nAdjective: deep\nBase form: deep\n\nAdjective: heavy\nBase form: heavy\n\nAdjective: warm\nBase form:",
+    "continuation": " warm",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: happy\nBase form: happy\n\nAdjective: heavy\nBase form: heavy\n\nAdjective: small\nBase form: small\n\nAdjective: clean\nBase form:",
+    "continuation": " clean",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: large\nBase form: large\n\nAdjective: weak\nBase form: weak\n\nAdjective: strong\nBase form: strong\n\nAdjective: happy\nBase form:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: rich\nBase form: rich\n\nAdjective: slow\nBase form: slow\n\nAdjective: bad\nBase form: bad\n\nAdjective: cold\nBase form:",
+    "continuation": " cold",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: heavy\nBase form: heavy\n\nAdjective: tall\nBase form: tall\n\nAdjective: easy\nBase form: easy\n\nAdjective: rich\nBase form:",
+    "continuation": " rich",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: happy\nBase form: happy\n\nAdjective: bright\nBase form: bright\n\nAdjective: low\nBase form: low\n\nAdjective: rich\nBase form:",
+    "continuation": " rich",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: warm\nBase form: warm\n\nAdjective: deep\nBase form: deep\n\nAdjective: tall\nBase form: tall\n\nAdjective: weak\nBase form:",
+    "continuation": " weak",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: heavy\nBase form: heavy\n\nAdjective: rich\nBase form: rich\n\nAdjective: old\nBase form: old\n\nAdjective: small\nBase form:",
+    "continuation": " small",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: bright\nBase form: bright\n\nAdjective: soft\nBase form: soft\n\nAdjective: rich\nBase form: rich\n\nAdjective: happy\nBase form:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: long\nBase form: long\n\nAdjective: wide\nBase form: wide\n\nAdjective: clean\nBase form: clean\n\nAdjective: slow\nBase form:",
+    "continuation": " slow",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: short\nBase form: short\n\nAdjective: strong\nBase form: strong\n\nAdjective: low\nBase form: low\n\nAdjective: hard\nBase form:",
+    "continuation": " hard",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: warm\nBase form: warm\n\nAdjective: dark\nBase form: dark\n\nAdjective: young\nBase form: young\n\nAdjective: cold\nBase form:",
+    "continuation": " cold",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: poor\nBase form: poor\n\nAdjective: good\nBase form: good\n\nAdjective: bright\nBase form: bright\n\nAdjective: wide\nBase form:",
+    "continuation": " wide",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: fast\nBase form: fast\n\nAdjective: strong\nBase form: strong\n\nAdjective: clean\nBase form: clean\n\nAdjective: short\nBase form:",
+    "continuation": " short",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: bright\nBase form: bright\n\nAdjective: long\nBase form: long\n\nAdjective: easy\nBase form: easy\n\nAdjective: poor\nBase form:",
+    "continuation": " poor",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: heavy\nBase form: heavy\n\nAdjective: high\nBase form: high\n\nAdjective: happy\nBase form: happy\n\nAdjective: strong\nBase form:",
+    "continuation": " strong",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: good\nBase form: good\n\nAdjective: weak\nBase form: weak\n\nAdjective: warm\nBase form: warm\n\nAdjective: poor\nBase form:",
+    "continuation": " poor",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: warm\nBase form: warm\n\nAdjective: short\nBase form: short\n\nAdjective: tall\nBase form: tall\n\nAdjective: fast\nBase form:",
+    "continuation": " fast",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: hard\nBase form: hard\n\nAdjective: long\nBase form: long\n\nAdjective: weak\nBase form: weak\n\nAdjective: rich\nBase form:",
+    "continuation": " rich",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: deep\nBase form: deep\n\nAdjective: hard\nBase form: hard\n\nAdjective: short\nBase form: short\n\nAdjective: slow\nBase form:",
+    "continuation": " slow",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: old\nBase form: old\n\nAdjective: strong\nBase form: strong\n\nAdjective: slow\nBase form: slow\n\nAdjective: young\nBase form:",
+    "continuation": " young",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: easy\nBase form: easy\n\nAdjective: poor\nBase form: poor\n\nAdjective: large\nBase form: large\n\nAdjective: happy\nBase form:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: rich\nBase form: rich\n\nAdjective: warm\nBase form: warm\n\nAdjective: deep\nBase form: deep\n\nAdjective: large\nBase form:",
+    "continuation": " large",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: rich\nBase form: rich\n\nAdjective: short\nBase form: short\n\nAdjective: low\nBase form: low\n\nAdjective: hard\nBase form:",
+    "continuation": " hard",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: bright\nBase form: bright\n\nAdjective: cold\nBase form: cold\n\nAdjective: deep\nBase form: deep\n\nAdjective: low\nBase form:",
+    "continuation": " low",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: bright\nBase form: bright\n\nAdjective: slow\nBase form: slow\n\nAdjective: small\nBase form: small\n\nAdjective: wide\nBase form:",
+    "continuation": " wide",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: easy\nBase form: easy\n\nAdjective: dark\nBase form: dark\n\nAdjective: good\nBase form: good\n\nAdjective: tall\nBase form:",
+    "continuation": " tall",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: happy\nBase form: happy\n\nAdjective: wide\nBase form: wide\n\nAdjective: big\nBase form: big\n\nAdjective: cold\nBase form:",
+    "continuation": " cold",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: old\nBase form: old\n\nAdjective: poor\nBase form: poor\n\nAdjective: weak\nBase form: weak\n\nAdjective: dark\nBase form:",
+    "continuation": " dark",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: small\nBase form: small\n\nAdjective: warm\nBase form: warm\n\nAdjective: short\nBase form: short\n\nAdjective: dark\nBase form:",
+    "continuation": " dark",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: deep\nBase form: deep\n\nAdjective: rich\nBase form: rich\n\nAdjective: happy\nBase form: happy\n\nAdjective: heavy\nBase form:",
+    "continuation": " heavy",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: soft\nBase form: soft\n\nAdjective: tall\nBase form: tall\n\nAdjective: young\nBase form: young\n\nAdjective: bad\nBase form:",
+    "continuation": " bad",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: clean\nBase form: clean\n\nAdjective: large\nBase form: large\n\nAdjective: hard\nBase form: hard\n\nAdjective: wide\nBase form:",
+    "continuation": " wide",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: young\nBase form: young\n\nAdjective: heavy\nBase form: heavy\n\nAdjective: big\nBase form: big\n\nAdjective: long\nBase form:",
+    "continuation": " long",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: weak\nBase form: weak\n\nAdjective: heavy\nBase form: heavy\n\nAdjective: tall\nBase form: tall\n\nAdjective: young\nBase form:",
+    "continuation": " young",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: young\nBase form: young\n\nAdjective: long\nBase form: long\n\nAdjective: old\nBase form: old\n\nAdjective: short\nBase form:",
+    "continuation": " short",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: old\nBase form: old\n\nAdjective: dark\nBase form: dark\n\nAdjective: fast\nBase form: fast\n\nAdjective: easy\nBase form:",
+    "continuation": " easy",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: rich\nBase form: rich\n\nAdjective: old\nBase form: old\n\nAdjective: hard\nBase form: hard\n\nAdjective: easy\nBase form:",
+    "continuation": " easy",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: rich\nBase form: rich\n\nAdjective: dark\nBase form: dark\n\nAdjective: warm\nBase form: warm\n\nAdjective: fast\nBase form:",
+    "continuation": " fast",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: warm\nBase form: warm\n\nAdjective: large\nBase form: large\n\nAdjective: bright\nBase form: bright\n\nAdjective: weak\nBase form:",
+    "continuation": " weak",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Adjective: low\nBase form: low\n\nAdjective: deep\nBase form: deep\n\nAdjective: long\nBase form: long\n\nAdjective: happy\nBase form:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: big\nBase form: big\n\nAdjective: poor\nBase form: poor\n\nAdjective: young\nBase form: young\n\nAdjective: fast\nBase form:",
+    "continuation": " fast",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: rich\nBase form: rich\n\nAdjective: easy\nBase form: easy\n\nAdjective: wide\nBase form: wide\n\nAdjective: cold\nBase form:",
+    "continuation": " cold",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: weak\nBase form: weak\n\nAdjective: easy\nBase form: easy\n\nAdjective: high\nBase form: high\n\nAdjective: low\nBase form:",
+    "continuation": " low",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: big\nBase form: big\n\nAdjective: bright\nBase form: bright\n\nAdjective: wide\nBase form: wide\n\nAdjective: low\nBase form:",
+    "continuation": " low",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: short\nBase form: short\n\nAdjective: deep\nBase form: deep\n\nAdjective: tall\nBase form: tall\n\nAdjective: rich\nBase form:",
+    "continuation": " rich",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: rich\nBase form: rich\n\nAdjective: weak\nBase form: weak\n\nAdjective: slow\nBase form: slow\n\nAdjective: young\nBase form:",
+    "continuation": " young",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: soft\nBase form: soft\n\nAdjective: bright\nBase form: bright\n\nAdjective: rich\nBase form: rich\n\nAdjective: low\nBase form:",
+    "continuation": " low",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: tall\nBase form: tall\n\nAdjective: poor\nBase form: poor\n\nAdjective: dark\nBase form: dark\n\nAdjective: small\nBase form:",
+    "continuation": " small",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: wide\nBase form: wide\n\nAdjective: young\nBase form: young\n\nAdjective: fast\nBase form: fast\n\nAdjective: warm\nBase form:",
+    "continuation": " warm",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: rich\nBase form: rich\n\nAdjective: deep\nBase form: deep\n\nAdjective: easy\nBase form: easy\n\nAdjective: bad\nBase form:",
+    "continuation": " bad",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: short\nBase form: short\n\nAdjective: large\nBase form: large\n\nAdjective: cold\nBase form: cold\n\nAdjective: poor\nBase form:",
+    "continuation": " poor",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: clean\nBase form: clean\n\nAdjective: wide\nBase form: wide\n\nAdjective: rich\nBase form: rich\n\nAdjective: small\nBase form:",
+    "continuation": " small",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: heavy\nBase form: heavy\n\nAdjective: slow\nBase form: slow\n\nAdjective: weak\nBase form: weak\n\nAdjective: cold\nBase form:",
+    "continuation": " cold",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: deep\nBase form: deep\n\nAdjective: high\nBase form: high\n\nAdjective: bright\nBase form: bright\n\nAdjective: rich\nBase form:",
+    "continuation": " rich",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: small\nBase form: small\n\nAdjective: warm\nBase form: warm\n\nAdjective: big\nBase form: big\n\nAdjective: young\nBase form:",
+    "continuation": " young",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: strong\nBase form: strong\n\nAdjective: bad\nBase form: bad\n\nAdjective: long\nBase form: long\n\nAdjective: rich\nBase form:",
+    "continuation": " rich",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: easy\nBase form: easy\n\nAdjective: happy\nBase form: happy\n\nAdjective: cold\nBase form: cold\n\nAdjective: slow\nBase form:",
+    "continuation": " slow",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: long\nBase form: long\n\nAdjective: big\nBase form: big\n\nAdjective: warm\nBase form: warm\n\nAdjective: young\nBase form:",
+    "continuation": " young",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: bright\nBase form: bright\n\nAdjective: cold\nBase form: cold\n\nAdjective: short\nBase form: short\n\nAdjective: good\nBase form:",
+    "continuation": " good",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: dark\nBase form: dark\n\nAdjective: warm\nBase form: warm\n\nAdjective: low\nBase form: low\n\nAdjective: deep\nBase form:",
+    "continuation": " deep",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: young\nBase form: young\n\nAdjective: rich\nBase form: rich\n\nAdjective: slow\nBase form: slow\n\nAdjective: short\nBase form:",
+    "continuation": " short",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: small\nBase form: small\n\nAdjective: young\nBase form: young\n\nAdjective: high\nBase form: high\n\nAdjective: cold\nBase form:",
+    "continuation": " cold",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: small\nBase form: small\n\nAdjective: dark\nBase form: dark\n\nAdjective: wide\nBase form: wide\n\nAdjective: tall\nBase form:",
+    "continuation": " tall",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: large\nBase form: large\n\nAdjective: heavy\nBase form: heavy\n\nAdjective: happy\nBase form: happy\n\nAdjective: soft\nBase form:",
+    "continuation": " soft",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: old\nBase form: old\n\nAdjective: deep\nBase form: deep\n\nAdjective: bad\nBase form: bad\n\nAdjective: good\nBase form:",
+    "continuation": " good",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: soft\nBase form: soft\n\nAdjective: happy\nBase form: happy\n\nAdjective: dark\nBase form: dark\n\nAdjective: easy\nBase form:",
+    "continuation": " easy",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: wide\nBase form: wide\n\nAdjective: good\nBase form: good\n\nAdjective: weak\nBase form: weak\n\nAdjective: big\nBase form:",
+    "continuation": " big",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: cold\nBase form: cold\n\nAdjective: bright\nBase form: bright\n\nAdjective: good\nBase form: good\n\nAdjective: deep\nBase form:",
+    "continuation": " deep",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: bad\nBase form: bad\n\nAdjective: heavy\nBase form: heavy\n\nAdjective: high\nBase form: high\n\nAdjective: young\nBase form:",
+    "continuation": " young",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: deep\nBase form: deep\n\nAdjective: hard\nBase form: hard\n\nAdjective: soft\nBase form: soft\n\nAdjective: happy\nBase form:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: dark\nBase form: dark\n\nAdjective: soft\nBase form: soft\n\nAdjective: weak\nBase form: weak\n\nAdjective: deep\nBase form:",
+    "continuation": " deep",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: slow\nBase form: slow\n\nAdjective: bad\nBase form: bad\n\nAdjective: long\nBase form: long\n\nAdjective: weak\nBase form:",
+    "continuation": " weak",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: easy\nBase form: easy\n\nAdjective: fast\nBase form: fast\n\nAdjective: happy\nBase form: happy\n\nAdjective: small\nBase form:",
+    "continuation": " small",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: happy\nBase form: happy\n\nAdjective: bad\nBase form: bad\n\nAdjective: dark\nBase form: dark\n\nAdjective: heavy\nBase form:",
+    "continuation": " heavy",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: heavy\nBase form: heavy\n\nAdjective: good\nBase form: good\n\nAdjective: small\nBase form: small\n\nAdjective: bad\nBase form:",
+    "continuation": " bad",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: heavy\nBase form: heavy\n\nAdjective: soft\nBase form: soft\n\nAdjective: clean\nBase form: clean\n\nAdjective: bad\nBase form:",
+    "continuation": " bad",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: short\nBase form: short\n\nAdjective: heavy\nBase form: heavy\n\nAdjective: young\nBase form: young\n\nAdjective: slow\nBase form:",
+    "continuation": " slow",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: rich\nBase form: rich\n\nAdjective: big\nBase form: big\n\nAdjective: bad\nBase form: bad\n\nAdjective: bright\nBase form:",
+    "continuation": " bright",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: long\nBase form: long\n\nAdjective: hard\nBase form: hard\n\nAdjective: bright\nBase form: bright\n\nAdjective: fast\nBase form:",
+    "continuation": " fast",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: small\nBase form: small\n\nAdjective: short\nBase form: short\n\nAdjective: dark\nBase form: dark\n\nAdjective: tall\nBase form:",
+    "continuation": " tall",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: strong\nBase form: strong\n\nAdjective: large\nBase form: large\n\nAdjective: hard\nBase form: hard\n\nAdjective: wide\nBase form:",
+    "continuation": " wide",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: deep\nBase form: deep\n\nAdjective: strong\nBase form: strong\n\nAdjective: hard\nBase form: hard\n\nAdjective: large\nBase form:",
+    "continuation": " large",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: happy\nBase form: happy\n\nAdjective: tall\nBase form: tall\n\nAdjective: low\nBase form: low\n\nAdjective: high\nBase form:",
+    "continuation": " high",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: bright\nBase form: bright\n\nAdjective: happy\nBase form: happy\n\nAdjective: low\nBase form: low\n\nAdjective: tall\nBase form:",
+    "continuation": " tall",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: poor\nBase form: poor\n\nAdjective: fast\nBase form: fast\n\nAdjective: big\nBase form: big\n\nAdjective: bad\nBase form:",
+    "continuation": " bad",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: slow\nBase form: slow\n\nAdjective: weak\nBase form: weak\n\nAdjective: good\nBase form: good\n\nAdjective: happy\nBase form:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: fast\nBase form: fast\n\nAdjective: rich\nBase form: rich\n\nAdjective: strong\nBase form: strong\n\nAdjective: bad\nBase form:",
+    "continuation": " bad",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: good\nBase form: good\n\nAdjective: warm\nBase form: warm\n\nAdjective: short\nBase form: short\n\nAdjective: happy\nBase form:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: slow\nBase form: slow\n\nAdjective: rich\nBase form: rich\n\nAdjective: short\nBase form: short\n\nAdjective: low\nBase form:",
+    "continuation": " low",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: low\nBase form: low\n\nAdjective: weak\nBase form: weak\n\nAdjective: hard\nBase form: hard\n\nAdjective: wide\nBase form:",
+    "continuation": " wide",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: slow\nBase form: slow\n\nAdjective: small\nBase form: small\n\nAdjective: high\nBase form: high\n\nAdjective: low\nBase form:",
+    "continuation": " low",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: happy\nBase form: happy\n\nAdjective: big\nBase form: big\n\nAdjective: long\nBase form: long\n\nAdjective: dark\nBase form:",
+    "continuation": " dark",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: wide\nBase form: wide\n\nAdjective: young\nBase form: young\n\nAdjective: large\nBase form: large\n\nAdjective: long\nBase form:",
+    "continuation": " long",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: strong\nBase form: strong\n\nAdjective: short\nBase form: short\n\nAdjective: poor\nBase form: poor\n\nAdjective: long\nBase form:",
+    "continuation": " long",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: bad\nBase form: bad\n\nAdjective: small\nBase form: small\n\nAdjective: dark\nBase form: dark\n\nAdjective: happy\nBase form:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: tall\nBase form: tall\n\nAdjective: big\nBase form: big\n\nAdjective: rich\nBase form: rich\n\nAdjective: heavy\nBase form:",
+    "continuation": " heavy",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: deep\nBase form: deep\n\nAdjective: long\nBase form: long\n\nAdjective: big\nBase form: big\n\nAdjective: weak\nBase form:",
+    "continuation": " weak",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: wide\nBase form: wide\n\nAdjective: slow\nBase form: slow\n\nAdjective: big\nBase form: big\n\nAdjective: low\nBase form:",
+    "continuation": " low",
+    "digits_only": false
+   },
+   {
+    "context": "Adjective: dark\nBase form: dark\n\nAdjective: wide\nBase form: wide\n\nAdjective: deep\nBase form: deep\n\nAdjective: big\nBase form:",
+    "continuation": " big",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 12.6434
+}
