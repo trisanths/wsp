@@ -1,0 +1,1070 @@
+{
+ "name": "xfam_knowledge",
+ "request": {
+  "name": "xfam_knowledge",
+  "base": "unsloth/Llama-3.2-1B-Instruct",
+  "add": [
+   {
+    "skill": "knowledge",
+    "sources": [
+     "Qwen/Qwen2.5-7B-Instruct"
+    ],
+    "components": null,
+    "method": null
+   }
+  ],
+  "remove": [],
+  "keep": [],
+  "limits": {
+   "max_total_params_b": 5.5,
+   "max_active_params_b": 5.5,
+   "max_heal_minutes": 150.0
+  },
+  "reported": [
+   "cais/mmlu",
+   "allenai/ai2_arc",
+   "allenai/openbookqa"
+  ],
+  "seed": 1,
+  "notes": "Give Llama-3.2-1B-Instruct the general knowledge of Qwen2.5-7B-Instruct."
+ },
+ "plan": {
+  "name": "xfam_knowledge",
+  "base": {
+   "id": "unsloth/Llama-3.2-1B-Instruct",
+   "params": 1235814400,
+   "params_run": 1235814400,
+   "params_b": 1.2358,
+   "active_params_b": 1.2358,
+   "model_type": "llama",
+   "moe": false
+  },
+  "limits": {
+   "max_total_params_b": 5.5,
+   "max_active_params_b": 5.5,
+   "max_heal_minutes": 150.0
+  },
+  "reported": [
+   "cais/mmlu",
+   "allenai/ai2_arc",
+   "allenai/openbookqa"
+  ],
+  "seed": 1,
+  "keep": [],
+  "remove": [],
+  "rule": "stages whose output is a plain Hugging Face model (weave, then slim) run first and each takes the previous output as its base. At most one seam stage (pgraft, synth, feedback, transplant, or delta) runs last on top. Two seam kinds are refused because each replaces the other's branches.",
+  "sources": [
+   {
+    "skill": "knowledge",
+    "source": "Qwen/Qwen2.5-7B-Instruct",
+    "relation": "foreign",
+    "flags": {
+     "positional_base_differs": true,
+     "vocab_differs": true,
+     "tokenizer_same": false,
+     "template_same": false,
+     "added_tokens_same": false,
+     "tokenizer_strict_same": false,
+     "reserved_ids_reused": false,
+     "pretokenizer_same": false,
+     "teacher_usable_for_logit_kd": false,
+     "quantized": false,
+     "embeddings_mixable": false,
+     "same_family": false
+    },
+    "evidence": {
+     "base": {
+      "layers": 16,
+      "hidden": 2048,
+      "heads": 32,
+      "kv_heads": 8,
+      "head_dim": 64,
+      "mlp_size": 8192,
+      "experts": null,
+      "expert_size": null
+     },
+     "source": {
+      "layers": 28,
+      "hidden": 3584,
+      "heads": 28,
+      "kv_heads": 4,
+      "head_dim": 128,
+      "mlp_size": 18944,
+      "experts": null,
+      "expert_size": null
+     },
+     "base_family": "llama",
+     "source_family": "qwen2",
+     "rope_theta": [
+      500000.0,
+      1000000.0
+     ],
+     "added_tokens_same": false,
+     "special_tokens_same": false,
+     "source_license": "apache-2.0",
+     "card_links": {
+      "source_declares_base": false,
+      "base_declares_source": false,
+      "shared_ancestors": []
+     },
+     "reason": "different architecture family"
+    },
+    "subtract_reference": null,
+    "params_b": 7.6156,
+    "methods": [
+     {
+      "method": "pgraft",
+      "fits": true,
+      "reason": "other tokenizer or family and a knowledge skill: a frozen slice of the donor runs as a parallel branch of the host (measured on one pair, see the warning)",
+      "why_not": null,
+      "adds_total_b": 3.9884,
+      "needs": "donor layers 4..20 of 28 (3.962B frozen), Enc and Dec glue 15.2M, LoRA rank 16",
+      "runs_in_make": true
+     },
+     {
+      "method": "synth",
+      "fits": true,
+      "reason": "other tokenizer or family: components need translation in and out",
+      "why_not": null,
+      "adds_total_b": 0.9525,
+      "needs": "a block of 4 donor layers (4 layers wanted)",
+      "runs_in_make": true
+     }
+    ],
+    "chosen": "pgraft",
+    "components": null
+   }
+  ],
+  "stages": [
+   {
+    "order": 1,
+    "method": "pgraft",
+    "kind": "seam",
+    "module": "wsp/pgraft.py (wsp/xfam.py)",
+    "heal_minutes": 150.0,
+    "source": "Qwen/Qwen2.5-7B-Instruct",
+    "skill": "knowledge",
+    "host_layer": 7,
+    "donor_span": [
+     4,
+     20
+    ],
+    "donor_layers": 28,
+    "donor_slice_layers": 17,
+    "layer_rule": "host layer = host layers // 2 - 1; donor span = donor layers // 7 to 5 * donor layers // 7",
+    "enc": {
+     "depth": 2,
+     "d_host": 2048,
+     "d_donor": 3584,
+     "params": 13770625
+    },
+    "dec": {
+     "rank": 256,
+     "params": 1441792
+    },
+    "gate_params": 2049,
+    "lora_rank": 16,
+    "lora_params": 11272192,
+    "slice_params": 3961904128,
+    "glue_params": 15214466,
+    "params_stored_added": 3988390786,
+    "params_per_token_added": 3977118594,
+    "data": {
+     "pool": "xfam_mc_v1",
+     "dir": "/vol/wi_xfam/v1",
+     "train_items": "MMLU auxiliary_train, CommonsenseQA, OpenBookQA, QASC, LogiQA train (benchmark train splits)",
+     "soft_labels": "the donor's answer-letter distribution on every item, scored once and cached",
+     "removed": "every prompt equal to a prompt of an eval set",
+     "size": "44155 items in the cached pool (donor accuracy 85.9 percent)",
+     "text": "alignment texts (healdata prose, knowledge, medicine) and general texts (healdata general, prose) of round 22, plain text",
+     "scored_on": [
+      "mmlu_dev",
+      "mmlu_held",
+      "arc_c",
+      "obqa"
+     ]
+    },
+    "spec": {
+     "enc_depth": 2,
+     "dec_rank": 256,
+     "lora_rank": 16,
+     "steps": 4000,
+     "batch": 16,
+     "align_steps": 600,
+     "geo_steps": 100,
+     "kd_w": 1.0,
+     "preserve": 1.0,
+     "align_reg": 1.0,
+     "lora_lr": 0.0002,
+     "glue_lr": 0.0003,
+     "gate_lr": 0.0001,
+     "enc_lr": 0.0001,
+     "seq_len": 256,
+     "donor_seq_len": 320,
+     "align_batch": 4,
+     "host_layer": 7,
+     "first": 4,
+     "last": 20,
+     "d_host": 2048,
+     "d_donor": 3584
+    },
+    "controls": [
+     {
+      "name": "identity",
+      "what": "same Enc, Dec, gate, LoRA and data; the donor slice is skipped (Dec reads Enc's output)",
+      "same": "data, steps, optimizer, and last-step selection",
+      "run_by": "the compiler (settings pgraft_controls)"
+     },
+     {
+      "name": "scrambled",
+      "what": "same glue and data; the donor slice's weights rewritten by wsp/scramble.py (spectrum kept)",
+      "same": "data, steps, optimizer, and last-step selection",
+      "run_by": "the compiler (settings pgraft_controls)"
+     },
+     {
+      "name": "lora_match",
+      "what": "LoRA on the host with the same trainable count as the graft, same data and steps",
+      "same": "data, steps, optimizer, and last-step selection",
+      "run_by": "modal_wi_xfam.py preset lora_match_l (rows in results/wi_xfam, seeds 1 to 3)"
+     },
+     {
+      "name": "lora_big",
+      "what": "LoRA rank 128 on the host, same data and steps",
+      "same": "data, steps, optimizer, and last-step selection",
+      "run_by": "modal_wi_xfam.py preset lora_big (rows in results/wi_xfam, seeds 1 to 3)"
+     },
+     {
+      "name": "fullft",
+      "what": "full fine-tune of the host, same data and steps",
+      "same": "data, steps, optimizer, and last-step selection",
+      "run_by": "modal_wi_xfam.py preset fullft (rows in results/wi_xfam, seeds 1 to 3)"
+     }
+    ],
+    "estimate": {
+     "gpu": "H200",
+     "gpu_hours": 0.65,
+     "basis": "0.62 to 0.66 GPU hours per seed on one H200 in the wi_xfam rows (2026-11-15), more per control"
+    },
+    "settings": {
+     "steps": 4000,
+     "align_steps": 600,
+     "batch": 16,
+     "lora_rank": 16,
+     "enc_depth": 2,
+     "dec_rank": 256,
+     "kd_w": 1.0,
+     "preserve": 1.0,
+     "align_reg": 1.0
+    },
+    "components": [
+     {
+      "skill": "knowledge",
+      "source": "Qwen/Qwen2.5-7B-Instruct",
+      "method": "pgraft",
+      "adds_params": 3988390786
+     }
+    ],
+    "added_params": 3988390786,
+    "params_total_after": 5224205186,
+    "params_run_after": 5212932994,
+    "params_total_after_b": 5.2242,
+    "params_run_after_b": 5.2129,
+    "limit_problems": []
+   }
+  ],
+  "sizes": {
+   "base_b": 1.2358,
+   "after": [
+    {
+     "after": "pgraft",
+     "total_b": 5.2242,
+     "run_b": 5.2129
+    }
+   ],
+   "final_total_b": 5.2242,
+   "final_run_b": 5.2129
+  },
+  "heal_data": {
+   "knowledge": {
+    "pool": "knowledge",
+    "fallback": null,
+    "count": 400,
+    "seed": 1,
+    "skip": 0,
+    "sources": [
+     {
+      "id": "mandarjoshi/trivia_qa",
+      "config": "rc.nocontext",
+      "split": "train"
+     },
+     {
+      "id": "google-research-datasets/nq_open",
+      "config": "nq_open",
+      "split": "train"
+     },
+     {
+      "id": "rajpurkar/squad",
+      "config": "plain_text",
+      "split": "train"
+     },
+     {
+      "id": "microsoft/wiki_qa",
+      "config": null,
+      "split": "train"
+     }
+    ],
+    "excluded": []
+   },
+   "_general": {
+    "pool": "general",
+    "fallback": null,
+    "count": 200,
+    "seed": 1,
+    "skip": 0,
+    "sources": [
+     {
+      "id": "HuggingFaceH4/ultrachat_200k",
+      "config": null,
+      "split": "train_sft"
+     },
+     {
+      "id": "yahma/alpaca-cleaned",
+      "config": null,
+      "split": "train"
+     }
+    ],
+    "excluded": []
+   },
+   "_align": {
+    "pool": "prose",
+    "fallback": null,
+    "count": 150,
+    "seed": 4,
+    "skip": 0,
+    "sources": [
+     {
+      "id": "Salesforce/wikitext",
+      "config": "wikitext-103-raw-v1",
+      "split": "train"
+     }
+    ],
+    "excluded": []
+   }
+  },
+  "probe_texts": {
+   "knowledge": {
+    "pool": "knowledge",
+    "count": 96,
+    "seed": 1,
+    "skip": 2000,
+    "splits": [
+     "a",
+     "b",
+     "c"
+    ],
+    "max_length": 384
+   },
+   "_general": {
+    "pool": "general",
+    "count": 96,
+    "seed": 1,
+    "skip": 2000,
+    "splits": [
+     "a",
+     "b",
+     "c"
+    ],
+    "max_length": 384
+   }
+  },
+  "practice": {
+   "knowledge": {
+    "available": true,
+    "skill": "knowledge",
+    "sources": [
+     {
+      "id": "mandarjoshi/trivia_qa",
+      "config": "rc.nocontext",
+      "split": "validation"
+     }
+    ],
+    "excluded": [],
+    "reason": null
+   }
+  },
+  "controls": [
+   {
+    "stage": "pgraft",
+    "controls": [
+     "identity: same Enc, Dec, gate, LoRA and data; the donor slice is skipped (Dec reads Enc's output)",
+     "scrambled: same glue and data; the donor slice's weights rewritten by wsp/scramble.py (spectrum kept)",
+     "lora_match: LoRA on the host with the same trainable count as the graft, same data and steps",
+     "lora_big: LoRA rank 128 on the host, same data and steps",
+     "fullft: full fine-tune of the host, same data and steps"
+    ]
+   }
+  ],
+  "arms": [
+   {
+    "arm": "base",
+    "what": "the host alone, scored first in the same run on the same items"
+   },
+   {
+    "arm": "donor",
+    "what": "the donor alone, scored once on the same items (donor_acc.json of the cached pool)"
+   }
+  ],
+  "settings": {
+   "probe_texts": 96,
+   "probe_length": 384,
+   "probe_top_k": 64,
+   "probe_skip": 2000,
+   "heal_texts": 400,
+   "general_texts": 200,
+   "practice_items": 60,
+   "n_controls": 4,
+   "drift_tolerance": 0.05,
+   "min_transfer": 0.3,
+   "weave_buckets": 8,
+   "weave_population": 12,
+   "weave_generations": 8,
+   "block_layers": 4,
+   "lora_rank": 16,
+   "stage1_steps": 200,
+   "stage2_steps": 200,
+   "slim_steps": 100,
+   "transplant_k": 4,
+   "transplant_rank": 256,
+   "delta_rank": 64,
+   "batch_size": 4,
+   "seq_len": 256,
+   "synth_controls": [
+    "random",
+    "scrambled"
+   ],
+   "gpu_flops": 200000000000000.0,
+   "seam_threshold": 3,
+   "slim_keep": 0.5,
+   "pgraft_controls": [
+    "identity",
+    "scrambled"
+   ],
+   "tops_cut": 0.5
+  },
+  "warnings": [
+   "wsp/pgraft.py has one measured cross-family write-in: Llama-3.2-1B-Instruct host with a frozen Qwen2.5-7B-Instruct slice (layers 4..20), MMLU held-out 2000 59.6 +-0.8 over 3 seeds against base 44.6, identity 50.3, scrambled donor 50.3, matched LoRA 49.7, rank-128 LoRA 50.0, full fine-tune 51.1 (ARC-C test 85.3 against base 55.3), 2026-11-15, results/wi_xfam/table.md. No other host and donor pair has run. An earlier 1-seed run on a Llama-3.2-3B host only tied LoRA, and the plain 3B base beat the 1B host with the graft",
+   "pgraft trains on benchmark train splits (MMLU auxiliary_train and four-option train sets, every eval prompt removed) and is scored on held-out test items nothing trained on; each claim needs 3 seeds, and a compile is one seed",
+   "pgraft decodes through a hook-based path (27 to 36 tokens per second at batch 1 in the measured run against 103 for the host); the per-token cost is the host plus the donor slice",
+   "Qwen/Qwen2.5-7B-Instruct has another tokenizer: transfer cannot be measured by KL, so its verdict is limited"
+  ],
+  "refusals": [],
+  "feasible": true
+ },
+ "stages": [
+  {
+   "method": "pgraft",
+   "status": "ok",
+   "saved": "/vol/sapien/xfam_knowledge/pgraft_v1",
+   "seconds": 2449.8
+  }
+ ],
+ "pgraft": {
+  "reference": {
+   "scores": {
+    "mmlu_dev": 0.48,
+    "mmlu_held": 0.446,
+    "arc_c": 0.5527896995708155,
+    "obqa": 0.6
+   },
+   "decode_tps": 94.55,
+   "params": 1235814400
+  },
+  "graft": {
+   "arm": "graft",
+   "seed": 1,
+   "spec": {
+    "enc_depth": 2,
+    "dec_rank": 256,
+    "lora_rank": 16,
+    "steps": 4000,
+    "batch": 16,
+    "align_steps": 600,
+    "geo_steps": 100,
+    "kd_w": 1.0,
+    "preserve": 1.0,
+    "align_reg": 1.0,
+    "lora_lr": 0.0002,
+    "glue_lr": 0.0003,
+    "gate_lr": 0.0001,
+    "enc_lr": 0.0001,
+    "seq_len": 256,
+    "donor_seq_len": 320,
+    "align_batch": 4,
+    "host_layer": 7,
+    "first": 4,
+    "last": 20,
+    "d_host": 2048,
+    "d_donor": 3584
+   },
+   "pool": 44155,
+   "params_base": 1235814400,
+   "trainable_glue": 15214466,
+   "slice_params": 3961982464,
+   "alignment": {
+    "pairs": 14951,
+    "kl": 0.5152268069427186,
+    "native_acc": 0.5710630848986736,
+    "graft_acc": 0.5177405237999058,
+    "agree": 0.727844291351749,
+    "survival": 0.9066257958028767
+   },
+   "calib_rms": 2.2851623484441537,
+   "trainable": 26486658,
+   "train_steps": 4000,
+   "tokens_trained": 10317916,
+   "gate_curve": [
+    [
+     0,
+     0.5
+    ],
+    [
+     100,
+     0.3805
+    ],
+    [
+     200,
+     0.3281
+    ],
+    [
+     300,
+     0.2802
+    ],
+    [
+     400,
+     0.2561
+    ],
+    [
+     500,
+     0.2096
+    ],
+    [
+     600,
+     0.1853
+    ],
+    [
+     700,
+     0.1778
+    ],
+    [
+     800,
+     0.1483
+    ],
+    [
+     900,
+     0.154
+    ],
+    [
+     1000,
+     0.1208
+    ],
+    [
+     1100,
+     0.1045
+    ],
+    [
+     1200,
+     0.1058
+    ],
+    [
+     1300,
+     0.0995
+    ],
+    [
+     1400,
+     0.0845
+    ],
+    [
+     1500,
+     0.0822
+    ],
+    [
+     1600,
+     0.0891
+    ],
+    [
+     1700,
+     0.0759
+    ],
+    [
+     1800,
+     0.0864
+    ],
+    [
+     1900,
+     0.0721
+    ],
+    [
+     2000,
+     0.0735
+    ],
+    [
+     2100,
+     0.0764
+    ],
+    [
+     2200,
+     0.0695
+    ],
+    [
+     2300,
+     0.0637
+    ],
+    [
+     2400,
+     0.0534
+    ],
+    [
+     2500,
+     0.0668
+    ],
+    [
+     2600,
+     0.0659
+    ],
+    [
+     2700,
+     0.0668
+    ],
+    [
+     2800,
+     0.0666
+    ],
+    [
+     2900,
+     0.0617
+    ],
+    [
+     3000,
+     0.0597
+    ],
+    [
+     3100,
+     0.0535
+    ],
+    [
+     3200,
+     0.0494
+    ],
+    [
+     3300,
+     0.0587
+    ],
+    [
+     3400,
+     0.0538
+    ],
+    [
+     3500,
+     0.0574
+    ],
+    [
+     3600,
+     0.0488
+    ],
+    [
+     3700,
+     0.0557
+    ],
+    [
+     3800,
+     0.0645
+    ],
+    [
+     3900,
+     0.0514
+    ]
+   ],
+   "loss_first50": 1.7478760313987731,
+   "loss_last50": 0.6117110666632652,
+   "train_seconds": 2313.5,
+   "params_per_token": 5213011330,
+   "params_total": 5213011330,
+   "scores_in_memory": {
+    "mmlu_dev": 0.583,
+    "mmlu_held": 0.587,
+    "arc_c": 0.8454935622317596,
+    "obqa": 0.886
+   },
+   "scores_graft_off": {
+    "mmlu_dev": 0.476,
+    "mmlu_held": 0.4545
+   },
+   "artifact": "/vol/sapien/xfam_knowledge/pgraft_v1",
+   "artifact_bytes": 105987313,
+   "scores": {
+    "mmlu_dev": 0.583,
+    "mmlu_held": 0.587,
+    "arc_c": 0.8454935622317596,
+    "obqa": 0.886
+   },
+   "decode_tps": 30.18,
+   "reload_gap_mmlu_held": 0.0,
+   "seconds": 2449.8,
+   "gpu_hours": 0.681
+  },
+  "controls": {
+   "identity": {
+    "arm": "identity",
+    "seed": 1,
+    "spec": {
+     "enc_depth": 2,
+     "dec_rank": 256,
+     "lora_rank": 16,
+     "steps": 4000,
+     "batch": 16,
+     "align_steps": 600,
+     "geo_steps": 100,
+     "kd_w": 1.0,
+     "preserve": 1.0,
+     "align_reg": 1.0,
+     "lora_lr": 0.0002,
+     "glue_lr": 0.0003,
+     "gate_lr": 0.0001,
+     "enc_lr": 0.0001,
+     "seq_len": 256,
+     "donor_seq_len": 320,
+     "align_batch": 4,
+     "host_layer": 7,
+     "first": 4,
+     "last": 20,
+     "d_host": 2048,
+     "d_donor": 3584
+    },
+    "pool": 44155,
+    "params_base": 1235814400,
+    "trainable_glue": 15214466,
+    "slice_params": 0,
+    "calib_rms": 1.00297265976622,
+    "trainable": 26486658,
+    "train_steps": 4600,
+    "tokens_trained": 11862219,
+    "gate_curve": [
+     [
+      0,
+      0.5
+     ],
+     [
+      100,
+      0.2161
+     ],
+     [
+      200,
+      0.1078
+     ],
+     [
+      300,
+      0.0674
+     ],
+     [
+      400,
+      0.0593
+     ],
+     [
+      500,
+      0.0442
+     ],
+     [
+      600,
+      0.0352
+     ],
+     [
+      700,
+      0.0311
+     ],
+     [
+      800,
+      0.0242
+     ],
+     [
+      900,
+      0.027
+     ],
+     [
+      1000,
+      0.0215
+     ],
+     [
+      1100,
+      0.0177
+     ],
+     [
+      1200,
+      0.0177
+     ],
+     [
+      1300,
+      0.0158
+     ],
+     [
+      1400,
+      0.0167
+     ],
+     [
+      1500,
+      0.0162
+     ],
+     [
+      1600,
+      0.0165
+     ],
+     [
+      1700,
+      0.0137
+     ],
+     [
+      1800,
+      0.0174
+     ],
+     [
+      1900,
+      0.0129
+     ],
+     [
+      2000,
+      0.0127
+     ],
+     [
+      2100,
+      0.0131
+     ],
+     [
+      2200,
+      0.0134
+     ],
+     [
+      2300,
+      0.0123
+     ],
+     [
+      2400,
+      0.0119
+     ],
+     [
+      2500,
+      0.0115
+     ],
+     [
+      2600,
+      0.0113
+     ],
+     [
+      2700,
+      0.0129
+     ],
+     [
+      2800,
+      0.0122
+     ],
+     [
+      2900,
+      0.0127
+     ],
+     [
+      3000,
+      0.0117
+     ],
+     [
+      3100,
+      0.0096
+     ],
+     [
+      3200,
+      0.0083
+     ],
+     [
+      3300,
+      0.0123
+     ],
+     [
+      3400,
+      0.0109
+     ],
+     [
+      3500,
+      0.0107
+     ],
+     [
+      3600,
+      0.0083
+     ],
+     [
+      3700,
+      0.0101
+     ],
+     [
+      3800,
+      0.0104
+     ],
+     [
+      3900,
+      0.0091
+     ],
+     [
+      4000,
+      0.0098
+     ],
+     [
+      4100,
+      0.0113
+     ],
+     [
+      4200,
+      0.0102
+     ],
+     [
+      4300,
+      0.0093
+     ],
+     [
+      4400,
+      0.009
+     ],
+     [
+      4500,
+      0.0126
+     ]
+    ],
+    "loss_first50": 1.9035025143623352,
+    "loss_last50": 0.6420387384295464,
+    "train_seconds": 1097.8,
+    "params_per_token": 1251028866,
+    "params_total": 1251028866,
+    "scores": {
+     "mmlu_dev": 0.507,
+     "mmlu_held": 0.5045,
+     "arc_c": 0.7072961373390558,
+     "obqa": 0.766
+    },
+    "gpu_hours": 0.31
+   }
+  },
+  "data_source": "cache /vol/wi_xfam/v1",
+  "artifact_meta": {
+   "format": "wsp-pgraft",
+   "format_version": 1,
+   "spec": {
+    "enc_depth": 2,
+    "dec_rank": 256,
+    "lora_rank": 16,
+    "steps": 4000,
+    "batch": 16,
+    "align_steps": 600,
+    "geo_steps": 100,
+    "kd_w": 1.0,
+    "preserve": 1.0,
+    "align_reg": 1.0,
+    "lora_lr": 0.0002,
+    "glue_lr": 0.0003,
+    "gate_lr": 0.0001,
+    "enc_lr": 0.0001,
+    "seq_len": 256,
+    "donor_seq_len": 320,
+    "align_batch": 4,
+    "host_layer": 7,
+    "first": 4,
+    "last": 20,
+    "d_host": 2048,
+    "d_donor": 3584
+   },
+   "control": null,
+   "donor_span": [
+    4,
+    20
+   ],
+   "host_layer": 7,
+   "host_fingerprint": "6ffd67989a205554",
+   "created": "2026-11-15 16:27:38",
+   "glue_tensors": 13,
+   "lora_tensors": 224,
+   "glue_bytes": 60872204,
+   "lora_bytes": 45088768,
+   "host": "unsloth/Llama-3.2-1B-Instruct",
+   "donor": "Qwen/Qwen2.5-7B-Instruct",
+   "seed": 1,
+   "request": "xfam_knowledge",
+   "plan_method": "pgraft",
+   "data": "cache /vol/wi_xfam/v1",
+   "trained_on": "MMLU auxiliary_train, CommonsenseQA, OpenBookQA, QASC, LogiQA train (benchmark train splits)"
+  }
+ },
+ "probe": {
+  "note": "text probes are not run for pgraft; the write-in is scored on held-out four-option items"
+ },
+ "sizes": {
+  "base": {
+   "total": 1235814400,
+   "per_token": 1235814400,
+   "kind": "plain"
+  },
+  "final": {
+   "total": 5224283522,
+   "per_token": 5213011330,
+   "kind": "pgraft"
+  },
+  "limits": {
+   "max_total_params_b": 5.5,
+   "max_active_params_b": 5.5,
+   "max_heal_minutes": 150.0
+  },
+  "limit_problems": []
+ },
+ "seconds": 3584.78,
+ "verdicts": {
+  "knowledge:Qwen/Qwen2.5-7B-Instruct": {
+   "verdict": "met",
+   "reasons": [
+    "MMLU held-out 58.7 against the base 44.6 (+14.1)",
+    "best control identity 50.4 (+8.2)",
+    "one seed: a claim needs three seeds"
+   ]
+  }
+ },
+ "verdict": {
+  "verdict": "met",
+  "reasons": [
+   "MMLU held-out 58.7 against the base 44.6 (+14.1)",
+   "best control identity 50.4 (+8.2)",
+   "one seed: a claim needs three seeds"
+  ]
+ },
+ "scored_on_reported": true,
+ "reported_scores": {
+  "result": {
+   "mmlu_dev": 0.583,
+   "mmlu_held": 0.587,
+   "arc_c": 0.8454935622317596,
+   "obqa": 0.886
+  },
+  "base": {
+   "mmlu_dev": 0.48,
+   "mmlu_held": 0.446,
+   "arc_c": 0.5527896995708155,
+   "obqa": 0.6
+  },
+  "controls": {
+   "identity": {
+    "mmlu_dev": 0.507,
+    "mmlu_held": 0.5045,
+    "arc_c": 0.7072961373390558,
+    "obqa": 0.766
+   }
+  },
+  "eval_items": {
+   "mmlu_dev": 1000,
+   "mmlu_held": 2000,
+   "arc_c": 1165,
+   "obqa": 500
+  },
+  "note": "held-out test items; no arm trained on them"
+ }
+}

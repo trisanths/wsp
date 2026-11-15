@@ -32,7 +32,7 @@ function App() {
   else if (r.name === 'mine') screen = html`<${MineScreen} key=${(r.sub || '') + ':' + (r.id || '')} sub=${r.sub} id=${r.id} />`;
   else if (r.name === 'demo') screen = html`<${DemoScreen} />`;
   else screen = html`<${PromptScreen} />`;
-  return html`<${Shell}><${PageSwap} pageKey=${r.name + ':' + (r.id || '')} depth=${DEPTH[r.name] ?? 0}>${screen}<//><//><${Toasts} />${DEMO && html`<${DemoControl} />`}`;
+  return html`<${Shell}><${PageSwap} pageKey=${r.name + ':' + (r.id || '')} depth=${DEPTH[r.name] ?? 0}>${screen}<//><//><${PartDetailHost} /><${Toasts} />${DEMO && html`<${DemoControl} />`}`;
 }
 
 initTooltips();

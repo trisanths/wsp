@@ -3,6 +3,7 @@ import { ModelLogo, PoweredBy, SponsorMark } from '../logos.js';
 import { StreamText, ThinkLine, SuccessCheck, AutoHeight } from '../motion.js';
 import { Icon, Spinner } from '../components.js';
 import { benchName } from '../util.js';
+import { DEMO } from '../demo-flag.js';
 
 const PROVIDERS = { exa: 'Exa', openai_web: 'OpenAI web search', none: 'the model\'s own knowledge' };
 export const providerName = (p) => PROVIDERS[p] || 'web search';
@@ -46,15 +47,27 @@ function StepIcon({ kind }) {
 // Exa did the step when it says so; steps with no provider (mock and demo) count too, on search and read
 const viaExa = (s, prov) => (s.kind === 'search' || s.kind === 'read') && (s.provider ? s.provider === 'exa' : prov !== 'openai_web' && prov !== 'none');
 
-function Steps({ steps, animateFrom = 0, offset = 0, clamp, prov }) {
+function Steps({ steps, animateFrom = 0, offset = 0, clamp, prov, reveal = Infinity }) {
   if (!steps.length) return null;
-  return html`<ol class=${'rs-steps' + (clamp ? ' clamp' : '')}>${steps.map((s, i) => html`<li key=${i + offset} class=${'rs-step k-' + s.kind}><span class="rs-ic"><${StepIcon} kind=${s.kind} /></span>${s.kind === 'think' && html`<span class="rs-oai"><${SponsorMark} who="openai" size=${12} title="Reasoning by OpenAI" /></span>`}<${StreamText} tag="span" class="rs-tx" text=${s.kind === 'read' ? 'Read: ' + s.text : s.text} play=${i + offset >= animateFrom} />${viaExa(s, prov) && html`<span class="rs-exa"><${SponsorMark} who="exa" size=${12} title="Searched with Exa" /></span>`}</li>`)}</ol>`;
+  return html`<ol class=${'rs-steps' + (clamp ? ' clamp' : '')}>${steps.map((s, i) => html`<li key=${i + offset} class=${'rs-step k-' + s.kind + (i >= reveal ? ' rs-hold' : '')}><span class="rs-ic"><${StepIcon} kind=${s.kind} /></span><${StreamText} tag="span" class="rs-tx" text=${s.kind === 'read' ? 'Read: ' + s.text : s.text} play=${i + offset >= animateFrom} />${viaExa(s, prov) && html`<span class="rs-exa"><${SponsorMark} who="exa" size=${12} title="Searched with Exa" /></span>`}</li>`)}</ol>`;
 }
 
 function Live({ r }) {
   const steps = r.steps || [];
   const first = useRef(steps.length);
   const last = steps[steps.length - 1];
+  // demo mode: always exactly 6 one-line rows (the newest steps; empty rows keep their space),
+  // so the box never changes height during a screen recording
+  if (DEMO) {
+    const b = Math.max(0, steps.length - 1 - 6);
+    const recent = steps.slice(b, -1);
+    const rows = [...recent, ...Array.from({ length: 6 - recent.length }, () => ({ kind: 'think', text: ' ' }))];
+    return html`<div class="rs-live rs-six">
+      <div class="rs-now"><${ThinkLine} fluid=${true} text=${stepLine(last)} /><span class="tag rs-prov">${providerName(r.provider)}</span></div>
+      <div class=${'rs-more' + (b > 0 ? '' : ' rs-hold')}>${b} earlier ${b === 1 ? 'step' : 'steps'}</div>
+      <${Steps} steps=${rows} offset=${b} reveal=${recent.length} animateFrom=${first.current} clamp=${true} prov=${r.provider} />
+    </div>`;
+  }
   const before = Math.max(0, steps.length - 1 - 6);
   const shown = steps.slice(before, -1);
   return html`<div class="rs-live">

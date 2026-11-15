@@ -483,7 +483,7 @@ export function AgentPage({ snap, id, agentId, cat }) {
 
       <section class="rsec">
         <h2 class="rh2">Its attempts</h2>
-        ${hist.length ? html`<div class="ptwrap"><table class="ptab atab"><thead><tr><th>#</th><th>Program</th><th class="r">Score</th><th class="r">Change</th><th>Verdict</th></tr></thead><tbody>
+        ${hist.length ? html`<div class="ptwrap"><table class="ptable atab"><thead><tr><th>#</th><th>Program</th><th class="r">Score</th><th class="r">Change</th><th>Verdict</th></tr></thead><tbody>
           ${hist.slice(0, 20).map((h) => {
             const row = rowOf(snap, h.program_hash);
             const prog = (row && row.program) || (cur && cur.program && cur.program_hash === h.program_hash ? cur.program : null);

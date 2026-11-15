@@ -44,14 +44,14 @@ With `"sources": "auto"` the compiler takes models from `atlas/entries`, `atlas/
 | diverged_same_shape | synth, feedback | Same shapes, far weights (Qwen2.5 Coder or Math against Instruct). Mixing below the whole model gives chance, so components need translation layers. |
 | same_family_other_size | synth, feedback | Another width or depth. A seam with translation layers. |
 | moe_same_width | transplant, synth | A MoE of the same family and width as a dense base: routed experts next to each MLP. |
-| foreign | synth, feedback | Another family or tokenizer. |
+| foreign | pgraft (knowledge, medicine, law skills), synth, feedback | Another family or tokenizer. For a four-option knowledge skill and a dense donor, pgraft comes first: a frozen donor slice runs as a parallel branch of the host, `wsp/pgraft.py`. |
 | remove | slim | MoE: keep the top experts per layer for the kept skills. Dense: drop layers, neurons, heads. |
 
 A method is skipped when its size does not fit. Sizes come from configs and parameter counts (`wsp/auto.py` size functions): weave adds nothing, synth and feedback add donor layers plus T_in, T_out, a gate, and the LoRA, transplant adds K experts per layer plus stitches (K and rank shrink until it fits), delta adds a rank-64 difference. When nothing fits, the plan states which limit would allow the smallest option.
 
 ### Stage order and chaining
 
-Stages whose output is a plain Hugging Face directory run first: weave, then slim. Each takes the previous output as its base. Weave goes before slim because its members have the full shape. At most one seam stage (synth, feedback, transplant, delta) runs last. Two seam kinds cannot be stacked (each replaces the other's branches), so the plan refuses them with that message. Weave also cannot run on a model that already carries seams, because its tensor names would match the branch parts.
+Stages whose output is a plain Hugging Face directory run first: weave, then slim. Each takes the previous output as its base. Weave goes before slim because its members have the full shape. At most one seam stage (pgraft, synth, feedback, transplant, delta) runs last. Two seam kinds cannot be stacked (each replaces the other's branches), so the plan refuses them with that message. Weave also cannot run on a model that already carries seams, because its tensor names would match the branch parts.
 
 ## The plan
 
@@ -74,6 +74,10 @@ A skill with no pool in `wsp.healdata` (for example tools) uses the general pool
 ## Backends
 
 `make(request, out_dir, backend)` calls a backend for model loading, text, generation, and saving. `LocalBackend` holds tiny models in memory (tests). `HubBackend` loads from the Hub; `modal_sapien.py` uses it on an H200 with the volume `wsp-models`. The runner plans on the caller's machine and sends the plan and the atlas entries with the request, so the container runs the plan that was checked; `atlas/`, `library/`, and `catalog.jsonl` are also mounted for component rows.
+
+## The pgraft method
+
+`pgraft` writes one slice of a donor from another family into a small host. The plan prints the host layer, the donor span, the Enc and Dec sizes, the data pool, the steps, the params per token after the write-in, and the controls. Layers follow the measured recipe: host layer is host layers // 2 - 1, the donor span is donor layers // 7 to 5 * donor layers // 7 (layers 7 and 4..20 for Llama-3.2-1B with Qwen2.5-7B). `make` skips the text probes (they need a shared tokenizer), loads the host and donor, trains with the code of `wsp/xfam.py`, saves the artifact `<out>/pgraft_v1/` (glue, LoRA, sink vector, and ids of the host and donor), reloads it into a fresh host, and scores the reloaded network on MMLU dev 1000, MMLU held-out 2000, ARC-Challenge test, and OpenBookQA test. The compiler also trains the identity and scrambled-donor controls (setting `pgraft_controls`). Matched LoRA, rank-128 LoRA, and full fine-tune are separate drivers (`modal_wi_xfam.py`). One command from a request: `modal run --detach modal_sapien.py --request demo/requests/xfam_knowledge.json`. Details and numbers: `docs/write_in_compiler.md`.
 
 ## What is unverified
 

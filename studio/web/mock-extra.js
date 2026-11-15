@@ -7,12 +7,12 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const clone = (x) => JSON.parse(JSON.stringify(x));
 
 const CAVEATS = [
-  'One run per cell, so a gap of a few points may be noise.',
-  'Two rows have a 500-step distillation heal on code text from the healdata pools. The other rows are raw cuts with no training.',
-  'The healed 32 expert model (73.8, 61.9) does not beat Qwen2.5-Coder-7B (85.4, 86.0) at a similar total size. It runs 3.0B params per token against 7.6B.',
-  'Removing experts keeps the parameters run per token at about 3.0B, so it shrinks storage and memory, not speed.',
-  'Other skills fall: MMLU goes from 77.8 to 44.9 at 64 experts.',
-  'The 32 expert rows share one size, 8.78B, because the same number of experts per layer gives the same size.',
+  'Each score is from one run, so a gap of a few points may be noise.',
+  'Two rows got a 500-step fine-tune after the cut, learning to match the full model on code text. The other rows got no training.',
+  'Even fine-tuned, the 32-expert model (73.8 and 61.9) scores below Qwen2.5-Coder-7B (85.4 and 86.0), a coding model of about the same size.',
+  'Cutting experts makes the model smaller to store but not faster. Each token still runs through about 3.0B parameters, against 7.6B for Qwen2.5-Coder-7B.',
+  'Other skills drop. General knowledge (MMLU) falls from 77.8 to 44.9 with 64 experts kept.',
+  'All 32-expert rows are the same size, 8.78B, because size depends only on how many experts are kept.',
 ];
 const row = (label, experts_kept, rule, total_params_b, scores, is_control = false, is_full = false, heal_steps = 0) => ({ label, experts_kept, rule, total_params_b, scores, is_control, is_full, heal_steps });
 
@@ -195,6 +195,7 @@ export function makeMine({ getParts, getRecipes }) {
   const PHASE = { fetch: [0, 0.05], read: [0.05, 0.17], scan: [0.17, 0.57], ablate: [0.57, 0.82], gate: [0.82, 0.97], publish: [0.97, 1] };
   const STAGE_DEF = [['fetch', 'Fetch weights', 'modal'], ['read', 'Read the weights', 'openai'], ['scan', 'Scan layers', 'modal'], ['ablate', 'Switch parts off', 'modal'], ['gate', 'Random-part gate', 'modal'], ['publish', 'Publish to the library', 'pastdev']];
   const EFFORT = { quick: { sec: 120, mult: 0.6 }, standard: { sec: 200, mult: 1 }, deep: { sec: 320, mult: 1.8 } };
+  EFFORT.smoke = EFFORT.quick; EFFORT.medium = EFFORT.standard; EFFORT.full = EFFORT.deep;
   const estimateOf = (params_b, effort) => { const m = (EFFORT[effort] || EFFORT.standard).mult; const base = Math.max(6, (params_b || 8) * 1.1); const gpu_min = Math.round(base * m); return { gpu_min, cost_usd: +(gpu_min * 0.055).toFixed(2) }; };
   const SKILL_LINES = { math: 'arithmetic and word problems', code: 'writing and fixing code', law: 'legal terms', medicine: 'medical text', reasoning: 'multi-step reasoning', knowledge: 'facts and recall', multilingual: 'non-English text', science: 'science questions' };
 
@@ -246,7 +247,7 @@ export function makeMine({ getParts, getRecipes }) {
     L1(0.975, 'Publisher', 'info', 'Writing ' + items.filter((i) => i.ok).length + ' kept parts and their evidence to the library.');
     L1(0.995, 'Memory', 'memory', 'Posted the run summary to shared memory for the swarm.');
     log.sort((a, b) => a.t - b.t);
-    return { items, log, L, N };
+    return { items, log, L, N, info };
   };
 
   const reqs = new Map();
@@ -274,9 +275,9 @@ export function makeMine({ getParts, getRecipes }) {
     const [s0, s1] = PHASE.scan;
     const layer = Math.max(0, Math.min(sc.L - 1, Math.floor(((p - s0) / (s1 - s0)) * sc.L)));
     const layers_scanned = p < s0 ? 0 : p >= s1 ? sc.L : layer;
-    const found = sc.items.filter((i) => p >= i.tFound).map((i) => ({ id: i.id, label: i.label, kind: i.kind, layer: i.layer, z: p >= i.tGate ? i.z : null, drop: p >= i.tAblate ? i.drop : null, verdict: p >= i.tGate ? (i.ok ? 'kept' : 'rejected') : p >= i.tAblate ? 'testing' : 'candidate' }));
+    const found = sc.items.filter((i) => p >= i.tFound).map((i) => ({ id: i.id, label: i.label, kind: i.kind, layer: i.layer, skill: i.skill, z: p >= i.tGate ? i.z : null, drop: p >= i.tAblate ? i.drop : null, verdict: p >= i.tGate ? (i.ok ? 'kept' : 'rejected') : p >= i.tAblate ? 'testing' : 'candidate' }));
     const counters = { layers_scanned, layers_total: sc.L, candidates: found.length, ablations: found.filter((f) => f.drop != null).length, kept: found.filter((f) => f.verdict === 'kept').length, rejected: found.filter((f) => f.verdict === 'rejected').length };
-    const out = { id: r.id, model: r.model, skills: r.skills, effort: r.effort, status, created: r.created, stages, estimate: r.estimate, progress: p, layers: sc.L, layer, counters, found };
+    const out = { id: r.id, model: r.model, skills: r.skills, effort: r.effort, status, created: r.created, stages, estimate: r.estimate, progress: p, started: status === 'queued' ? null : new Date(r.startAt).toISOString(), params_b: sc.info.params_b, experts: sc.info.experts || null, layers: sc.L, layer, counters, found };
     if (withLog) out.log = sc.log.filter((l) => p >= l.t).map((l) => ({ t: r.startAt + l.t * r.total, agent: l.agent, kind: l.kind, text: l.text }));
     return out;
   };

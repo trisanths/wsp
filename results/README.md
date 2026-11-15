@@ -805,3 +805,27 @@ Memory here is weight bytes. vLLM preallocates the rest of the GPU for KV cache 
 MBPP for the same model (Run 19, Hugging Face harness) is 79.0 against 84.4 for the full model, so on code overall slim_64 keeps most, not all, of the full model. The HumanEval gap is 3 of 164 items on one greedy run.
 Qwen2.5-Coder-7B scores 85.4 at 14.2 GiB, 3 items below slim_64 at half slim_64's weight memory, so slim_64 alone does not clearly beat a small dense coder. The served slim_64 is the Run 19 no-heal artifact; the plan's 30-minute heal was not run.
 Side-by-side answers on eight prompts: results/demo_code_outputs.md (modal_demo.py). The five graded coding prompts pass on both models (hidden checks run on the answers); the regex prompt has no test, and the slim answer to it loops on one phrase until the token limit; on the two non-code prompts slim_64 writes degraded text (medical: 0 of 4 expected terms, history: 2 of 4, full model 4 of 4 on both). One sample per prompt.
+
+## Moonshot (2026-11-15): expert removal on Qwen3-235B-A22B-Instruct-2507
+
+Code saliency ranking (256 texts of 256 tokens, 192 healdata code pool plus 64
+MBPP train and prompt), no heal, one ranking, one greedy run per cell, vLLM
+0.32, bf16. Full write-up: docs/moonshot.md. Rows: results/moonshot/.
+
+| Cell | Stored | HumanEval | MBPP | MMLU |
+|---|---|---|---|---|
+| full 235B (8 H200) | 235.1B | 93.3 | 87.5 | 85.0 |
+| keep 64 of 128 | 121.5B | 92.7 | 87.2 | 52.5 |
+| keep 48 | 93.1B | 44.5 | 37.0 | 43.6 |
+| keep 32 | 64.7B | 61.6 | 49.4 | 36.3 |
+| keep 24 (one H200) | 50.5B | 56.7 | 40.1 | 30.4 |
+| keep 16 (one H200) | 36.3B | 43.3 | 33.1 | 24.3 |
+
+- Keep 64 holds code (one task apart on each) at 52 percent of the size, but
+  243 GB of bf16 weights needs several GPUs.
+- The sizes that fit one H200 lose half the code score. Qwen3-30B-A3B full
+  scores 90.2 HumanEval on one H200 under the same vLLM harness, so it is the
+  better one-GPU code model today.
+- Per-token parameters stay near 21.5B at every keep, so batch-1 decode is
+  60 to 120 tok/s, below the 30B model's 259.
+- Keep 48 scores below keep 32 (checked on 4 GPUs, same result); cause open.

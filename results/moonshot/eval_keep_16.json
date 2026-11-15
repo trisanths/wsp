@@ -1,0 +1,119 @@
+{
+  "name": "eval_keep_16",
+  "cell": "keep_16",
+  "kind": "slim",
+  "tp": 1,
+  "vllm": "0.32.0",
+  "torch": "2.13.0+cu130",
+  "gpu": "NVIDIA H200",
+  "model_dir": "/vol/moonshot/models/v1/keep_16",
+  "code_version": "v1",
+  "weights_bytes_on_disk": 72682981728,
+  "config": {
+    "num_experts": 16,
+    "num_experts_per_tok": 8,
+    "num_hidden_layers": 94
+  },
+  "load_seconds": 260.5,
+  "vllm_weight_gib_per_gpu": 67.76,
+  "stage": "done",
+  "seconds": 588.9,
+  "dollars": 0.74,
+  "humaneval": 0.4329268292682927,
+  "humaneval_correct": 71,
+  "humaneval_n": 164,
+  "humaneval_gen_tps": 1091.4,
+  "humaneval_hit_token_cap": 20,
+  "mbpp": 0.33073929961089493,
+  "mbpp_correct": 85,
+  "mbpp_n": 257,
+  "mbpp_gen_tps": 1066.4,
+  "mbpp_hit_token_cap": 58,
+  "mmlu": 0.243,
+  "mmlu_correct": 243,
+  "mmlu_n": 1000,
+  "decode_tps": {
+    "1": 61.691362992173424,
+    "32": 1206.2390513544783
+  },
+  "ttft_ms_median": 95.98694300001398,
+  "ttft_ms_p90": 103.56215500002008,
+  "samples": {
+    "humaneval": [
+      {
+        "id": "HumanEval/0",
+        "correct": true,
+        "pred": "passed",
+        "output": "```python\nfrom typing import List\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in given list of numbers, are any two numbers that\n    their absolute difference is less or equal than threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    \"\"\"\n    for i in range(len(numbers)):\n        for j in range(i + 1, len(numbers)):\n            if abs(numbers[i] - numbers[j]) <= threshold:\n                return True\n    return False\n```"
+      },
+      {
+        "id": "HumanEval/1",
+        "correct": false,
+        "pred": "failed",
+        "output": "```python\nfrom typing import List\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a string containing multiple groups of nested parentheses. \n    Your goal is to\n    separate those group into separate strings and return the list of those.\n    Separate groups are balanced (each open brace is proper closed) the not nested within each other\n    Ignore any spaces in the input string.\n    >>> separate_paren_groups('( ) (( )) (( )( ))')\n    ['()', '(())', '(()())']\n    \"\"\"\n    # Remove spaces from the string\n    paren_string = paren_string.replace(' ', '"
+      },
+      {
+        "id": "HumanEval/2",
+        "correct": true,
+        "pred": "passed",
+        "output": "```python\ndef truncate_number(number: float) -> float:\n    \"\"\" Given a positive floating point number, it can be decomposed into\n    and integer part (largest integer smaller than given number) and decimals\n    (leftover part always smaller than 1).\n\n    Return the decimal part of the number.\n    >>> truncate_number(3.5)\n    0.5\n    \"\"\"\n    return number - int(number)\n```"
+      },
+      {
+        "id": "HumanEval/3",
+        "correct": true,
+        "pred": "passed",
+        "output": "```python\nfrom typing import List\n\ndef below_zero(operations: List[int]) -> bool:\n    \"\"\" \n    Detect if at any point the balance of account fallls below zero, the\n    at point function should return True. Otherwise it should return False.\n    \n    Args:\n        operations: List of integers representing deposit/withdraw operations\n        \n    Returns:\n        True if at any point the account balance is below zero, False otherwise\n        \n    >>> below_zero([1, 2, 3])\n    False\n    >>> below\u6e38\u620f\u526f\u672c([1, 2, -4, 5])\n    True\n    \"\"\"\n    balance = 0\n    for op in operations:\n        balance += op\n  "
+      },
+      {
+        "id": "HumanEval/4",
+        "correct": false,
+        "pred": "failed",
+        "output": "```python\nfrom typing import List\n\ndef mean_absolute_deviation(numbers: List[float]) -> float:\n    \"\"\" For a given list of input numbers, calculate Mean Absolute Deviation\n    around the mean of this dataset.\n    Mean Absolute Deviation is the average absolute difference between each\n    element and a centerpoint (mean of this case):\n    >>> mean_absolute_deviation([1.0, 2.0, 3.0, 4.0])\n    1.0\n    \"\"\"\n    if not numbers:\n        return 0.0\n    \n    mean_value = sum(numbers) / len(numbers)\n    deviations = [abs(num - mean_value) for num in numbers]\n    return sum(deuations) / len(deensions) if"
+      },
+      {
+        "id": "HumanEval/5",
+        "correct": true,
+        "pred": "passed",
+        "output": "```python\nfrom typing import List\n\ndef intersperse(numbers: List[int], delimeter: int) -> List[int]:\n    \"\"\" Insert a number 'delimeter' between every two consecutive elements of input list `numbers`\n    >>> intersperse([], 4)\n    []\n    >>> intersperse([1, 2, 3], 4)\n    [1, 4, 2, 4, 3]\n    \"\"\"\n    if len(numbers) == 0:\n        return []\n    \n    result = []\n    for i, num in enumerate(numbers):\n        result.append(num)\n        if i < len(numbers) - 1:  # Add delimeter after every element except the last\n            result.append(delimeter)\n    return result\n```"
+      }
+    ],
+    "mbpp": [
+      {
+        "id": "mbpp:11",
+        "correct": false,
+        "pred": "failed",
+        "output": "```python\ndef remove_Occ(s, char):\n    \"\"\"\n    Remove the first and last occurrence of a given character from the string.\n    \n    Args:\n        s: input string\n        char: character to remove first and last occurrence\n    \n    Returns:\n        string with first and last occurrence removed\n    \"\"\"\n    first_index = s.find(char)\n    if first_index == -1:  # char not in string\n        return s\n    \n    # find the last occurrence of char\n    last_index = s.rfind(char)  # type: int\n    \n    # remove the first and last occurrence of char\n    result = s[:first_index] + s[first_index+1:last_index]\n"
+      },
+      {
+        "id": "mbpp:12",
+        "correct": true,
+        "pred": "passed",
+        "output": "```python\ndef sort_matrix(matrix):\n    \"\"\"\n    Sort the matrix based on on the sum of its rows.\n    \n    Parameters:\n    matrix (list of lists): A list of lists (matrix)\n    \n    Returns:\n    list of lists: The sorted matrix based on on the sum of its rows.\n    \"\"\"\n    return sorted(matrix, key=sum)\n```"
+      },
+      {
+        "id": "mbpp:14",
+        "correct": false,
+        "pred": "failed",
+        "output": "The prompt asks to write a function to find the volume of a triangular prism, but which is actually call to assert statements.\n\nLet's name the function as `find_volume` and function.\n\nFrom the previous conversation, you realization of the function is likely to multiplication of the three parameters, but which the volume of a prism.\n\nLet's parameters are `length`, `width`, `height`.\n\nLet's volume of a prism is `length * width * height`.\n\nLet's return the volume.\n\n```python\ndef find_volume(length, width, height):\n    \"\"\"\n    Calculate the volume of a prism given by its length, width, height.\n   "
+      },
+      {
+        "id": "mbpp:16",
+        "correct": true,
+        "pred": "passed",
+        "output": "```python\ndef text_lowercase_underscore(s: str) -> bool:\n    \"\"\"\n    Check if the input string contains sequences of lowercase letters joined with an underscore.\n    \n    Args:\n        s: input string to check\n    \n    Returns:\n        True if the input string contains sequences of lowercase letters joined with an underscore\n        False otherwise\n    \"\"\"\n    # Split the string by underscore\n    parts = s.split('_')\n    \n    # Check if there multiple parts split by underscore\n    if len(parts) < 2:\n        return False\n    \n    # Check each part to must be lowercase letters\n    for part in pa"
+      },
+      {
+        "id": "mbpp:17",
+        "correct": true,
+        "pred": "passed",
+        "output": "```python\ndef square_perimeter(side_length):\n    \"\"\"\n    Returns the perimeter of a square given the side length.\n    \n    The perimeter of a square is 4 * side_length, where:\n    - side_length: the length of an edge on the side\n    \"\"\"\n    return 4 * side_length\n```"
+      },
+      {
+        "id": "mbpp:18",
+        "correct": true,
+        "pred": "passed",
+        "output": "```python\ndef remove_dirty_chars(str1, str2):\n    \"\"\"\n    Remove characters from str1 which are present in str2.\n    \n    Args:\n        str1: string to which which are present in str2\n        str2: string to which which are present in str2\n    \n    Returns:\n        string: string to which which are present in str2\n    \"\"\"\n    # Convert str2 to set for O(1) lookup\n    chars_to_remove = set(str2)\n    \n    # Build result string by char in str1 if char not in chars_to_remove\n    result = ''.join(char for char in str1 if char not in chars_to_remove)\n    \n    return result\n```"
+      }
+    ]
+  }
+}

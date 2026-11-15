@@ -5,7 +5,7 @@ import { TopBar, Icon, ErrorBox, StubBadge } from '../components.js';
 import { SubtleNum, SkelReveal, Matrix, SuccessCheck, shake, AutoHeight } from '../motion.js';
 import { ModelLogo, PoweredBy } from '../logos.js';
 import { Compare } from '../cmp.js';
-import { Slider } from './spec.js';
+import { Slider, sizeRef } from './spec.js';
 import { MeasuredForPlan } from './measured.js';
 import { RULES, METHOD_TEXT, skillName, ruleName, modelName, fmtB, Pick } from './shrink-spec.js';
 
@@ -213,7 +213,7 @@ export function ShrinkScreen({ id, specId }) {
           ${moe
             ? html`<${Slider} value=${clamp(draft.keep_experts ?? plan.keep_experts, 1, nExp)} min=${1} max=${nExp} step=${1} ariaLabel="Experts kept per layer" onChange=${(v) => edit({ keep_experts: v })} />`
             : html`<${Slider} value=${clamp(draft.target_params_b ?? plan.target_params_b, tMin, tMax)} min=${tMin} max=${tMax} step=${0.1} ticks=${[{ v: src, kind: 'host', label: 'source ' + src.toFixed(2) + 'B' }]} ariaLabel="Target size in billions of parameters" onChange=${(v) => edit({ target_params_b: Math.round(v * 10) / 10 })} />`}
-          <div class="note"><span>${m1}. ${moe ? 'Fewer experts gives a smaller model.' : 'The size after layers, neurons and heads are removed.'}</span><span>${moe ? '1 to ' + nExp : tMin + 'B to ' + tMax + 'B'}</span></div>
+          <div class="note"><span>${m1}. ${moe ? 'Fewer experts gives a smaller model.' : sizeRef(Number(draft.target_params_b ?? plan.target_params_b))}</span><span>${moe ? '1 to ' + nExp : tMin + 'B to ' + tMax + 'B'}</span></div>
         </div>
         <div class="srow">
           <div class="top"><span class="nm">Rule</span>

@@ -35,9 +35,9 @@ LIBRARY_MODELS = os.path.join(REPO, "library", "models")
 CATALOG_FILES = [os.path.join(REPO, "library", "catalog.jsonl"), os.path.join(REPO, "catalog.jsonl")]
 
 PLAIN_STAGES = ("slim", "weave")
-SEAM_STAGES = ("synth", "feedback", "transplant", "delta")
-STAGE_ORDER = ("weave", "slim", "synth", "feedback", "transplant", "delta")
-SEAM_PRIORITY = ("synth", "feedback", "transplant", "delta")
+SEAM_STAGES = ("pgraft", "synth", "feedback", "transplant", "delta")
+STAGE_ORDER = ("weave", "slim", "pgraft", "synth", "feedback", "transplant", "delta")
+SEAM_PRIORITY = ("pgraft", "synth", "feedback", "transplant", "delta")
 
 # Skill names the request may use, mapped to a wsp.healdata pool. Other names fall back to "general".
 SKILL_POOLS = {
@@ -74,6 +74,12 @@ MODULE_STATE = {
     "transplant": "wsp/transplant.py has passed CPU tests on tiny models only; no GPU run has happened",
     "delta": "wsp/delta.py has passed CPU tests on tiny models only; no GPU run has happened",
     "slim": "wsp/slim.py has one studio run (Qwen2.5-1.5B dense) with no trusted quality number",
+    "pgraft": ("wsp/pgraft.py has one measured cross-family write-in: Llama-3.2-1B-Instruct host with a frozen "
+               "Qwen2.5-7B-Instruct slice (layers 4..20), MMLU held-out 2000 59.6 +-0.8 over 3 seeds against base 44.6, "
+               "identity 50.3, scrambled donor 50.3, matched LoRA 49.7, rank-128 LoRA 50.0, full fine-tune 51.1 "
+               "(ARC-C test 85.3 against base 55.3), 2026-11-15, results/wi_xfam/table.md. No other host and donor pair "
+               "has run. An earlier 1-seed run on a Llama-3.2-3B host only tied LoRA, and the plain 3B base beat the 1B "
+               "host with the graft"),
 }
 
 SETTINGS = {
@@ -104,6 +110,7 @@ SETTINGS = {
     "gpu_flops": 2.0e14,        # effective bf16 FLOPs per second of one H200 in a heal step (a guess)
     "seam_threshold": 3,
     "slim_keep": 0.5,           # share of experts a MoE slim keeps when max_total_params_b sets no size
+    "pgraft_controls": ["identity", "scrambled"],   # controls the compiler trains itself after the write-in (pgraft)
     "tops_cut": 0.5,            # share of the base layers kept as the shared trunk of a skill top (size estimate)
 }
 
@@ -879,6 +886,13 @@ def plan(request, lineage=None, settings=None, atlas_entries=None, library_model
     if seam_methods == ["transplant"] and len({x["source"] for x in seam_items}) > 1:
         refusals.append("transplant takes experts from one source model; the seam skills name %s. Use one MoE source or "
                         "split the request in two compiles." % ", ".join(sorted({x["source"] for x in seam_items})))
+    if seam_methods == ["pgraft"]:
+        if len(seam_items) > 1:
+            refusals.append("pgraft writes one donor slice into the host; the seam skills name %d sources (%s). Split the "
+                            "request in one compile per source." % (len(seam_items), ", ".join(x["source"] for x in seam_items)))
+        if weave_items or (slim_info is not None and "error" not in slim_info):
+            refusals.append("pgraft cannot run after a weave or slim stage yet: its recipe was measured on an unmodified "
+                            "host. Split the request in two compiles.")
     if len(seam_methods) > 1:
         refusals.append("the sources need different seam methods (%s), and two seam stages cannot be stacked: each one "
                         "replaces the other's branches. Use sources that share a method, or split the request in two "
@@ -913,6 +927,17 @@ def plan(request, lineage=None, settings=None, atlas_entries=None, library_model
             running_total, running_run = slim_info["total_after"], slim_info["run_after"]
             stage["settings"] = {"steps": steps_for(minutes[method], running_run, s) or s["slim_steps"],
                                  "teacher": "the model before slim", "rule": "saliency" if slim_info["kind"] == "moe" else "skill_cost"}
+        elif method == "pgraft":
+            from wsp import pgraft_stage
+
+            x = seam_items[0]
+            stage.update(pgraft_stage.stage_info(x, base_cfg, s, tuple(s["pgraft_controls"])))
+            stage["module"] = "wsp/pgraft.py (wsp/xfam.py)"
+            stage["components"] = [{"skill": x["skill"], "source": x["source"], "method": "pgraft",
+                                    "adds_params": stage["params_stored_added"]}]
+            stage["added_params"] = stage["params_stored_added"]
+            running_total += stage["params_stored_added"]
+            running_run += stage["params_per_token_added"]
         else:
             add_total, add_run = 0, 0
             comps = []
@@ -978,8 +1003,39 @@ def plan(request, lineage=None, settings=None, atlas_entries=None, library_model
 
     controls = _controls(plan_stages)
     arms = _arms(req, plan_stages, sources_out, base_total, atlas_entries, limits)
+    if "pgraft" in plan_stages:
+        arms = [{"arm": "base", "what": "the host alone, scored first in the same run on the same items"},
+                {"arm": "donor", "what": "the donor alone, scored once on the same items (donor_acc.json of the cached pool)"}]
     for method in plan_stages:
         warnings.append(MODULE_STATE[method])
+    native_bars = []
+    for st in stages:
+        if st["method"] != "pgraft":
+            continue
+        from wsp import pgraft_stage
+
+        if req["base"] != pgraft_stage.MEASURED["host"] or st["source"] != pgraft_stage.MEASURED["donor"]:
+            warnings.append("pgraft: %s with %s is not the measured pair (%s with %s); expect a different gain, and none "
+                            "is possible if the donor has no more knowledge than the host" % (
+                                req["base"], st["source"], pgraft_stage.MEASURED["host"], pgraft_stage.MEASURED["donor"]))
+        if limits["max_heal_minutes"] is not None and limits["max_heal_minutes"] < st["estimate"]["gpu_hours"] * 60.0:
+            warnings.append("pgraft needs about %.0f minutes on one %s (measured, 2026-11-15) and max_heal_minutes is %.0f"
+                            % (st["estimate"]["gpu_hours"] * 60.0, st["estimate"]["gpu"], limits["max_heal_minutes"]))
+        warnings.append("pgraft trains on benchmark train splits (MMLU auxiliary_train and four-option train sets, every "
+                        "eval prompt removed) and is scored on held-out test items nothing trained on; each claim needs "
+                        "3 seeds, and a compile is one seed")
+        warnings.append("pgraft decodes through a hook-based path (27 to 36 tokens per second at batch 1 in the measured "
+                        "run against 103 for the host); the per-token cost is the host plus the donor slice")
+        from wsp import native_bar
+
+        measured = req["base"] == pgraft_stage.MEASURED["host"] and st["source"] == pgraft_stage.MEASURED["donor"]
+        expected = pgraft_stage.MEASURED["mmlu_held"]["graft"] if measured else None
+        bar = native_bar.check(running_run, expected, exclude=(req["base"],))
+        native_bars.append(bar)
+        if bar["clears"] is False:
+            warnings.append("pgraft: the measured write-in (%.1f) does not clear the native bar: %s scores %.1f at %.2fB "
+                            "per token (see Native bar)" % (expected, bar["bar"]["model"], bar["bar_score"],
+                                                            bar["bar"]["params_per_token"] / 1e9))
     for x in sources_out:
         for text in x["rel"].get("warnings", []):
             warnings.append("%s from %s: %s" % (x["skill"], x["source"], text))
@@ -1008,13 +1064,14 @@ def plan(request, lineage=None, settings=None, atlas_entries=None, library_model
         "name": req["name"], "base": base_info, "limits": limits, "reported": req["reported"], "seed": req["seed"],
         "keep": req["keep"], "remove": req["remove"],
         "rule": ("stages whose output is a plain Hugging Face model (weave, then slim) run first and each takes the "
-                 "previous output as its base. At most one seam stage (synth, feedback, transplant, or delta) runs last "
+                 "previous output as its base. At most one seam stage (pgraft, synth, feedback, transplant, or delta) runs last "
                  "on top. Two seam kinds are refused because each replaces the other's branches."),
         "sources": source_rows, "stages": stages, "sizes": {"base_b": base_info["params_b"], "after": sizes_after,
                                                             "final_total_b": round(billions(running_total), 4),
                                                             "final_run_b": round(billions(running_run), 4)},
         "heal_data": heal_data, "probe_texts": probe_texts, "practice": practice, "controls": controls, "arms": arms,
         "settings": s, "warnings": warnings, "refusals": refusals, "feasible": len(refusals) == 0 and len(plan_stages) > 0,
+        "native_bar": native_bars,
     }
 
 
@@ -1071,6 +1128,18 @@ def _method_options(lin, rel, base_cfg, base_total, base_run, src_facts, skill, 
             option["why_not"] = "the config lacks a field the size estimate needs (%s)" % error
         _fix_floor_text(option, base_total, base_run, limits)
         options.append(option)
+    from wsp import pgraft_stage
+
+    ok, why = pgraft_stage.eligible(skill, rel, base_cfg, src_cfg)
+    if ok and override in (None, "pgraft"):
+        option = {"method": "pgraft", "reason": why, "fits": False, "why_not": None, "add_total": None, "add_run": None}
+        try:
+            _size_option(option, "pgraft", base_cfg, base_total, base_run, src_cfg, src_facts, skill, limits, s,
+                         atlas_entries, rows)
+        except (KeyError, TypeError, ValueError) as error:
+            option["why_not"] = "the config lacks a field the size estimate needs (%s)" % error
+        _fix_floor_text(option, base_total, base_run, limits)
+        options.insert(0, option)
     if override is not None and len(options) == 0:
         options.append({"method": override, "fits": False, "reason": "", "why_not": "method %s is not valid for a %s source; "
                         "valid: %s" % (override, kind, ", ".join(m["method"] for m in listed) or "none"),
@@ -1100,6 +1169,17 @@ def _size_option(option, method, base_cfg, base_total, base_run, src_cfg, src_fa
         if head_total is not None and head_total < 0 and limits["max_total_params_b"] < billions(base_total):
             option.update(fits=False, why_not="weave keeps the base size %.3fB, above max_total_params_b %.3f; add a skill "
                           "removal to shrink it" % (billions(base_total), limits["max_total_params_b"]))
+        return
+    if method == "pgraft":
+        from wsp import pgraft_stage
+
+        sz = pgraft_stage.sizes(base_cfg, src_cfg, s)
+        spec = sz["spec"]
+        option.update(add_total=sz["add_total"], add_run=sz["add_run"],
+                      needs="donor layers %d..%d of %d (%.3fB frozen), Enc and Dec glue %.1fM, LoRA rank %d" % (
+                          spec["first"], spec["last"], src_cfg["layers"], billions(sz["slice_params"]),
+                          sz["glue_params"] / 1e6, spec["lora_rank"]))
+        _fit(option, head_total, head_run, "a donor slice with its glue", sz["add_total"], sz["add_run"])
         return
     if method == "delta":
         stored, run = delta_addition(base_cfg, s["delta_rank"])
@@ -1245,6 +1325,10 @@ def _controls(stages):
             out.append({"stage": "delta", "controls": ["random: same shapes and norm, random directions"]})
         elif method == "slim":
             out.append({"stage": "slim", "controls": ["random: same counts, random experts or units"]})
+        elif method == "pgraft":
+            from wsp import xfam
+
+            out.append({"stage": "pgraft", "controls": ["%s: %s" % (name, what) for name, what in xfam.CONTROLS]})
     return out
 
 
@@ -1275,6 +1359,29 @@ def _arms(req, stages, sources_out, base_total, atlas_entries, limits):
 
 
 # ---------------------------------------------------------------- plan text
+
+
+def _format_pgraft(st, out):
+    first, last = st["donor_span"]
+    out("     write %s into the host as one network. Host layer %d (%s)" % (st["source"], st["host_layer"], st["layer_rule"]))
+    out("     donor span layers %d..%d of %d (%d layers, %.3fB parameters, frozen)" % (
+        first, last, st["donor_layers"], st["donor_slice_layers"], billions(st["slice_params"])))
+    out("     Enc depth %d (%d to %d, %.2fM)  Dec rank %d (%.2fM)  per-token gate (%d)  host LoRA rank %d (%.2fM)" % (
+        st["enc"]["depth"], st["enc"]["d_host"], st["enc"]["d_donor"], st["enc"]["params"] / 1e6, st["dec"]["rank"],
+        st["dec"]["params"] / 1e6, st["gate_params"], st["lora_rank"], st["lora_params"] / 1e6))
+    d = st["data"]
+    out("     data pool %s: %s; %s; %s" % (d["pool"], d["train_items"], d["soft_labels"], d["size"]))
+    out("     prompts removed: %s. Text: %s" % (d["removed"], d["text"]))
+    out("     scored on held-out items: %s" % ", ".join(d["scored_on"]))
+    out("     steps: %d alignment, %d task, batch %d; about %.2f GPU hours on one %s (measured)" % (
+        st["settings"]["align_steps"], st["settings"]["steps"], st["settings"]["batch"], st["estimate"]["gpu_hours"],
+        st["estimate"]["gpu"]))
+    out("     params per token after the write-in: %.3fB (host %.3fB + donor slice %.3fB + glue %.3fB); the LoRA merges "
+        "into the host. Stored total %.3fB" % (
+            st["params_run_after_b"], st["params_run_after_b"] - billions(st["params_per_token_added"]),
+            billions(st["slice_params"]), billions(st["glue_params"]), st["params_total_after_b"]))
+    for c in st["controls"]:
+        out("     control %s: %s. Run by %s" % (c["name"], c["what"], c["run_by"]))
 
 
 def format_plan(p):
@@ -1310,22 +1417,27 @@ def format_plan(p):
                                                                st["params_total_after_b"], st["params_run_after_b"]))
         if st.get("settings"):
             out("     settings: %s" % json.dumps(st["settings"]))
+        if st["method"] == "pgraft":
+            _format_pgraft(st, out)
         for problem in st["limit_problems"]:
             out("     over limit: %s" % problem)
     out("")
-    out("Heal text (reported benchmarks excluded)")
-    for skill, h in p["heal_data"].items():
-        ids = ", ".join(s["id"] for s in h["sources"]) or "none"
-        note = "  fallback: %s" % h["fallback"] if h["fallback"] else ""
-        out("  %s: pool %s  [%s]%s" % (skill, h["pool"], ids, note))
-    out("Probe text: rows %d and later of each pool, three splits of %d" % (
-        p["settings"]["probe_skip"], p["settings"]["probe_texts"]))
-    out("Practice sets")
-    for skill, info in p["practice"].items():
-        if info["available"]:
-            out("  %s: %s" % (skill, ", ".join(s["id"] for s in info["sources"])))
-        else:
-            out("  %s: none (%s)" % (skill, info["reason"]))
+    if any(st["method"] == "pgraft" for st in p["stages"]):
+        out("Heal text, probe text, and practice sets: not used by pgraft. Its data pool and eval sets are in the stage above.")
+    else:
+        out("Heal text (reported benchmarks excluded)")
+        for skill, h in p["heal_data"].items():
+            ids = ", ".join(s["id"] for s in h["sources"]) or "none"
+            note = "  fallback: %s" % h["fallback"] if h["fallback"] else ""
+            out("  %s: pool %s  [%s]%s" % (skill, h["pool"], ids, note))
+        out("Probe text: rows %d and later of each pool, three splits of %d" % (
+            p["settings"]["probe_skip"], p["settings"]["probe_texts"]))
+        out("Practice sets")
+        for skill, info in p["practice"].items():
+            if info["available"]:
+                out("  %s: %s" % (skill, ", ".join(s["id"] for s in info["sources"])))
+            else:
+                out("  %s: none (%s)" % (skill, info["reason"]))
     out("Controls")
     for c in p["controls"]:
         out("  %s: %s" % (c["stage"], "; ".join(c["controls"])))
@@ -1333,6 +1445,11 @@ def format_plan(p):
     for a in p["arms"]:
         out("  %s: %s" % (a["arm"], a["what"]))
     out("")
+    if p.get("native_bar"):
+        out("Native bar")
+        for bar in p["native_bar"]:
+            out("  " + bar["text"])
+        out("")
     if p["warnings"]:
         out("Warnings")
         for w in p["warnings"]:
@@ -1401,6 +1518,21 @@ class Backend:
     def save_plain(self, model, tokenizer, path):
         raise NotImplementedError
 
+    def pgraft_data(self, stage, donor, donor_tok, host_id):
+        """Four-option items, the donor's soft letter distribution on them, and the eval sets, for a pgraft stage.
+
+        Returns {"items", "soft", "evals", "source"}.
+        """
+        raise NotImplementedError
+
+    def pgraft_texts(self, stage, request):
+        """Alignment and general text pools for a pgraft stage: {"align", "align_eval", "general"}."""
+        raise NotImplementedError
+
+    def checkpoint(self):
+        """Called after a stage wrote files that must survive a crash (the Modal runner commits its volume)."""
+        return None
+
 
 class LocalBackend(Backend):
     """Tiny models held in memory: models is {id: (model, tokenizer)}.
@@ -1459,6 +1591,19 @@ class LocalBackend(Backend):
         model.save_pretrained(path)
         if tokenizer is not None:
             tokenizer.save_pretrained(path)
+
+    pgraft_data_fn = None
+    pgraft_texts_fn = None
+
+    def pgraft_data(self, stage, donor, donor_tok, host_id):
+        if self.pgraft_data_fn is None:
+            raise NotImplementedError("set pgraft_data_fn on the LocalBackend (a tiny pool for tests)")
+        return self.pgraft_data_fn(stage, donor, donor_tok, host_id)
+
+    def pgraft_texts(self, stage, request):
+        if self.pgraft_texts_fn is None:
+            raise NotImplementedError("set pgraft_texts_fn on the LocalBackend (tiny texts for tests)")
+        return self.pgraft_texts_fn(stage, request)
 
 
 class HubBackend(Backend):
@@ -1539,6 +1684,17 @@ class HubBackend(Backend):
         model.save_pretrained(path)
         if tokenizer is not None:
             tokenizer.save_pretrained(path)
+
+    def pgraft_data(self, stage, donor, donor_tok, host_id):
+        """The cached pool and eval sets of the wi_xfam rows (stage["data"]["dir"]); built from scratch on a miss."""
+        from wsp import xfam
+
+        return xfam.load_or_build_data(stage["data"]["dir"], host_id, donor, donor_tok)
+
+    def pgraft_texts(self, stage, request):
+        from wsp import xfam
+
+        return xfam.load_or_build_texts(xfam.TEXT_CACHE, hd_reported(request["reported"]))
 
 
 def generate_texts(model, tokenizer, prompts, max_new_tokens=64, batch_size=8):
@@ -2207,6 +2363,13 @@ def make(request, out_dir, backend, lineage=None, plan_=None, settings=None, atl
     if not plan_["feasible"]:
         raise PlanError("the plan cannot run: " + " | ".join(plan_["refusals"] or ["no stage"]))
     os.makedirs(out_dir, exist_ok=True)
+    if [st["method"] for st in plan_["stages"]] == ["pgraft"]:
+        # The write-in has its own build, save, reload, and score path (wsp/pgraft_stage.py): the text probes of
+        # prepare() and verify() read same-tokenizer KL and do not apply to a four-option write-in.
+        from wsp import pgraft_stage
+
+        final, model, tokenizer = pgraft_stage.run_make(req, plan_, backend, out_dir, started, atlas_entries)
+        return MakeResult(final, model, tokenizer, out_dir)
     model, tokenizer = backend.load(req["base"])
     ctx = Context(req, plan_, backend, out_dir, model, tokenizer, atlas_entries)
     ctx.stage_base_is_original = True

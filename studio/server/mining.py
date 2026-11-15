@@ -154,6 +154,22 @@ def create_request(body):
     return item
 
 
+def with_facts(item):
+    """A copy of the request with model facts (params_b, layers, experts) from the library or the lookup cache. It adds nothing the library does not hold."""
+    out = dict(item)
+    model = out.get("model")
+    profile = library_profile(model) or {}
+    cached = (_lookup_cache.get(model) or (0, {}))[1]
+    for key in ("params_b", "layers", "experts"):
+        if out.get(key) is None:
+            value = profile.get(key)
+            if value is None:
+                value = cached.get(key)
+            if value is not None:
+                out[key] = value
+    return out
+
+
 def get_request(request_id):
     for item in read_requests():
         if item.get("id") == request_id:
@@ -506,7 +522,7 @@ def register(app):
 
     @app.get("/api/mine")
     def get_mine():
-        return {"requests": list(reversed(read_requests())), "models": all_models()}
+        return {"requests": [with_facts(i) for i in reversed(read_requests())], "models": all_models()}
 
     @app.get("/api/mine/lookup")
     def get_lookup(model: str = ""):
@@ -528,7 +544,7 @@ def register(app):
         item = get_request(request_id)
         if item is None:
             return error_body("unknown mining request", 404)
-        return item
+        return with_facts(item)
 
     @app.get("/api/models/{model:path}")
     def get_model(model: str):

@@ -180,6 +180,8 @@ class ParallelGraft(Graft):
         self.control = control
         self.token_gate = TokenGate(d_host, gate_bias)
         self.register_buffer("in_scale", torch.ones((), dtype=torch.float32))
+        # Scales Dec's output to the host residual's size at the write point (calibrate_out_scale); 1 keeps old behaviour.
+        self.register_buffer("out_scale", torch.ones((), dtype=torch.float32))
         self.forced_off = False
         self.last_gate = None
         self.last_real = None
@@ -238,11 +240,18 @@ class ParallelGraft(Graft):
         return self.pad_mask[:, -h.shape[1]:]
 
     def forward(self, h):
-        if self.forced_off:
+        update = self.update_for(h)
+        if update is None:
             return h
+        return h + update.to(h.dtype)
+
+    def update_for(self, h):
+        """The gated, first-position-masked update to add to h, or None when the graft is forced off."""
+        if self.forced_off:
+            return None
         x = self.donor_input(h)
         y = self.contribution(x) * self.in_scale
-        update = self.dec(y)
+        update = self.dec(y) * self.out_scale
         real = self.real_mask(h)
         gate = self.token_gate(h, real)
         self.last_gate = gate
@@ -257,7 +266,94 @@ class ParallelGraft(Graft):
                     keep = keep & (real.to(keep.device) != 0)
                 self.ratio_sum += float(ratio[keep].sum())
                 self.ratio_count += int(keep.sum())
-        return h + update.to(h.dtype)
+        return update
+
+
+class SplitGraft(ParallelGraft):
+    """A ParallelGraft that reads at its host layer and writes at a later base layer (write_layer).
+
+    The branch is a skip connection: base layers host+1..write_layer run in
+    parallel with the donor slice, and the slice's contribution joins the base
+    residual after write_layer. With write_layer equal to the last base
+    layer, the donor's upper layers feed the base head directly.
+    """
+
+    def __init__(self, *args, write_layer=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.write_layer = write_layer
+        self.pending = None
+
+    def forward(self, h):
+        self.pending = self.update_for(h)
+        return h
+
+
+def attach_split(base, graft):
+    """Attach a SplitGraft: the read hook comes from attach, the write hook adds graft.pending after write_layer."""
+    handles = attach(base, [graft])
+    _, layers = find_decoder_layers(base, graft.write_layer)
+
+    def write(module, inputs, output, graft=graft):
+        update = graft.pending
+        graft.pending = None
+        if update is None:
+            return output
+        return replace_hidden(output, lambda h: h + update.to(h.dtype))
+
+    handles.append(layers[graft.write_layer].register_forward_hook(write))
+    return handles
+
+
+class LogitGraft(ParallelGraft):
+    """A donor tail stitched in beside the base: base layer j -> Enc -> donor layers k..last -> donor norm and head.
+
+    The donor's final norm and lm_head turn the slice's output into donor
+    logits. The base head's logits and these are mixed per token,
+    l = l_base + gate * (l_donor - l_base), so the donor's own readout is the
+    decoder. With the gate at zero the network is exactly the base. Under
+    control="identity" the slice is skipped and Enc's output goes to the
+    donor head directly. The tail holds no Dec; only Enc and the gate train.
+    """
+
+    def __init__(self, *args, norm=None, head=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._tail = [norm, head]
+        self.pending = None
+
+    def forward(self, h):
+        if self.forced_off:
+            self.pending = None
+            return h
+        x = self.donor_input(h)
+        state = x if self.control == "identity" else x + self.contribution(x)
+        real = self.real_mask(h)
+        gate = self.token_gate(h, real)
+        self.last_gate = gate
+        self.last_real = real
+        self.pending = (state, gate.masked_fill(self.first_position(h), 0.0))
+        return h
+
+
+def attach_logit(base, graft):
+    """Attach a LogitGraft: the read hook comes from attach, the mix hook sits on the base lm_head."""
+    handles = attach(base, [graft])
+
+    def mix(module, inputs, output, graft=graft):
+        pending = graft.pending
+        graft.pending = None
+        if pending is None:
+            return output
+        state, gate = pending
+        norm, head = graft._tail
+        count = output.shape[1]
+        with autocast(device_of(base)):
+            donor_logits = head(norm(state[:, -count:].to(norm.weight.dtype)))
+        donor_logits = donor_logits[..., :output.shape[-1]].float()
+        host = output.float()
+        return (host + gate[:, -count:] * (donor_logits - host)).to(output.dtype)
+
+    handles.append(base.get_output_embeddings().register_forward_hook(mix))
+    return handles
 
 
 def grafts_of(model):
@@ -292,8 +388,37 @@ def num_layers(model):
     return config.num_hidden_layers
 
 
+def sparse_part(part, first, keep):
+    """Keep only the donor layers in `keep` (absolute indexes inside first..last) of a BlockPart, in order.
+
+    The kept layers are the donor's own frozen layers, run back to back. Their
+    cache index becomes their place in the kept list, so the part's own KV
+    cache holds one entry per kept layer. Returns the same part.
+    """
+    keep = sorted(set(int(k) for k in keep))
+    offsets = [k - first for k in keep]
+    if not offsets or offsets[0] < 0 or offsets[-1] >= len(part.layers):
+        raise ValueError(f"keep {keep} is not inside the part's layers {first}..{first + len(part.layers) - 1}")
+    if any(getattr(part, "recurrent", [False] * len(part.layers))[o] for o in offsets):
+        raise ValueError("sparse_part supports attention layers only")
+    layers = [part.layers[o] for o in offsets]
+    for place, layer in enumerate(layers):
+        for owner in (layer, getattr(layer, "self_attn", None)):
+            if owner is not None and hasattr(owner, "layer_idx"):
+                owner.layer_idx = place
+    part.layers = nn.ModuleList(layers)
+    # wsp.parts (5.x) and wsp.parts_tf4 (4.x) keep different per-layer lists; cut whichever exist.
+    for name in ("windows", "layer_types", "recurrent", "two_rotary"):
+        if hasattr(part, name):
+            setattr(part, name, [getattr(part, name)[o] for o in offsets])
+    if hasattr(part, "first"):
+        part.first = 0
+    return part
+
+
 def build(base, donor, host_layer, first, last, control=None, enc_depth=1, dec_rank=64, dec_depth=1,
-          gate_bias=0.0, out_rms=1.0, d_donor=None, read_layers=None):
+          gate_bias=0.0, out_rms=1.0, d_donor=None, write_layer=None, logit=False, tail=None, read_layers=None,
+          keep=None, part=None):
     """Make one ParallelGraft that runs donor layers first..last, and attach it after base layer host_layer.
 
     The block is the donor's own decoder layer code, built from the loaded
@@ -303,19 +428,29 @@ def build(base, donor, host_layer, first, last, control=None, enc_depth=1, dec_r
     d_host = hidden_size(base)
     if d_donor is None:
         d_donor = hidden_size(donor)
-    part = None
-    if control != "identity":
+    if control != "identity" and part is not None:
+        pass  # a ready-made part (for example wsp.moe_fast.block_part) shares the donor's modules
+    elif control != "identity":
         tensors = {}
         for name, value in donor.state_dict().items():
             tensors[name] = value.detach()
         part = build_block_part(donor.config, first, last, tensors).to(device_of(donor))
+        if keep is not None:
+            part = sparse_part(part, first, keep)
     else:
         part = nn.Identity()
     if read_layers is not None and list(read_layers) == [host_layer]:
         read_layers = None
     enc = Enc(d_host, d_donor, depth=enc_depth, out_rms=out_rms, host_layers=read_layers)
     dec = Dec(d_donor, d_host, rank=dec_rank, depth=dec_depth)
-    graft = ParallelGraft(d_host, d_donor, part, enc, dec, control=control, gate_bias=gate_bias)
+    if logit:
+        norm, head = tail if tail is not None else (donor.model.norm, donor.get_output_embeddings())
+        graft = LogitGraft(d_host, d_donor, part, enc, dec, control=control, gate_bias=gate_bias, norm=norm, head=head)
+    elif write_layer is None or write_layer == host_layer:
+        graft = ParallelGraft(d_host, d_donor, part, enc, dec, control=control, gate_bias=gate_bias)
+    else:
+        graft = SplitGraft(d_host, d_donor, part, enc, dec, control=control, gate_bias=gate_bias,
+                           write_layer=write_layer)
     graft.donor_span = (first, last)
     device = device_of(base)
     graft.w_in.to(device)
@@ -551,6 +686,30 @@ def calibrate_scale(base, tok, graft, texts, cfg=None, batch=4):
             graft.pad_mask = None
     value = total / max(1, n)
     graft.in_scale.fill_(1.0 / max(value, 1e-6))
+    return value
+
+
+def calibrate_out_scale(base, tok, graft, texts, layer, frac=1.0, cfg=None, batch=4):
+    """Set graft.out_scale to frac times the median per-token RMS of the base residual after `layer`.
+
+    Dec's output starts near unit scale. A late base layer can hold a residual
+    stream many times larger, so Dec would need very large weights; this puts
+    its output on the host's scale. The first position (the host's sink) is left out.
+    """
+    cfg = dict(DEFAULTS, **(cfg or {}))
+    values = []
+    graft.out_scale.fill_(1.0)
+    with torch.no_grad():
+        for start in range(0, min(len(texts), 64), batch):
+            ids, mask, _, _ = encode(tok, texts[start:start + batch], cfg["seq_len"])
+            ids = ids.to(device_of(base))
+            mask = mask.to(device_of(base))
+            h = _host_state(base, ids, mask, layer)
+            keep = mask.bool().clone()
+            keep[:, 0] = False
+            values.append(h.float().pow(2).mean(-1).sqrt()[keep].cpu())
+    value = float(torch.cat(values).median())
+    graft.out_scale.fill_(frac * value)
     return value
 
 
@@ -899,6 +1058,35 @@ def mc_loss(model, tok, items, letter_ids, device):
     acc = float((letters.argmax(-1) == gold).float().mean())
     tok.padding_side = "right"
     return loss, {"mc": float(loss.detach()), "mc_acc": acc}
+
+
+def mc_soft_loss(model, tok, items, letter_ids, device, soft=None, kd_weight=0.0):
+    """Answer-letter loss with optional distillation: CE to gold plus kd_weight * KL(soft || student) over the letters.
+
+    items are (prompt, gold index); soft is a (batch, letters) tensor of the donor's probabilities over the same letters.
+    info also holds the real token count of the batch ("tokens").
+    """
+    tok.padding_side = "left"
+    if tok.pad_token is None:
+        tok.pad_token = tok.eos_token
+    enc = tok([p for p, _ in items], return_tensors="pt", padding=True).to(device)
+    with autocast(device):
+        logits = model(input_ids=enc["input_ids"], attention_mask=enc["attention_mask"], use_cache=False).logits
+    letters = logits[:, -1, :].float()[:, letter_ids]
+    gold = torch.tensor([g for _, g in items], dtype=torch.long, device=device)
+    ce = F.cross_entropy(letters, gold)
+    loss = ce
+    info = {"mc": float(ce.detach()), "mc_acc": float((letters.argmax(-1) == gold).float().mean()),
+            "tokens": int(enc["attention_mask"].sum())}
+    if soft is not None and kd_weight > 0:
+        soft = soft.to(device).float().clamp(min=1e-8)
+        soft = soft / soft.sum(-1, keepdim=True)
+        logq = F.log_softmax(letters, dim=-1)
+        kl = (soft * (soft.log() - logq)).sum(-1).mean()
+        loss = ce + kd_weight * kl
+        info["kd"] = float(kl.detach())
+    tok.padding_side = "right"
+    return loss, info
 
 
 # ------------------------------------------------- subnetwork parts (bundles)

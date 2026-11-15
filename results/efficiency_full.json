@@ -1,0 +1,2105 @@
+[
+  {
+    "cell": "full:base",
+    "model": "hub:Qwen/Qwen3-30B-A3B-Instruct-2507",
+    "config": "base",
+    "gpu": "NVIDIA H200",
+    "smoke": false,
+    "util": 0.9,
+    "vllm": "0.32.0",
+    "torch": "2.13.0+cu130",
+    "prompts": 64,
+    "gen_len": 256,
+    "weights_disk_gib": 56.87,
+    "model_loading_gib": 56.93,
+    "model_loading_all_gib": [
+      56.93
+    ],
+    "kv_cache_gib": 66.64,
+    "kv_cache_tokens": 727920.0,
+    "kv_concurrency": 177.71,
+    "gpu_after_load_gib": 125.6494140625,
+    "gpu_peak_gib": 126.32,
+    "load_seconds": 227.3,
+    "engine_init_seconds": 154.84,
+    "prefill_tps": 42019.0661004546,
+    "ttft_ms_median": 66.04670350000674,
+    "ttft_ms_p90": 71.37836799995512,
+    "decode_tps": {
+      "1": 258.7920245874535,
+      "8": 918.4661453110979,
+      "32": 2506.8671308691846
+    },
+    "he_b1_tps": 233.78256771894064,
+    "humaneval": {
+      "score": 0.9085365853658537,
+      "correct": 149,
+      "n": 164,
+      "seconds": 14.4,
+      "gen_tps": 2586.49742130885,
+      "mean_tokens": 227.5609756097561
+    },
+    "mbpp": {
+      "score": 0.8521400778210116,
+      "correct": 219,
+      "n": 257,
+      "seconds": 17.0,
+      "gen_tps": 2169.4839101148277,
+      "mean_tokens": 143.36964980544747
+    },
+    "accept": {
+      "decode_b1": null,
+      "decode_b8": null,
+      "decode_b32": null,
+      "humaneval": null,
+      "mbpp": null,
+      "he_b1": null
+    },
+    "samples": {
+      "humaneval": [
+        {
+          "id": "HumanEval/0",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in given list of numbers, are any two numbers closer to each other than\n    given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    \"\"\"\n    for i in range(len(numbers)):\n        for j in range(i + 1, len(numbers)):\n            if abs(numbers[i] - numbers[j]) < threshold:\n                return True\n    return False\n```"
+        },
+        {
+          "id": "HumanEval/1",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a string containing multiple groups of nested parentheses. Your goal is to\n    separate those group into separate strings and return the list of those.\n    Separate groups are balanced (each open brace is properly closed) and not nested within each other\n    Ignore any spaces in the input string.\n    >>> separate_paren_groups('( ) (( )) (( )( ))')\n    ['()', '(())', '(()())']\n    \"\"\"\n    # Remove all spaces from the input string\n    paren_string = paren_string.replac"
+        },
+        {
+          "id": "HumanEval/2",
+          "correct": true,
+          "output": "```python\ndef truncate_number(number: float) -> float:\n    \"\"\" Given a positive floating point number, it can be decomposed into\n    and integer part (largest integer smaller than given number) and decimals\n    (leftover part always smaller than 1).\n\n    Return the decimal part of the number.\n    >>> truncate_number(3.5)\n    0.5\n    \"\"\"\n    return number - int(number)\n```"
+        }
+      ],
+      "mbpp": [
+        {
+          "id": "mbpp:11",
+          "correct": true,
+          "output": "```python\ndef remove_Occ(s, char):\n    \"\"\"\n    Remove the first and last occurrence of a given character from the string.\n    \n    Args:\n        s (str): The input string\n        char (str): The character to remove (first and last occurrence)\n    \n    Returns:\n        str: String with first and last occurrence of char removed\n    \"\"\"\n    if not s or len(char) != 1:\n        return s\n    \n    # Find the first occurrence\n    first_index = s.find(char)\n    if first_index == -1:\n        return s  # Character not found\n    \n    # Find the last occurrence\n    last_index = s.rfind(char)\n    \n    # Rem"
+        },
+        {
+          "id": "mbpp:12",
+          "correct": true,
+          "output": "```python\ndef sort_matrix(matrix):\n    \"\"\"\n    Sort a given matrix in ascending order according to the sum of its rows.\n    \n    Args:\n        matrix: A 2D list representing the matrix\n        \n    Returns:\n        A new matrix sorted by row sums in ascending order\n    \"\"\"\n    # Sort the matrix based on the sum of each row\n    return sorted(matrix, key=sum)\n```"
+        },
+        {
+          "id": "mbpp:14",
+          "correct": true,
+          "output": "```python\ndef find_Volume(base, height, length):\n    \"\"\"\n    Calculate the volume of a triangular prism.\n    \n    The volume of a triangular prism is given by the formula:\n    Volume = (1/2) * base * height * length\n    \n    Args:\n        base (float): The base length of the triangular face\n        height (float): The height of the triangular face\n        length (float): The length of the prism (distance between the two triangular faces)\n    \n    Returns:\n        float: The volume of the triangular prism\n    \"\"\"\n    return 0.5 * base * height * length\n```"
+        }
+      ]
+    },
+    "llm_kwargs": {
+      "max_num_seqs": 64
+    },
+    "seconds": 505.1,
+    "error": null,
+    "date": "2026-11-15",
+    "gpu_label": "H200"
+  },
+  {
+    "cell": "full:draft06",
+    "model": "hub:Qwen/Qwen3-30B-A3B-Instruct-2507",
+    "config": "draft06",
+    "gpu": "NVIDIA H200",
+    "smoke": false,
+    "util": 0.9,
+    "vllm": "0.32.0",
+    "torch": "2.13.0+cu130",
+    "prompts": 64,
+    "gen_len": 256,
+    "weights_disk_gib": 56.87,
+    "model_loading_gib": 58.06,
+    "model_loading_all_gib": [
+      58.06
+    ],
+    "kv_cache_gib": 64.93,
+    "kv_cache_tokens": 327328.0,
+    "kv_concurrency": 79.91,
+    "gpu_after_load_gib": 125.6865234375,
+    "gpu_peak_gib": 128.02,
+    "load_seconds": 231.4,
+    "engine_init_seconds": 167.46,
+    "prefill_tps": 34044.383407842775,
+    "ttft_ms_median": 73.73127749997366,
+    "ttft_ms_p90": 81.93068599985054,
+    "decode_tps": {
+      "1": 53.188900516058474,
+      "8": 334.1492408772472,
+      "32": 1261.1919069152855
+    },
+    "he_b1_tps": 67.63191623364982,
+    "humaneval": {
+      "score": 0.9024390243902439,
+      "correct": 148,
+      "n": 164,
+      "seconds": 16.9,
+      "gen_tps": 2206.669563257096,
+      "mean_tokens": 228.0548780487805
+    },
+    "mbpp": {
+      "score": 0.8404669260700389,
+      "correct": 216,
+      "n": 257,
+      "seconds": 23.7,
+      "gen_tps": 1555.35545039623,
+      "mean_tokens": 143.58365758754863
+    },
+    "accept": {
+      "decode_b1": {
+        "drafts": 5352,
+        "draft_tokens": 21408,
+        "accepted": 11057,
+        "rate": 0.5164891629297459,
+        "mean_accept_len": 3.0659566517189836
+      },
+      "decode_b8": {
+        "drafts": 5330,
+        "draft_tokens": 21320,
+        "accepted": 11108,
+        "rate": 0.5210131332082552,
+        "mean_accept_len": 3.0840525328330206
+      },
+      "decode_b32": {
+        "drafts": 5311,
+        "draft_tokens": 21244,
+        "accepted": 11115,
+        "rate": 0.5232065524383356,
+        "mean_accept_len": 3.0928262097533423
+      },
+      "humaneval": {
+        "drafts": 8916,
+        "draft_tokens": 35664,
+        "accepted": 28505,
+        "rate": 0.7992653656348138,
+        "mean_accept_len": 4.197061462539255
+      },
+      "mbpp": {
+        "drafts": 10696,
+        "draft_tokens": 42784,
+        "accepted": 25960,
+        "rate": 0.6067688855646971,
+        "mean_accept_len": 3.4270755422587884
+      },
+      "he_b1": {
+        "drafts": 922,
+        "draft_tokens": 3688,
+        "accepted": 2985,
+        "rate": 0.8093817787418656,
+        "mean_accept_len": 4.237527114967462
+      }
+    },
+    "samples": {
+      "humaneval": [
+        {
+          "id": "HumanEval/0",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in given list of numbers, are any two numbers closer to each other than\n    given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    \"\"\"\n    for i in range(len(numbers)):\n        for j in range(i + 1, len(numbers)):\n            if abs(numbers[i] - numbers[j]) < threshold:\n                return True\n    return False\n```"
+        },
+        {
+          "id": "HumanEval/1",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a string containing multiple groups of nested parentheses. Your goal is to\n    separate those group into separate strings and return the list of those.\n    Separate groups are balanced (each open brace is properly closed) and not nested within each other\n    Ignore any spaces in the input string.\n    >>> separate_paren_groups('( ) (( )) (( )( ))')\n    ['()', '(())', '(()())']\n    \"\"\"\n    # Remove all spaces from the input string\n    paren_string = paren_string.replac"
+        },
+        {
+          "id": "HumanEval/2",
+          "correct": true,
+          "output": "```python\ndef truncate_number(number: float) -> float:\n    \"\"\" Given a positive floating point number, it can be decomposed into\n    and integer part (largest integer smaller than given number) and decimals\n    (leftover part always smaller than 1).\n\n    Return the decimal part of the number.\n    >>> truncate_number(3.5)\n    0.5\n    \"\"\"\n    return number - int(number)\n```"
+        }
+      ],
+      "mbpp": [
+        {
+          "id": "mbpp:11",
+          "correct": true,
+          "output": "```python\ndef remove_Occ(s, char):\n    \"\"\"\n    Remove the first and last occurrence of a given character from the string.\n    \n    Args:\n        s (str): The input string\n        char (str): The character to remove (first and last occurrence)\n    \n    Returns:\n        str: String with first and last occurrence of char removed\n    \"\"\"\n    if not s or len(char) != 1:\n        return s\n    \n    # Find the first occurrence\n    first_index = s.find(char)\n    if first_index == -1:\n        return s  # Character not found\n    \n    # Find the last occurrence\n    last_index = s.rfind(char)\n    \n    # Rem"
+        },
+        {
+          "id": "mbpp:12",
+          "correct": true,
+          "output": "```python\ndef sort_matrix(matrix):\n    \"\"\"\n    Sort a given matrix in ascending order according to the sum of its rows.\n    \n    Args:\n        matrix: A 2D list representing the matrix\n        \n    Returns:\n        A new matrix with rows sorted by their sum in ascending order\n    \"\"\"\n    # Sort the matrix based on the sum of each row\n    return sorted(matrix, key=sum)\n```"
+        },
+        {
+          "id": "mbpp:14",
+          "correct": true,
+          "output": "```python\ndef find_Volume(base, height, length):\n    \"\"\"\n    Calculate the volume of a triangular prism.\n    \n    The volume is calculated as: (1/2 * base * height) * length\n    where:\n    - base is the base of the triangular face\n    - height is the height of the triangular face\n    - length is the length of the prism (distance between the two triangular faces)\n    \n    Args:\n        base (float): The base length of the triangular face\n        height (float): The height of the triangular face\n        length (float): The length of the prism\n    \n    Returns:\n        float: The volume of the tr"
+        }
+      ]
+    },
+    "llm_kwargs": {
+      "max_num_seqs": 64,
+      "speculative_config": {
+        "method": "draft_model",
+        "model": "Qwen/Qwen3-0.6B",
+        "num_speculative_tokens": 4
+      }
+    },
+    "seconds": 829.4,
+    "error": null,
+    "date": "2026-11-15",
+    "gpu_label": "H200"
+  },
+  {
+    "cell": "full:draft17",
+    "model": "hub:Qwen/Qwen3-30B-A3B-Instruct-2507",
+    "config": "draft17",
+    "gpu": "NVIDIA H200",
+    "smoke": false,
+    "util": 0.9,
+    "vllm": "0.32.0",
+    "torch": "2.13.0+cu130",
+    "prompts": 64,
+    "gen_len": 256,
+    "weights_disk_gib": 56.87,
+    "model_loading_gib": 60.15,
+    "model_loading_all_gib": [
+      60.15
+    ],
+    "kv_cache_gib": 62.71,
+    "kv_cache_tokens": 316112.0,
+    "kv_concurrency": 77.18,
+    "gpu_after_load_gib": 125.5458984375,
+    "gpu_peak_gib": 126.74,
+    "load_seconds": 237.4,
+    "engine_init_seconds": 147.63,
+    "prefill_tps": 35558.25125593235,
+    "ttft_ms_median": 55.17292000013185,
+    "ttft_ms_p90": 66.31365299995196,
+    "decode_tps": {
+      "1": 77.06225227910137,
+      "8": 498.1226152672216,
+      "32": 1756.0579382493302
+    },
+    "he_b1_tps": 94.76554274486423,
+    "humaneval": {
+      "score": 0.9024390243902439,
+      "correct": 148,
+      "n": 164,
+      "seconds": 12.2,
+      "gen_tps": 3076.192336278626,
+      "mean_tokens": 228.09146341463415
+    },
+    "mbpp": {
+      "score": 0.8443579766536965,
+      "correct": 217,
+      "n": 257,
+      "seconds": 19.0,
+      "gen_tps": 1945.2600913189945,
+      "mean_tokens": 143.51750972762645
+    },
+    "accept": {
+      "decode_b1": {
+        "drafts": 5018,
+        "draft_tokens": 20072,
+        "accepted": 11390,
+        "rate": 0.567457154244719,
+        "mean_accept_len": 3.269828616978876
+      },
+      "decode_b8": {
+        "drafts": 4974,
+        "draft_tokens": 19896,
+        "accepted": 11449,
+        "rate": 0.5754422999597909,
+        "mean_accept_len": 3.3017691998391636
+      },
+      "decode_b32": {
+        "drafts": 4985,
+        "draft_tokens": 19940,
+        "accepted": 11449,
+        "rate": 0.574172517552658,
+        "mean_accept_len": 3.296690070210632
+      },
+      "humaneval": {
+        "drafts": 8656,
+        "draft_tokens": 34624,
+        "accepted": 28652,
+        "rate": 0.827518484288355,
+        "mean_accept_len": 4.31007393715342
+      },
+      "mbpp": {
+        "drafts": 10203,
+        "draft_tokens": 40812,
+        "accepted": 26424,
+        "rate": 0.6474566304028228,
+        "mean_accept_len": 3.589826521611291
+      },
+      "he_b1": {
+        "drafts": 900,
+        "draft_tokens": 3600,
+        "accepted": 2988,
+        "rate": 0.83,
+        "mean_accept_len": 4.32
+      }
+    },
+    "samples": {
+      "humaneval": [
+        {
+          "id": "HumanEval/0",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in given list of numbers, are any two numbers closer to each other than\n    given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    \"\"\"\n    for i in range(len(numbers)):\n        for j in range(i + 1, len(numbers)):\n            if abs(numbers[i] - numbers[j]) < threshold:\n                return True\n    return False\n```"
+        },
+        {
+          "id": "HumanEval/1",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a string containing multiple groups of nested parentheses. Your goal is to\n    separate those group into separate strings and return the list of those.\n    Separate groups are balanced (each open brace is properly closed) and not nested within each other\n    Ignore any spaces in the input string.\n    >>> separate_paren_groups('( ) (( )) (( )( ))')\n    ['()', '(())', '(()())']\n    \"\"\"\n    # Remove all spaces from the input string\n    paren_string = paren_string.replac"
+        },
+        {
+          "id": "HumanEval/2",
+          "correct": true,
+          "output": "```python\ndef truncate_number(number: float) -> float:\n    \"\"\" Given a positive floating point number, it can be decomposed into\n    and integer part (largest integer smaller than given number) and decimals\n    (leftover part always smaller than 1).\n\n    Return the decimal part of the number.\n    >>> truncate_number(3.5)\n    0.5\n    \"\"\"\n    return number - int(number)\n```"
+        }
+      ],
+      "mbpp": [
+        {
+          "id": "mbpp:11",
+          "correct": true,
+          "output": "```python\ndef remove_Occ(s, char):\n    \"\"\"\n    Remove the first and last occurrence of a given character from the string.\n    \n    Args:\n        s (str): The input string\n        char (str): The character to remove (first and last occurrence)\n    \n    Returns:\n        str: String with first and last occurrence of char removed\n    \"\"\"\n    if not s or len(char) != 1:\n        return s\n    \n    # Find the first occurrence\n    first_index = s.find(char)\n    if first_index == -1:\n        return s  # Character not found\n    \n    # Find the last occurrence\n    last_index = s.rfind(char)\n    \n    # Rem"
+        },
+        {
+          "id": "mbpp:12",
+          "correct": true,
+          "output": "```python\ndef sort_matrix(matrix):\n    \"\"\"\n    Sort a given matrix in ascending order according to the sum of its rows.\n    \n    Args:\n        matrix: A 2D list representing the matrix\n        \n    Returns:\n        A new matrix with rows sorted by their sum in ascending order\n    \"\"\"\n    # Sort the matrix based on the sum of each row\n    return sorted(matrix, key=sum)\n```"
+        },
+        {
+          "id": "mbpp:14",
+          "correct": true,
+          "output": "```python\ndef find_Volume(base, height, length):\n    \"\"\"\n    Calculate the volume of a triangular prism.\n    \n    The volume is calculated as: (1/2 * base * height) * length\n    where:\n    - base is the base of the triangular face\n    - height is the height of the triangular face\n    - length is the length of the prism (distance between the two triangular faces)\n    \n    Args:\n        base (float): The base length of the triangular face\n        height (float): The height of the triangular face\n        length (float): The length of the prism\n    \n    Returns:\n        float: The volume of the tr"
+        }
+      ]
+    },
+    "llm_kwargs": {
+      "max_num_seqs": 64,
+      "speculative_config": {
+        "method": "draft_model",
+        "model": "Qwen/Qwen3-1.7B",
+        "num_speculative_tokens": 4
+      }
+    },
+    "seconds": 663.1,
+    "error": null,
+    "date": "2026-11-15",
+    "gpu_label": "H200"
+  },
+  {
+    "cell": "full:eager",
+    "model": "hub:Qwen/Qwen3-30B-A3B-Instruct-2507",
+    "config": "eager",
+    "gpu": "NVIDIA H200",
+    "smoke": false,
+    "util": 0.9,
+    "vllm": "0.32.0",
+    "torch": "2.13.0+cu130",
+    "prompts": 64,
+    "gen_len": 256,
+    "weights_disk_gib": 56.87,
+    "model_loading_gib": 56.93,
+    "model_loading_all_gib": [
+      56.93
+    ],
+    "kv_cache_gib": 66.95,
+    "kv_cache_tokens": 731312.0,
+    "kv_concurrency": 178.54,
+    "gpu_after_load_gib": 126.5087890625,
+    "gpu_peak_gib": 126.52,
+    "load_seconds": 45.3,
+    "engine_init_seconds": 5.71,
+    "prefill_tps": 7615.484499980998,
+    "ttft_ms_median": 69.0316029999849,
+    "ttft_ms_p90": 796.9814260000021,
+    "decode_tps": {
+      "1": 16.87442158035282,
+      "8": 129.04893784277246,
+      "32": 524.2050797823748
+    },
+    "he_b1_tps": 16.016910701288257,
+    "humaneval": {
+      "score": 0.9146341463414634,
+      "correct": 150,
+      "n": 164,
+      "seconds": 53.7,
+      "gen_tps": 697.5106010079169,
+      "mean_tokens": 228.1951219512195
+    },
+    "mbpp": {
+      "score": 0.8365758754863813,
+      "correct": 215,
+      "n": 257,
+      "seconds": 60.5,
+      "gen_tps": 613.2378158513977,
+      "mean_tokens": 144.36186770428014
+    },
+    "accept": {
+      "decode_b1": null,
+      "decode_b8": null,
+      "decode_b32": null,
+      "humaneval": null,
+      "mbpp": null,
+      "he_b1": null
+    },
+    "samples": {
+      "humaneval": [
+        {
+          "id": "HumanEval/0",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in given list of numbers, are any two numbers closer to each other than\n    given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    \"\"\"\n    for i in range(len(numbers)):\n        for j in range(i + 1, len(numbers)):\n            if abs(numbers[i] - numbers[j]) < threshold:\n                return True\n    return False\n```"
+        },
+        {
+          "id": "HumanEval/1",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a string containing multiple groups of nested parentheses. Your goal is to\n    separate those group into separate strings and return the list of those.\n    Separate groups are balanced (each open brace is properly closed) and not nested within each other\n    Ignore any spaces in the input string.\n    >>> separate_paren_groups('( ) (( )) (( )( ))')\n    ['()', '(())', '(()())']\n    \"\"\"\n    # Remove all spaces from the input string\n    paren_string = paren_string.replac"
+        },
+        {
+          "id": "HumanEval/2",
+          "correct": true,
+          "output": "```python\ndef truncate_number(number: float) -> float:\n    \"\"\" Given a positive floating point number, it can be decomposed into\n    and integer part (largest integer smaller than given number) and decimals\n    (leftover part always smaller than 1).\n\n    Return the decimal part of the number.\n    >>> truncate_number(3.5)\n    0.5\n    \"\"\"\n    return number - int(number)\n```"
+        }
+      ],
+      "mbpp": [
+        {
+          "id": "mbpp:11",
+          "correct": true,
+          "output": "```python\ndef remove_Occ(s, char):\n    \"\"\"\n    Remove the first and last occurrence of a given character from the string.\n    \n    Args:\n        s (str): The input string\n        char (str): The character to remove (first and last occurrence)\n    \n    Returns:\n        str: String with first and last occurrence of char removed\n    \"\"\"\n    if not s or len(char) != 1:\n        return s\n    \n    # Find the first occurrence\n    first_index = s.find(char)\n    if first_index == -1:\n        return s  # Character not found\n    \n    # Find the last occurrence\n    last_index = s.rfind(char)\n    \n    # Rem"
+        },
+        {
+          "id": "mbpp:12",
+          "correct": true,
+          "output": "```python\ndef sort_matrix(matrix):\n    \"\"\"\n    Sort a given matrix in ascending order according to the sum of its rows.\n    \n    Args:\n        matrix: List of lists representing the matrix\n        \n    Returns:\n        List of lists representing the sorted matrix\n    \"\"\"\n    return sorted(matrix, key=sum)\n```"
+        },
+        {
+          "id": "mbpp:14",
+          "correct": true,
+          "output": "```python\ndef find_Volume(base, height, length):\n    \"\"\"\n    Calculate the volume of a triangular prism.\n    \n    The volume is calculated as: (1/2 * base * height) * length\n    where:\n    - base is the base of the triangular face\n    - height is the height of the triangular face\n    - length is the length of the prism (distance between the two triangular faces)\n    \n    Args:\n        base (float): The base of the triangular face\n        height (float): The height of the triangular face\n        length (float): The length of the prism\n    \n    Returns:\n        float: The volume of the triangula"
+        }
+      ]
+    },
+    "llm_kwargs": {
+      "max_num_seqs": 64,
+      "enforce_eager": true
+    },
+    "seconds": 1686.9,
+    "error": null,
+    "date": "2026-11-15",
+    "gpu_label": "H200"
+  },
+  {
+    "cell": "full:eagle3",
+    "model": "hub:Qwen/Qwen3-30B-A3B-Instruct-2507",
+    "config": "eagle3",
+    "gpu": "NVIDIA H200",
+    "smoke": false,
+    "util": 0.9,
+    "vllm": "0.32.0",
+    "torch": "2.13.0+cu130",
+    "prompts": 64,
+    "gen_len": 256,
+    "weights_disk_gib": 56.87,
+    "model_loading_gib": 57.41,
+    "model_loading_all_gib": [
+      57.41
+    ],
+    "kv_cache_gib": 64.57,
+    "kv_cache_tokens": 690848.0,
+    "kv_concurrency": 168.66,
+    "gpu_after_load_gib": 125.1630859375,
+    "gpu_peak_gib": 126.65,
+    "load_seconds": 205.8,
+    "engine_init_seconds": 131.55,
+    "prefill_tps": 47405.45481211075,
+    "ttft_ms_median": 23.422727499792018,
+    "ttft_ms_p90": 26.86476999997467,
+    "decode_tps": {
+      "1": 449.15786958797855,
+      "8": 2091.0828373184395,
+      "32": 4486.2908908468235
+    },
+    "he_b1_tps": 495.12231400414714,
+    "humaneval": {
+      "score": 0.9024390243902439,
+      "correct": 148,
+      "n": 164,
+      "seconds": 6.9,
+      "gen_tps": 5389.665612995025,
+      "mean_tokens": 228.09146341463415
+    },
+    "mbpp": {
+      "score": 0.8404669260700389,
+      "correct": 216,
+      "n": 257,
+      "seconds": 8.1,
+      "gen_tps": 4537.9593029050775,
+      "mean_tokens": 143.6887159533074
+    },
+    "accept": {
+      "decode_b1": {
+        "drafts": 5972,
+        "draft_tokens": 17916,
+        "accepted": 10427,
+        "rate": 0.5819937486045993,
+        "mean_accept_len": 2.7459812458137978
+      },
+      "decode_b8": {
+        "drafts": 5895,
+        "draft_tokens": 17685,
+        "accepted": 10498,
+        "rate": 0.5936104042974272,
+        "mean_accept_len": 2.7808312128922816
+      },
+      "decode_b32": {
+        "drafts": 5930,
+        "draft_tokens": 17790,
+        "accepted": 10471,
+        "rate": 0.5885890949971895,
+        "mean_accept_len": 2.7657672849915684
+      },
+      "humaneval": {
+        "drafts": 11368,
+        "draft_tokens": 34104,
+        "accepted": 26193,
+        "rate": 0.7680330752990852,
+        "mean_accept_len": 3.3040992258972555
+      },
+      "mbpp": {
+        "drafts": 12334,
+        "draft_tokens": 37002,
+        "accepted": 24853,
+        "rate": 0.6716663964110048,
+        "mean_accept_len": 3.0149991892330146
+      },
+      "he_b1": {
+        "drafts": 1184,
+        "draft_tokens": 3552,
+        "accepted": 2742,
+        "rate": 0.7719594594594594,
+        "mean_accept_len": 3.3158783783783785
+      }
+    },
+    "samples": {
+      "humaneval": [
+        {
+          "id": "HumanEval/0",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in given list of numbers, are any two numbers closer to each other than\n    given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    \"\"\"\n    for i in range(len(numbers)):\n        for j in range(i + 1, len(numbers)):\n            if abs(numbers[i] - numbers[j]) < threshold:\n                return True\n    return False\n```"
+        },
+        {
+          "id": "HumanEval/1",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a string containing multiple groups of nested parentheses. Your goal is to\n    separate those group into separate strings and return the list of those.\n    Separate groups are balanced (each open brace is properly closed) and not nested within each other\n    Ignore any spaces in the input string.\n    >>> separate_paren_groups('( ) (( )) (( )( ))')\n    ['()', '(())', '(()())']\n    \"\"\"\n    # Remove all spaces from the input string\n    paren_string = paren_string.replac"
+        },
+        {
+          "id": "HumanEval/2",
+          "correct": true,
+          "output": "```python\ndef truncate_number(number: float) -> float:\n    \"\"\" Given a positive floating point number, it can be decomposed into\n    and integer part (largest integer smaller than given number) and decimals\n    (leftover part always smaller than 1).\n\n    Return the decimal part of the number.\n    >>> truncate_number(3.5)\n    0.5\n    \"\"\"\n    return number - int(number)\n```"
+        }
+      ],
+      "mbpp": [
+        {
+          "id": "mbpp:11",
+          "correct": true,
+          "output": "```python\ndef remove_Occ(s, char):\n    \"\"\"\n    Remove the first and last occurrence of a given character from the string.\n    \n    Args:\n        s (str): The input string\n        char (str): The character to remove (first and last occurrence)\n    \n    Returns:\n        str: String with first and last occurrence of char removed\n    \"\"\"\n    if not s or len(char) != 1:\n        return s\n    \n    # Find the first occurrence\n    first_index = s.find(char)\n    if first_index == -1:\n        return s  # Character not found\n    \n    # Find the last occurrence\n    last_index = s.rfind(char)\n    \n    # Rem"
+        },
+        {
+          "id": "mbpp:12",
+          "correct": true,
+          "output": "```python\ndef sort_matrix(matrix):\n    \"\"\"\n    Sort a given matrix in ascending order according to the sum of its rows.\n    \n    Args:\n        matrix: A 2D list representing the matrix\n        \n    Returns:\n        A new matrix with rows sorted by their sum in ascending order\n    \"\"\"\n    # Sort the matrix based on the sum of each row\n    return sorted(matrix, key=sum)\n```"
+        },
+        {
+          "id": "mbpp:14",
+          "correct": true,
+          "output": "```python\ndef find_Volume(base, height, length):\n    \"\"\"\n    Calculate the volume of a triangular prism.\n    \n    The volume is calculated as: (1/2 * base * height) * length\n    where:\n    - base is the base of the triangular face\n    - height is the height of the triangular face\n    - length is the length of the prism (distance between the two triangular faces)\n    \n    Args:\n        base (float): The base length of the triangular face\n        height (float): The height of the triangular face\n        length (float): The length of the prism\n    \n    Returns:\n        float: The volume of the tr"
+        }
+      ]
+    },
+    "llm_kwargs": {
+      "max_num_seqs": 64,
+      "speculative_config": {
+        "method": "eagle3",
+        "model": "RedHatAI/Qwen3-30B-A3B-Instruct-2507-speculator.eagle3",
+        "num_speculative_tokens": 3
+      }
+    },
+    "seconds": 394.6,
+    "error": null,
+    "date": "2026-11-15",
+    "gpu_label": "H200"
+  },
+  {
+    "cell": "full:eagle3b",
+    "model": "hub:Qwen/Qwen3-30B-A3B-Instruct-2507",
+    "config": "eagle3b",
+    "gpu": "NVIDIA H200",
+    "smoke": false,
+    "util": 0.9,
+    "vllm": "0.32.0",
+    "torch": "2.13.0+cu130",
+    "prompts": 64,
+    "gen_len": 256,
+    "weights_disk_gib": 56.87,
+    "model_loading_gib": 57.28,
+    "model_loading_all_gib": [
+      57.28
+    ],
+    "kv_cache_gib": 64.4,
+    "kv_cache_tokens": 689040.0,
+    "kv_concurrency": 168.22,
+    "gpu_after_load_gib": 124.8701171875,
+    "gpu_peak_gib": 126.48,
+    "load_seconds": 176.2,
+    "engine_init_seconds": 115.51,
+    "prefill_tps": 8087.196063504049,
+    "ttft_ms_median": 23.351397999931578,
+    "ttft_ms_p90": 28.53461699987747,
+    "decode_tps": {
+      "1": 467.3600563056522,
+      "8": 2058.3190202407404,
+      "32": 4678.918973340508
+    },
+    "he_b1_tps": 539.4895319529018,
+    "humaneval": {
+      "score": 0.9024390243902439,
+      "correct": 148,
+      "n": 164,
+      "seconds": 5.4,
+      "gen_tps": 6879.762713816272,
+      "mean_tokens": 228.0670731707317
+    },
+    "mbpp": {
+      "score": 0.8443579766536965,
+      "correct": 217,
+      "n": 257,
+      "seconds": 6.8,
+      "gen_tps": 5408.068224402011,
+      "mean_tokens": 143.56420233463035
+    },
+    "accept": {
+      "decode_b1": {
+        "drafts": 5764,
+        "draft_tokens": 17292,
+        "accepted": 10605,
+        "rate": 0.6132893823733518,
+        "mean_accept_len": 2.8398681471200558
+      },
+      "decode_b8": {
+        "drafts": 5738,
+        "draft_tokens": 17214,
+        "accepted": 10642,
+        "rate": 0.6182177297548507,
+        "mean_accept_len": 2.8546531892645524
+      },
+      "decode_b32": {
+        "drafts": 5746,
+        "draft_tokens": 17238,
+        "accepted": 10642,
+        "rate": 0.6173570019723866,
+        "mean_accept_len": 2.8520710059171597
+      },
+      "humaneval": {
+        "drafts": 10639,
+        "draft_tokens": 31917,
+        "accepted": 26795,
+        "rate": 0.8395212582636212,
+        "mean_accept_len": 3.518563774790864
+      },
+      "mbpp": {
+        "drafts": 11899,
+        "draft_tokens": 35697,
+        "accepted": 25127,
+        "rate": 0.7038966859960221,
+        "mean_accept_len": 3.111690057988066
+      },
+      "he_b1": {
+        "drafts": 1091,
+        "draft_tokens": 3273,
+        "accepted": 2818,
+        "rate": 0.8609838069049801,
+        "mean_accept_len": 3.58295142071494
+      }
+    },
+    "samples": {
+      "humaneval": [
+        {
+          "id": "HumanEval/0",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in given list of numbers, are any two numbers closer to each other than\n    given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    \"\"\"\n    for i in range(len(numbers)):\n        for j in range(i + 1, len(numbers)):\n            if abs(numbers[i] - numbers[j]) < threshold:\n                return True\n    return False\n```"
+        },
+        {
+          "id": "HumanEval/1",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a string containing multiple groups of nested parentheses. Your goal is to\n    separate those group into separate strings and return the list of those.\n    Separate groups are balanced (each open brace is properly closed) and not nested within each other\n    Ignore any spaces in the input string.\n    >>> separate_paren_groups('( ) (( )) (( )( ))')\n    ['()', '(())', '(()())']\n    \"\"\"\n    # Remove all spaces from the input string\n    paren_string = paren_string.replac"
+        },
+        {
+          "id": "HumanEval/2",
+          "correct": true,
+          "output": "```python\ndef truncate_number(number: float) -> float:\n    \"\"\" Given a positive floating point number, it can be decomposed into\n    and integer part (largest integer smaller than given number) and decimals\n    (leftover part always smaller than 1).\n\n    Return the decimal part of the number.\n    >>> truncate_number(3.5)\n    0.5\n    \"\"\"\n    return number - int(number)\n```"
+        }
+      ],
+      "mbpp": [
+        {
+          "id": "mbpp:11",
+          "correct": true,
+          "output": "```python\ndef remove_Occ(s, char):\n    \"\"\"\n    Remove the first and last occurrence of a given character from the string.\n    \n    Args:\n        s (str): The input string\n        char (str): The character to remove (first and last occurrence)\n    \n    Returns:\n        str: String with first and last occurrence of char removed\n    \"\"\"\n    if not s or len(char) != 1:\n        return s\n    \n    # Find the first occurrence\n    first_index = s.find(char)\n    if first_index == -1:\n        return s  # Character not found\n    \n    # Find the last occurrence\n    last_index = s.rfind(char)\n    \n    # Rem"
+        },
+        {
+          "id": "mbpp:12",
+          "correct": true,
+          "output": "```python\ndef sort_matrix(matrix):\n    \"\"\"\n    Sort a given matrix in ascending order according to the sum of its rows.\n    \n    Args:\n        matrix: A 2D list representing the matrix\n        \n    Returns:\n        A new matrix with rows sorted by their sum in ascending order\n    \"\"\"\n    # Sort the matrix based on the sum of each row\n    return sorted(matrix, key=sum)\n```"
+        },
+        {
+          "id": "mbpp:14",
+          "correct": true,
+          "output": "```python\ndef find_Volume(base, height, length):\n    \"\"\"\n    Calculate the volume of a triangular prism.\n    \n    The volume is calculated as: (1/2 * base * height) * length\n    where:\n    - base is the base of the triangular face\n    - height is the height of the triangular face\n    - length is the length of the prism (distance between the two triangular faces)\n    \n    Args:\n        base (float): The base length of the triangular face\n        height (float): The height of the triangular face\n        length (float): The length of the prism\n    \n    Returns:\n        float: The volume of the tr"
+        }
+      ]
+    },
+    "llm_kwargs": {
+      "max_num_seqs": 64,
+      "speculative_config": {
+        "method": "eagle3",
+        "model": "lmsys/SGLang-EAGLE3-Qwen3-30B-A3B-Instruct-2507-SpecForge-Nex",
+        "num_speculative_tokens": 3
+      }
+    },
+    "seconds": 335.8,
+    "error": null,
+    "date": "2026-11-15",
+    "gpu_label": "H200"
+  },
+  {
+    "cell": "full:fp8+kvfp8",
+    "model": "hub:Qwen/Qwen3-30B-A3B-Instruct-2507",
+    "config": "fp8+kvfp8",
+    "gpu": "NVIDIA H200",
+    "smoke": false,
+    "util": 0.9,
+    "vllm": "0.32.0",
+    "torch": "2.13.0+cu130",
+    "prompts": 64,
+    "gen_len": 256,
+    "weights_disk_gib": 56.87,
+    "model_loading_gib": 29.08,
+    "model_loading_all_gib": [
+      29.08
+    ],
+    "kv_cache_gib": 94.52,
+    "kv_cache_tokens": 2064752.0,
+    "kv_concurrency": 504.09,
+    "gpu_after_load_gib": 125.7255859375,
+    "gpu_peak_gib": 126.58,
+    "load_seconds": 134.7,
+    "engine_init_seconds": 90.2,
+    "prefill_tps": 50228.45252326817,
+    "ttft_ms_median": 65.26704949999385,
+    "ttft_ms_p90": 69.58801600001152,
+    "decode_tps": {
+      "1": 234.5662162289185,
+      "8": 1152.8558375588311,
+      "32": 3458.2079195354117
+    },
+    "he_b1_tps": 221.3019166526177,
+    "humaneval": {
+      "score": 0.9085365853658537,
+      "correct": 149,
+      "n": 164,
+      "seconds": 12.2,
+      "gen_tps": 3071.6793119052127,
+      "mean_tokens": 228.2439024390244
+    },
+    "mbpp": {
+      "score": 0.8638132295719845,
+      "correct": 222,
+      "n": 257,
+      "seconds": 15.4,
+      "gen_tps": 2461.0142475221496,
+      "mean_tokens": 147.23346303501947
+    },
+    "accept": {
+      "decode_b1": null,
+      "decode_b8": null,
+      "decode_b32": null,
+      "humaneval": null,
+      "mbpp": null,
+      "he_b1": null
+    },
+    "samples": {
+      "humaneval": [
+        {
+          "id": "HumanEval/0",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in given list of numbers, are any two numbers closer to each other than\n    given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    \"\"\"\n    for i in range(len(numbers)):\n        for j in range(i + 1, len(numbers)):\n            if abs(numbers[i] - numbers[j]) < threshold:\n                return True\n    return False\n```"
+        },
+        {
+          "id": "HumanEval/1",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a string containing multiple groups of nested parentheses. Your goal is to\n    separate those group into separate strings and return the list of those.\n    Separate groups are balanced (each open brace is properly closed) and not nested within each other\n    Ignore any spaces in the input string.\n    >>> separate_paren_groups('( ) (( )) (( )( ))')\n    ['()', '(())', '(()())']\n    \"\"\"\n    # Remove all spaces from the input string\n    paren_string = paren_string.replac"
+        },
+        {
+          "id": "HumanEval/2",
+          "correct": true,
+          "output": "```python\ndef truncate_number(number: float) -> float:\n    \"\"\" Given a positive floating point number, it can be decomposed into\n    and integer part (largest integer smaller than given number) and decimals\n    (leftover part always smaller than 1).\n\n    Return the decimal part of the number.\n    >>> truncate_number(3.5)\n    0.5\n    \"\"\"\n    return number - int(number)\n```"
+        }
+      ],
+      "mbpp": [
+        {
+          "id": "mbpp:11",
+          "correct": true,
+          "output": "```python\ndef remove_Occ(s, char):\n    \"\"\"\n    Remove the first and last occurrence of a given character from the string.\n    \n    Args:\n        s (str): The input string\n        char (str): The character to remove (first and last occurrence)\n    \n    Returns:\n        str: String with first and last occurrence of char removed\n    \"\"\"\n    if not s or not char:\n        return s\n    \n    # Find the first occurrence\n    first_index = s.find(char)\n    if first_index == -1:\n        return s  # Character not found\n    \n    # Find the last occurrence\n    last_index = s.rfind(char)\n    \n    # Remove fi"
+        },
+        {
+          "id": "mbpp:12",
+          "correct": true,
+          "output": "```python\ndef sort_matrix(matrix):\n    \"\"\"\n    Sort a given matrix in ascending order according to the sum of its rows.\n    \n    Args:\n        matrix: A 2D list representing the matrix\n        \n    Returns:\n        A new matrix sorted by row sums in ascending order\n    \"\"\"\n    # Sort the matrix based on the sum of each row\n    sorted_matrix = sorted(matrix, key=sum)\n    return sorted_matrix\n```"
+        },
+        {
+          "id": "mbpp:14",
+          "correct": true,
+          "output": "```python\ndef find_Volume(base, height, length):\n    \"\"\"\n    Calculate the volume of a triangular prism.\n    \n    The volume is calculated as: (1/2 * base * height) * length\n    where:\n    - base is the base of the triangular face\n    - height is the height of the triangular face\n    - length is the length of the prism (distance between the two triangular faces)\n    \n    Args:\n        base (float): The base length of the triangular face\n        height (float): The height of the triangular face\n        length (float): The length of the prism\n    \n    Returns:\n        float: The volume of the tr"
+        }
+      ]
+    },
+    "llm_kwargs": {
+      "max_num_seqs": 64,
+      "quantization": "fp8",
+      "kv_cache_dtype": "fp8"
+    },
+    "seconds": 359.5,
+    "error": null,
+    "date": "2026-11-15",
+    "gpu_label": "H200"
+  },
+  {
+    "cell": "full:fp8",
+    "model": "hub:Qwen/Qwen3-30B-A3B-Instruct-2507",
+    "config": "fp8",
+    "gpu": "NVIDIA H200",
+    "smoke": false,
+    "util": 0.9,
+    "vllm": "0.32.0",
+    "torch": "2.13.0+cu130",
+    "prompts": 64,
+    "gen_len": 256,
+    "weights_disk_gib": 56.87,
+    "model_loading_gib": 29.08,
+    "model_loading_all_gib": [
+      29.08
+    ],
+    "kv_cache_gib": 94.48,
+    "kv_cache_tokens": 1031920.0,
+    "kv_concurrency": 251.93,
+    "gpu_after_load_gib": 125.6845703125,
+    "gpu_peak_gib": 126.47,
+    "load_seconds": 247.7,
+    "engine_init_seconds": 161.58,
+    "prefill_tps": 11709.732161864385,
+    "ttft_ms_median": 62.5815434999879,
+    "ttft_ms_p90": 68.16675699997177,
+    "decode_tps": {
+      "1": 240.5229540794277,
+      "8": 1246.816094571137,
+      "32": 3441.171449893792
+    },
+    "he_b1_tps": 226.29536907849274,
+    "humaneval": {
+      "score": 0.9207317073170732,
+      "correct": 151,
+      "n": 164,
+      "seconds": 11.8,
+      "gen_tps": 3160.0644139353444,
+      "mean_tokens": 227.65853658536585
+    },
+    "mbpp": {
+      "score": 0.8521400778210116,
+      "correct": 219,
+      "n": 257,
+      "seconds": 15.5,
+      "gen_tps": 2395.2719662764757,
+      "mean_tokens": 144.40077821011673
+    },
+    "accept": {
+      "decode_b1": null,
+      "decode_b8": null,
+      "decode_b32": null,
+      "humaneval": null,
+      "mbpp": null,
+      "he_b1": null
+    },
+    "samples": {
+      "humaneval": [
+        {
+          "id": "HumanEval/0",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in given list of numbers, are any two numbers closer to each other than\n    given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    \"\"\"\n    for i in range(len(numbers)):\n        for j in range(i + 1, len(numbers)):\n            if abs(numbers[i] - numbers[j]) < threshold:\n                return True\n    return False\n```"
+        },
+        {
+          "id": "HumanEval/1",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a string containing multiple groups of nested parentheses. Your goal is to\n    separate those group into separate strings and return the list of those.\n    Separate groups are balanced (each open brace is properly closed) and not nested within each other\n    Ignore any spaces in the input string.\n    >>> separate_paren_groups('( ) (( )) (( )( ))')\n    ['()', '(())', '(()())']\n    \"\"\"\n    # Remove all spaces from the input string\n    paren_string = paren_string.replac"
+        },
+        {
+          "id": "HumanEval/2",
+          "correct": true,
+          "output": "```python\ndef truncate_number(number: float) -> float:\n    \"\"\" Given a positive floating point number, it can be decomposed into\n    and integer part (largest integer smaller than given number) and decimals\n    (leftover part always smaller than 1).\n\n    Return the decimal part of the number.\n    >>> truncate_number(3.5)\n    0.5\n    \"\"\"\n    return number - int(number)\n```"
+        }
+      ],
+      "mbpp": [
+        {
+          "id": "mbpp:11",
+          "correct": true,
+          "output": "```python\ndef remove_Occ(s, char):\n    \"\"\"\n    Remove the first and last occurrence of a given character from the string.\n    \n    Args:\n        s (str): The input string\n        char (str): The character to remove (first and last occurrence)\n    \n    Returns:\n        str: String with first and last occurrence of char removed\n    \"\"\"\n    if not s or len(char) != 1:\n        return s\n    \n    # Find the first occurrence\n    first_index = s.find(char)\n    if first_index == -1:\n        return s  # Character not found\n    \n    # Find the last occurrence\n    last_index = s.rfind(char)\n    \n    # Rem"
+        },
+        {
+          "id": "mbpp:12",
+          "correct": true,
+          "output": "```python\ndef sort_matrix(matrix):\n    \"\"\"\n    Sort a given matrix in ascending order according to the sum of its rows.\n    \n    Args:\n        matrix: A 2D list representing the matrix\n        \n    Returns:\n        A new matrix sorted by row sums in ascending order\n    \"\"\"\n    # Sort the matrix based on the sum of each row\n    return sorted(matrix, key=sum)\n```"
+        },
+        {
+          "id": "mbpp:14",
+          "correct": true,
+          "output": "```python\ndef find_Volume(base, height, length):\n    \"\"\"\n    Calculate the volume of a triangular prism.\n    \n    The volume of a triangular prism is given by the formula:\n    Volume = (1/2) * base * height * length\n    \n    Args:\n        base (float): The base length of the triangular face\n        height (float): The height of the triangular face\n        length (float): The length of the prism (distance between the two triangular faces)\n    \n    Returns:\n        float: The volume of the triangular prism\n    \"\"\"\n    return 0.5 * base * height * length\n```"
+        }
+      ]
+    },
+    "llm_kwargs": {
+      "max_num_seqs": 64,
+      "quantization": "fp8"
+    },
+    "seconds": 481.0,
+    "error": null,
+    "date": "2026-11-15",
+    "gpu_label": "H200"
+  },
+  {
+    "cell": "full:kvfp8",
+    "model": "hub:Qwen/Qwen3-30B-A3B-Instruct-2507",
+    "config": "kvfp8",
+    "gpu": "NVIDIA H200",
+    "smoke": false,
+    "util": 0.9,
+    "vllm": "0.32.0",
+    "torch": "2.13.0+cu130",
+    "prompts": 64,
+    "gen_len": 256,
+    "weights_disk_gib": 56.87,
+    "model_loading_gib": 56.93,
+    "model_loading_all_gib": [
+      56.93
+    ],
+    "kv_cache_gib": 66.71,
+    "kv_cache_tokens": 1457216.0,
+    "kv_concurrency": 355.77,
+    "gpu_after_load_gib": 125.7119140625,
+    "gpu_peak_gib": 126.37,
+    "load_seconds": 117.2,
+    "engine_init_seconds": 79.4,
+    "prefill_tps": 7738.826682858166,
+    "ttft_ms_median": 55.06812249996074,
+    "ttft_ms_p90": 60.47871900000246,
+    "decode_tps": {
+      "1": 251.7461250954168,
+      "8": 974.0146136806518,
+      "32": 2473.0245047931344
+    },
+    "he_b1_tps": 228.16957463260272,
+    "humaneval": {
+      "score": 0.9207317073170732,
+      "correct": 151,
+      "n": 164,
+      "seconds": 13.6,
+      "gen_tps": 2760.9801959272627,
+      "mean_tokens": 228.77439024390245
+    },
+    "mbpp": {
+      "score": 0.8560311284046692,
+      "correct": 220,
+      "n": 257,
+      "seconds": 17.4,
+      "gen_tps": 2148.7644836206537,
+      "mean_tokens": 145.64591439688715
+    },
+    "accept": {
+      "decode_b1": null,
+      "decode_b8": null,
+      "decode_b32": null,
+      "humaneval": null,
+      "mbpp": null,
+      "he_b1": null
+    },
+    "samples": {
+      "humaneval": [
+        {
+          "id": "HumanEval/0",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in given list of numbers, are any two numbers closer to each other than\n    given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    \"\"\"\n    for i in range(len(numbers)):\n        for j in range(i + 1, len(numbers)):\n            if abs(numbers[i] - numbers[j]) < threshold:\n                return True\n    return False\n```"
+        },
+        {
+          "id": "HumanEval/1",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a string containing multiple groups of nested parentheses. Your goal is to\n    separate those group into separate strings and return the list of those.\n    Separate groups are balanced (each open brace is properly closed) and not nested within each other\n    Ignore any spaces in the input string.\n    >>> separate_paren_groups('( ) (( )) (( )( ))')\n    ['()', '(())', '(()())']\n    \"\"\"\n    # Remove all spaces from the input string\n    paren_string = paren_string.replac"
+        },
+        {
+          "id": "HumanEval/2",
+          "correct": true,
+          "output": "```python\ndef truncate_number(number: float) -> float:\n    \"\"\" Given a positive floating point number, it can be decomposed into\n    and integer part (largest integer smaller than given number) and decimals\n    (leftover part always smaller than 1).\n\n    Return the decimal part of the number.\n    >>> truncate_number(3.5)\n    0.5\n    \"\"\"\n    return number - int(number)\n```"
+        }
+      ],
+      "mbpp": [
+        {
+          "id": "mbpp:11",
+          "correct": true,
+          "output": "```python\ndef remove_Occ(s, char):\n    \"\"\"\n    Remove the first and last occurrence of a given character from the string.\n    \n    Args:\n        s (str): The input string\n        char (str): The character to remove (first and last occurrence)\n    \n    Returns:\n        str: String with first and last occurrence of char removed\n    \"\"\"\n    if not s or not char:\n        return s\n    \n    # Find the first occurrence\n    first_index = s.find(char)\n    if first_index == -1:\n        return s  # Character not found\n    \n    # Find the last occurrence\n    last_index = s.rfind(char)\n    \n    # If first "
+        },
+        {
+          "id": "mbpp:12",
+          "correct": true,
+          "output": "```python\ndef sort_matrix(matrix):\n    \"\"\"\n    Sort a given matrix in ascending order according to the sum of its rows.\n    \n    Args:\n        matrix: List of lists representing the matrix\n        \n    Returns:\n        List of lists representing the sorted matrix\n    \"\"\"\n    return sorted(matrix, key=sum)\n```"
+        },
+        {
+          "id": "mbpp:14",
+          "correct": true,
+          "output": "```python\ndef find_Volume(base, height, length):\n    \"\"\"\n    Calculate the volume of a triangular prism.\n    \n    The volume of a triangular prism is given by the formula:\n    Volume = (1/2) * base * height * length\n    \n    Args:\n        base (float): The base length of the triangular face\n        height (float): The height of the triangular face\n        length (float): The length of the prism (distance between the triangular faces)\n    \n    Returns:\n        float: The volume of the triangular prism\n    \n    Examples:\n        >>> find_Volume(10, 8, 6)\n        240\n        >>> find_Volume(3, 2,"
+        }
+      ]
+    },
+    "llm_kwargs": {
+      "max_num_seqs": 64,
+      "kv_cache_dtype": "fp8"
+    },
+    "seconds": 376.7,
+    "error": null,
+    "date": "2026-11-15",
+    "gpu_label": "H200"
+  },
+  {
+    "cell": "full:ngram8",
+    "model": "hub:Qwen/Qwen3-30B-A3B-Instruct-2507",
+    "config": "ngram8",
+    "gpu": "NVIDIA H200",
+    "smoke": false,
+    "util": 0.9,
+    "vllm": "0.32.0",
+    "torch": "2.13.0+cu130",
+    "prompts": 64,
+    "gen_len": 256,
+    "weights_disk_gib": 56.87,
+    "model_loading_gib": 56.93,
+    "model_loading_all_gib": [
+      56.93
+    ],
+    "kv_cache_gib": 65.68,
+    "kv_cache_tokens": 717344.0,
+    "kv_concurrency": 175.13,
+    "gpu_after_load_gib": 125.3642578125,
+    "gpu_peak_gib": 126.57,
+    "load_seconds": 157.2,
+    "engine_init_seconds": 115.46,
+    "prefill_tps": 55553.09267670816,
+    "ttft_ms_median": 21.412960000020576,
+    "ttft_ms_p90": 25.73176600003535,
+    "decode_tps": {
+      "1": 155.34702047741104,
+      "8": 635.2146062550007,
+      "32": 1604.3059240704263
+    },
+    "he_b1_tps": 264.34117592882177,
+    "humaneval": {
+      "score": 0.9024390243902439,
+      "correct": 148,
+      "n": 164,
+      "seconds": 17.2,
+      "gen_tps": 2172.5524399200076,
+      "mean_tokens": 228.09146341463415
+    },
+    "mbpp": {
+      "score": 0.8404669260700389,
+      "correct": 216,
+      "n": 257,
+      "seconds": 32.9,
+      "gen_tps": 1122.8265824533044,
+      "mean_tokens": 143.56420233463035
+    },
+    "accept": {
+      "decode_b1": {
+        "drafts": 13324,
+        "draft_tokens": 106592,
+        "accepted": 3072,
+        "rate": 0.02882017412188532,
+        "mean_accept_len": 1.2305613929750825
+      },
+      "decode_b8": {
+        "drafts": 13245,
+        "draft_tokens": 105960,
+        "accepted": 3138,
+        "rate": 0.029614949037372593,
+        "mean_accept_len": 1.2369195922989809
+      },
+      "decode_b32": {
+        "drafts": 13280,
+        "draft_tokens": 106240,
+        "accepted": 3110,
+        "rate": 0.029273343373493976,
+        "mean_accept_len": 1.2341867469879517
+      },
+      "humaneval": {
+        "drafts": 16424,
+        "draft_tokens": 131392,
+        "accepted": 20819,
+        "rate": 0.1584495250852411,
+        "mean_accept_len": 2.267596200681929
+      },
+      "mbpp": {
+        "drafts": 31306,
+        "draft_tokens": 250448,
+        "accepted": 5341,
+        "rate": 0.021325784194723058,
+        "mean_accept_len": 1.1706062735577845
+      },
+      "he_b1": {
+        "drafts": 1747,
+        "draft_tokens": 13976,
+        "accepted": 2132,
+        "rate": 0.15254722381224958,
+        "mean_accept_len": 2.220377790497997
+      }
+    },
+    "samples": {
+      "humaneval": [
+        {
+          "id": "HumanEval/0",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in given list of numbers, are any two numbers closer to each other than\n    given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    \"\"\"\n    for i in range(len(numbers)):\n        for j in range(i + 1, len(numbers)):\n            if abs(numbers[i] - numbers[j]) < threshold:\n                return True\n    return False\n```"
+        },
+        {
+          "id": "HumanEval/1",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a string containing multiple groups of nested parentheses. Your goal is to\n    separate those group into separate strings and return the list of those.\n    Separate groups are balanced (each open brace is properly closed) and not nested within each other\n    Ignore any spaces in the input string.\n    >>> separate_paren_groups('( ) (( )) (( )( ))')\n    ['()', '(())', '(()())']\n    \"\"\"\n    # Remove all spaces from the input string\n    paren_string = paren_string.replac"
+        },
+        {
+          "id": "HumanEval/2",
+          "correct": true,
+          "output": "```python\ndef truncate_number(number: float) -> float:\n    \"\"\" Given a positive floating point number, it can be decomposed into\n    and integer part (largest integer smaller than given number) and decimals\n    (leftover part always smaller than 1).\n\n    Return the decimal part of the number.\n    >>> truncate_number(3.5)\n    0.5\n    \"\"\"\n    return number - int(number)\n```"
+        }
+      ],
+      "mbpp": [
+        {
+          "id": "mbpp:11",
+          "correct": true,
+          "output": "```python\ndef remove_Occ(s, char):\n    \"\"\"\n    Remove the first and last occurrence of a given character from the string.\n    \n    Args:\n        s (str): The input string\n        char (str): The character to remove (first and last occurrence)\n    \n    Returns:\n        str: String with first and last occurrence of char removed\n    \"\"\"\n    if not s or len(char) != 1:\n        return s\n    \n    # Find the first occurrence\n    first_index = s.find(char)\n    if first_index == -1:\n        return s  # Character not found\n    \n    # Find the last occurrence\n    last_index = s.rfind(char)\n    \n    # Rem"
+        },
+        {
+          "id": "mbpp:12",
+          "correct": true,
+          "output": "```python\ndef sort_matrix(matrix):\n    \"\"\"\n    Sort a given matrix in ascending order according to the sum of its rows.\n    \n    Args:\n        matrix: A 2D list representing the matrix\n        \n    Returns:\n        A new matrix with rows sorted by their sum in ascending order\n    \"\"\"\n    # Sort the matrix based on the sum of each row\n    return sorted(matrix, key=sum)\n```"
+        },
+        {
+          "id": "mbpp:14",
+          "correct": true,
+          "output": "```python\ndef find_Volume(base, height, length):\n    \"\"\"\n    Calculate the volume of a triangular prism.\n    \n    The volume is calculated as: (1/2 * base * height) * length\n    where:\n    - base is the base of the triangular face\n    - height is the height of the triangular face\n    - length is the length of the prism (distance between the two triangular faces)\n    \n    Args:\n        base (float): The base length of the triangular face\n        height (float): The height of the triangular face\n        length (float): The length of the prism\n    \n    Returns:\n        float: The volume of the tr"
+        }
+      ]
+    },
+    "llm_kwargs": {
+      "max_num_seqs": 64,
+      "speculative_config": {
+        "method": "ngram",
+        "num_speculative_tokens": 8,
+        "prompt_lookup_max": 5,
+        "prompt_lookup_min": 2
+      }
+    },
+    "seconds": 464.3,
+    "error": null,
+    "date": "2026-11-15",
+    "gpu_label": "H200"
+  },
+  {
+    "cell": "full:ngram",
+    "model": "hub:Qwen/Qwen3-30B-A3B-Instruct-2507",
+    "config": "ngram",
+    "gpu": "NVIDIA H200",
+    "smoke": false,
+    "util": 0.9,
+    "vllm": "0.32.0",
+    "torch": "2.13.0+cu130",
+    "prompts": 64,
+    "gen_len": 256,
+    "weights_disk_gib": 56.87,
+    "model_loading_gib": 56.93,
+    "model_loading_all_gib": [
+      56.93
+    ],
+    "kv_cache_gib": 66.1,
+    "kv_cache_tokens": 722016.0,
+    "kv_concurrency": 176.27,
+    "gpu_after_load_gib": 125.6845703125,
+    "gpu_peak_gib": 127.26,
+    "load_seconds": 153.9,
+    "engine_init_seconds": 113.99,
+    "prefill_tps": 47828.27180851595,
+    "ttft_ms_median": 21.856273500020507,
+    "ttft_ms_p90": 27.97106299999541,
+    "decode_tps": {
+      "1": 156.86672924910496,
+      "8": 562.8513258742365,
+      "32": 1515.478390778048
+    },
+    "he_b1_tps": 260.54182030761416,
+    "humaneval": {
+      "score": 0.9024390243902439,
+      "correct": 148,
+      "n": 164,
+      "seconds": 15.1,
+      "gen_tps": 2484.915601870464,
+      "mean_tokens": 228.0548780487805
+    },
+    "mbpp": {
+      "score": 0.8404669260700389,
+      "correct": 216,
+      "n": 257,
+      "seconds": 18.0,
+      "gen_tps": 2042.734369888967,
+      "mean_tokens": 143.431906614786
+    },
+    "accept": {
+      "decode_b1": {
+        "drafts": 13530,
+        "draft_tokens": 54120,
+        "accepted": 2834,
+        "rate": 0.052365114560236514,
+        "mean_accept_len": 1.209460458240946
+      },
+      "decode_b8": {
+        "drafts": 13494,
+        "draft_tokens": 53976,
+        "accepted": 2847,
+        "rate": 0.052745664739884394,
+        "mean_accept_len": 1.2109826589595376
+      },
+      "decode_b32": {
+        "drafts": 13500,
+        "draft_tokens": 54000,
+        "accepted": 2861,
+        "rate": 0.052981481481481484,
+        "mean_accept_len": 1.2119259259259259
+      },
+      "humaneval": {
+        "drafts": 18663,
+        "draft_tokens": 74652,
+        "accepted": 18574,
+        "rate": 0.24880780153244386,
+        "mean_accept_len": 1.9952312061297754
+      },
+      "mbpp": {
+        "drafts": 31595,
+        "draft_tokens": 126380,
+        "accepted": 5013,
+        "rate": 0.03966608640607691,
+        "mean_accept_len": 1.1586643456243078
+      },
+      "he_b1": {
+        "drafts": 1978,
+        "draft_tokens": 7912,
+        "accepted": 1901,
+        "rate": 0.240267947421638,
+        "mean_accept_len": 1.9610717896865522
+      }
+    },
+    "samples": {
+      "humaneval": [
+        {
+          "id": "HumanEval/0",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in given list of numbers, are any two numbers closer to each other than\n    given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    \"\"\"\n    for i in range(len(numbers)):\n        for j in range(i + 1, len(numbers)):\n            if abs(numbers[i] - numbers[j]) < threshold:\n                return True\n    return False\n```"
+        },
+        {
+          "id": "HumanEval/1",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a string containing multiple groups of nested parentheses. Your goal is to\n    separate those group into separate strings and return the list of those.\n    Separate groups are balanced (each open brace is properly closed) and not nested within each other\n    Ignore any spaces in the input string.\n    >>> separate_paren_groups('( ) (( )) (( )( ))')\n    ['()', '(())', '(()())']\n    \"\"\"\n    # Remove all spaces from the input string\n    paren_string = paren_string.replac"
+        },
+        {
+          "id": "HumanEval/2",
+          "correct": true,
+          "output": "```python\ndef truncate_number(number: float) -> float:\n    \"\"\" Given a positive floating point number, it can be decomposed into\n    and integer part (largest integer smaller than given number) and decimals\n    (leftover part always smaller than 1).\n\n    Return the decimal part of the number.\n    >>> truncate_number(3.5)\n    0.5\n    \"\"\"\n    return number - int(number)\n```"
+        }
+      ],
+      "mbpp": [
+        {
+          "id": "mbpp:11",
+          "correct": true,
+          "output": "```python\ndef remove_Occ(s, char):\n    \"\"\"\n    Remove the first and last occurrence of a given character from the string.\n    \n    Args:\n        s (str): The input string\n        char (str): The character to remove (first and last occurrence)\n    \n    Returns:\n        str: String with first and last occurrence of char removed\n    \"\"\"\n    if not s or len(char) != 1:\n        return s\n    \n    # Find the first occurrence\n    first_index = s.find(char)\n    if first_index == -1:\n        return s  # Character not found\n    \n    # Find the last occurrence\n    last_index = s.rfind(char)\n    \n    # Rem"
+        },
+        {
+          "id": "mbpp:12",
+          "correct": true,
+          "output": "```python\ndef sort_matrix(matrix):\n    \"\"\"\n    Sort a given matrix in ascending order according to the sum of its rows.\n    \n    Args:\n        matrix: A 2D list representing the matrix\n        \n    Returns:\n        A new matrix with rows sorted by their sum in ascending order\n    \"\"\"\n    # Sort the matrix based on the sum of each row\n    return sorted(matrix, key=sum)\n```"
+        },
+        {
+          "id": "mbpp:14",
+          "correct": true,
+          "output": "```python\ndef find_Volume(base, height, length):\n    \"\"\"\n    Calculate the volume of a triangular prism.\n    \n    The volume is calculated as: (1/2 * base * height) * length\n    where:\n    - base is the base of the triangular face\n    - height is the height of the triangular face\n    - length is the length of the prism (distance between the two triangular faces)\n    \n    Args:\n        base (float): The base length of the triangular face\n        height (float): The height of the triangular face\n        length (float): The length of the prism\n    \n    Returns:\n        float: The volume of the tr"
+        }
+      ]
+    },
+    "llm_kwargs": {
+      "max_num_seqs": 64,
+      "speculative_config": {
+        "method": "ngram",
+        "num_speculative_tokens": 4,
+        "prompt_lookup_max": 4,
+        "prompt_lookup_min": 2
+      }
+    },
+    "seconds": 472.0,
+    "error": null,
+    "date": "2026-11-15",
+    "gpu_label": "H200"
+  },
+  {
+    "cell": "full:nochunk",
+    "model": "hub:Qwen/Qwen3-30B-A3B-Instruct-2507",
+    "config": "nochunk",
+    "gpu": "NVIDIA H200",
+    "smoke": false,
+    "util": 0.9,
+    "vllm": "0.32.0",
+    "torch": "2.13.0+cu130",
+    "prompts": 64,
+    "gen_len": 256,
+    "weights_disk_gib": 56.87,
+    "model_loading_gib": 56.93,
+    "model_loading_all_gib": [
+      56.93
+    ],
+    "kv_cache_gib": 66.64,
+    "kv_cache_tokens": 727920.0,
+    "kv_concurrency": 177.71,
+    "gpu_after_load_gib": 125.6494140625,
+    "gpu_peak_gib": 126.32,
+    "load_seconds": 110.5,
+    "engine_init_seconds": 70.59,
+    "prefill_tps": 7191.474411540482,
+    "ttft_ms_median": 60.01215099990986,
+    "ttft_ms_p90": 67.28060200020991,
+    "decode_tps": {
+      "1": 257.3949012624005,
+      "8": 1043.38231946367,
+      "32": 2475.493240344684
+    },
+    "he_b1_tps": 232.82531687974202,
+    "humaneval": {
+      "score": 0.9085365853658537,
+      "correct": 149,
+      "n": 164,
+      "seconds": 14.1,
+      "gen_tps": 2654.8943723603943,
+      "mean_tokens": 227.5609756097561
+    },
+    "mbpp": {
+      "score": 0.8599221789883269,
+      "correct": 221,
+      "n": 257,
+      "seconds": 17.1,
+      "gen_tps": 2166.29755343493,
+      "mean_tokens": 144.44747081712063
+    },
+    "accept": {
+      "decode_b1": null,
+      "decode_b8": null,
+      "decode_b32": null,
+      "humaneval": null,
+      "mbpp": null,
+      "he_b1": null
+    },
+    "samples": {
+      "humaneval": [
+        {
+          "id": "HumanEval/0",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in given list of numbers, are any two numbers closer to each other than\n    given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    \"\"\"\n    for i in range(len(numbers)):\n        for j in range(i + 1, len(numbers)):\n            if abs(numbers[i] - numbers[j]) < threshold:\n                return True\n    return False\n```"
+        },
+        {
+          "id": "HumanEval/1",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a string containing multiple groups of nested parentheses. Your goal is to\n    separate those group into separate strings and return the list of those.\n    Separate groups are balanced (each open brace is properly closed) and not nested within each other\n    Ignore any spaces in the input string.\n    >>> separate_paren_groups('( ) (( )) (( )( ))')\n    ['()', '(())', '(()())']\n    \"\"\"\n    # Remove all spaces from the input string\n    paren_string = paren_string.replac"
+        },
+        {
+          "id": "HumanEval/2",
+          "correct": true,
+          "output": "```python\ndef truncate_number(number: float) -> float:\n    \"\"\" Given a positive floating point number, it can be decomposed into\n    and integer part (largest integer smaller than given number) and decimals\n    (leftover part always smaller than 1).\n\n    Return the decimal part of the number.\n    >>> truncate_number(3.5)\n    0.5\n    \"\"\"\n    return number - int(number)\n```"
+        }
+      ],
+      "mbpp": [
+        {
+          "id": "mbpp:11",
+          "correct": true,
+          "output": "```python\ndef remove_Occ(s, char):\n    \"\"\"\n    Remove the first and last occurrence of a given character from the string.\n    \n    Args:\n        s (str): The input string\n        char (str): The character to remove (first and last occurrence)\n    \n    Returns:\n        str: String with first and last occurrence of char removed\n    \"\"\"\n    if not s or len(char) != 1:\n        return s\n    \n    # Find the first occurrence\n    first_index = s.find(char)\n    if first_index == -1:\n        return s  # Character not found\n    \n    # Find the last occurrence\n    last_index = s.rfind(char)\n    \n    # Rem"
+        },
+        {
+          "id": "mbpp:12",
+          "correct": true,
+          "output": "```python\ndef sort_matrix(matrix):\n    \"\"\"\n    Sort a given matrix in ascending order according to the sum of its rows.\n    \n    Args:\n        matrix: A 2D list representing the matrix\n        \n    Returns:\n        A new matrix sorted by row sums in ascending order\n    \"\"\"\n    # Sort the matrix based on the sum of each row\n    return sorted(matrix, key=sum)\n```"
+        },
+        {
+          "id": "mbpp:14",
+          "correct": true,
+          "output": "```python\ndef find_Volume(base, height, length):\n    \"\"\"\n    Calculate the volume of a triangular prism.\n    \n    The volume of a triangular prism is given by the formula:\n    Volume = (1/2) * base * height * length\n    \n    Args:\n        base (float): The base length of the triangular face\n        height (float): The height of the triangular face\n        length (float): The length of the prism (distance between the two triangular faces)\n    \n    Returns:\n        float: The volume of the triangular prism\n    \"\"\"\n    return 0.5 * base * height * length\n```"
+        }
+      ]
+    },
+    "llm_kwargs": {
+      "max_num_seqs": 64,
+      "enable_chunked_prefill": false
+    },
+    "seconds": 346.7,
+    "error": null,
+    "date": "2026-11-15",
+    "gpu_label": "H200"
+  },
+  {
+    "cell": "full:seqs256",
+    "model": "hub:Qwen/Qwen3-30B-A3B-Instruct-2507",
+    "config": "seqs256",
+    "gpu": "NVIDIA H200",
+    "smoke": false,
+    "util": 0.9,
+    "vllm": "0.32.0",
+    "torch": "2.13.0+cu130",
+    "prompts": 64,
+    "gen_len": 256,
+    "weights_disk_gib": 56.87,
+    "model_loading_gib": 56.93,
+    "model_loading_all_gib": [
+      56.93
+    ],
+    "kv_cache_gib": 66.08,
+    "kv_cache_tokens": 721712.0,
+    "kv_concurrency": 176.2,
+    "gpu_after_load_gib": 125.5791015625,
+    "gpu_peak_gib": 126.89,
+    "load_seconds": 152.8,
+    "engine_init_seconds": 112.27,
+    "prefill_tps": 58570.614785007994,
+    "ttft_ms_median": 21.620933999884073,
+    "ttft_ms_p90": 26.15366300005917,
+    "decode_tps": {
+      "1": 246.9729262238873,
+      "8": 963.8475056934909,
+      "32": 2504.1078696620975
+    },
+    "he_b1_tps": 240.93709373203637,
+    "humaneval": {
+      "score": 0.9085365853658537,
+      "correct": 149,
+      "n": 164,
+      "seconds": 8.3,
+      "gen_tps": 4489.445144071044,
+      "mean_tokens": 227.9268292682927
+    },
+    "mbpp": {
+      "score": 0.8443579766536965,
+      "correct": 217,
+      "n": 257,
+      "seconds": 6.7,
+      "gen_tps": 5520.917741171979,
+      "mean_tokens": 144.68093385214007
+    },
+    "accept": {
+      "decode_b1": null,
+      "decode_b8": null,
+      "decode_b32": null,
+      "humaneval": null,
+      "mbpp": null,
+      "he_b1": null
+    },
+    "samples": {
+      "humaneval": [
+        {
+          "id": "HumanEval/0",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in given list of numbers, are any two numbers closer to each other than\n    given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    \"\"\"\n    for i in range(len(numbers)):\n        for j in range(i + 1, len(numbers)):\n            if abs(numbers[i] - numbers[j]) < threshold:\n                return True\n    return False\n```"
+        },
+        {
+          "id": "HumanEval/1",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a string containing multiple groups of nested parentheses. Your goal is to\n    separate those group into separate strings and return the list of those.\n    Separate groups are balanced (each open brace is properly closed) and not nested within each other\n    Ignore any spaces in the input string.\n    >>> separate_paren_groups('( ) (( )) (( )( ))')\n    ['()', '(())', '(()())']\n    \"\"\"\n    # Remove all spaces from the input string\n    paren_string = paren_string.replac"
+        },
+        {
+          "id": "HumanEval/2",
+          "correct": true,
+          "output": "```python\ndef truncate_number(number: float) -> float:\n    \"\"\" Given a positive floating point number, it can be decomposed into\n    and integer part (largest integer smaller than given number) and decimals\n    (leftover part always smaller than 1).\n\n    Return the decimal part of the number.\n    >>> truncate_number(3.5)\n    0.5\n    \"\"\"\n    return number - int(number)\n```"
+        }
+      ],
+      "mbpp": [
+        {
+          "id": "mbpp:11",
+          "correct": true,
+          "output": "```python\ndef remove_Occ(s, char):\n    \"\"\"\n    Remove the first and last occurrence of a given character from the string.\n    \n    Args:\n        s (str): The input string\n        char (str): The character to remove (first and last occurrence)\n    \n    Returns:\n        str: String with first and last occurrence of char removed\n    \"\"\"\n    if not s or len(char) != 1:\n        return s\n    \n    # Find the first occurrence\n    first_index = s.find(char)\n    if first_index == -1:\n        return s  # Character not found\n    \n    # Find the last occurrence\n    last_index = s.rfind(char)\n    \n    # Rem"
+        },
+        {
+          "id": "mbpp:12",
+          "correct": true,
+          "output": "```python\ndef sort_matrix(matrix):\n    \"\"\"\n    Sort a given matrix in ascending order according to the sum of its rows.\n    \n    Args:\n        matrix: A 2D list representing the matrix\n        \n    Returns:\n        A new matrix with rows sorted by their sum in ascending order\n    \"\"\"\n    # Sort the matrix based on the sum of each row\n    return sorted(matrix, key=sum)\n```"
+        },
+        {
+          "id": "mbpp:14",
+          "correct": true,
+          "output": "```python\ndef find_Volume(base, height, length):\n    \"\"\"\n    Calculate the volume of a triangular prism.\n    \n    The volume is calculated as: (1/2 * base * height) * length\n    where:\n    - base is the base of the triangular face\n    - height is the height of the triangular face\n    - length is the length of the prism (distance between the two triangular faces)\n    \n    Args:\n        base (float): The base length of the triangular face\n        height (float): The height of the triangular face\n        length (float): The length of the prism\n    \n    Returns:\n        float: The volume of the tr"
+        }
+      ]
+    },
+    "llm_kwargs": {
+      "max_num_seqs": 256
+    },
+    "seconds": 366.9,
+    "error": null,
+    "date": "2026-11-15",
+    "gpu_label": "H200"
+  },
+  {
+    "cell": "full:seqs32",
+    "model": "hub:Qwen/Qwen3-30B-A3B-Instruct-2507",
+    "config": "seqs32",
+    "gpu": "NVIDIA H200",
+    "smoke": false,
+    "util": 0.9,
+    "vllm": "0.32.0",
+    "torch": "2.13.0+cu130",
+    "prompts": 64,
+    "gen_len": 256,
+    "weights_disk_gib": 56.87,
+    "model_loading_gib": 56.93,
+    "model_loading_all_gib": [
+      56.93
+    ],
+    "kv_cache_gib": 66.79,
+    "kv_cache_tokens": 729472.0,
+    "kv_concurrency": 178.09,
+    "gpu_after_load_gib": 125.6552734375,
+    "gpu_peak_gib": 126.37,
+    "load_seconds": 112.8,
+    "engine_init_seconds": 72.39,
+    "prefill_tps": 7377.60346830304,
+    "ttft_ms_median": 66.23325949976788,
+    "ttft_ms_p90": 74.9288670003807,
+    "decode_tps": {
+      "1": 264.97054625482343,
+      "8": 983.1608009091924,
+      "32": 2504.7835933457377
+    },
+    "he_b1_tps": 227.3390387980386,
+    "humaneval": {
+      "score": 0.9024390243902439,
+      "correct": 148,
+      "n": 164,
+      "seconds": 20.9,
+      "gen_tps": 1785.2399314765278,
+      "mean_tokens": 227.5670731707317
+    },
+    "mbpp": {
+      "score": 0.8443579766536965,
+      "correct": 217,
+      "n": 257,
+      "seconds": 25.5,
+      "gen_tps": 1449.267290902989,
+      "mean_tokens": 143.99221789883268
+    },
+    "accept": {
+      "decode_b1": null,
+      "decode_b8": null,
+      "decode_b32": null,
+      "humaneval": null,
+      "mbpp": null,
+      "he_b1": null
+    },
+    "samples": {
+      "humaneval": [
+        {
+          "id": "HumanEval/0",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in given list of numbers, are any two numbers closer to each other than\n    given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    \"\"\"\n    for i in range(len(numbers)):\n        for j in range(i + 1, len(numbers)):\n            if abs(numbers[i] - numbers[j]) < threshold:\n                return True\n    return False\n```"
+        },
+        {
+          "id": "HumanEval/1",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a string containing multiple groups of nested parentheses. Your goal is to\n    separate those group into separate strings and return the list of those.\n    Separate groups are balanced (each open brace is properly closed) and not nested within each other\n    Ignore any spaces in the input string.\n    >>> separate_paren_groups('( ) (( )) (( )( ))')\n    ['()', '(())', '(()())']\n    \"\"\"\n    # Remove all spaces from the input string\n    paren_string = paren_string.replac"
+        },
+        {
+          "id": "HumanEval/2",
+          "correct": true,
+          "output": "```python\ndef truncate_number(number: float) -> float:\n    \"\"\" Given a positive floating point number, it can be decomposed into\n    and integer part (largest integer smaller than given number) and decimals\n    (leftover part always smaller than 1).\n\n    Return the decimal part of the number.\n    >>> truncate_number(3.5)\n    0.5\n    \"\"\"\n    return number - int(number)\n```"
+        }
+      ],
+      "mbpp": [
+        {
+          "id": "mbpp:11",
+          "correct": true,
+          "output": "```python\ndef remove_Occ(s, char):\n    \"\"\"\n    Remove the first and last occurrence of a given character from the string.\n    \n    Args:\n        s (str): The input string\n        char (str): The character to remove (first and last occurrence)\n    \n    Returns:\n        str: String with first and last occurrence of char removed\n    \"\"\"\n    if not s or len(char) != 1:\n        return s\n    \n    # Find the first occurrence\n    first_index = s.find(char)\n    if first_index == -1:\n        return s  # Character not found\n    \n    # Find the last occurrence\n    last_index = s.rfind(char)\n    \n    # Rem"
+        },
+        {
+          "id": "mbpp:12",
+          "correct": true,
+          "output": "```python\ndef sort_matrix(matrix):\n    \"\"\"\n    Sort a given matrix in ascending order according to the sum of its rows.\n    \n    Args:\n        matrix: A 2D list representing the matrix\n        \n    Returns:\n        A new matrix with rows sorted by their sum in ascending order\n    \"\"\"\n    # Sort the matrix based on the sum of each row\n    return sorted(matrix, key=sum)\n```"
+        },
+        {
+          "id": "mbpp:14",
+          "correct": true,
+          "output": "```python\ndef find_Volume(base, height, length):\n    \"\"\"\n    Calculate the volume of a triangular prism.\n    \n    The volume of a triangular prism is given by the formula:\n    Volume = (1/2) * base * height * length\n    \n    Args:\n        base (float): The base length of the triangular face\n        height (float): The height of the triangular face\n        length (float): The length of the prism (distance between the two triangular faces)\n    \n    Returns:\n        float: The volume of the triangular prism\n    \"\"\"\n    return 0.5 * base * height * length\n```"
+        }
+      ]
+    },
+    "llm_kwargs": {
+      "max_num_seqs": 32
+    },
+    "seconds": 394.6,
+    "error": null,
+    "date": "2026-11-15",
+    "gpu_label": "H200"
+  },
+  {
+    "cell": "full:topk4",
+    "model": "hub:Qwen/Qwen3-30B-A3B-Instruct-2507",
+    "config": "topk4",
+    "gpu": "NVIDIA H200",
+    "smoke": false,
+    "util": 0.9,
+    "vllm": "0.32.0",
+    "torch": "2.13.0+cu130",
+    "prompts": 64,
+    "gen_len": 256,
+    "weights_disk_gib": 56.87,
+    "model_loading_gib": 56.93,
+    "model_loading_all_gib": [
+      56.93
+    ],
+    "kv_cache_gib": 67.14,
+    "kv_cache_tokens": 733376.0,
+    "kv_concurrency": 179.05,
+    "gpu_after_load_gib": 125.6474609375,
+    "gpu_peak_gib": 126.32,
+    "load_seconds": 113.8,
+    "engine_init_seconds": 72.94,
+    "prefill_tps": 7761.26192031111,
+    "ttft_ms_median": 61.64101800004573,
+    "ttft_ms_p90": 70.00101899984656,
+    "decode_tps": {
+      "1": 287.1698335713705,
+      "8": 1214.615646641862,
+      "32": 5868.263777939569
+    },
+    "he_b1_tps": 254.30771435236582,
+    "humaneval": {
+      "score": 0.8719512195121951,
+      "correct": 143,
+      "n": 164,
+      "seconds": 13.3,
+      "gen_tps": 2957.1604031339966,
+      "mean_tokens": 239.5731707317073
+    },
+    "mbpp": {
+      "score": 0.8404669260700389,
+      "correct": 216,
+      "n": 257,
+      "seconds": 17.8,
+      "gen_tps": 2616.0050071673195,
+      "mean_tokens": 181.5953307392996
+    },
+    "accept": {
+      "decode_b1": null,
+      "decode_b8": null,
+      "decode_b32": null,
+      "humaneval": null,
+      "mbpp": null,
+      "he_b1": null
+    },
+    "samples": {
+      "humaneval": [
+        {
+          "id": "HumanEval/0",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in given list of numbers, are any two numbers closer to each other than\n    given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    \"\"\"\n    for i in range(len(numbers)):\n        for j in range(i + 1, len(numbers)):\n            if abs(numbers[i] - numbers[j]) < threshold:\n                return True\n    return False\n```"
+        },
+        {
+          "id": "HumanEval/1",
+          "correct": false,
+          "output": "```python\nfrom typing import List\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a string containing multiple groups of nested parentheses. Your goal is to\n    separate those group into separate strings and return the list of those.\n    Separate groups are balanced (each open brace is properly closed) and not nested within each other\n    Ignore any spaces in the input string.\n    >>> separate_paren_groups('( ) (( )) (( )( ))')\n    ['()', '(())', '(()())']\n    \"\"\"\n    # Remove all spaces\n    paren_string = paren_string.replace(\" \", \"\")\n    \n    res"
+        },
+        {
+          "id": "HumanEval/2",
+          "correct": true,
+          "output": "```python\ndef truncate_number(number: float) -> float:\n    \"\"\" Given a positive floating point number, it can be decomposed into\n    and integer part (largest integer smaller than given number) and decimals\n    (leftover part always smaller than 1).\n\n    Return the decimal part of the number.\n    >>> truncate_number(3.5)\n    0.5\n    \"\"\"\n    return number - int(number)\n```"
+        }
+      ],
+      "mbpp": [
+        {
+          "id": "mbpp:11",
+          "correct": true,
+          "output": "```python\ndef remove_Occ(s, char):\n    \"\"\"\n    Remove first and last occurrence of a given character from the string.\n    \n    Args:\n        s (str): Input string\n        char (str): Character to remove (first and last occurrence)\n    \n    Returns:\n        str: String with first and last occurrence of char removed\n    \"\"\"\n    # Find first occurrence\n    first = s.find(char)\n    if first == -1:  # Character not found\n        return s\n    \n    # Find last occurrence\n    last = s.rfind(char)\n    \n    # If only one occurrence, remove it\n    if first == last:\n        return s[:first] + s[first + 1:"
+        },
+        {
+          "id": "mbpp:12",
+          "correct": true,
+          "output": "```python\ndef sort_matrix(matrix):\n    \"\"\"\n    Sort a given matrix in ascending order according to the sum of its rows.\n    \n    Args:\n        matrix: List of lists, where each inner list represents a row\n        \n    Returns:\n        List of lists sorted by the sum of each row in ascending order\n    \"\"\"\n    return sorted(matrix, key=sum)\n```"
+        },
+        {
+          "id": "mbpp:14",
+          "correct": true,
+          "output": "```python\ndef find_Volume(base, height, length):\n    \"\"\"\n    Calculate the volume of a triangular prism.\n    \n    The volume is calculated as: (1/2 * base * height) * length\n    where:\n    - base is the base length of the triangular face\n    - height is the height of the triangular face\n    - length is the length (or depth) of the prism\n    \n    Args:\n        base (float): The base length of the triangular face\n        height (float): The height of the triangular face\n        length (float): The length of the prism\n    \n    Returns:\n        float: The volume of the triangular prism\n    \"\"\"\n   "
+        }
+      ]
+    },
+    "llm_kwargs": {
+      "max_num_seqs": 64,
+      "hf_overrides": {
+        "num_experts_per_tok": 4
+      }
+    },
+    "seconds": 341.8,
+    "error": null,
+    "date": "2026-11-15",
+    "gpu_label": "H200"
+  },
+  {
+    "cell": "full:topk6",
+    "model": "hub:Qwen/Qwen3-30B-A3B-Instruct-2507",
+    "config": "topk6",
+    "gpu": "NVIDIA H200",
+    "smoke": false,
+    "util": 0.9,
+    "vllm": "0.32.0",
+    "torch": "2.13.0+cu130",
+    "prompts": 64,
+    "gen_len": 256,
+    "weights_disk_gib": 56.87,
+    "model_loading_gib": 56.93,
+    "model_loading_all_gib": [
+      56.93
+    ],
+    "kv_cache_gib": 66.89,
+    "kv_cache_tokens": 730656.0,
+    "kv_concurrency": 178.38,
+    "gpu_after_load_gib": 125.6494140625,
+    "gpu_peak_gib": 126.32,
+    "load_seconds": 117.3,
+    "engine_init_seconds": 77.94,
+    "prefill_tps": 45800.233102876875,
+    "ttft_ms_median": 67.00473999990209,
+    "ttft_ms_p90": 73.24264599992603,
+    "decode_tps": {
+      "1": 272.2371821984514,
+      "8": 1020.0597571406723,
+      "32": 2744.241511693163
+    },
+    "he_b1_tps": 242.46642206278406,
+    "humaneval": {
+      "score": 0.9085365853658537,
+      "correct": 149,
+      "n": 164,
+      "seconds": 14.6,
+      "gen_tps": 2640.18241363972,
+      "mean_tokens": 235.6280487804878
+    },
+    "mbpp": {
+      "score": 0.8482490272373541,
+      "correct": 218,
+      "n": 257,
+      "seconds": 17.9,
+      "gen_tps": 2249.055371609037,
+      "mean_tokens": 156.34241245136187
+    },
+    "accept": {
+      "decode_b1": null,
+      "decode_b8": null,
+      "decode_b32": null,
+      "humaneval": null,
+      "mbpp": null,
+      "he_b1": null
+    },
+    "samples": {
+      "humaneval": [
+        {
+          "id": "HumanEval/0",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in given list of numbers, are any two numbers closer to each other than\n    given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    \"\"\"\n    for i in range(len(numbers)):\n        for j in range(i + 1, len(numbers)):\n            if abs(numbers[i] - numbers[j]) < threshold:\n                return True\n    return False\n```"
+        },
+        {
+          "id": "HumanEval/1",
+          "correct": false,
+          "output": "```python\nfrom typing import List\n\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a string containing multiple groups of nested parentheses. Your goal is to\n    separate those group into separate strings and return the list of those.\n    Separate groups are balanced (each open brace is properly closed) and not nested within each other\n    Ignore any spaces in the input string.\n    >>> separate_paren_groups('( ) (( )) (( )( ))')\n    ['()', '(())', '(()())']\n    \"\"\"\n    # Remove all spaces from the input string\n    paren_string = paren_string.replac"
+        },
+        {
+          "id": "HumanEval/2",
+          "correct": true,
+          "output": "```python\ndef truncate_number(number: float) -> float:\n    \"\"\" Given a positive floating point number, it can be decomposed into\n    and integer part (largest integer smaller than given number) and decimals\n    (leftover part always smaller than 1).\n\n    Return the decimal part of the number.\n    >>> truncate_number(3.5)\n    0.5\n    \"\"\"\n    return number - int(number)\n```"
+        }
+      ],
+      "mbpp": [
+        {
+          "id": "mbpp:11",
+          "correct": true,
+          "output": "```python\ndef remove_Occ(s, char):\n    \"\"\"\n    Remove the first and last occurrence of a given character from the string.\n    \n    Args:\n        s (str): The input string\n        char (str): The character to remove (first and last occurrence)\n    \n    Returns:\n        str: String with first and last occurrence of char removed\n    \"\"\"\n    if not s or len(char) != 1:\n        return s\n    \n    # Find the first occurrence\n    first = s.find(char)\n    if first == -1:  # Character not found\n        return s\n    \n    # Find the last occurrence\n    last = s.rfind(char)\n    \n    # If first and last are"
+        },
+        {
+          "id": "mbpp:12",
+          "correct": true,
+          "output": "```python\ndef sort_matrix(matrix):\n    \"\"\"\n    Sort a given matrix in ascending order according to the sum of its rows.\n    \n    Args:\n        matrix: List of lists representing the matrix\n        \n    Returns:\n        List of lists representing the sorted matrix\n    \"\"\"\n    return sorted(matrix, key=sum)\n```"
+        },
+        {
+          "id": "mbpp:14",
+          "correct": true,
+          "output": "```python\ndef find_Volume(base, height, length):\n    \"\"\"\n    Calculate the volume of a triangular prism.\n    \n    The volume of a triangular prism is given by the formula:\n    Volume = (1/2 * base * height) * length\n    \n    Args:\n        base (float): The base length of the triangular face\n        height (float): The height of the triangular face\n        length (float): The length of the prism (distance between the triangular faces)\n    \n    Returns:\n        float: The volume of the triangular prism\n    \n    Examples:\n        >>> find_Volume(10, 8, 6)\n        240\n        >>> find_Volume(3, 2,"
+        }
+      ]
+    },
+    "llm_kwargs": {
+      "max_num_seqs": 64,
+      "hf_overrides": {
+        "num_experts_per_tok": 6
+      }
+    },
+    "seconds": 376.1,
+    "error": null,
+    "date": "2026-11-15",
+    "gpu_label": "H200"
+  },
+  {
+    "cell": "full:fp8+eagle3b5",
+    "model": "hub:Qwen/Qwen3-30B-A3B-Instruct-2507",
+    "config": "fp8+eagle3b5",
+    "gpu": "NVIDIA L40S",
+    "smoke": false,
+    "util": 0.9,
+    "vllm": "0.32.0",
+    "torch": "2.13.0+cu130",
+    "prompts": 64,
+    "gen_len": 256,
+    "weights_disk_gib": 56.87,
+    "model_loading_gib": 29.42,
+    "model_loading_all_gib": [
+      29.42
+    ],
+    "kv_cache_gib": 7.68,
+    "kv_cache_tokens": 82208.0,
+    "kv_concurrency": 20.07,
+    "gpu_after_load_gib": 39.7705078125,
+    "gpu_peak_gib": 41.28,
+    "load_seconds": 182.2,
+    "engine_init_seconds": 124.01,
+    "prefill_tps": 23705.581337472413,
+    "ttft_ms_median": 53.09453700004951,
+    "ttft_ms_p90": 65.33320200003345,
+    "decode_tps": {
+      "1": 203.82877254149713,
+      "8": 596.8793711988378,
+      "32": 1641.7433729291918
+    },
+    "he_b1_tps": 269.0783654420804,
+    "humaneval": {
+      "score": 0.9207317073170732,
+      "correct": 151,
+      "n": 164,
+      "seconds": 10.7,
+      "gen_tps": 3480.373593727541,
+      "mean_tokens": 227.07926829268294
+    },
+    "mbpp": {
+      "score": 0.8599221789883269,
+      "correct": 221,
+      "n": 257,
+      "seconds": 13.1,
+      "gen_tps": 2880.914735166584,
+      "mean_tokens": 147.36186770428014
+    },
+    "accept": {
+      "decode_b1": {
+        "drafts": 4907,
+        "draft_tokens": 24535,
+        "accepted": 11523,
+        "rate": 0.4696555940493173,
+        "mean_accept_len": 3.3482779702465866
+      },
+      "decode_b8": {
+        "drafts": 4873,
+        "draft_tokens": 24365,
+        "accepted": 11559,
+        "rate": 0.4744100143648676,
+        "mean_accept_len": 3.3720500718243382
+      },
+      "decode_b32": {
+        "drafts": 4849,
+        "draft_tokens": 24245,
+        "accepted": 11559,
+        "rate": 0.4767580944524644,
+        "mean_accept_len": 3.383790472262322
+      },
+      "humaneval": {
+        "drafts": 7876,
+        "draft_tokens": 39380,
+        "accepted": 29453,
+        "rate": 0.7479177247333672,
+        "mean_accept_len": 4.739588623666836
+      },
+      "mbpp": {
+        "drafts": 9968,
+        "draft_tokens": 49840,
+        "accepted": 28114,
+        "rate": 0.5640850722311397,
+        "mean_accept_len": 3.8204253611556984
+      },
+      "he_b1": {
+        "drafts": 778,
+        "draft_tokens": 3890,
+        "accepted": 3041,
+        "rate": 0.7817480719794344,
+        "mean_accept_len": 4.908740359897172
+      }
+    },
+    "samples": {
+      "humaneval": [
+        {
+          "id": "HumanEval/0",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in given list of numbers, are any two numbers closer to each other than\n    given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    \"\"\"\n    for i in range(len(numbers)):\n        for j in range(i + 1, len(numbers)):\n            if abs(numbers[i] - numbers[j]) < threshold:\n                return True\n    return False\n```"
+        },
+        {
+          "id": "HumanEval/1",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a string containing multiple groups of nested parentheses. Your goal is to\n    separate those group into separate strings and return the list of those.\n    Separate groups are balanced (each open brace is properly closed) and not nested within each other\n    Ignore any spaces in the input string.\n    >>> separate_paren_groups('( ) (( )) (( )( ))')\n    ['()', '(())', '(()())']\n    \"\"\"\n    # Remove all spaces from the input string\n    paren_string = paren_string.replac"
+        },
+        {
+          "id": "HumanEval/2",
+          "correct": true,
+          "output": "```python\ndef truncate_number(number: float) -> float:\n    \"\"\" Given a positive floating point number, it can be decomposed into\n    and integer part (largest integer smaller than given number) and decimals\n    (leftover part always smaller than 1).\n\n    Return the decimal part of the number.\n    >>> truncate_number(3.5)\n    0.5\n    \"\"\"\n    return number - int(number)\n```"
+        }
+      ],
+      "mbpp": [
+        {
+          "id": "mbpp:11",
+          "correct": true,
+          "output": "```python\ndef remove_Occ(s, char):\n    \"\"\"\n    Remove the first and last occurrence of a given character from the string.\n    \n    Args:\n        s (str): The input string\n        char (str): The character to remove (first and last occurrence)\n    \n    Returns:\n        str: String with first and last occurrence of char removed\n    \"\"\"\n    if not s or not char:\n        return s\n    \n    # Find the first occurrence\n    first_index = s.find(char)\n    if first_index == -1:\n        return s  # Character not found\n    \n    # Find the last occurrence\n    last_index = s.rfind(char)\n    \n    # Remove fi"
+        },
+        {
+          "id": "mbpp:12",
+          "correct": true,
+          "output": "```python\ndef sort_matrix(matrix):\n    \"\"\"\n    Sort a given matrix in ascending order according to the sum of its rows.\n    \n    Args:\n        matrix: A 2D list representing the matrix\n        \n    Returns:\n        A new matrix sorted by row sums in ascending order\n    \"\"\"\n    # Sort the matrix based on the sum of each row\n    return sorted(matrix, key=sum)\n```"
+        },
+        {
+          "id": "mbpp:14",
+          "correct": true,
+          "output": "```python\ndef find_Volume(base, height, length):\n    \"\"\"\n    Calculate the volume of a triangular prism.\n    \n    The volume of a triangular prism is given by the formula:\n    Volume = (1/2) * base * height * length\n    \n    Args:\n        base (float): The base length of the triangular face\n        height (float): The height of the triangular face\n        length (float): The length of the prism (distance between the two triangular faces)\n    \n    Returns:\n        float: The volume of the triangular prism\n    \"\"\"\n    return 0.5 * base * height * length\n```"
+        }
+      ]
+    },
+    "llm_kwargs": {
+      "max_num_seqs": 64,
+      "quantization": "fp8",
+      "speculative_config": {
+        "method": "eagle3",
+        "model": "lmsys/SGLang-EAGLE3-Qwen3-30B-A3B-Instruct-2507-SpecForge-Nex",
+        "num_speculative_tokens": 5
+      }
+    },
+    "seconds": 432.9,
+    "error": null,
+    "date": "2026-11-15",
+    "gpu_label": "L40S"
+  },
+  {
+    "cell": "full:fp8",
+    "model": "hub:Qwen/Qwen3-30B-A3B-Instruct-2507",
+    "config": "fp8",
+    "gpu": "NVIDIA L40S",
+    "smoke": false,
+    "util": 0.9,
+    "vllm": "0.32.0",
+    "torch": "2.13.0+cu130",
+    "prompts": 64,
+    "gen_len": 256,
+    "weights_disk_gib": 56.87,
+    "model_loading_gib": 29.08,
+    "model_loading_all_gib": [
+      29.08
+    ],
+    "kv_cache_gib": 9.31,
+    "kv_cache_tokens": 101680.0,
+    "kv_concurrency": 24.82,
+    "gpu_after_load_gib": 40.1025390625,
+    "gpu_peak_gib": 40.54,
+    "load_seconds": 267.8,
+    "engine_init_seconds": 161.25,
+    "prefill_tps": 23297.08055750346,
+    "ttft_ms_median": 64.26575449998495,
+    "ttft_ms_p90": 67.74513800002069,
+    "decode_tps": {
+      "1": 128.61890092418002,
+      "8": 401.0439880571336,
+      "32": 892.9154552914691
+    },
+    "he_b1_tps": 123.45373424879442,
+    "humaneval": {
+      "score": 0.9085365853658537,
+      "correct": 149,
+      "n": 164,
+      "seconds": 29.1,
+      "gen_tps": 1276.269485467785,
+      "mean_tokens": 226.4939024390244
+    },
+    "mbpp": {
+      "score": 0.8404669260700389,
+      "correct": 216,
+      "n": 257,
+      "seconds": 29.1,
+      "gen_tps": 1275.0850113949223,
+      "mean_tokens": 144.29182879377433
+    },
+    "accept": {
+      "decode_b1": null,
+      "decode_b8": null,
+      "decode_b32": null,
+      "humaneval": null,
+      "mbpp": null,
+      "he_b1": null
+    },
+    "samples": {
+      "humaneval": [
+        {
+          "id": "HumanEval/0",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in given list of numbers, are any two numbers closer to each other than\n    given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    \"\"\"\n    for i in range(len(numbers)):\n        for j in range(i + 1, len(numbers)):\n            if abs(numbers[i] - numbers[j]) < threshold:\n                return True\n    return False\n```"
+        },
+        {
+          "id": "HumanEval/1",
+          "correct": true,
+          "output": "```python\nfrom typing import List\n\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a string containing multiple groups of nested parentheses. Your goal is to\n    separate those group into separate strings and return the list of those.\n    Separate groups are balanced (each open brace is properly closed) and not nested within each other\n    Ignore any spaces in the input string.\n    >>> separate_paren_groups('( ) (( )) (( )( ))')\n    ['()', '(())', '(()())']\n    \"\"\"\n    # Remove all spaces from the input string\n    paren_string = paren_string.replac"
+        },
+        {
+          "id": "HumanEval/2",
+          "correct": true,
+          "output": "```python\ndef truncate_number(number: float) -> float:\n    \"\"\" Given a positive floating point number, it can be decomposed into\n    and integer part (largest integer smaller than given number) and decimals\n    (leftover part always smaller than 1).\n\n    Return the decimal part of the number.\n    >>> truncate_number(3.5)\n    0.5\n    \"\"\"\n    return number - int(number)\n```"
+        }
+      ],
+      "mbpp": [
+        {
+          "id": "mbpp:11",
+          "correct": true,
+          "output": "```python\ndef remove_Occ(s, char):\n    \"\"\"\n    Remove the first and last occurrence of a given character from the string.\n    \n    Args:\n        s (str): The input string\n        char (str): The character to remove (first and last occurrence)\n    \n    Returns:\n        str: String with first and last occurrence of char removed\n    \"\"\"\n    if not s or len(char) != 1:\n        return s\n    \n    # Find the first occurrence\n    first_index = s.find(char)\n    if first_index == -1:\n        return s  # Character not found\n    \n    # Find the last occurrence\n    last_index = s.rfind(char)\n    \n    # Rem"
+        },
+        {
+          "id": "mbpp:12",
+          "correct": true,
+          "output": "```python\ndef sort_matrix(matrix):\n    \"\"\"\n    Sort a given matrix in ascending order according to the sum of its rows.\n    \n    Args:\n        matrix: A 2D list representing the matrix\n        \n    Returns:\n        A new matrix with rows sorted by their sum in ascending order\n    \"\"\"\n    # Sort the matrix based on the sum of each row\n    return sorted(matrix, key=sum)\n```"
+        },
+        {
+          "id": "mbpp:14",
+          "correct": true,
+          "output": "```python\ndef find_Volume(base, height, length):\n    \"\"\"\n    Calculate the volume of a triangular prism.\n    \n    The volume is calculated as: (1/2 * base * height) * length\n    where:\n    - base is the base of the triangular face\n    - height is the height of the triangular face\n    - length is the length of the prism (distance between the two triangular faces)\n    \n    Args:\n        base (float): The base length of the triangular face\n        height (float): The height of the triangular face\n        length (float): The length of the prism\n    \n    Returns:\n        float: The volume of the tr"
+        }
+      ]
+    },
+    "llm_kwargs": {
+      "max_num_seqs": 64,
+      "quantization": "fp8"
+    },
+    "seconds": 648.9,
+    "error": null,
+    "date": "2026-11-15",
+    "gpu_label": "L40S"
+  }
+]

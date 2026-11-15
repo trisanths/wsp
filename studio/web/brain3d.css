@@ -1,22 +1,66 @@
-/* Brain3D: the 3D view of a network. Colors come from the app tokens. */
-.brain3d { position: relative; width: 100%; min-height: 160px; overflow: hidden; border-radius: inherit; contain: layout paint; }
+/* Brain3D: a readable layer-stack scene. Colors come from the app tokens. */
+.brain3d { position: relative; width: 100%; min-height: 160px; overflow: hidden; border-radius: inherit; contain: layout paint; display: flex; flex-direction: column; }
+.brain3d .b3d-scene { position: relative; flex: 1; min-height: 0; }
 .brain3d .b3d-gl { position: absolute; inset: 0; }
 .brain3d .b3d-canvas { width: 100% !important; height: 100% !important; display: block; cursor: grab; touch-action: pan-y; outline: none; }
 .brain3d .b3d-canvas.grab { cursor: grabbing; }
-.brain3d .b3d-ticks { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-.brain3d .b3d-tick { position: absolute; left: 0; top: 0; font-size: 11px; line-height: 14px; padding: 0 6px; color: var(--text-3); font-variant-numeric: tabular-nums; will-change: transform; }
+.brain3d .b3d-overlay { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.brain3d .b3d-ticklayer, .brain3d .b3d-cardlayer { position: absolute; inset: 0; }
+.brain3d .b3d-tick { position: absolute; left: 0; top: 0; font-size: 11px; line-height: 14px; padding: 0 2px; color: var(--text-3); font-variant-numeric: tabular-nums; will-change: transform; transition: color .15s; white-space: nowrap; }
 .brain3d .b3d-tick.on { color: var(--blue); font-weight: 500; }
-.brain3d .b3d-tip { position: absolute; left: 0; top: 0; z-index: 2; pointer-events: none; opacity: 0; transition: opacity .12s ease; display: flex; flex-direction: column; gap: 1px; max-width: 220px; padding: 6px 10px; border-radius: 10px; background: var(--bg-raised); box-shadow: var(--shadow-float); font-size: 12px; line-height: 16px; color: var(--text-2); }
-.brain3d .b3d-tip b { font-weight: 500; color: var(--text-1); font-size: 13px; }
-.brain3d .b3d-label { position: absolute; left: 14px; bottom: 12px; z-index: 1; pointer-events: none; font-size: 12px; color: var(--text-3); max-width: calc(100% - 28px); }
+.brain3d .b3d-card { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 8px; max-width: 240px; padding: 6px 10px 6px 8px; border: 0; border-left: 3px solid var(--c, var(--blue)); border-radius: 9px; background: var(--bg-raised); box-shadow: var(--shadow-card); font: inherit; text-align: left; color: var(--text-1); will-change: transform, opacity; opacity: 0; }
+.brain3d button.b3d-card { cursor: pointer; }
+.brain3d button.b3d-card:hover { box-shadow: var(--shadow-float); }
+.brain3d .b3d-card-t { display: flex; flex-direction: column; min-width: 0; }
+.brain3d .b3d-card-t b { font-size: 12px; line-height: 16px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.brain3d .b3d-card-t i { font-style: normal; font-size: 11px; line-height: 14px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.brain3d .b3d-card.small { padding: 4px 9px; }
+.brain3d .b3d-tag { position: absolute; left: 0; top: 0; padding: 1px 8px; border-radius: 9999px; background: var(--blue); color: #fff; font-size: 11px; line-height: 18px; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; will-change: transform, opacity; }
+.brain3d .b3d-cutcard { position: absolute; left: 0; top: 0; padding: 2px 9px; border-radius: 9999px; font-size: 11px; line-height: 18px; color: var(--red-t); background: color-mix(in srgb, var(--red) 12%, var(--bg-raised)); box-shadow: 0 0 0 1px color-mix(in srgb, var(--red) 40%, transparent); white-space: nowrap; will-change: transform, opacity; }
+.brain3d .b3d-cutcard b { font-weight: 500; }
+.brain3d .b3d-count { position: absolute; left: 0; top: 0; font-size: 11px; color: var(--text-3); white-space: nowrap; }
+.brain3d .b3d-readout { position: absolute; right: 12px; top: 10px; display: flex; align-items: center; gap: 8px; max-width: min(100% - 24px, 380px); padding: 5px 12px; border-radius: 9999px; background: var(--bg-raised); box-shadow: var(--shadow-card); font-size: 12px; line-height: 18px; font-weight: 500; color: var(--text-1); transition: opacity .25s; }
+.brain3d .b3d-readout-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); flex: none; }
+.brain3d .b3d-readout.ok { color: var(--green-t); } .brain3d .b3d-readout.ok .b3d-readout-dot { background: var(--green); }
+.brain3d .b3d-readout.bad { color: var(--red-t); } .brain3d .b3d-readout.bad .b3d-readout-dot { background: var(--red); }
+.brain3d .b3d-counters { position: absolute; right: 14px; bottom: 8px; text-align: right; font-size: 12px; line-height: 16px; color: var(--text-2); font-variant-numeric: tabular-nums; white-space: pre-line; max-width: 52%; }
+.brain3d .b3d-title { position: absolute; left: 14px; top: 10px; display: flex; align-items: center; gap: 9px; max-width: 55%; pointer-events: none; }
+.brain3d .b3d-title-t { display: flex; flex-direction: column; min-width: 0; }
+.brain3d .b3d-title-t b { font-size: 14px; line-height: 18px; font-weight: 500; color: var(--text-1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.brain3d .b3d-title-t span { font-size: 12px; line-height: 16px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.brain3d .b3d-legend { position: absolute; left: 14px; bottom: 8px; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 11px; line-height: 14px; color: var(--text-3); pointer-events: none; max-width: 44%; }
+.brain3d .b3d-lg { display: inline-flex; align-items: center; gap: 5px; }
+.brain3d .b3d-sw { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+.brain3d .b3d-sw.sq { border-radius: 2px; width: 10px; height: 8px; }
+.brain3d .b3d-sw.cut { border-radius: 2px; width: 10px; height: 8px; border: 1.5px dashed; }
+.brain3d .b3d-caption { position: absolute; left: 12px; right: 12px; bottom: 6px; font-size: 11px; line-height: 15px; color: var(--text-2); pointer-events: none; }
+.brain3d.compact .b3d-legend { display: none; }
+.brain3d.compact .b3d-title { top: 6px; left: 10px; }
+.brain3d.compact .b3d-title-t b { font-size: 12px; line-height: 16px; }
+.brain3d.compact .b3d-title-t span { display: none; }
+.brain3d.compact .b3d-readout { display: none; }
+.brain3d.compact .b3d-title { max-width: 70%; }
+.brain3d.compact .b3d-card { padding: 3px 8px 3px 6px; max-width: 150px; }
+.brain3d.compact .b3d-card-t i { display: none; }
+.brain3d.compact .b3d-caption { bottom: 4px; }
+.brain3d .b3d-bar { flex: none; padding: 10px 14px 12px; display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--line-1); }
+.brain3d .b3d-steps { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 0; }
+.brain3d .b3d-step { position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px 2px 4px; border-radius: 9999px; background: var(--fill-2); color: var(--text-2); font-size: 12px; line-height: 20px; transition: background .2s, color .2s; }
+.brain3d .b3d-n { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--fill-2); font-size: 10px; line-height: 16px; font-variant-numeric: tabular-nums; position: relative; }
+.brain3d .b3d-step span:last-child { position: relative; }
+.brain3d .b3d-step.on { background: color-mix(in srgb, var(--blue) 12%, transparent); color: var(--blue-t); font-weight: 500; }
+.brain3d .b3d-step.on .b3d-n { background: var(--blue); color: #fff; }
+.brain3d .b3d-step.done { color: var(--text-2); }
+.brain3d .b3d-step.done .b3d-n { background: color-mix(in srgb, var(--green) 22%, transparent); color: var(--green-t); }
+.brain3d .b3d-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; background: color-mix(in srgb, var(--blue) 14%, transparent); transform-origin: left; animation: b3dfill linear both; }
+@keyframes b3dfill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.brain3d .b3d-sentence { font-size: 13px; line-height: 20px; color: var(--text-1); min-height: 20px; }
 .brain3d .b3d-fallback { position: absolute; inset: 0; width: 100%; height: 100%; }
-.brain3d .b3d-fping { transform-box: fill-box; transform-origin: center; animation: b3dping 1.2s ease-out both; }
-@keyframes b3dping { from { transform: scale(.6); opacity: 1; } to { transform: scale(7); opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .brain3d .b3d-fping { animation: none; opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .brain3d .b3d-fill { animation: none; transform: none; } .brain3d .b3d-readout { transition: none; } }
 
 /* builder: the 3D view, the right-panel preview and the palette info button */
-.b3d-pane { position: relative; flex: 1; min-width: 0; display: flex; }
-.b3d-pane .brain3d { height: 100% !important; min-height: 320px; }
+.b3d-pane { position: relative; flex: 1; min-width: 0; display: flex; padding-bottom: 146px; box-sizing: border-box; }
+.b3d-pane .brain3d { height: 100% !important; min-height: 300px; }
 .b3d-pane .b3d-hint { position: absolute; right: 14px; bottom: 12px; font-size: 12px; color: var(--text-3); pointer-events: none; }
 .cv-body.split .b3d-pane { flex: 1; }
 .b3d-mini { cursor: pointer; flex: none; transition: box-shadow .15s ease; }
@@ -27,3 +71,6 @@
 .piece:hover .pinfo, .piece:focus-within .pinfo, .piece .pinfo:focus-visible { opacity: 1; }
 .piece .pinfo:hover { background: var(--fill-2); color: var(--text-1); }
 .piece .pinfo + .add, .piece .pinfo + .lk { margin-left: 0; }
+
+.brain3d .b3d-narrow .b3d-card.small, .brain3d .b3d-narrow .b3d-count { display: none; }
+.brain3d .b3d-narrow .b3d-legend, .brain3d .b3d-narrow .b3d-counters { display: none !important; }

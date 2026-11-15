@@ -1183,6 +1183,7 @@ METHOD_INFO = {
     "delta": ("wsp/delta.py", "base_size_plus_low_rank"),
     "transplant": ("wsp/transplant.py", "extra_routed_params"),
     "synth": ("wsp/synth.py", "seam_params_plus_donor_blocks"),
+    "pgraft": ("wsp/pgraft.py", "donor_slice_plus_glue"),
     "feedback": ("wsp/feedback.py", "seam_params_plus_donor_blocks"),
     "tops": ("wsp/tops.py", "donor_upper_layers_and_head_per_skill"),
     "whole_model": ("route to the whole source model", "source_params_added"),

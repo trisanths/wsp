@@ -303,6 +303,15 @@ export function BuilderScreen({ id, specId }) {
     }, 450);
   };
 
+  /* ---- the 3D scene: the readout text for a scored attempt ---- */
+  const readoutOf = (scores, comparison, ok) => {
+    const t = spec ? primaryTarget(spec) : null;
+    if (!t || !scores || scores[t.id] == null) return null;
+    const row = comparison && (comparison.rows || []).find((x) => x.id === 'random');
+    const over = row && row.delta != null && row.measured !== false ? ', ' + sgn(row.delta) + ' points over random parts' : '';
+    return { text: t.name + ' ' + pctS(scores[t.id]) + over, ok: ok == null ? null : ok };
+  };
+
   /* ---- jobs ---- */
   const run = async (action) => {
     if (job) return;
@@ -312,7 +321,7 @@ export function BuilderScreen({ id, specId }) {
     if (action !== 'compile' && JSON.stringify(p) !== JSON.stringify(programRef.current)) setProgram(p);
     setJob({ action, status: 'queued', t0: Date.now() });
     const gAt = p.grafts.length ? p.grafts[0].at : undefined;
-    if (action === 'compile') fire('probe', { at: gAt }); else if (action === 'score') fire('scan'); else fire('heal', { at: gAt });
+    if (action === 'compile') fire('pick'); else if (action === 'score') fire('scan'); else fire('heal', { at: gAt });
     try {
       const { job_id } = await api.builderAction(id, p, action);
       let j;
@@ -324,16 +333,18 @@ export function BuilderScreen({ id, specId }) {
         if (j.status === 'done' || j.status === 'error') break;
         setJob((x) => (x ? { ...x, status: j.status } : x));
       }
-      if (j.status === 'error') { if (action !== 'compile') fire('score', { ok: false }); toast(j.error || 'The job failed', 'err'); shake(btnRefs.current[action]); setJob(null); return; }
+      if (j.status === 'error') { if (action === 'compile') fire('settle'); else fire('score', { ok: false }); toast(j.error || 'The job failed', 'err'); shake(btnRefs.current[action]); setJob(null); return; }
       const r = j.result || {};
       if (r.fit) setFits(r.fit);
       if (action === 'compile') {
-        fire('graft');
+        fire('seq', { steps: ['probe', 'splice', 'cut'] });
         toast('Fit check done' + (r.params_b ? ': ' + bsize(r.params_b) + ' parameters' : ''), 'ok');
       } else {
         const at = { n: 0, action, program: p, scores: r.scores, combined: r.combined, control: r.control, params_b: r.params_b, status: r.status, compute_s: r.compute_s, comparison: r.comparison || null, size: r.size || null, pipeline: r.pipeline || null, heal_note: r.heal_note == null ? null : r.heal_note, components: r.components || null, stages: r.stages || null, drift: r.drift || null };
         setAttempts((a) => [...a, { ...at, n: a.length + 1 }]);
-        fire('score', { ok: !r.status || r.status === 'ok' ? (r.comparison && r.comparison.verdict === 'failed' ? false : true) : false });
+        const okRun = !r.status || r.status === 'ok' ? (r.comparison && r.comparison.verdict === 'failed' ? false : true) : false;
+        const ro = okRun ? readoutOf(r.scores, r.comparison, okRun) : null;
+        fire('score', { ok: okRun, readout: ro ? ro.text : null });
         if (r.status && r.status !== 'ok') { toast(statusMessage(r.status), 'err'); shake(btnRefs.current[action]); }
         else if (action === 'score') { setFlash(action); clearTimeout(flashTimer.current); flashTimer.current = setTimeout(() => setFlash(null), 1900); }
         refreshSugs(p);
@@ -373,10 +384,13 @@ export function BuilderScreen({ id, specId }) {
   const brainParts = program ? program.grafts.map((g, i) => {
     const part = partById(g.id) || {};
     const comp = componentFor(lastOkRaw() && lastOkRaw().components, g);
-    return { id: 'g' + i, label: part.label || g.id, kind: part.kind || 'block', at: clamp(g.at, 0, N - 1), donor: part.donor || '', verdict: comp && ['contributes', 'no better than random', 'harmful'].includes(comp.verdict) ? comp.verdict : null };
+    return { id: 'g' + i, label: part.label || g.id, kind: part.kind || 'block', at: clamp(g.at, 0, N - 1), donor: part.donor || '', size: part.params_m ? (part.params_m >= 1000 ? (part.params_m / 1000).toFixed(2) + 'B' : Math.round(part.params_m * 10) / 10 + 'M') + ' params' : '', fit: fits[g.id + '@' + g.at] != null ? fits[g.id + '@' + g.at] : null, verdict: comp && ['contributes', 'no better than random', 'harmful'].includes(comp.verdict) ? comp.verdict : null };
   }) : [];
   const brainCuts = program ? maskIds(program.masks).map((mid, i) => { const m = maskById(mid) || {}; const l = Array.isArray(m.layers) ? m.layers[0] : (4 + i * 3) % N; return { layer: clamp(l, 0, N - 1), frac: 0.35, label: m.label || mid }; }) : [];
-  const brainEl = (h, cls) => html`<${Brain3D} class=${cls} height=${h} layers=${N} parts=${brainParts} cuts=${brainCuts} pulse=${pulse} onPick=${(pid) => { const g = program.grafts[+String(pid).slice(1)]; if (g) openPart(g.id); }} label=${(cat.host.model || '').split('/').pop() + ' · ' + N + ' layers'} />`;
+  const hostName = (cat.host.model || '').split('/').pop();
+  const lastScored = [...attempts].reverse().find((a) => a.scores && (!a.status || a.status === 'ok'));
+  const brainResult = lastScored ? readoutOf(lastScored.scores, lastScored.comparison, lastScored.comparison ? lastScored.comparison.verdict !== 'failed' : null) : null;
+  const brainEl = (h, cls) => html`<${Brain3D} class=${cls} height=${h} layers=${N} parts=${brainParts} cuts=${brainCuts} pulse=${pulse} title=${hostName} model=${cat.host.model} size=${cat.host.params_b ? bsize(cat.host.params_b).replace('B', 'B parameters') : null} label=${N + ' layers'} result=${brainResult} idle=${brainParts.length || brainCuts.length ? null : 'The host model. Add a part from the left and press Compile to watch it splice in.'} onPick=${(pid) => { const g = program.grafts[+String(pid).slice(1)]; if (g) openPart(g.id); }} />`;
   const lastOk = [...attempts].reverse().find((a) => a.scores);
   const prevOk = lastOk ? [...attempts].slice(0, attempts.indexOf(lastOk)).reverse().find((a) => a.scores) : null;
   const benches = spec ? spec.benchmarks : [];
