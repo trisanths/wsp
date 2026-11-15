@@ -62,6 +62,8 @@ DOMAINS = {
     "knowledge": {"donor": "Qwen/Qwen2.5-7B-Instruct", "skills": None, "pools": ["knowledge"],
                   "align_pools": ["prose", "knowledge", "medicine"]},
     "math7b": {"donor": "Qwen/Qwen2.5-Math-7B-Instruct", "skills": "qwenmath7b_inst", "pools": ["math"]},
+    "knowledge14": {"donor": "Qwen/Qwen2.5-14B-Instruct", "skills": None, "pools": ["knowledge"],
+                    "align_pools": ["prose", "knowledge", "medicine"]},
 }
 DEFAULT = {
     "host_layer": HOST_LAYER, "enc_depth": 3, "dec_rank": 256, "dec_depth": 1,
@@ -458,16 +460,21 @@ def cell(config):
             graft = pgraft.build_bundle_graft(base, donor, c["host_layer"], specs, enc_depth=c["enc_depth"],
                                               dec_rank=c["dec_rank"], dec_depth=c["dec_depth"])
         for e in (extras_cfg if arm == "real" else []):
+            # Extra donors load on the CPU; only their block goes to the GPU. Each full donor visits the GPU
+            # once, for its own alignment, and is then freed, so several donors fit on one H100.
             edom = DOMAINS[e["domain"]]
-            e_donor = transformers.AutoModelForCausalLM.from_pretrained(edom["donor"], dtype=torch.bfloat16).to("cuda").eval()
+            e_donor = transformers.AutoModelForCausalLM.from_pretrained(edom["donor"], dtype=torch.bfloat16).eval()
             for p in e_donor.parameters():
                 p.requires_grad_(False)
             e_tok = transformers.AutoTokenizer.from_pretrained(edom["donor"])
             eg = pgraft.build(base, e_donor, e["host_layer"], e["first"], e["last"], enc_depth=c["enc_depth"],
                               dec_rank=c["dec_rank"], dec_depth=c["dec_depth"], read_layers=e.get("read_layers"))
-            extras.append((eg, e_donor, e_tok, e))
+            eg.part.to("cuda")
+            extras.append([eg, e_donor, e_tok, e])
         pgraft.attach(base, [graft] + [x[0] for x in extras])
-        for eg, e_donor, e_tok, e in extras:
+        for x in extras:
+            eg, e_donor, e_tok, e = x
+            e_donor.to("cuda")
             e_data = domain_data(e["domain"])
             pgraft.set_sink(eg, e_donor, e_tok, e["first"], e_data["align"][:128])
             # Alignment reads the host with every graft off, so each graft aligns to the plain host stream.
@@ -476,7 +483,10 @@ def cell(config):
             row.setdefault("extra_alignment", []).append(
                 pgraft.alignment_report(base, tok, e_donor, e_tok, eg, e_data["align_eval"], cfg))
             row.setdefault("extra_calib_rms", []).append(pgraft.calibrate_scale(base, tok, eg, e_data["align"], cfg))
+            x[1] = None
             del e_donor
+            gc.collect()
+            torch.cuda.empty_cache()
         extras = [x[0] for x in extras]
         gc.collect()
         torch.cuda.empty_cache()
@@ -789,7 +799,48 @@ def batch_h6():
     return out
 
 
-BATCHES = {"h1": batch_h1, "h2": batch_h2, "h3": batch_h3, "h4": batch_h4, "h5": batch_h5, "h6": batch_h6}
+def batch_h7():
+    """A stronger donor: Qwen2.5-14B-Instruct (48 layers, width 5120). Spans scaled from 4..20 of 28 layers,
+    with LoRA and identity at the 14B graft's budget."""
+    out = []
+    k = {"objective": "mc", "align_steps": 600, "task_steps": 1000, "enc_depth": 2, "domain": "knowledge14",
+         "mc_train": "general"}
+    blk = {"type": "block", "first": 7, "last": 34}
+    out.append(dict(k, name="q14-span7-34", part=blk, arm="real"))
+    out.append(dict(k, name="q14-span7-34-s1", part=blk, arm="real", seed=1))
+    out.append(dict(k, name="q14-span4-24", part={"type": "block", "first": 4, "last": 24}, arm="real"))
+    out.append(dict(k, name="q14-span10-40", part={"type": "block", "first": 10, "last": 40}, arm="real"))
+    out.append(dict(k, name="q14-span7-34-all", part=blk, arm="real", mc_train="all"))
+    out.append(dict(k, name="q14-lora", part=blk, arm="lora"))
+    out.append(dict(k, name="q14-identity", part=blk, arm="identity"))
+    return out
+
+
+def batch_h8():
+    """Confirm h4's multi-layer reads on new seeds, push the read further, and combine with all-domain training
+    and a math specialist written later in the host."""
+    out = []
+    win = {"type": "block", "first": 4, "last": 20}
+    k = {"objective": "mc", "align_steps": 600, "task_steps": 1000, "enc_depth": 2, "part": win,
+         "domain": "knowledge", "mc_train": "general", "arm": "real"}
+    r11 = dict(k, host_layer=11, read_layers=[3, 7, 11])
+    r7 = dict(k, host_layer=7, read_layers=list(range(1, 8)))
+    for seed in (1, 2):
+        out.append(dict(r11, name=f"m-read3.7.11-w11-s{seed}", seed=seed))
+        out.append(dict(r7, name=f"m-read1to7-w7-s{seed}", seed=seed))
+    out.append(dict(k, name="m-read1to11-w11", host_layer=11, read_layers=list(range(1, 12))))
+    out.append(dict(k, name="m-read0to15-w15", host_layer=15, read_layers=list(range(0, 16))))
+    out.append(dict(k, name="m-read1.3.5.7.9-w9", host_layer=9, read_layers=[1, 3, 5, 7, 9]))
+    out.append(dict(r11, name="m-read3.7.11-w11-all", mc_train="all"))
+    out.append(dict(r11, name="m-read3.7.11-w11-enc3", enc_depth=3))
+    out.append(dict(r11, name="m-read3.7.11-w11-span2-24", part={"type": "block", "first": 2, "last": 24}))
+    math = {"domain": "math7b", "host_layer": 13, "first": 4, "last": 20, "read_layers": [5, 9, 13]}
+    out.append(dict(r7, name="m-qwen7b-r7+math7b-r13-all", mc_train="all", extra_grafts=[math]))
+    out.append(dict(k, name="m-lora-2x-all", arm="lora", mc_train="all", lora_budget_mult=2.0))
+    return out
+
+
+BATCHES = {"h1": batch_h1, "h2": batch_h2, "h3": batch_h3, "h4": batch_h4, "h5": batch_h5, "h6": batch_h6, "h7": batch_h7, "h8": batch_h8}
 
 
 @app.local_entrypoint()

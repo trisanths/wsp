@@ -369,6 +369,65 @@ mutations sit within about a point of the winner.
 trainable budget, not the total size. h6 adds Llama-3.2-3B-Instruct as a
 host, untrained, with LoRA, and grafted, to compare at a similar total size.
 
+### h4: fine-tuning across domains, and where the graft reads and writes
+
+Every cell now scores the same cross-domain panel:
+
+- The four in-distribution MC evals (400 each): general (CommonsenseQA,
+  OpenBookQA, QASC, LogiQA2.0), science (SciQ), math (AQuA-RAT), and
+  medicine (HEAD-QA).
+- MMLU by subject group. These items come from MMLU test after the dev and
+  held-out items, so they overlap neither.
+- MedMCQA val.
+
+Training sets come from train splits only, and `healdata.check_sources`
+passes them. One seed per cell. Base dev is 48.0.
+
+**Train on one domain, score all** (Qwen2.5-7B block 4..20 at host 7,
+budget-matched LoRA and identity):
+
+| train on | arm | MMLU dev | held-out | MMLU-med | MMLU-math | HEAD-QA | AQuA | MedMCQA |
+|---|---|---|---|---|---|---|---|---|
+| general | graft | **52.2** | **53.1** | **61.6** | 37.6 | **54.5** | 29.8 | **45.8** |
+| general | LoRA | 48.2 | 47.1 | 49.8 | 34.0 | 45.8 | 31.5 | 42.8 |
+| science | graft | **52.3** | **50.0** | **57.8** | 32.4 | 51.0 | 27.5 | **44.0** |
+| science | LoRA | 47.6 | 46.6 | 49.4 | 32.6 | 48.2 | 30.8 | 39.5 |
+| medicine | graft | 53.3 | **53.9** | **59.8** | 38.4 | 52.8 | 28.5 | 43.4 |
+| medicine | Apollo2 graft | **53.8** | 51.2 | 55.4 | 38.0 | **54.8** | 28.7 | **45.1** |
+| medicine | LoRA | 51.3 | 48.8 | 51.6 | 34.6 | 51.7 | 29.0 | 39.7 |
+| math | graft | 47.8 | 45.6 | 52.6 | 34.2 | 47.5 | 37.2 | 42.2 |
+| math | Math-7B graft | 47.8 | 46.9 | 49.8 | **45.2** | 46.5 | **52.0** | 37.9 |
+| math | LoRA | 42.6 | 43.5 | 47.0 | 34.6 | 42.8 | 34.5 | 36.5 |
+| all four | graft | **53.6** | **53.9** | **62.4** | 36.8 | **55.8** | 35.8 | **44.9** |
+| all four | LoRA | 51.0 | 48.6 | 52.2 | 32.6 | 51.0 | 41.5 | 41.5 |
+
+- The general-knowledge graft beats LoRA on MMLU whatever it trains on,
+  and the gain carries across domains. Trained only on commonsense and
+  logic items, it lifts MMLU medical subjects by 12 points over LoRA and
+  HEAD-QA by 9.
+- Specialist donors win in their own domain. Trained on AQuA-RAT, the
+  Math-7B graft scores 52.0 on AQuA (LoRA 34.5) and 45.2 on MMLU math
+  (LoRA 34.6). It does not help general MMLU.
+- Math answer-letter training lowers MMLU for every arm. With no
+  rationale, AQuA letters are mostly noise for a 1B model.
+
+**Projection layers** (general training; the encoder reads a learned
+softmax mix of RMS-normed host layers, and the graft writes after its own
+layer):
+
+| read layers | write after | MMLU dev | held-out | MMLU-med | MMLU-math | MedMCQA | gate |
+|---|---|---|---|---|---|---|---|
+| 7 | 7 | 52.2 | 53.1 | 61.6 | 37.6 | 45.8 | 0.14 |
+| 3 | 7 | 51.8 | 52.4 | 57.0 | 40.0 | 45.0 | 0.13 |
+| 3, 5, 7 | 7 | 54.2 | 53.6 | 59.0 | 41.8 | 45.5 | 0.14 |
+| 1..7 | 7 | 55.5 | **54.9** | 59.6 | 42.8 | **46.6** | 0.14 |
+| 5 | 9 | 53.6 | 54.2 | 60.6 | 44.0 | 46.4 | 0.21 |
+| 7 | 11 | 52.9 | 52.1 | 60.4 | 34.8 | 45.8 | 0.22 |
+| 3, 7, 11 | 11 | **57.0** | 54.8 | 60.8 | **44.0** | 46.4 | 0.25 |
+
+Reading several host layers beats reading one: +3 to +5 points on dev. The
+best two configurations are re-tested on new seeds in h8.
+
 ## Also fixed
 
 `wsp/healdata.py`: the `reasoning` pool crashed on LogiQA2.0. In that
