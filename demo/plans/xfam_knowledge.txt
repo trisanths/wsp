@@ -34,10 +34,14 @@ Comparison arms
   base: the host alone, scored first in the same run on the same items
   donor: the donor alone, scored once on the same items (donor_acc.json of the cached pool)
 
+Native bar
+  native bar at 5.21B per token: Qwen/Qwen2.5-3B-Instruct scores mmlu_held 66.6 (tuned, results/wi_lean/rows/reference_0_ref_qwen3b.json, fullft_0_pilot_qwen3b_3e-6.json). The measured write-in scores 59.6, so it does not clear the bar; picking Qwen/Qwen2.5-3B-Instruct as the base gives more for less. A write-in is worth it only on a host that is already the best at its size, with a donor that knows what the host family lacks
+
 Warnings
   - wsp/pgraft.py has one measured cross-family write-in: Llama-3.2-1B-Instruct host with a frozen Qwen2.5-7B-Instruct slice (layers 4..20), MMLU held-out 2000 59.6 +-0.8 over 3 seeds against base 44.6, identity 50.3, scrambled donor 50.3, matched LoRA 49.7, rank-128 LoRA 50.0, full fine-tune 51.1 (ARC-C test 85.3 against base 55.3), 2026-11-15, results/wi_xfam/table.md. No other host and donor pair has run. An earlier 1-seed run on a Llama-3.2-3B host only tied LoRA, and the plain 3B base beat the 1B host with the graft
   - pgraft trains on benchmark train splits (MMLU auxiliary_train and four-option train sets, every eval prompt removed) and is scored on held-out test items nothing trained on; each claim needs 3 seeds, and a compile is one seed
   - pgraft decodes through a hook-based path (27 to 36 tokens per second at batch 1 in the measured run against 103 for the host); the per-token cost is the host plus the donor slice
+  - pgraft: the measured write-in (59.6) does not clear the native bar: Qwen/Qwen2.5-3B-Instruct scores 66.6 at 3.09B per token (see Native bar)
   - Qwen/Qwen2.5-7B-Instruct has another tokenizer: transfer cannot be measured by KL, so its verdict is limited
 
 feasible: True
@@ -469,8 +473,27 @@ feasible: True
     "wsp/pgraft.py has one measured cross-family write-in: Llama-3.2-1B-Instruct host with a frozen Qwen2.5-7B-Instruct slice (layers 4..20), MMLU held-out 2000 59.6 +-0.8 over 3 seeds against base 44.6, identity 50.3, scrambled donor 50.3, matched LoRA 49.7, rank-128 LoRA 50.0, full fine-tune 51.1 (ARC-C test 85.3 against base 55.3), 2026-11-15, results/wi_xfam/table.md. No other host and donor pair has run. An earlier 1-seed run on a Llama-3.2-3B host only tied LoRA, and the plain 3B base beat the 1B host with the graft",
     "pgraft trains on benchmark train splits (MMLU auxiliary_train and four-option train sets, every eval prompt removed) and is scored on held-out test items nothing trained on; each claim needs 3 seeds, and a compile is one seed",
     "pgraft decodes through a hook-based path (27 to 36 tokens per second at batch 1 in the measured run against 103 for the host); the per-token cost is the host plus the donor slice",
+    "pgraft: the measured write-in (59.6) does not clear the native bar: Qwen/Qwen2.5-3B-Instruct scores 66.6 at 3.09B per token (see Native bar)",
     "Qwen/Qwen2.5-7B-Instruct has another tokenizer: transfer cannot be measured by KL, so its verdict is limited"
   ],
   "refusals": [],
-  "feasible": true
+  "feasible": true,
+  "native_bar": [
+    {
+      "metric": "mmlu_held",
+      "per_token_b": 5.213,
+      "bar": {
+        "model": "Qwen/Qwen2.5-3B-Instruct",
+        "params_per_token": 3085938688,
+        "plain": 65.95,
+        "tuned": 66.6,
+        "tuned_note": "seed 0, 1200 steps, lr 3e-6 picked on dev",
+        "source": "results/wi_lean/rows/reference_0_ref_qwen3b.json, fullft_0_pilot_qwen3b_3e-6.json"
+      },
+      "expected": 59.6,
+      "bar_score": 66.6,
+      "clears": false,
+      "text": "native bar at 5.21B per token: Qwen/Qwen2.5-3B-Instruct scores mmlu_held 66.6 (tuned, results/wi_lean/rows/reference_0_ref_qwen3b.json, fullft_0_pilot_qwen3b_3e-6.json). The measured write-in scores 59.6, so it does not clear the bar; picking Qwen/Qwen2.5-3B-Instruct as the base gives more for less. A write-in is worth it only on a host that is already the best at its size, with a donor that knows what the host family lacks"
+    }
+  ]
 }

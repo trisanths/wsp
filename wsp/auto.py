@@ -1008,6 +1008,7 @@ def plan(request, lineage=None, settings=None, atlas_entries=None, library_model
                 {"arm": "donor", "what": "the donor alone, scored once on the same items (donor_acc.json of the cached pool)"}]
     for method in plan_stages:
         warnings.append(MODULE_STATE[method])
+    native_bars = []
     for st in stages:
         if st["method"] != "pgraft":
             continue
@@ -1025,6 +1026,16 @@ def plan(request, lineage=None, settings=None, atlas_entries=None, library_model
                         "3 seeds, and a compile is one seed")
         warnings.append("pgraft decodes through a hook-based path (27 to 36 tokens per second at batch 1 in the measured "
                         "run against 103 for the host); the per-token cost is the host plus the donor slice")
+        from wsp import native_bar
+
+        measured = req["base"] == pgraft_stage.MEASURED["host"] and st["source"] == pgraft_stage.MEASURED["donor"]
+        expected = pgraft_stage.MEASURED["mmlu_held"]["graft"] if measured else None
+        bar = native_bar.check(running_run, expected, exclude=(req["base"],))
+        native_bars.append(bar)
+        if bar["clears"] is False:
+            warnings.append("pgraft: the measured write-in (%.1f) does not clear the native bar: %s scores %.1f at %.2fB "
+                            "per token (see Native bar)" % (expected, bar["bar"]["model"], bar["bar_score"],
+                                                            bar["bar"]["params_per_token"] / 1e9))
     for x in sources_out:
         for text in x["rel"].get("warnings", []):
             warnings.append("%s from %s: %s" % (x["skill"], x["source"], text))
@@ -1060,6 +1071,7 @@ def plan(request, lineage=None, settings=None, atlas_entries=None, library_model
                                                             "final_run_b": round(billions(running_run), 4)},
         "heal_data": heal_data, "probe_texts": probe_texts, "practice": practice, "controls": controls, "arms": arms,
         "settings": s, "warnings": warnings, "refusals": refusals, "feasible": len(refusals) == 0 and len(plan_stages) > 0,
+        "native_bar": native_bars,
     }
 
 
@@ -1433,6 +1445,11 @@ def format_plan(p):
     for a in p["arms"]:
         out("  %s: %s" % (a["arm"], a["what"]))
     out("")
+    if p.get("native_bar"):
+        out("Native bar")
+        for bar in p["native_bar"]:
+            out("  " + bar["text"])
+        out("")
     if p["warnings"]:
         out("Warnings")
         for w in p["warnings"]:
