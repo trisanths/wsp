@@ -1,4 +1,5 @@
 import json
+import math
 import os
 
 import pytest
@@ -8,7 +9,7 @@ from safetensors.torch import save_file
 from tokenizers import Tokenizer, models, pre_tokenizers
 from transformers import PreTrainedModel, PreTrainedTokenizerFast
 
-from wsp import atlas, giant
+from wsp import atlas, giant, slim
 
 SKILL_WORDS = ["add", "sum", "plus", "minus", "times", "equals", "number", "digit"]
 GENERAL_WORDS = ["the", "river", "city", "king", "song", "film", "tree", "road"]
@@ -87,14 +88,20 @@ def saved(tmp_path, family, layers=3):
     return model, folder
 
 
+PICK_FIELDS = ["skill_freq", "general_freq", "log_ratio", "top"]
+SALIENCY_FIELDS = ["skill_saliency", "general_saliency", "top_saliency"]
+
+
 def same_map(left, right):
+    """True when two maps agree on every field of wsp.atlas.expert_skill_map. The saliency fields are not compared."""
     if left["top_k"] != right["top_k"] or left["num_experts"] != right["num_experts"]:
         return False
     if set(left["layers"]) != set(right["layers"]):
         return False
     for layer in left["layers"]:
-        if left["layers"][layer] != right["layers"][layer]:
-            return False
+        for field in PICK_FIELDS:
+            if left["layers"][layer][field] != right["layers"][layer][field]:
+                return False
     return True
 
 
@@ -1202,3 +1209,505 @@ def test_skeleton_survives_import_error_in_auto_class(tmp_path, monkeypatch):
     result = stream(folder, model, tok)
     for skill in expected:
         assert same_map(expected[skill], result["maps"][skill])
+
+
+# ---------------------------------------------------------------------------
+# Saliency: routing weight times the norm of the expert's output, summed over the tokens that pick the expert.
+
+# wsp.slim.collect_moe_stats is the reference. It has no entry for deepseek_v2 or for the toy
+# giants, so those are checked against direct_saliency below.
+SLIM_FAMILIES = ["qwen3_moe", "olmoe", "mixtral", "deepseek_v3"]
+SETS = {"general": GENERAL, "a": SKILL, "b": OTHER}
+
+
+def per_token(stats):
+    """{layer: saliency per expert divided by the tokens} of a collect_moe_stats or direct_saliency result."""
+    out = {}
+    for layer in stats["layers"]:
+        entry = stats["layers"][layer]
+        out[layer] = (entry["saliency"] / entry["tokens"]).tolist()
+    return out
+
+
+def direct_saliency(model, tok, texts, blocks, routing, expert_output):
+    """Saliency from the definition, one token and one top-k slot at a time, on the fully loaded model.
+
+    blocks is {layer: MoE block}. routing(router output) gives (indices, weights), both
+    (tokens, top_k). expert_output(block, expert, row) gives the output of one expert on one
+    token. Returns the layers part of the wsp.slim.collect_moe_stats format.
+    """
+    layers = {}
+    seen = {}
+    handles = []
+    for layer in blocks:
+        count = blocks[layer].gate.weight.shape[0]
+        layers[layer] = {"count": torch.zeros(count, dtype=torch.float64),
+                         "saliency": torch.zeros(count, dtype=torch.float64), "tokens": 0}
+
+        def keep_router(module, args, output, layer=layer):
+            seen[layer, "router"] = output
+
+        def keep_input(module, args, kwargs, layer=layer):
+            seen[layer, "x"] = args[0]
+
+        def measure(module, args, output, layer=layer):
+            x = seen[layer, "x"].reshape(-1, seen[layer, "x"].shape[-1])
+            indices, weights = routing(seen[layer, "router"])
+            entry = layers[layer]
+            entry["tokens"] += x.shape[0]
+            for token in range(x.shape[0]):
+                for slot in range(indices.shape[1]):
+                    expert = int(indices[token, slot])
+                    out = expert_output(blocks[layer], expert, x[token:token + 1])
+                    entry["count"][expert] += 1
+                    entry["saliency"][expert] += float(weights[token, slot]) * float(out.float().norm())
+
+        handles.append(blocks[layer].gate.register_forward_hook(keep_router))
+        handles.append(blocks[layer].register_forward_pre_hook(keep_input, with_kwargs=True))
+        handles.append(blocks[layer].register_forward_hook(measure))
+    try:
+        for ids in atlas.encode_texts(tok, texts, 256):
+            with torch.no_grad():
+                model(input_ids=ids.unsqueeze(0), use_cache=False)
+    finally:
+        for handle in handles:
+            handle.remove()
+    return {"layers": layers}
+
+
+def fused_output(block, expert, row):
+    gate, up = (row @ block.experts.gate_up_proj[expert].t()).chunk(2, dim=-1)
+    return (torch.nn.functional.silu(gate) * up) @ block.experts.down_proj[expert].t()
+
+
+def listed_output(block, expert, row):
+    return block.experts[expert](row)
+
+
+def toy_reference(model, tok, style, texts):
+    """direct_saliency of a toy giant."""
+    base = model.language_model.model if style == "kimi" else model.model
+    blocks = {}
+    for index, layer in enumerate(base.layers):
+        blocks[index] = layer.block_sparse_moe if style == "kimi" else layer.mlp
+    if style == "kimi":
+        return direct_saliency(model, tok, texts, blocks, lambda output: (output[0], output[1]), listed_output)
+    return direct_saliency(model, tok, texts, blocks, lambda output: (output[2], output[1]), fused_output)
+
+
+def assert_saliency(result, reference, top, rel=2e-6):
+    """The saliency fields of every skill and layer of a streamed result equal the reference stats per text set."""
+    for skill in result["maps"]:
+        layers = result["maps"][skill]["layers"]
+        assert sorted(layers) == sorted(reference[skill]["layers"])
+        skill_side = per_token(reference[skill])
+        general_side = per_token(reference["general"])
+        for layer in layers:
+            assert sum(skill_side[layer]) > 0
+            assert layers[layer]["skill_saliency"] == pytest.approx(skill_side[layer], rel=rel, abs=1e-12)
+            assert layers[layer]["general_saliency"] == pytest.approx(general_side[layer], rel=rel, abs=1e-12)
+            order = slim.rank_experts("saliency", reference[skill])[layer]
+            best = [expert for expert in order if skill_side[layer][expert] > 0][:top]
+            assert layers[layer]["top_saliency"] == best
+
+
+def pick_counts(result, skill, layer, tokens):
+    """Pick counts per expert, back from the frequencies of a streamed map."""
+    return [round(value * tokens) for value in result["maps"][skill]["layers"][layer]["skill_freq"]]
+
+
+@pytest.mark.parametrize("family", SLIM_FAMILIES)
+def test_streamed_saliency_equals_slim(tmp_path, family):
+    tok = tokenizer()
+    model, folder = saved(tmp_path, family)
+    reference = {name: slim.collect_moe_stats(model, tok, SETS[name]) for name in SETS}
+    expected = reference_maps(model, tok)
+    result = stream(folder, model, tok)
+    assert result["info"]["saliency_method"] == "list"
+    assert_saliency(result, reference, top=3)
+    for skill in expected:
+        # The pick counts are the ones atlas and slim count, with the saliency pass running.
+        assert same_map(expected[skill], result["maps"][skill])
+        for layer in reference[skill]["layers"]:
+            entry = reference[skill]["layers"][layer]
+            assert pick_counts(result, skill, layer, entry["tokens"]) == entry["count"].tolist()
+
+
+def test_streamed_saliency_of_deepseek_v2_equals_the_definition(tmp_path):
+    tok = tokenizer()
+    model, folder = saved(tmp_path, "deepseek_v2")
+    with pytest.raises(NotImplementedError):
+        slim.collect_moe_stats(model, tok, SKILL)
+    blocks = {index: layer.mlp for index, layer in enumerate(model.model.layers) if hasattr(layer.mlp, "gate")}
+    reference = {name: direct_saliency(model, tok, SETS[name], blocks, lambda output: (output[0], output[1]),
+                                       listed_output) for name in SETS}
+    result = stream(folder, model, tok)
+    assert sorted(blocks) == [1, 2]
+    assert result["info"]["saliency_method"] == "list"
+    assert_saliency(result, reference, top=3, rel=2e-6)
+    expected = reference_maps(model, tok)
+    for skill in expected:
+        assert same_map(expected[skill], result["maps"][skill])
+
+
+def stream_toy(folder, config, tok, style, **kwargs):
+    kwargs.setdefault("prefetch", False)
+    kwargs.setdefault("log", lambda text: None)
+    return giant.profile_streaming(giant.LocalSource(folder), config, tok, {"a": SKILL, "b": OTHER}, GENERAL,
+                                   layout=LAYOUT_OF[style](), top=2, **kwargs)
+
+
+@pytest.mark.parametrize("style", ["v4", "glm", "kimi"])
+def test_streamed_saliency_of_toy_giants_equals_the_definition(tmp_path, style):
+    tok = tokenizer()
+    model, folder, config = toy_giant(tmp_path, style, hash_layers=[0] if style == "v4" else [])
+    with pytest.raises(NotImplementedError):
+        slim.collect_moe_stats(model, tok, SKILL)
+    reference = {name: toy_reference(model, tok, style, SETS[name]) for name in SETS}
+    result = stream_toy(folder, config, tok, style)
+    assert result["info"]["saliency_method"] == ("list" if style == "kimi" else "fused")
+    assert_saliency(result, reference, top=2, rel=2e-6)
+    for skill in ["a", "b"]:
+        assert same_map(atlas.expert_skill_map(model, tok, SETS[skill], GENERAL, top=2), result["maps"][skill])
+        for layer in reference[skill]["layers"]:
+            entry = reference[skill]["layers"][layer]
+            assert pick_counts(result, skill, layer, entry["tokens"]) == entry["count"].tolist()
+
+
+@pytest.mark.parametrize("family", ["qwen3_moe", "deepseek_v3"])
+def test_saliency_off_gives_the_old_result(tmp_path, family):
+    tok = tokenizer()
+    model, folder = saved(tmp_path, family)
+    expected = reference_maps(model, tok)
+    state_dir = str(tmp_path / "state")
+    result = stream(folder, model, tok, saliency=False, state_dir=state_dir, checkpoint_every=1)
+    # The whole map equals the atlas map: no field is added, removed or changed.
+    assert result["maps"] == expected
+    assert "saliency_method" not in result["info"]
+    assert giant.compact_maps(result) == {
+        "expert_maps": {skill: atlas.top_experts(expected[skill]) for skill in expected},
+        "expert_saliency_maps": None}
+    assert giant.saliency_table(result) is None
+    for index in range(3):
+        saved_counts = torch.load(giant.progress_paths(state_dir, index)[0], weights_only=False)
+        assert sorted(saved_counts) == ["counts", "key"]
+    with_saliency = stream(folder, model, tok)
+    for skill in expected:
+        for layer in expected[skill]["layers"]:
+            entry = with_saliency["maps"][skill]["layers"][layer]
+            assert sorted(entry) == sorted(PICK_FIELDS + SALIENCY_FIELDS)
+            assert {field: entry[field] for field in PICK_FIELDS} == expected[skill]["layers"][layer]
+
+
+def test_saliency_off_gives_the_old_result_for_fused_experts(tmp_path):
+    tok = tokenizer()
+    model, folder, config = toy_giant(tmp_path, "glm")
+    result = stream_toy(folder, config, tok, "glm", saliency=False)
+    for skill in ["a", "b"]:
+        assert result["maps"][skill] == atlas.expert_skill_map(model, tok, SETS[skill], GENERAL, top=2)
+
+
+def test_saliency_pass_leaves_the_hidden_states_alone(tmp_path):
+    tok = tokenizer()
+    model, folder, config = toy_giant(tmp_path, "v4", hash_layers=[0])
+    plain = stream_toy(folder, config, tok, "v4", saliency=False, keep_state=True)
+    measured = stream_toy(folder, config, tok, "v4", keep_state=True)
+    for left, right in zip(plain["info"]["state"], measured["info"]["state"]):
+        assert torch.equal(left, right)
+
+
+@pytest.mark.parametrize("kind", ["qwen3_moe", "glm", "kimi"])
+def test_resume_in_the_middle_gives_the_same_saliency(tmp_path, kind):
+    tok = tokenizer()
+    if kind == "qwen3_moe":
+        model, folder = saved(tmp_path, kind, layers=4)
+
+        def run(**kwargs):
+            return stream(folder, model, tok, **kwargs)
+    else:
+        model, folder, config = toy_giant(tmp_path, kind, layers=4)
+
+        def run(**kwargs):
+            return stream_toy(folder, config, tok, kind, **kwargs)
+    expected = run()
+    state_dir = str(tmp_path / "state")
+    first = run(max_layers=2, state_dir=state_dir, checkpoint_every=1)
+    assert first["info"]["layers_done"] == 2
+    second = run(state_dir=state_dir, checkpoint_every=1)
+    assert len(second["info"]["layer_seconds"]) == 2
+    # Every field, saliency included, is the same float as in the run that never stopped.
+    assert second["maps"] == expected["maps"]
+    assert "skill_saliency" in second["maps"]["a"]["layers"][0]
+    assert second["info"]["saliency_method"] == expected["info"]["saliency_method"]
+
+
+def test_old_state_without_saliency_is_detected(tmp_path):
+    tok = tokenizer()
+    model, folder = saved(tmp_path, "qwen3_moe", layers=4)
+    state_dir = str(tmp_path / "state")
+    # What the code before saliency wrote: counts files with a key and counts, nothing else.
+    stream(folder, model, tok, max_layers=2, state_dir=state_dir, checkpoint_every=1, saliency=False)
+    old = torch.load(giant.progress_paths(state_dir, 0)[0], weights_only=False)
+    assert sorted(old) == ["counts", "key"]
+    with pytest.raises(ValueError, match="without saliency") as error:
+        stream(folder, model, tok, state_dir=state_dir, checkpoint_every=1)
+    assert "--no-saliency" in str(error.value) and "delete" in str(error.value)
+    # The refused run wrote nothing, so the counts-only run still continues from layer 2.
+    finished = stream(folder, model, tok, state_dir=state_dir, checkpoint_every=1, saliency=False)
+    assert len(finished["info"]["layer_seconds"]) == 2
+    expected = stream(folder, model, tok, saliency=False)
+    assert finished["maps"] == expected["maps"]
+    # A state that has saliency in its first layers and none in the later ones is refused too.
+    mixed_dir = str(tmp_path / "mixed")
+    stream(folder, model, tok, max_layers=2, state_dir=mixed_dir, checkpoint_every=1)
+    stream(folder, model, tok, max_layers=3, state_dir=mixed_dir, checkpoint_every=1, saliency=False)
+    with pytest.raises(ValueError, match="without saliency"):
+        stream(folder, model, tok, state_dir=mixed_dir, checkpoint_every=1)
+
+
+def test_hand_checked_saliency_of_a_two_expert_layer(tmp_path):
+    """Every token reaches the MoE block as the vector (1, 2), so the numbers can be worked out by hand.
+
+    Router: logits (ln 3, 0), sigmoid scores (0.75, 0.5). Both experts are picked (top 2 of 2) with
+    weights 0.75 / 1.25 = 0.6 and 0.5 / 1.25 = 0.4.
+    Expert 0: gate = 1, up = 2, silu(1) * 2 = 2 * sigmoid(1), down (3, 4): norm 5 * 2 * sigmoid(1).
+    Expert 1: gate = 2, up = 1, silu(2) * 1 = 2 * sigmoid(2), down (0, 2): norm 2 * 2 * sigmoid(2).
+    Saliency per token: 0.6 * 10 * sigmoid(1) and 0.4 * 4 * sigmoid(2).
+    """
+    tok = tokenizer()
+    config = ToyConfig(hidden_size=2, inter=1, num_hidden_layers=2, num_experts=2, moe_top_k=2, style="fused")
+    model = ToyCausal(config)
+    with torch.no_grad():
+        for parameter in model.parameters():
+            parameter.zero_()
+        for layer in model.model.layers:
+            # Weight 0 and bias (1, 2): the norm before the MoE block returns (1, 2) for any input.
+            layer.post_attention_layernorm.bias.copy_(torch.tensor([1.0, 2.0]))
+            layer.mlp.gate.weight.copy_(torch.tensor([[math.log(3.0), 0.0], [0.0, 0.0]]))
+            layer.mlp.experts.gate_up_proj.copy_(torch.tensor([[[1.0, 0.0], [0.0, 1.0]], [[0.0, 1.0], [1.0, 0.0]]]))
+            layer.mlp.experts.down_proj.copy_(torch.tensor([[[3.0], [4.0]], [[0.0], [2.0]]]))
+    model.eval()
+    folder = str(tmp_path / "hand")
+    model.save_pretrained(folder)
+    result = giant.profile_streaming(giant.LocalSource(folder), config, tok, {"a": SKILL}, GENERAL, top=2,
+                                     prefetch=False, log=lambda text: None)
+    sigmoid_1 = 1.0 / (1.0 + math.exp(-1.0))
+    sigmoid_2 = 1.0 / (1.0 + math.exp(-2.0))
+    by_hand = [0.6 * 10.0 * sigmoid_1, 0.4 * 4.0 * sigmoid_2]
+    assert by_hand == pytest.approx([4.386351, 1.409275], abs=1e-6)
+    assert result["info"]["saliency_method"] == "fused"
+    assert sorted(result["maps"]["a"]["layers"]) == [0, 1]
+    for layer in [0, 1]:
+        entry = result["maps"]["a"]["layers"][layer]
+        assert entry["skill_saliency"] == pytest.approx(by_hand, rel=1e-6)
+        assert entry["general_saliency"] == pytest.approx(by_hand, rel=1e-6)
+        assert entry["top_saliency"] == [0, 1]
+        # Every token picks both experts, so the pick rate cannot tell them apart. Saliency can.
+        assert entry["skill_freq"] == [1.0, 1.0]
+        assert entry["top"] == []
+
+
+class LatentGate(torch.nn.Module):
+    def __init__(self, hidden, experts, top_k):
+        super().__init__()
+        self.top_k = top_k
+        self.weight = torch.nn.Parameter(torch.randn(experts, hidden))
+
+    def forward(self, hidden):
+        scores = (hidden.reshape(-1, hidden.shape[-1]) @ self.weight.t()).sigmoid()
+        weights, indices = torch.topk(scores, self.top_k, dim=-1)
+        return indices, weights / weights.sum(-1, keepdim=True)
+
+
+class LatentBlock(torch.nn.Module):
+    """An MoE block in the manner of Kimi K3: the experts read a projection of the input, in an order of their own."""
+
+    def __init__(self, hidden=6, low=4, experts=5, top_k=2):
+        super().__init__()
+        self.gate = LatentGate(hidden, experts, top_k)
+        self.routed_expert_down_proj = torch.nn.Linear(hidden, low, bias=False)
+        self.experts = torch.nn.ModuleList([torch.nn.Linear(low, low, bias=False) for _ in range(experts)])
+
+    def forward(self, hidden):
+        indices, weights = self.gate(hidden)
+        low = self.routed_expert_down_proj(hidden.reshape(-1, hidden.shape[-1]))
+        out = torch.zeros_like(low)
+        for expert in range(len(self.experts)):
+            rows, slots = torch.where(indices == expert)
+            rows, slots = rows.flip(0), slots.flip(0)
+            if rows.numel() > 0:
+                out.index_add_(0, rows, self.experts[expert](low[rows]) * weights[rows, slots, None])
+        return out
+
+
+def test_list_saliency_reads_the_projected_expert_input_and_checks_it():
+    torch.manual_seed(0)
+    block = LatentBlock().eval()
+    hidden = torch.randn(1, 9, 6)
+    with torch.no_grad():
+        indices, weights = block.gate(hidden)
+        low = block.routed_expert_down_proj(hidden.reshape(-1, 6))
+        want = torch.zeros(5, dtype=torch.float64)
+        for token in range(9):
+            for slot in range(2):
+                expert = int(indices[token, slot])
+                want[expert] += float(weights[token, slot]) * float(block.experts[expert](low[token]).norm())
+    meter = giant.SaliencyMeter(0, None, block, block.gate, 2, 5, ["general"], giant.KimiLayout())
+    meter.group = "general"
+    with torch.no_grad():
+        block(hidden)
+        block(hidden)
+    meter.close()
+    assert meter.method == "list"
+    assert meter.tokens["general"] == 18
+    assert meter.sums["general"].tolist() == pytest.approx((2 * want).tolist(), rel=1e-6)
+    assert len(block.gate._forward_hooks) == 0 and len(block._forward_hooks) == 0
+    assert all(len(expert._forward_pre_hooks) == 0 for expert in block.experts)
+    # A layout that does not name the projection would feed the experts the wrong tensor. The meter stops.
+    meter = giant.SaliencyMeter(0, None, block, block.gate, 2, 5, ["general"], giant.Layout())
+    meter.group = "general"
+    with pytest.raises(RuntimeError, match="expert input"):
+        with torch.no_grad():
+            block(hidden)
+    meter.close()
+
+
+class SentinelBlock(torch.nn.Module):
+    """Fused experts whose index tensor uses num_experts as "no expert", as transformers 5.x does."""
+
+    def __init__(self, config):
+        super().__init__()
+        self.experts = ToyFusedExperts(config)
+        self.gate = torch.nn.Identity()
+
+    def forward(self, flat, indices, weights):
+        return self.experts(flat, indices, weights)
+
+
+def test_fused_saliency_skips_the_no_expert_index():
+    torch.manual_seed(0)
+    config = ToyConfig(hidden_size=8, inter=4, num_experts=3, moe_top_k=2)
+    block = SentinelBlock(config).eval()
+    with torch.no_grad():
+        block.experts.gate_up_proj.copy_(torch.randn(3, 8, 8))
+        block.experts.down_proj.copy_(torch.randn(3, 8, 4))
+    flat = torch.randn(4, 8)
+    indices = torch.tensor([[0, 3], [2, 1], [3, 3], [1, 0]])
+    weights = torch.rand(4, 2)
+    want = torch.zeros(3, dtype=torch.float64)
+    with torch.no_grad():
+        for token in range(4):
+            for slot in range(2):
+                expert = int(indices[token, slot])
+                if expert < 3:
+                    want[expert] += float(weights[token, slot]) * float(fused_output(block, expert, flat[token]).norm())
+    meter = giant.SaliencyMeter(0, None, block, block.gate, 2, 3, ["general"], giant.Layout())
+    meter.group = "general"
+    with torch.no_grad():
+        block(flat, indices, weights)
+    meter.close()
+    assert meter.method == "fused"
+    assert meter.tokens["general"] == 4
+    assert meter.sums["general"].tolist() == pytest.approx(want.tolist(), rel=1e-6)
+
+
+def test_saliency_pass_that_sees_no_tokens_is_an_error():
+    meter = giant.SaliencyMeter(3, None, SentinelBlock(ToyConfig()), torch.nn.Identity(), 2, 4, ["general"],
+                                giant.Layout())
+    meter.close()
+    with pytest.raises(RuntimeError, match="layer 3"):
+        meter.check({"general": [torch.zeros(4), 12]})
+
+
+def test_top_by_saliency_breaks_ties_like_slim_and_drops_zeros():
+    assert giant.top_by_saliency([0.5, 0.0, 2.0, 0.5], counts=[1, 9, 1, 4], top=8) == [2, 3, 0]
+    assert giant.top_by_saliency([0.5, 0.0, 2.0, 0.5], top=2) == [2, 0]
+    assert giant.top_by_saliency([0.0, 0.0], top=2) == []
+    assert giant.significant([123456789.0, 0.000123456789, 0.0]) == [123456800.0, 0.0001234568, 0.0]
+
+
+def test_compact_maps_and_saliency_table(tmp_path):
+    tok = tokenizer()
+    model, folder = saved(tmp_path, "mixtral")
+    result = stream(folder, model, tok)
+    compact = giant.compact_maps(result)
+    assert compact == giant.compact_maps(result["maps"])
+    assert sorted(compact) == ["expert_maps", "expert_saliency_maps"]
+    table = giant.saliency_table(result)
+    assert sorted(table["skills"]) == ["a", "b"]
+    for skill in ["a", "b"]:
+        assert compact["expert_maps"][skill] == atlas.top_experts(result["maps"][skill])
+        assert sorted(compact["expert_saliency_maps"][skill]) == ["0", "1", "2"]
+        for layer in range(3):
+            entry = result["maps"][skill]["layers"][layer]
+            assert compact["expert_saliency_maps"][skill][str(layer)] == entry["top_saliency"]
+            assert len(entry["top_saliency"]) == 3
+            assert table["skills"][skill][str(layer)] == entry["skill_saliency"]
+            assert table["general"][str(layer)] == entry["general_saliency"]
+            # The table is enough to choose any number of experts afterwards.
+            assert giant.top_by_saliency(table["skills"][skill][str(layer)], top=3) == entry["top_saliency"]
+    # The compact maps are what an atlas entry stores.
+    entry = atlas.make_entry("tiny/mixtral", {}, expert_maps=result["maps"])
+    assert entry["expert_maps"] == compact["expert_maps"]
+    json.dumps(compact)
+    json.dumps(table)
+
+
+@pytest.mark.parametrize("style", ["v4", "glm", "kimi"])
+def test_router_rows_of_the_top_saliency_experts(tmp_path, style):
+    """The call that docs/giants.md gives to the compiler: router rows and bias of the top saliency experts."""
+    tok = tokenizer()
+    model, folder, config = toy_giant(tmp_path, style)
+    source = giant.LocalSource(folder)
+    layout = LAYOUT_OF[style]()
+    result = stream_toy(folder, config, tok, style)
+    picks = giant.compact_maps(result)["expert_saliency_maps"]["a"]["1"]
+    assert len(picks) == 2
+    part = giant.fetch_expert(source, 1, picks, layout=layout, dtype=torch.float32)
+    if style == "kimi":
+        gate = model.language_model.model.layers[1].block_sparse_moe.gate
+    else:
+        gate = model.model.layers[1].mlp.gate
+    assert part["experts"] == picks
+    assert torch.equal(part["router_rows"], gate.weight.detach()[picks])
+    assert torch.equal(part["router_bias"], gate.e_score_correction_bias.detach()[picks].float())
+
+
+def test_estimate_counts_the_saliency_pass(tmp_path):
+    import modal_giant
+
+    assert giant.SALIENCY_COMPUTE_FACTOR == 2.0
+    download, compute, total = giant.estimate_hours(0, 10, seconds_per_layer=360.0, compute_factor=2.0)
+    assert compute == pytest.approx(2.0)
+    model, folder = saved(tmp_path, "mixtral")
+    row = {"id": "tiny/mixtral", "stream": {"layout": "hf"}}
+    kwargs = {"source": giant.LocalSource(folder), "layer_count": 3}
+    with_pass = modal_giant.estimate(row, 300.0, 1200.0, **kwargs)
+    without = modal_giant.estimate(row, 300.0, 1200.0, saliency=False, **kwargs)
+    assert with_pass["saliency"] is True and with_pass["compute_factor"] == 2.0
+    assert without["saliency"] is False and without["compute_factor"] == 1.0
+    assert without["compute_hours"] == 1.0
+    assert with_pass["compute_hours"] == 2.0
+    assert with_pass["download_hours"] == without["download_hours"]
+
+
+def test_entry_merge_keeps_saliency_maps_apart_from_expert_maps():
+    import modal_giant
+
+    done = {"layers_done": 4, "layers_total": 4, "texts": 10, "bytes_read": 100}
+    picked = {"math": {"0": [1], "1": [2], "2": [3], "3": [4]}}
+    salient = {"math": {"0": [5], "1": [6], "2": [7], "3": [8]}}
+    full = modal_giant.merge_expert_maps({}, picked, done, zoo_row(), salient)
+    assert full["expert_maps"] == picked
+    assert full["expert_saliency_maps"] == salient
+    # A smoke run replaces its own layers in both maps and keeps the others.
+    smoke = {"layers_done": 1, "layers_total": 4, "texts": 2, "bytes_read": 5}
+    again = modal_giant.merge_expert_maps(full, {"math": {"0": [9]}}, smoke, zoo_row(), {"math": {"0": [0]}})
+    assert again["expert_maps"]["math"] == {"0": [9], "1": [2], "2": [3], "3": [4]}
+    assert again["expert_saliency_maps"]["math"] == {"0": [0], "1": [6], "2": [7], "3": [8]}
+    # A run with saliency off changes the pick maps only.
+    counts_only = modal_giant.merge_expert_maps(again, {"math": {"0": [3]}}, smoke, zoo_row())
+    assert counts_only["expert_maps"]["math"]["0"] == [3]
+    assert counts_only["expert_saliency_maps"] == again["expert_saliency_maps"]
+    # An entry that never had saliency maps gets no such key from a run with saliency off.
+    assert "expert_saliency_maps" not in modal_giant.merge_expert_maps({}, picked, done, zoo_row())
