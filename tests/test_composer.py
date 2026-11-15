@@ -22,8 +22,8 @@ HOST = "Qwen/Qwen2.5-0.5B-Instruct"
 DONOR = "Qwen/Qwen2.5-Math-1.5B-Instruct"
 GOOD_PROGRAM = (f"host {HOST}\n"
                 f"graft block/{DONOR}/8-20 at 7 rank 64 stitch mlp objective donor_lm steps 400\n"
-                "heal steps 300 data gsm8k_train\n")
-BAD_PROGRAM = f"host {HOST}\ngraft block/{DONOR}/8-20 at seven\nheal steps 300\n"
+                "heal steps 300 data math\n")
+BAD_PROGRAM = f"host {HOST}\ngraft block/{DONOR}/8-20 at seven\nheal steps 300 data math\n"
 
 
 def write_json(path, data):
@@ -91,13 +91,25 @@ def root(tmp_path):
     return str(tmp_path)
 
 
+def probe_of(math=0.4, code=0.2, drift=0.02, **more):
+    """A probe report as modal_composer.probe_report returns it."""
+    skills = {"math": math, "code": code}
+    skills.update(more)
+    rows = {}
+    for name in skills:
+        row = {"transfer": skills[name], "donor": DONOR, "donors": [DONOR], "path": "kl", "tokens": 5000}
+        rows[name] = row
+    return {"skills": rows, "drift": {"base_kl": drift, "agree": 0.9, "tokens": 5000},
+            "verdict": {name: "contributes" for name in rows}}
+
+
 def fake_practice(calls, result=None):
     def practice(program_dict, payload):
         calls.append((program_dict, payload))
         if result is not None:
             return result
         return {"ok": True, "model_dir": "/vol/composer/math_test/" + payload["program_hash"],
-                "practice_sets": {"gsm8k_practice": 0.41, "math_practice": 0.19},
+                "probe": probe_of(math=0.3),
                 "params_total_b": 1.12, "params_run_b": 1.12, "decode_tok_s": 80.0, "compile_seconds": 300.0,
                 "practice_seconds": 120.0, "errors": [],
                 "compile_summary": {"heal": {"loss_first20": 1.2, "loss_last20": 0.8}}}
@@ -200,7 +212,11 @@ def test_agent_loop_atlas_compile_twice_then_finish(root, capsys):
     assert summary["compile_budget_used"] == 1
     assert len(calls) == 1
     program_dict, payload = calls[0]
-    assert payload["practice_sets"] == ["gsm8k_practice", "math_practice"]
+    assert payload["skills"] == ["math"]
+    assert payload["probe_plan"] == {"math": [{"donor": DONOR, "path": "kl"}]}
+    assert payload["drift_tolerance"] == 0.05
+    assert "practice_sets" not in payload
+    assert payload["host"] == HOST
     assert payload["catalog"][0]["type"] == "block"
     assert payload["catalog"][0]["layers"] == [8, 20]
     # One 429, then a backoff, then the scripted turns.
@@ -223,7 +239,9 @@ def test_agent_loop_atlas_compile_twice_then_finish(root, capsys):
     assert outputs["c2"]["stage"] == "parse"
     assert "line 2" in outputs["c2"]["error"]
     assert outputs["c3"]["ok"] is True
-    assert outputs["c3"]["practice_scores"]["math"] == pytest.approx(0.3)
+    assert outputs["c3"]["transfer"]["math"] == pytest.approx(0.3)
+    assert outputs["c3"]["practice_objective"] == pytest.approx(0.3)
+    assert outputs["c3"]["drift"] == pytest.approx(0.02)
     assert outputs["c3"]["budget_left"] == 2
 
     # Archives: every request, reply, tool call, and result, plus final.json and log.txt.
@@ -313,7 +331,7 @@ def test_budget_refusal(root):
 def test_constraints_reject_oversized_programs(root):
     calls = []
     toolbox = toolbox_for(root, fake_practice(calls))
-    big = "host Qwen/Qwen2.5-7B-Instruct\ngraft mlp_math_l16 at 10\nheal steps 300\n"
+    big = "host Qwen/Qwen2.5-7B-Instruct\ngraft mlp_math_l16 at 10\nheal steps 300 data math\n"
     result = toolbox.call("compile_and_practice", {"program_text": big})
     assert result["ok"] is False
     assert result["stage"] == "constraints"
@@ -331,17 +349,17 @@ def test_constraints_reject_oversized_programs(root):
     result = toolbox.call("compile_and_practice", {"program_text": long_stitch})
     assert "stitch on" in " ".join(result["violations"])
 
-    lora_only = f"host {HOST}\nlora rank 16\nheal steps 300\n"
+    lora_only = f"host {HOST}\nlora rank 16\nheal steps 300 data math\n"
     result = toolbox.call("compile_and_practice", {"program_text": lora_only})
     assert "composes nothing" in " ".join(result["violations"])
 
-    unknown = f"host {HOST}\ngraft block/acme/unknown-model/0-3\nheal steps 100\n"
+    unknown = f"host {HOST}\ngraft block/acme/unknown-model/0-3\nheal steps 100 data math\n"
     result = toolbox.call("compile_and_practice", {"program_text": unknown})
     assert "unknown size" in " ".join(result["violations"])
 
     # A tap donor counts in total params.
     tap = (f"host {HOST}\ntap Qwen/Qwen2.5-7B-Instruct layer 20 at 10\n"
-           "tap_train data mmlu_aux steps 300\n")
+           "tap_train data general steps 300\n")
     result = toolbox.call("compile_and_practice", {"program_text": tap})
     assert result["stage"] == "constraints"
     assert len(calls) == 0
@@ -350,7 +368,7 @@ def test_constraints_reject_oversized_programs(root):
 
 def test_measured_size_over_the_cap_is_not_finishable(root):
     calls = []
-    oversized = {"ok": True, "model_dir": "/vol/x", "practice_sets": {"gsm8k_practice": 0.9},
+    oversized = {"ok": True, "model_dir": "/vol/x", "probe": probe_of(math=0.9),
                  "params_total_b": 2.6, "params_run_b": 2.6}
     toolbox = toolbox_for(root, fake_practice(calls, oversized))
     result = toolbox.call("compile_and_practice", {"program_text": GOOD_PROGRAM})
@@ -366,7 +384,7 @@ def test_size_estimates():
                      "tokenizer_family": "qwen2"},
               DONOR: {"params_b": 1.544, "active_params_b": 1.544, "layers": 28, "hidden": 1536,
                       "tokenizer_family": "qwen2"}}
-    program = parse(f"from {DONOR}\ncarve keep 14\nlora rank 8\nheal steps 100\n")
+    program = parse(f"from {DONOR}\ncarve keep 14\nlora rank 8\nheal steps 100 data math\n")
     estimate = sizes.estimate_program(program, models, {})
     embed = 151936 * 1536 / 1e9
     assert estimate.total == pytest.approx(embed + (1.544 - embed) / 2, rel=1e-6)
@@ -385,7 +403,7 @@ def test_no_tool_returns_weights_or_long_numeric_arrays(root):
         shape = (4096, 4096)
         dtype = "bfloat16"
 
-    leaky = {"ok": True, "model_dir": "/vol/x", "practice_sets": {"gsm8k_practice": 0.5, "math_practice": 0.1},
+    leaky = {"ok": True, "model_dir": "/vol/x", "probe": probe_of(math=0.5),
              "params_total_b": 1.0, "params_run_b": 1.0,
              "compile_summary": {"heal": {"losses": [0.5] * 300}, "grafts": [{"W_in": FakeTensor(),
                                                                               "r2": [0.1] * 896}]}}
@@ -413,8 +431,9 @@ def test_no_tool_returns_weights_or_long_numeric_arrays(root):
     for row in atlas["rows"]:
         if row.get("from", "").startswith("atlas"):
             found = True
-            assert row["layer_maps"]["science"]["blocks"] == [[8, 20]]
-            assert row["layer_maps"]["science"]["influence"]["summary"].startswith("list of 56")
+            assert "layer_maps" not in row
+            assert "expert_maps" not in row
+            assert "skills" not in row
     assert found
     # Earlier scores on this run's held-out items stay hidden.
     for output in outputs[:3]:
@@ -502,7 +521,10 @@ def test_system_prompt_states_rules_and_budgets(root):
     request = load_request(os.path.join(root, "request.json"))
     text = system_prompt(request, 10, 100000)
     assert "never write, set, or edit raw weight values" in text
-    assert "Held-out tests are unseen" in text
+    assert "Benchmarks are unseen" in text
+    assert "No benchmark data trains or selects anything" in text
+    assert "drift" in text and "transfer" in text
+    assert "0.05 nats" in text
     assert "Compile budget: 3" in text
     assert "500 steps" in text
     assert chr(0x2014) not in text
@@ -525,9 +547,9 @@ def test_shipped_requests_load():
 
 
 def test_report_sources_and_results():
-    program = parse(GOOD_PROGRAM.replace("heal steps 300 data gsm8k_train",
+    program = parse(GOOD_PROGRAM.replace("heal steps 300 data math",
                                          "tap Qwen/Qwen2.5-7B-Instruct layer 20 at 10\n"
-                                         "tap_train steps 300\nheal steps 300 data gsm8k_train")).to_dict()
+                                         "tap_train steps 300\nheal steps 300 data math")).to_dict()
     models = source_models(program, {})
     assert models == [HOST, DONOR, "Qwen/Qwen2.5-7B-Instruct"]
     final = {"model_dir": "/vol/composer/r/abc", "program": program, "program_text": "t", "rationale": "r",
@@ -539,7 +561,7 @@ def test_report_sources_and_results():
     assert roles == ["final", "base", "source", "source", "lora_on_base"]
     # The LoRA gets all the program's training steps: stitch 400, tap_train 300, heal 300.
     assert lora_heal_spec(program, {})["steps"] == 1000
-    assert lora_heal_spec(program, {})["data"] == "gsm8k_train"
+    assert lora_heal_spec(program, {})["data"] == "math"
     no_training = parse(f"host {HOST}\nmask mask_law\n").to_dict()
     assert lora_heal_spec(no_training, {"heal_steps_cap": 100})["steps"] == 100
     request = {"name": "r", "skills": {"math": 1.0}, "constraints": {}}
@@ -584,20 +606,29 @@ def test_atlas_hides_scores_that_overlap_the_heldout_sets(root):
         scores = row.get("scores") or {}
         for name in ["mmlu_dev", "mmlu", "mmlu_heldout", "medmcqa", "newbench"]:
             assert name not in scores, (row.get("hf_id"), name)
-    assert rows[0]["scores"]["gsm8k"] == 0.335
-
+    # Rule 2: every score whose source is a reported benchmark is hidden, not only the held-out sets.
+    assert rows[0]["scores"] == {}
+    assert "0.335" not in json.dumps(toolbox.call("atlas", {}))
+    # Structure facts stay.
+    assert rows[0]["params_b"] == 0.494 and rows[0]["layers"] == 24 and rows[0]["tokenizer_family"] == "qwen2"
     law = toolbox.call("atlas", {"skill": "law"})["rows"]
-    assert law[0]["law_subject_scores"] == {"law_train:jurisprudence": 0.6}
+    assert "law_subject_scores" not in law[0]
+    profiles[0]["scores"]["probe_pool_nll"] = 2.1
+    profiles[0]["score_sources"]["probe_pool_nll"] = "loss on wsp.healdata general pool text"
+    profiles[0]["scores"]["probe_gsm8k_style"] = 0.5
+    profiles[0]["score_sources"]["probe_gsm8k_style"] = "accuracy on GSM8K train items"
+    write_json(os.path.join(root, "profiles.json"), profiles)
+    shown = toolbox_for(root, fake_practice([])).call("atlas", {})["rows"][0]["scores"]
+    assert shown == {"probe_pool_nll": 2.1}
 
     # The wsp.atlas screens use this run's held-out sets, so those skill scores and the math maps hide.
     entry = None
     for row in toolbox.call("atlas", {"model": "Math"})["rows"]:
         if row["from"].startswith("atlas"):
             entry = row
-    assert entry["skills"] == {"science": 0.55}
-    assert list(entry["skill_details"]) == ["science"]
-    assert list(entry["layer_maps"]) == ["science"]
-    assert entry["expert_maps"] == {}
+    for key in ["skills", "skill_details", "layer_maps", "expert_maps"]:
+        assert key not in entry
+    assert entry["params_b"] == 1.544 and entry["layers"] == 28
     text = json.dumps(toolbox.call("atlas", {"skill": "math"}))
     assert "0.61" not in text
 
@@ -611,18 +642,22 @@ def test_catalog_hides_person_a_signatures(root):
     toolbox = toolbox_for(root, fake_practice([]))
     rows = toolbox.call("catalog", {"type": "attn_heads"})["rows"]
     assert len(rows) == 1
-    assert "signature" not in rows[0]
+    assert rows[0]["signature"] == {}
     assert "GSM8K test" in rows[0]["heldout_overlap"]
     assert "gsm8k_gen" not in json.dumps(rows)
-    # Other parts keep their signatures.
+    # Measured effects hide for every part: their source is a benchmark or unknown. Structure stays.
     other = toolbox.call("catalog", {"type": "mlp_cluster"})["rows"][0]
-    assert other["signature"]["mean_effect"] == 1.2
+    assert "mean_effect" not in other["signature"]
+    assert other["num_units"] == 512
+    mask = toolbox.call("catalog", {"type": "deletion_mask"})["rows"][0]
+    assert mask["signature"]["num_deleted"] == 5
+    assert mask["signature"]["top_overlaps"] == [{"id": "mask_bio", "jaccard": 0.2}]
 
 
 def test_default_stitch_steps_count_against_the_cap(root):
     toolbox = toolbox_for(root, fake_practice([]), {"heal_steps_cap": 400})
     program = (f"host {HOST}\ngraft block/{DONOR}/8-20 at 7 rank 64 stitch mlp objective donor_lm\n"
-               "heal steps 300 data gsm8k_train\n")
+               "heal steps 300 data math\n")
     result = toolbox.call("compile_and_practice", {"program_text": program})
     assert result["stage"] == "constraints"
     assert "500 steps, over the cap of 400" in " ".join(result["violations"])
@@ -634,14 +669,14 @@ def test_layer_ranges_and_component_kinds_are_checked_for_free(root):
     toolbox = toolbox_for(root, fake_practice(calls), {"max_total_params_b": 100.0, "max_run_params_b": 100.0})
     cases = [
         # A reversed block must not lower the size estimate.
-        (f"host {HOST}\ngraft block/{DONOR}/20-8 at 7\nheal steps 100\n", "is after the last"),
-        (f"host {HOST}\ngraft block/{DONOR}/8-40 at 7\nheal steps 100\n", "has layers 0 to 27"),
-        (f"splice base a sources a={HOST},b={HOST} plan a:0..11, b:20..30\nheal steps 100\n",
+        (f"host {HOST}\ngraft block/{DONOR}/20-8 at 7\nheal steps 100 data math\n", "is after the last"),
+        (f"host {HOST}\ngraft block/{DONOR}/8-40 at 7\nheal steps 100 data math\n", "has layers 0 to 27"),
+        (f"splice base a sources a={HOST},b={HOST} plan a:0..11, b:20..30\nheal steps 100 data math\n",
          "has layers 0 to 23"),
-        (f"host {HOST}\ntap {DONOR} layer 30 at 10\ntap_train data mmlu_aux steps 300\n", "has layers 0 to 27"),
-        (f"host {DONOR}\nmask mask_law\nheal steps 100\n", "not on the host"),
-        (f"host {HOST}\ngraft mask_law at 3\nheal steps 100\n", "a graft takes one of"),
-        (GOOD_PROGRAM.replace("data gsm8k_train", "data gsm8k_test"), "heal data 'gsm8k_test' is unknown"),
+        (f"host {HOST}\ntap {DONOR} layer 30 at 10\ntap_train data general steps 300\n", "has layers 0 to 27"),
+        (f"host {DONOR}\nmask mask_law\nheal steps 100 data math\n", "not on the host"),
+        (f"host {HOST}\ngraft mask_law at 3\nheal steps 100 data math\n", "a graft takes one of"),
+        (GOOD_PROGRAM.replace("data math", "data gsm8k_test"), "heal data 'gsm8k_test' is unknown"),
     ]
     for text, expected in cases:
         result = toolbox.call("compile_and_practice", {"program_text": text})
@@ -660,10 +695,10 @@ def test_fallback_ranks_by_the_request_objective(root):
 
     def practice(program_dict, payload):
         if payload["skills"] == ["math"]:
-            sets = {"gsm8k_practice": 0.9, "math_practice": 0.9}
+            probe = probe_of(math=0.9, drift=0.0)
         else:
-            sets = {"gsm8k_practice": 0.6, "math_practice": 0.6, "mbpp_practice": 0.6}
-        return {"ok": True, "model_dir": "/vol/x/" + payload["program_hash"], "practice_sets": sets,
+            probe = probe_of(math=0.6, code=0.6, drift=0.0)
+        return {"ok": True, "model_dir": "/vol/x/" + payload["program_hash"], "probe": probe,
                 "params_total_b": 1.1, "params_run_b": 1.1}
 
     toolbox = Toolbox(request, Sources(root), practice, "")
@@ -697,7 +732,7 @@ def test_a_failed_practice_call_is_not_cached(root):
 
 
 def test_a_compile_without_a_measured_size_is_not_finishable(root):
-    no_size = {"ok": True, "model_dir": "/vol/x", "practice_sets": {"gsm8k_practice": 0.9}}
+    no_size = {"ok": True, "model_dir": "/vol/x", "probe": probe_of(math=0.9)}
     toolbox = toolbox_for(root, fake_practice([], no_size))
     result = toolbox.call("compile_and_practice", {"program_text": GOOD_PROGRAM})
     assert result["within_constraints"] is False
@@ -705,50 +740,56 @@ def test_a_compile_without_a_measured_size_is_not_finishable(root):
     assert toolbox.call("finish", {"program_text": GOOD_PROGRAM, "rationale": "x"})["ok"] is False
 
 
-def test_heal_data_always_uses_seed_zero(monkeypatch):
-    import wsp.data
-    import wsp.pairs
-    from composer.evalsets import heal_texts_for
+def test_heal_and_probe_text_come_from_one_pool_in_disjoint_ranges(monkeypatch):
+    from composer import evalsets
+    from composer.skills import HEAL_COUNT, HEAL_START, PROBE_COUNT, PROBE_START
+    from wsp import healdata
 
-    seeds = []
+    fetches = []
 
-    def fake_pairs_for(name, tokenizer=None, seed=0, count="default", max_prompt_tokens="default"):
-        seeds.append(seed)
-        return [("Question: q\nAnswer:", " a")]
+    def fake_pairs(name, count, seed=0, skip=0):
+        fetches.append((name, count, seed, skip))
+        return [(f"{name} question {index}", f"{name} answer {index}") for index in range(count)]
 
-    def fake_task_texts(name, seed=0):
-        seeds.append(seed)
-        return ["t"]
-
-    monkeypatch.setattr(wsp.pairs, "pairs_for", fake_pairs_for)
-    monkeypatch.setattr(wsp.data, "task_texts", fake_task_texts)
-    # gsm8k_practice is the seed 0 search split; another seed would put those items in the heal data.
-    assert heal_texts_for("gsm8k_train", None, seed=3) == ["Question: q\nAnswer: a"]
-    assert heal_texts_for("not_a_pairs_name", None, seed=5) == ["t"]
-    assert seeds == [0, 0]
+    monkeypatch.setattr(healdata, "pairs", fake_pairs)
+    monkeypatch.setattr(evalsets, "POOL_CACHE", {})
+    heal = evalsets.heal_texts_for("math", None)
+    probe = evalsets.probe_texts_for("math", None, count=PROBE_COUNT)
+    assert len(heal) == HEAL_COUNT
+    assert len(probe) == PROBE_COUNT
+    assert set(heal).isdisjoint(probe)
+    assert heal[0].startswith(f"math question {HEAL_START}")
+    assert probe[0].startswith(f"math question {PROBE_START}")
+    # One fetch of the whole range, so both slices come from the same seeded order.
+    assert fetches == [("math", PROBE_START + PROBE_COUNT, 0, 0)]
+    # The mix takes from each pool and the general probe never reads a heal range.
+    mixed = evalsets.heal_texts_for("composer_mix", None)
+    assert len(mixed) == HEAL_COUNT
+    assert set(mixed).isdisjoint(evalsets.general_probe_texts(None))
+    assert {fetch[0] for fetch in fetches} == {"math", "code", "medicine", "general"}
 
 
 def test_lora_baseline_gets_the_same_training(root):
     from composer.report import lora_program
 
     program = parse(f"host {HOST}\ngraft block/{DONOR}/8-20 at 7 stitch mlp objective donor_lm steps 400\n"
-                    "lora rank 64\nheal steps 300 data math_train lr 0.0001\n").to_dict()
+                    "lora rank 64\nheal steps 300 data math lr 0.0001\n").to_dict()
     baseline = lora_program(program, {"heal_steps_cap": 1000}, ["math"])
     assert baseline["host"] == HOST
     assert baseline["grafts"] == []
     assert baseline["lora"]["rank"] == 64
-    assert baseline["heal"]["data"] == "math_train"
+    assert baseline["heal"]["data"] == "math"
     assert baseline["heal"]["lr"] == 0.0001
     assert baseline["heal"]["steps"] == 700
     # No heal: the request's own skill data, not GSM8K for every request.
     masked = parse(f"host {HOST}\nmask mask_law\n").to_dict()
-    assert lora_program(masked, {}, ["law"])["heal"]["data"] == "mmlu_aux"
+    assert lora_program(masked, {}, ["law"])["heal"]["data"] == "general"
     assert lora_program(masked, {}, ["law"])["lora"]["rank"] == 16
     assert lora_program(masked, {}, ["math", "code"])["heal"]["data"] == "composer_mix"
 
 
 def test_results_mark_oversized_comparisons_and_heldout_parts():
-    program = parse(f"host {HOST}\ngraft heads_l22 at 10\nheal steps 100\n").to_dict()
+    program = parse(f"host {HOST}\ngraft heads_l22 at 10\nheal steps 100 data math\n").to_dict()
     records = {"heads_l22": {"id": "heads_l22", "type": "attn_heads", "model": DONOR,
                              "heldout_overlap": "mined on GSM8K test items"}}
     final = {"model_dir": "/vol/a", "program": program, "program_text": "t", "practice": {}}
@@ -786,13 +827,13 @@ def test_modal_payloads_carry_no_key(root):
 # The unified language: taps, experts, inserts, gates, distillation, budget.
 
 EXPERTS_PROGRAM = (f"host {HOST}\nexperts {DONOR} top_k 1\nlora rank 8\n"
-                   "heal steps 200 data gsm8k_train lr 1e-4\n")
+                   "heal steps 200 data math lr 1e-4\n")
 INSERT_PROGRAM = (f"host {HOST}\ninsert {DONOR} layers 4..9 at 7 stitch mlp\nlora rank 8\n"
-                  "heal steps 200 data gsm8k_train\n")
+                  "heal steps 200 data math\n")
 GATED_PROGRAM = (f"host {HOST}\ngraft block/{DONOR}/8-14 at 3 gate on gate_bias -1.0\n"
-                 f"graft block/{DONOR}/15-20 at 5 gate on gate_bias -1.0\nheal steps 200\n")
+                 f"graft block/{DONOR}/15-20 at 5 gate on gate_bias -1.0\nheal steps 200 data math\n")
 DISTILL_PROGRAM = (f"host {HOST}\ngraft block/{DONOR}/8-14 at 7 rank 32\nlora rank 8\n"
-                   f"heal steps 200 data gsm8k_train distill {DONOR} kd_weight 0.5\n")
+                   f"heal steps 200 data math distill {DONOR} kd_weight 0.5\n")
 TAP_PROGRAM = (f"host {HOST}\ntap Qwen/Qwen2.5-7B-Instruct layer 20 at 10\ntap_train steps 100\n")
 
 
@@ -832,30 +873,30 @@ def test_experts_and_insert_sizes_count_against_the_limits(root):
     tight = check_text(root, EXPERTS_PROGRAM, {"max_total_params_b": 0.9})
     assert tight["ok"] is False
     assert "over the cap 0.9b" in " ".join(tight["violations"])
-    far = check_text(root, "host " + HOST + f"\nexperts {DONOR}\nlora rank 8\nheal steps 100\n",
+    far = check_text(root, "host " + HOST + f"\nexperts {DONOR}\nlora rank 8\nheal steps 100 data math\n",
                      {"max_run_params_b": 0.5})
     assert "params run per token" in " ".join(far["violations"])
 
 
 def test_growing_the_base_is_allowed_when_the_limits_allow_it(root):
     big = (f"host {HOST}\ngraft block/Qwen/Qwen2.5-7B-Instruct/4-9 at 7 stitch mlp objective downstream steps 100\n"
-           "heal steps 100\n")
+           "heal steps 100 data math\n")
     assert check_text(root, big, {"max_total_params_b": 8.0, "max_run_params_b": 8.0})["ok"]
     assert check_text(root, big)["ok"] is False
 
 
 def test_added_kinds_cannot_mix_and_gates_must_agree(root):
-    mixed = (f"host {HOST}\ngraft block/{DONOR}/8-14 at 3\nexperts {DONOR}\nlora rank 8\nheal steps 100\n")
+    mixed = (f"host {HOST}\ngraft block/{DONOR}/8-14 at 3\nexperts {DONOR}\nlora rank 8\nheal steps 100 data math\n")
     assert "mixes graft, experts" in " ".join(check_text(root, mixed)["violations"])
     unequal = (f"host {HOST}\ngraft block/{DONOR}/8-14 at 3 gate on gate_bias -1.0\n"
-               f"graft block/{DONOR}/15-20 at 5 gate on gate_bias 0.5\nheal steps 100\n")
+               f"graft block/{DONOR}/15-20 at 5 gate on gate_bias 0.5\nheal steps 100 data math\n")
     assert "share gate_bias" in " ".join(check_text(root, unequal)["violations"])
 
 
 def test_insert_layers_are_checked_against_both_models(root):
-    deep = f"host {HOST}\ninsert {DONOR} layers 20..30 at 7\nlora rank 8\nheal steps 100\n"
+    deep = f"host {HOST}\ninsert {DONOR} layers 20..30 at 7\nlora rank 8\nheal steps 100 data math\n"
     assert "the donor has layers 0 to 27" in " ".join(check_text(root, deep)["violations"])
-    late = f"host {HOST}\ninsert {DONOR} layers 2..4 at 30\nlora rank 8\nheal steps 100\n"
+    late = f"host {HOST}\ninsert {DONOR} layers 2..4 at 30\nlora rank 8\nheal steps 100 data math\n"
     assert "has 24 layers" in " ".join(check_text(root, late)["violations"])
 
 
@@ -887,7 +928,7 @@ def test_the_request_limits_become_the_programs_budget(root):
 
 
 def test_measured_heal_time_is_checked_after_the_compile(root):
-    result = {"ok": True, "model_dir": "/vol/x", "practice_sets": {"gsm8k_practice": 0.4}, "params_total_b": 1.0,
+    result = {"ok": True, "model_dir": "/vol/x", "probe": probe_of(math=0.4), "params_total_b": 1.0,
               "params_run_b": 1.0, "heal_seconds": 3600.0, "errors": []}
     toolbox = toolbox_for(root, fake_practice([], result), {"max_heal_minutes": 30})
     out = toolbox.call("compile_and_practice", {"program_text": GOOD_PROGRAM})
@@ -966,7 +1007,7 @@ def compare_program():
     from composer import sizes as size_module
 
     program = parse(f"host {HOST}\ngraft block/{DONOR}/8-14 at 7 rank 32 stitch mlp objective donor_lm steps 100\n"
-                    "lora rank 8\nheal steps 150 data gsm8k_train lr 1e-4\n")
+                    "lora rank 8\nheal steps 150 data math lr 1e-4\n")
     size_module.with_request_budget(program, COMPARE_REQUEST["constraints"])
     return program.to_dict()
 
@@ -985,7 +1026,7 @@ def test_arms_share_the_heal_data_and_budget(root):
     lora, distill, control_a, control_b = planned
     # LoRA: the host alone, the program's heal data and settings, all its training steps (stitch 100 + heal 150).
     assert lora["program"]["grafts"] == []
-    assert lora["program"]["heal"] == {"steps": 250, "data": "gsm8k_train", "lr": 1e-4, "batch_size": 8,
+    assert lora["program"]["heal"] == {"steps": 250, "data": "math", "lr": 1e-4, "batch_size": 8,
                                        "seq_len": 384}
     assert lora["program"]["lora"]["rank"] == 8
     assert lora["program"]["budget"]["max_heal_minutes"] == 30
@@ -994,7 +1035,7 @@ def test_arms_share_the_heal_data_and_budget(root):
     assert distill["teacher"] == DONOR
     assert distill["program"]["heal"]["distill"] == DONOR
     assert distill["program"]["heal"]["steps"] == 250
-    assert distill["program"]["heal"]["data"] == "gsm8k_train"
+    assert distill["program"]["heal"]["data"] == "math"
     # Control: the same program with control random on every component, other seeds, the same heal and budget.
     assert control_a["program"]["grafts"][0]["control"] == "random"
     assert control_a["program"]["grafts"][0]["control_seed"] != control_b["program"]["grafts"][0]["control_seed"]
@@ -1023,11 +1064,11 @@ def test_distill_arms_need_matching_tokenizers_and_a_source(root):
     models["unsloth/Llama-3.2-1B-Instruct"] = {"params_b": 1.2, "layers": 16, "hidden": 2048,
                                                 "tokenizer_family": "llama3"}
     program = parse(f"host {HOST}\ninsert unsloth/Llama-3.2-1B-Instruct layers 2..5 at 7 stitch mlp\n"
-                    f"lora rank 8\nheal steps 100\n").to_dict()
+                    f"lora rank 8\nheal steps 100 data math\n").to_dict()
     planned, skipped = arms.plan_arms(program, COMPARE_REQUEST, models, {})
     assert [arm["role"] for arm in planned].count("distill_on_base") == 0
     assert skipped[0]["reason"] == "the tokenizers differ"
-    unknown = parse(f"host {HOST}\ninsert org/mystery layers 2..5 at 7 stitch mlp\nlora rank 8\nheal steps 100\n")
+    unknown = parse(f"host {HOST}\ninsert org/mystery layers 2..5 at 7 stitch mlp\nlora rank 8\nheal steps 100 data math\n")
     planned, skipped = arms.plan_arms(unknown.to_dict(), COMPARE_REQUEST, models, {})
     assert "unknown" in skipped[0]["reason"]
     # A program with only masks has no source and no random control.
@@ -1154,7 +1195,7 @@ def test_run_comparison_end_to_end_with_fakes(root):
     # One compile per arm; every arm program has the same heal data.
     assert len(compile_calls) == 4
     for arm_program, payload in compile_calls:
-        assert arm_program["heal"]["data"] == "gsm8k_train"
+        assert arm_program["heal"]["data"] == "math"
         assert payload["program_hash"] == "abc123"
     # The donor is a source, a distillation teacher, and the best existing model: scored once.
     refs = [ref for ref, payload in score_calls]
@@ -1176,7 +1217,7 @@ def test_run_comparison_end_to_end_with_fakes(root):
     assert by_arm["random components of the same size"]["verdict"] == "beat"
     assert by_arm["best existing model"]["verdict"] == "beat"
     assert by_arm["base + distill from " + DONOR]["verdict"] == "not scored"
-    assert results["same_heal"]["data"] == "gsm8k_train"
+    assert results["same_heal"]["data"] == "math"
     assert results["same_heal"]["steps"] == 250
     assert json.dumps(results)
 
@@ -1217,19 +1258,18 @@ def test_no_model_means_no_comparison(root):
 
 # Practice, heal, and held-out items stay apart, and held-out scores stay hidden.
 
-def test_practice_heal_and_heldout_sets_are_disjoint():
-    from composer.skills import BUILTIN_HEAL_DATA, COMPOSER_HEAL_DATA, SKILLS, heldout_sets, practice_sets
+def test_heal_and_heldout_sets_are_disjoint_and_the_probe_range_follows_the_heal_range():
+    from composer.skills import HEAL_COUNT, HEAL_DATA, HEAL_START, PROBE_START, SKILLS, heldout_sets
 
     for skill in SKILLS:
-        assert set(SKILLS[skill]["practice"]).isdisjoint(SKILLS[skill]["heldout"])
         for heal_name in SKILLS[skill]["heal_data"]:
-            assert heal_name in BUILTIN_HEAL_DATA + COMPOSER_HEAL_DATA
-            assert heal_name not in practice_sets(list(SKILLS)) + heldout_sets(list(SKILLS))
-    assert set(practice_sets(list(SKILLS))).isdisjoint(heldout_sets(list(SKILLS)))
-    # The train pairs skip the practice items, and the item cap keeps a subset of one set.
-    from composer.evalsets import SIZES, limit_items
+            assert heal_name in HEAL_DATA
+            assert heal_name not in heldout_sets(list(SKILLS))
+        assert SKILLS[skill]["pool"] in ["math", "code", "medicine", "general"]
+        assert "practice" not in SKILLS[skill]
+    assert HEAL_START + HEAL_COUNT <= PROBE_START
+    from composer.evalsets import limit_items
 
-    assert SIZES["math_practice"] == 100
     items = list(range(100))
     picked = limit_items(items, 30)
     assert len(picked) == 30
@@ -1242,12 +1282,12 @@ def test_practice_heal_and_heldout_sets_are_disjoint():
 
 def test_arm_heal_data_comes_from_the_programs_heal_not_the_heldout_sets(root):
     from composer import arms
-    from composer.skills import BUILTIN_HEAL_DATA, COMPOSER_HEAL_DATA
+    from composer.skills import HEAL_DATA
 
     for skills in [["math"], ["math", "code"], ["law"]]:
         masked = parse(f"host {HOST}\nmask mask_law\n").to_dict()
         data = arms.lora_program(masked, {}, skills)["heal"]["data"]
-        assert data in BUILTIN_HEAL_DATA + COMPOSER_HEAL_DATA
+        assert data in HEAL_DATA
 
 
 def test_comparison_scores_never_reach_the_model(root):
@@ -1263,8 +1303,9 @@ def test_comparison_scores_never_reach_the_model(root):
     assert callable(arms.best_existing_model)
     # Practice results carry no held-out numbers or comparison verdicts.
     out = box.call("compile_and_practice", {"program_text": GOOD_PROGRAM})
-    assert "verdict" not in json.dumps(out)
     assert "gsm8k_test" not in json.dumps(out)
+    assert "heldout" not in json.dumps(out)
+    assert "benchmark" not in json.dumps(out["probe"])
 
 
 def test_modal_composer_is_valid_python():
@@ -1300,13 +1341,13 @@ def test_arm_payload_carries_block_records_for_the_control_arm(root):
 
 def test_the_pre_check_refuses_what_the_compiler_refuses(root):
     cases = [
-        (f"host {HOST}\nmask mask_law\nexperts {DONOR}\nlora rank 8\nheal steps 100\n",
+        (f"host {HOST}\nmask mask_law\nexperts {DONOR}\nlora rank 8\nheal steps 100 data math\n",
          "masks and task vectors cannot join experts or inserts"),
-        (f"host {HOST}\nexperts {DONOR}\nlora rank 8 layers 0,1\nheal steps 100\n", "drop the lora layers"),
-        (f"host {HOST}\nmask mask_law\nheal steps 100\n", "nothing to train"),
+        (f"host {HOST}\nexperts {DONOR}\nlora rank 8 layers 0,1\nheal steps 100 data math\n", "drop the lora layers"),
+        (f"host {HOST}\nmask mask_law\nheal steps 100 data math\n", "nothing to train"),
         (f"host {HOST}\ngraft block/{DONOR}/8-14 at 7\nlora rank 8\n", "needs a heal statement"),
         (f"from {DONOR}\ncarve target 1.2b select influence\ngraft block/{DONOR}/8-14 at 7\nlora rank 8\n"
-         "heal steps 100\n", "cannot have grafts"),
+         "heal steps 100 data math\n", "cannot have grafts"),
     ]
     for text, message in cases:
         program, error = toolbox_for(root, fake_practice([])).parse(text)
@@ -1320,8 +1361,8 @@ def test_the_pre_check_refuses_what_the_compiler_refuses(root):
 
 def test_a_graft_estimate_counts_its_glue(root):
     # w_in and w_out of a 0.5B host (d 896) and a 1.5B donor (d 1536), full rank: 2 * 896 * 1536 weights.
-    plain = parse(f"host {HOST}\ngraft block/{DONOR}/8-14 at 7\nheal steps 100\n")
-    ranked = parse(f"host {HOST}\ngraft block/{DONOR}/8-14 at 7 rank 8\nheal steps 100\n")
+    plain = parse(f"host {HOST}\ngraft block/{DONOR}/8-14 at 7\nheal steps 100 data math\n")
+    ranked = parse(f"host {HOST}\ngraft block/{DONOR}/8-14 at 7 rank 8\nheal steps 100 data math\n")
     models = Sources(root).models
     full = sizes.estimate_program(plain, models, {}).total
     low = sizes.estimate_program(ranked, models, {}).total
@@ -1353,3 +1394,293 @@ def test_humaneval_uses_the_canonical_dataset_id():
         text = f.read()
     assert 'load("openai/openai_humaneval"' in text
     assert 'load("openai_humaneval"' not in text
+
+
+# Rules of 2026-11-14: pool heal text, probe feedback, benchmarks once at the end.
+
+def test_probe_objective_is_mean_transfer_minus_a_drift_penalty():
+    from composer.skills import DEFAULT_DRIFT_TOLERANCE, probe_summary
+
+    probe = {"skills": {"math": {"transfer": 0.6}, "code": {"transfer": 0.2}, "law": {"transfer": None}},
+             "drift": {"base_kl": 0.03}}
+    weights = {"math": 1.0, "code": 1.0, "law": 2.0}
+    quiet = probe_summary(probe, weights)
+    assert DEFAULT_DRIFT_TOLERANCE == 0.05
+    # No gap or no donor counts as 0: (0.6 + 0.2 + 2 * 0) / 4.
+    assert quiet["transfer"] == {"math": 0.6, "code": 0.2, "law": 0.0}
+    assert quiet["penalty"] == 0.0
+    assert quiet["objective"] == pytest.approx(0.2)
+    # 0.10 nats of drift is 0.05 over the default tolerance: a penalty of 0.5.
+    probe["drift"]["base_kl"] = 0.10
+    loud = probe_summary(probe, weights)
+    assert loud["penalty"] == pytest.approx(0.5)
+    assert loud["objective"] == pytest.approx(0.2 - 0.5)
+    # A tolerance in the request widens the allowance.
+    assert probe_summary(probe, weights, 0.10)["penalty"] == 0.0
+
+
+def test_the_request_sets_the_drift_tolerance_and_the_loop_ranks_by_the_objective(root):
+    request = load_request(os.path.join(root, "request.json"))
+    request["drift_tolerance"] = 0.01
+    request["skills"] = {"math": 1.0}
+
+    def practice(program_dict, payload):
+        if program_dict["grafts"][0]["at"] == 6:
+            return {"ok": True, "model_dir": "/vol/x/a", "probe": probe_of(math=0.5, drift=0.0),
+                    "params_total_b": 1.1, "params_run_b": 1.1}
+        return {"ok": True, "model_dir": "/vol/x/b", "probe": probe_of(math=0.9, drift=0.11),
+                "params_total_b": 1.1, "params_run_b": 1.1}
+
+    box = Toolbox(request, Sources(root), practice, "")
+    high_drift = box.call("compile_and_practice", {"program_text": GOOD_PROGRAM})
+    steady = box.call("compile_and_practice", {"program_text": GOOD_PROGRAM.replace("at 7", "at 6")})
+    assert high_drift["drift_tolerance"] == 0.01
+    assert high_drift["drift_penalty"] == pytest.approx(1.0)
+    assert high_drift["practice_objective"] == pytest.approx(-0.1)
+    assert steady["practice_objective"] == pytest.approx(0.5)
+    assert box.fallback_finish("stopped")["program_hash"] == steady["program_hash"]
+    # The request's tolerance goes to Modal in the payload.
+    seen = []
+    toolbox_for(root, fake_practice(seen)).call("compile_and_practice", {"program_text": GOOD_PROGRAM})
+    assert seen[0][1]["drift_tolerance"] == 0.05
+
+
+def test_drift_tolerance_is_validated_and_shipped_requests_set_it(tmp_path):
+    for bad in [-0.1, "x", True]:
+        path = str(tmp_path / "r.json")
+        write_json(path, {"name": "n", "skills": {"math": 1.0}, "constraints": {}, "drift_tolerance": bad})
+        with pytest.raises(ValueError):
+            load_request(path)
+    folder = os.path.join(REPO, "composer", "requests")
+    for name in os.listdir(folder):
+        request = load_request(os.path.join(folder, name))
+        assert request["drift_tolerance"] == 0.05
+        assert request["constraints"], name
+
+
+def test_skill_donors_come_from_the_components_used_for_each_skill(root):
+    from composer import probes
+
+    records = Sources(root).records_by_id()
+    records["code_part"] = {"id": "code_part", "type": "mlp_cluster", "model": "Qwen/Qwen2.5-Coder-1.5B", "layer": 5,
+                            "label": "code cluster", "trained_on": "magicoder"}
+    program = parse(f"host {HOST}\ngraft block/{DONOR}/8-14 at 7\ngraft code_part at 3\n"
+                    "heal steps 100 data math\n").to_dict()
+    donors = probes.skill_donors(program, ["math", "code", "medicine"], records)
+    # An untagged block serves every skill. A part tagged for code serves code only.
+    assert donors["math"] == [DONOR]
+    assert donors["code"] == [DONOR, "Qwen/Qwen2.5-Coder-1.5B"]
+    assert donors["medicine"] == [DONOR]
+    # No component and no donor: the list is empty and transfer is reported as 0.
+    plain = parse(f"host {HOST}\nlora rank 8\nheal steps 100 data math\n").to_dict()
+    assert probes.skill_donors(plain, ["math"], records) == {"math": []}
+    out = Toolbox(load_request(os.path.join(root, "request.json")), Sources(root),
+                  lambda program_dict, payload: {"ok": True, "model_dir": "/vol/x", "params_total_b": 1.0,
+                                                 "params_run_b": 1.0, "probe": {"skills": {"math": {
+                                                     "transfer": None, "donors": []}},
+                                                     "drift": {"base_kl": 0.0}}},
+                  "").call("compile_and_practice", {
+                      "program_text": f"host {HOST}\nmask mask_law\nlora rank 8\nheal steps 100 data math\n"})
+    assert out["transfer"] == {"math": 0.0}
+    assert out["probe"]["skills"]["math"]["transfer"] == 0.0
+    assert "transfer is 0" in out["probe"]["skills"]["math"]["note"]
+
+
+def test_a_donor_with_another_tokenizer_is_probed_on_its_generated_text(root):
+    from composer import probes
+
+    profiles = json.load(open(os.path.join(root, "profiles.json")))
+    profiles.append({"key": "llama1b", "hf_id": "meta-llama/Llama-3.2-1B-Instruct", "family": "llama",
+                     "params_b": 1.24, "active_params_b": 1.24, "layers": 16, "hidden": 2048,
+                     "tokenizer_family": "llama3", "scores": {}, "subject_scores": {}})
+    write_json(os.path.join(root, "profiles.json"), profiles)
+    models = Sources(root).models
+    assert probes.probe_path(models, HOST, DONOR) == "kl"
+    assert probes.probe_path(models, HOST, "meta-llama/Llama-3.2-1B-Instruct") == "text"
+    # An unknown family is not assumed to match.
+    assert probes.probe_path(models, HOST, "acme/unknown") == "text"
+    program = parse(f"host {HOST}\ngraft block/{DONOR}/8-14 at 7\n"
+                    "graft block/meta-llama/Llama-3.2-1B-Instruct/4-10 at 5\nheal steps 100 data math\n").to_dict()
+    records = {}
+    for graft in program["grafts"]:
+        records[graft["id"]] = sizes.block_record(graft["id"])
+    plan = probes.probe_plan(program, ["math"], records, models)
+    assert plan == {"math": [{"donor": DONOR, "path": "kl"},
+                             {"donor": "meta-llama/Llama-3.2-1B-Instruct", "path": "text"}]}
+
+
+def test_no_heal_data_name_resolves_to_a_banned_dataset():
+    from composer.skills import HEAL_DATA, HEAL_POOLS, SKILLS, check_heal_sources, heal_pools_for, heal_source_ids
+    from wsp import healdata
+
+    for name in HEAL_DATA:
+        ids = check_heal_sources(name)
+        assert len(ids) > 0
+        assert healdata.check_sources(ids) == ids
+        for dataset_id in heal_source_ids(name):
+            assert not healdata.is_banned(dataset_id), (name, dataset_id)
+        for pool in heal_pools_for(name):
+            assert pool in healdata.SOURCES
+    assert sorted(HEAL_POOLS) == ["code", "general", "math", "medicine"]
+    for skill in SKILLS:
+        for name in SKILLS[skill]["heal_data"]:
+            assert name in HEAL_DATA
+    # The old benchmark train names are gone and a banned name cannot be added by accident.
+    for old in ["gsm8k_train", "math_train", "mbpp_train", "medmcqa_train", "mmlu_aux", "trivia_train"]:
+        assert old not in HEAL_DATA
+        with pytest.raises(ValueError):
+            heal_pools_for(old)
+    with pytest.raises(ValueError):
+        healdata.check_sources(["openai/gsm8k"])
+
+
+def test_the_composer_rejects_benchmark_heal_data_and_modal_composer_loads_no_dataset(root):
+    toolbox = toolbox_for(root, fake_practice([]))
+    for old in ["gsm8k_train", "mmlu_aux", "medmcqa_train"]:
+        out = toolbox.call("compile_and_practice", {"program_text": GOOD_PROGRAM.replace("data math", f"data {old}")})
+        assert out["stage"] == "constraints"
+        assert f"heal data {old!r} is unknown" in " ".join(out["violations"])
+    # A heal with no data takes the language default, gsm8k_train, which is a benchmark.
+    out = toolbox.call("compile_and_practice", {"program_text": GOOD_PROGRAM.replace(" data math", "")})
+    assert "language default" in " ".join(out["violations"])
+    with open(os.path.join(REPO, "modal_composer.py")) as f:
+        text = f.read()
+    # Training in modal_composer.py goes through evalsets.heal_texts_for, which checks the sources.
+    assert "load_dataset(" not in text
+    assert "register_heal_data" not in text
+    with open(os.path.join(REPO, "composer", "evalsets.py")) as f:
+        evalsets_text = f.read()
+    assert "check_sources(" in evalsets_text
+    assert "check_heal_sources(" in evalsets_text
+    for old in ["gsm8k_train", "mbpp_train", "medmcqa_train", "mmlu_aux", "math_train"]:
+        assert old not in evalsets_text
+
+
+def test_the_system_prompt_and_notes_describe_the_probe(root):
+    request = load_request(os.path.join(root, "request.json"))
+    text = system_prompt(request, 10, 100000)
+    notes = toolbox_for(root, fake_practice([])).call("language_reference", {})["text"]
+    for part in [text, notes]:
+        assert "drift" in part
+    assert "gsm8k_train" in text and "rejected" in text
+    assert "composer_mix" in notes and "math, code, medicine, general" in notes
+    assert "gsm8k_practice" not in text + notes
+    specs = json.dumps(tool_specs())
+    assert "never shown" in specs
+
+
+def test_benchmarks_are_scored_once_at_the_end_and_every_arm_has_probe_and_benchmark_numbers(root):
+    from composer.comparison import run_comparison
+
+    sources = Sources(root)
+    request = dict(COMPARE_REQUEST)
+    request["drift_tolerance"] = 0.05
+    program = compare_program()
+    practice_payloads = []
+    practiced = toolbox_for(root, fake_practice(practice_payloads))
+    practiced.call("compile_and_practice", {"program_text": GOOD_PROGRAM})
+    # While the loop works, nothing names a benchmark set and no benchmark scorer runs.
+    assert "gsm8k_test" not in json.dumps(practice_payloads[0][1])
+    assert "heldout_sets" not in practice_payloads[0][1]
+
+    final = {"program_text": "t", "program": program, "program_hash": "abc123", "rationale": "r",
+             "model_dir": "/vol/composer/math_test/abc123", "fallback": False, "no_model": False,
+             "practice": {"params_total_b": 1.1}}
+    summary = {"final": final, "compile_budget_used": 3, "compile_budget": 5, "turns": 9, "tokens_used": 5,
+               "stop_reason": "finish", "archive_dir": "x"}
+    score_calls = []
+    probe_calls = []
+    transfer = {"/vol/composer/math_test/abc123": 0.7, "/vol/arm0": 0.2, "/vol/arm2": 0.05, "/vol/arm3": 0.06,
+                DONOR: 1.0}
+
+    def compile_many(calls):
+        out = []
+        for index in range(len(calls)):
+            out.append({"ok": True, "model_dir": f"/vol/arm{index}", "seconds": 1.0, "heal_steps_run": 150,
+                        "heal_seconds": 5.0})
+        return out
+
+    def score_many(calls):
+        score_calls.append([ref for ref, payload in calls])
+        out = []
+        for ref, payload in calls:
+            value = 0.6 if ref.endswith("abc123") else 0.3
+            out.append({"skills": {"math": value}, "params_total_b": 1.1,
+                        "sets": {"gsm8k_test": {"score": value, "items": 1319},
+                                 "math500": {"score": value, "items": 500}}})
+        return out
+
+    def probe_many(calls):
+        probe_calls.append([ref for ref, payload in calls])
+        out = []
+        for ref, payload in calls:
+            assert payload["probe_plan"] == {"math": [{"donor": DONOR, "path": "kl"}]}
+            out.append({"skills": {"math": {"transfer": transfer.get(ref, 0.1), "donor": DONOR}},
+                        "drift": {"base_kl": 0.02}})
+        return out
+
+    results = run_comparison(request, summary, sources, compile_many, score_many, probe_many)
+
+    # One benchmark call, each distinct model once, the final program first.
+    assert len(score_calls) == 1
+    assert len(score_calls[0]) == len(set(score_calls[0]))
+    assert score_calls[0][0] == "/vol/composer/math_test/abc123"
+    assert results["benchmarks_scored"] == score_calls[0]
+    # The probe runs on the same models, one call, and the base is the reference without a model call.
+    assert len(probe_calls) == 1
+    assert HOST not in probe_calls[0]
+    comparisons = results["comparisons"]
+    assert comparisons["base"]["probe_objective"] == 0.0
+    assert results["final"]["probe_objective"] == pytest.approx(0.7)
+    for row in [results["final"], comparisons["base"], comparisons["lora_on_base"]] + \
+            comparisons["distill_on_base"] + comparisons["random_control"]:
+        assert row["probe"]["skills"]["math"]["transfer"] is not None
+        assert row["skills"]["math"] is not None
+    assert comparisons["lora_on_base"]["probe_objective"] == pytest.approx(0.2)
+    gain = results["content_gain"]["math"]
+    assert gain == pytest.approx(0.7 - (0.05 + 0.06) / 2)
+    bases = {(item["arm"], item["basis"]): item["verdict"] for item in results["verdicts"] if "basis" in item}
+    assert bases[("base", "benchmark")] == "beat"
+    assert bases[("base", "probe")] == "beat"
+    assert bases[("base + LoRA", "probe")] == "beat"
+    assert bases[("random components of the same size", "probe")] == "beat"
+    assert "On the benchmark numbers the program beat" in results["summary"]
+    assert "On the probe numbers the program beat" in results["summary"]
+    assert "base + LoRA" in results["summary"]
+    assert json.dumps(results)
+
+
+def test_a_model_with_another_tokenizer_has_no_probe_and_a_probe_error_is_kept(root):
+    from composer.comparison import run_probes
+
+    profiles = json.load(open(os.path.join(root, "profiles.json")))
+    profiles.append({"key": "llama1b", "hf_id": "meta-llama/Llama-3.2-1B-Instruct", "family": "llama",
+                     "params_b": 1.24, "active_params_b": 1.24, "layers": 16, "hidden": 2048,
+                     "tokenizer_family": "llama3", "scores": {}, "subject_scores": {}})
+    write_json(os.path.join(root, "profiles.json"), profiles)
+    sources = Sources(root)
+    sent = []
+
+    def probe_many(calls):
+        sent.extend(ref for ref, payload in calls)
+        return [RuntimeError("out of memory")]
+
+    out = run_probes(COMPARE_REQUEST, compare_program(), sources, sources.records_by_id(),
+                     [HOST, "/vol/final", "meta-llama/Llama-3.2-1B-Instruct"], HOST, probe_many)
+    assert sent == ["/vol/final"]
+    assert "tokenizer differs" in out["meta-llama/Llama-3.2-1B-Instruct"]
+    assert out["/vol/final"].startswith("RuntimeError")
+    assert out[HOST]["drift"] == {"base_kl": 0.0}
+
+
+def test_probe_verdict_uses_seed_spread_and_floor():
+    from composer import arms
+
+    final = {"probe_objective": 0.50}
+    assert arms.judge_probe("base", final, [{"probe_objective": 0.0}])["verdict"] == "beat"
+    assert arms.judge_probe("lora", final, [{"probe_objective": 0.48}])["verdict"] == "tied"
+    assert arms.judge_probe("lora", final, [{"probe_objective": 0.9}])["verdict"] == "lost"
+    spread = arms.judge_probe("random", final, [{"probe_objective": 0.1}, {"probe_objective": 0.45}])
+    assert spread["seed_spread"] == pytest.approx(0.35)
+    assert spread["verdict"] == "tied"
+    assert arms.judge_probe("x", final, [{"error": "e"}])["verdict"] == "not scored"

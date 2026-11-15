@@ -1,6 +1,6 @@
 {
   "name": "generalist_7b",
-  "description": "The best macro average over knowledge (MMLU), math, and code under 8B total parameters.",
+  "description": "The best macro average over knowledge, math, and code under 8B total parameters.",
   "skills": {"knowledge": 1.0, "math": 1.0, "code": 1.0},
   "constraints": {
     "max_total_params_b": 8.0,
@@ -8,6 +8,7 @@
     "heal_steps_cap": 1000,
     "compile_budget": 15
   },
-  "objective": "max macro average of knowledge, math, and code",
+  "objective": "max mean probe transfer over knowledge, math, and code, with drift kept under the tolerance",
+  "drift_tolerance": 0.05,
   "agent": {"model": "gpt-6-astra", "reasoning_effort": "high", "max_turns": 70, "max_tokens": 4000000}
 }

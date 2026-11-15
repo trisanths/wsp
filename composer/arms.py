@@ -27,8 +27,19 @@ from wsp.program import Program
 DEFAULT_CONTROL_SEEDS = 2
 DEFAULT_FAR_FACTOR = 2.0
 DEFAULT_NOISE_FLOOR = 0.01
+# Transfer on 128 held-out texts moves by about this much between seeds and text draws.
+DEFAULT_PROBE_NOISE_FLOOR = 0.03
 # Control seeds are far apart, so the random draws of the arms do not overlap.
 CONTROL_SEED_STEP = 1000
+# Earlier benchmark scores that name the best existing model at the size limit. Only the final report
+# reads them, to pick a rival to score once. The composer never sees them (composer/tools.py hides them).
+RIVAL_SCORE_NAMES = {
+    "math": ["gsm8k", "gsm8k_raw", "math500", "math"],
+    "code": ["humaneval", "mbpp", "code"],
+    "medicine": ["medmcqa", "medqa", "medicine"],
+    "knowledge": ["mmlu", "mmlu_dev", "mmlu_heldout", "knowledge"],
+    "law": ["mmlu_law", "law"],
+}
 HEAL_KEYS_DROPPED_FOR_LORA = ["distill", "kd_weight", "temperature"]
 
 
@@ -220,7 +231,7 @@ def existing_skill_score(sources, model, skill):
         if profile.get("hf_id") != model:
             continue
         scores = profile.get("scores") or {}
-        for name in SKILLS[skill]["atlas_scores"]:
+        for name in [skill] + SKILLS[skill]["tags"]:
             value = scores.get(name)
             if isinstance(value, (int, float)) and not isinstance(value, bool):
                 return float(value), f"profiles.json:{name}"
@@ -359,3 +370,37 @@ def judge(name, final_row, arm_rows, weights, noise_floor=DEFAULT_NOISE_FLOOR):
             "arm_objective": round(arm_value, 4), "diff": round(diff, 4), "threshold": round(threshold, 4),
             "sampling_threshold": round(sampling, 4), "seed_spread": round(spread, 4), "runs": len(scored),
             "text": text}
+
+
+def judge_probe(name, final_row, arm_rows, floor=DEFAULT_PROBE_NOISE_FLOOR):
+    """Say whether the program beat an arm on the probe objective by more than noise.
+
+    Rows carry probe_objective. The noise threshold is the larger of the floor and the spread of the
+    arm's own seeds. The probe has no item sampling error to add, so the floor stands for it.
+    """
+    values = []
+    for row in arm_rows:
+        if isinstance(row, dict) and row.get("probe_objective") is not None and not row.get("error"):
+            values.append(row["probe_objective"])
+    if final_row is None or final_row.get("probe_objective") is None or len(values) == 0:
+        return {"arm": name, "basis": "probe", "verdict": "not scored",
+                "text": f"{name}: no probe numbers, so there is no probe verdict."}
+    arm_value = sum(values) / len(values)
+    spread = max(values) - min(values)
+    threshold = max(floor, spread)
+    diff = final_row["probe_objective"] - arm_value
+    if diff > threshold:
+        verdict = "beat"
+        phrase = "so the program beat it by more than noise"
+    elif diff < -threshold:
+        verdict = "lost"
+        phrase = "so the program scored below it by more than noise"
+    else:
+        verdict = "tied"
+        phrase = "so the program did not beat it by more than noise"
+    text = (f"{name} (probe): the program scored {final_row['probe_objective']:.3f} and the arm {arm_value:.3f} "
+            f"({len(values)} run{'s' if len(values) != 1 else ''}). The difference {diff:+.3f} against a noise "
+            f"threshold of {threshold:.3f}, {phrase}.")
+    return {"arm": name, "basis": "probe", "verdict": verdict, "program": round(final_row["probe_objective"], 4),
+            "arm_objective": round(arm_value, 4), "diff": round(diff, 4), "threshold": round(threshold, 4),
+            "seed_spread": round(spread, 4), "runs": len(values), "text": text}
