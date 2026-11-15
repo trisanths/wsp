@@ -518,7 +518,29 @@ medical, and 8 on science. Adding a LoRA to the graft does not help, and
 neither do multi-layer reads here. h11 runs a second seed of the 14B
 cell.
 
-## Also fixed## Also fixed
+### h10: the 14B donor with multi-layer reads (Llama-1B host)
+
+| cell | MMLU dev | held-out | MMLU-med | MMLU-math | humanities |
+|---|---|---|---|---|---|
+| read 1..7, write 7, seed 0 | 61.1 | 58.9 | 64.2 | 49.6 | 69.2 |
+| read 1..7, write 7, seed 1 | **61.4** | **61.0** | **66.6** | **53.0** | 69.0 |
+| read 1..11, write 11, seed 0 | 60.9 | 59.8 | 62.4 | 50.4 | 70.0 |
+| read 1..11, write 11, seed 1 | 60.1 | 56.5 | 59.6 | 46.8 | 65.4 |
+| single read, host 5 | 61.7 | 57.9 | 63.8 | 47.0 | 70.8 |
+| block 4..34 | 58.1 | 56.9 | 62.2 | 46.4 | 66.2 |
+| block 7..40 | 57.1 | 57.5 | 63.4 | 44.0 | 69.6 |
+| decoder rank 512 | 56.4 | 55.5 | 64.6 | 45.0 | 66.0 |
+| single read at 7 (h7, 2 seeds) | 57.8 / 57.6 | 58.1 / 57.0 | | | |
+| LoRA, 2x 14B budget, all domains | 43.7 | 43.5 | 45.2 | 27.8 | 52.2 |
+| Qwen7B (read 1..7) + Math-7B (read 5,9,13 at 13), all domains | 58.1 | 56.0 | 62.4 | 44.2 | 67.0 |
+
+Llama-3.2-1B with a 14B block that reads host layers 1..7 averages 60.0
+on MMLU held-out over two seeds. That is 15 points above the base and the
+matched LoRA, above the untrained 3B model (57.4), and level with 3B +
+LoRA (60.9). The 14B + Apollo2 composition ran out of memory and is
+re-run at batch 4 in h13, along with a third seed.
+
+## Also fixed
 
 `wsp/healdata.py`: the `reasoning` pool crashed on LogiQA2.0. In that
 dataset, 38,398 of 63,718 rows are premise and hypothesis items with no
