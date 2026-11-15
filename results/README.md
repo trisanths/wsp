@@ -246,3 +246,66 @@ Reading:
   is not in the donor's prefill states.
 - These are numbers on a fixed 1000-item MMLU test sample used during
   development, not a held-out result yet.
+
+## Run 7 (2026-11-14): held-out MMLU, layer map, scaling, TriviaQA
+
+Raw rows: round7_rows.json. Host Llama-3.2-1B-Instruct; tap settings as run 6.
+
+Held-out MMLU (2000 test items disjoint from the dev 1000, scored once):
+
+| Arm | Accuracy by seed | Mean |
+|---|---|---|
+| Host | 44.7 | 44.7 |
+| LoRA rank 16 | 47.0, 48.7, 47.4 | 47.7 |
+| Tap Qwen2.5-7B L20 into host L10 | 67.7, 69.9, 67.2 | 68.3 |
+| Donor Qwen2.5-7B alone | 70.9 | 70.9 |
+
+The tap beats fine-tuning by 20.6 points held out and recovers 90% of the
+host-to-donor gap.
+
+Layer map (dev items, 1 seed; rows donor layer, columns host layer):
+
+| Donor layer | Host L6 | Host L10 | Host L14 |
+|---|---|---|---|
+| 8 | 48.5 | 48.3 | 49.4 |
+| 12 | 47.9 | 48.6 | 48.9 |
+| 16 | 63.8 | 59.3 | 56.3 |
+| 20 | 68.5 | 67.7 | 67.1 |
+| 24 | 53.6 | 63.9 | 60.9 |
+
+Knowledge is readable near 70% of donor depth (layer 20 of 28) and not
+before layer 16.
+
+Donor scaling (dev items, tap into host L10, 2 seeds):
+
+| Donor | Donor alone | Tap mean |
+|---|---|---|
+| Qwen2.5-1.5B (L20) | 58.9 | 58.2 |
+| Qwen2.5-3B (L25) | 66.2 | 57.9 |
+| Qwen2.5-7B (L20) | 71.5 | 67.7 |
+| Qwen2.5-14B (L34) | 78.5 | 73.6 |
+
+A 1B host with a 14B tap beats the 7B donor alone. The 3B row likely
+used a poor donor layer.
+
+Staged training (tap 500 steps, freeze, then LoRA r16 500 steps), dev
+items: 67.9, 69.2, 69.7 (mean 68.9) vs tap alone 67.9.
+
+TriviaQA (1000 validation questions, alias match on a 16-token answer):
+
+| Arm | Accuracy | Decode tok/s |
+|---|---|---|
+| Host | 37.6 | 97 |
+| Donor Qwen2.5-7B | 46.8 | 63 |
+| LoRA rank 16 (3 seeds) | 41.1 | 54 to 57 |
+| Tap L20 into L10 (3 seeds) | 25.0, 34.5, 34.3 | 88 to 121 |
+
+The tap hurts free-form answers even though it decodes at host speed. The
+current tap transfers knowledge into a single next-token choice (MMLU)
+but disrupts multi-token generation. Open question.
+
+Reading against the goal: a single tap stays below its donor, so a weak
+host plus one tap is "most of a big model's knowledge at small-model
+decode cost", not a better model. Round 8 (several donor families) and
+round 9 (taps into the strongest model) test whether composition can
+beat the best source.
