@@ -297,7 +297,7 @@ def test_number_from_the_neighbor_column_is_dropped():
     # 69.2 is the MBPP column of the same row. The label says HumanEval, so the column header does not match.
     entry, dropped = make_entry("Coder-1.5B", 69.2, "| Coder-1.5B | 1.5B | 43.9 | 69.2 |", "HumanEval")
     assert entry is None
-    assert dropped == {"label_not_near_number": 1}
+    assert dropped == {"benchmark_not_near_number": 1}
     # The same number with the right label is fine.
     entry, _dropped = make_entry("Coder-1.5B", 69.2, "| Coder-1.5B | 1.5B | 43.9 | 69.2 |", "MBPP", name="MBPP", rid=None)
     assert entry["sourced"] is True
@@ -316,12 +316,61 @@ def test_method_and_fine_tune_variants_are_dropped():
     assert entry is None and dropped == {"variant": 1}
 
 
-def test_label_must_name_the_benchmark():
-    entry, dropped = make_entry("Coder-1.5B", 43.9, "| Coder-1.5B | 1.5B | 43.9 |", "Pass at 1")
+def test_benchmark_must_be_named_near_the_number():
+    # The LLM's label does not count. The page words around the number must name the benchmark.
+    entry, dropped = make_entry("Coder-1.5B", 43.9, "| Coder-1.5B | 1.5B | 43.9 |", "MBPP", name="MBPP", rid=None)
     assert entry is None
-    assert dropped == {"label_misses_benchmark": 1}
+    assert dropped == {"benchmark_not_near_number": 1}
     entry, dropped = make_entry("Coder-1.5B", 43.9, "| Coder-1.5B | 1.5B | 43.9 |", "")
-    assert entry is None and dropped == {"no_label": 1}
+    assert entry["sourced"] is True and "label" not in entry
+    entry, dropped = make_entry("Coder-1.5B", 43.9, "| Coder-1.5B | 1.5B | 43.9 |", "Results")
+    assert entry["label"] == "Results"
+
+
+def test_table_text_above_counts_only_when_the_header_names_no_benchmark():
+    url = "https://example.org/open"
+    text = "Results on GSM8K, exact match.\n\n| Model | Accuracy |\n| --- | --- |\n| Tiny-1B | 55.5 |\n"
+    pages = {bench_research.url_key(url): {"raw": text, "title": "t", "url": url}}
+    item = {"model": "Tiny-1B", "params_b": 1, "score": 55.5, "quote": "| Tiny-1B | 55.5 |", "source_url": url}
+    assert bench_research.score_entry(item, code_proposal("GSM8K", "gsm8k"), pages, 1.5, "", {})["sourced"] is True
+    # A header that names another benchmark means the words above the table do not name this column's benchmark.
+    text = "Results on GSM8K.\n\n| Model | MBPP |\n| --- | --- |\n| Tiny-1B | 55.5 |\n"
+    pages = {bench_research.url_key(url): {"raw": text, "title": "t", "url": url}}
+    dropped = {}
+    assert bench_research.score_entry(item, code_proposal("GSM8K", "gsm8k"), pages, 1.5, "", dropped) is None
+    assert dropped == {"benchmark_not_near_number": 1}
+    # A table with no header row cannot say which column a number is in.
+    text = "Results on GSM8K.\n\n| Tiny-1B | 1B | 55.5 | 60.1 |\n| Other-1B | 1B | 20.5 | 30.1 |\n"
+    pages = {bench_research.url_key(url): {"raw": text, "title": "t", "url": url}}
+    dropped = {}
+    item["quote"] = "| Tiny-1B | 1B | 55.5 |"
+    assert bench_research.score_entry(item, code_proposal("GSM8K", "gsm8k"), pages, 1.5, "", dropped) is None
+    assert dropped == {"benchmark_not_near_number": 1}
+
+
+def test_a_quote_may_skip_a_cell_but_not_more_than_three():
+    raw = "| Model | Size | Pass1 |\n| --- | --- | --- |\n| Coder-1.5B | 1.5B | 0.44 |\n"
+    assert bench_research.locate_quote(raw, "Coder-1.5B 0.44") is not None
+    assert bench_research.locate_quote(raw, "Coder-1.5B 0.44").group(0) == "Coder-1.5B | 1.5B | 0.44"
+    far = "Coder-1.5B one two three four 0.44"
+    assert bench_research.locate_quote(far, "Coder-1.5B 0.44") is None
+    # A number is matched whole: 0.44 is not inside 10.449.
+    assert bench_research.locate_quote("Coder-1.5B 10.449", "Coder-1.5B 0.44") is None
+
+
+def test_model_card_prose_names_the_model_by_its_page():
+    url = "https://huggingface.co/org/NPC-Coder-1.5B"
+    text = "Benchmark: HumanEval (instruct, pass@1, greedy): 65.9%."
+    pages = {bench_research.url_key(url): {"raw": text, "title": "org/NPC-Coder-1.5B", "url": url}}
+    item = {"model": "NPC Coder 1.5B", "params_b": 1.5, "score": 65.9, "quote": text, "source_url": url}
+    assert bench_research.score_entry(item, code_proposal(), pages, 1.5, "", {})["sourced"] is True
+    # The same sentence on a page about another model does not name this one.
+    other = "https://huggingface.co/org/Other-Coder-3B"
+    pages = {bench_research.url_key(other): {"raw": text, "title": "org/Other-Coder-3B", "url": other}}
+    item["source_url"] = other
+    dropped = {}
+    assert bench_research.score_entry(item, code_proposal(), pages, 1.5, "", dropped) is None
+    assert dropped == {"model_not_before_number": 1}
 
 
 def test_mmlu_pro_needs_the_subject_in_the_label():
@@ -333,7 +382,7 @@ def test_mmlu_pro_needs_the_subject_in_the_label():
             "source_url": url}
     dropped = {}
     assert bench_research.score_entry(item, proposal, pages, 1.5, "", dropped) is None
-    assert dropped == {"label_misses_benchmark": 1}
+    assert dropped == {"benchmark_not_near_number": 1}
     item.update({"score": 30.2, "quote": "| MMLU-Pro biology | 30.2 |", "label": "MMLU-Pro biology"})
     entry = bench_research.score_entry(item, proposal, pages, 1.5, "", {})
     assert entry["sourced"] is True
@@ -406,6 +455,11 @@ def test_same_model_is_kept_once_and_the_better_source_wins():
     assert bench_research.add_score(proposal, third) is False
     assert len(proposal["reference_scores"]) == 1
     assert proposal["reference_scores"][0]["score"] == 0.44
+    # A bracketed note does not make a new model. A different size does.
+    note = {"model": "Qwen2.5-Coder-1.5B (classifier)", "score": 0.4, "sourced": False, "source_url": None}
+    other = {"model": "Qwen2.5-Coder-3B", "score": 0.5, "sourced": False, "source_url": None}
+    assert bench_research.add_score(proposal, note) is False
+    assert bench_research.add_score(proposal, other) is True
 
 
 def test_source_kinds_and_order():

@@ -7,8 +7,9 @@ Usage:
     python scripts/eval_bench_research.py --offline               # fake search and LLM, no network
 
 Each request writes outputs/bench_research_eval/<tag>/<index>.json with the
-steps, proposals, sources, timings, token usage and the page text the score
-check saw (so a grader can check numbers without a second fetch).
+steps, proposals, sources, timings, token usage, the first search results, the
+raw LLM replies and the page text the score check saw (so a grader can check
+numbers, and a checker change can be replayed, without a new search).
 Real runs cost a few cents each and need OPENAI_API_KEY and EXA_API_KEY in .env.
 """
 
@@ -83,14 +84,23 @@ def install(bench_research, record, offline):
             record["score_pages"][page["url"]] = page["text"]
         return pages
 
+    real_search = bench_research.search_exa
+
+    def search(query, run):
+        outcome = real_search(query, run)
+        record["searches"][query] = outcome
+        return outcome
+
     bench_research.ask_llm = ask
     bench_research.search_exa_scores = scores
+    bench_research.search_exa = search
 
 
 def run_one(prompt, offline):
     from studio.server import bench_research
     from studio.server import specs as specs_mod
-    record = {"prompt": prompt, "llm_calls": [], "raw_replies": [], "score_pages": {}, "offline": offline}
+    record = {"prompt": prompt, "llm_calls": [], "raw_replies": [], "score_pages": {}, "searches": {},
+              "offline": offline}
     install(bench_research, record, offline)
     start = time.time()
     spec = specs_mod.draft_spec(prompt, [])

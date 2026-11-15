@@ -11,7 +11,9 @@ A run goes in four stages, and every stage records a step on the spec:
 3. synthesize: the LLM turns the request, the limits and the search text into
    3 to 6 benchmark proposals, as strict JSON.
 4. validate: ids, scores and source urls are checked in code, and the
-   benchmarks Sapien can run are added to the spec.
+   benchmarks Sapien can run are added to the spec. A score is "sourced" only
+   when the page shows it for that model, that benchmark and that column (see
+   check_evidence). Models far above the size limit are dropped.
 
 The result lives in spec["benchmark_research"]. Each run has one lock. Steps
 are appended under it, so a page that polls GET /api/spec/{id}/research sees
@@ -187,7 +189,7 @@ VARIANT_PATTERN = re.compile(r"grpo|\bsft\b|\brl\b|lora|fine.?tuned|quantiz|\bin
                              r"|\+|\bafter\b|\bours\b|\bimproved\b|\bsparse\b|\bpruned\b", re.IGNORECASE)
 # Closed models have no size on a page. Their names are enough to know they are far above a small limit.
 CLOSED_MODEL_PATTERN = re.compile(r"\b(gpt|claude|gemini|o1|o3|o4|grok|palm|command.?r|sonnet|opus|haiku)\b"
-                                  r"|deepseek.?(r1|v3)|mistral.?large|405b", re.IGNORECASE)
+                                  r"|deepseek.?(r1|v3)|mistral.?large|kimi|mixtral|dbrx|minimax", re.IGNORECASE)
 SIZE_SLACK = 1.5
 HEADER_ROWS = 3
 BEFORE_TABLE_CHARS = 600
@@ -227,12 +229,31 @@ def size_problem(model, params, limit_b, request_text):
 
 
 def locate_quote(raw, quote):
-    """The regex match of the quote in the page text (any spacing, any case), or None."""
+    """The regex match of the quote in the page text, or None.
+
+    First the quote must appear as written (any spacing, any case). Failing that, its words must
+    appear in order with at most three other table cells or words between two of them, which
+    covers a quote that skips a cell such as the size column. Either way the checks run on the
+    text the page really has (match.group(0)), not on the quote.
+    """
     words = str(quote or "").split()
     if len(words) == 0:
         return None
     pattern = r"\s+".join(re.escape(word) for word in words)
-    return re.search(pattern, str(raw or ""), re.IGNORECASE)
+    found = re.search(pattern, str(raw or ""), re.IGNORECASE)
+    if found is not None:
+        return found
+    words = re.findall(r"[^\s|]+", str(quote or ""))
+    if len(words) < 2:
+        return None
+    parts = []
+    for word in words:
+        part = re.escape(word)
+        if re.fullmatch(r"\d+(?:\.\d+)?%?", word):
+            part = r"(?<![\d.])" + part + r"(?!\d)"
+        parts.append(part)
+    gap = r"(?:[\s|]+[^\s|]+){0,3}?[\s|]+"
+    return re.search(gap.join(parts), str(raw or ""), re.IGNORECASE)
 
 
 def cells_of(line):
@@ -293,45 +314,70 @@ def table_info(raw, pos):
 
 
 def required_tokens(name, runnable_id):
-    """Letters-and-digits words a benchmark label on the page must contain."""
+    """Words the page text around a number must contain to name the benchmark.
+
+    Returns a list of groups. Each group is a list of spellings and one of them must be there.
+    """
     words = re.findall(r"[a-z0-9]+", str(name or "").lower())
     tokens = []
     if words:
-        tokens.append(words[0])
+        if words[0] == "big":
+            tokens.append(["big", "bbeh", "bbh"])
+        else:
+            tokens.append([words[0]])
     if len(words) > 1 and words[0] == "mmlu" and "pro" in words:
-        tokens.append("pro")
+        tokens.append(["pro"])
     if str(runnable_id or "").startswith("mmlupro:"):
-        tokens.extend(re.findall(r"[a-z0-9]+", runnable_id.split(":", 1)[1].lower()))
+        for word in re.findall(r"[a-z0-9]+", runnable_id.split(":", 1)[1].lower()):
+            tokens.append([word])
     return tokens
 
 
 def model_span(model, text):
     """The (start, end) of the model's name in the text, ignoring dashes, dots and spaces, or None.
 
-    A trailing -instruct, -chat or -it is optional, because pages shorten names.
+    The last whole match counts. A match that goes on as a longer name does not: Qwen2.5-1.5B is not
+    Qwen2.5-1.5B-Instruct, and Qwen3 is not Qwen3-8B.
     """
-    full = norm(model)
-    short = re.sub(r"(instruct|chat|it)$", "", full)
-    for key in (full, short):
-        if len(key) < 3:
-            continue
-        pattern = r"[^a-z0-9]*".join(re.escape(char) for char in key)
-        last = None
-        for match in re.finditer(pattern, str(text or "").lower()):
-            last = match
-        if last is not None:
-            return last.span()
-    return None
+    key = norm(model)
+    if len(key) < 3:
+        return None
+    lowered = str(text or "").lower()
+    pattern = r"[^a-z0-9]*".join(re.escape(char) for char in key)
+    found = None
+    for match in re.finditer(pattern, lowered):
+        if not name_goes_on(key, lowered[match.end():]):
+            found = match
+    if found is None:
+        return None
+    return found.span()
 
 
-def check_evidence(page, item, model, score, label, tokens):
+# A word after a model name that makes it a different model, unless the name has it already.
+NAME_SUFFIXES = ("instruct", "chat", "base", "it", "sft", "dpo", "rl", "preview", "thinking", "reasoning", "math",
+                 "coder", "vl", "vision", "mini", "small", "large", "medium", "turbo", "pro", "flash", "lite")
+
+
+def name_goes_on(key, following):
+    """True when the text after a model name continues it, as -Instruct or -8B would."""
+    size = re.match(r"[-_ ]?\d+(?:\.\d+)?[bm]\b", following)
+    if size is not None and not re.search(r"\d[bm]$", key):
+        return True
+    word = re.match(r"[-_ ]?([a-z]+)", following)
+    if word is not None and word.group(1) in NAME_SUFFIXES and not key.endswith(word.group(1)):
+        return True
+    return False
+
+
+def check_evidence(page, item, model, score, tokens):
     """Why a quoted score cannot be trusted, or None when it passes. Reasons are short snake case words.
 
-    The page must show the quote. The quote must name the model before the number,
-    with no other score between them. The number must sit under the benchmark label
-    (the column header, the row, the words before the table, the heading, the page
-    title or the words before the number). No change word (SFT, GRPO, quantized,
-    plus a method) may sit between the model and the number or in the column header.
+    The page must show the quote (as written, or with a few cells skipped). The text must name the
+    model before the number, or the model must head the number's column, or the page must be that
+    model's own card. No other score may sit between the model and the number in running text.
+    The words around the number (its column header, its row, the heading, the page title, or the
+    words just before it) must name the benchmark. No change word (SFT, GRPO, quantized, plus a
+    method) may sit between the model and the number or in the column header.
     """
     quote = clip(item.get("quote"), 240)
     if len(quote) < 8:
@@ -339,28 +385,29 @@ def check_evidence(page, item, model, score, label, tokens):
     found = locate_quote(page["raw"], quote)
     if found is None:
         return "quote_not_on_page"
+    quote = found.group(0)
     spots = number_spots(score, quote)
     if len(spots) == 0:
         return "number_not_in_quote"
     if re.search(r"\+", model):
         return "method_variant"
-    matched = found.group(0)
-    matched_spots = number_spots(score, matched)
     problem = "model_not_before_number"
-    for index in range(min(len(spots), len(matched_spots))):
-        pos = found.start() + matched_spots[index][0]
+    for spot in spots:
+        pos = found.start() + spot[0]
         table = table_info(page["raw"], pos)
         between = None
-        span = model_span(model, quote[:spots[index][0]])
+        span = model_span(model, quote[:spot[0]])
         if span is not None:
-            between = quote[span[1]:spots[index][0]]
+            between = quote[span[1]:spot[0]]
         elif table is not None and header_names_model(model, table["headers"]):
             between = ""
         elif table is not None and page_is_about(model, page, table["headers"]):
             between = ""
+        elif table is None and page_is_about(model, page, [quote]):
+            between = ""
         if between is None:
             continue
-        problem = check_spot(page, quote, label, tokens, pos, table, between)
+        problem = check_spot(page, quote, tokens, pos, table, between)
         if problem is None:
             return None
     return problem
@@ -374,18 +421,41 @@ def header_names_model(model, headers):
     return False
 
 
-def page_is_about(model, page, headers):
-    """True for a model card: the page title or url names the model and no column header names another model."""
+def page_is_about(model, page, texts):
+    """True for a model card: the page title or url names the model and none of the texts names another model."""
     if model_span(model, page.get("title", "") + " " + page.get("url", "")) is None:
         return False
-    for header in headers:
-        if re.search(r"[a-z]\d|[a-z]-\d|\d\s*b\b", header.lower()):
+    for text in texts:
+        if re.search(r"[a-z]\d|[a-z]-\d|\d\s*b\b", text.lower()):
             return False
     return True
 
 
-def check_spot(page, quote, label, tokens, pos, table, between):
-    """The checks for one number in a quote. between is the quote text from the model name to the number."""
+# Benchmark names a column header may carry. A header with one of them names its own benchmark.
+BENCHMARK_WORDS = ("humaneval", "mbpp", "gsm8k", "mmlu", "math", "bigcodebench", "livecodebench", "ifeval", "arc",
+                   "hellaswag", "winogrande", "truthfulqa", "bbh", "bbeh", "medqa", "medmcqa", "pubmedqa", "legalbench",
+                   "lexglue", "casehold", "flores", "wmt", "ntrex", "tatoeba", "svamp", "gpqa", "aime", "mercury",
+                   "multipl", "evalplus", "piqa", "boolq", "lawbench", "telbench")
+
+
+def header_is_open(headers):
+    """True when the benchmark may be named above the table: some column header exists and none names a benchmark.
+
+    A table with no header row, or a header that already names a benchmark, must name the right one in
+    the header or the row itself.
+    """
+    if len(headers) == 0:
+        return False
+    for header in headers:
+        text = norm(header)
+        for word in BENCHMARK_WORDS:
+            if word in text:
+                return False
+    return True
+
+
+def check_spot(page, quote, tokens, pos, table, between):
+    """The checks for one number. between is the text from the model name to the number."""
     if VARIANT_PATTERN.search(between):
         return "variant"
     contexts = [quote, page.get("title", ""), page.get("url", "")]
@@ -398,16 +468,17 @@ def check_spot(page, quote, label, tokens, pos, table, between):
             if VARIANT_PATTERN.search(header):
                 return "variant"
         contexts.extend(table["headers"])
-        contexts.extend([table["row"], table["before"], table["heading"]])
-    label = clip(label, 120)
-    if label == "":
-        return "no_label"
+        contexts.extend([table["row"], table["heading"]])
+        if header_is_open(table["headers"]):
+            contexts.append(table["before"])
     joined = norm(" ".join(contexts))
-    if norm(label) not in joined:
-        return "label_not_near_number"
-    for token in tokens:
-        if token not in norm(label):
-            return "label_misses_benchmark"
+    for group in tokens:
+        found = False
+        for token in group:
+            if token in joined:
+                found = True
+        if not found:
+            return "benchmark_not_near_number"
     return None
 
 
@@ -440,12 +511,13 @@ def score_entry(item, proposal, pages, limit_b, request_text, dropped):
     page = pages.get(url_key(url)) if url else None
     if page is None:
         return entry
-    reason = check_evidence(page, item, model, score, item.get("label"),
-                            required_tokens(proposal["name"], proposal["runnable_id"]))
+    reason = check_evidence(page, item, model, score, required_tokens(proposal["name"], proposal["runnable_id"]))
     if reason is None:
         entry["sourced"] = True
-        entry["quote"] = clip(item.get("quote"), 240)
-        entry["label"] = clip(item.get("label"), 120)
+        entry["quote"] = clip(locate_quote(page["raw"], clip(item.get("quote"), 240)).group(0), 240)
+        label = clip(item.get("label"), 120)
+        if label != "" and norm(label) in norm(page["raw"]):
+            entry["label"] = label
         return entry
     if reason in ("no_quote", "quote_not_on_page", "number_not_in_quote"):
         return entry
@@ -453,11 +525,16 @@ def score_entry(item, proposal, pages, limit_b, request_text, dropped):
     return None
 
 
+def same_model(first, second):
+    """True when two names are the same model once punctuation and a bracketed note are ignored."""
+    return norm(re.sub(r"\(.*?\)", "", first)) == norm(re.sub(r"\(.*?\)", "", second))
+
+
 def add_score(proposal, entry):
     """Add a score unless the same model is already there. A sourced score from a better source wins."""
     for index in range(len(proposal["reference_scores"])):
         old = proposal["reference_scores"][index]
-        if norm(old["model"]) != norm(entry["model"]):
+        if same_model(old["model"], entry["model"]) is False:
             continue
         better = False
         if entry["sourced"] and not old["sourced"]:
@@ -955,11 +1032,6 @@ def search_exa_scores(name, size_b):
         results.append({"title": getattr(item, "title", None) or "", "url": getattr(item, "url", None) or "",
                         "text": text})
     return results
-
-
-def squash(text):
-    """Lowercase text with single spaces, for checking that a quote appears in a page."""
-    return " ".join(str(text or "").lower().split())
 
 
 def score_messages(spec, names, pages):
