@@ -121,3 +121,21 @@ def test_text_nll_and_transfer_by_text():
     full = probe.transfer_by_text(donor, base, tokenizer, TEXTS, donor_self_nll=floor)
     if full["transfer"] is not None:
         assert full["transfer"] == pytest.approx(1.0, abs=1e-5)
+
+
+def test_content_z_needs_two_controls_and_scales_by_their_spread():
+    assert probe.content_z(0.5, [0.1]) is None
+    assert probe.content_z(None, [0.1, 0.2]) is None
+    stats = probe.content_z(0.5, [0.1, 0.2, 0.3])
+    assert stats["mean"] == pytest.approx(0.2)
+    assert stats["std"] == pytest.approx(0.1)
+    assert stats["z"] == pytest.approx(3.0)
+    assert stats["controls"] == 3
+    assert probe.content_z(0.5, [0.2, 0.2])["z"] is None
+
+
+def test_verdict_uses_the_z_score_when_present():
+    noisy = {"transfer": 0.3, "content_gain": 0.2, "content_z": {"z": 0.8, "mean": 0.1, "std": 0.25, "controls": 3}}
+    assert probe.verdict(noisy) == "no better than random"
+    clear = {"transfer": 0.3, "content_z": {"z": 3.5, "mean": 0.05, "std": 0.07, "controls": 3}}
+    assert probe.verdict(clear) == "contributes"
